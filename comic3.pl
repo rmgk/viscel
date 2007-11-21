@@ -5,7 +5,7 @@ use strict;
 use Config::IniHash;
 use vars qw($VERSION);
 
-$VERSION = '3.36';
+$VERSION = '3.38';
 
 my $TERM = 0;
 $SIG{'INT'} = sub { 
@@ -51,7 +51,7 @@ print "Enter zum Beenden";<>;
 	
 	use strict;
 	use Config::IniHash;
-	
+
 
 	sub new {
 		my $self = {};
@@ -64,9 +64,9 @@ print "Enter zum Beenden";<>;
 		
 		$self->chk_dir();
 		
-		my $dat = ReadINI('./data/'.$self->name.'.dat',{'case'=>'preserve'});
+		my $dat = ReadINI('./data/'.$self->name.'.dat',{'case'=>'preserve', 'sectionorder' => 1});
 		$self->{dat} = $dat || {};
-		
+		unshift(@{$self->{dat}->{__SECTIONS__}},'__CFG__') unless $self->{dat}->{__SECTIONS__}->[0] eq '__CFG__';
 		
 		
 		unless (defined $self->{usr}->{url_current}) {
@@ -144,7 +144,7 @@ print "Enter zum Beenden";<>;
 				($urls[1] =~ m:#$:) or
 				($self->{cfg}->{all_next_additional_url} and ($url =~ m#$self->{cfg}->{all_next_additional_url}#))
 			) ;
-			unless ($self->{not_goto}) {
+			unless ($self->{not_goto} or $self->curr->{dummy}) {
 				$self->{usr}->{url_current}  = $urls[1];
 				$self->status("URL_CURRENT: ".$self->{usr}->{url_current} ,0);
 			}
@@ -208,6 +208,33 @@ print "Enter zum Beenden";<>;
 		return 1;
 	}
 
+	sub chk_strips {
+		my $self = shift;
+		my $b = 1;
+		my $file = $self->{dat}->{__CFG__}->{first};
+		$self->status("UEBERPRUEFE STRIPS",3);
+		while( $b and !$TERM ) {
+			unless (-e './strips/' . $self->name . '/' . $file) {
+				$self->status("NICHT VORHANDEN: " . $self->name . '/' . $file,3);
+				my $res = lwpsc::getstore($self->{dat}->{$file}->{surl},'./strips/' . $self->name . '/' . $file);
+				if (($res >= 200) and  ($res < 300)) {
+					$self->status("GESPEICHERT: " . $file,3);
+					return 200;
+				}
+				else {
+					$self->status("FEHLER BEIM SPEICHERN: " . $self->{dat}->{$file}->{surl} . '->' . $file,3);
+				}
+			}
+			if ($self->{dat}->{$file}->{next} and ($self->{dat}->{$file}->{next} ne $file)) {
+				$file = $self->{dat}->{$file}->{next};
+			}
+			else {
+				$b = 0;
+			}
+		}
+		
+	}
+	
 	sub DESTROY {
 		my $self = shift;
 		$self->status('DESTROYED: '. $self->name,1);
@@ -255,9 +282,11 @@ print "Enter zum Beenden";<>;
 		return $self->{prev} if $self->{prev};
 		my @sides = $self->side_urls();
 		my $url = shift || $sides[0];
-		return if 	($url eq $self->{cfg}->{url_home}) or
-					($self->{cfg}->{not_goto} and ($url =~ m#$self->{cfg}->{not_goto}#i)) or
-					($self->{cfg}->{never_goto} and ($url =~ m#$self->{cfg}->{never_goto}#i));
+		return if 	(
+						($self->url eq $self->{cfg}->{url_home}) or
+						($self->{cfg}->{not_goto} and ($url =~ m#$self->{cfg}->{not_goto}#i)) or
+						($self->{cfg}->{never_goto} and ($url =~ m#$self->{cfg}->{never_goto}#i))
+					);
 		if ($url) {
 			$self->{prev} = page::new($self->{cfg}, $self->{dat},$self->{cmc},$url);
 			$self->{prev}->{next} = $self;
@@ -270,7 +299,10 @@ print "Enter zum Beenden";<>;
 		return $self->{next} if $self->{next};
 		my @sides = $self->side_urls();
 		my $url = shift || $sides[1];
-		return if ($self->{cfg}->{never_goto} and ($url =~ m#$self->{cfg}->{never_goto}#i));
+		return if 	(
+						($url eq $self->{cfg}->{url_home}) or
+						(($self->{cfg}->{never_goto}) and ($url =~ m#$self->{cfg}->{never_goto}#i))
+					);
 		if ($url and ($url ne $self->url)) {
 			$self->{next} = page::new($self->{cfg}, $self->{dat},$self->{cmc},$url);
 			$self->{next}->{prev} = $self;
@@ -331,22 +363,20 @@ print "Enter zum Beenden";<>;
 		foreach my $fil (@filter) {
 			if (($fil =~ m#prev|back|prior#i) and (!$prev)) {
 				if ($fil =~ m#href=["']?(.*?)["' >]#i) {
-					$prev = $1;
+					$prev = $prev || $1;
 					next if (($prev =~ m#\.jpe?g$|\.png$|\.gif$#) or
 							(($prev =~ m#http://#) and !(($prev =~ m#$self->{cfg}->{url_home}#) or ($prev =~ m#$self->{cfg}->{add_url_home}#))));
-					last;
 				}
 			}
 			if (($fil =~ m#next|forward|ensuing#i) and (!$next)) {
 				if ($fil =~ m#href=["']?(.*?)["' >]#i) {
-					$next = $1;
+					$next = $next || $1;
 					next if (($next =~ m#\.jpe?g$|\.png$|\.gif$#) or
 							(($next =~ m#http://#) and !(($next =~ m#$self->{cfg}->{url_home}#) or ($next =~ m#$self->{cfg}->{add_url_home}#))));
-					last;
 				}
 			}
 		}
-	return ($prev,$next);
+		return ($prev,$next);
 	}
 
 	sub strips {
@@ -355,6 +385,7 @@ print "Enter zum Beenden";<>;
 		unless ($self->{strips}->[0]) {
 			$self->{strips}->[0] =  "dummy|" . $self->url;
 			$self->{strips}->[0] =~ s#/#+#g;
+			$self->{dummy} = 1;
 			$self->status("KEINE STRIPS: ".$self->url,4)
 		}
 		return $self->{strips};
@@ -547,7 +578,7 @@ print "Enter zum Beenden";<>;
 	sub save {
 		my $self = shift;
 		my $strip = shift;
-		return 0 if ($strip =~ m/dummy\|/);
+		return 0 if ($self->{dummy});
 		my $file_name = $self->get_file_name($strip);
 		if (open(TMP,, "./strips/".$self->name."/$file_name")) {
 			close(TMP);
@@ -618,6 +649,7 @@ print "Enter zum Beenden";<>;
 			$one =~ s/\s+/ /gs;
 			push(@allout,$one) if ($one);
 		}
+		push(@{$self->{dat}->{__SECTIONS__}},$file) unless defined $self->{dat}->{$file};
 		$self->{dat}->{$file}->{'title'} = join(' || ',@allout);
 		$self->{dat}->{$file}->{url} = $self->url;
 		$self->{dat}->{$file}->{surl} = $surl;
@@ -631,6 +663,7 @@ print "Enter zum Beenden";<>;
 		my $self = shift;
 		my $surl = shift;
 		my $url = $self->url();
+		return $surl if ($self->{dummy});
 		my $filename = $surl;
 		$filename =~ s#^.*/##;
 		
