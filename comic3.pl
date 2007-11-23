@@ -5,7 +5,7 @@ use strict;
 use Config::IniHash;
 use vars qw($VERSION);
 
-$VERSION = '3.38';
+$VERSION = '3.40';
 
 my $TERM = 0;
 $SIG{'INT'} = sub { 
@@ -15,32 +15,51 @@ $SIG{'INT'} = sub {
 
 
 print "remember: images must not be redistributed without the authors approval\n";
-		
-my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
-my $user = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
 
-my @comics;
-if ($user->{_CFG_}->{get} eq 'all') {
-	@comics = @{$user->{'__SECTIONS__'}};
+
+die 'no comic.ini' unless(-e 'comic.ini');
+my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
+my $user;
+my $newuser = 0;
+if (-e 'user.ini') {
+	$user = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
 }
 else {
-	@comics = split(/\s*,\s*/,$user->{_CFG_}->{get});
+	$newuser = 1;
+	$user = {};
+	print "keine user.ini gefunden, es wird versucht strips auf den aktuellen stand der dat zu bringen\n";
 }
-#foreach my $comic (@{$comics->{'__SECTIONS__'}}) { 
-#foreach my $comic ('Catlegend') { 
+my $datcfg = {};
+my $datcfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1}) if (-e 'data/_CFG_');
+
+my @comics;
+if ($newuser) {
+	@comics = @{$comics->{'__SECTIONS__'}};
+}
+else {
+	if ($user->{_CFG_}->{get} eq 'all') {
+		@comics = @{$user->{'__SECTIONS__'}};
+	}
+	else {
+		@comics = split(/\s*,\s*/,$user->{_CFG_}->{get});
+	}
+}
+
 foreach my $comic (@comics) {
 	next if ((defined $user->{_CFG_}->{not_get} and ($comic =~ m/$user->{_CFG_}->{not_get}/i)) or ($comic eq '_CFG_')) or
 			((time - $user->{_CFG_}->{update_interval}) < $user->{$comic}->{last_update}) or
 			($user->{$comic}->{hiatus});
-	my $c = comic::new($comics->{$comic},$user->{$comic});
-
-	#print $c->curr->all_strips;
-	#print $c->prev;
-	$c->get_all();
-	#print @{$c->curr->strip_urls}; 
+	my $c = comic::new($comics->{$comic},$user->{$comic},\%{$datcfg->{$comic}});
+	
+	if ($newuser) {
+		$c->chk_strips();
+	}
+	else {
+		$c->get_all();
+	}
 	$c->save_dat;
-	#$user->{_CFG_}->{not_get} .= '|^' . $comic . '$';
 	WriteINI("user.ini",$user);
+	WriteINI('data/_CFG_',$datcfg);
 	$c->release_pages();
 	last if $TERM;
 }
@@ -57,6 +76,7 @@ print "Enter zum Beenden";<>;
 		my $self = {};
 		$self->{cfg} = shift;
 		$self->{usr} = shift;
+		my $datcfg = shift;
 		bless $self;
 		
 		my $l = length($self->name);
@@ -66,17 +86,20 @@ print "Enter zum Beenden";<>;
 		
 		my $dat = ReadINI('./data/'.$self->name.'.dat',{'case'=>'preserve', 'sectionorder' => 1});
 		$self->{dat} = $dat || {};
-		unshift(@{$self->{dat}->{__SECTIONS__}},'__CFG__') unless $self->{dat}->{__SECTIONS__}->[0] eq '__CFG__';
-		
+		$self->{dat}->{__CFG__} = $datcfg;
+		#unshift(@{$self->{dat}->{__SECTIONS__}},'__CFG__') unless $self->{dat}->{__SECTIONS__}->[0] eq '__CFG__';
 		
 		unless (defined $self->{usr}->{url_current}) {
 			$self->{usr}->{url_current} = ($self->split_url($self->{cfg}->{url_start}))[1];
+			$self->{dat}->{__CFG__}->{first} = $self->curr->file(0);
 		}
 		return $self;
 	}
 	
 	sub save_dat {
 		my $self = shift;
+		undef $self->{dat}->{__CFG__};
+		delete $self->{dat}->{__CFG__};
 		WriteINI('./data/'.$self->name.'.dat',$self->{dat});
 		$self->status("GESPEICHERT: " .$self->name.".dat",0)
 	}
@@ -212,17 +235,25 @@ print "Enter zum Beenden";<>;
 		my $self = shift;
 		my $b = 1;
 		my $file = $self->{dat}->{__CFG__}->{first};
+		unless ($file) {
+			$self->status("KEIN FIRST",3);
+			return;
+		}		
 		$self->status("UEBERPRUEFE STRIPS",3);
 		while( $b and !$TERM ) {
-			unless (-e './strips/' . $self->name . '/' . $file) {
-				$self->status("NICHT VORHANDEN: " . $self->name . '/' . $file,3);
-				my $res = lwpsc::getstore($self->{dat}->{$file}->{surl},'./strips/' . $self->name . '/' . $file);
-				if (($res >= 200) and  ($res < 300)) {
-					$self->status("GESPEICHERT: " . $file,3);
-					return 200;
+			unless ($file =~ m/^dummy\|/i) {
+				unless (-e './strips/' . $self->name . '/' . $file) {
+						$self->status("NICHT VORHANDEN: " . $self->name . '/' . $file,3);
+						my $res = lwpsc::getstore($self->{dat}->{$file}->{surl},'./strips/' . $self->name . '/' . $file);
+						if (($res >= 200) and  ($res < 300)) {
+							$self->status("GESPEICHERT: " . $file,3);
+						}
+						else {
+							$self->status("FEHLER BEIM SPEICHERN: " . $self->{dat}->{$file}->{surl} . '->' . $file,3);
+						}
 				}
 				else {
-					$self->status("FEHLER BEIM SPEICHERN: " . $self->{dat}->{$file}->{surl} . '->' . $file,3);
+					$self->status("VORHANDEN: " . $file , 3);
 				}
 			}
 			if ($self->{dat}->{$file}->{next} and ($self->{dat}->{$file}->{next} ne $file)) {
@@ -232,7 +263,6 @@ print "Enter zum Beenden";<>;
 				$b = 0;
 			}
 		}
-		
 	}
 	
 	sub DESTROY {
@@ -283,13 +313,16 @@ print "Enter zum Beenden";<>;
 		my @sides = $self->side_urls();
 		my $url = shift || $sides[0];
 		return if 	(
-						($self->url eq $self->{cfg}->{url_home}) or
+						($self->url eq $self->{cfg}->{url_start}) or
 						($self->{cfg}->{not_goto} and ($url =~ m#$self->{cfg}->{not_goto}#i)) or
 						($self->{cfg}->{never_goto} and ($url =~ m#$self->{cfg}->{never_goto}#i))
 					);
 		if ($url) {
 			$self->{prev} = page::new($self->{cfg}, $self->{dat},$self->{cmc},$url);
 			$self->{prev}->{next} = $self;
+		}
+		else {
+			$self->status("FEHLER kein prev: " . $self->url,4);
 		}
 		return $self->{prev};
 	}
@@ -300,7 +333,7 @@ print "Enter zum Beenden";<>;
 		my @sides = $self->side_urls();
 		my $url = shift || $sides[1];
 		return if 	(
-						($url eq $self->{cfg}->{url_home}) or
+						($url eq $self->{cfg}->{url_start}) or
 						(($self->{cfg}->{never_goto}) and ($url =~ m#$self->{cfg}->{never_goto}#i))
 					);
 		if ($url and ($url ne $self->url)) {

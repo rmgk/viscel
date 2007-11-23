@@ -8,11 +8,12 @@ use Config::IniHash;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '1.271';
+$VERSION = '1.3';
 my $dat = {};
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
 my $usr = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
+my $cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
 
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
@@ -29,6 +30,7 @@ while (my $c = $d->accept) {
 				$res->content(cc($r->url->path));
 				$c->send_response($res);
 				WriteINI("user.ini",$usr);
+				WriteINI('data/_CFG_',$cfg);
 			}
 		}
 		$c->close;
@@ -63,14 +65,14 @@ sub cc {
 			
 			$kategorien{$usr->{$comic}->{kategorie}} = ("-"x 20) .$usr->{$comic}->{kategorie}. ("-"x 20)."<br>" unless $kategorien{$usr->{$comic}->{kategorie}} ;
 			$kategorien{$usr->{$comic}->{kategorie}} .= qq(<a href="/$comic.ndx">$comic</a> 
-				<a href="/$comic/$usr->{$comic}->{'first'}.strp">Anfang<a> 
+				<a href="/$comic/$cfg->{$comic}->{'first'}.strp">Anfang<a> 
 				<a href="/$comic/$usr->{$comic}->{'aktuell'}.strp">Aktuell</a> 
-				<a href="/$comic/$usr->{$comic}->{'last'}.strp">Ende</a> 
+				<a href="/$comic/$cfg->{$comic}->{'last'}.strp">Ende</a> 
 				<a href="/$comic/_kategorie_">Kategorie</a> 
-				$usr->{$comic}->{strip_count} $usr->{$comic}->{strips_counted}
+				$cfg->{$comic}->{strip_count} $cfg->{$comic}->{strips_counted}
 				<br>\n);
-			$kat_count{$usr->{$comic}->{kategorie}} += $usr->{$comic}->{strip_count};
-			$kat_counted{$usr->{$comic}->{kategorie}} += $usr->{$comic}->{strips_counted};
+			$kat_count{$usr->{$comic}->{kategorie}} += $cfg->{$comic}->{strip_count};
+			$kat_counted{$usr->{$comic}->{kategorie}} += $cfg->{$comic}->{strips_counted};
 			
 		}
 		foreach my $key (@Kategorien) {
@@ -108,7 +110,7 @@ sub cc {
 		load($comic);
 		unless ($index{$comic}) {
 			print "erstelle index ...\n";
-			my $strip = $usr->{$comic}->{'first'};
+			my $strip = $cfg->{$comic}->{'first'};
 			
 			$index{$comic} .='<body bgcolor="#000000">';
 			my $i;
@@ -178,7 +180,7 @@ sub load {
 		print "$comic.dat geladen\n";
 		$dat->{$comic} = ReadINI("./data/$comic.dat",{'case'=>'preserve'});
 		my @strips = keys %{$dat->{$comic}};
-		unless (defined $usr->{$comic}->{first}) {
+		unless (defined $cfg->{$comic}->{first}) {
 			
 			my $first = $strips[0];
 			while ($dat->{$comic}->{$first}->{prev}) {
@@ -186,10 +188,10 @@ sub load {
 				$first = $dat->{$comic}->{$first}->{prev};
 				print "zurueck: ". $dat->{$comic}->{$first}->{'next'} ." -> " . $first . "\n";
 			}	
-			$usr->{$comic}->{first} = $first;
+			$cfg->{$comic}->{first} = $first;
 		}
-		$usr->{$comic}->{strip_count} = $#strips +1;
-		my $point = $usr->{$comic}->{first};
+		$cfg->{$comic}->{strip_count} = $#strips +1;
+		my $point = $cfg->{$comic}->{first};
 		my $i = 1;
 		while ($dat->{$comic}->{$point}->{next}) {
 			if ($point eq $dat->{$comic}->{$point}->{'next'}) {
@@ -204,7 +206,7 @@ sub load {
 
 			
 		}
-		$usr->{$comic}->{last} = $point;
-		$usr->{$comic}->{strips_counted} = $i;
+		$cfg->{$comic}->{last} = $point;
+		$cfg->{$comic}->{strips_counted} = $i;
 	}
 }
