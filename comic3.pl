@@ -5,7 +5,7 @@ use strict;
 use Config::IniHash;
 use vars qw($VERSION);
 
-$VERSION = '3.40';
+$VERSION = '3.42';
 
 my $TERM = 0;
 $SIG{'INT'} = sub { 
@@ -166,8 +166,8 @@ print "Enter zum Beenden";<>;
 				($urls[1] =~ m#(index|main)\.(php|html?)$#i) or 
 				($urls[1] =~ m:#$:) or
 				($self->{cfg}->{all_next_additional_url} and ($url =~ m#$self->{cfg}->{all_next_additional_url}#))
-			) ;
-			unless ($self->{not_goto} or $self->curr->{dummy}) {
+			);
+			unless ($self->{not_goto} or $self->curr->dummy) {
 				$self->{usr}->{url_current}  = $urls[1];
 				$self->status("URL_CURRENT: ".$self->{usr}->{url_current} ,0);
 			}
@@ -223,7 +223,7 @@ print "Enter zum Beenden";<>;
 		close LOG;
 		return 1 unless $level > 1;
 		print $status . "\n";
-		if ($level == 4) {
+		if ($level == 5) {
 			open(ERR,">>err.txt");
 			print ERR $self->name() ." ERROR: " . $status . "\n";
 			close ERR;
@@ -260,6 +260,8 @@ print "Enter zum Beenden";<>;
 				$file = $self->{dat}->{$file}->{next};
 			}
 			else {
+				my @url = $self->split_url($self->{dat}->{$file}->{url});
+				$self->{usr}->{url_current} = $url[1] if $url[1];
 				$b = 0;
 			}
 		}
@@ -322,7 +324,7 @@ print "Enter zum Beenden";<>;
 			$self->{prev}->{next} = $self;
 		}
 		else {
-			$self->status("FEHLER kein prev: " . $self->url,4);
+			$self->status("FEHLER kein prev: " . $self->url,5);
 		}
 		return $self->{prev};
 	}
@@ -422,6 +424,12 @@ print "Enter zum Beenden";<>;
 			$self->status("KEINE STRIPS: ".$self->url,4)
 		}
 		return $self->{strips};
+	}
+	
+	sub dummy {
+		my $self = shift;
+		$self->strips;
+		return $self->{dummy};
 	}
 
 	sub strip_urls {
@@ -611,7 +619,7 @@ print "Enter zum Beenden";<>;
 	sub save {
 		my $self = shift;
 		my $strip = shift;
-		return 0 if ($self->{dummy});
+		return 0 if ($self->dummy);
 		my $file_name = $self->get_file_name($strip);
 		if (open(TMP,, "./strips/".$self->name."/$file_name")) {
 			close(TMP);
@@ -626,7 +634,7 @@ print "Enter zum Beenden";<>;
 				return 200;
 			}
 			else {
-				$self->status("FEHLER beim herunterladen: " . $res . " bei " . $strip . " -> " . $file_name ,4);
+				$self->status("FEHLER beim herunterladen: " . $res . " bei " . $strip . " -> " . $file_name ,5);
 				$self->status("ERNEUT speichern: " . $strip . " -> " . $file_name ,3);
 				$res = lwpsc::getstore($strip,"./strips/".$self->name."/$file_name");
 				if (($res >= 200) and  ($res < 300)) {
@@ -696,7 +704,7 @@ print "Enter zum Beenden";<>;
 		my $self = shift;
 		my $surl = shift;
 		my $url = $self->url();
-		return $surl if ($self->{dummy});
+		return $surl if ($self->dummy);
 		my $filename = $surl;
 		$filename =~ s#^.*/##;
 		
