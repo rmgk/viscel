@@ -5,7 +5,7 @@ use strict;
 use Config::IniHash;
 use vars qw($VERSION);
 
-$VERSION = '3.42';
+$VERSION = '3.43';
 
 my $TERM = 0;
 $SIG{'INT'} = sub { 
@@ -27,28 +27,20 @@ if (-e 'user.ini') {
 else {
 	$newuser = 1;
 	$user = {};
+	$user->{_CFG_}->{update_interval} = 25000;
 	print "keine user.ini gefunden, es wird versucht strips auf den aktuellen stand der dat zu bringen\n";
 }
 my $datcfg = {};
 my $datcfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1}) if (-e 'data/_CFG_');
 
 my @comics;
-if ($newuser) {
-	@comics = @{$comics->{'__SECTIONS__'}};
-}
-else {
-	if ($user->{_CFG_}->{get} eq 'all') {
-		@comics = @{$user->{'__SECTIONS__'}};
-	}
-	else {
-		@comics = split(/\s*,\s*/,$user->{_CFG_}->{get});
-	}
-}
+@comics = @{$comics->{'__SECTIONS__'}};
 
 foreach my $comic (@comics) {
-	next if ((defined $user->{_CFG_}->{not_get} and ($comic =~ m/$user->{_CFG_}->{not_get}/i)) or ($comic eq '_CFG_')) or
+	next if (
 			((time - $user->{_CFG_}->{update_interval}) < $user->{$comic}->{last_update}) or
-			($user->{$comic}->{hiatus});
+			($user->{$comic}->{hiatus})
+			);
 	my $c = comic::new($comics->{$comic},$user->{$comic},\%{$datcfg->{$comic}});
 	
 	if ($newuser) {
@@ -87,7 +79,6 @@ print "Enter zum Beenden";<>;
 		my $dat = ReadINI('./data/'.$self->name.'.dat',{'case'=>'preserve', 'sectionorder' => 1});
 		$self->{dat} = $dat || {};
 		$self->{dat}->{__CFG__} = $datcfg;
-		#unshift(@{$self->{dat}->{__SECTIONS__}},'__CFG__') unless $self->{dat}->{__SECTIONS__}->[0] eq '__CFG__';
 		
 		unless (defined $self->{usr}->{url_current}) {
 			$self->{usr}->{url_current} = ($self->split_url($self->{cfg}->{url_start}))[1];
