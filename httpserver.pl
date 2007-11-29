@@ -12,7 +12,13 @@ $VERSION = '1.3';
 my $dat = {};
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
-my $usr = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
+my $usr
+if (-e 'server.ini') {
+	$usr = ReadINI('server.ini',{'case'=>'preserve', 'sectionorder' => 1});
+}
+else {
+	$usr = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
+}
 my $cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
 
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
@@ -29,7 +35,7 @@ while (my $c = $d->accept) {
 			else {
 				$res->content(cc($r->url->path));
 				$c->send_response($res);
-				WriteINI("user.ini",$usr);
+				WriteINI("server.ini",$usr);
 				WriteINI('data/_CFG_',$cfg);
 			}
 		}
