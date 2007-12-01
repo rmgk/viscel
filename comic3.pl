@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
+#23:21 01.12.2007
 
 use strict;
 use Config::IniHash;
@@ -57,6 +58,8 @@ foreach my $comic (@comics) {
 }
 
 print "Enter zum Beenden";<>;
+
+exit;
 
 {	package comic;
 	
@@ -625,7 +628,7 @@ print "Enter zum Beenden";<>;
 				return 200;
 			}
 			else {
-				$self->status("FEHLER beim herunterladen: " . $res . " bei " . $strip . " -> " . $file_name ,5);
+				$self->status("FEHLER beim herunterladen: " . $res . " url: ". $self->url ." => " . $strip . " -> " . $file_name ,5);
 				$self->status("ERNEUT speichern: " . $strip . " -> " . $file_name ,3);
 				$res = lwpsc::getstore($strip,"./strips/".$self->name."/$file_name");
 				if (($res >= 200) and  ($res < 300)) {

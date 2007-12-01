@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
+#18:38 01.12.2007
 
 use HTTP::Daemon;
 use HTTP::Status;
@@ -12,7 +13,7 @@ $VERSION = '1.3';
 my $dat = {};
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
-my $usr
+my $usr;
 if (-e 'server.ini') {
 	$usr = ReadINI('server.ini',{'case'=>'preserve', 'sectionorder' => 1});
 }
