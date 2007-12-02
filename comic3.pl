@@ -58,7 +58,6 @@ foreach my $comic (@comics) {
 }
 
 print "Enter zum Beenden";<>;
-
 exit;
 
 {	package comic;
@@ -381,7 +380,7 @@ exit;
 	sub try_get_side_url_parts {
 		my $self = shift;
 		my $body = $self->body();
-		my @aref = ($body =~ m#(<a .*?>.*?</a>)#gis); 
+		my @aref = ($body =~ m#(<a\s+.*?>.*?</a>)#gis); 
 		my @filter;
 		foreach my $as (@aref) {
 			$as =~ s#([^&])&amp;#\1&#;
@@ -454,7 +453,7 @@ exit;
 	sub try_get_strip_urls_part {
 		my $self = shift;
 		my $body = $self->body();
-		my @urls = ($body =~ m/<ima?ge?.*?src=["']?(.*?)["' >].*?>/gis);
+		my @urls = ($body =~ m/<ima?ge?.*?src\s*=\s*["']?(.*?)["' >].*?>/gis);
 		my @return;
 		my @bad_return;
 		foreach my $url (@urls) {
