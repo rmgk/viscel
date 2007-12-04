@@ -40,7 +40,7 @@ my @comics;
 foreach my $comic (@comics) {
 	next if (
 			((time - $user->{_CFG_}->{update_interval}) < $user->{$comic}->{last_update}) or
-			($user->{$comic}->{hiatus})
+			($user->{$comic}->{hiatus}) or ($comics->{$comic}->{broken})
 			);
 	my $c = comic::new($comics->{$comic},$user->{$comic},\%{$datcfg->{$comic}});
 	
@@ -287,6 +287,13 @@ exit;
 		unless ($self->{body}) {
 			$self->{'body'} = lwpsc::get($self->url);
 			$self->status("BODY angefordert: " . $self->url,1);
+			unless ($self->{body}) {
+				$self->{'body'} = lwpsc::get($self->url);
+				unless ($self->{body}) {
+					$self->status("FEHLER: body nicht vorhanden : " . $self->url,5);
+					return 0;
+				}
+			}
 		}
 		return $self->{'body'};
 	}
@@ -486,7 +493,7 @@ exit;
 				next;
 			}
 			
-			if ($url =~ m#comics?/|/pages?/|/strips?/#) {
+			if ($url =~ m#comics?/|(?:^|/)pages?/|(?:^|/)strips?/#i) {
 				push(@return,$url);
 				next;
 			}
@@ -566,11 +573,13 @@ exit;
 	
 	sub all_strips {
 		my $self = shift;
+		return 0 unless $self->body;
 		foreach my $strip (@{$self->strips}) {
 			$self->title($strip);
 			$self->save($strip);
 		}
 		$self->index_all();
+		return 1;
 	}
 	
 	sub index_all {
@@ -627,7 +636,7 @@ exit;
 				return 200;
 			}
 			else {
-				$self->status("FEHLER beim herunterladen: " . $res . " url: ". $self->url ." => " . $strip . " -> " . $file_name ,5);
+				$self->status("FEHLER beim herunterladen: " . $res . " url: ". $self->url ." => " . $strip . " -> " . $file_name ,4);
 				$self->status("ERNEUT speichern: " . $strip . " -> " . $file_name ,3);
 				$res = lwpsc::getstore($strip,"./strips/".$self->name."/$file_name");
 				if (($res >= 200) and  ($res < 300)) {
