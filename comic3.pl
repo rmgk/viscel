@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#23:21 01.12.2007
+#18:58 05.12.2007
 
 use strict;
 use Config::IniHash;
 use vars qw($VERSION);
 
-$VERSION = '3.43';
+$VERSION = '3.44';
 
 my $TERM = 0;
 $SIG{'INT'} = sub { 
@@ -52,7 +52,13 @@ foreach my $comic (@comics) {
 	}
 	$c->save_dat;
 	WriteINI("user.ini",$user);
-	WriteINI('data/_CFG_',$datcfg);
+	{
+		my $tmpdatcfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
+		foreach (@{$datcfg->{__SECTIONS__}}) {
+			$tmpdatcfg->{$_}->{first} = $datcfg->{$_}->{first} || $tmpdatcfg->{$_}->{first};
+		}
+		WriteINI('data/_CFG_',$tmpdatcfg);
+	}
 	$c->release_pages();
 	last if $TERM;
 }
