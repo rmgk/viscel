@@ -187,7 +187,7 @@ sub load {
 	if (!$dat->{$comic} or ($comic eq 'index')) {
 		print "$comic.dat geladen\n";
 		$dat->{$comic} = ReadINI("./data/$comic.dat",{'case'=>'preserve'});
-		my @strips = keys %{$dat->{$comic}};
+		my @strips = @{$dat->{$comic}->{__SECTIONS__}};
 		unless (defined $cfg->{$comic}->{first}) {
 			
 			my $first = $strips[0];
