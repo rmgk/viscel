@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#18:38 01.12.2007
+#22:35 05.12.2007
 
 use HTTP::Daemon;
 use HTTP::Status;
@@ -9,7 +9,7 @@ use Config::IniHash;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '1.3';
+$VERSION = '1.4';
 my $dat = {};
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -34,6 +34,7 @@ while (my $c = $d->accept) {
 				$c->send_file_response("./strips/$1/$2");
 			}
 			else {
+				$cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
 				$res->content(cc($r->url->path));
 				$c->send_response($res);
 				WriteINI("server.ini",$usr);
