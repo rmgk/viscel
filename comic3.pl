@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#18:58 05.12.2007
+#17:23 08.12.2007
 
 use strict;
 use Config::IniHash;
@@ -296,7 +296,7 @@ exit;
 			unless ($self->{body}) {
 				$self->{'body'} = lwpsc::get($self->url);
 				unless ($self->{body}) {
-					$self->status("FEHLER: body nicht vorhanden : " . $self->url,5);
+					$self->status("FEHLER: body nicht vorhanden : " . $self->url,4);
 					return 0;
 				}
 			}
@@ -650,7 +650,7 @@ exit;
 					return 200;
 				}
 				else {
-					$self->status("ERNEUTER FEHLER datei wird nicht gespeichert: " . $res . " bei " . $strip . " -> " . $file_name ,5);
+					$self->status("ERNEUTER FEHLER datei wird nicht gespeichert: " . $res . " url: ". $self->url ." => " . $strip . " -> " . $file_name ,5);
 					return 0;
 				}
 			}

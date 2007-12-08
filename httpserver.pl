@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#22:35 05.12.2007
+#17:23 08.12.2007
 
 use HTTP::Daemon;
 use HTTP::Status;
@@ -25,6 +25,7 @@ my $cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
 my @Kategorien = qw(gelesen beobachten andere mekrwuerdig uninteressant);
+
 
 print "Please contact me at: <URL:", $d->url, "_index>\n";
 while (my $c = $d->accept) {
@@ -194,7 +195,7 @@ sub load {
 			while ($dat->{$comic}->{$first}->{prev}) {
 				last if $first eq $dat->{$comic}->{$first}->{prev};
 				$first = $dat->{$comic}->{$first}->{prev};
-				print "zurueck: ". $dat->{$comic}->{$first}->{'next'} ." -> " . $first . "\n";
+				print "zurueck: ". $comic."/".$dat->{$comic}->{$first}->{'next'} ." -> " . $first . "\n";
 			}	
 			$cfg->{$comic}->{first} = $first;
 		}
@@ -208,7 +209,7 @@ sub load {
 			}
 			else {
 				$i ++;
-				print "weiter: ". $point ." -> " . $dat->{$comic}->{$point}->{next} . "\n";
+				print "weiter: ". $comic."/".$point ." -> " . $dat->{$comic}->{$point}->{next} . "\n";
 				$point = $dat->{$comic}->{$point}->{next};
 			}
 
