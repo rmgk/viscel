@@ -42,7 +42,8 @@ foreach my $comic (@comics) {
 			((time - $user->{_CFG_}->{update_interval}) < $user->{$comic}->{last_update}) or
 			($user->{$comic}->{hiatus}) or ($comics->{$comic}->{broken})
 			);
-	my $c = comic::new($comics->{$comic},$user->{$comic},\%{$datcfg->{$comic}});
+	$datcfg->{$comic} = $datcfg->{$comic} || {};
+	my $c = comic::new($comics->{$comic},$user->{$comic},$datcfg->{$comic});
 	
 	if ($newuser) {
 		$c->chk_strips();
@@ -54,9 +55,9 @@ foreach my $comic (@comics) {
 	WriteINI("user.ini",$user);
 	{
 		my $tmpdatcfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
-		foreach (@{$datcfg->{__SECTIONS__}}) {
-			$tmpdatcfg->{$_}->{first} = $datcfg->{$_}->{first} || $tmpdatcfg->{$_}->{first};
-		}
+		$tmpdatcfg->{$comic}->{first} = $datcfg->{$comic}->{first} || $tmpdatcfg->{$comic}->{first};
+		print "$comic\n";
+		print $datcfg->{$comic}->{first} ." || ". $tmpdatcfg->{$comic}->{first} . "\n";
 		WriteINI('data/_CFG_',$tmpdatcfg);
 	}
 	$c->release_pages();
@@ -242,14 +243,14 @@ exit;
 		while( $b and !$TERM ) {
 			unless ($file =~ m/^dummy\|/i) {
 				unless (-e './strips/' . $self->name . '/' . $file) {
-						$self->status("NICHT VORHANDEN: " . $self->name . '/' . $file,3);
-						my $res = lwpsc::getstore($self->{dat}->{$file}->{surl},'./strips/' . $self->name . '/' . $file);
-						if (($res >= 200) and  ($res < 300)) {
-							$self->status("GESPEICHERT: " . $file,3);
-						}
-						else {
-							$self->status("FEHLER BEIM SPEICHERN: " . $self->{dat}->{$file}->{surl} . '->' . $file,3);
-						}
+					$self->status("NICHT VORHANDEN: " . $self->name . '/' . $file,3);
+					my $res = lwpsc::getstore($self->{dat}->{$file}->{surl},'./strips/' . $self->name . '/' . $file);
+					if (($res >= 200) and  ($res < 300)) {
+						$self->status("GESPEICHERT: " . $file,3);
+					}
+					else {
+						$self->status("FEHLER BEIM SPEICHERN: " . $self->{dat}->{$file}->{surl} . '->' . $file,3);
+					}
 				}
 				else {
 					$self->status("VORHANDEN: " . $file , 3);
