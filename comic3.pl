@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#14:02 08.01.2008
+#14:24 08.01.2008
 
 use strict;
 use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.50';
+$VERSION = '3.51';
 
 
 my $TERM = 0;
@@ -254,11 +254,13 @@ print "comic3.pl version $VERSION\n";
 		my @urls = $self->split_url($self->curr->url);
 		my $url = $urls[0] . $urls[1];
 		if ($urls[1]) {
+			my $not_goto = $self->cfg->{not_goto};
+			my $add_url = $self->cfg->{all_next_additional_url};
 			$self->{not_goto} = 1 if (
-				(($self->cfg->{'not_goto'}) and ($urls[1] =~ m#$self->cfg->{'not_goto'}#i)) or 
+				($not_goto and ($urls[1] =~ m#$not_goto#i)) or 
 				($urls[1] =~ m#(index|main)\.(php|html?)$#i) or 
 				($urls[1] =~ m:#$:) or
-				($self->cfg->{all_next_additional_url} and ($url =~ m#$self->cfg->{all_next_additional_url}#))
+				($add_url and ($url =~ m#$add_url#))
 			);
 			unless ($self->{not_goto} or $self->curr->dummy) {
 				$self->usr->{url_current}  = $urls[1];
@@ -380,6 +382,7 @@ print "comic3.pl version $VERSION\n";
 			$self->{'body'} = lwpsc::get($self->url);
 			$self->status("BODY angefordert: " . $self->url,'DEBUG');
 			unless ($self->{body}) {
+				sleep(1);
 				$self->{'body'} = lwpsc::get($self->url);
 				unless ($self->{body}) {
 					$self->status("FEHLER: body nicht vorhanden : " . $self->url,'ERR');
@@ -487,6 +490,7 @@ print "comic3.pl version $VERSION\n";
 		my $prev;
 		my $next;
 		foreach my $fil (@filter) {
+			next unless $fil;
 			if (($fil =~ m#prev|back|prior#i) and (!$prev)) {
 				if ($fil =~ m#href=["']?(.*?)["' >]#i) {
 					$prev = $prev || $1;
