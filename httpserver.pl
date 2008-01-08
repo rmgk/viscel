@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#17:23 08.12.2007
+#14:07 08.01.2008
 
 use HTTP::Daemon;
 use HTTP::Status;
@@ -9,17 +9,17 @@ use Config::IniHash;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '1.4';
+$VERSION = '1.5';
 my $dat = {};
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
 my $usr;
-if (-e 'server.ini') {
-	$usr = ReadINI('server.ini',{'case'=>'preserve', 'sectionorder' => 1});
-}
-else {
+#if (-e 'server.ini') {
+#	$usr = ReadINI('server.ini',{'case'=>'preserve', 'sectionorder' => 1});
+#}
+#else {
 	$usr = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
-}
+#}
 my $cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
 
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
@@ -38,8 +38,8 @@ while (my $c = $d->accept) {
 				$cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
 				$res->content(cc($r->url->path));
 				$c->send_response($res);
-				WriteINI("server.ini",$usr);
-				WriteINI('data/_CFG_',$cfg);
+				#WriteINI("server.ini",$usr);
+				#WriteINI('data/_CFG_',$cfg);
 			}
 		}
 		$c->close;
