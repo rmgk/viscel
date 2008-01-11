@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#14:24 08.01.2008
+#22:17 11.01.2008
 
 use strict;
 use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.51';
+$VERSION = '3.52';
 
 
 my $TERM = 0;
@@ -372,6 +372,7 @@ print "comic3.pl version $VERSION\n";
 		$self->url(shift);
 		$self->{cfg} = $self->{cfg} || $self->{cmc}->cfg;
 		$self->{dat} = $self->{dat} || $self->{cmc}->dat;
+		$self->{cfg}->{name} = $self->{cmc}->name;
 		$self->status("neue SEITE: ".$self->url,'DEBUG');
 		return $self;
 	}
@@ -887,6 +888,7 @@ print "comic3.pl version $VERSION\n";
 	    #require HTTP::Date;
 	    $ua = new LWP::UserAgent;  # we create a global UserAgent object
 	    $ua->agent("Comic");
+		$ua->timeout(15);
 	    $ua->env_proxy;
 		$ua->conn_cache(LWP::ConnCache->new());
 	}	
