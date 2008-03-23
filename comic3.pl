@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.52';
+$VERSION = '3.53';
 
 
 my $TERM = 0;
@@ -630,6 +630,11 @@ print "comic3.pl version $VERSION\n";
 			}	
 			if ($url_part =~ m#^https?://#) {
 				push(@return,$url_part);
+				next;
+			}
+			if ($self->{cfg}->{use_home_only}) {
+				$url_part =~ s#^[./]+##;
+				push(@return,$self->{cfg}->{'url_home'} . $url_part);
 				next;
 			}
 			if ($url_part =~ m#^\.\./\.\./(.*)#) {
