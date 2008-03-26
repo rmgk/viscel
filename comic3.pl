@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.53';
+$VERSION = '3.54';
 
 
 my $TERM = 0;
@@ -24,7 +24,7 @@ print "comic3.pl version $VERSION\n";
 	my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
 	my $user = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
 
-	unless ($user->{_CFG_}->{update_interval}) {
+	unless (defined $user->{_CFG_}->{update_interval}) {
 		$user->{_CFG_}->{update_interval} = 25000;
 		print "no update interval specified using default = 25000 seconds\n";
 	}
@@ -78,7 +78,7 @@ print "comic3.pl version $VERSION\n";
 		$self->status("-" x (10) . $self->name . "-" x (25 - length($self->name)),'UINFO');
 		$self->chk_dir;
 		
-		unless (defined $self->usr->{url_current}) {
+		unless ($self->usr->{url_current} ne '') {
 			$self->usr->{url_current} = ($self->split_url($self->cfg->{url_start}))[1];
 			$self->status("url_current auf ". $self->usr->{url_current} . " gesetzt",'UINFO');
 			$self->dat->{_CFG_}->{first} = $self->curr->file(0);
