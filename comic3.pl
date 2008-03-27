@@ -78,7 +78,7 @@ print "comic3.pl version $VERSION\n";
 		$self->status("-" x (10) . $self->name . "-" x (25 - length($self->name)),'UINFO');
 		$self->chk_dir;
 		
-		unless ($self->usr->{url_current} ne '') {
+		unless ((defined $self->usr->{url_current}) or ($self->usr->{url_current} ne '')) {
 			$self->usr->{url_current} = ($self->split_url($self->cfg->{url_start}))[1];
 			$self->status("url_current auf ". $self->usr->{url_current} . " gesetzt",'UINFO');
 			$self->dat->{_CFG_}->{first} = $self->curr->file(0);
@@ -248,15 +248,15 @@ print "comic3.pl version $VERSION\n";
 		return $self->curr->next(@_);
 	}
 	
-	sub goto_next() {
+	sub goto_next {
 		my $self = shift;
-		$self->curr($self->next(@_));
+		$self->curr($self->next(@_));	#die nächste seite wird die aktuelle seite
 		my @urls = $self->split_url($self->curr->url);
 		my $url = $urls[0] . $urls[1];
 		if ($urls[1]) {
 			my $not_goto = $self->cfg->{not_goto};
 			my $add_url = $self->cfg->{all_next_additional_url};
-			$self->{not_goto} = 1 if (
+			$self->{not_goto} = 1 if ( 
 				($not_goto and ($urls[1] =~ m#$not_goto#i)) or 
 				($urls[1] =~ m#(index|main)\.(php|html?)$#i) or 
 				($urls[1] =~ m:#$:) or
@@ -411,7 +411,7 @@ print "comic3.pl version $VERSION\n";
 		my @sides = $self->side_urls();
 		my $url = shift || $sides[0];
 		return if 	(
-						($self->url eq $self->{cfg}->{url_start}) or
+						($self->url eq $self->{cfg}->{url_start}) or #nicht zur start url
 						($self->{cfg}->{not_goto} and ($url =~ m#$self->{cfg}->{not_goto}#i)) or
 						($self->{cfg}->{never_goto} and ($url =~ m#$self->{cfg}->{never_goto}#i))
 					);
@@ -430,8 +430,8 @@ print "comic3.pl version $VERSION\n";
 		return $self->{next} if $self->{next};
 		my @sides = $self->side_urls();
 		my $url = shift || $sides[1];
-		return if 	(	!($url and ($url ne $self->url)) or
-						($url eq $self->{cfg}->{url_start}) or
+		return if 	(	!($url and ($url ne $self->url)) or	#nicht die eigene url
+						($url eq $self->{cfg}->{url_start}) or	#nicht die start url
 						(($self->{cfg}->{never_goto}) and ($url =~ m#$self->{cfg}->{never_goto}#i))
 					);
 					
