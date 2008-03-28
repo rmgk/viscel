@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.54';
+$VERSION = '3.55';
 
 
 my $TERM = 0;
@@ -213,7 +213,23 @@ print "comic3.pl version $VERSION\n";
 	
 	sub get_next {
 		my $self = shift;
-		$self->curr->all_strips;
+		my $strip_found = $self->curr->all_strips;
+		if (!$strip_found) { #wenn kein strip gefunden wurde
+			my @urls = $self->split_url($self->curr->url);
+			if ($urls[1] eq $self->usr->{url_current}) { # und dies die erste seite ist bei der gesucht wurde (url_current wird erst später gesetzt)
+				$self->status("kein strip gefunden - url current könnte beschädigt sein - versuche vorherige url zu finden",'WARN');
+				$self->{prev} = undef;
+				$self->{next} = undef;
+				my $try_url = $self->dat->{$self->dat->{__SECTIONS__}->[- (rand(3) + 2)]}->{url}; #wir einen zufälligen vorherigen eintrag aus der dat
+				if ($try_url) {
+					$self->status("versuche: " . $try_url,'WARN');
+					$self->curr(Page::new({"cmc" => $self},$try_url)); #und ändern current auf diesen wert
+				}
+				else {
+					$self->status("keine vorherige url gefunden",'WARN');
+				}
+			}
+		}
 		$self->curr->index_prev if $self->prev;
 		if ($self->next) {
 			$self->goto_next();
@@ -676,12 +692,13 @@ print "comic3.pl version $VERSION\n";
 	sub all_strips {
 		my $self = shift;
 		return 0 unless $self->body;
+		my $b = 0;
 		foreach my $strip (@{$self->strips}) {
 			$self->title($strip);
-			$self->save($strip);
+			$b += $self->save($strip); #rückgabe von 1 wenn erfolgreich
 		}
 		$self->index_all();
-		return 1;
+		return $b; #wir geben einen wahren wert zurück wenn mindestens ein strip erfolgreich geladen wurde.
 	}
 	
 	sub index_all {
