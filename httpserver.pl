@@ -150,7 +150,6 @@ sub cc {
 		my $comic = $1;
 		my $strip = $2;
 		my $bookmark = $3;
-		print "3 : $3 : 4 : $4\n";
 		my $return;
 		load($comic);
 		if ($strip) {
@@ -171,7 +170,6 @@ sub cc {
 				</body>)
 			;
 			$usr->{$comic}->{'aktuell'} = $strip;
-			print "bookmark : $bookmark\n";
 			$usr->{$comic}->{bookmark} = $strip if $bookmark;
 		}
 		else {
