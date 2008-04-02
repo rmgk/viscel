@@ -9,7 +9,7 @@ use Config::IniHash;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '1.6';
+$VERSION = '1.7';
 my $dat = {};
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -77,7 +77,8 @@ sub cc {
 			$kategorien{$usr->{$comic}->{kategorie}} = ("-"x 20) .$usr->{$comic}->{kategorie}. ("-"x 20)."<br>" unless $kategorien{$usr->{$comic}->{kategorie}} ;
 			$kategorien{$usr->{$comic}->{kategorie}} .= qq(<a href="/$comic.ndx">$comic</a> 
 				<a href="/$comic/$cfg->{$comic}->{'first'}.strp">Anfang<a> 
-				<a href="/$comic/$usr->{$comic}->{'aktuell'}.strp">Aktuell</a> 
+				<a href="/$comic/$usr->{$comic}->{'aktuell'}.strp">Aktuell</a>
+				<a href="/$comic/$usr->{$comic}->{bookmark}.strp">bookmark</a>
 				<a href="/$comic/$cfg->{$comic}->{'last'}.strp">Ende</a> 
 				<a href="/$comic/_kategorie_">Kategorie</a> 
 				$cfg->{$comic}->{strip_count} $cfg->{$comic}->{strips_counted}
@@ -145,9 +146,11 @@ sub cc {
 	#############################################################
 	#einzelne seite des strips
 	#############################################################
-	elsif ($url_path =~ m#^/(.*?)/(.*)\.strp$#) {
+	elsif ($url_path =~ m#^/(.*?)/(.*)\.strp(=bookmark)?$#) {
 		my $comic = $1;
 		my $strip = $2;
+		my $bookmark = $3;
+		print "3 : $3 : 4 : $4\n";
 		my $return;
 		load($comic);
 		if ($strip) {
@@ -163,17 +166,20 @@ sub cc {
 					<br><a href="/_index">Index</a>
 					<a href="$dat->{$comic}->{$strip}->{'url'}">Site</a>
 					<a href="/$comic.ndx">$comic</a> 
+					<br><a href="$strip.strp=bookmark">Bookmark</a>
 					</div>
 				</body>)
 			;
 			$usr->{$comic}->{'aktuell'} = $strip;
+			print "bookmark : $bookmark\n";
+			$usr->{$comic}->{bookmark} = $strip if $bookmark;
 		}
 		else {
 			$return = 
-				qq( <body bgcolor="#000000">
+				qq( <body bgcolor="#000000" text="#009900">
 					<div align="center">
-					<a href="/_index">
 					leider kein weiterer strip verfügbar
+					<a href="/_index">
 					<br>Index</a>
 					</div>
 				</body>)

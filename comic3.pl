@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.55';
+$VERSION = '3.56';
 
 
 my $TERM = 0;
@@ -214,13 +214,13 @@ print "comic3.pl version $VERSION\n";
 	sub get_next {
 		my $self = shift;
 		my $strip_found = $self->curr->all_strips;
-		if (!$strip_found) { #wenn kein strip gefunden wurde
+		if (!$strip_found and !$self->{vorheriges_nichtmehr_versuchen}) { #wenn kein strip gefunden wurde und wir es nciht schonmal probiert haben
 			my @urls = $self->split_url($self->curr->url);
 			if ($urls[1] eq $self->usr->{url_current}) { # und dies die erste seite ist bei der gesucht wurde (url_current wird erst später gesetzt)
 				$self->status("kein strip gefunden - url current könnte beschädigt sein - versuche vorherige url zu finden",'WARN');
 				$self->{prev} = undef;
 				$self->{next} = undef;
-				my $try_url = $self->dat->{$self->dat->{__SECTIONS__}->[- (rand(3) + 2)]}->{url}; #wir einen zufälligen vorherigen eintrag aus der dat
+				my $try_url = $self->dat->{$self->dat->{__SECTIONS__}->[- (rand(5) + 2)]}->{url}; #wir einen zufälligen vorherigen eintrag aus der dat
 				if ($try_url) {
 					$self->status("versuche: " . $try_url,'WARN');
 					$self->curr(Page::new({"cmc" => $self},$try_url)); #und ändern current auf diesen wert
@@ -228,8 +228,10 @@ print "comic3.pl version $VERSION\n";
 				else {
 					$self->status("keine vorherige url gefunden",'WARN');
 				}
+				$self->{vorheriges_nichtmehr_versuchen} = 1;
 			}
 		}
+		$self->{vorheriges_nichtmehr_versuchen} = 1;
 		$self->curr->index_prev if $self->prev;
 		if ($self->next) {
 			$self->goto_next();
@@ -508,18 +510,21 @@ print "comic3.pl version $VERSION\n";
 		my $next;
 		foreach my $fil (@filter) {
 			next unless $fil;
+			next if $fil =~ m#$self->{cfg}->{never_goto}#i;
 			if (($fil =~ m#prev|back|prior#i) and (!$prev)) {
 				if ($fil =~ m#href=["']?(.*?)["' >]#i) {
-					$prev = $prev || $1;
-					next if (($prev =~ m#\.jpe?g$|\.png$|\.gif$#) or
-							(($prev =~ m#http://#) and !(($prev =~ m#$self->{cfg}->{url_home}#) or ($prev =~ m#$self->{cfg}->{add_url_home}#))));
+					my $tmp_url = $1;
+					next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#) or
+							(($tmp_url =~ m#http://#) and !(($tmp_url =~ m#$self->{cfg}->{url_home}#) or ($$tmp_url =~ m#$self->{cfg}->{add_url_home}#))));
+					$prev = $tmp_url;
 				}
 			}
 			if (($fil =~ m#next|forward|ensuing#i) and (!$next)) {
 				if ($fil =~ m#href=["']?(.*?)["' >]#i) {
-					$next = $next || $1;
-					next if (($next =~ m#\.jpe?g$|\.png$|\.gif$#) or
-							(($next =~ m#http://#) and !(($next =~ m#$self->{cfg}->{url_home}#) or ($next =~ m#$self->{cfg}->{add_url_home}#))));
+					my $tmp_url = $1;
+					next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#) or
+							(($tmp_url =~ m#http://#) and !(($tmp_url =~ m#$self->{cfg}->{url_home}#) or ($tmp_url =~ m#$self->{cfg}->{add_url_home}#))));
+					$next = $tmp_url;
 				}
 			}
 		}
