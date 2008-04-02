@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.57';
+$VERSION = '3.58';
 
 
 my $TERM = 0;
@@ -644,6 +644,7 @@ print "comic3.pl version $VERSION\n";
 			$url_parts->[0] = $tmp;
 		}
 		foreach my $url_part (@{$url_parts}) {
+			$url_part =~ s/[\s]//gs;
 			next unless $url_part;
 			if ($url_part eq '#') {
 				push(@return,'');
