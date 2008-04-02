@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.56';
+$VERSION = '3.57';
 
 
 my $TERM = 0;
@@ -510,7 +510,7 @@ print "comic3.pl version $VERSION\n";
 		my $next;
 		foreach my $fil (@filter) {
 			next unless $fil;
-			next if $fil =~ m#$self->{cfg}->{never_goto}#i;
+			next if ($self->{cfg}->{never_goto}) and ($fil =~ m#$self->{cfg}->{never_goto}#i);
 			if (($fil =~ m#prev|back|prior#i) and (!$prev)) {
 				if ($fil =~ m#href=["']?(.*?)["' >]#i) {
 					my $tmp_url = $1;
