@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.58';
+$VERSION = '3.59';
 
 
 my $TERM = 0;
@@ -515,7 +515,9 @@ print "comic3.pl version $VERSION\n";
 				if ($fil =~ m#href=["']?(.*?)["' >]#i) {
 					my $tmp_url = $1;
 					next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#) or
-							(($tmp_url =~ m#http://#) and !(($tmp_url =~ m#$self->{cfg}->{url_home}#) or ($$tmp_url =~ m#$self->{cfg}->{add_url_home}#))));
+							(($tmp_url =~ m#http://#) and !(
+								($tmp_url =~ m#$self->{cfg}->{url_home}#) or 
+								($self->{cfg}->{add_url_home} and $tmp_url =~ m#$self->{cfg}->{add_url_home}#))));
 					$prev = $tmp_url;
 				}
 			}
@@ -523,7 +525,9 @@ print "comic3.pl version $VERSION\n";
 				if ($fil =~ m#href=["']?(.*?)["' >]#i) {
 					my $tmp_url = $1;
 					next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#) or
-							(($tmp_url =~ m#http://#) and !(($tmp_url =~ m#$self->{cfg}->{url_home}#) or ($tmp_url =~ m#$self->{cfg}->{add_url_home}#))));
+							(($tmp_url =~ m#http://#) and !(
+								($tmp_url =~ m#$self->{cfg}->{url_home}#) or 
+								($self->{cfg}->{add_url_home} and $tmp_url =~ m#$self->{cfg}->{add_url_home}#))));
 					$next = $tmp_url;
 				}
 			}
