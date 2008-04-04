@@ -649,7 +649,7 @@ print "comic3.pl version $VERSION\n";
 		foreach my $url_part (@{$url_parts}) {
 			next unless $url_part;
 			$url_part =~ s/[\s]//gs;
-			$url_part =~ s#([^&])&amp;#$1&#;
+			$url_part =~ s#([^&])&amp;#$1&#gs;
 			if ($url_part eq '#') {
 				push(@return,'');
 				next;
