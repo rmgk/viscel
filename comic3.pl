@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.59';
+$VERSION = '3.60';
 
 
 my $TERM = 0;
@@ -503,7 +503,6 @@ print "comic3.pl version $VERSION\n";
 		my @aref = ($body =~ m#(<a\s+.*?>.*?</a>)#gis); 
 		my @filter;
 		foreach my $as (@aref) {
-			$as =~ s#([^&])&amp;#$1&#;
 			push(@filter,$as) if ($as =~ m#(prev(ious)?[^iews]|next|[^be\s*]back[^ground]|forward|prior|ensuing)#gi);
 		}
 		my $prev;
@@ -648,8 +647,9 @@ print "comic3.pl version $VERSION\n";
 			$url_parts->[0] = $tmp;
 		}
 		foreach my $url_part (@{$url_parts}) {
-			$url_part =~ s/[\s]//gs;
 			next unless $url_part;
+			$url_part =~ s/[\s]//gs;
+			$url_part =~ s#([^&])&amp;#$1&#;
 			if ($url_part eq '#') {
 				push(@return,'');
 				next;
