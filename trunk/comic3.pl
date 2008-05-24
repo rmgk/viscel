@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.60';
+$VERSION = '3.61';
 
 
 my $TERM = 0;
@@ -17,7 +17,9 @@ $SIG{'INT'} = sub {
 		};
 
 print "remember: images must not be redistributed without the authors approval\n";
+print "press ctrl+c to abort (don't close it otherwise)\n";
 print "comic3.pl version $VERSION\n";
+
 
 {	#need to export each package to an own file ...just dont really know how O.o
 	use Config::IniHash;
@@ -77,6 +79,12 @@ print "comic3.pl version $VERSION\n";
 		
 		$self->status("-" x (10) . $self->name . "-" x (25 - length($self->name)),'UINFO');
 		$self->chk_dir;
+		
+		
+		unless (defined $self->cfg->{url_home}) {
+			$self->cfg->{url_home} = ($self->split_url($self->cfg->{url_start}))[0];
+			$self->status("url_home nicht gesetzt benutze: ". $self->cfg->{url_home},'WARN');
+		}
 		
 		unless ((defined $self->usr->{url_current}) or ($self->usr->{url_current} ne '')) {
 			$self->usr->{url_current} = ($self->split_url($self->cfg->{url_start}))[1];
@@ -320,7 +328,7 @@ print "comic3.pl version $VERSION\n";
 			WriteINI($self->{_DAT_CFG},$datcfg);
 			$self->status("GESPEICHERT: " .$self->{_DAT_CFG},'OUT');
 		}
-		{
+		{	#$self->dat->{_CFG_} wird gelöscht, vorsicht, dass man es danach nichtmehr braucht!
 			undef $self->dat->{_CFG_};
 			delete $self->dat->{_CFG_};
 			my $datfile = $self->{_DAT_FOL} . $self->name . $self->{_DAT_END};
