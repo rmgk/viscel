@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.61';
+$VERSION = '3.62';
 
 
 my $TERM = 0;
@@ -20,8 +20,9 @@ print "remember: images must not be redistributed without the authors approval\n
 print "press ctrl+c to abort (don't close it otherwise)\n";
 print "comic3.pl version $VERSION\n";
 
+my @opts = @ARGV;
 
-{	#need to export each package to an own file ...just dont really know how O.o
+{	#need to export each package to an own file ...just too lazy
 	use Config::IniHash;
 	my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
 	my $user = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
@@ -34,10 +35,19 @@ print "comic3.pl version $VERSION\n";
 	my @comics;
 	@comics = @{$comics->{__SECTIONS__}};
 	foreach my $comic (@comics) {
-		next if (
-			((time - $user->{_CFG_}->{update_interval}) < ($user->{$comic}->{last_update}||0)) or
-			($user->{$comic}->{hiatus}) or ($comics->{$comic}->{broken})
-			);
+		my $skip = 0;
+		if (@opts) {
+			for my $opt (@opts) {
+				$skip = 1 unless ($comic =~ m/$opt/i);
+			}
+		}
+		else {
+			$skip = 1 if (
+				(((time - $user->{_CFG_}->{update_interval}) < ($user->{$comic}->{last_update}||0)) or
+				($user->{$comic}->{hiatus}) or ($comics->{$comic}->{broken})
+				));
+		}
+		next if ($skip);
 		last if $TERM;
 		Comic::get_comic({"name" => $comic});
 		last if $TERM;
