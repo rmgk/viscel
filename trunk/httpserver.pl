@@ -225,7 +225,7 @@ sub load {
 			}
 			else {
 				$i ++;
-				print "weiter: ". $comic."/".$point ." -> " . $dat->{$comic}->{$point}->{next} . "\n";
+				print "weiter: ". $comic."/".$point ." -> " . $dat->{$comic}->{$point}->{next} . " $i<" . $cfg->{$comic}->{strip_count} . "\n";
 				$point = $dat->{$comic}->{$point}->{next};
 				last if ($i > $cfg->{$comic}->{strip_count});
 			}
