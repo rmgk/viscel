@@ -9,7 +9,7 @@ use Config::IniHash;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '1.7';
+$VERSION = '1.8';
 my $dat = {};
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -56,7 +56,7 @@ sub cc {
 	#index wird aufgerufen 
 	#############################################################
 	if ($url_path =~ m#/_index#) {
-		my $index = '<body text="#009900" bgcolor="#000000">';
+		my $index = '<body text="#009900" bgcolor="#000000"> <a href="_count_all">Load all strips (takes a while and needs a lot of memory)</a> <br>';
 		my %kategorien;
 		my %kat_count = undef;
 		my %kat_counted = undef;
@@ -94,6 +94,16 @@ sub cc {
 		$index .= '</body>';
 		return $index;
 	}
+	#############################################################
+	#alle comics laden
+	#############################################################
+	if ($url_path =~ m#/_count_all#) {
+		foreach my $comic (@{$usr->{__SECTIONS__}}) {
+			next if ($comic eq "_CFG_");
+			load($comic);
+		}
+	}
+	
 	#############################################################
 	#comic wird kategorisiert
 	#############################################################
@@ -217,9 +227,8 @@ sub load {
 				$i ++;
 				print "weiter: ". $comic."/".$point ." -> " . $dat->{$comic}->{$point}->{next} . "\n";
 				$point = $dat->{$comic}->{$point}->{next};
+				last if ($i > $cfg->{$comic}->{strip_count});
 			}
-
-			
 		}
 		$cfg->{$comic}->{last} = $point;
 		$cfg->{$comic}->{strips_counted} = $i;
