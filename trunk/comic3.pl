@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.62';
+$VERSION = '3.63';
 
 
 my $TERM = 0;
@@ -652,6 +652,11 @@ my @opts = @ARGV;
 			
 		}
 		@return = @bad_return unless $return[0];
+		
+		#delete doublicates
+		my (%seen);
+		@return = grep { !$seen{$_}++ } @return;
+		
 		return \@return;
 	}
 	
