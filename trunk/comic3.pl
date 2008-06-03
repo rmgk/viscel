@@ -7,7 +7,7 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '3.63';
+$VERSION = '3.64';
 
 
 my $TERM = 0;
@@ -825,10 +825,10 @@ my @opts = @ARGV;
 		my $it;
 		my $ia;
 		if ($img) {
-			if ($img =~ m#title=["']?([^"']*?)(?:[^\w]'[^\w]|"|>)#is) {
+			if ($img =~ m#title=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
 				$it = $1;
 			}
-			if ($img =~ m#alt=["']?([^"']*?)(?:[^\w]'[^\w]|"|>)#is) {
+			if ($img =~ m#alt=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
 				$ia = $1;
 			}
 		}
