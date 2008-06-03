@@ -840,15 +840,22 @@ my @opts = @ARGV;
 			 $sl = $1;
 		}
 		
-		my @all = (@ut,$st,$it,$ia,@h1,@dt,$sl);
+		my $ut = join(" ~§~ ",@ut) if @ut;
+		my $h1 = join(" ~§~ ",@h1) if @h1;
+		my $dt = join(" ~§~ ",@dt) if @dt;
+		my @all = ($ut,$st,$it,$ia,$h1,$dt,$sl);
 		my @allout;
 		foreach my $one (@all) {
-			next unless $one;
-			$one =~ s/\s+/ /gs;
-			push(@allout,$one) if ($one);
+			if (defined $one) {
+				$one =~ s/\s+/ /gs ;
+			}
+			else {
+				$one = "-§-";
+			}
+			push(@allout,$one);
 		}
 		push(@{$self->{dat}->{__SECTIONS__}},$file) unless defined $self->{dat}->{$file};
-		$self->{dat}->{$file}->{'title'} = join(' || ',@allout);
+		$self->{dat}->{$file}->{'title'} = join(' !§! ',@allout);
 		$self->{dat}->{$file}->{url} = $self->url;
 		$self->{dat}->{$file}->{surl} = $surl;
 		$self->{dat}->{$file}->{c_version} = $main::VERSION;

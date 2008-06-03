@@ -9,7 +9,7 @@ use Config::IniHash;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '1.8';
+$VERSION = '1.9';
 my $dat = {};
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -138,7 +138,11 @@ sub cc {
 			my $i;
 			while ($dat->{$comic}->{$strip}) {
 				$i++;
-				$index{$comic} .= qq(<a href="./$comic/$strip.strp">$i : $strip : $dat->{$comic}->{$strip}->{'title'}</a><br>);
+				my $title = $dat->{$comic}->{$strip}->{'title'};
+				$title =~ s/-§-//g;
+				$title =~ s/!§!/|/g;
+				$title =~ s/~§~/~/g;
+				$index{$comic} .= qq(<a href="./$comic/$strip.strp">$i : $strip : $title</a><br>);
 				if ($strip eq $dat->{$comic}->{$strip}->{'next'}) {
 					print "selbstreferenz in $comic bei $strip gefunden\n" ;
 					last;
@@ -163,13 +167,18 @@ sub cc {
 		my $return;
 		load($comic);
 		if ($strip) {
+			my $title = $dat->{$comic}->{$strip}->{'title'};
+			$title =~ s/-§-//g;
+			$title =~ s/!§!/|/g;
+			$title =~ s/~§~/~/g;
+			
 			$strip =~ s/%7C/|/ig;
 			$return =
-				qq( <title>$dat->{$comic}->{$strip}->{'title'}</title>
+				qq( <title>$title</title>
 					<body bgcolor="#000000" text="#009900">
 					<div align="center">
-					<!-- $dat->{$comic}->{$strip}->{'title'}<br> -->
-					<img src="/strips/$comic/$2"><br><br>
+					<!-- $title<br> -->
+					<img src="/strips/$comic/$strip"><br><br>
 					<a href="$dat->{$comic}->{$strip}->{'prev'}.strp">zurück</a>
 					<a href="$dat->{$comic}->{$strip}->{'next'}.strp">weiter</a>
 					<br><a href="/_index">Index</a>
