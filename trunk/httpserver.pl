@@ -26,7 +26,7 @@ my $cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
 
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
-my @Kategorien = qw(gelesen beobachten andere mekrwuerdig uninteressant);
+my @Kategorien = qw(gelesen beobachten andere single_strip_joke mekrwuerdig uninteressant);
 
 
 print "Please contact me at: <URL:", $d->url, "_index>\n";
@@ -75,13 +75,12 @@ sub cc {
 			}						 
 			
 			$kategorien{$usr->{$comic}->{kategorie}} = ("-"x 20) .$usr->{$comic}->{kategorie}. ("-"x 20)."<br><table>" unless $kategorien{$usr->{$comic}->{kategorie}} ;
-			$kategorien{$usr->{$comic}->{kategorie}} .= qq(<tr><td><a href="/$comic.ndx">$comic</a></td> )
-				. ($cfg->{$comic}->{'first'} ? qq(<td><a href="/$comic/$cfg->{$comic}->{'first'}.strp">Anfang<a></td> ) : "<td> </td>") 
-				. ($usr->{$comic}->{'aktuell'} ? qq(<td><a href="/$comic/$usr->{$comic}->{'aktuell'}.strp">Aktuell</a></td> ) : "<td> </td>") 
-				. ($usr->{$comic}->{bookmark} ? qq(<td><a href="/$comic/$usr->{$comic}->{bookmark}.strp">bookmark</a></td> ) : "<td> </td>") 
-				. ($cfg->{$comic}->{'last'} ? qq(<td><a href="/$comic/$cfg->{$comic}->{'last'}.strp">Ende</a></td> ) : "<td> </td>") .
-				qq(<td><a href="/$comic/_kategorie_">Kategorie</a></td>
-				<td>$cfg->{$comic}->{strip_count}</td> <td>$cfg->{$comic}->{strips_counted}</td></tr>\n);
+			$kategorien{$usr->{$comic}->{kategorie}} .= qq(<tr><td><a href="/$comic.ndx">$comic</a></td>)
+				. ($cfg->{$comic}->{'first'} ? qq(<td><a href="/$comic/$cfg->{$comic}->{'first'}.strp">Anfang<a></td>) : "<td></td>") 
+				. ($usr->{$comic}->{'aktuell'} ? qq(<td><a href="/$comic/$usr->{$comic}->{'aktuell'}.strp">Aktuell</a></td>) : "<td></td>") 
+				. ($usr->{$comic}->{bookmark} ? qq(<td><a href="/$comic/$usr->{$comic}->{bookmark}.strp">bookmark</a></td>) : "<td></td>") 
+				. ($cfg->{$comic}->{'last'} ? qq(<td><a href="/$comic/$cfg->{$comic}->{'last'}.strp">Ende</a></td>) : "<td></td>") .
+				qq(<td><a href="/$comic/_kategorie_">Kategorie</a></td><td>$cfg->{$comic}->{strip_count}</td><td>$cfg->{$comic}->{strips_counted}</td></tr>\n);
 			$kat_count{$usr->{$comic}->{kategorie}} += $cfg->{$comic}->{strip_count};
 			$kat_counted{$usr->{$comic}->{kategorie}} += $cfg->{$comic}->{strips_counted};
 			
