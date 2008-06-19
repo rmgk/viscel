@@ -4,6 +4,9 @@ use strict;
 use Config::IniHash;
 use Page;
 
+use vars qw($VERSION);
+$VERSION = '1';
+
 sub get_comic {
 	my $self = Comic::new(@_);
 	
@@ -36,7 +39,7 @@ sub initialize {
 	
 	unless (defined $self->cfg->{url_home}) {
 		$self->cfg->{url_home} = ($self->split_url($self->cfg->{url_start}))[0];
-		$self->status("url_home nicht gesetzt benutze: ". $self->cfg->{url_home},'WARN');
+		$self->status("url_home nicht gesetzt benutze: ". $self->cfg->{url_home},'DEF');
 	}
 	
 	unless ((defined $self->usr->{url_current}) or ($self->usr->{url_current} ne '')) {
@@ -282,11 +285,13 @@ sub save_cfg_usr_dat {
 		$self->status("GESPEICHERT: " .$self->{_DAT_CFG},'OUT');
 	}
 	{	#$self->dat->{_CFG_} wird gelöscht, vorsicht, dass man es danach nichtmehr braucht!
+		my $tmp = $self->dat->{_CFG_};
 		undef $self->dat->{_CFG_};
 		delete $self->dat->{_CFG_};
 		my $datfile = $self->{_DAT_FOL} . $self->name . $self->{_DAT_END};
 		WriteINI($datfile,$self->dat); #data wird mit "__SECTIONS__" geladen u.u. umgehen
 		$self->status("GESPEICHERT: " .$datfile,'OUT');
+		$self->dat->{_CFG_} = $tmp;
 	}
 }
 

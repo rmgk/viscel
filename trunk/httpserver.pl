@@ -9,20 +9,13 @@ use Config::IniHash;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '1.10';
+$VERSION = '1.11';
 my $dat = {};
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
 my $usr;
-my $usrfix = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
-if (-e 'server.ini') {
-	$usr = ReadINI('server.ini',{'case'=>'preserve', 'sectionorder' => 1});
-	$usr->{__SECTIONS__} = $usrfix->{__SECTIONS__};
-}
-else {
-	$usr = $usrfix;
-}
-my $cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
+my $usrfix;
+my $cfg;
 
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
@@ -37,7 +30,7 @@ while (my $c = $d->accept) {
 				$c->send_file_response("./strips/$1/$2");
 			}
 			else {
-				$cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
+				&load_dats();
 				$res->content(cc($r->url->path));
 				$c->send_response($res);
 				WriteINI("server.ini",$usr);
@@ -240,4 +233,20 @@ sub load {
 		$cfg->{$comic}->{last} = $point;
 		$cfg->{$comic}->{strips_counted} = $i;
 	}
+}
+
+
+
+sub load_dats {
+
+	$usrfix = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
+	if (-e 'server.ini') {
+		$usr = ReadINI('server.ini',{'case'=>'preserve', 'sectionorder' => 1});
+		$usr->{__SECTIONS__} = $usrfix->{__SECTIONS__};
+	}
+	else {
+		$usr = $usrfix;
+	}
+	$cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
+
 }

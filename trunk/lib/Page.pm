@@ -4,6 +4,10 @@ use strict;
 use dlutil;
 
 use URI;
+$URI::ABS_REMOTE_LEADING_DOTS = 1;
+
+use vars qw($VERSION);
+$VERSION = '1';
 
 sub new {
 	my $self = shift;
@@ -215,7 +219,6 @@ sub try_get_strip_urls_part {
 		if ($url =~ m#([\?;=&]|nav|logo|header|template|resource|banner|thumb|file://|theme)#i) {
 			next;
 		}
-		
 		if ($url =~ m#drunkduck.com/.*?/pages/#) {
 			push(@return,$url);
 			next;
@@ -223,22 +226,18 @@ sub try_get_strip_urls_part {
 		if ($url =~ m#drunkduck.com/#) {
 			next;
 		}
-		
 		if ($url =~ m#^http://#) {
 			next unless (($url =~ m#$self->{cfg}->{'url_home'}#) or 
 						((defined $self->{cfg}->{'add_url_home'}) and $url =~ m#$self->{cfg}->{'add_url_home'}#));
 		}
-		
 		if (($url =~ m#(^|\D)(\d{8}|\d{14})\D[^/]*$#) or ($url =~ m#(^|\D)\d{4}-\d\d-\d\d\D[^/]*$#)) {
 			push(@return,$url);
 			next;
-		}
-		
+		}		
 		if ($url =~ m#comics?/|(?:^|/)pages?/|(?:^|/)strips?/#i) {
 			push(@return,$url);
 			next;
-		}
-		
+		}		
 		my ($name) = ($self->url() =~ m#^.*/.*?(\w\w\w+)[^/]*$#) if ($self->url() !~ m/\.php\?/);
 		if ($name) {
 			if ($url =~ m#(.*/|[^/]*)$name#) {
@@ -251,8 +250,7 @@ sub try_get_strip_urls_part {
 			if ($url =~ m#(?:\D|\D0+|^)$num\D[^/]*$#) {
 				push(@bad_return,$url);
 			}
-		}
-		
+		}		
 	}
 	@return = @bad_return unless $return[0];
 	
@@ -265,110 +263,31 @@ sub try_get_strip_urls_part {
 
 sub concat_url {
 	my $self = shift;
-	my $parts = shift;
-	my $parts2;
-	if (ref $parts) {
-		my @tmp = @{$parts};
-		my $parts2 = \@tmp;
-	}
-	else {
-		$parts2 = $parts;
-	}
-	my @url = $self->_concat_url($parts);
-	my @url2 = $self->concat_url2($parts2);
-	my $bool = 1;
-	if (@url == @url2) {
-		for (0..@url) {
-			unless ($url[$_] eq $url2[$_]) {
-				$self->status("$url[$_] ne $url2[$_]",'ERR');
-			}
+	my $url_part = shift;
+	my @url;
+	
+	if (ref $url_part) {
+		foreach my $part (@{$url_part}) {
+			push(@url,$self->_concat_url($part));
 		}
 	}
+	else {
+		$url[0] = $self->_concat_url($url_part);
+	}
+
 	return wantarray ? @url : $url[0];
-}
-
-sub concat_url2 {
-	my $self = shift;
-	my $url_parts = shift;
-	my @return;
-	unless (ref $url_parts) {
-		my $tmp = $url_parts;
-		$url_parts = [];
-		$url_parts->[0] = $tmp;
-	}
-	foreach my $url_part (@{$url_parts}) {
-		next unless $url_part;
-		$url_part =~ s#([^&])&amp;#$1&#gs;
-
-		next if ($url_part eq '#');
-			
-		$url_part =~ s#^[./]+#/# if ($self->{cfg}->{use_home_only});
-		push(@return,URI->new($url_part)->abs($self->url()));
-	}
-	return wantarray ? @return : $return[0];
 }
 
 sub _concat_url {
 	my $self = shift;
-	my $url_parts = shift;
-	my @return;
-	unless (ref $url_parts) {
-		my $tmp = $url_parts;
-		$url_parts = [];
-		$url_parts->[0] = $tmp;
-	}
-	foreach my $url_part (@{$url_parts}) {
-		next unless $url_part;
-		$url_part =~ s/[\s]//gs;
-		$url_part =~ s#([^&])&amp;#$1&#gs;
-		if ($url_part eq '#') {
-			push(@return,'');
-			next;
-		}	
-		if ($url_part =~ m#^https?://#) {
-			push(@return,$url_part);
-			next;
-		}
-		if ($self->{cfg}->{use_home_only}) {
-			$url_part =~ s#^[./]+##;
-			push(@return,$self->{cfg}->{'url_home'} . $url_part);
-			next;
-		}
-		if ($url_part =~ m#^\.\./\.\./(.*)#) {
-			my $url_add = $1;
-			my $url_s =  $self->url();
-			$url_s =~ s#^(.*/).*?/.*?/.*$#$1#e;
-			push(@return,$url_s.$url_add);
-			next;
-		}
-		if ($url_part =~ m#^\.\./(.*)#) {
-			my $url_add = $1;
-			my $url_s =  $self->url();
-			$url_s =~ s#^(.*/).*?/.*$#$1#e;
-			push(@return,$url_s.$url_add);
-			next;
-		}
-		if ($url_part =~ m#^\?#) {
-			my $url_s =  $self->url();
-			$url_s =~ s#^(.*)\?.*?$#$1#e;
-			push(@return,$url_s . $url_part);
-			next;
-		}
-		if ($url_part =~ m#^[^/]#) {
-			my $url_s =  $self->url();
-			$url_s =~ s#^(.*/).*?$#$1#e;
-			$url_part =~ s#^\./##;
-			push(@return,$url_s . $url_part);
-			next;
-		}
-		if ($url_part =~ m#^/#) { 
-			$url_part =~ s#^/##;
-			push(@return,$self->{cfg}->{'url_home'} . $url_part);
-			next;
-		}
-	}
-	return wantarray ? @return : $return[0];
+	my $url_part = shift;
+	return unless $url_part;
+	$url_part =~ s#([^&])&amp;#$1&#gs;
+	return if ($url_part eq '#');
+	$url_part =~ s#^[./]+#/# if ($self->{cfg}->{use_home_only});
+	return URI->new($url_part)->abs($self->url())->as_string;
 }
+
 
 sub all_strips {
 	my $self = shift;

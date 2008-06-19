@@ -8,8 +8,7 @@ use lib "./lib";
 use Comic;
 
 use vars qw($VERSION);
-
-$VERSION = '3.70';
+$VERSION = '70' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;

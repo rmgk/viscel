@@ -7,6 +7,9 @@ require Exporter;
 @EXPORT = qw(get);
 @EXPORT_OK = qw($ua);
 
+use vars qw($VERSION);
+$VERSION = '1';
+
 sub _init_ua {
 	require LWP;
 	require LWP::UserAgent;
