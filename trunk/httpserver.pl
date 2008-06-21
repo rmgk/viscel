@@ -9,7 +9,7 @@ use Config::IniHash;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '1.11';
+$VERSION = '1.12';
 my $dat = {};
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -242,7 +242,7 @@ sub load_dats {
 	$usrfix = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
 	if (-e 'server.ini') {
 		$usr = ReadINI('server.ini',{'case'=>'preserve', 'sectionorder' => 1});
-		$usr->{__SECTIONS__} = $usrfix->{__SECTIONS__};
+		@{$usr->{__SECTIONS__}} = @{$usrfix->{__SECTIONS__}};
 	}
 	else {
 		$usr = $usrfix;
