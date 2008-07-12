@@ -1,28 +1,28 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#22:16 11.01.2008
+#13:37 12.07.2008
+
+use lib "./lib";
 
 use HTTP::Daemon;
 use HTTP::Status;
 use Config::IniHash;
+use CGI qw(:standard *table);
 
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '1.12';
-my $dat = {};
+$VERSION = '2.0';
+
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
-my $usr;
-my $usrfix;
-my $cfg;
+my $sdat;
+my $srv;
 
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
-my @Kategorien = qw(gelesen beobachten andere single_strip_joke mekrwuerdig uninteressant);
 
-
-print "Please contact me at: <URL:", $d->url, "_index>\n";
+print "Please contact me at: <URL:", $d->url,">\n";
 while (my $c = $d->accept) {
 	while (my $r = $c->get_request) {
 		if ($r->method eq 'GET') {
@@ -30,223 +30,292 @@ while (my $c = $d->accept) {
 				$c->send_file_response("./strips/$1/$2");
 			}
 			else {
-				&load_dats();
-				$res->content(cc($r->url->path));
+				restore_parameters($r->url->query);
+				if ($r->url->path =~ m#^/comics$#) {
+					$res->content(&ccomic);
+				}
+				elsif ($r->url->path =~ m#^/kategorien$#) {
+					$res->content(&ckategorie);
+				}
+				elsif ($r->url->path =~ m#^/tools$#) {
+					$res->content(&ctools);
+				}
+				else {
+					$res->content(&cindex);
+				}
 				$c->send_response($res);
-				WriteINI("server.ini",$usr);
-				WriteINI('data/_CFG_',$cfg);
 			}
 		}
 		$c->close;
+		&write_dat()
 	}
 	undef($c);
 }
 
 
-sub cc {
-	my $url_path = shift;
-	#############################################################
-	#index wird aufgerufen 
-	#############################################################
-	if ($url_path =~ m#/_index#) {
-		my $index = '<body text="#009900" bgcolor="#000000"> <a href="_count_all">Load all strips (takes a while and needs a lot of memory)</a> <br>';
-		my %kategorien;
-		my %kat_count = undef;
-		my %kat_counted = undef;
-		foreach my $comic (sort { lc($a) cmp lc($b) } @{$usr->{__SECTIONS__}}) {
-			next if $comic =~ m/_.*?_/;
-			unless ($usr->{$comic}->{kategorie}) {
-				$usr->{$comic}->{kategorie} = 'andere';
-			}
-			
-			my $b = 0;
-			foreach (@Kategorien) {
-				$b = 1 if $_ eq  $usr->{$comic}->{kategorie};
-			}
-			unless ($b) {
-				unshift(@Kategorien,$usr->{$comic}->{kategorie});
-			}						 
-			
-			$kategorien{$usr->{$comic}->{kategorie}} = ("-"x 20) .$usr->{$comic}->{kategorie}. ("-"x 20)."<br><table>" unless $kategorien{$usr->{$comic}->{kategorie}} ;
-			$kategorien{$usr->{$comic}->{kategorie}} .= qq(<tr><td><a href="/$comic.ndx">$comic</a></td>)
-				. ($cfg->{$comic}->{'first'} ? qq(<td><a href="/$comic/$cfg->{$comic}->{'first'}.strp">Anfang<a></td>) : "<td></td>") 
-				. ($usr->{$comic}->{'aktuell'} ? qq(<td><a href="/$comic/$usr->{$comic}->{'aktuell'}.strp">Aktuell</a></td>) : "<td></td>") 
-				. ($usr->{$comic}->{bookmark} ? qq(<td><a href="/$comic/$usr->{$comic}->{bookmark}.strp">bookmark</a></td>) : "<td></td>") 
-				. ($cfg->{$comic}->{'last'} ? qq(<td><a href="/$comic/$cfg->{$comic}->{'last'}.strp">Ende</a></td>) : "<td></td>") .
-				qq(<td><a href="/$comic/_kategorie_">Kategorie</a></td><td>$cfg->{$comic}->{strip_count}</td><td>$cfg->{$comic}->{strips_counted}</td></tr>\n);
-			$kat_count{$usr->{$comic}->{kategorie}} += $cfg->{$comic}->{strip_count};
-			$kat_counted{$usr->{$comic}->{kategorie}} += $cfg->{$comic}->{strips_counted};
-			
-		}
-		foreach my $key (@Kategorien) {
-			next unless $kategorien{$key};
-			$index .= $kategorien{$key} . "</table>ges: $kat_count{$key} $kat_counted{$key}<br>";
-		}
-		$index .= '</body>';
-		return $index;
+sub kategorie {
+	my $kat = shift;
+	&dat->{_CFG_}->{kategorien} = &dat->{_CFG_}->{kategorien} || "gelesen,beobachten,andere,uninteressant";
+	&dat->{_CFG_}->{kategorien} .= ','.$kat if $kat;
+	return split(',',&dat->{_CFG_}->{kategorien});
+}
+
+sub sdat {
+	my $comic = shift;
+	if ($comic) {
+		return load($comic);
 	}
-	#############################################################
-	#alle comics laden
-	#############################################################
-	if ($url_path =~ m#/_count_all#) {
-		foreach my $comic (@{$usr->{__SECTIONS__}}) {
-			next if ($comic eq "_CFG_");
-			load($comic);
+	return undef;
+}
+
+sub dat {
+	return &load_dat;
+}
+
+sub comics {
+	return sort grep {$_ ne '_CFG_'} @{dat->{__SECTIONS__}};
+}
+
+sub kopf {
+	my $title = shift;
+	my $prev = shift;
+	my $next = shift;
+	my $first = shift;
+	my $last = shift;
+	return start_html(-title=>$title. " - ComCol http $VERSION" ,-BGCOLOR=>'black', -TEXT=>'#009900',
+							-head=>[Link({-rel=>'index',	-href=>"/"	})			,
+                            $next ?	Link({-rel=>'next',		-href=>$next})	: undef	,
+                            $prev ?	Link({-rel=>'previous',	-href=>$prev})	: undef	,
+							$first?	Link({-rel=>'first',	-href=>$first})	: undef	,
+							$last ?	Link({-rel=>'last',		-href=>$last})	: undef	,]);
+}
+
+
+sub cindex {
+	my %kat;
+	my $ret = &kopf("Index");
+	my %kat_count;
+	my %kat_counted;
+	$ret .= "Tools:" . br;
+	$ret .= a({-href=>"/tools?tool=load_all"},"Load all Comics") . br . br;
+	$ret .= "Inhalt:" . br;
+	foreach (kategorie) {
+		$ret .= a({href=>"#$_"},$_) . br;
+		$kat{$_} = ("-"x 20).a({name=>$_},$_).("-"x 20).br.start_table;
+	}
+	$ret .= br;
+	foreach my $comic (&comics) {
+		$kat{dat->{$comic}->{kategorie}} .= Tr([
+			td([
+			a({-href=>"/comics?comic=$comic"},$comic) ,
+			dat->{$comic}->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'first'}},"Anfang") : undef ,
+			dat->{$comic}->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'aktuell'}},"Aktuell") : undef ,
+			dat->{$comic}->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'bookmark'}},"bookmark") : undef ,
+			dat->{$comic}->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'last'}},"Ende") : undef ,
+			a({href=>"/kategorien?comic=$comic"},'Kategorie'),&dat->{$comic}->{strip_count},&dat->{$comic}->{strips_counted}
+			])
+		]);
+		$kat_count{dat->{$comic}->{kategorie}} += &dat->{$comic}->{strip_count};
+		$kat_counted{dat->{$comic}->{kategorie}} += &dat->{$comic}->{strips_counted};
+	}
+
+	my %double;
+	foreach (&kategorie) {
+		$double{$_} = 1;
+	}
+	foreach (sort keys %kat) {
+		unless ($double{$_}) {
+			&kategorie($_) if $_;
+			$double{$_} = 1;
 		}
 	}
 	
-	#############################################################
-	#comic wird kategorisiert
-	#############################################################
-	if ($url_path =~ m#^/(.*?)/_kategorie_$#) {
-		my $comic = $1;
-		my $kategorien = '<body bgcolor="#000000">';
-		for my $kategorie (@Kategorien) {
-			$kategorien .= qq(<a href="/$comic/_kategorie_/$kategorie">$kategorie<a><br>);
-		}
-		$kategorien .= '</body>';
-		return $kategorien;
+	foreach (&kategorie) {
+		$ret .= $kat{$_};
+		$ret .=  Tr([td([undef,undef,undef,undef,undef,undef,$kat_count{$_},$kat_counted{$_}])]) . end_table ;
 	}
+	return $ret . end_html;
+}
 
-	if ($url_path =~ m#^/(.*?)/_kategorie_/(.*)#) {
-		my $comic = $1;
-		my $kategorie = $2;
-		$usr->{$comic}->{kategorie} = $kategorie;
-		my $con = '<body bgcolor="#000000"><a href="/_index">kategorie erfolgreich geändert, zurück zum index.<a></body>';
-		return $con;
+
+sub ccomic {
+	my $comic = param('comic');
+	my $strip = param('strip');
+	my $ret = &kopf("Error");
+	
+	return $ret . "no comic defined" unless $comic;
+	
+	if ($strip) {
+		my $return;
+		my $title = sdat($comic)->{$strip}->{'title'};
+		$title =~ s/-§-//g;
+		$title =~ s/!§!/|/g;
+		$title =~ s/~§~/~/g;
+		
+		$strip =~ s/%7C/|/ig;
+		$return = &kopf($title,
+					sdat($comic)->{$strip}->{'prev'}?"/comics?comic=$comic&strip=".sdat($comic)->{$strip}->{'prev'}:"0",
+					sdat($comic)->{$strip}->{'next'}?"/comics?comic=$comic&strip=".sdat($comic)->{$strip}->{'next'}:"0",
+					dat->{$comic}->{first}	?"/comics?comic=$comic&strip=".dat->{$comic}->{first}	:"0",
+					dat->{$comic}->{last}	?"/comics?comic=$comic&strip=".dat->{$comic}->{last}	:"0",
+					);
+					
+		$return .= div({-align=>"center"},
+				img({-src=>"/strips/$comic/$strip"}),br,br,
+				sdat($comic)->{$strip}->{'prev'}?a({-href=>"/comics?comic=$comic&strip=".sdat($comic)->{$strip}->{'prev'}},"zurück"):undef,
+				sdat($comic)->{$strip}->{'next'}?a({-href=>"/comics?comic=$comic&strip=".sdat($comic)->{$strip}->{'next'}},"weiter"):undef,br,
+				a({-href=>"/"},"Index"),
+				sdat($comic)->{$strip}->{'url'}?a({-href=>sdat($comic)->{$strip}->{'url'}},"Site"):undef,
+				a({-href=>"/comics?comic=$comic"},$comic),br, 
+				a({-href=>"/comics?comic=$comic&strip=$strip&bookmark=1"},"Bookmark")
+				);
+		dat->{$comic}->{'aktuell'} = $strip;
+		dat->{$comic}->{'bookmark'} = $strip if param('bookmark');
+		return $return . end_html;
 	}
-	#############################################################
-	#index seite des einzelnen comics
-	#############################################################
-	elsif ($url_path =~ m#^/([^/]*?).ndx$#) {
-		my $comic = $1;
-		load($comic);
+	else {
 		unless ($index{$comic}) {
+			my %double;
 			print "erstelle index ...\n";
-			my $strip = $cfg->{$comic}->{'first'};
+			my $strip = dat->{$comic}->{'first'};
 			
-			$index{$comic} .='<body bgcolor="#000000">';
+			$index{$comic} = &kopf($comic);
+			
 			my $i;
-			while ($dat->{$comic}->{$strip}) {
+			while (sdat($comic)->{$strip}) {
+				if ($double{$strip}) {
+					print "loop gefunden, breche ab\n" ;
+					last
+				}
+				$double{$strip} = 1;
+
 				$i++;
-				my $title = $dat->{$comic}->{$strip}->{'title'};
+				my $title = sdat($comic)->{$strip}->{'title'};
 				$title =~ s/-§-//g;
 				$title =~ s/!§!/|/g;
 				$title =~ s/~§~/~/g;
-				$index{$comic} .= qq(<a href="./$comic/$strip.strp">$i : $strip : $title</a><br>);
-				if ($strip eq $dat->{$comic}->{$strip}->{'next'}) {
-					print "selbstreferenz in $comic bei $strip gefunden\n" ;
+				$index{$comic} .= a({href=>"./comics?comic=$comic&strip=$strip"},"$i : $strip : $title") . br;
+				if ($strip eq sdat($comic)->{$strip}->{'next'}) {
+					print "selbstreferenz gefunden, breche ab\n" ;
 					last;
 				}
 				else {
-					print "weiter: " .$strip." -> " .$dat->{$comic}->{$strip}->{'next'} . "\n";
-					$strip = $dat->{$comic}->{$strip}->{'next'};
+					print "weiter: " .$strip." -> " . sdat($comic)->{$strip}->{'next'} . "\n";
+					$strip = sdat($comic)->{$strip}->{'next'};
 				}
 			}
-			$index{$comic} .= "</body>";
+			$index{$comic} .= end_html;
 			print "beendet\n";
 		}
 		return$index{$comic};
 	}
-	#############################################################
-	#einzelne seite des strips
-	#############################################################
-	elsif ($url_path =~ m#^/(.*?)/(.*)\.strp(=bookmark)?$#) {
-		my $comic = $1;
-		my $strip = $2;
-		my $bookmark = $3;
-		my $return;
-		load($comic);
-		if ($strip) {
-			my $title = $dat->{$comic}->{$strip}->{'title'};
-			$title =~ s/-§-//g;
-			$title =~ s/!§!/|/g;
-			$title =~ s/~§~/~/g;
-			
-			$strip =~ s/%7C/|/ig;
-			$return =
-				qq( <title>$title</title>
-					<body bgcolor="#000000" text="#009900">
-					<div align="center">
-					<!-- $title<br> -->
-					<img src="/strips/$comic/$strip"><br><br>
-					<a href="$dat->{$comic}->{$strip}->{'prev'}.strp">zurück</a>
-					<a href="$dat->{$comic}->{$strip}->{'next'}.strp">weiter</a>
-					<br><a href="/_index">Index</a>
-					<a href="$dat->{$comic}->{$strip}->{'url'}">Site</a>
-					<a href="/$comic.ndx">$comic</a> 
-					<br><a href="$strip.strp=bookmark">Bookmark</a>
-					</div>
-				</body>)
-			;
-			$usr->{$comic}->{'aktuell'} = $strip;
-			$usr->{$comic}->{bookmark} = $strip if $bookmark;
-		}
-		else {
-			$return = 
-				qq( <body bgcolor="#000000" text="#009900">
-					<div align="center">
-					leider kein weiterer strip verfügbar
-					<a href="/_index">
-					<br>Index</a>
-					</div>
-				</body>)
-			;
-		}
-		return $return;
-	}
 }
 
+sub ckategorie {
+	my $comic = param('comic');
+	my $kategorie = param('kategorie');
+	if ($kategorie) {
+		dat->{$comic}->{kategorie} = $kategorie;
+		return &kopf($comic . " Kategorie geändert") ."kategorie erfolgreich nach $kategorie geändert, ".a({href=>"/"},"zurück zum index.") . end_html;
+	}
+	my $res = &kopf($comic." Kategorie ändern");
+	
+	$res .= start_form("GET","kategorien");
+	$res .= hidden('comic',$comic);
+	$res .= radio_group(-name=>'kategorie',
+                             -values=>[&kategorie],
+                             -default=>dat->{$comic}->{kategorie},
+                             -linebreak=>'true');
+	$res .= submit('ok');
+	$res .= end_form;
+	$res .= end_html;;
+	return $res;
+}
+
+sub ctools {
+	my $tool = param('tool');
+	if ($tool = "load_all") {
+		my $time = time;
+		foreach (&comics) { sdat($_); }
+		return "benötigte ". (time - $time) ." sekunden";
+	}
+}
 
 
 sub load {
 	my $comic = shift;
-	if (!$dat->{$comic} or ($comic eq 'index')) {
-		print "$comic.dat geladen\n";
-		$dat->{$comic} = ReadINI("./data/$comic.dat",{'case'=>'preserve', 'sectionorder' => 1});
-		my @strips = @{$dat->{$comic}->{__SECTIONS__}};
-		unless ($cfg->{$comic}->{first}) {
-			
-			my $first = $strips[0];
-			while ($dat->{$comic}->{$first}->{prev}) {
-				last if $first eq $dat->{$comic}->{$first}->{prev};
-				$first = $dat->{$comic}->{$first}->{prev};
-				print "zurueck: ". $comic."/".$dat->{$comic}->{$first}->{'next'} ." -> " . $first . "\n";
-			}	
-			$cfg->{$comic}->{first} = $first;
-		}
-		$cfg->{$comic}->{strip_count} = $#strips +1;
-		my $point = $cfg->{$comic}->{first};
-		my $i = 1;
-		while ($dat->{$comic}->{$point}->{next}) {
-			if ($point eq $dat->{$comic}->{$point}->{'next'}) {
-				print "selbstreferenz in $comic bei $point gefunden\n";
+	return $sdat->{$comic} if $sdat->{$comic};
+	print "$comic.dat wird geladen\n";
+	$sdat->{$comic} = ReadINI("./data/$comic.dat",{'case'=>'preserve', 'sectionorder' => 1});
+	return unless $sdat->{$comic}->{__SECTIONS__};
+	my @strips = @{$sdat->{$comic}->{__SECTIONS__}};
+	unless (dat->{$comic}->{first}) {
+		my %double;
+		my $first = $strips[0];
+		while ($sdat->{$comic}->{$first}->{prev}) {
+			if ($double{$first}) {
+				print "loop bei $first gefunden, breche ab\n";
 				last;
 			}
-			else {
-				$i ++;
-				print "weiter: ". $comic."/".$point ." -> " . $dat->{$comic}->{$point}->{next} . " $i<" . $cfg->{$comic}->{strip_count} . "\n";
-				$point = $dat->{$comic}->{$point}->{next};
-				last if ($i > $cfg->{$comic}->{strip_count});
-			}
-		}
-		$cfg->{$comic}->{last} = $point;
-		$cfg->{$comic}->{strips_counted} = $i;
+			$double{$first} = 1;
+			$first = $sdat->{$comic}->{$first}->{prev};
+			print "zurueck: ". $comic."/".dat($comic)->{$first}->{'next'} ." -> " . $first . "\n";
+		}	
+		&dat->{$comic}->{first} = $first;
 	}
+	dat->{$comic}->{strip_count} = $#strips + 1;
+	my $point = dat->{$comic}->{first};
+	my $i = 1;
+	my %double;
+	while ($sdat->{$comic}->{$point}->{next}) {
+		if ($double{$point}) {
+			print "loop bei $point gefunden, breche ab\n";
+			last;
+		}
+		else {
+			$i++;
+			#print "weiter: ". $comic."/".$point ." -> " . $sdat->{$comic}->{$point}->{next} . " $i<" . dat->{$comic}->{strip_count} . "\n";
+			$point = $sdat->{$comic}->{$point}->{next};
+			last if ($i > dat->{$comic}->{strip_count});
+		}
+	}
+	dat->{$comic}->{last} = $point;
+	dat->{$comic}->{strips_counted} = $i;
+	return $sdat->{$comic};
 }
 
 
 
-sub load_dats {
-
-	$usrfix = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
+sub load_dat {
+	my $usr;
+	return $srv if $srv;
+	if (-e 'user.ini') {
+		$usr = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
+	}
 	if (-e 'server.ini') {
-		$usr = ReadINI('server.ini',{'case'=>'preserve', 'sectionorder' => 1});
-		@{$usr->{__SECTIONS__}} = @{$usrfix->{__SECTIONS__}};
+		$srv = ReadINI('server.ini',{'case'=>'preserve', 'sectionorder' => 1});
 	}
-	else {
-		$usr = $usrfix;
+	
+	if (!$srv) {
+		if ($usr) {
+			$srv = $usr;
+		}
+		else {
+			$srv = {}
+		}
 	}
-	$cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
 
+	@{$srv->{__SECTIONS__}} = @{$usr->{__SECTIONS__}} if $usr and $srv;
+	
+	my $cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
+	
+	foreach (@{$cfg->{__SECTIONS__}}) {
+		$srv->{$_}->{first} = $cfg->{$_}->{first}
+	}
+	
+	return $srv;
+}
+
+sub write_dat {
+	WriteINI("server.ini", &dat);
 }
