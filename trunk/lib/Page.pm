@@ -1,3 +1,7 @@
+#!/usr/bin/perl
+#this program is free software it may be redistributed under the same terms as perl itself
+#14:23 13.07.2008
+
 package Page;
 
 use strict;
@@ -7,7 +11,7 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '1';
+$VERSION = '2';
 
 sub new {
 	my $self = shift;
@@ -164,7 +168,7 @@ sub strips {
 	$self->{strips} = $self->strip_urls() unless $self->{strips};
 	unless ($self->{strips}->[0]) {
 		$self->{strips}->[0] =  "dummy|" . $self->url;
-		$self->{strips}->[0] =~ s#/#+#g;
+		$self->{strips}->[0] =~ s#[/?&=]#-#g;
 		$self->{dummy} = 1;
 		$self->status("KEINE STRIPS: ".$self->url,'WARN')
 	}
@@ -426,6 +430,7 @@ sub title {
 	$self->{dat}->{$file}->{url} = $self->url;
 	$self->{dat}->{$file}->{surl} = $surl;
 	$self->{dat}->{$file}->{c_version} = $main::VERSION;
+	$self->{dat}->{$file}->{time} = time;
 	
 	$self->status("TITEL $file: " . $self->{dat}->{$file}->{'title'},'DEBUG');
 	return $self->{'dat'}->{$file}->{'title'}; 

@@ -12,7 +12,7 @@ use CGI qw(:standard *table);
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.0';
+$VERSION = '2.1';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -34,9 +34,6 @@ while (my $c = $d->accept) {
 				if ($r->url->path =~ m#^/comics$#) {
 					$res->content(&ccomic);
 				}
-				elsif ($r->url->path =~ m#^/kategorien$#) {
-					$res->content(&ckategorie);
-				}
 				elsif ($r->url->path =~ m#^/tools$#) {
 					$res->content(&ctools);
 				}
@@ -55,6 +52,11 @@ while (my $c = $d->accept) {
 
 sub kategorie {
 	my $kat = shift;
+	my $ord = shift;
+	if ($ord) {
+		&dat->{_CFG_}->{kategorien} = $ord;
+		return split(',',&dat->{_CFG_}->{kategorien});
+	}
 	&dat->{_CFG_}->{kategorien} = &dat->{_CFG_}->{kategorien} || "gelesen,beobachten,andere,uninteressant";
 	&dat->{_CFG_}->{kategorien} .= ','.$kat if $kat;
 	return split(',',&dat->{_CFG_}->{kategorien});
@@ -97,7 +99,9 @@ sub cindex {
 	my %kat_count;
 	my %kat_counted;
 	$ret .= "Tools:" . br;
-	$ret .= a({-href=>"/tools?tool=load_all"},"Load all Comics") . br . br;
+	$ret 	.=	a({-href=>"/tools?tool=load_all"},"Load all Comics") . br 
+			.	a({-href=>"/tools?tool=kategoriereihenfolge"},"Kategoriereihenfolge ändern"). br 
+			.	br;
 	$ret .= "Inhalt:" . br;
 	foreach (kategorie) {
 		$ret .= a({href=>"#$_"},$_) . br;
@@ -112,7 +116,8 @@ sub cindex {
 			dat->{$comic}->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'aktuell'}},"Aktuell") : undef ,
 			dat->{$comic}->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'bookmark'}},"bookmark") : undef ,
 			dat->{$comic}->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'last'}},"Ende") : undef ,
-			a({href=>"/kategorien?comic=$comic"},'Kategorie'),&dat->{$comic}->{strip_count},&dat->{$comic}->{strips_counted}
+			a({href=>"/tools?tool=kategorie&comic=$comic"},'Kategorie'),&dat->{$comic}->{strip_count},&dat->{$comic}->{strips_counted} ,
+			a({href=>"/tools?tool=datalyzer&comic=$comic"},'Datalyzer')
 			])
 		]);
 		$kat_count{dat->{$comic}->{kategorie}} += &dat->{$comic}->{strip_count};
@@ -161,7 +166,11 @@ sub ccomic {
 					);
 					
 		$return .= div({-align=>"center"},
-				img({-src=>"/strips/$comic/$strip"}),br,br,
+				(-e "./strips/$comic/$strip") ? img({-src=>"/strips/$comic/$strip"}) :
+				sdat($comic)->{$strip}->{surl}!~m/^dummy/ ? img({-src=>sdat($comic)->{$strip}->{surl}}) . br . 
+				a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)")	:
+				"Diese Seite ist nur ein Dummy. Es könnte sein, dass der strip nicht korrekt heruntergeladen werden konnte."
+				,br,br,
 				sdat($comic)->{$strip}->{'prev'}?a({-href=>"/comics?comic=$comic&strip=".sdat($comic)->{$strip}->{'prev'}},"zurück"):undef,
 				sdat($comic)->{$strip}->{'next'}?a({-href=>"/comics?comic=$comic&strip=".sdat($comic)->{$strip}->{'next'}},"weiter"):undef,br,
 				a({-href=>"/"},"Index"),
@@ -211,33 +220,106 @@ sub ccomic {
 	}
 }
 
-sub ckategorie {
-	my $comic = param('comic');
-	my $kategorie = param('kategorie');
-	if ($kategorie) {
-		dat->{$comic}->{kategorie} = $kategorie;
-		return &kopf($comic . " Kategorie geändert") ."kategorie erfolgreich nach $kategorie geändert, ".a({href=>"/"},"zurück zum index.") . end_html;
-	}
-	my $res = &kopf($comic." Kategorie ändern");
-	
-	$res .= start_form("GET","kategorien");
-	$res .= hidden('comic',$comic);
-	$res .= radio_group(-name=>'kategorie',
-                             -values=>[&kategorie],
-                             -default=>dat->{$comic}->{kategorie},
-                             -linebreak=>'true');
-	$res .= submit('ok');
-	$res .= end_form;
-	$res .= end_html;;
-	return $res;
-}
 
 sub ctools {
 	my $tool = param('tool');
-	if ($tool = "load_all") {
+	my $comic = param('comic');
+	if ($tool eq "kategorie") {
+		my $kategorie = param('kategorie');
+		if ($kategorie) {
+			dat->{$comic}->{kategorie} = $kategorie;
+			return &kopf($comic . " Kategorie geändert") ."$comic kategorie erfolgreich nach $kategorie geändert" . br . br . &cindex();
+		}
+		my $res = &kopf($comic." Kategorie ändern");
+		
+		$res .= start_form("GET","tools");
+		$res .= hidden('comic',$comic);
+		$res .= hidden('tool',"kategorie");
+		$res .= radio_group(-name=>'kategorie',
+	                             -values=>[&kategorie],
+	                             -default=>dat->{$comic}->{kategorie},
+	                             -linebreak=>'true');
+		$res .= submit('ok');
+		$res .= end_form;
+		$res .= end_html;;
+		return $res;	
+	}	
+	if ($tool eq "load_all") {
 		my $time = time;
 		foreach (&comics) { sdat($_); }
 		return "benötigte ". (time - $time) ." sekunden";
+	}
+	if ($tool eq "kategoriereihenfolge") {
+		my $res = &kopf("Kategoriereihenfolge ändern");
+		my $i;
+		if (param('order')) {
+			my @kat = &kategorie;
+			my @ord = split("-",param('order'));
+			my @kat2 = @kat[@ord];
+			&kategorie(0,join(",",@kat2));
+		}
+		$res .= table(Tr( [map {td([$i++,$_])} &kategorie]));
+		$res .= start_form("GET","tools");
+		$res .= hidden('tool',"kategoriereihenfolge");
+		$res .= textfield(-name=>'order', -default=>join('-',0..$i-1));
+		$res .= submit('ok');
+		$res .= br . br .  a({-href=>"/"},"Index");
+		return $res . end_html;
+	}
+	if ($tool eq "download") {
+		require dlutil;
+		my $strip = param('strip');
+		&dlutil::getstore(sdat($comic)->{$strip}->{surl},"./strips/$comic/$strip");
+		return &ccomic;
+	}
+	if ($tool eq "datalyzer") {
+		my %d;
+		foreach my $strp (keys %{&sdat($comic)}) {
+			next if $strp eq '__SECTIONS__';
+			$d{count}->{$d{count}->{n}} = $strp;
+			$d{count}->{n}++;
+			$d{strps}->{$strp} = \%{&sdat($comic)->{$strp}};
+			if ($strp =~ m/^dummy/) {
+				$d{dummy}->{$d{dummy}->{n}} = $strp;
+				$d{dummy}->{n}++ ;
+			}
+			if (sdat($comic)->{$strp}->{prev} and sdat($comic)->{$strp}->{next}) { 
+				$d{prevnext}->{$d{prevnext}->{n}} = $strp;
+				$d{prevnext}->{n}++ ;
+			} elsif (sdat($comic)->{$strp}->{prev}) {
+				$d{prev}->{$d{prev}->{n}} = $strp;
+				$d{prev}->{n}++;
+			} elsif (sdat($comic)->{$strp}->{next}) {
+				$d{next}->{$d{next}->{n}} = $strp;
+				$d{next}->{n}++;
+			} else {
+				$d{none}->{$d{none}->{n}} = $strp;
+				$d{none}->{n}++;
+			}
+		}
+		
+		my $res = &kopf("Datalyzer");
+		my $sec = param('section') ;
+		
+		if ($sec eq 'strps') {
+			$res .= table(Tr([map {td([
+					$_,":",$d{$sec}->{param('strip')}->{$_}
+					])} grep {$_ ne 'n'} keys %{$d{$sec}->{param('strip')}}]));
+			$res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
+		}
+		elsif ($sec) {
+			$res .= table(Tr([map {td([
+					a({-href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=" . $d{$sec}->{$_}},$d{$sec}->{$_})
+					])} grep {$_ ne 'n'} keys %{$d{$sec}}]));
+			$res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
+		}
+		else {
+			$res .= table(Tr([map {td([
+					a({-href=>"/tools?tool=datalyzer&comic=$comic&section=$_"},$_) , ':' , $d{$_}->{n}
+					])} grep {$_ ne 'strps'} keys %d]));
+		}
+		$res .= br . a({-href=>"/"},"Index") . end_html;
+		return $res;
 	}
 }
 
