@@ -12,7 +12,7 @@ use CGI qw(:standard *table);
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.1';
+$VERSION = '2.2';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -75,7 +75,7 @@ sub dat {
 }
 
 sub comics {
-	return sort grep {$_ ne '_CFG_'} @{dat->{__SECTIONS__}};
+	return sort { lc $a cmp lc $b} grep {$_ ne '_CFG_'} @{dat->{__SECTIONS__}};
 }
 
 sub kopf {
@@ -203,7 +203,7 @@ sub ccomic {
 				$title =~ s/-§-//g;
 				$title =~ s/!§!/|/g;
 				$title =~ s/~§~/~/g;
-				$index{$comic} .= a({href=>"./comics?comic=$comic&strip=$strip"},"$i : $strip : $title") . br;
+				$index{$comic} .= a({href=>"./comics?comic=$comic&strip=$strip"},"$i : $strip : $title") . (&dat->{_CFG_}->{thumb}?img({-height=>&dat->{_CFG_}->{thumb}, -src=>"/strips/$comic/$strip"}):undef) . br;
 				if ($strip eq sdat($comic)->{$strip}->{'next'}) {
 					print "selbstreferenz gefunden, breche ab\n" ;
 					last;
@@ -320,6 +320,9 @@ sub ctools {
 		}
 		$res .= br . a({-href=>"/"},"Index") . end_html;
 		return $res;
+	}
+	if ($tool eq "thumb") {
+		&dat->{_CFG_}->{thumb} = param('height');
 	}
 }
 
