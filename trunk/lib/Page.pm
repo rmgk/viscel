@@ -11,7 +11,7 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '2';
+$VERSION = '3';
 
 sub new {
 	my $self = shift;
@@ -356,6 +356,7 @@ sub save {
 		my $res = dlutil::getstore($strip,"./strips/".$self->name."/$file_name");
 		if (($res >= 200) and  ($res < 300)) {
 			$self->status("GESPEICHERT: " . $file_name,'UINFO');
+			$self->md5($file_name);
 			return 200;
 		}
 		else {
@@ -364,6 +365,7 @@ sub save {
 			$res = dlutil::getstore($strip,"./strips/".$self->name."/$file_name");
 			if (($res >= 200) and  ($res < 300)) {
 				$self->status("GESPEICHERT: " . $file_name,'UINFO');
+				$self->md5($file_name);
 				return 200;
 			}
 			else {
@@ -371,7 +373,25 @@ sub save {
 				return 0;
 			}
 		}
-		
+	}
+}
+
+sub md5 {
+	my $self = shift;
+	my $file_name = shift;
+	if(  my $got_md5 = eval { require Digest::MD5; }) {
+		if (open(FILE, "./strips/".$self->name."/$file_name")) {
+			binmode(FILE);
+			$self->{dat}->{$file_name}->{'md5'} = Digest::MD5->new->addfile(*FILE)->hexdigest;
+			close FILE;
+		}
+		else {
+			$self->status("DATEIFEHLER " . "./strips/".$self->name."/$file_name" . "konnte nicht geöfnet werden" ,'ERR')
+		}
+	}
+	else {
+		$self->status("md5 modul (Digest::MD5) nicht gefunden",'DEBUG') unless ($self->{_md5debug});
+		$self->{_md5debug} = 1;
 	}
 }
 
