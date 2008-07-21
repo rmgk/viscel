@@ -12,7 +12,7 @@ use CGI qw(:standard *table);
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.2';
+$VERSION = '2.3';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -300,13 +300,13 @@ sub ctools {
 			
 			my $next = &sdat($comic)->{$strp}->{next};
 			if ($next and !(&sdat($comic)->{$next}->{prev} eq $strp)) { #if prev of next is not self
-				$d{bl_next}->{$d{bl_next}->{n}} = $strp;
-				$d{bl_next}->{n}++;
+				$d{backlink_next}->{$d{backlink_next}->{n}} = $strp;
+				$d{backlink_next}->{n}++;
 			}
 			my $prev = &sdat($comic)->{$strp}->{prev};
 			if ($prev and !(&sdat($comic)->{$prev}->{next} eq $strp)) { #if next of prev is not self
-				$d{bl_prev}->{$d{bl_prev}->{n}} = $strp;
-				$d{bl_prev}->{n}++;
+				$d{backlink_prev}->{$d{backlink_prev}->{n}} = $strp;
+				$d{backlink_prev}->{n}++;
 			}
 			
 		}
