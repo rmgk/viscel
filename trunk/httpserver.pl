@@ -12,7 +12,7 @@ use CGI qw(:standard *table);
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.3';
+$VERSION = '2.4';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -109,6 +109,7 @@ sub cindex {
 	}
 	$ret .= br;
 	foreach my $comic (&comics) {
+		dat->{$comic}->{kategorie} = dat->{$comic}->{kategorie} || 'andere';
 		$kat{dat->{$comic}->{kategorie}} .= Tr([
 			td([
 			a({-href=>"/comics?comic=$comic"},$comic) ,
