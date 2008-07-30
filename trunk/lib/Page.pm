@@ -11,7 +11,7 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '3';
+$VERSION = '4';
 
 sub new {
 	my $self = shift;
@@ -209,10 +209,35 @@ sub try_get_strip_urls {
 sub try_get_strip_urls_part {
 	my $self = shift;
 	my $body = $self->body();
-	my @urls = ($body =~ m/<ima?ge?.*?src\s*=\s*["']?(.*?)["' >].*?>/gis);
+	my @tags = ($body =~ m/(<ima?ge?.*?src\s*=\s*["']?.*?["' >].*?>)/gis);
+	#my @urls = ($body =~ m/<ima?ge?.*?src\s*=\s*["']?(.*?)["' >].*?>/gis);
+	my (@urls, @width, @height);
+	
+	foreach my $tag (@tags) {
+		$tag =~ m/src\s*=\s*["']?(.*?)["' >]/is;
+		push (@urls, $1);
+		if ($tag =~ m/width\s*=\s*["']?(\d+)["' >]/is) {
+			push (@width, $1);
+		}
+		else {
+			push (@width, undef);
+		}
+		if ($tag =~ m/height\s*=\s*["']?(\d+)["' >]/is) {
+			push (@height, $1);
+		}
+		else {
+			push (@height, undef);
+		}
+	}
+	
 	my @return;
 	my @bad_return;
+	my $i = -1;
 	foreach my $url (@urls) {
+		$i++;
+		if ((defined $width[$i] and $width[$i] < 11) or (defined $height[$i] and $height[$i] < 11)) {
+			next;
+		}
 		if (defined $self->{cfg}->{'heur_strip_url'}) {
 			my $regex = $self->{cfg}->{'heur_strip_url'};
 			if ($url =~ m#$regex#i) {
