@@ -12,7 +12,7 @@ use CGI qw(:standard *table);
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.4';
+$VERSION = '2.5';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -177,7 +177,8 @@ sub ccomic {
 				a({-href=>"/"},"Index"),
 				sdat($comic)->{$strip}->{'url'}?a({-href=>sdat($comic)->{$strip}->{'url'}},"Site"):undef,
 				a({-href=>"/comics?comic=$comic"},$comic),br, 
-				a({-href=>"/comics?comic=$comic&strip=$strip&bookmark=1"},"Bookmark")
+				a({-href=>"/comics?comic=$comic&strip=$strip&bookmark=1"},"Bookmark"),
+				a({href=>"/tools?tool=kategorie&comic=$comic"},'Kategorie')
 				);
 		dat->{$comic}->{'aktuell'} = $strip;
 		dat->{$comic}->{'bookmark'} = $strip if param('bookmark');
