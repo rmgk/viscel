@@ -251,7 +251,7 @@ sub goto_next {
 		
 	}
 	
-	$self->prev->{prev} = undef;
+	$self->prev->{prev} = undef if $self->prev;
 }
 
 sub split_url {
