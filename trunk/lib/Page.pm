@@ -11,7 +11,7 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '4';
+$VERSION = '5';
 
 sub new {
 	my $self = shift;
@@ -374,9 +374,11 @@ sub save {
 	if (open(TMP,, "./strips/".$self->name."/$file_name")) {
 		close(TMP);
 		$self->status("VORHANDEN: ".$file_name,'UINFO');
+		$self->{dat}->{_CFG_}->{last_save} = time unless $self->{dat}->{_CFG_}->{last_save};
 		return 200;
 	}
 	else {
+		$self->{dat}->{_CFG_}->{last_save} = time;
 		$self->status("SPEICHERE: " . $strip . " -> " . $file_name,'UINFO');
 		my $res = dlutil::getstore($strip,"./strips/".$self->name."/$file_name");
 		if (($res >= 200) and  ($res < 300)) {

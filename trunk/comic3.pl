@@ -8,7 +8,7 @@ use lib "./lib";
 use Comic;
 
 use vars qw($VERSION);
-$VERSION = '71' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '72' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -27,7 +27,8 @@ my @opts = @ARGV;
 	use Config::IniHash;
 	my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
 	my $user = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
-		my @comics;
+	my $datcfg = ReadINI('./data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
+	my @comics;
 	@comics = @{$comics->{__SECTIONS__}};
 	my $opmode;
 	if ($opts[0]) {
@@ -60,10 +61,25 @@ my @opts = @ARGV;
 	
 	
 	unless (defined $user->{_CFG_}->{update_interval}) {
-		$user->{_CFG_}->{update_interval} = 25000;
-		print "no update interval specified using default = 25000 seconds\n";
+		$user->{_CFG_}->{update_interval} = 45000;
+		print "no update interval specified using default = 45000 seconds\n";
 	}
 	
+	my %order;
+	
+	foreach my $comic (@comics) {
+		my $lu = $user->{$comic}->{last_update};
+		my $ls = $datcfg->{$comic}->{last_save};
+		if (!$lu or !$ls) {
+			$order{$comic} = 1;
+			next;
+		}
+		my $up = (time - $lu) || 1;
+		my $sa = (time - $ls) || 1;
+		$order{$comic} =  $up/$sa;
+	}
+	
+	@comics = sort { $order{$b} <=> $order{$a} } @comics; 
 
 	foreach my $comic (@comics) {
 		my $skip = 0;
