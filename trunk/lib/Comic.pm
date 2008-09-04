@@ -5,7 +5,7 @@ use Config::IniHash;
 use Page;
 
 use vars qw($VERSION);
-$VERSION = '1';
+$VERSION = '2';
 
 sub get_comic {
 	my $self = Comic::new(@_);
@@ -39,7 +39,7 @@ sub initialize {
 	
 	unless (defined $self->cfg->{url_home}) {
 		$self->cfg->{url_home} = ($self->split_url($self->cfg->{url_start}))[0];
-		$self->status("url_home nicht gesetzt benutze: ". $self->cfg->{url_home},'DEF');
+		$self->status("url_home nicht gesetzt benutze: ". $self->cfg->{url_home},'DEBUG');
 	}
 	
 	unless ((defined $self->usr->{url_current}) or ($self->usr->{url_current} ne '')) {
