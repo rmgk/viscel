@@ -22,7 +22,8 @@ my $srv;
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
 
-print "Please contact me at: <URL:", $d->url,">\n";
+#print "Please contact me at: <URL:", $d->url,">\n";
+print "Please contact me at: <URL:", "http://127.0.0.1/" ,">\n";
 while (my $c = $d->accept) {
 	while (my $r = $c->get_request) {
 		if ($r->method eq 'GET') {

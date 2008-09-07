@@ -8,7 +8,7 @@ use lib "./lib";
 use Comic;
 
 use vars qw($VERSION);
-$VERSION = '72' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '73' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -85,6 +85,7 @@ my @opts = @ARGV;
 		my $skip = 0;
 		if (defined $opmode) {
 			if ($opmode eq 'std') {
+				$skip = 1 if (($user->{$comic}->{hiatus}) or ($comics->{$comic}->{broken}));
 				for my $opt (@opts) {
 					$skip = 1 unless ($comic =~ m/$opt/i);
 				}

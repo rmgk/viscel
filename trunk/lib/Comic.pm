@@ -5,23 +5,31 @@ use Config::IniHash;
 use Page;
 
 use vars qw($VERSION);
-$VERSION = '2';
+$VERSION = '3';
 
 sub get_comic {
 	my $self = Comic::new(@_);
-	
-	$self->get_all;
-	$self->save_cfg_usr_dat;
-	$self->release_pages;
+	if ($self) {
+		$self->get_all;
+		$self->save_cfg_usr_dat;
+		$self->release_pages;
+	}
+	else {
+		return 0;
+	}
 }
 
 sub new {
 	my $self = shift || {};
 	bless $self;
 	
-	$self->initialize;
-
-	return $self;
+	if ($self->initialize) {
+		return $self;
+	}
+	else {
+		$self->release_pages;
+		return 0;
+	}
 }
 
 sub initialize {
@@ -34,6 +42,10 @@ sub initialize {
 	$self->{_DAT_CFG} = $self->{_DAT_FOL} . '_CFG_';
 	
 	$self->status("-" x (10) . $self->name . "-" x (25 - length($self->name)),'UINFO');
+	unless ($self->curr->body) {
+		$self->status("first body nonexistent, aborting" ,"UINFO");
+		return 0;
+	}
 	$self->chk_dir;
 	
 	
@@ -48,6 +60,7 @@ sub initialize {
 		$self->dat->{_CFG_}->{first} = $self->curr->file(0);
 		$self->status("first auf " . $self->dat->{_CFG_}->{first}  . " gesetzt",'UINFO');
 	}
+	return 1;
 	
 }
 
