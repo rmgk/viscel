@@ -27,6 +27,7 @@ sub new {
 sub body {
 	my $self = shift;
 	unless ($self->{body}) {
+		return 0 if $self->{no_body};
 		$self->{'body'} = dlutil::get($self->url);
 		$self->status("BODY angefordert: " . $self->url,'DEBUG');
 		unless ($self->{body}) {
@@ -34,6 +35,7 @@ sub body {
 			$self->{'body'} = dlutil::get($self->url);
 			unless ($self->{body}) {
 				$self->status("FEHLER: body nicht vorhanden : " . $self->url,'ERR');
+				$self->{no_body} = 1;
 				return 0;
 			}
 		}

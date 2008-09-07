@@ -42,10 +42,6 @@ sub initialize {
 	$self->{_DAT_CFG} = $self->{_DAT_FOL} . '_CFG_';
 	
 	$self->status("-" x (10) . $self->name . "-" x (25 - length($self->name)),'UINFO');
-	unless ($self->curr->body) {
-		$self->status("first body nonexistent, aborting" ,"UINFO");
-		return 0;
-	}
 	$self->chk_dir;
 	
 	
@@ -57,6 +53,10 @@ sub initialize {
 	unless ((defined $self->usr->{url_current}) or ($self->usr->{url_current} ne '')) {
 		$self->usr->{url_current} = ($self->split_url($self->cfg->{url_start}))[1];
 		$self->status("url_current auf ". $self->usr->{url_current} . " gesetzt",'UINFO');
+		unless ($self->curr->body) {
+			$self->status("first body nonexistent, aborting" ,"UINFO");
+			return 0;
+		}
 		$self->dat->{_CFG_}->{first} = $self->curr->file(0);
 		$self->status("first auf " . $self->dat->{_CFG_}->{first}  . " gesetzt",'UINFO');
 	}
