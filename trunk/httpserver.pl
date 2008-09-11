@@ -12,7 +12,7 @@ use CGI qw(:standard *table);
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.5';
+$VERSION = '2.6';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -85,7 +85,16 @@ sub kopf {
 	my $next = shift;
 	my $first = shift;
 	my $last = shift;
-	return start_html(-title=>$title. " - ComCol http $VERSION" ,-BGCOLOR=>'black', -TEXT=>'#009900',
+	
+	&dat->{_CFG_}->{color_bg}		= &dat->{_CFG_}->{color_bg}		|| 'black';
+	&dat->{_CFG_}->{color_text}		= &dat->{_CFG_}->{color_text}	|| '009900';
+	&dat->{_CFG_}->{color_link}		= &dat->{_CFG_}->{color_link}	|| '0050cc';
+	&dat->{_CFG_}->{color_vlink}	= &dat->{_CFG_}->{color_vlink}	|| '900090';
+	my $c_bg 	= &dat->{_CFG_}->{color_bg};
+	my $c_text 	= &dat->{_CFG_}->{color_text};
+	my $c_link 	= &dat->{_CFG_}->{color_link};
+	my $c_vlink = &dat->{_CFG_}->{color_vlink};
+	return start_html(-title=>$title. " - ComCol http $VERSION" ,-BGCOLOR=>$c_bg, -TEXT=>$c_text, -LINK=>$c_link, -VLINK=>$c_vlink,
 							-head=>[Link({-rel=>'index',	-href=>"/"	})			,
                             $next ?	Link({-rel=>'next',		-href=>$next})	: undef	,
                             $prev ?	Link({-rel=>'previous',	-href=>$prev})	: undef	,
@@ -102,6 +111,7 @@ sub cindex {
 	$ret .= "Tools:" . br;
 	$ret 	.=	a({-href=>"/tools?tool=load_all"},"Load all Comics") . br 
 			.	a({-href=>"/tools?tool=kategoriereihenfolge"},"Kategoriereihenfolge ändern"). br 
+			.	a({-href=>"/tools?tool=colorizer"},"Change Colors"). br 
 			.	br;
 	$ret .= "Inhalt:" . br;
 	foreach (kategorie) {
@@ -343,6 +353,30 @@ sub ctools {
 	}
 	if ($tool eq "thumb") {
 		&dat->{_CFG_}->{thumb} = param('height');
+	}
+	if ($tool eq "colorizer") {
+		my $res = &kopf("Change Colors");
+		if (defined param('color_bg')) {
+			&dat->{_CFG_}->{color_bg} = param('color_bg');
+		}
+		if (defined param('color_text')) {
+			&dat->{_CFG_}->{color_text} = param('color_text');
+		}
+		if (defined param('color_link')) {
+			&dat->{_CFG_}->{color_link} = param('color_link');
+		}
+		if (defined param('color_vlink')) {
+			&dat->{_CFG_}->{color_vlink} = param('color_vlink');
+		}
+		$res .= start_form("GET","tools");
+		$res .= hidden('tool',"colorizer");
+		$res .= "Background: " . textfield(-name=>'color_bg', -default=>&dat->{_CFG_}->{color_bg}) . br;
+		$res .= "Text: " . textfield(-name=>'color_text', -default=>&dat->{_CFG_}->{color_text}) . br;;
+		$res .= "Link: " . textfield(-name=>'color_link', -default=>&dat->{_CFG_}->{color_link}) . br;;
+		$res .= "vlink: " . textfield(-name=>'color_vlink', -default=>&dat->{_CFG_}->{color_vlink}) . br;;
+		$res .= submit('ok');
+		$res .= br . br .  a({-href=>"/"},"Index");
+		return $res . end_html;
 	}
 }
 
