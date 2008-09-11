@@ -11,7 +11,7 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '5';
+$VERSION = '6';
 
 sub new {
 	my $self = shift;
@@ -237,7 +237,7 @@ sub try_get_strip_urls_part {
 	my $i = -1;
 	foreach my $url (@urls) {
 		$i++;
-		if ((defined $width[$i] and $width[$i] < 11) or (defined $height[$i] and $height[$i] < 11)) {
+		if ((defined $width[$i] and $width[$i] < 21) or (defined $height[$i] and $height[$i] < 21)) {
 			next;
 		}
 		if (defined $self->{cfg}->{'heur_strip_url'}) {
@@ -247,7 +247,7 @@ sub try_get_strip_urls_part {
 			}
 			next;
 		}
-		if ($url =~ m#([\?;=&]|nav|logo|header|template|resource|banner|thumb|file://|theme)#i) {
+		if ($url =~ m#([\?;=&]|nav|logo|header|template|resource|banner|thumb|file://|theme|icon|smiley)#i) {
 			next;
 		}
 		if ($url =~ m#drunkduck.com/.*?/pages/#) {
