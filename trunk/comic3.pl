@@ -1,14 +1,15 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#22:17 11.01.2008
+#18:46 03.10.2008
 
 use strict;
 use warnings;
 use lib "./lib";
+use DBI;
 use Comic;
 
 use vars qw($VERSION);
-$VERSION = '73' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '75' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -26,8 +27,7 @@ my @opts = @ARGV;
 {
 	use Config::IniHash;
 	my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
-	my $user = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
-	my $datcfg = ReadINI('./data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
+	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 0,PrintError => 1});
 	my @comics;
 	@comics = @{$comics->{__SECTIONS__}};
 	my $opmode;
@@ -37,10 +37,9 @@ my @opts = @ARGV;
 			$opmode = 'repair';
 			shift @opts;
 			foreach (@opts) {
-				$user->{$_}->{url_current} = undef;
-				delete $user->{$_}->{url_current};
+				$dbh->do(qq(update USER set url_current = NULL where comic="$_"));
 			}
-			WriteINI('user.ini',$user);
+			$dbh->commit;
 		}
 		elsif (($opts[0] eq '-e') and (@opts > 1)) {
 			shift @opts;
@@ -50,29 +49,29 @@ my @opts = @ARGV;
 			$opmode = 'repairdelete';
 			shift @opts;
 			foreach (@opts) {
-				$user->{$_}->{url_current} = undef;
-				delete $user->{$_}->{url_current};
-				open(DEL,">./data/$_.dat");
-				close DEL;
+				$dbh->do(qq(update USER set url_current = NULL where comic="$_"));
+				$dbh->do(qq(DROP TABLE _$_));
+
 			}
-			WriteINI('user.ini',$user);
+			$dbh->commit;
 		}
 	}
 	
-	
-	unless (defined $user->{_CFG_}->{update_interval}) {
-		$user->{_CFG_}->{update_interval} = 45000;
+	my $update_intervall = $dbh->selectrow_array(qq(select update_intervall from CONFIG));
+	unless (defined $update_intervall) {
+		$update_intervall = 45000;
 		print "no update interval specified using default = 45000 seconds\n";
 	}
 	
 	my %order;
 	
 	foreach my $comic (@comics) {
-		my $lu = $user->{$comic}->{last_update};
-		my $ls = $datcfg->{$comic}->{last_save};
+		my $lu = $dbh->selectrow_array(qq(select last_update from USER where comic="$comic"));
+		my $ls = $dbh->selectrow_array(qq(select last_save from USER where comic="$comic"));
 		if (!$lu or !$ls) {
 			$order{$comic} = 1;
 			next;
+
 		}
 		my $up = (time - $lu) || 1;
 		my $sa = (time - $ls) || 1;
@@ -81,11 +80,13 @@ my @opts = @ARGV;
 	
 	@comics = sort { $order{$b} <=> $order{$a} } @comics; 
 
+		
 	foreach my $comic (@comics) {
 		my $skip = 0;
+		my $broken = $comics->{$comic}->{'broken'};
 		if (defined $opmode) {
 			if ($opmode eq 'std') {
-				$skip = 1 if (($user->{$comic}->{hiatus}) or ($comics->{$comic}->{broken}));
+				$skip = 1 if ($broken);
 				for my $opt (@opts) {
 					$skip = 1 unless ($comic =~ m/$opt/i);
 				}
@@ -97,14 +98,14 @@ my @opts = @ARGV;
 			}
 		}
 		else {
-				$skip = 1 if (
-					(((time - $user->{_CFG_}->{update_interval}) < ($user->{$comic}->{last_update}||0)) or
-					($user->{$comic}->{hiatus}) or ($comics->{$comic}->{broken})
-					));
+			my $lu = $dbh->selectrow_array(qq(select last_update from USER where comic="$comic"));
+				$skip = 1 if (((time - $update_intervall) < ($lu||0)) or $broken);
 			}
 		next if ($skip);
 		last if $TERM;
-		Comic::get_comic({"name" => $comic});
+		Comic::get_comic({"name" => $comic, "dbh" => $dbh});
 		last if $TERM;
 	}
+	$dbh->commit;
+	$dbh->disconnect;
 }

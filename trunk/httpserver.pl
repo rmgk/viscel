@@ -8,11 +8,12 @@ use HTTP::Daemon;
 use HTTP::Status;
 use Config::IniHash;
 use CGI qw(:standard *table);
+use DBI;
 
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.6';
+$VERSION = '2.8';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -21,62 +22,63 @@ my $srv;
 
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
+my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 0,PrintError => 1});
 
-#print "Please contact me at: <URL:", $d->url,">\n";
-print "Please contact me at: <URL:", "http://127.0.0.1/" ,">\n";
-while (my $c = $d->accept) {
-	while (my $r = $c->get_request) {
-		if ($r->method eq 'GET') {
-			if ($r->url->path =~ m#^/strips/(.*?)/(.*)$#) {
-				$c->send_file_response("./strips/$1/$2");
-			}
-			else {
-				restore_parameters($r->url->query);
-				if ($r->url->path =~ m#^/comics$#) {
-					$res->content(&ccomic);
-				}
-				elsif ($r->url->path =~ m#^/tools$#) {
-					$res->content(&ctools);
-				}
-				else {
-					$res->content(&cindex);
-				}
-				$c->send_response($res);
-			}
-		}
-		$c->close;
-		&write_dat()
-	}
-	undef($c);
+
+
+sub comics {
+	#my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
+	#return @{$comics->{__SECTIONS__}};
+	return @{$dbh->selectcol_arrayref("select comic from USER")};
 }
 
+sub config {
+	my ($key,$value) = @_;
+	if (defined $value) {
+		if ($dbh->do(qq(update CONFIG set $key = "$value"))< 1) {
+			$dbh->do(qq(insert into CONFIG ($key) VALUES ("$value")));
+		}
+	}
+	return $dbh->selectrow_array(qq(select $key from CONFIG));
+}
+
+sub usr { #gibt die aktuellen einstellungen des comics aus # hier gehören die veränderlichen informationen rein, die der nutzer auch selbst bearbeiten kann
+	my ($c,$key,$value) = @_;
+	if ($value) {
+		if ($dbh->do(qq(update USER set $key = "$value" where comic="$c")) < 1) { #try to update
+			$dbh->do(qq(insert into USER (comic,$key) VALUES ("$c","$value"))); #insert if update fails
+		}
+	}
+	return $dbh->selectrow_array(qq(select $key from USER where comic="$c"));
+}
+
+sub dat { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu dem comic und seinen srips gespeichert
+	my ($c,$strip,$key,$value) = @_;
+	if ($value) {
+		if ($dbh->do(qq(update _$c set $key = "$value" where strip="$strip")) < 1) { #try to update
+			$dbh->do(qq(insert into _$c  (strip,$key) values ("$strip","$value"))); #insert if update fails
+		}
+	}
+	return $dbh->selectrow_array(qq(select $key from _$c where strip="$strip"));
+}
 
 sub kategorie {
 	my $kat = shift;
 	my $ord = shift;
 	if ($ord) {
-		&dat->{_CFG_}->{kategorien} = $ord;
-		return split(',',&dat->{_CFG_}->{kategorien});
+		config('kat_order',$ord);
+		return split(',',config('kat_order'));
 	}
-	&dat->{_CFG_}->{kategorien} = &dat->{_CFG_}->{kategorien} || "gelesen,beobachten,andere,uninteressant";
-	&dat->{_CFG_}->{kategorien} .= ','.$kat if $kat;
-	return split(',',&dat->{_CFG_}->{kategorien});
-}
-
-sub sdat {
-	my $comic = shift;
-	if ($comic) {
-		return load($comic);
+	config('kat_order',config('kat_order') .','.$kat) if $kat;
+	
+	my @kat = split(',',config('kat_order')); #sortierte kategorien
+	my %d;
+	$d{$_} = 1 for (@kat); 
+	my @kat2 = @{$dbh->selectcol_arrayref(qq(select distinct kategorie from USER))}; #alle vorhandenen kategorien
+	for (@kat2) {
+		push(@kat,$_) unless $d{$_};
 	}
-	return undef;
-}
-
-sub dat {
-	return &load_dat;
-}
-
-sub comics {
-	return sort { lc $a cmp lc $b} grep {$_ ne '_CFG_'} @{dat->{__SECTIONS__}};
+	return @kat;
 }
 
 sub kopf {
@@ -86,14 +88,10 @@ sub kopf {
 	my $first = shift;
 	my $last = shift;
 	
-	&dat->{_CFG_}->{color_bg}		= &dat->{_CFG_}->{color_bg}		|| 'black';
-	&dat->{_CFG_}->{color_text}		= &dat->{_CFG_}->{color_text}	|| '009900';
-	&dat->{_CFG_}->{color_link}		= &dat->{_CFG_}->{color_link}	|| '0050cc';
-	&dat->{_CFG_}->{color_vlink}	= &dat->{_CFG_}->{color_vlink}	|| '900090';
-	my $c_bg 	= &dat->{_CFG_}->{color_bg};
-	my $c_text 	= &dat->{_CFG_}->{color_text};
-	my $c_link 	= &dat->{_CFG_}->{color_link};
-	my $c_vlink = &dat->{_CFG_}->{color_vlink};
+	my $c_bg 	= &config('color_bg') || 'black';
+	my $c_text 	= &config('color_text') || '009900';
+	my $c_link 	= &config('color_link') || '0050cc';
+	my $c_vlink = &config('color_vlink') || '900090';
 	return start_html(-title=>$title. " - ComCol http $VERSION" ,-BGCOLOR=>$c_bg, -TEXT=>$c_text, -LINK=>$c_link, -VLINK=>$c_vlink,
 							-head=>[Link({-rel=>'index',	-href=>"/"	})			,
                             $next ?	Link({-rel=>'next',		-href=>$next})	: undef	,
@@ -120,31 +118,21 @@ sub cindex {
 	}
 	$ret .= br;
 	foreach my $comic (&comics) {
-		dat->{$comic}->{kategorie} = dat->{$comic}->{kategorie} || 'andere';
-		$kat{dat->{$comic}->{kategorie}} .= Tr([
+		#&usr($comic,"kategorie",&usr($comic,'kategorie') || 'andere');
+		my $usr = $dbh->selectrow_hashref(qq(select * from USER where comic="$comic"));
+		$kat{$usr->{"kategorie"}} .= Tr([
 			td([
 			a({-href=>"/comics?comic=$comic"},$comic) ,
-			dat->{$comic}->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'first'}},"Anfang") : undef ,
-			dat->{$comic}->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'aktuell'}},"Aktuell") : undef ,
-			dat->{$comic}->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'bookmark'}},"bookmark") : undef ,
-			dat->{$comic}->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".dat->{$comic}->{'last'}},"Ende") : undef ,
-			a({href=>"/tools?tool=kategorie&comic=$comic"},'Kategorie'),&dat->{$comic}->{strip_count},&dat->{$comic}->{strips_counted} ,
+			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'}},"Anfang") : undef ,
+			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'}},"Aktuell") : undef ,
+			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'}},"bookmark") : undef ,
+			$usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'}},"Ende") : undef ,
+			a({href=>"/tools?tool=kategorie&comic=$comic"},'Kategorie'),$usr->{'strip_count'},$usr->{'strips_counted'} ,
 			a({href=>"/tools?tool=datalyzer&comic=$comic"},'Datalyzer')
 			])
 		]);
-		$kat_count{dat->{$comic}->{kategorie}} += &dat->{$comic}->{strip_count};
-		$kat_counted{dat->{$comic}->{kategorie}} += &dat->{$comic}->{strips_counted};
-	}
-
-	my %double;
-	foreach (&kategorie) {
-		$double{$_} = 1;
-	}
-	foreach (sort keys %kat) {
-		unless ($double{$_}) {
-			&kategorie($_) if $_;
-			$double{$_} = 1;
-		}
+		$kat_count{$usr->{'kategorie'}} += $usr->{'strip_count'};
+		$kat_counted{$usr->{'kategorie'}} += $usr->{'strips_counted'};
 	}
 	
 	foreach (&kategorie) {
@@ -164,66 +152,68 @@ sub ccomic {
 	
 	if ($strip) {
 		my $return;
-		my $title = sdat($comic)->{$strip}->{'title'};
+		my $title = &dat($comic,$strip,'title');
 		$title =~ s/-§-//g;
 		$title =~ s/!§!/|/g;
 		$title =~ s/~§~/~/g;
 		
 		$strip =~ s/%7C/|/ig;
 		$return = &kopf($title,
-					sdat($comic)->{$strip}->{'prev'}?"/comics?comic=$comic&strip=".sdat($comic)->{$strip}->{'prev'}:"0",
-					sdat($comic)->{$strip}->{'next'}?"/comics?comic=$comic&strip=".sdat($comic)->{$strip}->{'next'}:"0",
-					dat->{$comic}->{first}	?"/comics?comic=$comic&strip=".dat->{$comic}->{first}	:"0",
-					dat->{$comic}->{last}	?"/comics?comic=$comic&strip=".dat->{$comic}->{last}	:"0",
+					&dat($comic,$strip,'prev')	?"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev')	:"0",
+					&dat($comic,$strip,'next')	?"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')	:"0",
+					&usr($comic,'first')		?"/comics?comic=$comic&strip=".&usr($comic,'first')			:"0",
+					&usr($comic,'last')			?"/comics?comic=$comic&strip=".&usr($comic,'last')			:"0",
 					);
 					
 		$return .= div({-align=>"center"},
 				(-e "./strips/$comic/$strip") ? img({-src=>"/strips/$comic/$strip"}) :
-				sdat($comic)->{$strip}->{surl}!~m/^dummy/ ? img({-src=>sdat($comic)->{$strip}->{surl}}) . br . 
+				&dat($comic,$strip,'surl')!~m/^dummy/ ? img({-src=>&dat($comic,$strip,'surl')}) . br . 
 				a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)")	:
 				"Diese Seite ist nur ein Dummy. Es könnte sein, dass der strip nicht korrekt heruntergeladen werden konnte."
 				,br,br,
-				sdat($comic)->{$strip}->{'prev'}?a({-href=>"/comics?comic=$comic&strip=".sdat($comic)->{$strip}->{'prev'}},"zurück"):undef,
-				sdat($comic)->{$strip}->{'next'}?a({-href=>"/comics?comic=$comic&strip=".sdat($comic)->{$strip}->{'next'}},"weiter"):undef,br,
+				&dat($comic,$strip,'prev')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev')},"zurück"):undef,
+				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')},"weiter"):undef,br,
 				a({-href=>"/"},"Index"),
-				sdat($comic)->{$strip}->{'url'}?a({-href=>sdat($comic)->{$strip}->{'url'}},"Site"):undef,
+				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url')},"Site"):undef,
 				a({-href=>"/comics?comic=$comic"},$comic),br, 
 				a({-href=>"/comics?comic=$comic&strip=$strip&bookmark=1"},"Bookmark"),
 				a({href=>"/tools?tool=kategorie&comic=$comic"},'Kategorie')
 				);
-		dat->{$comic}->{'aktuell'} = $strip;
-		dat->{$comic}->{'bookmark'} = $strip if param('bookmark');
+		&usr($comic,'aktuell',$strip);
+		&usr($comic,'bookmark',$strip) if param('bookmark');
 		return $return . end_html;
 	}
 	else {
 		unless ($index{$comic}) {
 			my %double;
 			print "erstelle index ...\n";
-			my $strip = dat->{$comic}->{'first'};
 			
+			my $dat = $dbh->selectall_hashref(qq(select strip,next,title from _$comic),"strip");
+			
+			my $strip = &usr($comic,'first');
 			$index{$comic} = &kopf($comic);
 			
 			my $i;
-			while (sdat($comic)->{$strip}) {
+			while ($dat->{$strip}->{'strip'}) {
 				if ($double{$strip}) {
 					print "loop gefunden, breche ab\n" ;
-					last
+					last;
 				}
 				$double{$strip} = 1;
 
 				$i++;
-				my $title = sdat($comic)->{$strip}->{'title'};
+				my $title = $dat->{$strip}->{'title'};
 				$title =~ s/-§-//g;
 				$title =~ s/!§!/|/g;
 				$title =~ s/~§~/~/g;
-				$index{$comic} .= a({href=>"./comics?comic=$comic&strip=$strip"},"$i : $strip : $title") . (&dat->{_CFG_}->{thumb}?img({-height=>&dat->{_CFG_}->{thumb}, -src=>"/strips/$comic/$strip"}):undef) . br;
-				if ($strip eq sdat($comic)->{$strip}->{'next'}) {
+				$index{$comic} .= a({href=>"./comics?comic=$comic&strip=$strip"},"$i : $strip : $title") .br;#. (&config('thumb')?img({-height=>&config('thumb'), -src=>"/strips/$comic/$strip"}):undef) . br;
+				if ($strip eq $dat->{$strip}->{'next'}) {
 					print "selbstreferenz gefunden, breche ab\n" ;
 					last;
 				}
 				else {
-					print "weiter: " .$strip." -> " . sdat($comic)->{$strip}->{'next'} . "\n";
-					$strip = sdat($comic)->{$strip}->{'next'};
+					print "weiter: " .$strip." -> " . $dat->{$strip}->{'next'} . "\n";
+					$strip = $dat->{$strip}->{'next'};
 				}
 			}
 			$index{$comic} .= end_html;
@@ -238,9 +228,9 @@ sub ctools {
 	my $tool = param('tool');
 	my $comic = param('comic');
 	if ($tool eq "kategorie") {
-		my $kategorie = param('kategorie');
+		my $kategorie = param('neu') // param('kategorie') ;
 		if ($kategorie) {
-			dat->{$comic}->{kategorie} = $kategorie;
+			usr($comic,'kategorie',$kategorie);
 			return &kopf($comic . " Kategorie geändert") ."$comic kategorie erfolgreich nach $kategorie geändert" . br . br . &cindex();
 		}
 		my $res = &kopf($comic." Kategorie ändern");
@@ -250,8 +240,9 @@ sub ctools {
 		$res .= hidden('tool',"kategorie");
 		$res .= radio_group(-name=>'kategorie',
 	                             -values=>[&kategorie],
-	                             -default=>dat->{$comic}->{kategorie},
+	                             -default=>usr($comic,'kategorie'),
 	                             -linebreak=>'true');
+		$res .= "neu: " . textfield(-name=>'neu');
 		$res .= submit('ok');
 		$res .= end_form;
 		$res .= end_html;;
@@ -259,8 +250,8 @@ sub ctools {
 	}	
 	if ($tool eq "load_all") {
 		my $time = time;
-		foreach (&comics) { sdat($_); }
-		return "benötigte ". (time - $time) ." sekunden";
+	#	foreach (&comics) { sdat($_); }
+		return "inactive";
 	}
 	if ($tool eq "kategoriereihenfolge") {
 		my $res = &kopf("Kategoriereihenfolge ändern");
@@ -282,98 +273,98 @@ sub ctools {
 	if ($tool eq "download") {
 		require dlutil;
 		my $strip = param('strip');
-		&dlutil::getstore(sdat($comic)->{$strip}->{surl},"./strips/$comic/$strip");
+		&dlutil::getstore(&dat($comic,$strip,'surl'),"./strips/$comic/$strip");
 		return &ccomic;
 	}
 	if ($tool eq "datalyzer") {
-		my %d;
-		my @strps = keys %{&sdat($comic)};
-		foreach my $strp (@strps) {
-			next if $strp eq '__SECTIONS__';
-			$d{count}->{$d{count}->{n}} = $strp;
-			$d{count}->{n}++;
-			$d{strps}->{$strp} = \%{&sdat($comic)->{$strp}};
-			if ($strp =~ m/^dummy/) {
-				$d{dummy}->{$d{dummy}->{n}} = $strp;
-				$d{dummy}->{n}++ ;
-			}
-			if (sdat($comic)->{$strp}->{prev} and sdat($comic)->{$strp}->{next}) {  #hat prev und next
-				$d{prevnext}->{$d{prevnext}->{n}} = $strp;
-				$d{prevnext}->{n}++ ;
-			} elsif (sdat($comic)->{$strp}->{prev}) { #hat nur prev
-				$d{prev}->{$d{prev}->{n}} = $strp;
-				$d{prev}->{n}++;
-			} elsif (sdat($comic)->{$strp}->{next}) { #hat nur next
-				$d{next}->{$d{next}->{n}} = $strp;
-				$d{next}->{n}++;
-			} else {									# hat keines von beiden
-				$d{none}->{$d{none}->{n}} = $strp;
-				$d{none}->{n}++;
-			}
+		# my %d;
+		# my @strps = keys %{&sdat($comic)};
+		# foreach my $strp (@strps) {
+			# next if $strp eq '__SECTIONS__';
+			# $d{count}->{$d{count}->{n}} = $strp;
+			# $d{count}->{n}++;
+			# $d{strps}->{$strp} = \%{&sdat($comic)->{$strp}};
+			# if ($strp =~ m/^dummy/) {
+				# $d{dummy}->{$d{dummy}->{n}} = $strp;
+				# $d{dummy}->{n}++ ;
+			# }
+			# if (sdat($comic)->{$strp}->{prev} and sdat($comic)->{$strp}->{next}) {  #hat prev und next
+				# $d{prevnext}->{$d{prevnext}->{n}} = $strp;
+				# $d{prevnext}->{n}++ ;
+			# } elsif (sdat($comic)->{$strp}->{prev}) { #hat nur prev
+				# $d{prev}->{$d{prev}->{n}} = $strp;
+				# $d{prev}->{n}++;
+			# } elsif (sdat($comic)->{$strp}->{next}) { #hat nur next
+				# $d{next}->{$d{next}->{n}} = $strp;
+				# $d{next}->{n}++;
+			# } else {									# hat keines von beiden
+				# $d{none}->{$d{none}->{n}} = $strp;
+				# $d{none}->{n}++;
+			# }
 			
-			my $next = &sdat($comic)->{$strp}->{next};
-			if ($next and !(&sdat($comic)->{$next}->{prev} eq $strp)) { #if prev of next is not self
-				$d{backlink_next}->{$d{backlink_next}->{n}} = $strp;
-				$d{backlink_next}->{n}++;
-			}
-			my $prev = &sdat($comic)->{$strp}->{prev};
-			if ($prev and !(&sdat($comic)->{$prev}->{next} eq $strp)) { #if next of prev is not self
-				$d{backlink_prev}->{$d{backlink_prev}->{n}} = $strp;
-				$d{backlink_prev}->{n}++;
-			}
+			# my $next = &sdat($comic)->{$strp}->{next};
+			# if ($next and !(&sdat($comic)->{$next}->{prev} eq $strp)) { #if prev of next is not self
+				# $d{backlink_next}->{$d{backlink_next}->{n}} = $strp;
+				# $d{backlink_next}->{n}++;
+			# }
+			# my $prev = &sdat($comic)->{$strp}->{prev};
+			# if ($prev and !(&sdat($comic)->{$prev}->{next} eq $strp)) { #if next of prev is not self
+				# $d{backlink_prev}->{$d{backlink_prev}->{n}} = $strp;
+				# $d{backlink_prev}->{n}++;
+			# }
 			
-		}
+		# }
 		
-		my $res = &kopf("Datalyzer");
-		my $sec = param('section') ;
+		# my $res = &kopf("Datalyzer");
+		# my $sec = param('section') ;
 		
-		if ($sec eq 'strps') {
-			$res .= table(Tr([map {td([ #creating table with key : value pairs via map
-					#if it is prev or next make it a link; else just print out the information
-					$_,":",	($_ =~ m/prev|next/)	?	a({href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
-					#make links klickable
-					($_ =~ m/url/)	?	 a({href=>$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
-					$d{$sec}->{param('strip')}->{$_}
-					])} grep {$_ ne 'n'} keys %{$d{$sec}->{param('strip')}}]));	#getting all keys 
-			$res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
-		}
-		elsif ($sec) {
-			$res .= table(Tr([map {td([	#creating table with key : value pairs via map
-					a({-href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=" . $d{$sec}->{$_}},$d{$sec}->{$_})
-					])} grep {$_ ne 'n'} keys %{$d{$sec}}]));	#getting all keys 
-			$res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
-		}
-		else {
-			$res .= table(Tr([map {td([	#creating table with key : value pairs via map
-					a({-href=>"/tools?tool=datalyzer&comic=$comic&section=$_"},$_) , ':' , $d{$_}->{n}
-					])} grep {$_ ne 'strps'} keys %d]));	#getting all keys 
-		}
-		$res .= br . a({-href=>"/"},"Index") . end_html;
-		return $res;
+		# if ($sec eq 'strps') {
+			# $res .= table(Tr([map {td([ #creating table with key : value pairs via map
+					# #if it is prev or next make it a link; else just print out the information
+					# $_,":",	($_ =~ m/prev|next/)	?	a({href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
+					# #make links klickable
+					# ($_ =~ m/url/)	?	 a({href=>$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
+					# $d{$sec}->{param('strip')}->{$_}
+					# ])} grep {$_ ne 'n'} keys %{$d{$sec}->{param('strip')}}]));	#getting all keys 
+			# $res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
+		# }
+		# elsif ($sec) {
+			# $res .= table(Tr([map {td([	#creating table with key : value pairs via map
+					# a({-href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=" . $d{$sec}->{$_}},$d{$sec}->{$_})
+					# ])} grep {$_ ne 'n'} keys %{$d{$sec}}]));	#getting all keys 
+			# $res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
+		# }
+		# else {
+			# $res .= table(Tr([map {td([	#creating table with key : value pairs via map
+					# a({-href=>"/tools?tool=datalyzer&comic=$comic&section=$_"},$_) , ':' , $d{$_}->{n}
+					# ])} grep {$_ ne 'strps'} keys %d]));	#getting all keys 
+		# }
+		# $res .= br . a({-href=>"/"},"Index") . end_html;
+		return $res . "function deactivated";
 	}
 	if ($tool eq "thumb") {
-		&dat->{_CFG_}->{thumb} = param('height');
+		&config('thumb',param('height'));
 	}
 	if ($tool eq "colorizer") {
 		my $res = &kopf("Change Colors");
 		if (defined param('color_bg')) {
-			&dat->{_CFG_}->{color_bg} = param('color_bg');
+			&config('color_bg',param('color_bg'));
 		}
 		if (defined param('color_text')) {
-			&dat->{_CFG_}->{color_text} = param('color_text');
+			&config('color_text',param('color_text'));
 		}
 		if (defined param('color_link')) {
-			&dat->{_CFG_}->{color_link} = param('color_link');
+			&config('color_link',param('color_link'));
 		}
 		if (defined param('color_vlink')) {
-			&dat->{_CFG_}->{color_vlink} = param('color_vlink');
+			&config('color_vlink',param('color_vlink'));
 		}
 		$res .= start_form("GET","tools");
 		$res .= hidden('tool',"colorizer");
-		$res .= "Background: " . textfield(-name=>'color_bg', -default=>&dat->{_CFG_}->{color_bg}) . br;
-		$res .= "Text: " . textfield(-name=>'color_text', -default=>&dat->{_CFG_}->{color_text}) . br;;
-		$res .= "Link: " . textfield(-name=>'color_link', -default=>&dat->{_CFG_}->{color_link}) . br;;
-		$res .= "vlink: " . textfield(-name=>'color_vlink', -default=>&dat->{_CFG_}->{color_vlink}) . br;;
+		$res .= "Background: " . textfield(-name=>'color_bg', -default=>&config('color_bg')) . br;
+		$res .= "Text: " . textfield(-name=>'color_text', -default=>&config('color_text')) . br;;
+		$res .= "Link: " . textfield(-name=>'color_link', -default=>&config('color_link')) . br;;
+		$res .= "vlink: " . textfield(-name=>'color_vlink', -default=>&config('color_vlink')) . br;;
 		$res .= submit('ok');
 		$res .= br . br .  a({-href=>"/"},"Index");
 		return $res . end_html;
@@ -381,80 +372,73 @@ sub ctools {
 }
 
 
-sub load {
-	my $comic = shift;
-	return $sdat->{$comic} if $sdat->{$comic};
-	print "$comic.dat wird geladen\n";
-	$sdat->{$comic} = ReadINI("./data/$comic.dat",{'case'=>'preserve', 'sectionorder' => 1});
-	return unless $sdat->{$comic}->{__SECTIONS__};
-	my @strips = @{$sdat->{$comic}->{__SECTIONS__}};
-	unless (dat->{$comic}->{first}) {
+sub update {
+	my %firsts = @{$dbh->selectcol_arrayref(qq(select comic,first from USER),{ Columns=>[1,2] })};
+	foreach my $comic (grep {!defined $firsts{$_}} keys %firsts) {
+		my %strps = @{$dbh->selectcol_arrayref(qq(select strip,prev from _$comic),{ Columns=>[1,2] })};
+		my @first = grep {!defined $strps{$_}} keys %strps;
+		next if (@first == 0); 
+		@first = grep {$_ !~ /^dummy/} @first if (@first > 1);
+		usr($comic,'first',$first[0]);
+	}
+
+	foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where time <= 0))}){
+		#my $ls = usr($comic,'last_save');
+		#my $su = usr($comic,'server_update');
+		#next if (($su-$ls)>0);
+		usr($comic,'server_update',time);
+		
+		usr($comic,'strip_count',$dbh->selectrow_array(qq(select count(*) from _$comic)));
+		
+		
 		my %double;
-		my $first = $strips[0];
-		while ($sdat->{$comic}->{$first}->{prev}) {
-			if ($double{$first}) {
-				print "loop bei $first gefunden, breche ab\n";
+		my $strp = usr($comic,'first');
+
+		my $strps = {};
+		$strps = $dbh->selectall_hashref(qq(select strip , next from _$comic), "strip");
+		
+		my $i = 1;
+		while($strps->{$strp}->{next}) {
+			$strp = $strps->{$strp}->{next};
+			if ($double{$strp} == 1) {
 				last;
 			}
-			$double{$first} = 1;
-			$first = $sdat->{$comic}->{$first}->{prev};
-			print "zurueck: ". $comic."/".dat($comic)->{$first}->{'next'} ." -> " . $first . "\n";
-		}	
-		&dat->{$comic}->{first} = $first;
-	}
-	dat->{$comic}->{strip_count} = $#strips + 1;
-	my $point = dat->{$comic}->{first};
-	my $i = 1;
-	my %double;
-	while ($sdat->{$comic}->{$point}->{next}) {
-		if ($double{$point}) {
-			print "loop bei $point gefunden, breche ab\n";
-			last;
-		}
-		else {
+			else {
+				$double{$strp} = 1;
+			}
 			$i++;
-			#print "weiter: ". $comic."/".$point ." -> " . $sdat->{$comic}->{$point}->{next} . " $i<" . dat->{$comic}->{strip_count} . "\n";
-			$point = $sdat->{$comic}->{$point}->{next};
-			last if ($i > dat->{$comic}->{strip_count});
 		}
+		usr($comic,'last',$strp);
+		usr($comic,'strips_counted',$i);
 	}
-	dat->{$comic}->{last} = $point;
-	dat->{$comic}->{strips_counted} = $i;
-	return $sdat->{$comic};
 }
 
+&update;
 
-
-sub load_dat {
-	my $usr;
-	return $srv if $srv;
-	if (-e 'user.ini') {
-		$usr = ReadINI('user.ini',{'case'=>'preserve', 'sectionorder' => 1});
-	}
-	if (-e 'server.ini') {
-		$srv = ReadINI('server.ini',{'case'=>'preserve', 'sectionorder' => 1});
-	}
-	
-	if (!$srv) {
-		if ($usr) {
-			$srv = $usr;
+#print "Please contact me at: <URL:", $d->url,">\n";
+print "Please contact me at: <URL:", "http://127.0.0.1/" ,">\n";
+while (my $c = $d->accept) {
+	while (my $r = $c->get_request) {
+		if ($r->method eq 'GET') {
+			if ($r->url->path =~ m#^/strips/(.*?)/(.*)$#) {
+				$c->send_file_response("./strips/$1/$2");
+			}
+			else {
+				restore_parameters($r->url->query);
+				if ($r->url->path =~ m#^/comics$#) {
+					$res->content(&ccomic);
+				}
+				elsif ($r->url->path =~ m#^/tools$#) {
+					$res->content(&ctools);
+				}
+				else {
+					$res->content(&cindex);
+				}
+				$c->send_response($res);
+			}
 		}
-		else {
-			$srv = {}
-		}
+		$c->close;
+		$dbh->commit;
 	}
-
-	@{$srv->{__SECTIONS__}} = @{$usr->{__SECTIONS__}} if $usr and $srv;
-	
-	my $cfg = ReadINI('data/_CFG_',{'case'=>'preserve', 'sectionorder' => 1});
-	
-	foreach (@{$cfg->{__SECTIONS__}}) {
-		$srv->{$_}->{first} = $cfg->{$_}->{first}
-	}
-	
-	return $srv;
-}
-
-sub write_dat {
-	WriteINI("server.ini", &dat);
+	undef($c);
 }
