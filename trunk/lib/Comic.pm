@@ -12,7 +12,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '6';
+$VERSION = '7';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -242,6 +242,7 @@ sub goto_next {
 			($not_goto and ($urls[1] =~ m#$not_goto#i)) or 
 			($urls[1] =~ m#(index|main)\.(php|html?)$#i) or 
 			($urls[1] =~ m:#$:) or
+			($urls[1] =~ m:/$:) or
 			($add_url and ($url =~ m#$add_url#))
 		);
 		unless ($s->{not_goto} or $s->curr->dummy) {
