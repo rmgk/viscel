@@ -9,11 +9,12 @@ use HTTP::Status;
 use Config::IniHash;
 use CGI qw(:standard *table);
 use DBI;
+use Data::Dumper;
 
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.11';
+$VERSION = '2.12';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -110,6 +111,7 @@ sub cindex {
 	$ret 	.=	a({-href=>"/tools?tool=config"},"Configuration") . br 
 			.	a({-href=>"/tools?tool=user"},"User Config"). br 
 			.	a({-href=>"/tools?tool=kategoriereihenfolge"},"Kategoriereihenfolge ändern"). br 
+			.	a({-href=>"/tools?tool=query"},"Custom Query"). br 
 			.	br;
 	$ret .= "Inhalt:" . br;
 	foreach (kategorie) {
@@ -403,6 +405,24 @@ sub ctools {
 			$res .=  Tr(td(a({-href=>"/tools?tool=user&comic=". $comic},$comic)),td([map {textfield(-name=>$_, -default=>&usr($comic,$_))} keys %{$user->{$comic}}]));
 		}
 		return $res . end_table . br . br .  a({-href=>"/"},"Index") . end_html;
+	}
+	if ($tool eq 'query') {
+		my $res = &kopf('Query');
+		if (param('query')) {
+			if (param('hashkey')) {
+				$res .= pre(Dumper($dbh->selectall_hashref(param('query'),param('hashkey'))));
+			}
+			else {
+				$res .= pre(Dumper($dbh->selectall_arrayref(param('query'))));
+			}
+			return $res . br . br . a({-href=>"/tools?tool=query"},"Back") . br .  a({-href=>"/"},"Index") . end_html;
+		}
+		$res .= start_form("GET","tools");
+		$res .= hidden('tool',"query");
+		$res .= textfield(-name=>"query", -size=>"200") . br;
+		$res .= textfield(-name=>"hashkey", -size=>"20");
+		$res .= br . submit('ok');
+		return $res . br . br .  a({-href=>"/"},"Index") . end_html;
 	}
 }
 
