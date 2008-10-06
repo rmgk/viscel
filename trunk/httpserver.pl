@@ -13,7 +13,7 @@ use DBI;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.10';
+$VERSION = '2.11';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -228,10 +228,10 @@ sub ctools {
 	my $tool = param('tool');
 	my $comic = param('comic');
 	if ($tool eq "kategorie") {
-		my $kategorie = param('neu') // param('kategorie') ;
+		my $kategorie = param('neu') || param('kategorie') ;
 		if ($kategorie) {
 			usr($comic,'kategorie',$kategorie);
-			return &kopf($comic . " Kategorie geändert") ."$comic kategorie erfolgreich nach $kategorie geändert" . br . br . &cindex();
+			return &kopf($comic . " Kategorie geändert") ."$comic category changed to $kategorie " . a({-href=>"/"},"Back") . br . br . &cindex();
 		}
 		my $res = &kopf($comic." Kategorie ändern");
 		
@@ -243,7 +243,8 @@ sub ctools {
 	                             -default=>usr($comic,'kategorie'),
 	                             -linebreak=>'true');
 		$res .= "neu: " . textfield(-name=>'neu');
-		$res .= submit('ok');
+		$res .= br . submit('ok');
+		$res .= br . a({-href=>"/"},"Index");
 		$res .= end_form;
 		$res .= end_html;;
 		return $res;	
@@ -371,7 +372,7 @@ sub ctools {
 		$res .= hidden('tool',"config");
 		$res .= start_table;
 		foreach my $key (keys %{$config}) {
-			if (defined param($key)) {
+			if (param($key)) {
 				&config($key,param($key));
 			}
 			$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&config($key), -size=>"100")));
@@ -381,12 +382,12 @@ sub ctools {
 	if ($tool eq 'user') {
 		my $user = $dbh->selectall_hashref("select * from USER","comic");
 		my $res = &kopf('user');
-		if (defined param('comic')) {
+		if (param('comic')) {
 			$res .= start_form("GET","tools");
 			$res .= hidden('tool',"user");
 			$res .= start_table;
 			foreach my $key (keys %{$user->{param('comic')}}) {
-				if (defined param($key)) {
+				if (param($key)) {
 					&usr(param('comic'),$key,param($key));
 				}
 				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&usr(param('comic'),$key), -size=>"100")));
