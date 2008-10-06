@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#13:37 12.07.2008
+#17:15 06.10.2008
 
 use lib "./lib";
 
@@ -13,7 +13,7 @@ use DBI;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.8';
+$VERSION = '2.9';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -22,7 +22,7 @@ my $srv;
 
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
-my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 0,PrintError => 1});
+my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 
 
 
@@ -438,7 +438,7 @@ while (my $c = $d->accept) {
 			}
 		}
 		$c->close;
-		$dbh->commit;
+		#$dbh->commit;
 	}
 	undef($c);
 }

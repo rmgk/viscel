@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#18:46 03.10.2008
+#17:16 06.10.2008
 
 use strict;
 use warnings;
@@ -9,7 +9,7 @@ use DBI;
 use Comic;
 
 use vars qw($VERSION);
-$VERSION = '75' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '76' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -27,7 +27,7 @@ my @opts = @ARGV;
 {
 	use Config::IniHash;
 	my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
-	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 0,PrintError => 1});
+	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 	my @comics;
 	@comics = @{$comics->{__SECTIONS__}};
 	my $opmode;
@@ -106,6 +106,6 @@ my @opts = @ARGV;
 		Comic::get_comic({"name" => $comic, "dbh" => $dbh});
 		last if $TERM;
 	}
-	$dbh->commit;
+	#$dbh->commit;
 	$dbh->disconnect;
 }
