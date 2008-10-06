@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#18:47 03.10.2008
+#17:31 06.10.2008
 package Comic;
 
 use strict;
@@ -12,14 +12,14 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '5';
+$VERSION = '6';
 
 sub get_comic {
 	my $s = Comic::new(@_);
 	if ($s) {
 		$s->get_all;
 		$s->release_pages;
-		$s->dbh->commit;
+		$s->dbh->commit unless $s->{dbh_no_disconnect};
 		$s->dbh->disconnect unless $s->{dbh_no_disconnect};
 	}
 	else {

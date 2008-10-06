@@ -13,7 +13,7 @@ use DBI;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.9';
+$VERSION = '2.10';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -107,9 +107,9 @@ sub cindex {
 	my %kat_count;
 	my %kat_counted;
 	$ret .= "Tools:" . br;
-	$ret 	.=	a({-href=>"/tools?tool=load_all"},"Load all Comics") . br 
+	$ret 	.=	a({-href=>"/tools?tool=config"},"Configuration") . br 
+			.	a({-href=>"/tools?tool=user"},"User Config"). br 
 			.	a({-href=>"/tools?tool=kategoriereihenfolge"},"Kategoriereihenfolge ändern"). br 
-			.	a({-href=>"/tools?tool=colorizer"},"Change Colors"). br 
 			.	br;
 	$ret .= "Inhalt:" . br;
 	foreach (kategorie) {
@@ -248,11 +248,6 @@ sub ctools {
 		$res .= end_html;;
 		return $res;	
 	}	
-	if ($tool eq "load_all") {
-		my $time = time;
-	#	foreach (&comics) { sdat($_); }
-		return "inactive";
-	}
 	if ($tool eq "kategoriereihenfolge") {
 		my $res = &kopf("Kategoriereihenfolge ändern");
 		my $i;
@@ -368,6 +363,45 @@ sub ctools {
 		$res .= submit('ok');
 		$res .= br . br .  a({-href=>"/"},"Index");
 		return $res . end_html;
+	}
+	if ($tool eq 'config') {
+		my $config = $dbh->selectrow_hashref("select * from CONFIG");
+		my $res = &kopf('Config');
+		$res .= start_form("GET","tools");
+		$res .= hidden('tool',"config");
+		$res .= start_table;
+		foreach my $key (keys %{$config}) {
+			if (defined param($key)) {
+				&config($key,param($key));
+			}
+			$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&config($key), -size=>"100")));
+		}
+		return $res . end_table . submit('ok'). br . br .  a({-href=>"/"},"Index") . end_html;
+	}
+	if ($tool eq 'user') {
+		my $user = $dbh->selectall_hashref("select * from USER","comic");
+		my $res = &kopf('user');
+		if (defined param('comic')) {
+			$res .= start_form("GET","tools");
+			$res .= hidden('tool',"user");
+			$res .= start_table;
+			foreach my $key (keys %{$user->{param('comic')}}) {
+				if (defined param($key)) {
+					&usr(param('comic'),$key,param($key));
+				}
+				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&usr(param('comic'),$key), -size=>"100")));
+			}
+			return $res . end_table . submit('ok'). br . br . a({-href=>"/tools?tool=user"},"Back") . br . a({-href=>"/"},"Index") . end_html;
+		}
+		$res .= start_table;
+		my $h = 0;
+		foreach my $comic (sort{uc($a) cmp uc($b)} (keys %{$user})) {
+
+			$res .=  Tr(td('name'),td([keys %{$user->{$comic}}])) if !$h;
+			$h = 1;
+			$res .=  Tr(td(a({-href=>"/tools?tool=user&comic=". $comic},$comic)),td([map {textfield(-name=>$_, -default=>&usr($comic,$_))} keys %{$user->{$comic}}]));
+		}
+		return $res . end_table . br . br .  a({-href=>"/"},"Index") . end_html;
 	}
 }
 

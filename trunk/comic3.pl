@@ -39,7 +39,7 @@ my @opts = @ARGV;
 			foreach (@opts) {
 				$dbh->do(qq(update USER set url_current = NULL where comic="$_"));
 			}
-			$dbh->commit;
+			#$dbh->commit;
 		}
 		elsif (($opts[0] eq '-e') and (@opts > 1)) {
 			shift @opts;
