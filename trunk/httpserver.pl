@@ -14,7 +14,7 @@ use Data::Dumper;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.12';
+$VERSION = '2.13';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -275,70 +275,68 @@ sub ctools {
 		return &ccomic;
 	}
 	if ($tool eq "datalyzer") {
-		# my %d;
-		# my @strps = keys %{&sdat($comic)};
-		# foreach my $strp (@strps) {
-			# next if $strp eq '__SECTIONS__';
-			# $d{count}->{$d{count}->{n}} = $strp;
-			# $d{count}->{n}++;
-			# $d{strps}->{$strp} = \%{&sdat($comic)->{$strp}};
-			# if ($strp =~ m/^dummy/) {
-				# $d{dummy}->{$d{dummy}->{n}} = $strp;
-				# $d{dummy}->{n}++ ;
-			# }
-			# if (sdat($comic)->{$strp}->{prev} and sdat($comic)->{$strp}->{next}) {  #hat prev und next
-				# $d{prevnext}->{$d{prevnext}->{n}} = $strp;
-				# $d{prevnext}->{n}++ ;
-			# } elsif (sdat($comic)->{$strp}->{prev}) { #hat nur prev
-				# $d{prev}->{$d{prev}->{n}} = $strp;
-				# $d{prev}->{n}++;
-			# } elsif (sdat($comic)->{$strp}->{next}) { #hat nur next
-				# $d{next}->{$d{next}->{n}} = $strp;
-				# $d{next}->{n}++;
-			# } else {									# hat keines von beiden
-				# $d{none}->{$d{none}->{n}} = $strp;
-				# $d{none}->{n}++;
-			# }
+		my %d;
+		my $strips = $dbh->selectall_hashref("select * from _$comic","strip");
+		foreach my $strp (keys %{$strips}) {
+			$d{count}->{$d{count}->{n}} = $strp;
+			$d{count}->{n}++;
+			$d{strps}->{$strp} = \%{$strips->{$strp}};
+			if ($strp =~ m/^dummy/) {
+				$d{dummy}->{$d{dummy}->{n}} = $strp;
+				$d{dummy}->{n}++ ;
+			}
+			if ($strips->{$strp}->{prev} and $strips->{$strp}->{next}) {  #hat prev und next
+				$d{prevnext}->{$d{prevnext}->{n}} = $strp;
+				$d{prevnext}->{n}++ ;
+			} elsif ($strips->{$strp}->{prev}) { #hat nur prev
+				$d{prev}->{$d{prev}->{n}} = $strp;
+				$d{prev}->{n}++;
+			} elsif ($strips->{$strp}->{next}) { #hat nur next
+				$d{next}->{$d{next}->{n}} = $strp;
+				$d{next}->{n}++;
+			} else {									# hat keines von beiden
+				$d{none}->{$d{none}->{n}} = $strp;
+				$d{none}->{n}++;
+			}
 			
-			# my $next = &sdat($comic)->{$strp}->{next};
-			# if ($next and !(&sdat($comic)->{$next}->{prev} eq $strp)) { #if prev of next is not self
-				# $d{backlink_next}->{$d{backlink_next}->{n}} = $strp;
-				# $d{backlink_next}->{n}++;
-			# }
-			# my $prev = &sdat($comic)->{$strp}->{prev};
-			# if ($prev and !(&sdat($comic)->{$prev}->{next} eq $strp)) { #if next of prev is not self
-				# $d{backlink_prev}->{$d{backlink_prev}->{n}} = $strp;
-				# $d{backlink_prev}->{n}++;
-			# }
+			my $next = $strips->{$strp}->{next};
+			if ($next and !($strips->{$next}->{prev} eq $strp)) { #if prev of next is not self
+				$d{backlink_next}->{$d{backlink_next}->{n}} = $strp;
+				$d{backlink_next}->{n}++;
+			}
+			my $prev = $strips->{$strp}->{prev};
+			if ($prev and !($strips->{$prev}->{next} eq $strp)) { #if next of prev is not self
+				$d{backlink_prev}->{$d{backlink_prev}->{n}} = $strp;
+				$d{backlink_prev}->{n}++;
+			}
 			
-		# }
+		}
 		
-		# my $res = &kopf("Datalyzer");
-		# my $sec = param('section') ;
+		my $res = &kopf("Datalyzer");
+		my $sec = param('section') ;
 		
-		# if ($sec eq 'strps') {
-			# $res .= table(Tr([map {td([ #creating table with key : value pairs via map
-					# #if it is prev or next make it a link; else just print out the information
-					# $_,":",	($_ =~ m/prev|next/)	?	a({href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
-					# #make links klickable
-					# ($_ =~ m/url/)	?	 a({href=>$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
-					# $d{$sec}->{param('strip')}->{$_}
-					# ])} grep {$_ ne 'n'} keys %{$d{$sec}->{param('strip')}}]));	#getting all keys 
-			# $res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
-		# }
-		# elsif ($sec) {
-			# $res .= table(Tr([map {td([	#creating table with key : value pairs via map
-					# a({-href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=" . $d{$sec}->{$_}},$d{$sec}->{$_})
-					# ])} grep {$_ ne 'n'} keys %{$d{$sec}}]));	#getting all keys 
-			# $res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
-		# }
-		# else {
-			# $res .= table(Tr([map {td([	#creating table with key : value pairs via map
-					# a({-href=>"/tools?tool=datalyzer&comic=$comic&section=$_"},$_) , ':' , $d{$_}->{n}
-					# ])} grep {$_ ne 'strps'} keys %d]));	#getting all keys 
-		# }
-		# $res .= br . a({-href=>"/"},"Index") . end_html;
-		return $res . "function deactivated";
+		if ($sec eq 'strps') {
+			$res .= table(Tr([map {td([ #creating table with key : value pairs via map
+					#if it is prev or next make it a link; else just print out the information
+					$_,":",	($_ =~ m/prev|next/)	?	a({href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
+					#make links klickable
+					($_ =~ m/url/)	?	 a({href=>$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
+					$d{$sec}->{param('strip')}->{$_}
+					])} grep {$_ ne 'n'} keys %{$d{$sec}->{param('strip')}}]));	#getting all keys 
+			$res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
+		}
+		elsif ($sec) {
+			$res .= table(Tr([map {td([	#creating table with key : value pairs via map
+					a({-href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=" . $d{$sec}->{$_}},$d{$sec}->{$_})
+					])} grep {$_ ne 'n'} keys %{$d{$sec}}]));	#getting all keys 
+			$res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
+		}
+		else {
+			$res .= table(Tr([map {td([	#creating table with key : value pairs via map
+					a({-href=>"/tools?tool=datalyzer&comic=$comic&section=$_"},$_) , ':' , $d{$_}->{n}
+					])} grep {$_ ne 'strps'} keys %d]));	#getting all keys 
+		}
+		return $res .= br . a({-href=>"/"},"Index") . end_html;
 	}
 	if ($tool eq "thumb") {
 		&config('thumb',param('height'));
@@ -382,7 +380,7 @@ sub ctools {
 		return $res . end_table . submit('ok'). br . br .  a({-href=>"/"},"Index") . end_html;
 	}
 	if ($tool eq 'user') {
-		my $user = $dbh->selectall_hashref("select * from USER","comic");
+		my $user = $dbh->selectall_hashref("select url_current,last_update,first,bookmark,* from USER","comic");
 		my $res = &kopf('user');
 		if (param('comic')) {
 			$res .= start_form("GET","tools");
@@ -428,19 +426,14 @@ sub ctools {
 
 
 sub update {
-	my %firsts = @{$dbh->selectcol_arrayref(qq(select comic,first from USER),{ Columns=>[1,2] })};
-	foreach my $comic (grep {!defined $firsts{$_}} keys %firsts) {
-		my %strps = @{$dbh->selectcol_arrayref(qq(select strip,prev from _$comic),{ Columns=>[1,2] })};
-		my @first = grep {!defined $strps{$_}} keys %strps;
+	foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic from USER where first IS NULL))}) {
+		my @first = @{$dbh->selectcol_arrayref("select strip from _$comic where prev IS NULL")};
 		next if (@first == 0); 
 		@first = grep {$_ !~ /^dummy/} @first if (@first > 1);
 		usr($comic,'first',$first[0]);
 	}
 
-	foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where time <= 0))}){
-		#my $ls = usr($comic,'last_save');
-		#my $su = usr($comic,'server_update');
-		#next if (($su-$ls)>0);
+	foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where time <= 0 OR server_update IS NULL))}){
 		usr($comic,'server_update',time);
 		
 		usr($comic,'strip_count',$dbh->selectrow_array(qq(select count(*) from _$comic)));
