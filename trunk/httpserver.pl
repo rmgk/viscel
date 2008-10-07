@@ -14,7 +14,7 @@ use Data::Dumper;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.13';
+$VERSION = '2.14';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -26,7 +26,6 @@ my %index;
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 
 
-
 sub comics {
 	#my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
 	#return @{$comics->{__SECTIONS__}};
@@ -34,8 +33,11 @@ sub comics {
 }
 
 sub config {
-	my ($key,$value) = @_;
-	if (defined $value) {
+	my ($key,$value,$null) = @_;
+	if ($null) {
+		$dbh->do(qq(update CONFIG set $key = NULL));
+	}
+	elsif (defined $value and $value ne '') {
 		if ($dbh->do(qq(update CONFIG set $key = "$value"))< 1) {
 			$dbh->do(qq(insert into CONFIG ($key) VALUES ("$value")));
 		}
@@ -44,8 +46,11 @@ sub config {
 }
 
 sub usr { #gibt die aktuellen einstellungen des comics aus # hier gehören die veränderlichen informationen rein, die der nutzer auch selbst bearbeiten kann
-	my ($c,$key,$value) = @_;
-	if ($value) {
+	my ($c,$key,$value,$null) = @_;
+	if ($null) {
+			$dbh->do(qq(update USER set $key = NULL where comic="$c"));
+	}
+	elsif (defined $value and $value ne '') {
 		if ($dbh->do(qq(update USER set $key = "$value" where comic="$c")) < 1) { #try to update
 			$dbh->do(qq(insert into USER (comic,$key) VALUES ("$c","$value"))); #insert if update fails
 		}
@@ -54,8 +59,11 @@ sub usr { #gibt die aktuellen einstellungen des comics aus # hier gehören die ve
 }
 
 sub dat { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu dem comic und seinen srips gespeichert
-	my ($c,$strip,$key,$value) = @_;
-	if ($value) {
+	my ($c,$strip,$key,$value,$null) = @_;
+	if ($null) {
+			$dbh->do(qq(update _$c set $key = NULL where strip="$strip"));
+	}
+	elsif (defined $value and $value ne '') {
 		if ($dbh->do(qq(update _$c set $key = "$value" where strip="$strip")) < 1) { #try to update
 			$dbh->do(qq(insert into _$c  (strip,$key) values ("$strip","$value"))); #insert if update fails
 		}
@@ -371,28 +379,34 @@ sub ctools {
 		$res .= start_form("GET","tools");
 		$res .= hidden('tool',"config");
 		$res .= start_table;
+		if (param('delete') ne '') {
+			&config(param('delete'),0,'delete');
+		}
 		foreach my $key (keys %{$config}) {
-			if (param($key)) {
+			if (param($key) ne '') {
 				&config($key,param($key));
 			}
-			$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&config($key), -size=>"100")));
+			$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&config($key), -size=>"100")),td(a({-href=>"/tools?tool=config&delete=$key"},"delete $key")));
 		}
-		return $res . end_table . submit('ok'). br . br .  a({-href=>"/"},"Index") . end_html;
+		return $res . end_table . submit('ok'). br . br . a({-href=>"/tools?tool=config"},"reload") .br. a({-href=>"/"},"Index") . end_html;
 	}
 	if ($tool eq 'user') {
-		my $user = $dbh->selectall_hashref("select url_current,last_update,first,bookmark,* from USER","comic");
+		my $user = $dbh->selectall_hashref("select * from USER","comic");
 		my $res = &kopf('user');
 		if (param('comic')) {
 			$res .= start_form("GET","tools");
 			$res .= hidden('tool',"user");
 			$res .= start_table;
+			if (param('delete') ne '') {
+				&usr(param('comic'),param('delete'),0,'delete');
+			}
 			foreach my $key (keys %{$user->{param('comic')}}) {
 				if (param($key)) {
 					&usr(param('comic'),$key,param($key));
 				}
-				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&usr(param('comic'),$key), -size=>"100")));
+				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&usr(param('comic'),$key), -size=>"100")),td(a({-href=>"/tools?tool=user&delete=$key&comic=" . param('comic')},"delete $key")));
 			}
-			return $res . end_table . submit('ok'). br . br . a({-href=>"/tools?tool=user"},"Back") . br . a({-href=>"/"},"Index") . end_html;
+			return $res . end_table . submit('ok'). br . br .a({-href=>"/tools?tool=user&comic=".param('comic')},"reload") .br. a({-href=>"/tools?tool=user"},"Back") . br . a({-href=>"/"},"Index") . end_html;
 		}
 		$res .= start_table;
 		my $h = 0;
@@ -427,7 +441,7 @@ sub ctools {
 
 sub update {
 	foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic from USER where first IS NULL))}) {
-		my @first = @{$dbh->selectcol_arrayref("select strip from _$comic where prev IS NULL")};
+		my @first = @{$dbh->selectcol_arrayref("select strip from _$comic where prev IS NULL and next IS NOT NULL")};
 		next if (@first == 0); 
 		@first = grep {$_ !~ /^dummy/} @first if (@first > 1);
 		usr($comic,'first',$first[0]);

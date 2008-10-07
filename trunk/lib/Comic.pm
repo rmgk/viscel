@@ -12,7 +12,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '7';
+$VERSION = '8';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -90,9 +90,13 @@ sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränd
 
 sub usr { #gibt die aktuellen einstellungen des comics aus # hier gehören die veränderlichen informationen rein, die der nutzer auch selbst bearbeiten kann
 	my $s = shift;
-	my ($key,$value) = @_;
+	my ($key,$value,$null) = @_;
 	my $c = $s->name;
-	if ($value) {
+	if ($null) {
+			$s->dbh->do(qq(update USER set $key = NULL where comic="$c"));
+			$s->status("DELETE: $key",'WARN');
+	}
+	elsif (defined $value) {
 		if ($s->dbh->do(qq(update USER set $key = "$value" where comic="$c")) < 1) { #try to update
 			$s->dbh->do(qq(insert into USER (comic,$key) VALUES ("$c","$value"))); #insert if update fails
 		}
@@ -102,9 +106,13 @@ sub usr { #gibt die aktuellen einstellungen des comics aus # hier gehören die ve
 
 sub dat { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu dem comic und seinen srips gespeichert
 	my $s = shift;
-	my ($strip,$key,$value) = @_;
+	my ($strip,$key,$value,$null) = @_;
 	my $c = $s->name;
-	if ($value) {
+	if ($null) {
+		$s->dbh->do(qq(update _$c set $key = NULL where strip="$strip"));
+		$s->status("DELETE: $key from $strip",'WARN');
+	}
+	elsif (defined $value) {
 		if ($s->dbh->do(qq(update _$c set $key = "$value" where strip="$strip")) < 1) { #try to update
 			$s->dbh->do(qq(insert into _$c  (strip,$key) values ("$strip","$value"))); #insert if update fails
 		}

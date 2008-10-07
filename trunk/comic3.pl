@@ -58,7 +58,7 @@ my @opts = @ARGV;
 	}
 	
 	my $update_intervall = $dbh->selectrow_array(qq(select update_intervall from CONFIG));
-	unless (defined $update_intervall) {
+	if (!defined $update_intervall or $update_intervall eq '') {
 		$update_intervall = 45000;
 		print "no update interval specified using default = 45000 seconds\n";
 	}
