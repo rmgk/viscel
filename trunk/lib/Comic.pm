@@ -12,14 +12,14 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '8';
+$VERSION = '10';
 
 sub get_comic {
 	my $s = Comic::new(@_);
 	if ($s) {
 		$s->get_all;
 		$s->release_pages;
-		$s->dbh->commit unless $s->{dbh_no_disconnect};
+		$s->dbh->commit unless $s->{autocommit};
 		$s->dbh->disconnect unless $s->{dbh_no_disconnect};
 	}
 	else {
@@ -40,7 +40,7 @@ sub new {
 		$s->{dbh_no_disconnect} = 1;
 	}
 	else {
-		$s->{dbh} = DBI->connect("dbi:SQLite:dbname=".$s->{DB},"","",{AutoCommit => 0,PrintError => 1});
+		$s->{dbh} = DBI->connect("dbi:SQLite:dbname=".$s->{DB},"","",{AutoCommit => $s->{autocommit},PrintError => 1});
 	}
 	
 	
@@ -178,8 +178,8 @@ sub get_next {
 		# }
 	# }
 	#$s->{vorheriges_nichtmehr_versuchen} = 1;
-	$s->curr->index_prev if $s->prev;
-	if ($s->next) {
+	$s->index_prev if $s->prev;
+	if ($s->next and $s->next->body) {
 		$s->goto_next();
 		return 1;
 	}
@@ -187,7 +187,7 @@ sub get_next {
 		if ($s->cfg("all_next_additional_url") and !$::TERM) {
 			$s->goto_next($s->cfg("all_next_additional_url"));
 			$s->curr->all_strips;
-			$s->curr->index_prev if $s->prev;
+			$s->index_prev if $s->prev;
 		}
 		return 0;
 	}
@@ -219,28 +219,73 @@ sub url_current {
 	return $url_curr;
 }
 
-
 sub curr {
 	my $s = shift;
 	$s->{curr} = shift if @_;
 	return $s->{curr} if $s->{curr};
-	$s->{curr} = Page::new({"cmc" => $s},URI->new($s->url_current)->abs($s->url_home)->as_string);
+	$s->{curr} = Page::new({"cmc" => $s, "url" => URI->new($s->url_current)->abs($s->url_home)->as_string });
 	return $s->{curr};
 }
 
 sub prev {
 	my $s = shift;
-	return $s->curr->prev(@_);
+	return $s->{prev} if $s->{prev};
+	my @sides = $s->curr->side_urls();
+	my $url = shift || $sides[0];
+	return if 	(
+					($s->curr->url eq $s->cfg("url_start")) or #nicht zur start url
+					($s->cfg("not_goto") and ($url =~ m#(??{$s->cfg("not_goto")})#i)) or
+					($s->cfg("never_goto") and ($url =~ m#(??{$s->cfg("never_goto")})#i))
+				);
+	if ($url) {
+		$s->{prev} = Page::new({"cmc" => $s,'url' => $url});
+	}
+	else {
+		$s->status("FEHLER kein prev: " . $s->curr->url,'ERR');
+	}
+	return $s->{prev};
 }
 
 sub next {
 	my $s = shift;
-	return $s->curr->next(@_);
+	return $s->{next} if $s->{next};
+	my @sides = $s->curr->side_urls();
+	my $url = shift || $sides[1];
+	return if 	(	!($url and ($url ne $s->curr->url)) or	#nicht die eigene url
+					($url eq $s->cfg("url_start")) or	#nicht die start url
+					($s->cfg("never_goto") and ($url =~ m#(??{$s->cfg("never_goto")})#i))
+				);
+				
+	$s->{next} = Page::new({"cmc" => $s,'url' => $url});
+
+	return $s->{next};
+}
+
+sub index_prev {
+	my $s = shift;
+	if ($s->curr->file(0) eq $s->prev->file(-1)) {
+		return;
+	}
+	$s->dat($s->curr->file(0),'prev',$s->prev->file(-1));
+	$s->prev->dat($s->prev->file(-1),'next',$s->curr->file(0));
+	$s->status("VERBUNDEN: ". $s->prev->file(-1). "<->".$s->curr->file(0),'DEBUG')
+}
+
+sub index_next {
+	my $s = shift;
+	if ($s->curr->file(-1) eq $s->next->file(0)) {
+		return;
+	}
+	$s->dat($s->curr->file(-1),'next',$s->next->file(0));
+	$s->next->dat($s->next->file(0),'next',$s->curr->file(-1));
+	$s->status("VERBUNDEN: ".$s->curr->file(-1) . "<->".$s->next->file(0),'DEBUG')
 }
 
 sub goto_next {
 	my $s = shift;
+	$s->{prev} = $s->curr;
 	$s->curr($s->next(@_));	#die nächste seite wird die aktuelle seite
+	delete $s->{next};
 	my @urls = $s->split_url($s->curr->url);
 	my $url = $urls[0] . $urls[1];
 	if ($urls[1]) {
@@ -259,16 +304,6 @@ sub goto_next {
 		}
 		
 	}
-	# open (TMP, ">blah.txt");
-	# print TMP Dumper($s);
-	# print TMP "\n\n-----\n\n";
-	if ($s->prev) {
-		$s->prev->{prev}->{next} = undef if $s->prev->{prev};
-		$s->prev->{prev} = undef;
-	}
-	# print TMP Dumper($s);
-	# print TMP "\n";
-	# die;
 }
 
 sub split_url {
@@ -283,9 +318,9 @@ sub split_url {
 
 sub release_pages {
 	my $s = shift;
-	$s->curr->{prev} = undef;
-	$s->curr->{next} = undef;
-	$s->{curr} = undef;
+	delete $s->{prev};
+	delete $s->{curr};
+	delete $s->{next};
 }
 
 sub chk_strips { # not in use at the moment

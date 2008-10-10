@@ -13,12 +13,12 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '7';
+$VERSION = '11';
 
 sub new {
 	my $s = shift;
 	bless $s;
-	$s->url(shift);
+	#$s->url(shift);
 	$s->status("neue SEITE: ".$s->url,'DEBUG');
 	return $s;
 }
@@ -65,7 +65,7 @@ sub body {
 			}
 		}
 	}
-	return $s->{'body'};
+	return \$s->{'body'};
 }
 
 sub url {
@@ -74,58 +74,23 @@ sub url {
 	return $s->{url};
 }
 
-sub prev {
-	my $s = shift;
-	return $s->{prev} if $s->{prev};
-	my @sides = $s->side_urls();
-	my $url = shift || $sides[0];
-	return if 	(
-					($s->url eq $s->cfg("url_start")) or #nicht zur start url
-					($s->cfg("not_goto") and ($url =~ m#(??{$s->cfg("not_goto")})#i)) or
-					($s->cfg("never_goto") and ($url =~ m#(??{$s->cfg("never_goto")})#i))
-				);
-	if ($url) {
-		$s->{prev} = Page::new({"cmc" => $s->cmc},$url);
-		$s->{prev}->{next} = $s;
-	}
-	else {
-		$s->status("FEHLER kein prev: " . $s->url,'ERR');
-	}
-	return $s->{prev};
-}
-
-sub next {
-	my $s = shift;
-	return $s->{next} if $s->{next};
-	my @sides = $s->side_urls();
-	my $url = shift || $sides[1];
-	return if 	(	!($url and ($url ne $s->url)) or	#nicht die eigene url
-					($url eq $s->cfg("url_start")) or	#nicht die start url
-					($s->cfg("never_goto") and ($url =~ m#(??{$s->cfg("never_goto")})#i))
-				);
-				
-	$s->{next} = Page::new({"cmc" => $s->cmc},$url);
-	$s->{next}->{prev} = $s;
-
-	return $s->{next};
-}
-
 sub side_urls {
 	my $s = shift;
 	my $purl;
 	my $nurl;
 	my $body = $s->body();
+	return unless $body;
 	if ($s->cfg('regex_next') or $s->cfg('regex_prev')) {
 		my $regex;
 		$regex = $s->cfg('regex_prev');
-		if ($body =~ m#$regex#is) {
+		if ($$body =~ m#$regex#is) {
 			$purl = $s->concat_url($1);
 		}
 		else {
 			$purl = 0;
 		}
 		$regex = $s->cfg('regex_next');
-		if ($body =~ m#$regex#is) {
+		if ($$body =~ m#$regex#is) {
 			$nurl = $s->concat_url($1);
 		}
 		else {
@@ -151,7 +116,8 @@ sub try_get_side_urls {
 sub try_get_side_url_parts {
 	my $s = shift;
 	my $body = $s->body();
-	my @aref = ($body =~ m#(<a\s+.*?>.*?</a>)#gis); 
+	return unless $body;
+	my @aref = ($$body =~ m#(<a\s+.*?>.*?</a>)#gis); 
 	my @filter;
 	foreach my $as (@aref) {
 		push(@filter,$as) if ($as =~ m#(prev(ious)?[^iews]|next|[^be\s*]back[^ground]|forward|prior|ensuing)#gi);
@@ -209,7 +175,7 @@ sub strip_urls {
 	if ($s->cfg('regex_strip_url')) {
 		my $body = $s->body();
 		my $regex = $s->cfg('regex_strip_url');
-		my @surl = ($body =~ m#$regex #gsi);
+		my @surl = ($$body =~ m#$regex #gsi);
 		if ($s->cfg('regex_strip_url2')) {
 			$regex = $s->cfg('regex_strip_url2');
 			@surl = ($surl[0] =~ m#$regex#gsi);
@@ -233,16 +199,22 @@ sub try_get_strip_urls {
 sub try_get_strip_urls_part {
 	my $s = shift;
 	my $body = $s->body;
-	my $tree = HTML::TreeBuilder->new; # empty tree
+	return unless $body;
+	
 	my $imgs = [];
-	$tree->warn(1);
-	$tree->parse($body);
-	$tree->eof();
+	my @tags = ($$body =~ m#(<\s*ima?ge?[^>]+>)#gis);
+
 	my $i = 0;
-	for ($tree->find('img')) {
-		$imgs->[$i]->{src} = $_->attr('src');
-		$imgs->[$i]->{width} = $_->attr('width');
-		$imgs->[$i]->{height} = $_->attr('height');
+	foreach my $tag (@tags) {
+		if ($tag =~ m#src\s*=\s*(?<o>['"])(?<src>.+?)\k<o>#is) {
+			$imgs->[$i]->{src} = $+{src};
+		}
+		if ($tag =~ m#width\s*=\s*(?<o>['"])(?<width>\d+)\k<o>#is) {
+			$imgs->[$i]->{width} = $+{width};
+		}
+		if ($tag =~ m#height\s*=\s*(?<o>['"])(?<height>\d+)\k<o>#is) {
+			$imgs->[$i]->{height} = $+{height};
+		} 
 		$i++;
 	}
 
@@ -330,7 +302,10 @@ sub _concat_url {
 	return unless $url_part;
 	$url_part =~ s#([^&])&amp;#$1&#gs;
 	return if ($url_part eq '#');
-	$url_part =~ s#^[./]+#/# if ($s->cfg('use_home_only'));
+	if ($s->cfg('use_home_only')) {
+		$url_part =~ s'^[\./]+'';
+		$url_part = "/" . $url_part;
+	}
 	return URI->new($url_part)->abs($s->url())->as_string;
 }
 
@@ -361,26 +336,6 @@ sub file {
 	my $s = shift;
 	my $n = shift;
 	return $s->get_file_name($s->strips->[$n]);
-}
-
-sub index_prev {
-	my $s = shift;
-	if ($s->file(0) eq $s->prev->file(-1)) {
-		return;
-	}
-	$s->dat($s->file(0),'prev',$s->prev->file(-1));
-	$s->prev->dat($s->prev->file(-1),'next',$s->file(0));
-	$s->status("VERBUNDEN: ". $s->prev->file(-1). "<->".$s->file(0),'DEBUG')
-}
-
-sub index_next {
-	my $s = shift;
-	if ($s->file(-1) eq $s->next->file(0)) {
-		return;
-	}
-	$s->dat($s->file(-1),'next',$s->next->file(0));
-	$s->next->dat($s->next->file(0),'next',$s->file(-1));
-	$s->status("VERBUNDEN: ".$s->file(-1) . "<->".$s->next->file(0),'DEBUG')
 }
 
 sub save {
@@ -445,16 +400,17 @@ sub title {
 	my $file = $s->get_file_name($surl);
 	my $url = $s->url();
 	my $body = $s->body();
+	return unless $body;
 	my ($urlpart) = ($surl =~ m#.*/(.*)#);
 	
 	my $regex_title = $s->cfg('regex_title');
-	my @ut = ($body =~ m#$regex_title#gis) if ($regex_title);
-	$body =~ m#<title>([^<]*?)</title>#is;
+	my @ut = ($$body =~ m#$regex_title#gis) if ($regex_title);
+	$$body =~ m#<title>([^<]*?)</title>#is;
 	my $st = $1;
 	
 	my $img;
 	if ($urlpart) {
-		if ($body =~ m#(<img[^>]*?src=["']?[^"']*?$urlpart(?:['"\s][^>]*?>|>))#is) {
+		if ($$body =~ m#(<img[^>]*?src=["']?[^"']*?$urlpart(?:['"\s][^>]*?>|>))#is) {
 			$img = $1;
 		}
 	}
@@ -469,10 +425,10 @@ sub title {
 		}
 	}
 	
-	my @h1 = ($body =~ m#<h\d>([^<]*?)</h\d>#gis);
-	my @dt = ($body =~ m#<div[^>]+id="comic[^"]*?title"[^>]*>([^<]+?)</div>#gis);
+	my @h1 = ($$body =~ m#<h\d>([^<]*?)</h\d>#gis);
+	my @dt = ($$body =~ m#<div[^>]+id="comic[^"]*?title"[^>]*>([^<]+?)</div>#gis);
 	my $sl;
-	if ($body =~ m#<option[^>]+?selected[^>]*>([^<]+)</option>#is) {
+	if ($$body =~ m#<option[^>]+?selected[^>]*>([^<]+)</option>#is) {
 		 $sl = $1;
 	}
 	

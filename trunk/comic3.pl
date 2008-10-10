@@ -9,7 +9,7 @@ use DBI;
 use Comic;
 
 use vars qw($VERSION);
-$VERSION = '76' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '77' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -53,7 +53,7 @@ my @opts = @ARGV;
 				$dbh->do(qq(DROP TABLE _$_));
 
 			}
-			$dbh->commit;
+			#$dbh->commit;
 		}
 	}
 	
@@ -79,7 +79,6 @@ my @opts = @ARGV;
 	}
 	
 	@comics = sort { $order{$b} <=> $order{$a} } @comics; 
-
 		
 	foreach my $comic (@comics) {
 		my $skip = 0;
@@ -103,9 +102,8 @@ my @opts = @ARGV;
 			}
 		next if ($skip);
 		last if $TERM;
-		Comic::get_comic({"name" => $comic, "dbh" => $dbh});
+		Comic::get_comic({"name" => $comic , "dbh"=> $dbh, "autocommit" => 1});
 		last if $TERM;
 	}
-	#$dbh->commit;
 	$dbh->disconnect;
 }

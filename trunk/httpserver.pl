@@ -447,7 +447,7 @@ sub update {
 		usr($comic,'first',$first[0]);
 	}
 
-	foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where time <= 0 OR server_update IS NULL))}){
+	foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where (time <= 0) OR (server_update IS NULL)))}){
 		usr($comic,'server_update',time);
 		
 		usr($comic,'strip_count',$dbh->selectrow_array(qq(select count(*) from _$comic)));
