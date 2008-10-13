@@ -6,13 +6,13 @@ package Comic;
 use strict;
 use Config::IniHash;
 use Page;
-use Data::Dumper;
-
+#use Data::Dumper;
+ 
 use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '10';
+$VERSION = '11';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -152,13 +152,16 @@ sub get_all {
 	my $b = 1;
 	do {
 		$b = $s->get_next();
-	} while ($b and !$::TERM);
+	} while ($b and (!$::TERM or threads->list));
 	$s->usr('last_update',time) unless $::TERM;
 	$s->status("DONE: get_all",'DEBUG');
 }
 
 sub get_next {
 	my $s = shift;
+	if ($s->next and $s->next->body and !$::TERM) {
+		$s->next->prefetch;
+	}
 	my $strip_found = $s->curr->all_strips;
 	# if (!$strip_found and !$s->{vorheriges_nichtmehr_versuchen}) { #wenn kein strip gefunden wurde und wir es nicht schonmal probiert haben
 		# my @urls = $s->split_url($s->curr->url);

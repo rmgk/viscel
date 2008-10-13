@@ -6,14 +6,17 @@ package Page;
 
 use strict;
 use dlutil;
+use threads;
 
 use HTML::Tree;
 use DBI;
 use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
+my $got_md5 = eval { require Digest::MD5; };
+
 use vars qw($VERSION);
-$VERSION = '11';
+$VERSION = '12';
 
 sub new {
 	my $s = shift;
@@ -338,24 +341,39 @@ sub file {
 	return $s->get_file_name($s->strips->[$n]);
 }
 
+sub prefetch {
+	my $s = shift;
+	foreach my $strip (@{$s->strips}) {
+		my $file_name = $s->get_file_name($strip);
+		unless ( -e "./strips/".$s->name."/$file_name") {
+			$s->{prefetch}->{$file_name}->{thread} = threads->create(sub {dlutil::getstore(shift(@_),"./strips/".shift(@_)."/$file_name");},$strip,$s->name);
+		}
+	}
+}
+
 sub save {
 	my $s = shift;
 	my $strip = shift;
 	return 0 if ($s->dummy);
 	my $file_name = $s->get_file_name($strip);
-	if (open(TMP,, "./strips/".$s->name."/$file_name")) {
-		close(TMP);
+	if  (-e "./strips/".$s->name."/$file_name" and not $s->{prefetch}->{$file_name}->{thread}) {
 		$s->status("VORHANDEN: ".$file_name,'UINFO');
 		$s->usr('last_save',time) unless $s->usr('last_save');
 		return 200;
 	}
 	else {
-		$s->usr('last_save',time);
 		$s->status("SPEICHERE: " . $strip . " -> " . $file_name,'UINFO');
-		my $res = dlutil::getstore($strip,"./strips/".$s->name."/$file_name");
+		my $res;
+		if ($s->{prefetch}->{$file_name}->{thread}) {
+			$res = $s->{prefetch}->{$file_name}->{thread}->join ;
+		}
+		else {
+			$res = dlutil::getstore($strip,"./strips/".$s->name."/$file_name");
+		}
 		if (($res >= 200) and  ($res < 300)) {
 			$s->status("GESPEICHERT: " . $file_name,'UINFO');
 			$s->md5($file_name);
+			$s->usr('last_save',time);
 			return 200;
 		}
 		else {
@@ -365,6 +383,7 @@ sub save {
 			if (($res >= 200) and  ($res < 300)) {
 				$s->status("GESPEICHERT: " . $file_name,'UINFO');
 				$s->md5($file_name);
+				$s->usr('last_save',time);
 				return 200;
 			}
 			else {
@@ -375,10 +394,12 @@ sub save {
 	}
 }
 
+
+
 sub md5 {
 	my $s = shift;
 	my $file_name = shift;
-	if(  my $got_md5 = eval { require Digest::MD5; }) {
+	if($got_md5) {
 		if (open(FILE, "./strips/".$s->name."/$file_name")) {
 			binmode(FILE);
 			$s->dat($file_name,'md5',Digest::MD5->new->addfile(*FILE)->hexdigest);
