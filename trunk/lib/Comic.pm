@@ -6,13 +6,17 @@ package Comic;
 use strict;
 use Config::IniHash;
 use Page;
+use threads;
+use Thread::Queue;
+use Thread::Semaphore;
+my $got_md5 = eval { require Digest::MD5; };
 #use Data::Dumper;
  
 use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '11';
+$VERSION = '12';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -30,6 +34,7 @@ sub get_comic {
 sub new {
 	my $s = shift || {};
 	bless $s;
+	
 	$s->{DB} //= 'comics.db';
 	$s->{path_strips} //= "./strips/";
 	$s->{path_log} //= "log.txt";
@@ -43,6 +48,13 @@ sub new {
 		$s->{dbh} = DBI->connect("dbi:SQLite:dbname=".$s->{DB},"","",{AutoCommit => $s->{autocommit},PrintError => 1});
 	}
 	
+	$s->{queue_dl} = Thread::Queue->new();
+	$s->{queue_dl_finish} = Thread::Queue->new();
+	$s->{semaphore} = Thread::Semaphore->new(3);
+	for my $w (0..5) {
+		$s->{worker}->[$w] = threads->create(\&thread_save,$s->name,$s->{queue_dl},$s->{queue_dl_finish},$s->{semaphore});
+	}
+
 	
 	$s->status("-" x (10) . $s->name . "-" x (25 - length($s->name)),'UINFO');
 
@@ -66,6 +78,68 @@ sub new {
 	};
 	
 	return $s;
+}
+
+sub thread_save {
+	my $name = shift;
+	my $dl = shift;
+	my $finished = shift;
+	my $semaphore = shift;
+	while(my $strip = $dl->dequeue()) {
+		$semaphore->up();
+		unless ( -e "./strips/".$name."/".$strip->[1]) {
+			my $res = 0;
+			$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
+			if (($res >= 200) and  ($res < 300)) {
+				$finished->enqueue([$strip->[1],$res]);
+				next;
+			}
+			else {
+				$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
+				if (($res >= 200) and  ($res < 300)) {
+					$finished->enqueue([$strip->[1],$res]);
+					next;
+				}
+				else {
+					$finished->enqueue([$strip->[1],$res]);
+					next;
+				}
+			}
+		}
+		else {
+			$finished->enqueue([$strip->[1],'VORHANDEN']);
+		}
+	}
+}
+
+sub fin_dl_clean {
+	my $s = shift;
+	while (my $res = $s->{queue_dl_finish}->dequeue_nb()) {
+        if ($res->[1] eq 'VORHANDEN') {
+			$s->status("EXISTENT: ".$res->[0],'UINFO');
+			$s->usr('last_save',time) unless $s->usr('last_save');
+			next;
+		}
+		if (($res->[1] >= 200) and  ($res->[1] < 300)) {
+			$s->status("SAVED: " . $res->[0],'UINFO');
+			$s->md5($res->[0]);
+			$s->usr('last_save',time);
+		}
+		else {
+			$s->status("ERROR saving : " . $res->[0] . " code: ". $res->[1],'ERR');
+		}
+    }
+}
+
+sub thread_cleanup {
+	my $s = shift;
+	foreach my $thr (@{$s->{worker}}) {
+		$s->{queue_dl}->enqueue(undef,undef,undef,undef,undef,undef);
+	}
+	foreach my $thr (@{$s->{worker}}) {
+		$thr->join;
+	}
+	$s->fin_dl_clean;
 }
 
 sub dbh {
@@ -152,17 +226,20 @@ sub get_all {
 	my $b = 1;
 	do {
 		$b = $s->get_next();
-	} while ($b and (!$::TERM or threads->list));
+	} while ($b and !$::TERM);
+	$s->thread_cleanup;
 	$s->usr('last_update',time) unless $::TERM;
 	$s->status("DONE: get_all",'DEBUG');
 }
 
 sub get_next {
 	my $s = shift;
-	if ($s->next and $s->next->body and !$::TERM) {
-		$s->next->prefetch;
-	}
+	# if ($s->next and $s->next->body and !$::TERM) {
+		# $s->next->prefetch;
+	# }
+	$s->fin_dl_clean;
 	my $strip_found = $s->curr->all_strips;
+	$s->fin_dl_clean;
 	# if (!$strip_found and !$s->{vorheriges_nichtmehr_versuchen}) { #wenn kein strip gefunden wurde und wir es nicht schonmal probiert haben
 		# my @urls = $s->split_url($s->curr->url);
 		# if ($urls[1] eq $s->usr("url_current")) { # und dies die erste seite ist bei der gesucht wurde (url_current wird erst später gesetzt)
@@ -359,6 +436,25 @@ sub chk_strips { # not in use at the moment
 			$s->usr('url_current',$url[1]) if $url[1];
 			$b = 0;
 		}
+	}
+}
+
+sub md5 {
+	my $s = shift;
+	my $file_name = shift;
+	if($got_md5) {
+		if (open(FILE, "./strips/".$s->name."/$file_name")) {
+			binmode(FILE);
+			$s->dat($file_name,'md5',Digest::MD5->new->addfile(*FILE)->hexdigest);
+			close FILE;
+		}
+		else {
+			$s->status("DATEIFEHLER " . "./strips/".$s->name."/$file_name" . "konnte nicht geöfnet werden" ,'ERR')
+		}
+	}
+	else {
+		$s->status("md5 modul (Digest::MD5) nicht gefunden",'DEBUG') unless ($s->{_md5debug});
+		$s->{_md5debug} = 1;
 	}
 }
 

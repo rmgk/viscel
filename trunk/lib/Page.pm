@@ -6,17 +6,14 @@ package Page;
 
 use strict;
 use dlutil;
-use threads;
 
 use HTML::Tree;
 use DBI;
 use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
-my $got_md5 = eval { require Digest::MD5; };
-
 use vars qw($VERSION);
-$VERSION = '12';
+$VERSION = '13';
 
 sub new {
 	my $s = shift;
@@ -343,6 +340,7 @@ sub file {
 
 sub prefetch {
 	my $s = shift;
+	return 0 if ($s->dummy);
 	foreach my $strip (@{$s->strips}) {
 		my $file_name = $s->get_file_name($strip);
 		unless ( -e "./strips/".$s->name."/$file_name") {
@@ -351,69 +349,57 @@ sub prefetch {
 	}
 }
 
+sub enque {
+	my $s = shift;
+	$s->cmc->{queue_dl}->enqueue(@_)
+}
+
 sub save {
 	my $s = shift;
 	my $strip = shift;
 	return 0 if ($s->dummy);
 	my $file_name = $s->get_file_name($strip);
-	if  (-e "./strips/".$s->name."/$file_name" and not $s->{prefetch}->{$file_name}->{thread}) {
-		$s->status("VORHANDEN: ".$file_name,'UINFO');
-		$s->usr('last_save',time) unless $s->usr('last_save');
-		return 200;
-	}
-	else {
-		$s->status("SPEICHERE: " . $strip . " -> " . $file_name,'UINFO');
-		my $res;
-		if ($s->{prefetch}->{$file_name}->{thread}) {
-			$res = $s->{prefetch}->{$file_name}->{thread}->join ;
-		}
-		else {
-			$res = dlutil::getstore($strip,"./strips/".$s->name."/$file_name");
-		}
-		if (($res >= 200) and  ($res < 300)) {
-			$s->status("GESPEICHERT: " . $file_name,'UINFO');
-			$s->md5($file_name);
-			$s->usr('last_save',time);
-			return 200;
-		}
-		else {
-			$s->status("FEHLER beim herunterladen: " . $res . " url: ". $s->url ." => " . $strip . " -> " . $file_name ,'WARN');
-			$s->status("ERNEUT speichern: " . $strip . " -> " . $file_name ,'WARN');
-			$res = dlutil::getstore($strip,"./strips/".$s->name."/$file_name");
-			if (($res >= 200) and  ($res < 300)) {
-				$s->status("GESPEICHERT: " . $file_name,'UINFO');
-				$s->md5($file_name);
-				$s->usr('last_save',time);
-				return 200;
-			}
-			else {
-				$s->status("ERNEUTER FEHLER datei wird nicht gespeichert: " . $res . " url: ". $s->url ." => " . $strip . " -> " . $file_name ,'ERR');
-				return 0;
-			}
-		}
-	}
+	$s->cmc->{semaphore}->down();
+	$s->status("ENQUEUE: ". $s->url ."\n=> " . $strip . " -> " . $file_name,'UINFO');
+	$s->enque([$strip,$file_name]);
+	# if  (-e "./strips/".$s->name."/$file_name" and not $s->{prefetch}->{$file_name}->{thread}) {
+		# $s->status("VORHANDEN: ".$file_name,'UINFO');
+		# $s->usr('last_save',time) unless $s->usr('last_save');
+		# return 200;
+	# }
+	# else {
+		# $s->status("SPEICHERE: " . $strip . " -> " . $file_name,'UINFO');
+		# my $res;
+		# if ($s->{prefetch}->{$file_name}->{thread}) {
+			# $res = $s->{prefetch}->{$file_name}->{thread}->join ;
+		# }
+		# else {
+			# $res = dlutil::getstore($strip,"./strips/".$s->name."/$file_name");
+		# }
+		# if (($res >= 200) and  ($res < 300)) {
+			# $s->status("GESPEICHERT: " . $file_name,'UINFO');
+			# $s->md5($file_name);
+			# $s->usr('last_save',time);
+			# return 200;
+		# }
+		# else {
+			# $s->status("FEHLER beim herunterladen: " . $res . " url: ". $s->url ." => " . $strip . " -> " . $file_name ,'WARN');
+			# $s->status("ERNEUT speichern: " . $strip . " -> " . $file_name ,'WARN');
+			# $res = dlutil::getstore($strip,"./strips/".$s->name."/$file_name");
+			# if (($res >= 200) and  ($res < 300)) {
+				# $s->status("GESPEICHERT: " . $file_name,'UINFO');
+				# $s->md5($file_name);
+				# $s->usr('last_save',time);
+				# return 200;
+			# }
+			# else {
+				# $s->status("ERNEUTER FEHLER datei wird nicht gespeichert: " . $res . " url: ". $s->url ." => " . $strip . " -> " . $file_name ,'ERR');
+				# return 0;
+			# }
+		# }
+	# }
 }
 
-
-
-sub md5 {
-	my $s = shift;
-	my $file_name = shift;
-	if($got_md5) {
-		if (open(FILE, "./strips/".$s->name."/$file_name")) {
-			binmode(FILE);
-			$s->dat($file_name,'md5',Digest::MD5->new->addfile(*FILE)->hexdigest);
-			close FILE;
-		}
-		else {
-			$s->status("DATEIFEHLER " . "./strips/".$s->name."/$file_name" . "konnte nicht geöfnet werden" ,'ERR')
-		}
-	}
-	else {
-		$s->status("md5 modul (Digest::MD5) nicht gefunden",'DEBUG') unless ($s->{_md5debug});
-		$s->{_md5debug} = 1;
-	}
-}
 
 sub title {
 	my $s = shift;

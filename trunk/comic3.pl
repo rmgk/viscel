@@ -9,12 +9,12 @@ use DBI;
 use Comic;
 
 use vars qw($VERSION);
-$VERSION = '77' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '78' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
 $SIG{'INT'} = sub { 
-		print "Terminating (expect errors)\n" ;
+		print "Terminating (wait for downloads to finish)\n" ;
 		$TERM = 1;
 		};
 
