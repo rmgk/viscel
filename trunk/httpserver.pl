@@ -14,12 +14,9 @@ use Data::Dumper;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.14';
+$VERSION = '2.15';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
-
-my $sdat;
-my $srv;
 
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
@@ -85,7 +82,7 @@ sub kategorie {
 	$d{$_} = 1 for (@kat); 
 	my @kat2 = @{$dbh->selectcol_arrayref(qq(select distinct kategorie from USER))}; #alle vorhandenen kategorien
 	for (@kat2) {
-		push(@kat,$_) unless $d{$_};
+		push(@kat,$_) unless ($d{$_} or !$_);
 	}
 	return @kat;
 }
@@ -111,45 +108,52 @@ sub kopf {
 
 
 sub cindex {
-	my %kat;
 	my $ret = &kopf("Index");
-	my %kat_count;
-	my %kat_counted;
 	$ret .= "Tools:" . br;
 	$ret 	.=	a({-href=>"/tools?tool=config"},"Configuration") . br 
 			.	a({-href=>"/tools?tool=user"},"User Config"). br 
 			.	a({-href=>"/tools?tool=kategoriereihenfolge"},"Kategoriereihenfolge ändern"). br 
 			.	a({-href=>"/tools?tool=query"},"Custom Query"). br 
 			.	br;
+	
+	
 	$ret .= "Inhalt:" . br;
 	foreach (kategorie) {
 		$ret .= a({href=>"#$_"},$_) . br;
-		$kat{$_} = ("-"x 20).a({name=>$_},$_).("-"x 20).br.start_table;
 	}
-	$ret .= br;
-	foreach my $comic (&comics) {
-		#&usr($comic,"kategorie",&usr($comic,'kategorie') || 'andere');
+	$ret .= a({href=>"#default"},'default') . br;
+	foreach (kategorie) {
+		$ret .= ("-"x 20).a({name=>$_},$_).("-"x 20).br;
+		$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where kategorie="$_")));
+	}
+	$ret .= ("-"x 20).a({name=>'default'},'default').("-"x 20).br;
+	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where kategorie IS NULL)));
+	return $ret . end_html;
+}
+
+sub html_comic_listing {
+	my $comics = shift;
+	my $ret = start_table;
+	my $count;
+	my $counted;
+	foreach my $comic (@{$comics}) {
 		my $usr = $dbh->selectrow_hashref(qq(select * from USER where comic="$comic"));
-		$kat{$usr->{"kategorie"}} .= Tr([
+		$ret .= Tr([
 			td([
 			a({-href=>"/comics?comic=$comic"},$comic) ,
-			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'}},"Anfang") : undef ,
-			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'}},"Aktuell") : undef ,
+			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'}},"start") : undef ,
+			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'}},"current") : undef ,
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'}},"bookmark") : undef ,
-			$usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'}},"Ende") : undef ,
-			a({href=>"/tools?tool=kategorie&comic=$comic"},'Kategorie'),$usr->{'strip_count'},$usr->{'strips_counted'} ,
-			a({href=>"/tools?tool=datalyzer&comic=$comic"},'Datalyzer')
+			$usr->{'aktuell'} eq $usr->{'last'} ? "end" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'}},"end") : undef ,
+			a({href=>"/tools?tool=kategorie&comic=$comic"},'category'),$usr->{'strip_count'},$usr->{'strips_counted'} ,
+			a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer')
 			])
 		]);
-		$kat_count{$usr->{'kategorie'}} += $usr->{'strip_count'};
-		$kat_counted{$usr->{'kategorie'}} += $usr->{'strips_counted'};
+		$count += $usr->{'strip_count'};
+		$counted += $usr->{'strips_counted'};
 	}
 	
-	foreach (&kategorie) {
-		$ret .= $kat{$_};
-		$ret .=  Tr([td([undef,undef,undef,undef,undef,undef,$kat_count{$_},$kat_counted{$_}])]) . end_table ;
-	}
-	return $ret . end_html;
+		$ret .=  Tr([td([undef,undef,undef,undef,undef,undef,$count,$counted])]) . end_table ;
 }
 
 

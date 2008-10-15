@@ -174,6 +174,7 @@ sub strip_urls {
 	my $surl;
 	if ($s->cfg('regex_strip_url')) {
 		my $body = $s->body();
+		return unless $body;
 		my $regex = $s->cfg('regex_strip_url');
 		my @surl = ($$body =~ m#$regex #gsi);
 		if ($s->cfg('regex_strip_url2')) {
@@ -359,14 +360,16 @@ sub save {
 	my $strip = shift;
 	return 0 if ($s->dummy);
 	my $file_name = $s->get_file_name($strip);
-	$s->cmc->{semaphore}->down();
-	$s->status("ENQUEUE: ". $s->url ."\n=> " . $strip . " -> " . $file_name,'UINFO');
-	$s->enque([$strip,$file_name]);
-	# if  (-e "./strips/".$s->name."/$file_name" and not $s->{prefetch}->{$file_name}->{thread}) {
-		# $s->status("VORHANDEN: ".$file_name,'UINFO');
-		# $s->usr('last_save',time) unless $s->usr('last_save');
-		# return 200;
-	# }
+	 if  (-e "./strips/".$s->name."/$file_name" and not $s->{prefetch}->{$file_name}->{thread}) {
+		$s->status("VORHANDEN: ".$file_name,'UINFO');
+		$s->usr('last_save',time) unless $s->usr('last_save');
+		return 200;
+	}
+	else {
+		$s->cmc->{semaphore}->down();
+		$s->status("ENQUEUE: ". $s->url ."\n=> " . $strip . " -> " . $file_name,'UINFO');
+		$s->enque([$strip,$file_name]);
+	}
 	# else {
 		# $s->status("SPEICHERE: " . $strip . " -> " . $file_name,'UINFO');
 		# my $res;

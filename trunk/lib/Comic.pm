@@ -16,7 +16,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '12';
+$VERSION = '14';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -50,9 +50,9 @@ sub new {
 	
 	$s->{queue_dl} = Thread::Queue->new();
 	$s->{queue_dl_finish} = Thread::Queue->new();
-	$s->{semaphore} = Thread::Semaphore->new(3);
-	for my $w (0..5) {
-		$s->{worker}->[$w] = threads->create(\&thread_save,$s->name,$s->{queue_dl},$s->{queue_dl_finish},$s->{semaphore});
+	$s->{semaphore} = Thread::Semaphore->new(2);
+	for my $w (0..4) {
+		$s->create_worker;
 	}
 
 	
@@ -80,6 +80,11 @@ sub new {
 	return $s;
 }
 
+sub create_worker {
+	my $s = shift;
+	push (@{$s->{worker}}, threads->create(\&thread_save,$s->name,$s->{queue_dl},$s->{queue_dl_finish},$s->{semaphore}));
+}
+
 sub thread_save {
 	my $name = shift;
 	my $dl = shift;
@@ -87,7 +92,7 @@ sub thread_save {
 	my $semaphore = shift;
 	while(my $strip = $dl->dequeue()) {
 		$semaphore->up();
-		unless ( -e "./strips/".$name."/".$strip->[1]) {
+		#unless ( -e "./strips/".$name."/".$strip->[1]) {
 			my $res = 0;
 			$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
 			if (($res >= 200) and  ($res < 300)) {
@@ -105,21 +110,21 @@ sub thread_save {
 					next;
 				}
 			}
-		}
-		else {
-			$finished->enqueue([$strip->[1],'VORHANDEN']);
-		}
+		#}
+		#else {
+		#	$finished->enqueue([$strip->[1],'VORHANDEN']);
+		#}
 	}
 }
 
 sub fin_dl_clean {
 	my $s = shift;
 	while (my $res = $s->{queue_dl_finish}->dequeue_nb()) {
-        if ($res->[1] eq 'VORHANDEN') {
-			$s->status("EXISTENT: ".$res->[0],'UINFO');
-			$s->usr('last_save',time) unless $s->usr('last_save');
-			next;
-		}
+        # if ($res->[1] eq 'VORHANDEN') {
+			# $s->status("EXISTENT: ".$res->[0],'UINFO');
+			# $s->usr('last_save',time) unless $s->usr('last_save');
+			# next;
+		# }
 		if (($res->[1] >= 200) and  ($res->[1] < 300)) {
 			$s->status("SAVED: " . $res->[0],'UINFO');
 			$s->md5($res->[0]);
@@ -158,6 +163,17 @@ sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränd
 		$s->status("LOAD: config: ".$s->{_CONF} ,'IN');
 		$s->{config} = $config->{$s->name};
 	}
+	
+	if ($s->{config}->{class} and !$s->{class_change}) {
+		if ($s->{config}->{class} eq "onemanga") {
+			$s->{config}->{regex_next} = q#if \(keycode == 39\) {\s+window.location = '([^']+)'#;
+			$s->{config}->{regex_prev} = q#if \(keycode == 37\) {\s+window.location = '([^']+)'#;
+			$s->{config}->{regex_strip_url}= q#<img class="manga-page" src="([^"]+)"#;
+			$s->{config}->{rename} = q"strip_url#(\d+)/([\d\w-]+)\.#01";
+		}
+		$s->{class_change} = 1; #lol
+	}
+	
 	$s->{config}->{$key} = $value if $value;
 	return $s->{config}->{$key};
 }
