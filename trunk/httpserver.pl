@@ -14,14 +14,14 @@ use Data::Dumper;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.15';
+$VERSION = '2.16';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
-
+my %broken;
 
 sub comics {
 	#my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
@@ -146,7 +146,7 @@ sub html_comic_listing {
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'}},"bookmark") : undef ,
 			$usr->{'aktuell'} eq $usr->{'last'} ? "end" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'}},"end") : undef ,
 			a({href=>"/tools?tool=kategorie&comic=$comic"},'category'),$usr->{'strip_count'},$usr->{'strips_counted'} ,
-			a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer')
+			a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'), $broken{$comic} ? "broken" : undef
 			])
 		]);
 		$count += $usr->{'strip_count'};
@@ -479,6 +479,12 @@ sub update {
 		usr($comic,'last',$strp);
 		usr($comic,'strips_counted',$i);
 		print ".";
+	}
+	my $comini = ReadINI('comic.ini',{'case'=>'preserve'});
+	foreach my $name (keys %{$comini}) {
+		if ($comini->{$name}->{broken}) {
+			$broken{$name} = 1;
+		}
 	}
 	print "\n" if @comics;
 }
