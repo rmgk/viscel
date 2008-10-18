@@ -180,7 +180,7 @@ sub ccomic {
 					);
 					
 		$return .= div({-align=>"center"},
-				(-e "./strips/$comic/$strip") ? img({-src=>"/strips/$comic/$strip"}) :
+				(-e "./strips/$comic/$strip") ? img({-src=>"/strips/$comic/$strip",-alt=>"$strip"}) :
 				&dat($comic,$strip,'surl')!~m/^dummy/ ? img({-src=>&dat($comic,$strip,'surl')}) . br . 
 				a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)")	:
 				"Diese Seite ist nur ein Dummy. Es könnte sein, dass der strip nicht korrekt heruntergeladen werden konnte."
@@ -450,8 +450,10 @@ sub update {
 		@first = grep {$_ !~ /^dummy/} @first if (@first > 1);
 		usr($comic,'first',$first[0]);
 	}
-
-	foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where (time <= 0) OR (server_update IS NULL)))}){
+	my @comics = @{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where (time <= 0) OR (server_update IS NULL)))};
+	local $| = 1;
+	print "updating ". scalar(@comics) ." comics" if @comics;
+	foreach my $comic (@comics){
 		usr($comic,'server_update',time);
 		
 		usr($comic,'strip_count',$dbh->selectrow_array(qq(select count(*) from _$comic)));
@@ -476,7 +478,9 @@ sub update {
 		}
 		usr($comic,'last',$strp);
 		usr($comic,'strips_counted',$i);
+		print ".";
 	}
+	print "\n" if @comics;
 }
 
 &update;

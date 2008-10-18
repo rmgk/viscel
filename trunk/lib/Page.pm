@@ -120,10 +120,10 @@ sub try_get_side_url_parts {
 	my @aref = ($$body =~ m#(<a\s+.*?>.*?</a>)#gis); 
 	my @filter;
 	foreach my $as (@aref) {
-		push(@filter,$as) if ($as =~ m#(prev(ious)?[^iews]|next|[^be\s*]back[^ground]|forward|prior|ensuing)#gi);
+		push(@filter,$as) if ($as =~ m#(prev(ious)?([^i][^e][^w])|next|[^be\s*]back[^ground]|forward|prior|ensuing)#gi);
 	}
-	my $prev;
-	my $next;
+	my $prev = undef;
+	my $next = undef;
 	foreach my $fil (@filter) {
 		next unless $fil;
 		next if ($s->cfg('never_goto')) and ($fil =~ m#(??{$s->cfg('never_goto')})#i);
