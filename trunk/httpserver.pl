@@ -172,6 +172,8 @@ sub ccomic {
 		$title =~ s/~§~/~/g;
 		
 		$strip =~ s/%7C/|/ig;
+		$strip =~ s/ /%20/ig;
+		
 		$return = &kopf($title,
 					&dat($comic,$strip,'prev')	?"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev')	:"0",
 					&dat($comic,$strip,'next')	?"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')	:"0",

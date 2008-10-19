@@ -13,7 +13,7 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '13';
+$VERSION = '14';
 
 sub new {
 	my $s = shift;
@@ -176,7 +176,7 @@ sub strip_urls {
 		my $body = $s->body();
 		return unless $body;
 		my $regex = $s->cfg('regex_strip_url');
-		my @surl = ($$body =~ m#$regex #gsi);
+		my @surl = ($$body =~ m#$regex#gsi);
 		if ($s->cfg('regex_strip_url2')) {
 			$regex = $s->cfg('regex_strip_url2');
 			@surl = ($surl[0] =~ m#$regex#gsi);

@@ -169,7 +169,7 @@ sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränd
 			$s->{config}->{regex_next} = q#if \(keycode == 39\) {\s+window.location = '([^']+)'#;
 			$s->{config}->{regex_prev} = q#if \(keycode == 37\) {\s+window.location = '([^']+)'#;
 			$s->{config}->{regex_strip_url}= q#<img class="manga-page" src="([^"]+)"#;
-			$s->{config}->{rename} = q"strip_url#(\d+)/([\d\w-]+)\.#01";
+			$s->{config}->{rename} = q"strip_url#(\d+)/([^/]+)\.#01";
 		}
 		$s->{class_change} = 1; #lol
 	}
