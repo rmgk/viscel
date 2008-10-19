@@ -207,13 +207,13 @@ sub try_get_strip_urls_part {
 
 	my $i = 0;
 	foreach my $tag (@tags) {
-		if ($tag =~ m#src\s*=\s*(?<o>['"])(?<src>.+?)\k<o>#is) {
+		if ($tag =~ m#src\s*=\s*(?<o>['"])(?<src>.+?)\k<o>|src\s*=\s*(?<src>[^\s]+)#is) {
 			$imgs->[$i]->{src} = $+{src};
 		}
-		if ($tag =~ m#width\s*=\s*(?<o>['"])(?<width>\d+)\k<o>#is) {
+		if ($tag =~ m#width\s*=\s*(?<o>['"])(?<width>\d+)\k<o>|width\s*=\s*(?<width>\d+)#is) {
 			$imgs->[$i]->{width} = $+{width};
 		}
-		if ($tag =~ m#height\s*=\s*(?<o>['"])(?<height>\d+)\k<o>#is) {
+		if ($tag =~ m#height\s*=\s*(?<o>['"])(?<height>\d+)\k<o>|height\s*=\s*(?<height>\d+)#is) {
 			$imgs->[$i]->{height} = $+{height};
 		} 
 		$i++;
