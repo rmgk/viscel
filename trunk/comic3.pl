@@ -98,8 +98,8 @@ my @opts = @ARGV;
 		}
 		else {
 			my $lu = $dbh->selectrow_array(qq(select last_update from USER where comic="$comic"));
-				$skip = 1 if (((time - $update_intervall) < ($lu||0)) or $broken);
-			}
+			$skip = 1 if (((time - $update_intervall) < ($lu||0)) or $broken);
+		}
 		next if ($skip);
 		last if $TERM;
 		Comic::get_comic({"name" => $comic , "dbh"=> $dbh, "autocommit" => 1});

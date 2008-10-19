@@ -124,16 +124,19 @@ sub try_get_side_url_parts {
 	}
 	my $prev = undef;
 	my $next = undef;
+	my $url_home = $s->cfg('url_home');
+	my $add_url_home = $s->cfg('add_url_home');
+	my $never_goto = $s->cfg('never_goto');
 	foreach my $fil (@filter) {
 		next unless $fil;
-		next if ($s->cfg('never_goto')) and ($fil =~ m#(??{$s->cfg('never_goto')})#i);
+		next if ($never_goto) and ($fil =~ m#$never_goto#i);
 		if (($fil =~ m#prev|back|prior#i) and (!$prev)) {
 			if ($fil =~ m#href=["']?(.*?)["' >]#i) {
 				my $tmp_url = $1;
 				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#) or
 						(($tmp_url =~ m#http://#) and !(
-							($tmp_url =~ m#(??{$s->cfg('url_home')})#) or 
-							($s->cfg('add_url_home') and $tmp_url =~ m#(??{$s->cfg('add_url_home')})#))));
+							($tmp_url =~ m#$url_home#) or 
+							($add_url_home and $tmp_url =~ m#$add_url_home#))));
 				$prev = $tmp_url;
 			}
 		}
@@ -142,8 +145,8 @@ sub try_get_side_url_parts {
 				my $tmp_url = $1;
 				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#) or
 						(($tmp_url =~ m#http://#) and !(
-							($tmp_url =~ m#(??{$s->cfg('url_home')})#) or 
-							($s->cfg('add_url_home') and $tmp_url =~ m#(??{$s->cfg('add_url_home')})#))));
+							($tmp_url =~ m#$url_home#) or 
+							($add_url_home and $tmp_url =~ m#$add_url_home#))));
 				$next = $tmp_url;
 			}
 		}
@@ -246,8 +249,10 @@ sub try_get_strip_urls_part {
 			next;
 		}
 		if ($url =~ m#^http://#) {
-			next unless (($url =~ m#(??{$s->cfg('url_home')})#) or 
-						((defined $s->cfg('add_url_home')) and $url =~ m#(??{$s->cfg('add_url_home')})#));
+			my $url_home = $s->cfg('url_home');
+			my $add_url_home = $s->cfg('add_url_home');
+			next unless (($url =~ m#$url_home#) or 
+						((defined $add_url_home) and $url =~ m#$add_url_home#));
 		}
 		if (($url =~ m#(^|\D)(\d{8}|\d{14})\D[^/]*$#) or ($url =~ m#(^|\D)\d{4}-\d\d-\d\d\D[^/]*$#)) {
 			push(@return,$url);

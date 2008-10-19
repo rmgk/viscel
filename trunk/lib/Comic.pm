@@ -328,10 +328,12 @@ sub prev {
 	return $s->{prev} if $s->{prev};
 	my @sides = $s->curr->side_urls();
 	my $url = shift || $sides[0];
+	my $not_goto = $s->cfg("not_goto");
+	my $never_goto = $s->cfg("never_goto");
 	return if 	(
 					($s->curr->url eq $s->cfg("url_start")) or #nicht zur start url
-					($s->cfg("not_goto") and ($url =~ m#(??{$s->cfg("not_goto")})#i)) or
-					($s->cfg("never_goto") and ($url =~ m#(??{$s->cfg("never_goto")})#i))
+					($not_goto and ($url =~ m#$not_goto#i)) or
+					($never_goto and ($url =~ m#$never_goto#i))
 				);
 	if ($url) {
 		$s->{prev} = Page::new({"cmc" => $s,'url' => $url});
@@ -347,9 +349,10 @@ sub next {
 	return $s->{next} if $s->{next};
 	my @sides = $s->curr->side_urls();
 	my $url = shift || $sides[1];
+	my $never_goto = $s->cfg("never_goto");
 	return if 	(	!($url and ($url ne $s->curr->url)) or	#nicht die eigene url
 					($url eq $s->cfg("url_start")) or	#nicht die start url
-					($s->cfg("never_goto") and ($url =~ m#(??{$s->cfg("never_goto")})#i))
+					($never_goto and ($url =~ m#$never_goto#i))
 				);
 				
 	$s->{next} = Page::new({"cmc" => $s,'url' => $url});
