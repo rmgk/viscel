@@ -8,11 +8,11 @@ use feature qw(switch say);
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '1';
+$VERSION = '2';
 
 my @comic_columns = 	qw(strip c_version md5 prev next surl time title url); 
 my @config_columns =	qw(update_intervall color_bg color_text color_link color_vlink thumb kat_order);
-my @user_columns =		qw(comic url_current first last last_save strip_count strips_counted kategorie aktuell bookmark last_update server_update);
+my @user_columns =		qw(comic url_current first last last_save strip_count strips_counted kategorie aktuell bookmark last_update server_update flags tags);
 
 
 sub check_table {
