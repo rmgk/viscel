@@ -7,9 +7,10 @@ use warnings;
 use lib "./lib";
 use DBI;
 use Comic;
+use dbutil;
 
 use vars qw($VERSION);
-$VERSION = '78' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '79' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -28,6 +29,8 @@ my @opts = @ARGV;
 	use Config::IniHash;
 	my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
 	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
+	dbutil::check_table($dbh,'USER');
+	dbutil::check_table($dbh,'CONFIG');
 	my @comics;
 	@comics = @{$comics->{__SECTIONS__}};
 	my $opmode;

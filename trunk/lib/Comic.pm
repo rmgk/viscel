@@ -6,6 +6,7 @@ package Comic;
 use strict;
 use Config::IniHash;
 use Page;
+use dbutil;
 use threads;
 use Thread::Queue;
 use Thread::Semaphore;
@@ -16,7 +17,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '14';
+$VERSION = '15';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -63,19 +64,7 @@ sub new {
 		$s->status("WRITE: ".$s->{path_strips}.$s->name ,'OUT');
 	}
 	
-	unless($s->dbh->selectrow_array(qq(select name from sqlite_master where type='table' and name='_) . $s->name ."'")) {
-		$s->dbh->do("create table _" .  $s->name . " (
-			strip text,
-			c_version text,
-			md5 text,
-			prev text,
-			next text,
-			surl text,
-			time integer,
-			title text,
-			url text
-		)");
-	};
+	dbutil::check_table($s->dbh,"_".$s->name);
 	
 	return $s;
 }
@@ -310,7 +299,7 @@ sub url_current {
 		$url_curr = $uri->path_query;
 		$s->usr('url_current',$url_curr);
 		$s->status("WRITE: url_current: " . $uri->path_query, 'DEF');
-		$s->usr('first',$s->curr->file(0));
+		$s->usr('first',$s->curr->file(0)) unless $s->curr->dummy;
 	}
 	return $url_curr;
 }

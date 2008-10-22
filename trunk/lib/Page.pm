@@ -13,7 +13,7 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '14';
+$VERSION = '15';
 
 sub new {
 	my $s = shift;
@@ -367,6 +367,7 @@ sub save {
 	my $file_name = $s->get_file_name($strip);
 	 if  (-e "./strips/".$s->name."/$file_name" and not $s->{prefetch}->{$file_name}->{thread}) {
 		$s->status("VORHANDEN: ".$file_name,'UINFO');
+		$s->cmc->md5($file_name);
 		$s->usr('last_save',time) unless $s->usr('last_save');
 		return 200;
 	}
