@@ -80,25 +80,25 @@ sub thread_save {
 	my $dl = shift;
 	my $finished = shift;
 	my $semaphore = shift;
-	while(my $strip = $dl->dequeue()) {
+	dequeue: while(my $strip = $dl->dequeue()) {
 		$semaphore->up();
 		my $res = 0;
 		$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
 		if (($res >= 200) and  ($res < 300)) {
 			$finished->enqueue([$strip->[1],$res]);
-			next;
+			next dequeue;
 		}
 		else {
-			sleep 10;
-			$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
-			if (($res >= 200) and  ($res < 300)) {
-				$finished->enqueue([$strip->[1],$res]);
-				next;
+			for (0..2) {
+				sleep 5;
+				$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
+				if (($res >= 200) and  ($res < 300)) {
+					$finished->enqueue([$strip->[1],$res]);
+					next dequeue;
+				}
 			}
-			else {
-				$finished->enqueue([$strip->[1],$res]);
-				next;
-			}
+			$finished->enqueue([$strip->[1],$res]);
+			next dequeue;
 		}
 	}
 }

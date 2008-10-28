@@ -117,8 +117,16 @@ sub list_side_urls {
 	$url =~ m#$url_regex#i;
 	my $chap = $+{chap};
 	my $page = $+{page};
-	my @chaps = ($$body =~ m#$chap_regex#gis);
-	my @pages = ($$body =~ m#$page_regex#gis);
+	my @chaps;
+	while ($$body =~ m#$chap_regex#gis) {
+		push(@chaps,$+{chaps} // $1) unless ($s->cfg('list_chap_reverse'));
+		unshift(@chaps,$+{chaps} // $1) if ($s->cfg('list_chap_reverse'));
+	}
+	my @pages;
+	while ($$body =~ m#$page_regex#gis) {
+		push(@pages,$+{pages} // $1) unless ($s->cfg('list_page_reverse'));
+		unshift(@pages,$+{pages} // $1) if ($s->cfg('list_page_reverse'));
+	}
 	my $chap_i = undef;
 	for (my $i = 0;$i <= $#chaps; $i++) {
 		if ($chaps[$i] eq $chap) {
