@@ -50,10 +50,11 @@ sub new {
 		$s->{dbh} = DBI->connect("dbi:SQLite:dbname=".$s->{DB},"","",{AutoCommit => $s->{autocommit},PrintError => 1});
 	}
 	
+	my $worker_count = $s->cfg("worker") // 4;
 	$s->{queue_dl} = Thread::Queue->new();
 	$s->{queue_dl_finish} = Thread::Queue->new();
 	$s->{semaphore} = Thread::Semaphore->new(2);
-	for my $w (0..4) {
+	for my $w (0..$worker_count) {
 		$s->create_worker;
 	}
 
@@ -90,7 +91,7 @@ sub thread_save {
 		}
 		else {
 			for (0..2) {
-				sleep 5;
+				sleep 10;
 				$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
 				if (($res >= 200) and  ($res < 300)) {
 					$finished->enqueue([$strip->[1],$res]);
@@ -170,7 +171,8 @@ sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränd
 			$s->{config}->{list_url_insert} //= $url_insert;
 			$s->{config}->{list_chap_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\s*[^<]+(?:vol|ch)[^<]+</option>#;
 			$s->{config}->{list_page_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\d+</option>#;
-			$s->{config}->{heur_strip_url} //= q#compressed#
+			$s->{config}->{heur_strip_url} //= q#compressed#;
+			$s->{config}->{worker} //= 1;
 		}
 		
 		$s->{class_change} = 1; #lol
