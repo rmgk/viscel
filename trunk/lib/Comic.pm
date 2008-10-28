@@ -18,7 +18,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '16';
+$VERSION = '17';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -267,7 +267,7 @@ sub get_next {
 		my $next_archive = $s->get_next_archive();
 		$s->status("NEXT ARCHIVE: " . $next_archive , 'UINFO');
 		return 0 unless $next_archive;
-		$s->usr('current_archive',$next_archive);
+		$s->usr('archive_current',$next_archive);
 		my $url_arch = URI->new($next_archive)->abs($s->cfg("archive_url"))->as_string;
 		my $reg_deeper = $s->cfg('archive_regex_deeper');
 		unless ($reg_deeper) {
@@ -356,9 +356,13 @@ sub next {
 	my $never_goto = $s->cfg("never_goto");
 	return if 	(	!($url and ($url ne $s->curr->url)) or	#nicht die eigene url
 					($url eq $s->cfg("url_start")) or	#nicht die start url
-					($never_goto and ($url =~ m#$never_goto#i))
+					($never_goto and ($url =~ m#$never_goto#i)) or
+					($s->{visited_urls}->{$url})
 				);
-				
+	$s->{visited_urls}->{$url} = 1;
+	my @flags = split("",$s->usr('flags'));
+	$flags[4] = 1;
+	$s->usr('flags',join("",@flags));
 	$s->{next} = Page::new({"cmc" => $s,'url' => $url});
 
 	return $s->{next};
@@ -435,7 +439,6 @@ sub goto_next {
 			$s->usr("url_current",$urls[1]);
 			$s->status("URL_CURRENT: ".$s->usr("url_current") ,'DEBUG');
 		}
-		
 	}
 }
 

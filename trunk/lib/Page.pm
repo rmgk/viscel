@@ -18,7 +18,6 @@ $VERSION = '17';
 sub new {
 	my $s = shift;
 	bless $s;
-	#$s->url(shift);
 	$s->status("NEW PAGE: ".$s->url,'DEBUG');
 	return $s;
 }
