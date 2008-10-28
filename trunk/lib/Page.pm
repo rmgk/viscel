@@ -13,7 +13,7 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '16';
+$VERSION = '17';
 
 sub new {
 	my $s = shift;
@@ -97,10 +97,9 @@ sub side_urls {
 			$nurl = 0;
 		}
 	}
-	if ($s->cfg('list_url_regex')) {
+	elsif ($s->cfg('list_url_regex')) {
 		($purl,$nurl) = $s->list_side_urls();
 	}
-	
 	else {
 		($purl,$nurl) = $s->try_get_side_urls();
 	}
