@@ -7,6 +7,7 @@ use strict;
 use Config::IniHash;
 use Page;
 use dbutil;
+use dlutil;
 use threads;
 use Thread::Queue;
 use Thread::Semaphore;
@@ -17,7 +18,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '15';
+$VERSION = '16';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -81,39 +82,30 @@ sub thread_save {
 	my $semaphore = shift;
 	while(my $strip = $dl->dequeue()) {
 		$semaphore->up();
-		#unless ( -e "./strips/".$name."/".$strip->[1]) {
-			my $res = 0;
+		my $res = 0;
+		$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
+		if (($res >= 200) and  ($res < 300)) {
+			$finished->enqueue([$strip->[1],$res]);
+			next;
+		}
+		else {
+			sleep 10;
 			$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
 			if (($res >= 200) and  ($res < 300)) {
 				$finished->enqueue([$strip->[1],$res]);
 				next;
 			}
 			else {
-				$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
-				if (($res >= 200) and  ($res < 300)) {
-					$finished->enqueue([$strip->[1],$res]);
-					next;
-				}
-				else {
-					$finished->enqueue([$strip->[1],$res]);
-					next;
-				}
+				$finished->enqueue([$strip->[1],$res]);
+				next;
 			}
-		#}
-		#else {
-		#	$finished->enqueue([$strip->[1],'VORHANDEN']);
-		#}
+		}
 	}
 }
 
 sub fin_dl_clean {
 	my $s = shift;
 	while (my $res = $s->{queue_dl_finish}->dequeue_nb()) {
-        # if ($res->[1] eq 'VORHANDEN') {
-			# $s->status("EXISTENT: ".$res->[0],'UINFO');
-			# $s->usr('last_save',time) unless $s->usr('last_save');
-			# next;
-		# }
 		if (($res->[1] >= 200) and  ($res->[1] < 300)) {
 			$s->status("SAVED: " . $res->[0],'UINFO');
 			$s->md5($res->[0]);
@@ -155,11 +147,32 @@ sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränd
 	
 	if ($s->{config}->{class} and !$s->{class_change}) {
 		if ($s->{config}->{class} eq "onemanga") {
-			$s->{config}->{regex_next} = q#if \(keycode == 39\) {\s+window.location = '([^']+)'#;
-			$s->{config}->{regex_prev} = q#if \(keycode == 37\) {\s+window.location = '([^']+)'#;
-			$s->{config}->{regex_strip_url}= q#<img class="manga-page" src="([^"]+)"#;
-			$s->{config}->{rename} = q"strip_url#(\d+)/([^/]+)\.#01";
+			$s->{config}->{regex_next} //= q#if \(keycode == 39\) {\s+window.location = '([^']+)'#;
+			$s->{config}->{regex_prev} //= q#if \(keycode == 37\) {\s+window.location = '([^']+)'#;
+			$s->{config}->{regex_strip_url} //= q#<img class="manga-page" src="([^"]+)"#;
+			$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
 		}
+		if ($s->{config}->{class} eq "animea") {
+			$s->{config}->{regex_next} //= q#value="Next"\s*onClick="javascript:window.location='([^']+)'" />#;
+			$s->{config}->{regex_prev} //= q#value="Previous"\s*onClick="javascript:window.location='([^']+)'" />#;
+			$s->{config}->{heur_strip_url} //= "/tobemoved/|/data/";
+		}
+		if ($s->{config}->{class} eq "cartooniverse") {
+			$s->{config}->{regex_next} //= q#<input value="next" onclick="javascript:window.location='([^']+)';" type="button">#;
+			$s->{config}->{regex_prev} //= q#<input value="back" onclick="javascript:window.location='([^']+)';" type="button">#;
+			$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
+		}
+		if ($s->{config}->{class} eq "mangafox") {
+			my $url_insert = $s->{config}->{url_start};
+			my $str = q"/chapter.{{chap}}/page.{{page}}/";
+			$url_insert =~ s#/chapter\..+$#$str#egi;
+			$s->{config}->{list_url_regex} //= q#/chapter.(?<chap>\d+)/page.(?<page>\d+)/#;
+			$s->{config}->{list_url_insert} //= $url_insert;
+			$s->{config}->{list_chap_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\s*[^<]+(?:vol|ch)[^<]+</option>#;
+			$s->{config}->{list_page_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\d+</option>#;
+			$s->{config}->{heur_strip_url} //= q#compressed#
+		}
+		
 		$s->{class_change} = 1; #lol
 	}
 	
@@ -208,9 +221,10 @@ sub status {
 	my $s = shift;
 	my $status = shift;
 	my $type = shift;
+	my $addinfo = shift;
 	
 	open(LOG,">>".$s->{path_log});
-	print LOG $status ." -->". $type . "\n";
+	print LOG $status ." -- >". $addinfo. " -->". $type . "\n";
 	close LOG;
 	
 	if ($type =~ m/ERR|WARN|DEF|UINFO/i) {
@@ -219,7 +233,7 @@ sub status {
 	
 	if ($type  =~ m/ERR/i) {
 		open(ERR,">>".$s->{path_err});
-		print ERR $s->name() .">$type: " . $status . "\n";
+		print ERR $s->name() .">$type: " . $status ." -- >". $addinfo. "\n";
 		close ERR;
 	}
 	return 1;
@@ -239,43 +253,44 @@ sub get_all {
 
 sub get_next {
 	my $s = shift;
-	# if ($s->next and $s->next->body and !$::TERM) {
-		# $s->next->prefetch;
-	# }
+	
 	$s->fin_dl_clean;
-	my $strip_found = $s->curr->all_strips;
+	$s->curr->all_strips;
 	$s->fin_dl_clean;
-	# if (!$strip_found and !$s->{vorheriges_nichtmehr_versuchen}) { #wenn kein strip gefunden wurde und wir es nicht schonmal probiert haben
-		# my @urls = $s->split_url($s->curr->url);
-		# if ($urls[1] eq $s->usr("url_current")) { # und dies die erste seite ist bei der gesucht wurde (url_current wird erst später gesetzt)
-			# $s->status("kein strip gefunden - url current koennte beschaedigt sein - versuche vorherige url zu finden",'WARN');
-			# $s->{prev} = undef;
-			# $s->{next} = undef;
-			# my $try_url = $s->dat->{$s->dat->{__SECTIONS__}->[- (rand(5) + 2)]}->{url}; #wir einen zufälligen vorherigen eintrag aus der dat
-			# if ($try_url) {
-				# $s->status("versuche: " . $try_url,'WARN');
-				# $s->curr(Page::new({"cmc" => $s},$try_url)); #und ändern current auf diesen wert
-			# }
-			# else {
-				# $s->status("keine vorherige url gefunden",'WARN');
-			# }
-			# $s->{vorheriges_nichtmehr_versuchen} = 1;
-		# }
-	# }
-	#$s->{vorheriges_nichtmehr_versuchen} = 1;
+	
 	$s->index_prev if $s->prev;
 	if ($s->next and $s->next->body) {
 		$s->goto_next();
 		return 1;
 	}
-	else {
-		if ($s->cfg("all_next_additional_url") and !$::TERM) {
-			$s->goto_next($s->cfg("all_next_additional_url"));
-			$s->curr->all_strips;
-			$s->index_prev if $s->prev;
+	elsif($s->cfg("archive_url")) {
+		my $next_archive = $s->get_next_archive();
+		$s->status("NEXT ARCHIVE: " . $next_archive , 'UINFO');
+		return 0 unless $next_archive;
+		$s->usr('current_archive',$next_archive);
+		my $url_arch = URI->new($next_archive)->abs($s->cfg("archive_url"))->as_string;
+		my $reg_deeper = $s->cfg('archive_regex_deeper');
+		unless ($reg_deeper) {
+			$s->goto_next($url_arch);
+			return 2;
 		}
+		$url_arch .= '/' unless $url_arch =~ m#/$|\.\w{3,4}$#; #ugly fix | workaround warning
+		$s->status("NEXT ARCHIVE deeper, get body: ". $url_arch, 'UINFO');
+		my $body = dlutil::get($url_arch);
+		if ($body =~ m#$reg_deeper#is) {
+			my $deep_url = URI->new($+{url} // $1)->abs($url_arch)->as_string;
+			$s->status("NEXT ARCHIVE deeper: " .$deep_url, 'UINFO');
+			$s->goto_next($deep_url);
+			return 3;
+		}
+	}
+	elsif ($s->cfg("all_next_additional_url") and !$::TERM) {
+		$s->goto_next($s->cfg("all_next_additional_url"));
+		$s->curr->all_strips;
+		$s->index_prev if $s->prev;
 		return 0;
 	}
+	return 0;
 }
 
 sub url_home {
@@ -367,6 +382,36 @@ sub index_next {
 	$s->dat($s->curr->file(-1),'next',$s->next->file(0));
 	$s->next->dat($s->next->file(0),'next',$s->curr->file(-1));
 	$s->status("VERBUNDEN: ".$s->curr->file(-1) . "<->".$s->next->file(0),'DEBUG')
+}
+
+sub get_archives {
+	my $s = shift;
+	return $s->{archives} if $s->{archives};
+	my $body = dlutil::get($s->cfg('archive_url'));
+	my $regex = $s->cfg('archive_regex');
+	my @archives;
+	while ($body =~ m#$regex#gis) {
+		push(@archives,$+{url} // $1) unless ($s->cfg('archive_reverse'));
+		unshift(@archives,$+{url} // $1) if ($s->cfg('archive_reverse'));
+	}
+	$s->{archives} = \@archives;
+	return $s->{archives};
+}
+
+sub get_next_archive {
+	my $s = shift;
+	my @archives = @{$s->get_archives()};
+	$s->status("ARCHIVE count: " . scalar(@archives),"UINFO") unless $s->{info_arch_count};
+	$s->{info_arch_count} = 1;
+	return 0 unless @archives;
+	my $arch_curr = $s->usr('archive_current');
+	return $archives[1] unless ($arch_curr);
+	for (my $i = 0;$i <= $#archives;$i++) {
+		if ($archives[$i] eq $arch_curr) {
+			return $archives[$i + 1];
+		}
+	}	
+	return 0;
 }
 
 sub goto_next {

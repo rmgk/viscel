@@ -14,7 +14,7 @@ use Data::Dumper;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.17';
+$VERSION = '2.18';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -110,9 +110,17 @@ sub tags {
 sub flags {
 	my $comic = shift;
 	my $new = shift;
-	my @flaglist = qw(read complete hiatus);
+	my @flaglist = qw(read complete hiatus warn);
 	
-	if ($new) {
+	if ($new =~ /^\+(\w+)/) {
+		&flags($comic,&flags($comic) . " $1");
+	}	
+	elsif ($new =~ /^-(\w+)/) {
+		my $f = &flags($comic);
+		$f =~ s/$1//i;
+		&flags($comic,$f);
+	}
+	elsif ($new) {
 		my %flags;
 		foreach (split(/\W+/,$new)) {
 			$flags{$_} = 1;
@@ -236,13 +244,13 @@ sub ccomic {
 				a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)")	:
 				"Diese Seite ist nur ein Dummy. Es könnte sein, dass der strip nicht korrekt heruntergeladen werden konnte."
 				,br,br,
-				&dat($comic,$strip,'prev')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev')},"zurück"):undef,
-				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')},"weiter"):undef,br,
+				&dat($comic,$strip,'prev')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev')},"back"):undef,
+				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')},"next"):undef,br,
 				a({-href=>"/"},"Index"),
 				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url')},"Site"):undef,
 				a({-href=>"/comics?comic=$comic"},$comic),br, 
 				a({-href=>"/comics?comic=$comic&strip=$strip&bookmark=1"},"Bookmark"),
-				a({href=>"/tools?tool=catafleg&comic=$comic"},'categorize')
+				a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize')
 				);
 		&usr($comic,'aktuell',$strip);
 		&usr($comic,'bookmark',$strip) if param('bookmark');
@@ -558,41 +566,80 @@ sub ctools {
 		$res .= br . submit('ok');
 		return $res . br . br .  a({-href=>"/"},"Index") . end_html;
 	}
+	if ($tool eq 'forceupdate') {
+		if ($comic) {
+			my $time = time;
+			$dbh->do("UPDATE USER set server_update = NULL where comic like '$comic'");
+			&update;
+			return &kopf('Force Update All') . "Time: " . (time - $time) . " Seconds" . end_html;
+		}
+		my $time = time;
+		$dbh->do("UPDATE USER set server_update = NULL");
+		&update;
+		return &kopf('Force Update All') . "Time: " . (time - $time) . " Seconds" . end_html;
+	}
 }
 
 
 sub update {
-	foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic from USER where first IS NULL))}) {
-		my @first = @{$dbh->selectcol_arrayref("select strip from _$comic where prev IS NULL and next IS NOT NULL")};
-		next if (@first == 0); 
-		@first = grep {$_ !~ /^dummy/} @first if (@first > 1);
-		usr($comic,'first',$first[0]);
-	}
+	$dbh->do("UPDATE USER set first = NULL , server_update = NULL where first like 'dummy|%'");
+	
+	# foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic from USER where first IS NULL))}) {
+		# my @first = @{$dbh->selectcol_arrayref("select strip from _$comic where prev IS NULL and next IS NOT NULL")};
+		# next if (@first == 0); 
+		# @first = grep {$_ !~ /^dummy/} @first if (@first > 1);
+		# usr($comic,'first',$first[0]);
+	# }
 	my @comics = @{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where (time <= 0) OR (server_update IS NULL)))};
 	local $| = 1;
 	print "updating ". scalar(@comics) ." comics" if @comics;
 	foreach my $comic (@comics){
 		usr($comic,'server_update',time);
 		
+		my @dummys = $dbh->selectrow_array("select strip from _$comic where (strip like 'dummy|%') and ((prev IS NULL) or (next IS NULL))");
+		$dbh->do("DELETE FROM _$comic where (strip like 'dummy|%') and ((prev IS NULL) or (next IS NULL))");
+		foreach my $dummy (@dummys) {
+			$dbh->do("update _$comic set next = NULL where next = '$dummy'");
+			$dbh->do("update _$comic set prev = NULL where prev = '$dummy'");
+		}
+		
+		if ($dbh->selectrow_array("SELECT COUNT(next) AS dup_count FROM _$comic GROUP BY next HAVING (COUNT(next) > 1)")
+		or  $dbh->selectrow_array("SELECT COUNT(prev) AS dup_count FROM _$comic GROUP BY prev HAVING (COUNT(prev) > 1)")) {
+			&flags($comic,'+warn');
+		}
+		else {
+			&flags($comic,'-warn');
+		}
+		
+		my $first = usr($comic,'first');
+		unless ($first) {
+			my @first = @{$dbh->selectcol_arrayref("select strip from _$comic where prev IS NULL and next IS NOT NULL")};
+			next if (@first == 0); 
+			@first = grep {$_ !~ /^dummy/} @first if (@first > 1);
+			usr($comic,'first',$first[0]);
+			$first = $first[0];
+		}
+		
 		usr($comic,'strip_count',$dbh->selectrow_array(qq(select count(*) from _$comic)));
 		
-		
 		my %double;
-		my $strp = usr($comic,'first');
-
+		my $strp = $first;
 		my $strps = {};
 		$strps = $dbh->selectall_hashref(qq(select strip , next from _$comic), "strip");
 		
-		my $i = 1;
-		while($strps->{$strp}->{next}) {
-			$strp = $strps->{$strp}->{next};
-			if ($double{$strp} == 1) {
-				last;
+		my $i = 0;
+		if ($strp) {
+			$i++ ;
+			while($strps->{$strps->{$strp}->{next}}) {
+				$strp = $strps->{$strp}->{next};
+				if ($double{$strp} == 1) {
+					last;
+				}
+				else {
+					$double{$strp} = 1;
+				}
+				$i++;
 			}
-			else {
-				$double{$strp} = 1;
-			}
-			$i++;
 		}
 		usr($comic,'last',$strp);
 		usr($comic,'strips_counted',$i);

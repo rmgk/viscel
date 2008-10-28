@@ -10,7 +10,7 @@ use Comic;
 use dbutil;
 
 use vars qw($VERSION);
-$VERSION = '79' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '80' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -40,7 +40,7 @@ my @opts = @ARGV;
 			$opmode = 'repair';
 			shift @opts;
 			foreach (@opts) {
-				$dbh->do(qq(update USER set url_current = NULL where comic="$_"));
+				$dbh->do(qq(update USER set url_current = NULL,server_update = NULL,archive_current = NULL where comic="$_"));
 			}
 			#$dbh->commit;
 		}
@@ -52,7 +52,7 @@ my @opts = @ARGV;
 			$opmode = 'repairdelete';
 			shift @opts;
 			foreach (@opts) {
-				$dbh->do(qq(update USER set url_current = NULL where comic="$_"));
+				$dbh->do(qq(update USER set url_current = NULL,server_update = NULL,archive_current = NULL where comic="$_"));
 				$dbh->do(qq(DROP TABLE _$_));
 
 			}

@@ -13,13 +13,13 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '15';
+$VERSION = '16';
 
 sub new {
 	my $s = shift;
 	bless $s;
 	#$s->url(shift);
-	$s->status("neue SEITE: ".$s->url,'DEBUG');
+	$s->status("NEW PAGE: ".$s->url,'DEBUG');
 	return $s;
 }
 
@@ -54,12 +54,12 @@ sub body {
 	unless ($s->{body}) {
 		return 0 if $s->{no_body};
 		$s->{'body'} = dlutil::get($s->url);
-		$s->status("BODY angefordert: " . $s->url,'DEBUG');
+		$s->status("BODY requestet: " . $s->url,'DEBUG');
 		unless ($s->{body}) {
 			sleep(1);
 			$s->{'body'} = dlutil::get($s->url);
 			unless ($s->{body}) {
-				$s->status("FEHLER: body nicht vorhanden : " . $s->url,'ERR');
+				$s->status("ERROR: no body found: " . $s->url,'ERR');
 				$s->{no_body} = 1;
 				return 0;
 			}
@@ -97,12 +97,79 @@ sub side_urls {
 			$nurl = 0;
 		}
 	}
+	if ($s->cfg('list_url_regex')) {
+		($purl,$nurl) = $s->list_side_urls();
+	}
 	
 	else {
 		($purl,$nurl) = $s->try_get_side_urls();
 	}
 	$s->status("SIDE_URLS ".$s->url.": " . ($purl?$purl:'kein prev') . ", " . ($nurl?$nurl:'kein next'),'DEBUG');
 	return ($purl,$nurl);
+}
+
+sub list_side_urls {
+	my $s = shift;
+	my $url = $s->url;
+	my $body = $s->body;
+	my $url_regex = $s->cfg('list_url_regex');
+	my $insert_into = $s->cfg('list_url_insert');
+	my $chap_regex = $s->cfg('list_chap_regex');
+	my $page_regex = $s->cfg('list_page_regex');
+	$url =~ m#$url_regex#i;
+	my $chap = $+{chap};
+	my $page = $+{page};
+	my @chaps = ($$body =~ m#$chap_regex#gis);
+	my @pages = ($$body =~ m#$page_regex#gis);
+	my $chap_i = undef;
+	for (my $i = 0;$i <= $#chaps; $i++) {
+		if ($chaps[$i] eq $chap) {
+			$chap_i = $i;
+			last;
+		}
+	}	
+	my $page_i;
+	for (my $i = 0;$i <= $#pages; $i++) {
+		if ($pages[$i] eq $page) {
+			$page_i = $i;
+			last;
+		}
+	}	
+	if ($page_i > 0 and $page_i < $#pages) {
+		my $prev = $insert_into;
+		my $next = $insert_into;
+		$prev =~ s/{{chap}}/$chap/egi;
+		$next =~ s/{{chap}}/$chap/egi;
+		my $pp = $pages[$page_i - 1];
+		my $np = $pages[$page_i + 1];
+		$prev =~ s/{{page}}/$pp/egi;
+		$next =~ s/{{page}}/$np/egi;
+		return ($prev,$next);
+	}
+	if ($page_i == 0) {
+		my $next = $insert_into;
+		$next =~ s/{{chap}}/$chap/egi;
+		my $np = $pages[$page_i + 1];
+		$next =~ s/{{page}}/$np/egi;
+		return (undef,$next);
+	}
+	if ($page_i == $#pages) {
+		my $next = $insert_into;
+		my $prev = $insert_into;
+		$prev =~ s/{{chap}}/$chap/egi;
+		my $pp = $pages[$page_i - 1];
+		$prev =~ s/{{page}}/$pp/egi;
+		my $nc = $chaps[$chap_i + 1];
+		if ($nc) {
+			$next =~ s/{{chap}}/$nc/egi;
+			$next =~ s/{{page}}/$pages[0]/egi;
+		}
+		else {
+			$next = undef;
+		}
+		return ($prev,$next);
+	}
+
 }
 
 sub try_get_side_urls {
@@ -238,7 +305,7 @@ sub try_get_strip_urls_part {
 			}
 			next;
 		}
-		if ($url =~ m#([\?;=&]|nav|logo|header|template|resource|banner|thumb|file://|theme|icon|smiley)#i) {
+		if ($url =~ m#([\?;=&]|nav|logo|header|template|resource|banner|thumb|file://|theme|icon|smiley|%3e)#i) {
 			next;
 		}
 		if ($url =~ m#drunkduck.com/.*?/pages/#) {
@@ -344,17 +411,6 @@ sub file {
 	return $s->get_file_name($s->strips->[$n]);
 }
 
-sub prefetch {
-	my $s = shift;
-	return 0 if ($s->dummy);
-	foreach my $strip (@{$s->strips}) {
-		my $file_name = $s->get_file_name($strip);
-		unless ( -e "./strips/".$s->name."/$file_name") {
-			$s->{prefetch}->{$file_name}->{thread} = threads->create(sub {dlutil::getstore(shift(@_),"./strips/".shift(@_)."/$file_name");},$strip,$s->name);
-		}
-	}
-}
-
 sub enque {
 	my $s = shift;
 	$s->cmc->{queue_dl}->enqueue(@_)
@@ -365,15 +421,20 @@ sub save {
 	my $strip = shift;
 	return 0 if ($s->dummy);
 	my $file_name = $s->get_file_name($strip);
-	 if  (-e "./strips/".$s->name."/$file_name" and not $s->{prefetch}->{$file_name}->{thread}) {
-		$s->status("VORHANDEN: ".$file_name,'UINFO');
+	 if  (-e "./strips/".$s->name."/$file_name") {
+		$s->status("EXISTS: ".$file_name,'UINFO');
 		$s->cmc->md5($file_name);
 		$s->usr('last_save',time) unless $s->usr('last_save');
 		return 200;
 	}
 	else {
 		$s->cmc->{semaphore}->down();
-		$s->status("ENQUEUE: ". $s->url ."\n=> " . $strip . " -> " . $file_name,'UINFO');
+		my $home = $s->cfg("url_home");
+		$s->url =~ m#(?:$home)?(.+)#;
+		my $se_url = $1;
+		$strip =~ m#(?:$home)?(.+)#;
+		my $se_strip = $1;
+		$s->status("ENQ: " . $se_url . " => " . $file_name,'UINFO', " URL: " . $s->url ." SURL: " .$strip);
 		$s->enque([$strip,$file_name]);
 	}
 	# else {
@@ -492,7 +553,7 @@ sub get_file_name {
 		$filename = $name . $ending;
 	}
 	if ($s->cfg('rename')) {
-		if ($s->cfg('rename') =~ m/^strip_url#(.*?)#(\d+)/) {
+		if ($s->cfg('rename') =~ m/^strip_url#(.*)#(\d*)/) {
 			my $regex = $1;
 			my @wnum = split('',$2);
 			my @num = ($surl =~ m#$regex#g);
@@ -501,6 +562,7 @@ sub get_file_name {
 			foreach my $wnum (@wnum) {
 				$name .= $num[$wnum];
 			}
+			$name = join('',@num) unless @wnum;
 			my $ending;
 			if ($surl =~ m#(\.(jpe?g|gif|png))#) {
 				$ending = $1;
@@ -508,7 +570,7 @@ sub get_file_name {
 			$ending = ".jpg" unless ($ending);
 			$filename = $name . $ending;
 		}
-		if ($s->cfg('rename') =~ m/^url#(.*?)#(\d+)/) {
+		if ($s->cfg('rename') =~ m/^url#(.*)#(\d*)/) {
 			my $regex = $1;
 			my @wnum = split('',$2);
 			
@@ -518,12 +580,45 @@ sub get_file_name {
 			foreach my $wnum (@wnum) {
 				$name .= $num[$wnum];
 			}
+			$name = join('',@num) unless @wnum;
 			my $ending;
 			if ($surl =~ m#(\.(jpe?g|gif|png))#) {
 				$ending = $1;
 			}
 			$ending = ".jpg" unless ($ending);
 			$filename = $name . $ending;
+		}
+		if ($s->cfg('rename') =~ m/^url_only#(.*)#(.*)#(\d*)/) {
+			my $only = $1;
+			my $regex = $2;
+			my @wnum = split('',$3);
+			if ($filename =~ /$only/i) {
+				my @num = ($url =~ m#$regex#g);
+				
+				my $name;
+				foreach my $wnum (@wnum) {
+					$name .= $num[$wnum];
+				}
+				$name = join('',@num) unless @wnum;
+				$filename = $name . $filename;
+			}
+		}
+		if ($s->cfg('rename') =~ m/^strip_url_only#(.*)#(.*)#(\d*)/) {
+			my $only = $1;
+			my $regex = $2;
+			my @wnum = split('',$3);
+			if ($filename =~ /$only/i) {
+				$surl =~ m#^(.+)/([^/]+)$#i;
+				my $burl = $1;
+				my $strp = $2;
+				my @num = ($surl =~ m#$regex#g);
+				my $name;
+				foreach my $wnum (@wnum) {
+					$name .= $num[$wnum];
+				}
+				$name = join('',@num) unless @wnum;
+				$filename = $name . $filename;
+			}
 		}
 	}
 	return $filename;
