@@ -268,6 +268,7 @@ sub get_next {
 		$s->status("NEXT ARCHIVE: " . $next_archive , 'UINFO');
 		return 0 unless $next_archive;
 		$s->usr('archive_current',$next_archive);
+		$next_archive =~ s!([^&])&amp;|&#038;!$1&!gs;
 		my $url_arch = URI->new($next_archive)->abs($s->cfg("archive_url"))->as_string;
 		my $reg_deeper = $s->cfg('archive_regex_deeper');
 		unless ($reg_deeper) {

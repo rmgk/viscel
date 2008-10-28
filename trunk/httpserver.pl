@@ -110,7 +110,7 @@ sub tags {
 sub flags {
 	my $comic = shift;
 	my $new = shift;
-	my @flaglist = qw(read complete hiatus warn);
+	my @flaglist = qw(read complete hiatus warn loop);
 	
 	if ($new =~ /^\+(\w+)/) {
 		&flags($comic,&flags($comic) . " $1");

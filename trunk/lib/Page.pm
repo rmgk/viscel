@@ -371,7 +371,7 @@ sub _concat_url {
 	my $s = shift;
 	my $url_part = shift;
 	return unless $url_part;
-	$url_part =~ s#([^&])&amp;#$1&#gs;
+	$url_part =~ s!([^&])&amp;|&#038;!$1&!gs;
 	return if ($url_part eq '#');
 	if ($s->cfg('use_home_only')) {
 		$url_part =~ s'^[\./]+'';
