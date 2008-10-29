@@ -5,6 +5,7 @@
 package Page;
 
 use strict;
+use feature qw(say switch);
 use dlutil;
 
 use HTML::Tree;
@@ -440,7 +441,7 @@ sub save {
 		my $se_url = $1;
 		$strip =~ m#(?:$home)?(.+)#;
 		my $se_strip = $1;
-		$s->status("ENQ: " . $se_url . " => " . $file_name,'UINFO', " URL: " . $s->url ." SURL: " .$strip);
+		$s->status("GET: " . $se_url . " => " . $file_name,'UINFO', " URL: " . $s->url ." SURL: " .$strip);
 		$s->enque([$strip,$file_name]);
 	}
 	# else {
@@ -559,9 +560,9 @@ sub get_file_name {
 		$filename = $name . $ending;
 	}
 	if ($s->cfg('rename')) {
-		if ($s->cfg('rename') =~ m/^strip_url#(.*)#(\d*)/) {
-			my $regex = $1;
-			my @wnum = split('',$2);
+		if ($s->cfg('rename') =~ m/^strip_url#(?<reg>.*)#(?<nm>\d*)/) {
+			my $regex = $+{reg};
+			my @wnum = split('',$+{nm});
 			my @num = ($surl =~ m#$regex#g);
 			
 			my $name;

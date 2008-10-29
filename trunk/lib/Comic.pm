@@ -4,6 +4,7 @@
 package Comic;
 
 use strict;
+use feature qw(say switch);
 use Config::IniHash;
 use Page;
 use dbutil;
@@ -11,6 +12,7 @@ use dlutil;
 use threads;
 use Thread::Queue;
 use Thread::Semaphore;
+
 my $got_md5 = eval { require Digest::MD5; };
 #use Data::Dumper;
  
@@ -18,7 +20,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '17';
+$VERSION = '18';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -146,6 +148,23 @@ sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränd
 		$s->{config} = $config->{$s->name};
 	}
 	
+	$s->class_change;
+	
+	$s->{config}->{$key} = $value if $value;
+	return $s->{config}->{$key};
+}
+
+sub class_change {
+	my $s = shift;
+	
+	given ($s->{config}->{url_start}) {
+		when (m#^http://www.anymanga.com/#) {$s->{config}->{class} //= "anymanga"};
+		when (m#^http://www.mangafox.com/#) {$s->{config}->{class} //= "mangafox"};
+		when (m#^http://manga.animea.net/#) {$s->{config}->{class} //= "animea"};
+		when (m#^http://www.onemanga.com/#) {$s->{config}->{class} //= "onemanga"};
+		when (m#^http://www.cartooniverse.co.uk/#) {$s->{config}->{class} //= "cartooniverse"};
+	}
+	
 	if ($s->{config}->{class} and !$s->{class_change}) {
 		if ($s->{config}->{class} eq "onemanga") {
 			$s->{config}->{regex_next} //= q#if \(keycode == 39\) {\s+window.location = '([^']+)'#;
@@ -174,12 +193,15 @@ sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränd
 			$s->{config}->{heur_strip_url} //= q#compressed#;
 			$s->{config}->{worker} //= 1;
 		}
+		if ($s->{config}->{class} eq "anymanga") {
+			$s->{config}->{heur_strip_url} //= "/manga/";
+			$s->{config}->{rename} //= q"strip_url#manga/([\w-]+)/(\d+)/(\d+)/([^\.]+)\.\w{3,4}#0123";
+			$s->{config}->{regex_prev} //= q"var url_back = '([^']+)';";
+			$s->{config}->{regex_next} //= q"var url_next = '([^']+)';";
+		}
 		
 		$s->{class_change} = 1; #lol
 	}
-	
-	$s->{config}->{$key} = $value if $value;
-	return $s->{config}->{$key};
 }
 
 sub usr { #gibt die aktuellen einstellungen des comics aus # hier gehören die veränderlichen informationen rein, die der nutzer auch selbst bearbeiten kann
@@ -267,8 +289,8 @@ sub get_next {
 	}
 	elsif($s->cfg("archive_url")) {
 		my $next_archive = $s->get_next_archive();
-		$s->status("NEXT ARCHIVE: " . $next_archive , 'UINFO');
 		return 0 unless $next_archive;
+		$s->status("NEXT ARCHIVE: " . $next_archive , 'UINFO');
 		$s->usr('archive_current',$next_archive);
 		$next_archive =~ s!([^&])&amp;|&#038;!$1&!gs;
 		my $url_arch = URI->new($next_archive)->abs($s->cfg("archive_url"))->as_string;
