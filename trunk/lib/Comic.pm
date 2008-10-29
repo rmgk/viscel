@@ -194,7 +194,7 @@ sub class_change {
 			$s->{config}->{worker} //= 1;
 		}
 		if ($s->{config}->{class} eq "anymanga") {
-			$s->{config}->{heur_strip_url} //= "/manga/";
+			$s->{config}->{heur_strip_url} //= '/manga/[^/]+/\d+/\d+';
 			$s->{config}->{rename} //= q"strip_url#manga/([\w-]+)/(\d+)/(\d+)/([^\.]+)\.\w{3,4}#0123";
 			$s->{config}->{regex_prev} //= q"var url_back = '([^']+)';";
 			$s->{config}->{regex_next} //= q"var url_next = '([^']+)';";

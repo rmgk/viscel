@@ -4,6 +4,7 @@
 
 use strict;
 use warnings;
+use feature qw(say switch);
 use lib "./lib";
 use DBI;
 use Comic;
