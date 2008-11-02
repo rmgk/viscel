@@ -378,6 +378,17 @@ sub next {
 	return $s->{next} if $s->{next};
 	my @sides = $s->curr->side_urls();
 	my $url = shift || $sides[1];
+	
+	if ($s->{visited_urls}->{$url}) {
+		my @flags = split("",$s->usr('flags'));
+		$flags[4] = 1; # loop flag
+		my $fstr;
+		for (0..$#flags) {
+			$fstr .= $flags[$_] or 0;
+		}
+		$s->usr('flags',$fstr);
+	}
+
 	my $never_goto = $s->cfg("never_goto");
 	return if 	(	!($url and ($url ne $s->curr->url)) or	#nicht die eigene url
 					($url eq $s->cfg("url_start")) or	#nicht die start url
@@ -385,9 +396,6 @@ sub next {
 					($s->{visited_urls}->{$url})
 				);
 	$s->{visited_urls}->{$url} = 1;
-	my @flags = split("",$s->usr('flags'));
-	$flags[4] = 1;
-	$s->usr('flags',join("",@flags));
 	$s->{next} = Page::new({"cmc" => $s,'url' => $url});
 
 	return $s->{next};
