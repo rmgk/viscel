@@ -20,7 +20,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '18';
+$VERSION = '19';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -55,7 +55,7 @@ sub new {
 	my $worker_count = $s->cfg("worker") // 4;
 	$s->{queue_dl} = Thread::Queue->new();
 	$s->{queue_dl_finish} = Thread::Queue->new();
-	$s->{semaphore} = Thread::Semaphore->new(2);
+	$s->{semaphore} = Thread::Semaphore->new(1);
 	for my $w (0..$worker_count) {
 		$s->create_worker;
 	}
@@ -86,7 +86,7 @@ sub thread_save {
 	dequeue: while(my $strip = $dl->dequeue()) {
 		$semaphore->up();
 		my $res = 0;
-		$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
+		$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1],$strip->[2]);
 		if (($res >= 200) and  ($res < 300)) {
 			$finished->enqueue([$strip->[1],$res]);
 			next dequeue;
@@ -94,7 +94,7 @@ sub thread_save {
 		else {
 			for (0..2) {
 				sleep 10;
-				$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1]);
+				$res = dlutil::getstore($strip->[0],"./strips/".$name."/".$strip->[1],$strip->[2]);
 				if (($res >= 200) and  ($res < 300)) {
 					$finished->enqueue([$strip->[1],$res]);
 					next dequeue;
@@ -192,6 +192,7 @@ sub class_change {
 			$s->{config}->{list_page_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\d+</option>#;
 			$s->{config}->{heur_strip_url} //= q#compressed#;
 			$s->{config}->{worker} //= 1;
+			$s->{config}->{referer} //= '';
 		}
 		if ($s->{config}->{class} eq "anymanga") {
 			$s->{config}->{heur_strip_url} //= '/manga/[^/]+/\d+/\d+';
@@ -505,7 +506,7 @@ sub chk_strips { # not in use at the moment
 		unless ($file =~ m/^dummy\|/i) {
 			unless (-e './strips/' . $s->name . '/' . $file) {
 				$s->status("NICHT VORHANDEN: " . $s->name . '/' . $file,'UINFO');
-				my $res = lwpsc::getstore($s->{dat}->{$file}->{surl},'./strips/' . $s->name . '/' . $file);
+				my $res = lwpsc::getstore($s->{dat}->{$file}->{surl},'./strips/' . $s->name . '/' . $file,$s->cfg("referer"));
 				if (($res >= 200) and  ($res < 300)) {
 					$s->status("GESPEICHERT: " . $file,'UINFO');
 				}

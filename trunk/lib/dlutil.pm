@@ -8,7 +8,7 @@ require Exporter;
 @EXPORT_OK = qw($ua);
 
 use vars qw($VERSION);
-$VERSION = '1';
+$VERSION = '2';
 
 sub _init_ua {
 	require LWP;
@@ -17,7 +17,7 @@ sub _init_ua {
 	#require HTTP::Status;
 	#require HTTP::Date;
 	$ua = new LWP::UserAgent;  # we create a global UserAgent object
-	$ua->agent("Comic");
+	$ua->agent("ccdlutil");
 	$ua->timeout(15);
 	$ua->env_proxy;
 	$ua->conn_cache(LWP::ConnCache->new());
@@ -33,11 +33,12 @@ sub get {
 }
 
 sub getstore {
-	my($url, $file) = @_;
+	my($url, $file, $referer) = @_;
 	_init_ua() unless $ua;
-	
-	(my $referer = $url) =~ s/[\?\&]//;
-	$referer =~ s#/[^/]*$#/#;
+	unless (defined $referer) {
+		(my $referer = $url) =~ s/[\?\&]//;
+		$referer =~ s#/[^/]*$#/#;
+	}
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
 	

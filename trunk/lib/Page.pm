@@ -14,7 +14,7 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '17';
+$VERSION = '18';
 
 sub new {
 	my $s = shift;
@@ -442,7 +442,7 @@ sub save {
 		$strip =~ m#(?:$home)?(.+)#;
 		my $se_strip = $1;
 		$s->status("GET: " . $se_url . " => " . $file_name,'UINFO', " URL: " . $s->url ." SURL: " .$strip);
-		$s->enque([$strip,$file_name]);
+		$s->enque([$strip,$file_name,$s->cfg('referer')]);
 	}
 	# else {
 		# $s->status("SPEICHERE: " . $strip . " -> " . $file_name,'UINFO');
