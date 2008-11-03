@@ -171,6 +171,7 @@ sub class_change {
 			$s->{config}->{regex_prev} //= q#if \(keycode == 37\) {\s+window.location = '([^']+)'#;
 			$s->{config}->{regex_strip_url} //= q#<img class="manga-page" src="([^"]+)"#;
 			$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
+			$s->{config}->{worker} //= 0;
 		}
 		if ($s->{config}->{class} eq "animea") {
 			$s->{config}->{regex_next} //= q#value="Next"\s*onClick="javascript:window.location='([^']+)'" />#;
@@ -191,7 +192,7 @@ sub class_change {
 			$s->{config}->{list_chap_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\s*[^<]+(?:vol|ch)[^<]+</option>#;
 			$s->{config}->{list_page_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\d+</option>#;
 			$s->{config}->{heur_strip_url} //= q#compressed#;
-			$s->{config}->{worker} //= 1;
+			$s->{config}->{worker} //= 0;
 			$s->{config}->{referer} //= '';
 		}
 		if ($s->{config}->{class} eq "anymanga") {
