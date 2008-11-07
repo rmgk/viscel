@@ -7,14 +7,14 @@ use lib "./lib";
 use HTTP::Daemon;
 use HTTP::Status;
 use Config::IniHash;
-use CGI qw(:standard *table);
+use CGI qw(:standard *table :html3);
 use DBI;
 use Data::Dumper;
 
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.18';
+$VERSION = '2.19';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -166,19 +166,19 @@ sub kopf {
 
 sub cindex {
 	my $ret = &kopf("Index");
-	$ret .= "Tools:" . br;
-	$ret 	.=	a({-href=>"/tools?tool=config"},"Configuration") . br 
+	$ret .= div({-style=>"right:0;width:150px;position:fixed;"},
+		"Tools:" . br 
+			.	a({-href=>"/tools?tool=config"},"Configuration") . br 
 			.	a({-href=>"/tools?tool=user"},"User Config"). br 
 			.	a({-href=>"/tools?tool=kategoriereihenfolge"},"change category order"). br 
 			.	a({-href=>"/tools?tool=query"},"Custom Query"). br 
-			.	br;
+			.	br .
 	
-	
-	$ret .= "Inhalt:" . br;
-	foreach (kategorie) {
-		$ret .= a({href=>"#$_"},$_) . br;
-	}
-	$ret .= a({href=>"#default"},'default') . br;
+		"Inhalt:" . br .
+
+		join(" ",map { a({href=>"#$_"},$_) . br} &kategorie()) .
+		a({href=>"#default"},'default') . br);
+		
 	foreach (kategorie) {
 		$ret .= ("-"x 20).a({name=>$_},$_).("-"x 20).br;
 		$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where kategorie="$_")));
