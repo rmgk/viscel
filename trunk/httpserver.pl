@@ -14,7 +14,7 @@ use Data::Dumper;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.19';
+$VERSION = '2.20';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -152,9 +152,9 @@ sub kopf {
 	my $last = shift;
 	
 	my $c_bg 	= &config('color_bg') || 'black';
-	my $c_text 	= &config('color_text') || '009900';
-	my $c_link 	= &config('color_link') || '0050cc';
-	my $c_vlink = &config('color_vlink') || '900090';
+	my $c_text 	= &config('color_text') || '#009900';
+	my $c_link 	= &config('color_link') || '#0050cc';
+	my $c_vlink = &config('color_vlink') || '#900090';
 	return start_html(-title=>$title. " - ComCol http $VERSION" ,-BGCOLOR=>$c_bg, -TEXT=>$c_text, -LINK=>$c_link, -VLINK=>$c_vlink,
 							-head=>[Link({-rel=>'index',	-href=>"/"	})			,
                             $next ?	Link({-rel=>'next',		-href=>$next})	: undef	,
@@ -173,9 +173,7 @@ sub cindex {
 			.	a({-href=>"/tools?tool=kategoriereihenfolge"},"change category order"). br 
 			.	a({-href=>"/tools?tool=query"},"Custom Query"). br 
 			.	br .
-	
 		"Inhalt:" . br .
-
 		join(" ",map { a({href=>"#$_"},$_) . br} &kategorie()) .
 		a({href=>"#default"},'default') . br);
 		

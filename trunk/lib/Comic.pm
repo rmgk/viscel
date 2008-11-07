@@ -20,7 +20,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '19';
+$VERSION = '20';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -194,6 +194,8 @@ sub class_change {
 			$s->{config}->{heur_strip_url} //= q#compressed#;
 			$s->{config}->{worker} //= 0;
 			$s->{config}->{referer} //= '';
+			$s->{config}->{rename} //= q'url_only#^\D+$#/chapter\.(\d+)/page\.(\d+)/#';
+			
 		}
 		if ($s->{config}->{class} eq "anymanga") {
 			$s->{config}->{heur_strip_url} //= '/manga/[^/]+/\d+/\d+';
