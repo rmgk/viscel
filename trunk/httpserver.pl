@@ -14,7 +14,7 @@ use Data::Dumper;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.20';
+$VERSION = '2.21';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -172,8 +172,9 @@ sub cindex {
 			.	a({-href=>"/tools?tool=user"},"User Config"). br 
 			.	a({-href=>"/tools?tool=kategoriereihenfolge"},"change category order"). br 
 			.	a({-href=>"/tools?tool=query"},"Custom Query"). br 
+			.	a({-href=>"/tools?tool=random"},"Random Comic"). br 
 			.	br .
-		"Inhalt:" . br .
+		"Contents:" . br .
 		join(" ",map { a({href=>"#$_"},$_) . br} &kategorie()) .
 		a({href=>"#default"},'default') . br);
 		
@@ -213,8 +214,9 @@ sub html_comic_listing {
 
 
 sub ccomic {
-	my $comic = param('comic');
-	my $strip = param('strip');
+	my $comic = param('comic') // shift;
+	my $strip = param('strip') // shift;
+	my $random = shift;
 	my $ret = &kopf("Error");
 	
 	return $ret . "no comic defined" unless $comic;
@@ -250,7 +252,7 @@ sub ccomic {
 				a({-href=>"/comics?comic=$comic&strip=$strip&bookmark=1"},"Bookmark"),
 				a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize')
 				);
-		&usr($comic,'aktuell',$strip);
+		&usr($comic,'aktuell',$strip) unless $random;
 		&usr($comic,'bookmark',$strip) if param('bookmark');
 		return $return . end_html;
 	}
@@ -575,6 +577,14 @@ sub ctools {
 		$dbh->do("UPDATE USER set server_update = NULL");
 		&update;
 		return &kopf('Force Update All') . "Time: " . (time - $time) . " Seconds" . end_html;
+	}
+	if ($tool eq 'random') {
+		my $firsts = $dbh->selectall_hashref('SELECT comic,first FROM user where flags like "0%" OR flags IS NULL' , 'comic');
+		my @comics = keys %{$firsts};
+		while($comic = $comics[rand(int @comics)]) {
+			next if $broken{$comic};
+			return ccomic($comic,$firsts->{$comic}->{first},1);
+		}
 	}
 }
 
