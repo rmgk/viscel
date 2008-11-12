@@ -201,8 +201,11 @@ sub html_comic_listing {
 			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'}},"current") : undef ,
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'}},"bookmark") : undef ,
 			$usr->{'aktuell'} eq $usr->{'last'} ? "end" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'}},"end") : undef ,
-			$usr->{'strip_count'},$usr->{'strips_counted'},a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize'),
-			a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'), $broken{$comic} ? "broken" : undef , flags($comic)
+			$usr->{'strip_count'},$usr->{'strips_counted'},
+			a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize'),
+			a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
+			a({href=>"/tools?tool=user&comic=$comic"},'user'),
+			$broken{$comic} ? "broken" : undef , flags($comic)
 			])
 		]);
 		$count += $usr->{'strip_count'};
