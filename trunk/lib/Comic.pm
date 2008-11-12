@@ -20,7 +20,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '20';
+$VERSION = '21';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -52,7 +52,7 @@ sub new {
 		$s->{dbh} = DBI->connect("dbi:SQLite:dbname=".$s->{DB},"","",{AutoCommit => $s->{autocommit},PrintError => 1});
 	}
 	
-	my $worker_count = $s->cfg("worker") // 4;
+	my $worker_count = $s->cfg("worker") // 3;
 	$s->{queue_dl} = Thread::Queue->new();
 	$s->{queue_dl_finish} = Thread::Queue->new();
 	$s->{semaphore} = Thread::Semaphore->new(1);
@@ -162,7 +162,7 @@ sub class_change {
 		when (m#^http://www.mangafox.com/#) {$s->{config}->{class} //= "mangafox"};
 		when (m#^http://manga.animea.net/#) {$s->{config}->{class} //= "animea"};
 		when (m#^http://www.onemanga.com/#) {$s->{config}->{class} //= "onemanga"};
-		when (m#^http://www.cartooniverse.co.uk/#) {$s->{config}->{class} //= "cartooniverse"};
+		when (m#^http://(www.)?cartooniverse.\w+.co.uk/#) {$s->{config}->{class} //= "cartooniverse"};
 	}
 	
 	if ($s->{config}->{class} and !$s->{class_change}) {
@@ -182,6 +182,8 @@ sub class_change {
 			$s->{config}->{regex_next} //= q#<input value="next" onclick="javascript:window.location='([^']+)';" type="button">#;
 			$s->{config}->{regex_prev} //= q#<input value="back" onclick="javascript:window.location='([^']+)';" type="button">#;
 			$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
+			$s->{config}->{referer} //= q#http://www.cartooniverse.co.uk/#;
+			$s->{config}->{worker} //= 0;
 		}
 		if ($s->{config}->{class} eq "mangafox") {
 			my $url_insert = $s->{config}->{url_start};
