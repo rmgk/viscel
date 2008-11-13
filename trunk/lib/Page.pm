@@ -204,9 +204,10 @@ sub try_get_side_url_parts {
 	foreach my $fil (@filter) {
 		next unless $fil;
 		next if ($never_goto) and ($fil =~ m#$never_goto#i);
+		my $re_link = qr#href=(?<p>["']?)(?<link>.*?)(?:\k<p>|\s*>|\s+\w+\s*=)#i;
 		if (($fil =~ m#prev|back|prior#i) and (!$prev)) {
-			if ($fil =~ m#href=["']?(.*?)["' >]#i) {
-				my $tmp_url = $1;
+			if ($fil =~ $re_link) {
+				my $tmp_url = $+{link};
 				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#) or
 						(($tmp_url =~ m#http://#) and !(
 							($tmp_url =~ m#$url_home#) or 
@@ -215,8 +216,8 @@ sub try_get_side_url_parts {
 			}
 		}
 		if (($fil =~ m#next|forward|ensuing#i) and (!$next)) {
-			if ($fil =~ m#href=["']?(.*?)["' >]#i) {
-				my $tmp_url = $1;
+			if ($fil =~ $re_link) {
+				my $tmp_url = $+{link};
 				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#) or
 						(($tmp_url =~ m#http://#) and !(
 							($tmp_url =~ m#$url_home#) or 
@@ -444,37 +445,6 @@ sub save {
 		$s->status("GET: " . $se_url . " => " . $file_name,'UINFO', " URL: " . $s->url ." SURL: " .$strip);
 		$s->enque([$strip,$file_name,$s->cfg('referer')]);
 	}
-	# else {
-		# $s->status("SPEICHERE: " . $strip . " -> " . $file_name,'UINFO');
-		# my $res;
-		# if ($s->{prefetch}->{$file_name}->{thread}) {
-			# $res = $s->{prefetch}->{$file_name}->{thread}->join ;
-		# }
-		# else {
-			# $res = dlutil::getstore($strip,"./strips/".$s->name."/$file_name");
-		# }
-		# if (($res >= 200) and  ($res < 300)) {
-			# $s->status("GESPEICHERT: " . $file_name,'UINFO');
-			# $s->md5($file_name);
-			# $s->usr('last_save',time);
-			# return 200;
-		# }
-		# else {
-			# $s->status("FEHLER beim herunterladen: " . $res . " url: ". $s->url ." => " . $strip . " -> " . $file_name ,'WARN');
-			# $s->status("ERNEUT speichern: " . $strip . " -> " . $file_name ,'WARN');
-			# $res = dlutil::getstore($strip,"./strips/".$s->name."/$file_name");
-			# if (($res >= 200) and  ($res < 300)) {
-				# $s->status("GESPEICHERT: " . $file_name,'UINFO');
-				# $s->md5($file_name);
-				# $s->usr('last_save',time);
-				# return 200;
-			# }
-			# else {
-				# $s->status("ERNEUTER FEHLER datei wird nicht gespeichert: " . $res . " url: ". $s->url ." => " . $strip . " -> " . $file_name ,'ERR');
-				# return 0;
-			# }
-		# }
-	# }
 }
 
 
