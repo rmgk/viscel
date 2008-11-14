@@ -181,6 +181,7 @@ sub class_change {
 		if ($s->{config}->{class} eq "cartooniverse") {
 			$s->{config}->{regex_next} //= q#<input value="next" onclick="javascript:window.location='([^']+)';" type="button">#;
 			$s->{config}->{regex_prev} //= q#<input value="back" onclick="javascript:window.location='([^']+)';" type="button">#;
+			$s->{config}->{heur_strip_url} //= q#img.cartooniverse#;
 			$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
 			$s->{config}->{referer} //= q#http://www.cartooniverse.co.uk/#;
 			$s->{config}->{worker} //= 0;
