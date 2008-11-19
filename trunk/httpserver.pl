@@ -161,11 +161,11 @@ sub kopf {
                             $prev ?	Link({-rel=>'previous',	-href=>$prev})	: undef	,
 							$first?	Link({-rel=>'first',	-href=>$first})	: undef	,
 							$last ?	Link({-rel=>'last',		-href=>$last})	: undef	,
-							q(<STYLE>
+							q(<style type="text/css">
 <!--
 a {text-decoration:none}
 //-->
-</STYLE>)
+</style>)
 									]);
 }
 
@@ -175,7 +175,7 @@ sub preview_head {
 <script type="text/javascript">
 var preview = document.getElementById("pre");
 function showImg (imgSrc) {
-	preview.innerHTML = "<img src='"+imgSrc+"'>";
+	preview.innerHTML = "<img src='"+imgSrc+"' alt='' />";
 	preview.style.visibility='visible';
 }
 </script>
@@ -217,10 +217,10 @@ sub html_comic_listing {
 		$ret .= Tr([
 			td([
 			a({-href=>"/front?comic=$comic"},$comic) ,
-			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|<<") : undef ,
-			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},">>") : undef ,
+			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
+			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
-			$usr->{'aktuell'} eq $usr->{'last'} ? ">>|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},">>|") : undef ,
+			$usr->{'aktuell'} eq $usr->{'last'} ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
 			#$usr->{'strip_count'},$usr->{'strips_counted'},
 			#a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize'),
 			#a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
