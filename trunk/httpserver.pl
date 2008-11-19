@@ -14,7 +14,7 @@ use Data::Dumper;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.21';
+$VERSION = '2.22';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -160,9 +160,27 @@ sub kopf {
                             $next ?	Link({-rel=>'next',		-href=>$next})	: undef	,
                             $prev ?	Link({-rel=>'previous',	-href=>$prev})	: undef	,
 							$first?	Link({-rel=>'first',	-href=>$first})	: undef	,
-							$last ?	Link({-rel=>'last',		-href=>$last})	: undef	,]);
+							$last ?	Link({-rel=>'last',		-href=>$last})	: undef	,
+							q(<STYLE>
+<!--
+a {text-decoration:none}
+//-->
+</STYLE>)
+									]);
 }
 
+sub preview_head {
+	return q(
+<div id="pre" style="visibility:hidden;position:fixed;right:0;bottom:0;"> </div>
+<script type="text/javascript">
+var preview = document.getElementById("pre");
+function showImg (imgSrc) {
+	preview.innerHTML = "<img src='"+imgSrc+"'>";
+	preview.style.visibility='visible';
+}
+</script>
+);
+}
 
 sub cindex {
 	my $ret = &kopf("Index");
@@ -176,11 +194,13 @@ sub cindex {
 			.	br .
 		"Contents:" . br .
 		join(" ",map { a({href=>"#$_"},$_) . br} &kategorie()) .
-		a({href=>"#default"},'default') . br);
+		a({href=>"#default"},'default') . br);	
+	
+	$ret .= &preview_head();
 		
 	foreach (kategorie) {
 		$ret .= ("-"x 20).a({name=>$_},$_).("-"x 20).br;
-		$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where kategorie="$_")));
+		$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where kategorie="$_"))).br;
 	}
 	$ret .= ("-"x 20).a({name=>'default'},'default').("-"x 20).br;
 	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where kategorie IS NULL)));
@@ -196,23 +216,55 @@ sub html_comic_listing {
 		my $usr = $dbh->selectrow_hashref(qq(select * from USER where comic="$comic"));
 		$ret .= Tr([
 			td([
-			a({-href=>"/comics?comic=$comic"},$comic) ,
-			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'}},"start") : undef ,
-			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'}},"current") : undef ,
-			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'}},"bookmark") : undef ,
-			$usr->{'aktuell'} eq $usr->{'last'} ? "end" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'}},"end") : undef ,
-			$usr->{'strip_count'},$usr->{'strips_counted'},
-			a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize'),
-			a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
-			a({href=>"/tools?tool=user&comic=$comic"},'user'),
-			$broken{$comic} ? "broken" : undef , flags($comic)
+			a({-href=>"/front?comic=$comic"},$comic) ,
+			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|<<") : undef ,
+			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},">>") : undef ,
+			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
+			$usr->{'aktuell'} eq $usr->{'last'} ? ">>|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},">>|") : undef ,
+			#$usr->{'strip_count'},$usr->{'strips_counted'},
+			#a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize'),
+			#a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
+			#a({href=>"/tools?tool=user&comic=$comic"},'user'),
+			#$broken{$comic} ? "broken" : undef , flags($comic)
 			])
 		]);
 		$count += $usr->{'strip_count'};
 		$counted += $usr->{'strips_counted'};
 	}
 	
-		$ret .=  Tr([td([undef,undef,undef,undef,undef,undef,$count,$counted])]) . end_table ;
+	#$ret .=  Tr([td([undef,undef,undef,undef,undef,undef,$count,$counted])]) . end_table ;
+	return $ret . end_table;
+}
+
+sub cfront {
+	my $comic = param('comic') // shift;
+	my $ret = &kopf($comic . " Frontpage",0,0,
+					&usr($comic,'first') ?"/comics?comic=$comic&strip=".&usr($comic,'first') :"0",
+					&usr($comic,'last' ) ?"/comics?comic=$comic&strip=".&usr($comic,'last' ) :"0",
+					);
+	$ret .= div({-align=>"center"},
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first')},img({-style=>'width:32%;left:1%;',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell')},img({-id=>'aktuell',-style=>'width:32%;left:34%;',-src=>"/strips/$comic/".&usr($comic,'aktuell'),-alt=>"current"}))  ,
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last')},img({-style=>'width:32%;left:67%;',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
+				,
+				
+				br,br,br,
+				&usr($comic,'bookmark')?a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),
+				-onmouseover=>"document.aktuell.src='/strips/$comic/".&usr($comic,'bookmark')."'",
+				-onmouseout =>"document.aktuell.src='/strips/$comic/".&usr($comic,'aktuell')."'"
+				},'bookmark') . br : undef,
+				a({-href=>"/"},"Index"),
+				a({-href=>"/comics?comic=$comic"},"Striplist"),
+				a({href=>"/tools?tool=cataflag&comic=$comic"},'Categorize'),
+				br,
+				usr($comic,'strip_count'),usr($comic,'strips_counted'),
+				a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
+				a({href=>"/tools?tool=user&comic=$comic"},'user'),
+				$broken{$comic} ? "broken" : undef ,br,
+				"flags: " ,flags($comic), "tags: " ,tags($comic)
+			);
+	
+	return $ret . end_html;
 }
 
 
@@ -250,8 +302,8 @@ sub ccomic {
 				&dat($comic,$strip,'prev')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev')},"back"):undef,
 				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')},"next"):undef,br,
 				a({-href=>"/"},"Index"),
-				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url')},"Site"):undef,
-				a({-href=>"/comics?comic=$comic"},$comic),br, 
+				a({-href=>"/front?comic=$comic"},"Frontpage"),
+				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url')},"Site"):undef,br, 
 				a({-href=>"/comics?comic=$comic&strip=$strip&bookmark=1"},"Bookmark"),
 				a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize')
 				);
@@ -679,6 +731,9 @@ while (my $c = $d->accept) {
 				restore_parameters($r->url->query);
 				if ($r->url->path =~ m#^/comics$#) {
 					$res->content(&ccomic);
+				}
+				elsif ($r->url->path =~ m#^/front$#) {
+					$res->content(&cfront);
 				}
 				elsif ($r->url->path =~ m#^/tools$#) {
 					$res->content(&ctools);
