@@ -238,16 +238,21 @@ sub html_comic_listing {
 
 sub cfront {
 	my $comic = param('comic') // shift;
+	my $random = shift;
 	my $ret = &kopf($comic . " Frontpage",0,0,
 					&usr($comic,'first') ?"/comics?comic=$comic&strip=".&usr($comic,'first') :"0",
 					&usr($comic,'last' ) ?"/comics?comic=$comic&strip=".&usr($comic,'last' ) :"0",
 					);
 	$ret .= div({-align=>"center"},
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first')},img({-style=>'width:32%;left:1%;',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell')},img({-id=>'aktuell',-style=>'width:32%;left:34%;',-src=>"/strips/$comic/".&usr($comic,'aktuell'),-alt=>"current"}))  ,
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last')},img({-style=>'width:32%;left:67%;',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
+				&usr($comic,'aktuell')?(
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first')},img({-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell')},img({-id=>'aktuell',-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'aktuell'),-alt=>"current"}))  ,
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last')},img({-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
+				):(
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first')},img({-style=>'width:49%',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last')},img({-style=>'width:49%',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
+				)
 				,
-				
 				br,br,br,
 				&usr($comic,'bookmark')?a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),
 				-onmouseover=>"document.aktuell.src='/strips/$comic/".&usr($comic,'bookmark')."'",
@@ -261,7 +266,8 @@ sub cfront {
 				a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
 				a({href=>"/tools?tool=user&comic=$comic"},'user'),
 				$broken{$comic} ? "broken" : undef ,br,
-				"flags: " ,flags($comic), "tags: " ,tags($comic)
+				"flags: " ,flags($comic), "tags: " ,tags($comic) ,
+				$random? br. a({-href=>"/tools?tool=random"},"Random"):undef
 			);
 	
 	return $ret . end_html;
@@ -638,7 +644,7 @@ sub ctools {
 		my @comics = keys %{$firsts};
 		while($comic = $comics[rand(int @comics)]) {
 			next if $broken{$comic};
-			return ccomic($comic,$firsts->{$comic}->{first},1);
+			return cfront($comic,1);
 		}
 	}
 }
