@@ -14,7 +14,7 @@ use Data::Dumper;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.22';
+$VERSION = '2.23';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -244,6 +244,7 @@ sub cfront {
 					&usr($comic,'last' ) ?"/comics?comic=$comic&strip=".&usr($comic,'last' ) :"0",
 					);
 	$ret .= div({-align=>"center"},
+				h4($comic),
 				&usr($comic,'aktuell')?(
 				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first')},img({-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
 				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell')},img({-id=>'aktuell',-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'aktuell'),-alt=>"current"}))  ,
