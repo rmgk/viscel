@@ -4,8 +4,9 @@
 
 package Page;
 
+use 5.010;
 use strict;
-use feature qw(say switch);
+use warnings;
 use dlutil;
 
 use HTML::Tree;

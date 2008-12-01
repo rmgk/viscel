@@ -2,6 +2,10 @@
 #this program is free software it may be redistributed under the same terms as perl itself
 #17:15 06.10.2008
 
+
+use 5.010;
+use strict;
+use warnings;
 use lib "./lib";
 
 use HTTP::Daemon;
@@ -11,10 +15,9 @@ use CGI qw(:standard *table :html3);
 use DBI;
 use Data::Dumper;
 
-use strict;
 
 use vars qw($VERSION);
-$VERSION = '2.23';
+$VERSION = '2.24';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -82,7 +85,7 @@ sub kategorie {
 	$d{$_} = 1 for (@kat); 
 	my @kat2 = @{$dbh->selectcol_arrayref(qq(select distinct kategorie from USER))}; #alle vorhandenen kategorien
 	for (@kat2) {
-		push(@kat,$_) unless ($d{$_} or !$_);
+		push(@kat,$_) unless (!$_ or $d{$_});
 	}
 	return @kat;
 }
@@ -90,16 +93,23 @@ sub kategorie {
 sub tags {
 	my $comic = shift;
 	my $new = shift;
+
 	if ($new) {
+		if ($new eq '<>') {
+			usr($comic,'tags',0,'delete');
+			return 1;
+		}	
 		my $tag_to_add = join(" ",split(/\W+/,$new));
 		usr($comic,'tags',$tag_to_add);
 	}
 	if ($comic) {
-		return ($dbh->selectrow_array("select tags from USER where comic='$comic'") =~ m/(\w+)/gs);
+		my $t = $dbh->selectrow_array("select tags from USER where comic='$comic'");
+		return $t ? $t =~ m/(\w+)/gs : undef;
 	}
 	my $tags = $dbh->selectcol_arrayref("select tags from USER");
 	my %taglist;
 	foreach (@{$tags}) {
+		next unless defined $_;
 		foreach my $tag ($_ =~ m/(\w+)/gs) {
 			$taglist{$tag} = 1;
 		}
@@ -110,38 +120,42 @@ sub tags {
 sub flags {
 	my $comic = shift;
 	my $new = shift;
-	my @flaglist = qw(read complete hiatus warn loop);
+	return 0 unless $comic;
 	
-	if ($new =~ /^\+(\w+)/) {
-		&flags($comic,&flags($comic) . " $1");
-	}	
-	elsif ($new =~ /^-(\w+)/) {
-		my $f = &flags($comic);
-		$f =~ s/$1//i;
-		&flags($comic,$f);
+	if ($new eq '<>') {
+		&usr($comic,'flags',0,'delete');
+		return 1;
 	}
-	elsif ($new) {
-		my %flags;
-		foreach (split(/\W+/,$new)) {
-			$flags{$_} = 1;
-		}
-		my $fl;
-		foreach (@flaglist) {
-			$fl .= $flags{$_}?'1':'0';
-		}
-		usr($comic,'flags',$fl);
+	my $flags = $dbh->selectrow_array("select flags from USER where comic='$comic'") // "";
+	if ($flags =~ /^\d+$/) {
+		my @flaglist = qw(read complete hiatus warn loop);
+		my @flag_codes = split(//,$flags);
+		$flags = "";
+		$flags .= "r" if $flag_codes[0];
+		$flags .= "c" if $flag_codes[1];
 	}
 	
-	if ($comic) {
-		my @ret;
-		my @flag_codes = split(//,$dbh->selectrow_array("select flags from USER where comic='$comic'"));
-		for (0..$#flag_codes) {
-			push(@ret,$flaglist[$_]) if $flag_codes[$_]; 
-		}
-		return @ret;
-	}
-	return @flaglist;
+	my $flag = {};
 	
+	foreach my $f (split(//,$flags)) {
+		$flag->{$f} = 1;
+	}
+	
+	if ($new) {
+		if ($new =~ /^\+(\w+)/) {
+			$flag->{$_} = 1 for (split(//,$1));
+		}	
+		elsif ($new =~ /^-(\w+)/) {
+			delete $flag->{$_} for (split(//,$1));		
+		}
+		else {
+			$flag = {};
+			$flag->{$_} = 1 for (split(//,$new));		
+		}
+		my $f = join('',keys %{$flag});
+		$f ? usr($comic,'flags',$f) : usr($comic,'flags',0,'delete');
+	}
+	return $flag;
 }
 
 sub kopf {
@@ -193,17 +207,19 @@ sub cindex {
 			.	a({-href=>"/tools?tool=random"},"Random Comic"). br 
 			.	br .
 		"Contents:" . br .
-		join(" ",map { a({href=>"#$_"},$_) . br} &kategorie()) .
-		a({href=>"#default"},'default') . br);	
+		join(" ",map { a({href=>"#$_"},$_) . br} qw(continue other finished stopped ))
+		);	
 	
 	$ret .= &preview_head();
-		
-	foreach (kategorie) {
-		$ret .= ("-"x 20).a({name=>$_},$_).("-"x 20).br;
-		$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where kategorie="$_"))).br;
-	}
-	$ret .= ("-"x 20).a({name=>'default'},'default').("-"x 20).br;
-	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where kategorie IS NULL)));
+
+	$ret .= ("-"x 20).a({name=>'continue'},'continue').("-"x 20).br;
+	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where flags like '%r%' and flags not like '%f%' and flags not like '%s%'))).br;
+	$ret .= ("-"x 20).a({name=>'other'},'other').("-"x 20).br;
+	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where (flags not like '%r%' and flags not like '%f%' and flags not like '%s%') or flags is null))).br;
+	$ret .= ("-"x 20).a({name=>'finished'},'finished').("-"x 20).br;
+	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where flags like '%f%'))).br;
+	$ret .= ("-"x 20).a({name=>'stopped'},'stopped').("-"x 20).br;
+	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where flags like '%s%'))).br;
 	return $ret . end_html;
 }
 
@@ -220,7 +236,7 @@ sub html_comic_listing {
 			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
 			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
-			$usr->{'aktuell'} eq $usr->{'last'} ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
+			($usr->{'aktuell'} and $usr->{'last'} and ($usr->{'aktuell'} eq $usr->{'last'})) ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
 			#$usr->{'strip_count'},$usr->{'strips_counted'},
 			#a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize'),
 			#a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
@@ -228,11 +244,7 @@ sub html_comic_listing {
 			#$broken{$comic} ? "broken" : undef , flags($comic)
 			])
 		]);
-		$count += $usr->{'strip_count'};
-		$counted += $usr->{'strips_counted'};
 	}
-	
-	#$ret .=  Tr([td([undef,undef,undef,undef,undef,undef,$count,$counted])]) . end_table ;
 	return $ret . end_table;
 }
 
@@ -267,7 +279,7 @@ sub cfront {
 				a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
 				a({href=>"/tools?tool=user&comic=$comic"},'user'),
 				$broken{$comic} ? "broken" : undef ,br,
-				"flags: " ,flags($comic), "tags: " ,tags($comic) ,
+				"tags: " ,tags($comic) ,
 				$random? br. a({-href=>"/tools?tool=random"},"Random"):undef
 			);
 	
@@ -301,18 +313,22 @@ sub ccomic {
 					);
 					
 		$return .= div({-align=>"center"},
-				(-e "./strips/$comic/$strip") ? img({-src=>"/strips/$comic/$strip",-alt=>"$strip"}) :
-				&dat($comic,$strip,'surl')!~m/^dummy/ ? img({-src=>&dat($comic,$strip,'surl')}) . br . 
-				a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)")	:
-				"Diese Seite ist nur ein Dummy. Es könnte sein, dass der strip nicht korrekt heruntergeladen werden konnte."
-				,br,br,
-				&dat($comic,$strip,'prev')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev')},"back"):undef,
-				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')},"next"):undef,br,
-				a({-href=>"/"},"Index"),
-				a({-href=>"/front?comic=$comic"},"Frontpage"),
-				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url')},"Site"):undef,br, 
-				a({-href=>"/comics?comic=$comic&strip=$strip&bookmark=1"},"Bookmark"),
-				a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize')
+				(-e "./strips/$comic/$strip") ? 
+					img({-src=>"/strips/$comic/$strip",-alt=>"$strip"}) :
+					&dat($comic,$strip,'surl')!~m/^dummy/ ? 
+						img({-src=>&dat($comic,$strip,'surl')}).br. a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)") :
+						"This page is a dummy. Errors are likely",
+				br,
+				br,
+				&dat($comic,$strip,'prev')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev')},'&lt;&lt;'):undef,
+				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')},'&gt;&gt;'):undef,
+				br,
+				&dat($comic,$strip,'next')?a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r"},"pause"):
+				a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=rf"},"finish")
+				,
+				a({-href=>"/front?comic=$comic"},"front"),
+				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url')},"site"):undef,
+				
 				);
 		&usr($comic,'aktuell',$strip) unless $random;
 		&usr($comic,'bookmark',$strip) if param('bookmark');
@@ -362,59 +378,18 @@ sub ccomic {
 sub ctools {
 	my $tool = param('tool');
 	my $comic = param('comic');
-	if ($tool eq "kategorie") {
-		my $kategorie = param('neu') || param('kategorie') ;
-		if ($kategorie) {
-			usr($comic,'kategorie',$kategorie);
-			return &kopf($comic . " Kategorie geändert") ."$comic category changed to $kategorie " . a({-href=>"/"},"Back") . br . br . &cindex();
-		}
-		my $res = &kopf($comic." Kategorie ändern");
-		
-		$res .= start_form("GET","tools");
-		$res .= hidden('comic',$comic);
-		$res .= hidden('tool',"kategorie");
-		$res .= radio_group(-name=>'kategorie',
-	                             -values=>[&kategorie],
-	                             -default=>usr($comic,'kategorie'),
-	                             -linebreak=>'true');
-		$res .= "neu: " . textfield(-name=>'neu');
-		$res .= br . submit('ok');
-		$res .= br . a({-href=>"/"},"Index");
-		$res .= end_form;
-		$res .= end_html;;
-		return $res;	
-	}	
+	
 	if ($tool eq "cataflag") {
-		my $kategorie = param('new_cat') || param('kategorie');
-		my $tags =  join(" ",param('tags')) ." ". param('new_tag');
-		my $flags = join(" ",param('flags'));
-		if ($kategorie) {
-			usr($comic,'kategorie',$kategorie);
-			#return &kopf($comic . " changed category") ."$comic category changed to $kategorie " . a({-href=>"/"},"Back") . br . br . &cindex();
-		}
-		if ($tags) {
-			tags($comic,$tags);
-			#return &kopf($comic . " changed category") ."$comic category changed to $kategorie " . a({-href=>"/"},"Back") . br . br . &cindex();
-		}
-		if ($flags) {
-			flags($comic,$flags);
-			#return &kopf($comic . " changed category") ."$comic category changed to $kategorie " . a({-href=>"/"},"Back") . br . br . &cindex();
-		}
-		&usr($comic,'tags',0,'delete') if (param('delete_tags'));
-		&usr($comic,'flags',0,'delete') if (param('delete_flags'));
-		my $res = &kopf($comic." category tags and flags");
+		my $tags = join(" ",param('tags')) .  (param('new_tag') ? " ". param('new_tag') : '');
+		if ($tags) { tags($comic,$tags); }
+		elsif (param('ok') ) { tags($comic,'<>'); };
 		
-		$res .= h1('Category');
-		$res .= start_form("GET","tools");
-		$res .= hidden('comic',$comic);
-		$res .= hidden('tool',"cataflag");
-		$res .= radio_group(-name=>'kategorie',
-	                             -values=>[&kategorie],
-	                             -default=>usr($comic,'kategorie'),
-	                             -linebreak=>'true');
-		$res .= "new: " . textfield(-name=>'new_cat');
-		$res .= br . submit('ok');
-		$res .= end_form;
+		my $addflag = param('addflag');
+		flags($comic,"+$addflag") if $addflag;
+		my $bookmark = param('bookmark');
+		usr($comic,'bookmark',$bookmark ) if $bookmark;
+		
+		my $res = &kopf($comic."tags and flags");
 		
 		$res .= h1('Tags');
 		$res .= start_form("GET","tools");
@@ -425,49 +400,15 @@ sub ctools {
 								 -default=>[&tags($comic)],
 	                             -linebreak=>'true');
 		$res .= "new: " . textfield(-name=>'new_tag');
-		$res .= br . checkbox(-name=>'delete_tags',
-				   -checked=>0,
-				   -value=>'1',
-				   -label=>'delete all tags');
 		$res .= br . submit('ok');
 		$res .= end_form;
-		
-		$res .= h1('Flags');
-		$res .= start_form("GET","tools");
-		$res .= hidden('comic',$comic);
-		$res .= hidden('tool',"cataflag");
-		$res .= checkbox_group(-name=>'flags',
-	                             -values=>[&flags],
-								 -default=>[&flags($comic)],
-	                             -linebreak=>'true');
-		$res .= br . checkbox(-name=>'delete_flags',
-                           -checked=>0,
-                           -value=>'1',
-                           -label=>'delete all flags');
-		$res .= br . submit('ok');
-		
-		$res .= br .br .br. a({-href=>"/tools?comic=$comic&tool=cataflag"},"reload") .br. a({-href=>"/"},"Index");
-		$res .= end_form;
+		$res .= br . a({href=>"/tools?tool=cataflag&comic=$comic&addflag=c"},'this comic is complete') .br;
+		$res .= br . a({href=>"/tools?tool=cataflag&comic=$comic&addflag=s"},'stop reading this comic') .br;
+		$res .= br. a({-href=>"/tools?tool=user&comic=$comic"},"advanced") .br;
+		$res .= br. a({-href=>"/tools?comic=$comic&tool=cataflag"},"reload") .br. a({-href=>"/"},"Index");
 		$res .= end_html;;
 		return $res;	
 	}	
-	if ($tool eq "kategoriereihenfolge") {
-		my $res = &kopf("Kategoriereihenfolge ändern");
-		my $i;
-		if (param('order')) {
-			my @kat = &kategorie;
-			my @ord = split("-",param('order'));
-			my @kat2 = @kat[@ord];
-			&kategorie(0,join(",",@kat2));
-		}
-		$res .= table(Tr( [map {td([$i++,$_])} &kategorie]));
-		$res .= start_form("GET","tools");
-		$res .= hidden('tool',"kategoriereihenfolge");
-		$res .= textfield(-name=>'order', -default=>join('-',0..$i-1));
-		$res .= submit('ok');
-		$res .= br . br .  a({-href=>"/"},"Index");
-		return $res . end_html;
-	}
 	if ($tool eq "download") {
 		require dlutil;
 		my $strip = param('strip');
@@ -476,6 +417,11 @@ sub ctools {
 	}
 	if ($tool eq "datalyzer") {
 		my %d;
+		$d{count}->{n} = 0;
+		$d{prevnext}->{n} = 0;
+		$d{prev}->{n} = 0;
+		$d{next}->{n} = 0;
+		$d{none}->{n} = 0;
 		my $strips = $dbh->selectall_hashref("select * from _$comic","strip");
 		foreach my $strp (keys %{$strips}) {
 			$d{count}->{$d{count}->{n}} = $strp;
@@ -515,7 +461,7 @@ sub ctools {
 		my $res = &kopf("Datalyzer");
 		my $sec = param('section') ;
 		
-		if ($sec eq 'strps') {
+		if ($sec and ($sec eq 'strps')) {
 			$res .= table(Tr([map {td([ #creating table with key : value pairs via map
 					#if it is prev or next make it a link; else just print out the information
 					$_,":",	($_ =~ m/prev|next/)	?	a({href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
@@ -585,28 +531,28 @@ sub ctools {
 	if ($tool eq 'user') {
 		my $user = $dbh->selectall_hashref("select * from USER","comic");
 		my $res = &kopf('user');
-		if (param('comic')) {
+		if ($comic) {
 			$res .= start_form("GET","tools");
 			$res .= hidden('tool',"user");
 			$res .= start_table;
-			if (param('delete') ne '') {
-				&usr(param('comic'),param('delete'),0,'delete');
+			if (param('delete') and (param('delete') ne '')) {
+				&usr($comic,param('delete'),0,'delete');
 			}
 			foreach my $key (keys %{$user->{param('comic')}}) {
 				if (param($key)) {
-					&usr(param('comic'),$key,param($key));
+					&usr($comic,$key,param($key));
 				}
-				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&usr(param('comic'),$key), -size=>"100")),td(a({-href=>"/tools?tool=user&delete=$key&comic=" . param('comic')},"delete $key")));
+				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&usr($comic,$key), -size=>"100")),td(a({-href=>"/tools?tool=user&delete=$key&comic=" .$comic},"delete $key")));
 			}
-			return $res . end_table . submit('ok'). br . br .a({-href=>"/tools?tool=user&comic=".param('comic')},"reload") .br. a({-href=>"/tools?tool=user"},"Back") . br . a({-href=>"/"},"Index") . end_html;
+			return $res . end_table . submit('ok'). br . br .a({-href=>"/tools?tool=user&comic=".$comic},"reload") .br. a({-href=>"/tools?tool=user"},"all comics") . br . a({-href=>"/"},"Index") . end_html;
 		}
 		$res .= start_table;
 		my $h = 0;
-		foreach my $comic (sort{uc($a) cmp uc($b)} (keys %{$user})) {
+		foreach my $cmc (sort{uc($a) cmp uc($b)} (keys %{$user})) {
 
-			$res .=  Tr(td('name'),td([keys %{$user->{$comic}}])) if !$h;
+			$res .=  Tr(td('name'),td([keys %{$user->{$cmc}}])) if !$h;
 			$h = 1;
-			$res .=  Tr(td(a({-href=>"/tools?tool=user&comic=". $comic},$comic)),td([map {textfield(-name=>$_, -default=>&usr($comic,$_))} keys %{$user->{$comic}}]));
+			$res .=  Tr(td(a({-href=>"/tools?tool=user&comic=". $cmc},$cmc)),td([map {textfield(-name=>$_, -default=>&usr($cmc,$_))} keys %{$user->{$cmc}}]));
 		}
 		return $res . end_table . br . br .  a({-href=>"/"},"Index") . end_html;
 	}
@@ -641,7 +587,7 @@ sub ctools {
 		return &kopf('Force Update All') . "Time: " . (time - $time) . " Seconds" . end_html;
 	}
 	if ($tool eq 'random') {
-		my $firsts = $dbh->selectall_hashref('SELECT comic,first FROM user where flags like "0%" OR flags IS NULL' , 'comic');
+		my $firsts = $dbh->selectall_hashref('SELECT comic,first FROM user where flags not like "%r%" OR flags IS NULL' , 'comic');
 		my @comics = keys %{$firsts};
 		while($comic = $comics[rand(int @comics)]) {
 			next if $broken{$comic};
@@ -663,7 +609,7 @@ sub update {
 	my @comics = @{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where (time <= 0) OR (server_update IS NULL)))};
 	local $| = 1;
 	print "updating ". scalar(@comics) ." comics" if @comics;
-	foreach my $comic (@comics){
+	foreach my $comic (@comics) {
 		usr($comic,'server_update',time);
 		
 		my @dummys = $dbh->selectrow_array("select strip from _$comic where (strip like 'dummy|%') and ((prev IS NULL) or (next IS NULL))");
@@ -675,10 +621,10 @@ sub update {
 		
 		if ($dbh->selectrow_array("SELECT COUNT(next) AS dup_count FROM _$comic GROUP BY next HAVING (COUNT(next) > 1)")
 		or  $dbh->selectrow_array("SELECT COUNT(prev) AS dup_count FROM _$comic GROUP BY prev HAVING (COUNT(prev) > 1)")) {
-			&flags($comic,'+warn');
+			&flags($comic,'+w');
 		}
 		else {
-			&flags($comic,'-warn');
+			&flags($comic,'-w');
 		}
 		
 		my $first = usr($comic,'first');
@@ -700,9 +646,9 @@ sub update {
 		my $i = 0;
 		if ($strp) {
 			$i++ ;
-			while($strps->{$strps->{$strp}->{next}}) {
+			while((defined $strps->{$strp}->{next}) and $strps->{$strps->{$strp}->{next}}) {
 				$strp = $strps->{$strp}->{next};
-				if ($double{$strp} == 1) {
+				if ($double{$strp}) {
 					last;
 				}
 				else {

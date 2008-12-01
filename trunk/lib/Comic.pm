@@ -3,8 +3,10 @@
 #17:31 06.10.2008
 package Comic;
 
+use 5.010;
 use strict;
-use feature qw(say switch);
+use warnings;
+
 use Config::IniHash;
 use Page;
 use dbutil;
@@ -387,13 +389,9 @@ sub next {
 	my $url = shift || $sides[1];
 	
 	if ($s->{visited_urls}->{$url}) {
-		my @flags = split("",$s->usr('flags'));
-		$flags[4] = 1; # loop flag
-		my $fstr;
-		for (0..$#flags) {
-			$fstr .= $flags[$_] or 0;
-		}
-		$s->usr('flags',$fstr);
+		my $flags = $s->usr('flags');
+		$flags .= 'l' unless $flags =~ /l/;
+		$s->usr('flags',$flags);
 	}
 
 	my $never_goto = $s->cfg("never_goto");
