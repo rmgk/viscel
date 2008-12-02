@@ -14,10 +14,11 @@ use Config::IniHash;
 use CGI qw(:standard *table :html3);
 use DBI;
 use Data::Dumper;
+use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.24';
+$VERSION = '2.25';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -197,7 +198,8 @@ function showImg (imgSrc) {
 }
 
 sub cindex {
-	my $ret = &kopf("Index");
+	my $ret = &kopf("Index",0,"/tools?tool=random");
+	my $i = 0;
 	$ret .= div({-style=>"right:0;width:150px;position:fixed;"},
 		"Tools:" . br 
 			.	a({-href=>"/tools?tool=config"},"Configuration") . br 
@@ -208,35 +210,59 @@ sub cindex {
 			.	br .
 		"Contents:" . br .
 		join(" ",map { a({href=>"#$_"},$_) . br} qw(continue other finished stopped ))
+		. br. "Color:" .br.
+		 join(" ",map {div({-style=>"color:#$_;"},10** $i++ . "+")} qw(333300 33cc00 eeee00 eebbbb))
 		);	
 	
 	$ret .= &preview_head();
 
-	$ret .= ("-"x 20).a({name=>'continue'},'continue').("-"x 20).br;
-	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where flags like '%r%' and flags not like '%f%' and flags not like '%s%'))).br;
-	$ret .= ("-"x 20).a({name=>'other'},'other').("-"x 20).br;
-	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where (flags not like '%r%' and flags not like '%f%' and flags not like '%s%') or flags is null))).br;
-	$ret .= ("-"x 20).a({name=>'finished'},'finished').("-"x 20).br;
-	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where flags like '%f%'))).br;
-	$ret .= ("-"x 20).a({name=>'stopped'},'stopped').("-"x 20).br;
-	$ret .= html_comic_listing($dbh->selectcol_arrayref(qq(select comic from USER where flags like '%s%'))).br;
+	$ret .= html_comic_listing('continue',$dbh->selectcol_arrayref(qq(select comic from USER where flags like '%r%' and flags not like '%f%' and flags not like '%s%'))).br;
+	$ret .= html_comic_listing('other',$dbh->selectcol_arrayref(qq(select comic from USER where (flags not like '%r%' and flags not like '%f%' and flags not like '%s%') or flags is null))).br;
+	$ret .= html_comic_listing('finished',$dbh->selectcol_arrayref(qq(select comic from USER where flags like '%f%'))).br;
+	$ret .= html_comic_listing('stopped',$dbh->selectcol_arrayref(qq(select comic from USER where flags like '%s%'))).br;
 	return $ret . end_html;
 }
 
 sub html_comic_listing {
+	my $name = shift;
 	my $comics = shift;
-	my $ret = start_table;
+	my$ret = div({-style=>"margin-left:10px"},("-"x 20).a({name=>$name},$name).("-"x 20));
+	$ret .= start_table({-style=>"margin-left:10px"});
+	
 	my $count;
 	my $counted;
-	foreach my $comic (@{$comics}) {
-		my $usr = $dbh->selectrow_hashref(qq(select * from USER where comic="$comic"));
+	
+	my %toRead;
+	my $user = $dbh->selectall_hashref("select * from user",'comic');
+	foreach my $comic ( @{$comics}) {
+		my $bookmark = $user->{$comic}->{'bookmark'};
+		if ($bookmark) {
+			$toRead{$comic} = $user->{$comic}->{'strips_counted'} - dat($comic,$bookmark,'number');
+		}
+		else {
+			$toRead{$comic} = $user->{$comic}->{'strips_counted'};
+		}
+	}
+	
+	foreach my $comic ( sort {$toRead{$b} <=> $toRead{$a}} @{$comics}) {
+		my $usr = $user->{$comic};
+		my $mul = $toRead{$comic};
+		my $clr = 0;
+		my @clrlst = ('#333300','#33cc00','#eeee00','#eebbbb');
+		while ($mul > 10) {
+			$mul /= 10;
+			$clr++;
+		}
+		$mul = int ($mul*7);
 		$ret .= Tr([
 			td([
-			a({-href=>"/front?comic=$comic"},$comic) ,
+			a({-href=>"/front?comic=$comic",-style=>"color:$clrlst[$clr]"},$comic) ,
 			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
 			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
 			($usr->{'aktuell'} and $usr->{'last'} and ($usr->{'aktuell'} eq $usr->{'last'})) ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
+			#div({-style=>"width:${mul}px;background-color:$clrlst[$clr];height: 0.5em;margin-left:20px;"})
+			#($toRead{$comic} ? $chrlst[$chr] x $mul : undef), 
 			#$usr->{'strip_count'},$usr->{'strips_counted'},
 			#a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize'),
 			#a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
@@ -402,10 +428,10 @@ sub ctools {
 		$res .= "new: " . textfield(-name=>'new_tag');
 		$res .= br . submit('ok');
 		$res .= end_form;
-		$res .= br . a({href=>"/tools?tool=cataflag&comic=$comic&addflag=c"},'this comic is complete') .br;
-		$res .= br . a({href=>"/tools?tool=cataflag&comic=$comic&addflag=s"},'stop reading this comic') .br;
+		$res .= br . a({href=>"/tools?tool=cataflag&comic=$comic&addflag=c"},'this comic is complete');
+		$res .= br . a({href=>"/tools?tool=cataflag&comic=$comic&addflag=s"},'stop reading this comic');
 		$res .= br. a({-href=>"/tools?tool=user&comic=$comic"},"advanced") .br;
-		$res .= br. a({-href=>"/tools?comic=$comic&tool=cataflag"},"reload") .br. a({-href=>"/"},"Index");
+		$res .= br. a({-href=>"/tools?comic=$comic&tool=cataflag"},"reload") .br. a({-href=>"/front?comic=$comic"},"Frontpage").br. a({-href=>"/"},"Index");
 		$res .= end_html;;
 		return $res;	
 	}	
@@ -608,8 +634,12 @@ sub update {
 	# }
 	my @comics = @{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where (time <= 0) OR (server_update IS NULL)))};
 	local $| = 1;
+	$dbh->{AutoCommit} = 0;
 	print "updating ". scalar(@comics) ." comics" if @comics;
 	foreach my $comic (@comics) {
+		
+		dbutil::check_table($dbh,"_$comic");
+		
 		usr($comic,'server_update',time);
 		
 		my @dummys = $dbh->selectrow_array("select strip from _$comic where (strip like 'dummy|%') and ((prev IS NULL) or (next IS NULL))");
@@ -641,11 +671,12 @@ sub update {
 		my %double;
 		my $strp = $first;
 		my $strps = {};
-		$strps = $dbh->selectall_hashref(qq(select strip , next from _$comic), "strip");
+		$strps = $dbh->selectall_hashref(qq(select strip , next, number from _$comic), "strip");
 		
 		my $i = 0;
 		if ($strp) {
 			$i++ ;
+			dat($comic,$strp,'number',$i);
 			while((defined $strps->{$strp}->{next}) and $strps->{$strps->{$strp}->{next}}) {
 				$strp = $strps->{$strp}->{next};
 				if ($double{$strp}) {
@@ -655,12 +686,14 @@ sub update {
 					$double{$strp} = 1;
 				}
 				$i++;
+				dat($comic,$strp,'number',$i) unless ($strps->{$strp}->{number} and $strps->{$strp}->{number} == $i);
 			}
 		}
 		usr($comic,'last',$strp);
 		usr($comic,'strips_counted',$i);
 		print ".";
 	}
+	$dbh->{AutoCommit} = 1;
 	my $comini = ReadINI('comic.ini',{'case'=>'preserve'});
 	foreach my $name (keys %{$comini}) {
 		if ($comini->{$name}->{broken}) {
@@ -677,7 +710,9 @@ print "Please contact me at: <URL:", "http://127.0.0.1/" ,">\n";
 while (my $c = $d->accept) {
 	while (my $r = $c->get_request) {
 		if ($r->method eq 'GET') {
-			if ($r->url->path =~ m#^/strips/(.*?)/(.*)$#) {
+			if ($r->url->path eq '/favicon.ico') {
+			}
+			elsif ($r->url->path =~ m#^/strips/(.*?)/(.*)$#) {
 				$c->send_file_response("./strips/$1/$2");
 			}
 			else {

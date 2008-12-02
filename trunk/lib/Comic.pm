@@ -22,7 +22,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '21';
+$VERSION = '22';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -257,7 +257,7 @@ sub status {
 	my $addinfo = shift;
 	
 	open(LOG,">>".$s->{path_log});
-	print LOG $status ." -- >". $addinfo. " -->". $type . "\n";
+	print LOG $status . ($addinfo ? " -- >". $addinfo : "") . " -->". $type . "\n";
 	close LOG;
 	
 	if ($type =~ m/ERR|WARN|DEF|UINFO/i) {
@@ -266,7 +266,7 @@ sub status {
 	
 	if ($type  =~ m/ERR/i) {
 		open(ERR,">>".$s->{path_err});
-		print ERR $s->name() .">$type: " . $status ." -- >". $addinfo. "\n";
+		print ERR $s->name() .">$type: " . $status ." -- >". ($addinfo // ""). "\n";
 		close ERR;
 	}
 	return 1;
@@ -388,7 +388,7 @@ sub next {
 	my @sides = $s->curr->side_urls();
 	my $url = shift || $sides[1];
 	
-	if ($s->{visited_urls}->{$url}) {
+	if ($url and $s->{visited_urls}->{$url}) {
 		my $flags = $s->usr('flags');
 		$flags .= 'l' unless $flags =~ /l/;
 		$s->usr('flags',$flags);

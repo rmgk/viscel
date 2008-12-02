@@ -3,14 +3,15 @@
 #17:58 22.10.2008
 
 package dbutil;
+
+use 5.010;
 use strict;
-use feature qw(switch say);
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '3';
+$VERSION = '4';
 
-my @comic_columns = 	qw(strip c_version md5 prev next surl time title url); 
+my @comic_columns = 	qw(strip c_version md5 prev next surl time title url number); 
 my @config_columns =	qw(update_intervall color_bg color_text color_link color_vlink thumb kat_order);
 my @user_columns =		qw(comic url_current first last last_save strip_count strips_counted kategorie aktuell bookmark last_update server_update flags tags archive_current);
 
@@ -37,7 +38,7 @@ sub user {
 	my $col_having = $1;
 	my @missing_column;
 	foreach my $column (@user_columns) {
-		push(@missing_column,$column) unless $col_having =~ /$column/is;
+		push(@missing_column,$column) unless $col_having =~ /\b$column\b/is;
 	}
 	foreach my $column (@missing_column) {
 		$dbh->do("alter table USER add column " . $column);
@@ -57,7 +58,7 @@ sub config {
 	my $col_having = $1;
 	my @missing_column;
 	foreach my $column (@config_columns) {
-		push(@missing_column,$column) unless $col_having =~ /$column/is;
+		push(@missing_column,$column) unless $col_having =~ /\b$column\b/is;
 	}
 	foreach my $column (@missing_column) {
 		$dbh->do("alter table CONFIG add column " . $column);
@@ -77,7 +78,7 @@ sub comic {
 	my $col_having = $1;
 	my @missing_column;
 	foreach my $column (@comic_columns) {
-		push(@missing_column,$column) unless $col_having =~ /$column/is;
+		push(@missing_column,$column) unless $col_having =~ /\b$column\b/is;
 	}
 	foreach my $column (@missing_column) {
 		$dbh->do("alter table " . $table . " add column " . $column);
