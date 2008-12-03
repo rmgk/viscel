@@ -18,7 +18,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.26';
+$VERSION = '2.27';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -139,8 +139,8 @@ sub tags {
 
 
 sub flags {
-	my $comic = shift;
-	my $new = shift;
+	my $comic = shift || '';
+	my $new = shift || '';
 	return 0 unless $comic;
 	
 	if ($new eq '<>') {
@@ -272,7 +272,7 @@ sub html_comic_listing {
 		$mul = log($mul) if $mul;
 		$ret .= Tr([
 			td([
-			a({-href=>"/front?comic=$comic",-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em"},$comic) ,
+			a({-href=>"/front?comic=$comic",-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;".($broken{$comic}?'text-decoration:line-through;':'')},$comic) ,
 			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
 			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
@@ -382,7 +382,8 @@ sub ccomic {
 				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')},'&gt;&gt;'):undef,
 				br,
 				&dat($comic,$strip,'next')?a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r"},"pause"):
-				a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=rf"},"finish")
+				flags($comic)->{r} ? a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=rcf"},"finish"):
+				a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r"},"pause")
 				,
 				a({-href=>"/front?comic=$comic"},"front"),
 				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url')},"site"):undef,
