@@ -18,7 +18,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.25';
+$VERSION = '2.26';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -92,31 +92,51 @@ sub kategorie {
 }
 
 sub tags {
-	my $comic = shift;
-	my $new = shift;
-
-	if ($new) {
+	my $comic = shift || '';
+	my $new = shift || '';
+	
+	if ($comic) {
 		if ($new eq '<>') {
 			usr($comic,'tags',0,'delete');
 			return 1;
-		}	
-		my $tag_to_add = join(" ",split(/\W+/,$new));
-		usr($comic,'tags',$tag_to_add);
-	}
-	if ($comic) {
-		my $t = $dbh->selectrow_array("select tags from USER where comic='$comic'");
-		return $t ? $t =~ m/(\w+)/gs : undef;
-	}
-	my $tags = $dbh->selectcol_arrayref("select tags from USER");
-	my %taglist;
-	foreach (@{$tags}) {
-		next unless defined $_;
-		foreach my $tag ($_ =~ m/(\w+)/gs) {
-			$taglist{$tag} = 1;
 		}
+		my $tags = $dbh->selectrow_array("select tags from USER where comic='$comic'") // "";
+		
+		my $tag = {};
+		
+		foreach my $t (split(/\W+/,$tags)) {
+			$tag->{$t} = 1;
+		}
+		
+		if ($new) {
+			if ($new =~ /^\+([\w\s]+)/) {
+				$tag->{$_} = 1 for (split(/\W+/,$1));
+			}	
+			elsif ($new =~ /^-([\w\s]+)/) {
+				delete $tag->{$_} for (split(/\W+/,$1));		
+			}
+			else {
+				$tag = {};
+				$tag->{$_} = 1 for (split(/\W+/,$new));		
+			}
+			my $t = join(' ',keys %{$tag});
+			$t ? usr($comic,'tags',$t) : usr($comic,'tags',0,'delete');
+		}
+		return join(' ',keys %{$tag});
 	}
-	return sort {uc($a) cmp uc($b)} (keys %taglist);
+	else {
+		my $tags = $dbh->selectcol_arrayref("select tags from USER");
+		my %taglist;
+		foreach (@{$tags}) {
+			next unless defined $_;
+			foreach my $tag ($_ =~ m/(\w+)/gs) {
+				$taglist{$tag} = 1;
+			}
+		}
+		return sort {uc($a) cmp uc($b)} (keys %taglist);
+	}
 }
+
 
 sub flags {
 	my $comic = shift;
@@ -209,9 +229,9 @@ sub cindex {
 			.	a({-href=>"/tools?tool=random"},"Random Comic"). br 
 			.	br .
 		"Contents:" . br .
-		join(" ",map { a({href=>"#$_"},$_) . br} qw(continue other finished stopped ))
-		. br. "Color:" .br.
-		 join(" ",map {div({-style=>"color:#$_;"},10** $i++ . "+")} qw(333300 33cc00 eeee00 eebbbb))
+		join("",map { a({href=>"#$_"},$_) . br} qw(continue other finished stopped ))
+		. br. "Color Scale:" .br.
+		 join("",map {div({-style=>"color:#".colorGradient(log($_),10)},$_ )} (10000,5000,2000,1000,500,200,100,50,10,1))
 		);	
 	
 	$ret .= &preview_head();
@@ -248,15 +268,11 @@ sub html_comic_listing {
 		my $usr = $user->{$comic};
 		my $mul = $toRead{$comic};
 		my $clr = 0;
-		my @clrlst = ('#333300','#33cc00','#eeee00','#eebbbb');
-		while ($mul > 10) {
-			$mul /= 10;
-			$clr++;
-		}
-		$mul = int ($mul*7);
+
+		$mul = log($mul) if $mul;
 		$ret .= Tr([
 			td([
-			a({-href=>"/front?comic=$comic",-style=>"color:$clrlst[$clr]"},$comic) ,
+			a({-href=>"/front?comic=$comic",-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em"},$comic) ,
 			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
 			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
@@ -273,6 +289,22 @@ sub html_comic_listing {
 	}
 	return $ret . end_table;
 }
+
+sub colorGradient {
+	my $cv = shift;
+	my $base = shift;
+	my $col = $cv/$base;
+	if ($col<0.5) {
+		my $r = sprintf "%02x", $col * 255 * 2;
+		return "${r}ff00";
+	}
+	if ($col<1) {
+		my $g = sprintf "%x", (1-$col) * 255 * 2;
+		return "ff${g}00";
+	}
+	return "ffffff";
+}
+
 
 sub cfront {
 	my $comic = param('comic') // shift;
@@ -619,6 +651,28 @@ sub ctools {
 			next if $broken{$comic};
 			return cfront($comic,1);
 		}
+	}
+	if($tool eq 'export') {
+		my $data = $dbh->selectall_hashref("select comic,tags,flags from user where tags is not null or flags like '%c%'",'comic');
+		open(EX,">export.txt");
+		print EX "v1 This file is a tag and flag export of httpserver v$VERSION\n";
+		no warnings;
+		foreach my $cmc (keys %{$data}) {
+			$data->{$cmc}->{flags} =~ s/[^c]//g;
+			print EX join(",",@{[$data->{$cmc}->{comic},$data->{$cmc}->{tags},$data->{$cmc}->{flags}]}) . "\n";
+		}
+		close(EX);
+	}
+	if($tool eq 'import') {
+		open(EX,"<import.txt");
+		my $v = <EX> =~ m/^v(\d+)/;
+		while (my $line = <EX>) {
+			chomp($line);
+			my ($comic,$tags,$flags) = split(',',$line);
+			flags($comic,"+$flags");
+			tags($comic,"+$tags");
+		}
+		close(EX);
 	}
 }
 
