@@ -18,7 +18,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.27';
+$VERSION = '2.28';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -105,19 +105,19 @@ sub tags {
 		my $tag = {};
 		
 		foreach my $t (split(/\W+/,$tags)) {
-			$tag->{$t} = 1;
+			$tag->{lc $t} = 1;
 		}
 		
 		if ($new) {
 			if ($new =~ /^\+([\w\s]+)/) {
-				$tag->{$_} = 1 for (split(/\W+/,$1));
+				$tag->{lc $_} = 1 for (split(/\W+/,$1));
 			}	
 			elsif ($new =~ /^-([\w\s]+)/) {
-				delete $tag->{$_} for (split(/\W+/,$1));		
+				delete $tag->{lc $_} for (split(/\W+/,$1));		
 			}
 			else {
 				$tag = {};
-				$tag->{$_} = 1 for (split(/\W+/,$new));		
+				$tag->{lc $_} = 1 for (split(/\W+/,$new));		
 			}
 			my $t = join(' ',keys %{$tag});
 			$t ? usr($comic,'tags',$t) : usr($comic,'tags',0,'delete');
@@ -130,10 +130,10 @@ sub tags {
 		foreach (@{$tags}) {
 			next unless defined $_;
 			foreach my $tag ($_ =~ m/(\w+)/gs) {
-				$taglist{$tag} = 1;
+				$taglist{lc $tag} = 1;
 			}
 		}
-		return sort {uc($a) cmp uc($b)} (keys %taglist);
+		return sort {lc($a) cmp lc($b)} (keys %taglist);
 	}
 }
 
@@ -461,7 +461,8 @@ sub ctools {
 		$res .= "new: " . textfield(-name=>'new_tag');
 		$res .= br . submit('ok');
 		$res .= end_form;
-		$res .= br . a({href=>"/tools?tool=cataflag&comic=$comic&addflag=c"},'this comic is complete');
+		$res .= br . flags($comic)->{c}?a({-href=>"/tools?tool=cataflag&comic=$comic&addflag=rcf"},"this comic is complete and i have finished reading it")
+					:a({href=>"/tools?tool=cataflag&comic=$comic&addflag=c"},'this comic is complete');
 		$res .= br . a({href=>"/tools?tool=cataflag&comic=$comic&addflag=s"},'stop reading this comic');
 		$res .= br. a({-href=>"/tools?tool=user&comic=$comic"},"advanced") .br;
 		$res .= br. a({-href=>"/tools?comic=$comic&tool=cataflag"},"reload") .br. a({-href=>"/front?comic=$comic"},"Frontpage").br. a({-href=>"/"},"Index");
