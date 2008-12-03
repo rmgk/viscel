@@ -115,7 +115,7 @@ sub tags {
 			elsif ($new =~ /^-([\w\s]+)/) {
 				delete $tag->{lc $_} for (split(/\W+/,$1));		
 			}
-			else {
+			elsif($new =~ /^([\w\s]+)$/) {
 				$tag = {};
 				$tag->{lc $_} = 1 for (split(/\W+/,$new));		
 			}
@@ -169,7 +169,7 @@ sub flags {
 		elsif ($new =~ /^-(\w+)/) {
 			delete $flag->{$_} for (split(//,$1));		
 		}
-		else {
+		elsif ($new =~ /^(\w+)$/) {
 			$flag = {};
 			$flag->{$_} = 1 for (split(//,$new));		
 		}
@@ -461,8 +461,8 @@ sub ctools {
 		$res .= "new: " . textfield(-name=>'new_tag');
 		$res .= br . submit('ok');
 		$res .= end_form;
-		$res .= br . flags($comic)->{c}?a({-href=>"/tools?tool=cataflag&comic=$comic&addflag=rcf"},"this comic is complete and i have finished reading it")
-					:a({href=>"/tools?tool=cataflag&comic=$comic&addflag=c"},'this comic is complete');
+		$res .= br . (flags($comic)->{c} ?a({-href=>"/tools?tool=cataflag&comic=$comic&addflag=rf"},"this comic is complete and i have finished reading it")
+					: a({href=>"/tools?tool=cataflag&comic=$comic&addflag=c"},'this comic is complete'));
 		$res .= br . a({href=>"/tools?tool=cataflag&comic=$comic&addflag=s"},'stop reading this comic');
 		$res .= br. a({-href=>"/tools?tool=user&comic=$comic"},"advanced") .br;
 		$res .= br. a({-href=>"/tools?comic=$comic&tool=cataflag"},"reload") .br. a({-href=>"/front?comic=$comic"},"Frontpage").br. a({-href=>"/"},"Index");
