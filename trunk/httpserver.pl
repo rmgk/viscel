@@ -18,7 +18,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.28';
+$VERSION = '2.29';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -94,19 +94,20 @@ sub kategorie {
 sub tags {
 	my $comic = shift || '';
 	my $new = shift || '';
+	my $import = shift;
 	
 	if ($comic) {
 		if ($new eq '<>') {
-			usr($comic,'tags',0,'delete');
+			usr($comic,'itags',0,'delete');
+			usr($comic,'tags',0,'delete') if !$import;
 			return 1;
 		}
-		my $tags = $dbh->selectrow_array("select tags from USER where comic='$comic'") // "";
 		
+		my $tagsref = $dbh->selectrow_arrayref("select tags,itags from USER where comic='$comic'");
+		my $tags = (($tagsref->[0]//'').' '.($tagsref->[1]//''));
 		my $tag = {};
 		
-		foreach my $t (split(/\W+/,$tags)) {
-			$tag->{lc $t} = 1;
-		}
+		$tag->{lc $_} = 1 for(split(/\W+/,$tags));
 		
 		if ($new) {
 			if ($new =~ /^\+([\w\s]+)/) {
@@ -120,14 +121,21 @@ sub tags {
 				$tag->{lc $_} = 1 for (split(/\W+/,$new));		
 			}
 			my $t = join(' ',keys %{$tag});
-			$t ? usr($comic,'tags',$t) : usr($comic,'tags',0,'delete');
+			if ($import) {
+				$t ? usr($comic,'itags',$t) : usr($comic,'itags',0,'delete');
+			}
+			else {
+				$t ? usr($comic,'tags',$t) : usr($comic,'tags',0,'delete');
+				usr($comic,'itags',0,'delete');
+			}
 		}
-		return join(' ',keys %{$tag});
+		return keys %{$tag};
 	}
 	else {
 		my $tags = $dbh->selectcol_arrayref("select tags from USER");
+		my $itags = $dbh->selectcol_arrayref("select tags from USER");
 		my %taglist;
-		foreach (@{$tags}) {
+		foreach (@{$tags},@{$itags}) {
 			next unless defined $_;
 			foreach my $tag ($_ =~ m/(\w+)/gs) {
 				$taglist{lc $tag} = 1;
@@ -141,13 +149,17 @@ sub tags {
 sub flags {
 	my $comic = shift || '';
 	my $new = shift || '';
+	my $import = shift;
 	return 0 unless $comic;
 	
 	if ($new eq '<>') {
-		&usr($comic,'flags',0,'delete');
+		usr($comic,'iflags',0,'delete');
+		usr($comic,'flags',0,'delete') if !$import;
 		return 1;
 	}
-	my $flags = $dbh->selectrow_array("select flags from USER where comic='$comic'") // "";
+	
+	my $flagref = $dbh->selectrow_arrayref("select flags,iflags from USER where comic='$comic'");
+	my $flags = (($flagref->[0]//'').($flagref->[1]//''));
 	if ($flags =~ /^\d+$/) {
 		my @flaglist = qw(read complete hiatus warn loop);
 		my @flag_codes = split(//,$flags);
@@ -158,9 +170,7 @@ sub flags {
 	
 	my $flag = {};
 	
-	foreach my $f (split(//,$flags)) {
-		$flag->{$f} = 1;
-	}
+	$flag->{$_} = 1 for(split(//,$flags));
 	
 	if ($new) {
 		if ($new =~ /^\+(\w+)/) {
@@ -174,7 +184,13 @@ sub flags {
 			$flag->{$_} = 1 for (split(//,$new));		
 		}
 		my $f = join('',keys %{$flag});
-		$f ? usr($comic,'flags',$f) : usr($comic,'flags',0,'delete');
+		if ($import) {
+			$f ? usr($comic,'iflags',$f) : usr($comic,'iflags',0,'delete');
+		}
+		else {
+			$f ? usr($comic,'flags',$f) : usr($comic,'flags',0,'delete');
+			usr($comic,'iflags',0,'delete');
+		}
 	}
 	return $flag;
 }
@@ -656,7 +672,7 @@ sub ctools {
 	}
 	if($tool eq 'export') {
 		my $data = $dbh->selectall_hashref("select comic,tags,flags from user where tags is not null or flags like '%c%'",'comic');
-		open(EX,">export.txt");
+		open(EX,">export.cie");
 		print EX "v1 This file is a tag and flag export of httpserver v$VERSION\n";
 		no warnings;
 		foreach my $cmc (keys %{$data}) {
@@ -666,20 +682,31 @@ sub ctools {
 		close(EX);
 	}
 	if($tool eq 'import') {
-		open(EX,"<import.txt");
-		my $v = <EX> =~ m/^v(\d+)/;
-		while (my $line = <EX>) {
-			chomp($line);
-			my ($comic,$tags,$flags) = split(',',$line);
-			flags($comic,"+$flags");
-			tags($comic,"+$tags");
+		opendir(DIR,'.');
+		while (my $file = readdir DIR) {
+			next unless $file =~ m/\w+\.cie$/;
+			open(EX,"<$file");
+			my $v = <EX> =~ m/^v(\d+)/;
+			while (my $line = <EX>) {
+				chomp($line);
+				my ($comic,$tags,$flags) = split(',',$line);
+				flags($comic,"+$flags",1);
+				tags($comic,"+$tags",1);
+			}
+			close(EX);
+			unless (-e "./import/") {
+				mkdir("./import/");
+			}
+			rename($file,'./import/'.time.$file);
 		}
-		close(EX);
+		closedir(DIR);
 	}
 }
 
 
 sub update {
+	dbutil::check_table($dbh,"USER");
+	dbutil::check_table($dbh,"CONFIG");
 	$dbh->do("UPDATE USER set first = NULL , server_update = NULL where first like 'dummy|%'");
 	
 	# foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic from USER where first IS NULL))}) {
