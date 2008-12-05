@@ -10,7 +10,7 @@ use warnings;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '5';
+$VERSION = '6';
 
 my @comic_columns = 	qw(strip c_version md5 prev next surl time title url number); 
 my @config_columns =	qw(update_intervall color_bg color_text color_link color_vlink thumb kat_order);
@@ -85,6 +85,36 @@ sub comic {
 		$dbh->do("alter table " . $table . " add column " . $column);
 	}
 	return 2;
+}
+
+sub readINI {
+	my ($file) = @_;
+	return unless defined $file;
+	return unless -e $file;
+	open (FILE, $file);
+	my $data = {};
+	my $block = 'default';
+	while (my $line = <FILE>) {
+		if ($line =~ /^\s*\[(.*?)\]\s*$/) {
+			$block = $1;
+			next;
+		}
+
+		next if $line =~ /^\s*\;/;
+		next if $line =~ /^\s*\#/;
+		next if $line =~ /^\s*$/;
+
+		next if length $line == 0;
+		my ($what,$is) = split(/=/, $line, 2);
+		$what =~ s/^\s*//g;
+		$what =~ s/\s*$//g;
+		$is =~ s/^\s*//g;
+		$is =~ s/\s*$//g;
+
+		$data->{$block}->{$what} = $is;
+	}
+	close (FILE);
+	return $data;
 }
 
 1;

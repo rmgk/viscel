@@ -9,13 +9,12 @@ use strict;
 use warnings;
 use dlutil;
 
-use HTML::Tree;
 use DBI;
 use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '18';
+$VERSION = '19';
 
 sub new {
 	my $s = shift;
@@ -395,13 +394,12 @@ sub _concat_url {
 sub all_strips {
 	my $s = shift;
 	return 0 unless $s->body;
-	my $b = 0;
 	foreach my $strip (@{$s->strips}) {
 		$s->title($strip);
-		$b += $s->save($strip); #rückgabe von 1 wenn erfolgreich
+		$s->save($strip); #rückgabe von 1 wenn erfolgreich
 	}
 	$s->index_all();
-	return $b; #wir geben einen wahren wert zurück wenn mindestens ein strip erfolgreich geladen wurde.
+	return 1; #wir geben einen wahren wert zurück wenn mindestens ein strip erfolgreich geladen wurde.  # wegen threads hinfällig, wir geben immer wahre werte zurück :D
 }
 
 sub index_all {
@@ -430,7 +428,7 @@ sub save {
 	my $strip = shift;
 	return 0 if ($s->dummy);
 	my $file_name = $s->get_file_name($strip);
-	 if  (-e "./strips/".$s->name."/$file_name") {
+	if  (-e "./strips/".$s->name."/$file_name") {
 		$s->status("EXISTS: ".$file_name,'UINFO');
 		$s->cmc->md5($file_name);
 		$s->usr('last_save',time) unless $s->usr('last_save');
@@ -445,6 +443,7 @@ sub save {
 		my $se_strip = $1;
 		$s->status("GET: " . $se_url . " => " . $file_name,'UINFO', " URL: " . $s->url ." SURL: " .$strip);
 		$s->enque([$strip,$file_name,$s->cfg('referer')]);
+		return 1;
 	}
 }
 

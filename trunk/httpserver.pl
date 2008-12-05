@@ -10,7 +10,6 @@ use lib "./lib";
 
 use HTTP::Daemon;
 use HTTP::Status;
-use Config::IniHash;
 use CGI qw(:standard *table :html3);
 use DBI;
 use Data::Dumper;
@@ -18,7 +17,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.29';
+$VERSION = '2.30';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -28,7 +27,6 @@ my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,Prin
 my %broken;
 
 sub comics {
-	#my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
 	#return @{$comics->{__SECTIONS__}};
 	return @{$dbh->selectcol_arrayref("select comic from USER")};
 }
@@ -213,9 +211,7 @@ sub kopf {
 							$first?	Link({-rel=>'first',	-href=>$first})	: undef	,
 							$last ?	Link({-rel=>'last',		-href=>$last})	: undef	,
 							q(<style type="text/css">
-<!--
 a {text-decoration:none}
-//-->
 </style>)
 									]);
 }
@@ -674,10 +670,9 @@ sub ctools {
 		my $data = $dbh->selectall_hashref("select comic,tags,flags from user where tags is not null or flags like '%c%'",'comic');
 		open(EX,">export.cie");
 		print EX "v1 This file is a tag and flag export of httpserver v$VERSION\n";
-		no warnings;
 		foreach my $cmc (keys %{$data}) {
 			$data->{$cmc}->{flags} =~ s/[^c]//g;
-			print EX join(",",@{[$data->{$cmc}->{comic},$data->{$cmc}->{tags},$data->{$cmc}->{flags}]}) . "\n";
+			print EX join(",",@{[$data->{$cmc}->{comic},$data->{$cmc}->{tags}//'',$data->{$cmc}->{flags}//'']}) . "\n";
 		}
 		close(EX);
 	}
@@ -777,7 +772,7 @@ sub update {
 		print ".";
 	}
 	$dbh->{AutoCommit} = 1;
-	my $comini = ReadINI('comic.ini',{'case'=>'preserve'});
+	my $comini = dbutil::readINI('comic.ini',);
 	foreach my $name (keys %{$comini}) {
 		if ($comini->{$name}->{broken}) {
 			$broken{$name} = 1;

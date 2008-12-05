@@ -27,13 +27,12 @@ print "comic3.pl version $VERSION\n";
 my @opts = @ARGV;
 
 {
-	use Config::IniHash;
-	my $comics = ReadINI('comic.ini',{'case'=>'preserve', 'sectionorder' => 1});
+	my $comics = dbutil::readINI('comic.ini');
 	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 	dbutil::check_table($dbh,'USER');
 	dbutil::check_table($dbh,'CONFIG');
 	my @comics;
-	@comics = @{$comics->{__SECTIONS__}};
+	@comics = keys %{$comics};
 	my $opmode;
 	if ($opts[0]) {
 		$opmode = "std";

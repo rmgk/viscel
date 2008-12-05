@@ -7,7 +7,6 @@ use 5.010;
 use strict;
 use warnings;
 
-use Config::IniHash;
 use Page;
 use dbutil;
 use dlutil;
@@ -144,7 +143,7 @@ sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränd
 	
 	unless ($s->{config}) {
 		die "no config file ". $s->{_CONF} unless(-e $s->{_CONF});
-		my $config = ReadINI($s->{_CONF},{'case'=>'preserve', 'sectionorder' => 1});
+		my $config = dbutil::readINI($s->{_CONF});
 		die "no config for ". $s->name ." in ". $s->{_CONF} unless $config->{$s->name};
 		$s->status("LOAD: config: ".$s->{_CONF} ,'IN');
 		$s->{config} = $config->{$s->name};
