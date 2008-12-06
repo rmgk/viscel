@@ -17,7 +17,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.31';
+$VERSION = '2.32';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -380,7 +380,6 @@ sub ccomic {
 					&usr($comic,'first')		?"/comics?comic=$comic&strip=".&usr($comic,'first')			:"0",
 					&usr($comic,'last')			?"/comics?comic=$comic&strip=".&usr($comic,'last')			:"0",
 					);
-					say $strip;
 		$return .= div({-align=>"center"},
 				(-e "./strips/$comic/$strip") ? 
 					img({-src=>"/strips/$comic/$strip",-alt=>"$strip"}) :
@@ -393,21 +392,21 @@ sub ccomic {
 				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next'),-accesskey=>'n',-title=>'next strip'},'&gt;&gt;'):undef,
 				br,
 				&dat($comic,$strip,'next')?a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r",-accesskey=>'d',-title=>'pause reading this comic'},"pause"):
-				flags($comic)->{r} ? a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=rcf",-accesskey=>'d',-title=>'finish reading this comic'},"finish"):
+				flags($comic)->{c} ? a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=rcf",-accesskey=>'d',-title=>'finish reading this comic'},"finish"):
 				a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r",-accesskey=>'d',-title=>'pause reading this comic'},"pause")
 				,
 				a({-href=>"/front?comic=$comic",-accesskey=>'f',-title=>'frontpage'},"front"),
 				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url'),-accesskey=>'s',-title=>'original strip site'},"site"):undef,
 				
 				);
-		&usr($comic,'aktuell',$strip) unless ($random or $strip!~m/^dummy/);
+		&usr($comic,'aktuell',$strip) unless ($random or $strip=~m/^dummy/);
 		&usr($comic,'bookmark',$strip) if param('bookmark');
 		return $return . end_html;
 	}
 	else {
 		unless ($index{$comic}) {
 			my %double;
-			print "erstelle index ...\n";
+			#print "erstelle index ...\n";
 			
 			my $dat = $dbh->selectall_hashref(qq(select strip,next,title from _$comic),"strip");
 			
@@ -433,12 +432,12 @@ sub ccomic {
 					last;
 				}
 				else {
-					print "weiter: " .$strip." -> " . $dat->{$strip}->{'next'} . "\n";
+					#print "weiter: " .$strip." -> " . $dat->{$strip}->{'next'} . "\n";
 					$strip = $dat->{$strip}->{'next'};
 				}
 			}
 			$index{$comic} .= end_html;
-			print "beendet\n";
+			#print "beendet\n";
 		}
 		return$index{$comic};
 	}
