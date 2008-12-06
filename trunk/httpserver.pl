@@ -17,7 +17,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.30';
+$VERSION = '2.31';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -234,14 +234,13 @@ sub cindex {
 	my $i = 0;
 	$ret .= div({-style=>"right:0;width:150px;position:fixed;"},
 		"Tools:" . br 
-			.	a({-href=>"/tools?tool=config"},"Configuration") . br 
-			.	a({-href=>"/tools?tool=user"},"User Config"). br 
-			.	a({-href=>"/tools?tool=kategoriereihenfolge"},"change category order"). br 
-			.	a({-href=>"/tools?tool=query"},"Custom Query"). br 
-			.	a({-href=>"/tools?tool=random"},"Random Comic"). br 
+			.	a({-href=>"/tools?tool=config",-accesskey=>'c',-title=>'config'},"Configuration") . br 
+			.	a({-href=>"/tools?tool=user",-accesskey=>'u',-title=>'user'},"User Config"). br 
+			.	a({-href=>"/tools?tool=query",-accesskey=>'q',-title=>'query'},"Custom Query"). br 
+			.	a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random'},"Random Comic"). br 
 			.	br .
 		"Contents:" . br .
-		join("",map { a({href=>"#$_"},$_) . br} qw(continue other finished stopped ))
+		join("",map { a({href=>"#$_",-accesskey=>$i++,-title=>$_},$_) . br} qw(continue other finished stopped))
 		. br. "Color Scale:" .br.
 		 join("",map {div({-style=>"color:#".colorGradient(log($_),10)},$_ )} (10000,5000,2000,1000,500,200,100,50,10,1))
 		);	
@@ -328,29 +327,29 @@ sub cfront {
 	$ret .= div({-align=>"center"},
 				h4($comic),
 				&usr($comic,'aktuell')?(
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first')},img({-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell')},img({-id=>'aktuell',-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'aktuell'),-alt=>"current"}))  ,
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last')},img({-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},img({-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell'),-accesskey=>'n',-title=>'current strip'},img({-id=>'aktuell',-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'aktuell'),-alt=>"current"}))  ,
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},img({-style=>'width:33%',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
 				):(
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first')},img({-style=>'width:49%',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last')},img({-style=>'width:49%',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},img({-style=>'width:49%',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},img({-style=>'width:49%',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
 				)
 				,
 				br,br,br,
-				&usr($comic,'bookmark')?a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),
+				&usr($comic,'bookmark')?a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),-accesskey=>'b',-title=>'paused strip',
 				-onmouseover=>"document.aktuell.src='/strips/$comic/".&usr($comic,'bookmark')."'",
 				-onmouseout =>"document.aktuell.src='/strips/$comic/".&usr($comic,'aktuell')."'"
 				},'bookmark') . br : undef,
-				a({-href=>"/"},"Index"),
-				a({-href=>"/comics?comic=$comic"},"Striplist"),
-				a({href=>"/tools?tool=cataflag&comic=$comic"},'Categorize'),
+				a({-href=>"/",-accesskey=>'i',-title=>'Index'},"Index"),
+				a({-href=>"/comics?comic=$comic",-accesskey=>'s',-title=>'striplist'},"Striplist"),
+				a({href=>"/tools?tool=cataflag&comic=$comic",-accesskey=>'c',-title=>'categorize'},'Categorize'),
 				br,
 				usr($comic,'strip_count'),usr($comic,'strips_counted'),
-				a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
-				a({href=>"/tools?tool=user&comic=$comic"},'user'),
+				a({href=>"/tools?tool=datalyzer&comic=$comic",-accesskey=>'d',-title=>'datalyzer'},'datalyzer'),
+				a({href=>"/tools?tool=user&comic=$comic",-accesskey=>'u',-title=>'user'},'user'),
 				$broken{$comic} ? "broken" : undef ,br,
 				"tags: " ,tags($comic) ,
-				$random? br. a({-href=>"/tools?tool=random"},"Random"):undef
+				$random? br. a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random strip'},"Random"):undef
 			);
 	
 	return $ret . end_html;
@@ -381,27 +380,27 @@ sub ccomic {
 					&usr($comic,'first')		?"/comics?comic=$comic&strip=".&usr($comic,'first')			:"0",
 					&usr($comic,'last')			?"/comics?comic=$comic&strip=".&usr($comic,'last')			:"0",
 					);
-					
+					say $strip;
 		$return .= div({-align=>"center"},
 				(-e "./strips/$comic/$strip") ? 
 					img({-src=>"/strips/$comic/$strip",-alt=>"$strip"}) :
-					&dat($comic,$strip,'surl')!~m/^dummy/ ? 
+					$strip!~m/^dummy/ ? 
 						img({-src=>&dat($comic,$strip,'surl')}).br. a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)") :
 						"This page is a dummy. Errors are likely",
 				br,
 				br,
-				&dat($comic,$strip,'prev')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev')},'&lt;&lt;'):undef,
-				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')},'&gt;&gt;'):undef,
+				&dat($comic,$strip,'prev')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev'),-accesskey=>'v',-title=>'previous strip'},'&lt;&lt;'):undef,
+				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next'),-accesskey=>'n',-title=>'next strip'},'&gt;&gt;'):undef,
 				br,
-				&dat($comic,$strip,'next')?a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r"},"pause"):
-				flags($comic)->{r} ? a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=rcf"},"finish"):
-				a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r"},"pause")
+				&dat($comic,$strip,'next')?a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r",-accesskey=>'d',-title=>'pause reading this comic'},"pause"):
+				flags($comic)->{r} ? a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=rcf",-accesskey=>'d',-title=>'finish reading this comic'},"finish"):
+				a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r",-accesskey=>'d',-title=>'pause reading this comic'},"pause")
 				,
-				a({-href=>"/front?comic=$comic"},"front"),
-				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url')},"site"):undef,
+				a({-href=>"/front?comic=$comic",-accesskey=>'f',-title=>'frontpage'},"front"),
+				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url'),-accesskey=>'s',-title=>'original strip site'},"site"):undef,
 				
 				);
-		&usr($comic,'aktuell',$strip) unless $random;
+		&usr($comic,'aktuell',$strip) unless ($random or $strip!~m/^dummy/);
 		&usr($comic,'bookmark',$strip) if param('bookmark');
 		return $return . end_html;
 	}

@@ -198,7 +198,7 @@ sub class_change {
 			$s->{config}->{heur_strip_url} //= q#compressed#;
 			$s->{config}->{worker} //= 0;
 			$s->{config}->{referer} //= '';
-			$s->{config}->{rename} //= q'url_only#^\D+$#/chapter\.(\d+)/page\.(\d+)/#';
+			$s->{config}->{rename} //= q'url_only#^\D+$|^(\d\d_)?\d\d\.\w{3,4}$#/chapter\.(\d+)/page\.(\d+)/#';
 			
 		}
 		if ($s->{config}->{class} eq "anymanga") {

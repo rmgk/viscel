@@ -91,20 +91,19 @@ sub readINI {
 	my ($file) = @_;
 	return unless defined $file;
 	return unless -e $file;
-	open (FILE, $file);
 	my $data = {};
 	my $block = 'default';
+	open (FILE, $file);
 	while (my $line = <FILE>) {
 		if ($line =~ /^\s*\[(.*?)\]\s*$/) {
 			$block = $1;
 			next;
 		}
-
 		next if $line =~ /^\s*\;/;
 		next if $line =~ /^\s*\#/;
 		next if $line =~ /^\s*$/;
-
 		next if length $line == 0;
+		
 		my ($what,$is) = split(/=/, $line, 2);
 		$what =~ s/^\s*//g;
 		$what =~ s/\s*$//g;
