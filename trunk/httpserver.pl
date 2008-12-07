@@ -17,7 +17,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.32';
+$VERSION = '2.33';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -258,7 +258,7 @@ sub cindex {
 sub html_comic_listing {
 	my $name = shift;
 	my $comics = shift;
-	my$ret = div({-style=>"margin-left:10px"},("-"x 20).a({name=>$name},$name).("-"x 20));
+	my $ret = div({-style=>"margin-left:10px"},("-"x 20).a({name=>$name},$name).("-"x 20));
 	$ret .= start_table({-style=>"margin-left:10px"});
 	
 	my $count;
@@ -269,7 +269,17 @@ sub html_comic_listing {
 	foreach my $comic ( @{$comics}) {
 		my $bookmark = $user->{$comic}->{'bookmark'};
 		if ($bookmark) {
-			$toRead{$comic} = $user->{$comic}->{'strips_counted'} - dat($comic,$bookmark,'number');
+			my $sc = $user->{$comic}->{'strips_counted'};
+			my $num = dat($comic,$bookmark,'number');
+			if ($sc and $num) {
+				$toRead{$comic} =  $sc - $num;
+			}
+			else {
+				$sc //= '';
+				$num //= '';
+				say "comic '$comic' strip '$bookmark' strips counted '$sc' number '$num'"; 
+				$toRead{$comic} = $sc;
+			}
 		}
 		else {
 			$toRead{$comic} = $user->{$comic}->{'strips_counted'};
@@ -457,7 +467,7 @@ sub ctools {
 		my $addflag = param('addflag');
 		flags($comic,"+$addflag") if $addflag;
 		my $bookmark = param('bookmark');
-		usr($comic,'bookmark',$bookmark ) if $bookmark;
+		$bookmark =~ s/ /%20/ig and usr($comic,'bookmark',$bookmark ) if $bookmark;
 		
 		my $res = &kopf($comic."tags and flags");
 		
@@ -658,7 +668,7 @@ sub ctools {
 		return &kopf('Force Update All') . "Time: " . (time - $time) . " Seconds" . end_html;
 	}
 	if ($tool eq 'random') {
-		my $firsts = $dbh->selectall_hashref('SELECT comic,first FROM user where flags not like "%r%" OR flags IS NULL' , 'comic');
+		my $firsts = $dbh->selectall_hashref('SELECT comic,first FROM user where (flags not like "%r%" and flags not like "%f%" flags not like "%s%") OR flags IS NULL' , 'comic');
 		my @comics = keys %{$firsts};
 		while($comic = $comics[rand(int @comics)]) {
 			next if $broken{$comic};
