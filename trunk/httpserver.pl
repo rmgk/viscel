@@ -669,7 +669,7 @@ sub ctools {
 		return &kopf('Force Update All') . "Time: " . (time - $time) . " Seconds" . end_html;
 	}
 	if ($tool eq 'random') {
-		my $firsts = $dbh->selectall_hashref('SELECT comic,first FROM user where (flags not like "%r%" and flags not like "%f%" flags not like "%s%") OR flags IS NULL' , 'comic');
+		my $firsts = $dbh->selectall_hashref('SELECT comic,first FROM user where (flags not like "%r%" and flags not like "%f%" and flags not like "%s%") OR flags IS NULL' , 'comic');
 		my @comics = keys %{$firsts};
 		while($comic = $comics[rand(int @comics)]) {
 			next if $broken{$comic};
