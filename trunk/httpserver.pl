@@ -17,7 +17,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.34';
+$VERSION = '2.35';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -373,6 +373,7 @@ sub ccomic {
 	if ($strip) {
 		my $return;
 		my $title = &dat($comic,$strip,'title');
+		my @titles = split(' !§! ',$title);
 		$title =~ s/-§-//g;
 		$title =~ s/!§!/|/g;
 		$title =~ s/~§~/~/g;
@@ -388,9 +389,10 @@ sub ccomic {
 					);
 		$return .= div({-align=>"center"},
 				(-e "./strips/$comic/$strip") ? 
-					img({-src=>"/strips/$comic/$strip",-alt=>"$strip"}) :
+					img({-src=>"/strips/$comic/$strip",-title=>($titles[2]//''),-alt=>($titles[3]//'')}) :
 					$strip!~m/^dummy/ ? 
-						img({-src=>&dat($comic,$strip,'surl')}).br. a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)") :
+						img({-src=>&dat($comic,$strip,'surl'),-title=>($titles[2]//''),-alt=>($titles[3]//'')}).br.
+						a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)") :
 						"This page is a dummy. Errors are likely",
 				br,
 				br,
@@ -466,14 +468,15 @@ sub ctools {
 			$bookmark =~ s/ /%20/ig;
 			usr($comic,'bookmark',$bookmark );
 		}
-		
 		my $res = &kopf($comic."tags and flags");
-		
+
 		$res .= h1('Tags');
-		$res .= start_form("GET","tools");
+		$res .= start_form({-method=>'GET',-action=>'tools',-name=>'setTags'});
 		$res .= hidden('comic',$comic);
 		$res .= hidden('tool',"cataflag");
+		$res .= hidden('ok',1);
 		$res .= checkbox_group(-name=>'tags',
+								 -onclick=>'document.setTags.submit()',
 	                             -values=>[&tags],
 								 -default=>[&tags($comic)],
 	                             -linebreak=>'true');
