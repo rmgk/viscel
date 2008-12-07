@@ -17,7 +17,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.33';
+$VERSION = '2.34';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -282,16 +282,15 @@ sub html_comic_listing {
 			}
 		}
 		else {
-			$toRead{$comic} = $user->{$comic}->{'strips_counted'};
+			$toRead{$comic} = $user->{$comic}->{'strips_counted'} // 0;
 		}
 	}
 	
 	foreach my $comic ( sort {$toRead{$b} <=> $toRead{$a}} @{$comics}) {
 		my $usr = $user->{$comic};
 		my $mul = $toRead{$comic};
-		my $clr = 0;
-
 		$mul = log($mul) if $mul;
+		
 		$ret .= Tr([
 			td([
 			a({-href=>"/front?comic=$comic",-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;".($broken{$comic}?'text-decoration:line-through;':'')},$comic) ,
@@ -299,13 +298,9 @@ sub html_comic_listing {
 			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
 			($usr->{'aktuell'} and $usr->{'last'} and ($usr->{'aktuell'} eq $usr->{'last'})) ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
-			#div({-style=>"width:${mul}px;background-color:$clrlst[$clr];height: 0.5em;margin-left:20px;"})
 			param('toread')? $toRead{$comic} :undef, 
-			#$usr->{'strip_count'},$usr->{'strips_counted'},
-			#a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize'),
-			#a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
-			#a({href=>"/tools?tool=user&comic=$comic"},'user'),
-			#$broken{$comic} ? "broken" : undef , flags($comic)
+			param('count')?$usr->{'strip_count'}:undef,
+			param('counted')?$usr->{'strips_counted'}:undef,
 			])
 		]);
 	}
@@ -466,8 +461,11 @@ sub ctools {
 		
 		my $addflag = param('addflag');
 		flags($comic,"+$addflag") if $addflag;
-		my $bookmark = param('bookmark');
-		$bookmark =~ s/ /%20/ig and usr($comic,'bookmark',$bookmark ) if $bookmark;
+		if (param('bookmark')) {
+			my $bookmark = param('bookmark');
+			$bookmark =~ s/ /%20/ig;
+			usr($comic,'bookmark',$bookmark );
+		}
 		
 		my $res = &kopf($comic."tags and flags");
 		
