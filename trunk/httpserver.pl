@@ -17,7 +17,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.35';
+$VERSION = '2.36';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 
@@ -26,6 +26,7 @@ my %index;
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 $dbh->func(300000,'busy_timeout');
 my %broken;
+my %rand_seen;
 
 sub comics {
 	#return @{$comics->{__SECTIONS__}};
@@ -671,10 +672,14 @@ sub ctools {
 	if ($tool eq 'random') {
 		my $firsts = $dbh->selectall_hashref('SELECT comic,first FROM user where (flags not like "%r%" and flags not like "%f%" and flags not like "%s%") OR flags IS NULL' , 'comic');
 		my @comics = keys %{$firsts};
-		while($comic = $comics[rand(int @comics)]) {
+		my $comic;
+		while($comic = splice(@comics,rand(int @comics),1)) {
 			next if $broken{$comic};
+			next if $rand_seen{$comic};
+			$rand_seen{$comic} = 1;
 			return cfront($comic,1);
 		}
+		undef %rand_seen;
 	}
 	if($tool eq 'export') {
 		my $data = $dbh->selectall_hashref("select comic,tags,flags from user where tags is not null or flags like '%c%'",'comic');
