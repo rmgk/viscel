@@ -14,7 +14,7 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use vars qw($VERSION);
-$VERSION = '19';
+$VERSION = '20';
 
 sub new {
 	my $s = shift;
@@ -396,10 +396,10 @@ sub all_strips {
 	return 0 unless $s->body;
 	foreach my $strip (@{$s->strips}) {
 		$s->title($strip);
-		$s->save($strip); #rückgabe von 1 wenn erfolgreich
+		return unless $s->save($strip); #beim speichern wurde ein kritischer fehler gefunden
 	}
 	$s->index_all();
-	return 1; #wir geben einen wahren wert zurück wenn mindestens ein strip erfolgreich geladen wurde.  # wegen threads hinfällig, wir geben immer wahre werte zurück :D
+	return 1;
 }
 
 sub index_all {
@@ -428,11 +428,17 @@ sub save {
 	my $strip = shift;
 	return 0 if ($s->dummy);
 	my $file_name = $s->get_file_name($strip);
+	if ($s->{seen_file_names}->{$file_name}) {
+		$s->status("ERROR: file name '$file_name' already seen in this session",'ERR');
+		$s->usr("url_current",0,1);
+		return 0;
+	}
+	$s->{seen_file_names}->{$file_name} = 1;
 	if  (-e "./strips/".$s->name."/$file_name") {
 		$s->status("EXISTS: ".$file_name,'UINFO');
 		$s->cmc->md5($file_name);
 		$s->usr('last_save',time) unless $s->usr('last_save');
-		return 200;
+		return 1;
 	}
 	else {
 		$s->cmc->{semaphore}->down();

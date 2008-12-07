@@ -24,6 +24,7 @@ my $d = HTTP::Daemon->new(LocalPort => 80);
 my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
 my %index;
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
+$dbh->func(300000,'busy_timeout');
 my %broken;
 
 sub comics {
@@ -289,7 +290,7 @@ sub html_comic_listing {
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
 			($usr->{'aktuell'} and $usr->{'last'} and ($usr->{'aktuell'} eq $usr->{'last'})) ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
 			#div({-style=>"width:${mul}px;background-color:$clrlst[$clr];height: 0.5em;margin-left:20px;"})
-			#($toRead{$comic} ? $chrlst[$chr] x $mul : undef), 
+			param('toread')? $toRead{$comic} :undef, 
 			#$usr->{'strip_count'},$usr->{'strips_counted'},
 			#a({href=>"/tools?tool=cataflag&comic=$comic"},'categorize'),
 			#a({href=>"/tools?tool=datalyzer&comic=$comic"},'datalyzer'),
@@ -422,7 +423,7 @@ sub ccomic {
 				$double{$strip} = 1;
 
 				$i++;
-				my $title = $dat->{$strip}->{'title'};
+				my $title = $dat->{$strip}->{'title'} // '';
 				$title =~ s/-§-//g;
 				$title =~ s/!§!/|/g;
 				$title =~ s/~§~/~/g;

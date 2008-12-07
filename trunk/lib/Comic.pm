@@ -21,7 +21,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '22';
+$VERSION = '23';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -64,9 +64,9 @@ sub new {
 	
 	$s->status("-" x (10) . $s->name . "-" x (25 - length($s->name)),'UINFO');
 
-	unless (-e "./strips/".$s->name) {
-		mkdir("./strips/".$s->name);
-		$s->status("WRITE: ".$s->{path_strips}.$s->name ,'OUT');
+	unless (-e $s->{path_strips} . $s->name) {
+		mkdir($s->{path_strips} . $s->name);
+		$s->status("WRITE: " . $s->{path_strips} . $s->name ,'OUT');
 	}
 	
 	dbutil::check_table($s->dbh,"_".$s->name);
@@ -287,7 +287,7 @@ sub get_next {
 	my $s = shift;
 	
 	$s->fin_dl_clean;
-	$s->curr->all_strips;
+	return unless $s->curr->all_strips;
 	$s->fin_dl_clean;
 	
 	$s->index_prev if $s->prev;
@@ -496,41 +496,41 @@ sub release_pages {
 	delete $s->{next};
 }
 
-sub chk_strips { # not in use at the moment
-	my $s = shift;
-	my $b = 1;
-	my $file = $s->{dat}->{__CFG__}->{first};
-	unless ($file) {
-		$s->status("KEIN FIRST",'WARN');
-		return;
-	}		
-	$s->status("UEBERPRUEFE STRIPS",'UINFO');
-	while( $b and !$::TERM ) {
-		unless ($file =~ m/^dummy\|/i) {
-			unless (-e './strips/' . $s->name . '/' . $file) {
-				$s->status("NICHT VORHANDEN: " . $s->name . '/' . $file,'UINFO');
-				my $res = lwpsc::getstore($s->{dat}->{$file}->{surl},'./strips/' . $s->name . '/' . $file,$s->cfg("referer"));
-				if (($res >= 200) and  ($res < 300)) {
-					$s->status("GESPEICHERT: " . $file,'UINFO');
-				}
-				else {
-					$s->status("FEHLER BEIM SPEICHERN: " . $s->{dat}->{$file}->{surl} . '->' . $file,'ERR');
-				}
-			}
-			else {
-				$s->status("VORHANDEN: " . $file , 'UINFO');
-			}
-		}
-		if ($s->{dat}->{$file}->{next} and ($s->{dat}->{$file}->{next} ne $file)) {
-			$file = $s->{dat}->{$file}->{next};
-		}
-		else {
-			my @url = $s->split_url($s->{dat}->{$file}->{url});
-			$s->usr('url_current',$url[1]) if $url[1];
-			$b = 0;
-		}
-	}
-}
+# sub chk_strips { # not in use at the moment
+	# my $s = shift;
+	# my $b = 1;
+	# my $file = $s->{dat}->{__CFG__}->{first};
+	# unless ($file) {
+		# $s->status("KEIN FIRST",'WARN');
+		# return;
+	# }		
+	# $s->status("UEBERPRUEFE STRIPS",'UINFO');
+	# while( $b and !$::TERM ) {
+		# unless ($file =~ m/^dummy\|/i) {
+			# unless (-e './strips/' . $s->name . '/' . $file) {
+				# $s->status("NICHT VORHANDEN: " . $s->name . '/' . $file,'UINFO');
+				# my $res = lwpsc::getstore($s->{dat}->{$file}->{surl},'./strips/' . $s->name . '/' . $file,$s->cfg("referer"));
+				# if (($res >= 200) and  ($res < 300)) {
+					# $s->status("GESPEICHERT: " . $file,'UINFO');
+				# }
+				# else {
+					# $s->status("FEHLER BEIM SPEICHERN: " . $s->{dat}->{$file}->{surl} . '->' . $file,'ERR');
+				# }
+			# }
+			# else {
+				# $s->status("VORHANDEN: " . $file , 'UINFO');
+			# }
+		# }
+		# if ($s->{dat}->{$file}->{next} and ($s->{dat}->{$file}->{next} ne $file)) {
+			# $file = $s->{dat}->{$file}->{next};
+		# }
+		# else {
+			# my @url = $s->split_url($s->{dat}->{$file}->{url});
+			# $s->usr('url_current',$url[1]) if $url[1];
+			# $b = 0;
+		# }
+	# }
+# }
 
 sub md5 {
 	my $s = shift;
