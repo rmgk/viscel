@@ -436,14 +436,7 @@ sub ccomic {
 				$title =~ s/!§!/|/g;
 				$title =~ s/~§~/~/g;
 				$index{$comic} .= a({href=>"./comics?comic=$comic&strip=$strip"},"$i : $strip : $title") .br;#. (&config('thumb')?img({-height=>&config('thumb'), -src=>"/strips/$comic/$strip"}):undef) . br;
-				if ($strip eq $dat->{$strip}->{'next'}) {
-					print "selbstreferenz gefunden, breche ab\n" ;
-					last;
-				}
-				else {
-					#print "weiter: " .$strip." -> " . $dat->{$strip}->{'next'} . "\n";
-					$strip = $dat->{$strip}->{'next'};
-				}
+				$strip = $dat->{$strip}->{'next'};
 			}
 			$index{$comic} .= end_html;
 			#print "beendet\n";

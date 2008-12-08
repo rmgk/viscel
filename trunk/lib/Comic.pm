@@ -21,7 +21,7 @@ use URI;
 use DBI;
 
 use vars qw($VERSION);
-$VERSION = '23';
+$VERSION = '24';
 
 sub get_comic {
 	my $s = Comic::new(@_);
@@ -53,7 +53,7 @@ sub new {
 		$s->{dbh} = DBI->connect("dbi:SQLite:dbname=".$s->{DB},"","",{AutoCommit => $s->{autocommit},PrintError => 1});
 	}
 	
-	my $worker_count = $s->cfg("worker") // 3;
+	my $worker_count = $s->cfg("worker") // 0;
 	$s->{queue_dl} = Thread::Queue->new();
 	$s->{queue_dl_finish} = Thread::Queue->new();
 	$s->{semaphore} = Thread::Semaphore->new(1);
@@ -164,6 +164,7 @@ sub class_change {
 		when (m#^http://manga.animea.net/#) {$s->{config}->{class} //= "animea"};
 		when (m#^http://www.onemanga.com/#) {$s->{config}->{class} //= "onemanga"};
 		when (m#^http://(www.)?cartooniverse.\w+.co.uk/#) {$s->{config}->{class} //= "cartooniverse"};
+		when (m#^http://\w+.comicgenesis.com/#) {$s->{config}->{class} //= "comicgenesis"};
 	}
 	
 	if ($s->{config}->{class} and !$s->{class_change}) {
@@ -206,6 +207,11 @@ sub class_change {
 			$s->{config}->{rename} //= q"strip_url#manga/([\w-]+)/(\d+)/(\d+)/([^\.]+)\.\w{3,4}#0123";
 			$s->{config}->{regex_prev} //= q"var url_back = '([^']+)';";
 			$s->{config}->{regex_next} //= q"var url_next = '([^']+)';";
+		}
+		if ($s->{config}->{class} eq "comicgenesis") {
+			$s->{config}->{worker} //= 0;
+			$s->{config}->{url_start} =~ m#(^http://\w+.comicgenesis.com/)#;
+			$s->{config}->{referer} //= $1;
 		}
 		
 		$s->{class_change} = 1; #lol
