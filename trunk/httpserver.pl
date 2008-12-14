@@ -18,7 +18,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.37';
+$VERSION = '2.38';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
@@ -280,7 +280,7 @@ sub cindex {
 	my $ret = &kopf("Index",0,"/tools?tool=random");
 	my $i = 0;
 	my @tag = param('tag');
-	$ret .= div({-style=>"right:0;width:150px;position:fixed;"},
+	$ret .= div({-style=>"right:0.5cm;position:fixed;"},
 		"Tools:" . br 
 			.	a({-href=>"/tools?tool=config",-accesskey=>'c',-title=>'config'},"Configuration") . br 
 			.	a({-href=>"/tools?tool=user",-accesskey=>'u',-title=>'user'},"User Config"). br 
@@ -387,21 +387,21 @@ sub cfront {
 					&usr($comic,'first') ?"/comics?comic=$comic&strip=".&usr($comic,'first') :"0",
 					&usr($comic,'last' ) ?"/comics?comic=$comic&strip=".&usr($comic,'last' ) :"0",
 					);
-	$ret .= div({-align=>"center"},
+	$ret .= div({-style=>"text-align:center"},
 				h4($comic),
 				&usr($comic,'aktuell')?(
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},img({-style=>'width:32%',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell'),-accesskey=>'n',-title=>'current strip'},img({-id=>'aktuell',-style=>'width:32%',-src=>"/strips/$comic/".&usr($comic,'aktuell'),-alt=>"current"}))  ,
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},img({-style=>'width:32%',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},img({-style=>'max-width:30%;float:left;',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},img({-style=>'max-width:30%;float:right;',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"})),
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell'),-accesskey=>'n',-title=>'current strip'},img({-style=>'max-width:30%;',-id=>'aktuell',-src=>"/strips/$comic/".&usr($comic,'aktuell'),-alt=>"current"}))  ,
 				):(
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},img({-style=>'width:49%',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},img({-style=>'width:49%',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},img({-style=>'max-width:49%;float:left;',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
+				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},img({-style=>'max-width:49%;float:right;',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
 				)
 				,
-				br,br,br,
+				br({-style=>'clear:both'}),br,br,
 				&usr($comic,'bookmark')?a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),-accesskey=>'b',-title=>'paused strip',
-				-onmouseover=>"document.aktuell.src='/strips/$comic/".&usr($comic,'bookmark')."'",
-				-onmouseout =>"document.aktuell.src='/strips/$comic/".&usr($comic,'aktuell')."'"
+				-onmouseover=>"document.getElementById('aktuell').src='/strips/$comic/".&usr($comic,'bookmark')."'",
+				-onmouseout =>"document.getElementById('aktuell').src='/strips/$comic/".&usr($comic,'aktuell')."'"
 				},'bookmark') . br : undef,
 				a({-href=>"/",-accesskey=>'i',-title=>'Index'},"Index"),
 				a({-href=>"/comics?comic=$comic",-accesskey=>'s',-title=>'striplist'},"Striplist"),
@@ -444,7 +444,7 @@ sub ccomic {
 					&usr($comic,'first')		?"/comics?comic=$comic&strip=".&usr($comic,'first')			:"0",
 					&usr($comic,'last')			?"/comics?comic=$comic&strip=".&usr($comic,'last')			:"0",
 					);
-		$return .= div({-align=>"center"},
+		$return .= div({-style=>"text-align:center"},
 				(-e "./strips/$comic/$strip") ? 
 					img({-src=>"/strips/$comic/$strip",-title=>($titles[2]//''),-alt=>($titles[3]//'')}) :
 					$strip!~m/^dummy/ ? 
@@ -478,7 +478,7 @@ sub ccomic {
 			$index{$comic} .= preview_head;
 			
 			my $i;
-			while ($dat->{$strip}->{'strip'}) {
+			while ($strip and $dat->{$strip}->{'strip'}) {
 				if ($double{$strip}) {
 					print "loop gefunden, breche ab\n" ;
 					last;
