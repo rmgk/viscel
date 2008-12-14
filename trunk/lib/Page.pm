@@ -13,12 +13,13 @@ use DBI;
 use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
-use vars qw($VERSION);
+our $VERSION;
 $VERSION = '20';
 
 sub new {
+	my $class = shift;
 	my $s = shift;
-	bless $s;
+	bless $s,$class;
 	$s->status("NEW PAGE: ".$s->url,'DEBUG');
 	return $s;
 }

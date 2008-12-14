@@ -1,14 +1,14 @@
 package dlutil;
 use strict;
-use vars qw($ua @EXPORT @EXPORT_OK);
+our($ua,@EXPORT,@EXPORT_OK);
 
 require Exporter;
 
 @EXPORT = qw(get);
 @EXPORT_OK = qw($ua);
 
-use vars qw($VERSION);
-$VERSION = '2';
+our($VERSION);
+$VERSION = '3';
 
 sub _init_ua {
 	require LWP;
@@ -17,7 +17,7 @@ sub _init_ua {
 	#require HTTP::Status;
 	#require HTTP::Date;
 	$ua = new LWP::UserAgent;  # we create a global UserAgent object
-	$ua->agent("ccdlutil");
+	$ua->agent("comcol/$::VERSION");
 	$ua->timeout(15);
 	$ua->env_proxy;
 	$ua->conn_cache(LWP::ConnCache->new());

@@ -20,11 +20,11 @@ my $got_md5 = eval { require Digest::MD5; };
 use URI;
 use DBI;
 
-use vars qw($VERSION);
+our $VERSION;
 $VERSION = '24';
 
 sub get_comic {
-	my $s = Comic::new(@_);
+	my $s = Comic->new(@_);
 	if ($s) {
 		$s->get_all;
 		$s->release_pages;
@@ -37,8 +37,9 @@ sub get_comic {
 }
 
 sub new {
+	my $class = shift;
 	my $s = shift || {};
-	bless $s;
+	bless $s,$class;
 	
 	$s->{DB} //= 'comics.db';
 	$s->{path_strips} //= "./strips/";
@@ -157,6 +158,8 @@ sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränd
 
 sub class_change {
 	my $s = shift;
+	return if $s->{class_change};
+	$s->{class_change} = 1;
 	
 	given ($s->{config}->{url_start}) {
 		when (m#^http://www.anymanga.com/#) {$s->{config}->{class} //= "anymanga"};
@@ -167,7 +170,7 @@ sub class_change {
 		when (m#^http://\w+.comicgenesis.com/#) {$s->{config}->{class} //= "comicgenesis"};
 	}
 	
-	if ($s->{config}->{class} and !$s->{class_change}) {
+	if ($s->{config}->{class}) {
 		if ($s->{config}->{class} eq "onemanga") {
 			$s->{config}->{regex_next} //= q#if \(keycode == 39\) {\s+window.location = '([^']+)'#;
 			$s->{config}->{regex_prev} //= q#if \(keycode == 37\) {\s+window.location = '([^']+)'#;
@@ -213,8 +216,6 @@ sub class_change {
 			$s->{config}->{url_start} =~ m#(^http://\w+.comicgenesis.com/)#;
 			$s->{config}->{referer} //= $1;
 		}
-		
-		$s->{class_change} = 1; #lol
 	}
 }
 
@@ -362,7 +363,7 @@ sub curr {
 	my $s = shift;
 	$s->{curr} = shift if @_;
 	return $s->{curr} if $s->{curr};
-	$s->{curr} = Page::new({"cmc" => $s, "url" => URI->new($s->url_current)->abs($s->url_home)->as_string });
+	$s->{curr} = Page->new({"cmc" => $s, "url" => URI->new($s->url_current)->abs($s->url_home)->as_string });
 	return $s->{curr};
 }
 
@@ -379,7 +380,7 @@ sub prev {
 					($never_goto and ($url =~ m#$never_goto#i))
 				);
 	if ($url) {
-		$s->{prev} = Page::new({"cmc" => $s,'url' => $url});
+		$s->{prev} = Page->new({"cmc" => $s,'url' => $url});
 	}
 	else {
 		$s->status("FEHLER kein prev: " . $s->curr->url,'ERR');
@@ -406,7 +407,7 @@ sub next {
 					($s->{visited_urls}->{$url})
 				);
 	$s->{visited_urls}->{$url} = 1;
-	$s->{next} = Page::new({"cmc" => $s,'url' => $url});
+	$s->{next} = Page->new({"cmc" => $s,'url' => $url});
 
 	return $s->{next};
 }
@@ -542,13 +543,14 @@ sub md5 {
 	my $s = shift;
 	my $file_name = shift;
 	if($got_md5) {
-		if (open(FILE, "./strips/".$s->name."/$file_name")) {
-			binmode(FILE);
-			$s->dat($file_name,'md5',Digest::MD5->new->addfile(*FILE)->hexdigest);
-			close FILE;
+		my $file;
+		if (open($file, "./strips/".$s->name."/$file_name")) {
+			binmode($file);
+			$s->dat($file_name,'md5',Digest::MD5->new->addfile($file)->hexdigest);
+			close $file;
 		}
 		else {
-			$s->status("DATEIFEHLER " . "./strips/".$s->name."/$file_name" . "konnte nicht geöfnet werden" ,'ERR')
+			$s->status("DATA ERROR " . "./strips/".$s->name."/$file_name" . " could not be opened" ,'ERR')
 		}
 	}
 	else {

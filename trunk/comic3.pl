@@ -10,8 +10,8 @@ use DBI;
 use Comic;
 use dbutil;
 
-use vars qw($VERSION);
-$VERSION = '80' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+our $VERSION;
+$VERSION = '81' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -25,6 +25,11 @@ print "press ctrl+c to abort (don't close it otherwise)\n";
 print "comic3.pl version $VERSION\n";
 
 my @opts = @ARGV;
+
+if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
+	unlink("log.txt");
+}
+
 
 {
 	my $comics = dbutil::readINI('comic.ini');
