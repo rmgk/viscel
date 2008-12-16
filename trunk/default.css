@@ -1,16 +1,16 @@
 /*main layout*/
 body {
-	color : $c_text;
-	background-color : $c_bg;
+	color : #00aa00;
+	background-color : black;
 }
 
 a {
 	text-decoration:none;
-	color:$c_link;
+	color:#0050cc;
 }
 
 a:visited {
-	color:$c_vlink;
+	color:#007080;
 }
 
 a[href^=http] {
@@ -21,8 +21,8 @@ a[href^=http] {
 #prevbox {
 	visibility:hidden;
 	position:fixed;
-	right:0;
-	bottom:0;
+	right:0px;
+	bottom:0px;
 }
 
 /*main menu*/
@@ -35,7 +35,7 @@ a[href^=http] {
 	.group {
 		margin-left:10px;
 	}
-	h1.group {
+	.group h1{
 		text-transform:capitalize;
 	}
 
@@ -69,8 +69,8 @@ a[href^=http] {
 	div.frontpage #first {
 		float:left;
 	}
-	/*img to current*/
-	div.frontpage #current {
+	/*img to bookmark*/
+	div.frontpage #bookmark {
 	}
 	/*img to last*/
 	div.frontpage #last {
@@ -105,3 +105,10 @@ a[href^=http] {
 		display:none;
 	}
 	
+/*pod / documentation*/
+	div.pod {
+		margin:4%;
+		background-color:#001000;
+		border:solid brown;
+		padding:1cm;
+	}	
