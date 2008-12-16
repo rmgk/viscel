@@ -1,0 +1,107 @@
+/*main layout*/
+body {
+	color : $c_text;
+	background-color : $c_bg;
+}
+
+a {
+	text-decoration:none;
+	color:$c_link;
+}
+
+a:visited {
+	color:$c_vlink;
+}
+
+a[href^=http] {
+	color:red;
+}
+
+/*preview box*/
+#prevbox {
+	visibility:hidden;
+	position:fixed;
+	right:0;
+	bottom:0;
+}
+
+/*main menu*/
+#menu {
+	right:0.5cm;
+	position:fixed;
+}
+
+/*comic groups*/
+	.group {
+		margin-left:10px;
+	}
+	h1.group {
+		text-transform:capitalize;
+	}
+
+	/*comic names in groups*/
+	.broken {
+		text-decoration:line-through;
+	}
+	.comic {
+	}
+
+
+/*frontpage*/
+	div.frontpage {
+		text-align:center;
+	}
+
+	/*frontpage headline (comic name)*/
+	h2 {
+	}
+	/*frontpage with 3 images*/
+	div.frontpage img.front3 {
+		max-width:33%;
+		border:none;
+	}
+	/*frontpage with 2 images*/
+	div.frontpage img.front2 {
+		max-width:49%;
+		border:none;
+	}
+	/*img to first*/
+	div.frontpage #first {
+		float:left;
+	}
+	/*img to current*/
+	div.frontpage #current {
+	}
+	/*img to last*/
+	div.frontpage #last {
+		float:right;
+	}
+	/*to have some consistency in the navigation placement*/
+	div.frontpage br {
+		clear:both;
+	}
+	
+/*striplist*/
+	div.striplist {
+		/*text-align:right;
+		margin-bottom:2cm;*/
+	}
+	.striplist img {
+		float:left;
+		display:none;
+	}
+	.striplist br {
+		clear:both;
+	}
+	#prevbox {
+		/*display:none;*/
+	}
+
+/* comic pages */
+	div.comic {
+		text-align:center;
+	}
+	div.comic h3 {
+		display:none;
+	}
+	

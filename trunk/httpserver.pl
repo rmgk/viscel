@@ -18,12 +18,13 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.38';
+$VERSION = '2.39';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
 
-my $res = HTTP::Response->new( 200, 'erfolg', ['Content-Type','text/html; charset=iso-8859-1']);
+my $res = HTTP::Response->new( 200, 'success', ['Content-Type','text/html; charset=iso-8859-1']);
+my $rescss = HTTP::Response->new( 200, 'success', ['Content-Type','text/css; charset=iso-8859-1']);
 my %index;
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 $dbh->func(300000,'busy_timeout');
@@ -31,6 +32,71 @@ my %broken;
 my %rand_seen;
 my @db_cache = ('','','','');
 my $measure_time = 0;
+
+
+my $def_css;
+{
+	local $/ = undef;
+	open(CSS,"<default.css");
+	$def_css =  <CSS>;
+	close(CSS);
+	if (-e "overwrite.css") {
+		$def_css .= "\n";
+		open(CSS2,"<overwrite.css") ;
+		$def_css .= <CSS2>;
+		close(CSS2);
+	}
+
+}
+
+
+
+&update;
+
+#print "Please contact me at: <URL:", $d->url,">\n";
+print "Please contact me at: <URL:", "http://127.0.0.1/" ,">\n";
+while (my $c = $d->accept) {
+	while (my $r = $c->get_request) {
+		if ($r->method eq 'GET') {
+			my $req_start_time = Time::HiRes::time if $measure_time; 
+			if ($r->url->path eq '/favicon.ico') {
+				$c->send_file_response("./favicon.ico");
+			}
+			elsif ($r->url->path =~ m#^/strips/(.*?)/(.*)$#) {
+				$c->send_file_response("./strips/$1/$2");
+			}
+			elsif ($r->url->path =~ m#^/style\.css$#) {
+					$rescss->content(&ccss);
+					$c->send_response($rescss);
+			}
+			else {
+				restore_parameters($r->url->query);
+
+				if ($r->url->path =~ m#^/comics$#) {
+					$res->content(&ccomic);
+				}
+				elsif ($r->url->path =~ m#^/front$#) {
+					$res->content(&cfront);
+				}
+				elsif ($r->url->path =~ m#^/tools$#) {
+					$res->content(&ctools);
+				}
+				else {
+					$res->content(&cindex);
+				}
+				$c->send_response($res);
+			}
+			say $r->url->path . '?' . ($r->url->query // '') . " " . (Time::HiRes::time - $req_start_time) if $measure_time;
+			$measure_time = param('measure_time') if defined param('measure_time');
+		}
+		$c->close;
+		#$dbh->commit;
+	}
+	undef($c);
+}
+
+
+
 
 sub comics {
 	#return @{$comics->{__SECTIONS__}};
@@ -247,29 +313,24 @@ sub kopf {
 	my $first = shift;
 	my $last = shift;
 	
-	my $c_bg 	= &config('color_bg') || 'black';
-	my $c_text 	= &config('color_text') || '#009900';
-	my $c_link 	= &config('color_link') || '#0050cc';
-	my $c_vlink = &config('color_vlink') || '#900090';
-	return start_html(-title=>$title. " - ComCol http $VERSION" ,-BGCOLOR=>$c_bg, -TEXT=>$c_text, -LINK=>$c_link, -VLINK=>$c_vlink,
-							-head=>[Link({-rel=>'index',	-href=>"/"	})			,
+	return start_html(-title=>$title. " - ComCol http $VERSION" ,
+							-head=>[
+									Link({-rel=>"stylesheet", -type=>"text/css", -href=>"/style.css"}),
+									Link({-rel=>'index',	-href=>"/"	})			,
                             $next ?	Link({-rel=>'next',		-href=>$next})	: undef	,
                             $prev ?	Link({-rel=>'previous',	-href=>$prev})	: undef	,
 							$first?	Link({-rel=>'first',	-href=>$first})	: undef	,
 							$last ?	Link({-rel=>'last',		-href=>$last})	: undef	,
-							q(<style type="text/css">
-a {text-decoration:none}
-</style>)
 									]);
 }
 
 sub preview_head {
 	return q(
-<div id="pre" style="visibility:hidden;position:fixed;right:0;bottom:0;"> </div>
+<div id="prevbox" style="visibility:hidden;position:fixed;right:0;bottom:0;"> </div>
 <script type="text/javascript">
-var preview = document.getElementById("pre");
+var preview = document.getElementById("prevbox");
 function showImg (imgSrc) {
-	preview.innerHTML = "<img src='"+imgSrc+"' alt='' />";
+	preview.innerHTML = "<img id='prevIMG' src='"+imgSrc+"' alt='' />";
 	preview.style.visibility='visible';
 }
 </script>
@@ -280,9 +341,9 @@ sub cindex {
 	my $ret = &kopf("Index",0,"/tools?tool=random");
 	my $i = 0;
 	my @tag = param('tag');
-	$ret .= div({-style=>"right:0.5cm;position:fixed;"},
+	$ret .= div({-id=>"menu"},
 		"Tools:" . br 
-			.	a({-href=>"/tools?tool=config",-accesskey=>'c',-title=>'config'},"Configuration") . br 
+			#.	a({-href=>"/tools?tool=config",-accesskey=>'c',-title=>'config'},"Configuration") . br 
 			.	a({-href=>"/tools?tool=user",-accesskey=>'u',-title=>'user'},"User Config"). br 
 			.	a({-href=>"/tools?tool=query",-accesskey=>'q',-title=>'query'},"Custom Query"). br 
 			.	a({-href=>"/tools?tool=filter",-accesskey=>'f',-title=>'filter'},"Custom Contents"). br 
@@ -316,8 +377,8 @@ sub html_comic_listing {
 	my $user = shift;
 	my $filter = shift;
 	my $comics = $dbh->selectcol_arrayref(qq{select comic from USER where ($filter)});
-	my $ret = div({-style=>"margin-left:10px"},("-"x 20).a({name=>$name},$name).("-"x 20));
-	$ret .= start_table({-style=>"margin-left:10px"});
+	my $ret = h1({-class=>'group'},a({name=>$name},$name));
+	$ret .= start_table({-class=>"group"});
 	
 	my $count;
 	my $counted;
@@ -350,7 +411,7 @@ sub html_comic_listing {
 		
 		$ret .= Tr([
 			td([
-			a({-href=>"/front?comic=$comic",-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;".($broken{$comic}?'text-decoration:line-through;':'')},$comic) ,
+			a({-href=>"/front?comic=$comic",-class=>($broken{$comic}?'broken':'comic'),-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;"},$comic) ,
 			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
 			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
 			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
@@ -387,21 +448,26 @@ sub cfront {
 					&usr($comic,'first') ?"/comics?comic=$comic&strip=".&usr($comic,'first') :"0",
 					&usr($comic,'last' ) ?"/comics?comic=$comic&strip=".&usr($comic,'last' ) :"0",
 					);
-	$ret .= div({-style=>"text-align:center"},
-				h4($comic),
+	$ret .= div({-class=>'frontpage'},
+				h2($comic),
 				&usr($comic,'aktuell')?(
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},img({-style=>'max-width:30%;float:left;',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},img({-style=>'max-width:30%;float:right;',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"})),
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell'),-accesskey=>'n',-title=>'current strip'},img({-style=>'max-width:30%;',-id=>'aktuell',-src=>"/strips/$comic/".&usr($comic,'aktuell'),-alt=>"current"}))  ,
-				):(
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},img({-style=>'max-width:49%;float:left;',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
-				a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},img({-style=>'max-width:49%;float:right;',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
-				)
+					a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},
+						img({-class=>"front3",-id=>'first',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
+					a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},
+						img({-class=>"front3",-id=>'last',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"})),
+					a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell'),-accesskey=>'n',-title=>'current strip'},
+						img({-class=>"front3",-id=>'current',-src=>"/strips/$comic/".&usr($comic,'aktuell'),-alt=>"current"}))  ,
+					):(
+					a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},
+						img({-class=>"front2",-id=>'first',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
+					a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},
+						img({-class=>"front2",-id=>'last',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
+					)
 				,
-				br({-style=>'clear:both'}),br,br,
+				br,br,br,
 				&usr($comic,'bookmark')?a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),-accesskey=>'b',-title=>'paused strip',
-				-onmouseover=>"document.getElementById('aktuell').src='/strips/$comic/".&usr($comic,'bookmark')."'",
-				-onmouseout =>"document.getElementById('aktuell').src='/strips/$comic/".&usr($comic,'aktuell')."'"
+				-onmouseover=>"document.getElementById('current').src='/strips/$comic/".&usr($comic,'bookmark')."'",
+				-onmouseout =>"document.getElementById('current').src='/strips/$comic/".&usr($comic,'aktuell')."'"
 				},'bookmark') . br : undef,
 				a({-href=>"/",-accesskey=>'i',-title=>'Index'},"Index"),
 				a({-href=>"/comics?comic=$comic",-accesskey=>'s',-title=>'striplist'},"Striplist"),
@@ -444,7 +510,8 @@ sub ccomic {
 					&usr($comic,'first')		?"/comics?comic=$comic&strip=".&usr($comic,'first')			:"0",
 					&usr($comic,'last')			?"/comics?comic=$comic&strip=".&usr($comic,'last')			:"0",
 					);
-		$return .= div({-style=>"text-align:center"},
+		$return .= div({-class=>"comic"},
+				h3($title),
 				(-e "./strips/$comic/$strip") ? 
 					img({-src=>"/strips/$comic/$strip",-title=>($titles[2]//''),-alt=>($titles[3]//'')}) :
 					$strip!~m/^dummy/ ? 
@@ -490,10 +557,13 @@ sub ccomic {
 				$title =~ s/-§-//g;
 				$title =~ s/!§!/|/g;
 				$title =~ s/~§~/~/g;
-				$index{$comic} .= a({-href=>"./comics?comic=$comic&strip=$strip",
+				$index{$comic} .= div({-class=>"striplist"},
+				img({-src=>"/strips/$comic/$strip"}) .
+				a({-href=>"./comics?comic=$comic&strip=$strip",
 				-onmouseout=>"preview.style.visibility='hidden';",
-				-onmouseover=>"showImg('/strips/$comic/$strip')"}
-				,"$i : $strip : $title") .br;
+				-onmouseover=>"showImg('/strips/$comic/$strip')",
+				}, "$i : $strip : $title").br
+				);
 				$strip = $dat->{$strip}->{'next'};
 			}
 			$index{$comic} .= end_html;
@@ -835,17 +905,18 @@ sub update {
 		$strps = $dbh->selectall_hashref(qq(select strip , next, number from _$comic), "strip");
 		
 		my $i = 0;
+		my $prevstrip;
 		if ($strp) {
 			$i++ ;
 			dat($comic,$strp,'number',$i);
 			while((defined $strps->{$strp}->{next}) and $strps->{$strps->{$strp}->{next}}) {
+				$prevstrip = $strp;
 				$strp = $strps->{$strp}->{next};
 				if ($double{$strp}) {
+					$strp = $prevstrip;
 					last;
 				}
-				else {
-					$double{$strp} = 1;
-				}
+				$double{$strp} = 1;
 				$i++;
 				dat($comic,$strp,'number',$i) unless ($strps->{$strp}->{number} and $strps->{$strp}->{number} == $i);
 			}
@@ -866,41 +937,15 @@ sub update {
 	}
 }
 
-&update;
+sub ccss {
 
-#print "Please contact me at: <URL:", $d->url,">\n";
-print "Please contact me at: <URL:", "http://127.0.0.1/" ,">\n";
-while (my $c = $d->accept) {
-	while (my $r = $c->get_request) {
-		if ($r->method eq 'GET') {
-			my $req_start_time = Time::HiRes::time if $measure_time; 
-			if ($r->url->path eq '/favicon.ico') {
-				$c->send_file_response("./favicon.ico");
-			}
-			elsif ($r->url->path =~ m#^/strips/(.*?)/(.*)$#) {
-				$c->send_file_response("./strips/$1/$2");
-			}
-			else {
-				restore_parameters($r->url->query);
-				if ($r->url->path =~ m#^/comics$#) {
-					$res->content(&ccomic);
-				}
-				elsif ($r->url->path =~ m#^/front$#) {
-					$res->content(&cfront);
-				}
-				elsif ($r->url->path =~ m#^/tools$#) {
-					$res->content(&ctools);
-				}
-				else {
-					$res->content(&cindex);
-				}
-				$c->send_response($res);
-			}
-			say $r->url->path . '?' . ($r->url->query // '') . " " . (Time::HiRes::time - $req_start_time) if $measure_time;
-			$measure_time = param('measure_time') if defined param('measure_time');
-		}
-		$c->close;
-		#$dbh->commit;
-	}
-	undef($c);
+my $c_bg 	= &config('color_bg') || 'black';
+my $c_text 	= &config('color_text') || '#009900';
+my $c_link 	= &config('color_link') || '#0050cc';
+my $c_vlink = &config('color_vlink') || '#900090';
+
+my $css = '';
+$css = eval('"'.$def_css.'"');
+
+return $css;
 }
