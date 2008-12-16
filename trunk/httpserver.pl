@@ -33,7 +33,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.40';
+$VERSION = '2.41';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
@@ -198,7 +198,7 @@ sub cindex {
 			.	a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random'},"Random Comic"). br 
 			.	br .
 		"Contents:" . br .
-		join("",map { a({href=>"#$_",-accesskey=>$i++,-title=>$_},$_) . br} (qw(continue other finished stopped),filter))
+		join("",map { a({href=>"#$_",-accesskey=>$i++,-title=>$_},$_) . br} (qw(continue other finished stopped),&filter))
 		. br. "Color Scale:" .br.
 		 join("",map {div({-style=>"color:#".colorGradient(log($_),10)},$_ )} (10000,5000,2000,1000,500,200,100,50,10,1))
 		 .br . "Tags:" .br.
@@ -214,7 +214,7 @@ sub cindex {
 	$ret .= html_comic_listing('other',$cmcs,qq{((flags not like '%r%' and flags not like '%f%' and flags not like '%s%') or flags is null) and ($tagcheck) }).br;
 	$ret .= html_comic_listing('finished',$cmcs,qq{flags like '%f%' and ($tagcheck)}).br;
 	$ret .= html_comic_listing('stopped',$cmcs,qq{flags like '%s%' and ($tagcheck)}).br;
-	foreach (filter) {
+	foreach (&filter) {
 		$ret .= html_comic_listing($_,$cmcs, '(' . filter($_) .") and ($tagcheck)").br;
 	}
 	return $ret . end_html;
@@ -785,7 +785,7 @@ endless possibilitys!
 		$res .= start_form("GET","tools");
 		$res .= hidden('tool',"filter");
 		$res .= start_table;
-		foreach my $filter (filter) {
+		foreach my $filter (&filter) {
 			if (defined param($filter) and param($filter) ne '') {
 				filter($filter,param($filter));
 			}
