@@ -27,42 +27,28 @@ use HTTP::Daemon;
 use HTTP::Status;
 use CGI qw(:standard *table :html3 *div gradient);
 use DBI;
-use Data::Dumper;
-use Time::HiRes;
+use Data::Dumper; #this is for pretty printing the custom query output
+use Time::HiRes; #requests of about 0.005 seconds cant be measured in full seconds
 use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.41';
+$VERSION = '2.42';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
 
-my $res = HTTP::Response->new( 200, 'success', ['Content-Type','text/html; charset=iso-8859-1']);
-my $rescss = HTTP::Response->new( 200, 'success', ['Content-Type','text/css; charset=iso-8859-1']);
+my $res = HTTP::Response->new( 200, 'success', ['Content-Type','text/html; charset=iso-8859-1']); #our main response
+my $rescss = HTTP::Response->new( 200, 'success', ['Content-Type','text/css; charset=iso-8859-1']); #response for style
 my %index;
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
-$dbh->func(300000,'busy_timeout');
-my %broken;
-my %rand_seen;
-my @db_cache = ('','','','');
-my $measure_time = 0;
+$dbh->func(300000,'busy_timeout'); #we dont want to timeout (timeout happens if comic3.pl and httpserver.pl are run at the same time)
+my %broken; #we save all the comics marked as broken in comic.ini here
+my %rand_seen; #this is for remembering which comics we already selected randomly
+my @db_cache = ('','','',''); #i often need to get a value multiple times, so we safe the last value for each request as an element of this array
+my $measure_time = 0; #set this to one to get some info on request time
+my $css; #we save our style sheet in here
 
-
-my $def_css;
-{
-	local $/ = undef;
-	open(CSS,"<default.css");
-	$def_css =  <CSS>;
-	close(CSS);
-	if (-e "overwrite.css") {
-		$def_css .= "\n";
-		open(CSS2,"<overwrite.css") ;
-		$def_css .= <CSS2>;
-		close(CSS2);
-	}
-
-}
 
 
 
@@ -128,7 +114,7 @@ sub kopf {
 	my $first = shift;
 	my $last = shift;
 	
-	return start_html(-title=>$title. " - ComCol http $VERSION" ,
+	return start_html(-title=>$title. " - ComCol ht $VERSION" ,
 							-head=>[
 									Link({-rel=>"stylesheet", -type=>"text/css", -href=>"/style.css"}),
 									Link({-rel=>'index',	-href=>"/"	})			,
@@ -139,7 +125,7 @@ sub kopf {
 									]);
 }
 
-sub preview_head {
+sub preview_head { #some javascript to have a nice preview of image links your hovering
 	return q(
 <div id="prevbox"> </div>
 <script type="text/javascript">
@@ -147,6 +133,10 @@ var preview = document.getElementById("prevbox");
 function showImg (imgSrc) {
 	preview.innerHTML = "<img id='prevIMG' src='"+imgSrc+"' alt='' />";
 	preview.style.visibility='visible';
+}
+function hideIMG () {
+	preview.style.visibility='hidden';
+	preview.innerHTML = "";
 }
 </script>
 );
@@ -171,8 +161,6 @@ you can use the L<tag|/"Cataflag"> links to fast filter by tag and finally you h
 Tools include:
 
 =over
-
-=item * L</"User Config">
 
 =item * L</"Custom Query">
 
@@ -261,10 +249,10 @@ sub html_comic_listing {
 		$ret .= Tr([
 			td([
 			a({-href=>"/front?comic=$comic",-class=>($broken{$comic}?'broken':'comic'),-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;"},$comic) ,
-			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
-			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
-			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
-			($usr->{'aktuell'} and $usr->{'last'} and ($usr->{'aktuell'} eq $usr->{'last'})) ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"preview.style.visibility='hidden';",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
+			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
+			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
+			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
+			($usr->{'aktuell'} and $usr->{'last'} and ($usr->{'aktuell'} eq $usr->{'last'})) ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
 			param('toread')? $toRead{$comic} :undef, 
 			param('count')?$usr->{'strip_count'}:undef,
 			param('counted')?$usr->{'strips_counted'}:undef,
@@ -325,7 +313,7 @@ sub cfront {
 						img({-class=>"front2",-id=>'last',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
 					)
 				,
-				br,br,br,
+				start_div({-class=>"navigation"}),
 				&usr($comic,'aktuell')?a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),-accesskey=>'c',-title=>'last read strip',
 				-onmouseover=>"document.getElementById('bookmark').src='/strips/$comic/".&usr($comic,'aktuell')."'",
 				-onmouseout =>"document.getElementById('bookmark').src='/strips/$comic/".&usr($comic,'bookmark')."'"
@@ -339,7 +327,8 @@ sub cfront {
 				a({href=>"/tools?tool=user&comic=$comic",-accesskey=>'u',-title=>'user'},'user'),
 				$broken{$comic} ? "broken" : undef ,br,
 				"tags: " ,tags($comic) ,
-				$random? br. a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random strip'},"Random"):undef
+				$random? br. a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random strip'},"Random"):undef,
+				end_div
 			);
 	
 	return $ret . end_html;
@@ -388,8 +377,7 @@ sub ccomic {
 						img({-src=>&dat($comic,$strip,'surl'),-title=>($titles[2]//''),-alt=>($titles[3]//'')}).br.
 						a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)") :
 						"This page is a dummy. Errors are likely",
-				br,
-				br,
+				start_div({-class=>"navigation"}),
 				&dat($comic,$strip,'prev')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev'),-accesskey=>'v',-title=>'previous strip'},'&lt;&lt;'):undef,
 				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next'),-accesskey=>'n',-title=>'next strip'},'&gt;&gt;'):undef,
 				br,
@@ -399,46 +387,38 @@ sub ccomic {
 				,
 				a({-href=>"/front?comic=$comic",-accesskey=>'f',-title=>'frontpage'},"front"),
 				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url'),-accesskey=>'s',-title=>'original strip site'},"site"):undef,
-				
+				end_div
 				);
 		&usr($comic,'aktuell',$strip) unless ($random or $strip=~m/^dummy/);
 		&usr($comic,'bookmark',$strip) if param('bookmark');
 		return $return . end_html;
 	}
 	else {
-		unless ($index{$comic}) {
-			my %double;
-			my $dat = $dbh->selectall_hashref(qq(select strip,next,title from _$comic),"strip");
+		my $list;
+		my $dat = $dbh->selectall_hashref(qq(select strip,number,title from _$comic where number is not null),"number");
+		
+		$list = &kopf($comic);
+		$list .= preview_head;
+		
+		
+		#we save this string cause we need it really often, so we can save some processing time :)
+		my $strip_str = div({-class=>"striplist"},img({-src=>"%s"}) . #the img is normally hidden by the strylesheet
+			a({-href=>"%s",-onmouseout=>"hideIMG();",-onmouseover=>"showImg('%s')",}, "%s"));
 			
-			my $strip = &usr($comic,'first');
-			$index{$comic} = &kopf($comic);
-			$index{$comic} .= preview_head;
-			
-			my $i;
-			while ($strip and $dat->{$strip}->{'strip'}) {
-				if ($double{$strip}) {
-					print "loop gefunden, breche ab\n" ;
-					last;
-				}
-				$double{$strip} = 1;
+		for (my $i = 1;defined $dat->{$i};$i++) {
 
-				$i++;
-				my $title = $dat->{$strip}->{'title'} // '';
-				$title =~ s/-§-//g;
-				$title =~ s/!§!/|/g;
-				$title =~ s/~§~/~/g;
-				$index{$comic} .= div({-class=>"striplist"},
-				img({-src=>"/strips/$comic/$strip"}) .
-				a({-href=>"./comics?comic=$comic&strip=$strip",
-				-onmouseout=>"preview.style.visibility='hidden';",
-				-onmouseover=>"showImg('/strips/$comic/$strip')",
-				}, "$i : $strip : $title").br
-				);
-				$strip = $dat->{$strip}->{'next'};
-			}
-			$index{$comic} .= end_html;
+			my $title = $dat->{$i}->{'title'} // '';
+			$title =~ s/-§-//g;
+			$title =~ s/!§!/|/g;
+			$title =~ s/~§~/~/g;	
+			$list .= sprintf $strip_str,
+				"/strips/$comic/$dat->{$i}->{strip}", #direct img url
+				"./comics?comic=$comic&strip=$dat->{$i}->{strip}", #strip page url
+				"/strips/$comic/$dat->{$i}->{strip}", #direct img url
+				"$i : $dat->{$i}->{strip} : $title"; #strip title
 		}
-		return $index{$comic};
+		$list .= end_html;
+		return $list;
 	}
 }
 
@@ -454,7 +434,12 @@ sub ctools {
 	
 =head2 Cataflag
 
-todo
+add or remove I<tags> by clicking the boxes next to them. or add new tags by typing their name into the box and press ok.
+
+I<this comic is complete> marks the comic to be I<complete> (the story is complete and the comic will no longer update) 
+afterwards you can mark the comic as I<finished> to  indicate that you finished reading the whole storyline.
+
+you can also I<strop reading> a comic which basically means that you dont like it and wont red any further.
 
 =cut
 
@@ -711,12 +696,12 @@ get a random comic frontpage. you dont get comics that you are reading, have com
 use export to export to I<export.cie>. containing your I<tags> and I<complete flags>
 
 with import all .cie files in your current folder will be importet, renamed and put into the import folder. 
-the changes to your database are semi persistent.
-after importing you can delete all imported data via this link:
+no changes to your data are made, imported values are just placed on top of your values.
+you can delete all imported data via this link:
 
 L<http://127.0.0.1/tools?tool=query&query=update+user+set+itags+%3D+NULL%2C+iflags+%3D+NULL>
 
-but once you changed the tags/flags for the comic yourself after importing, you can no longer delete them automatically. so use with caution!
+copy all the files from you ./import folder to your main folder to reimport everything you had imported.
 
 =cut	
 
@@ -796,6 +781,72 @@ endless possibilitys!
 	}
 }
 
+=head2 custom style sheets
+
+you can create a I<overwrite.css> next to your I<default.css>. the overwrite will be appended to de default 
+so any changes you make there will overwrite the default settings. 
+
+but be careful it is possible to execute perl code from within the style sheet so dont load styles from untrusted sources
+
+=cut
+
+sub ccss {
+	my $ret_css = '';
+	load_css();
+	$ret_css = eval('qq<'.$css.'>');
+	return $ret_css;
+}
+
+
+=head2 "Hidden" Features
+
+add I<measure_time=1> as a parameter to any link to get some hi res time output in your console
+
+create a I<favicon.ico> in the comcol main folder to set this as your favicon!
+
+you can give I<toRead=1>, I<count=1> and I<counted> as parameters to the index page displaying more statistic!
+
+=cut
+
+
+
+=head1 Internal Functions
+
+stop reading here unless you want to understand strange behavior or possible bugs :)
+
+=cut
+
+sub cpod {
+	require Pod::Simple::HTML;
+	my $ret = kopf('POD') . start_div({-class=>'pod'});
+	my $parser = Pod::Simple::HTML->new();
+	$parser->bare_output(1);
+	$parser->output_string( \$ret );
+	$parser->parse_file( "httpserver.pl" );
+	return $ret . end_div() . end_html;
+}
+
+
+=head2 update
+
+no arguments
+
+first of all, this will check the database structure.
+
+then it figures out which comics had new images B<saved> since they were last updated
+and does all of the following in this order to each comic one after another:
+
+it removes B<dummy|>s which dont have a prev or a next strip (are at the beginning or the end) and deletes links to them
+
+it adds the warn flag if two ore more strips are linking to the same strip in the same direction (have same prev or next)
+
+it tries to find the first strip that is a strip without a prev, if there are multiple, it tries to get a non I<dummy|> strip 
+(if there are multiple not dummy strips it takes whatever the database returns first)
+
+last it counts the strips (by going from the first to the last), gives each a number and determines the last strip.
+
+
+=cut
 
 sub update {
 	my $ttu = Time::HiRes::time;
@@ -854,7 +905,7 @@ sub update {
 		my $prevstrip;
 		if ($strp) {
 			$i++ ;
-			dat($comic,$strp,'number',$i);
+			dat($comic,$strp,'number',$i) unless ($strps->{$strp}->{number} and $strps->{$strp}->{number} == $i);
 			while((defined $strps->{$strp}->{next}) and $strps->{$strps->{$strp}->{next}}) {
 				$prevstrip = $strp;
 				$strp = $strps->{$strp}->{next};
@@ -884,54 +935,23 @@ sub update {
 }
 
 
-=head2 custom style sheets
-
-you can create a I<overwrite.css> next to your I<default.css>. the overwrite will be appended to de default 
-so any changes you make there will overwrite the default settings. 
-
-but be careful it is possible to execute perl code from within the style sheet so dont load styles from untrusted sources
-
-=cut
-
-sub ccss {
-	my $css = '';
-	$css = eval('qq<'.$def_css.'>');
-	return $css;
-}
-
-sub cpod {
-	require Pod::Simple::HTML;
-	my $ret = kopf('POD') . start_div({-class=>'pod'});
-	my $parser = Pod::Simple::HTML->new();
-	$parser->bare_output(1);
-	$parser->output_string( \$ret );
-	$parser->parse_file( "httpserver.pl" );
-	return $ret . end_div() . end_html;
-}
-
-
-=head2 "Hidden" Features
-
-add I<measure_time=1> as a parameter to any link to get some hi res time output in your console
-
-create a I<favicon.ico> in the comcol main folder to set this as your favicon!
-
-you can give I<toRead=1>, I<count=1> and I<counted> as parameters to the index page displaying more statistic!
-
-=cut
-
-
-
-=head1 some internals ...
-
-todo
-
-=cut
 
 sub comics {
 	#return @{$comics->{__SECTIONS__}};
 	return @{$dbh->selectcol_arrayref("select comic from USER")};
 }
+
+=head2 config usr dat
+
+C<config(comic,key,value,delet value?)> accesses the table B<CONFIG>
+
+C<usr(comic,key,value,delet value?))> accesses B<USER>
+
+C<dat(comic,strip,key,value,delet value?))> access the table B<_I<comicname>>
+
+usr and dat use caching, so asking them for the same value over and over again should be quiete fast
+
+=cut
 
 sub config {
 	my ($key,$value,$null) = @_;
@@ -986,24 +1006,30 @@ sub dat { #gibt die dat und die dazugehörige configuration des comics aus # hier
 	return $db_cache[3];
 }
 
-sub kategorie {
-	my $kat = shift;
-	my $ord = shift;
-	if ($ord) {
-		config('kat_order',$ord);
-		return split(',',config('kat_order'));
-	}
-	config('kat_order',config('kat_order') .','.$kat) if $kat;
-	
-	my @kat = split(',',config('kat_order')); #sortierte kategorien
-	my %d;
-	$d{$_} = 1 for (@kat); 
-	my @kat2 = @{$dbh->selectcol_arrayref(qq(select distinct kategorie from USER))}; #alle vorhandenen kategorien
-	for (@kat2) {
-		push(@kat,$_) unless (!$_ or $d{$_});
-	}
-	return @kat;
-}
+=head2 tags and flags
+
+C<tags(comic,new tag string,import?)> or C<flags(comic,new tag string,import?)>
+
+tags and flags are implemented very similiar.
+tags will return all tags if all parameters are omitted, flags will return 0
+
+use C<< <> >> as C<new string> to delete
+
+it creates two hashes one of imported and one of original
+
+deletes all from import which are in original
+
+returns all (import and original) flags|tags unless C<new string>
+
+if string begins with + addes to original (and import if C<import>)
+
+if string begins with - deletes from both
+
+begins with wordcharacter (or space for flags): sets flags|tags to given string (keeps in import what was in import)
+
+
+
+=cut
 
 sub tags {
 	my $comic = shift || '';
@@ -1018,36 +1044,54 @@ sub tags {
 		}
 		
 		my $tagsref = $dbh->selectrow_arrayref("select tags,itags from USER where comic='$comic'");
-		my $tags = (($tagsref->[0]//'').' '.($tagsref->[1]//''));
-		my $tag = {};
+		my $otags = ($tagsref->[0]//'');
+		my $itags = ($tagsref->[1]//'');
 		
-		$tag->{lc $_} = 1 for(split(/\W+/,$tags));
+		my $otag = {};
+		my $itag = {};
+		
+		$otag->{lc $_} = 1 for(split(/\W+/,$otags));
+		$itag->{lc $_} = 1 for(split(/\W+/,$itags));
+		delete $itag->{lc $_} for (keys %$otag); 
+		
 		
 		if ($new) {
 			if ($new =~ /^\+([\w\s]+)/) {
-				$tag->{lc $_} = 1 for (split(/\W+/,$1));
+				for (split(/\W+/,$1)) {
+					$otag->{lc $_} = 1;
+					$itag->{lc $_} = 1 if $import; # we dont need to add to import if were not importing
+				}
 			}	
 			elsif ($new =~ /^-([\w\s]+)/) {
-				delete $tag->{lc $_} for (split(/\W+/,$1));		
+				for (split(/\W+/,$1)) {
+					delete $otag->{lc $_};  #subtracting from both, cause we dont know which containts
+					delete $itag->{lc $_};	
+				}
 			}
 			elsif($new =~ /^([\w\s]+)$/) {
-				$tag = {};
-				$tag->{lc $_} = 1 for (split(/\W+/,$new));		
+				unless ($import) { # on normal circumstances
+					$otag = {};	#we delete all of our tags
+					$otag->{lc $_} = 1 for (split(/\W+/,$new)); #and recreate with the given ones
+					delete $otag->{lc $_} or delete $itag->{lc $_} for (keys %$itag); #then we delete all which were imported previously, and delete all imported which were not in the new ones
+				}
+				else { #same as above just changed imported and original
+					$itag = {};	
+					$itag->{lc $_} = 1 for (split(/\W+/,$new));
+					delete $itag->{lc $_} or delete $otag->{lc $_} for (keys %$otag); 
+				}
 			}
-			my $t = join(' ',keys %{$tag});
-			if ($import) {
-				$t ? usr($comic,'itags',$t) : usr($comic,'itags',0,'delete');
-			}
-			else {
-				$t ? usr($comic,'tags',$t) : usr($comic,'tags',0,'delete');
-				usr($comic,'itags',0,'delete');
-			}
+			my $ot = join(' ',keys %{$otag});
+			my $it = join(' ',keys %{$itag});
+			($ot ? usr($comic,'tags',$ot) : usr($comic,'tags',0,'delete')) if (!$import); #we dont want to save the originals while importing!
+			$it ? usr($comic,'itags',$it) : usr($comic,'itags',0,'delete'); #if we are not importingwe save both (deleting from both)
+
 		}
-		return keys %{$tag};
+		$otag->{$_} = 1 for keys(%$itag);
+		return keys %$otag;
 	}
 	else {
 		my $tags = $dbh->selectcol_arrayref("select tags from USER");
-		my $itags = $dbh->selectcol_arrayref("select tags from USER");
+		my $itags = $dbh->selectcol_arrayref("select itags from USER");
 		my %taglist;
 		foreach (@{$tags},@{$itags}) {
 			next unless defined $_;
@@ -1073,41 +1117,65 @@ sub flags {
 	}
 	
 	my $flagref = $dbh->selectrow_arrayref("select flags,iflags from USER where comic='$comic'");
-	my $flags = (($flagref->[0]//'').($flagref->[1]//''));
-	if ($flags =~ /^\d+$/) {
-		my @flaglist = qw(read complete hiatus warn loop);
-		my @flag_codes = split(//,$flags);
-		$flags = "";
-		$flags .= "r" if $flag_codes[0];
-		$flags .= "c" if $flag_codes[1];
-	}
+	my $oflags = $flagref->[0]//'';
+	my $iflags = $flagref->[1]//'';
 	
-	my $flag = {};
+	my $oflag = {};
+	my $iflag = {};
 	
-	$flag->{$_} = 1 for(split(//,$flags));
+	$oflag->{$_} = 1 for(split(//,$oflags));
+	$iflag->{$_} = 1 for(split(//,$iflags));
+	delete $iflag->{$_} for(keys %$oflag);
+	
 	
 	if ($new) {
 		if ($new =~ /^\+(\w+)/) {
-			$flag->{$_} = 1 for (split(//,$1));
+			for (split(//,$1)) {
+				$oflag->{$_} = 1;
+				$iflag->{$_} = 1 if $import;
+			}		
 		}	
 		elsif ($new =~ /^-(\w+)/) {
-			delete $flag->{$_} for (split(//,$1));		
+			for (split(//,$1)) {
+				delete $oflag->{$_};	
+				delete $iflag->{$_};
+			}		
 		}
 		elsif ($new =~ /^(\w+)$/) {
-			$flag = {};
-			$flag->{$_} = 1 for (split(//,$new));		
+			unless ($import) { # on normal circumstances
+				$oflag = {};	#we delete all of our flags
+				$oflag->{$_} = 1 for (split(//,$new)); #and recreate with the given ones
+				delete $oflag->{$_} or delete $iflag->{$_} for (keys %$iflag); #then we delete all which were imported previously, and delete all imported which were not in the new ones
+			}
+			else { #same as above just changed imported and original
+				$iflag = {};	
+				$iflag->{$_} = 1 for (split(//,$new));
+				delete $iflag->{$_} or delete $oflag->{$_} for (keys %$oflag);
+			}			
 		}
-		my $f = join('',keys %{$flag});
-		if ($import) {
-			$f ? usr($comic,'iflags',$f) : usr($comic,'iflags',0,'delete');
+		my $of = join('',keys %$oflag);
+		my $if = join('',keys %$iflag);
+		if (!$import) {
+			($of) ? usr($comic,'flags',$of) : usr($comic,'flags',0,'delete');
 		}
-		else {
-			$f ? usr($comic,'flags',$f) : usr($comic,'flags',0,'delete');
-			usr($comic,'iflags',0,'delete');
-		}
+		($if) ? usr($comic,'iflags',$if) : usr($comic,'iflags',0,'delete');
+
 	}
-	return $flag;
+	$oflag->{$_} = 1 for keys(%$iflag);
+	return $oflag;
 }
+
+=head2 filter
+
+C<filter(filter name,new filter)>
+
+without parameters returns all filter names
+
+with name returns that filter
+
+with name and new, sets filter (deletes if new is defined but not true)
+
+=cut
 
 sub filter {
 	my $filter = shift;
@@ -1133,5 +1201,19 @@ sub filter {
 	
 	return keys %filter unless $filter;
 	return $filter{$filter};
+
+}
+
+sub load_css{
+	local $/ = undef;
+	open(CSS,"<default.css");
+	$css =  <CSS>;
+	close(CSS);
+	if (-e "overwrite.css") {
+		$css .= "\n";
+		open(CSS2,"<overwrite.css") ;
+		$css .= <CSS2>;
+		close(CSS2);
+	}
 
 }

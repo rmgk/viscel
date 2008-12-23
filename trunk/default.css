@@ -2,6 +2,7 @@
 body {
 	color : #00aa00;
 	background-color : black;
+	margin: 0px;
 }
 
 a {
@@ -17,26 +18,60 @@ a[href^=http] {
 	color:red;
 }
 
+
+
 /*preview box*/
 #prevbox {
 	visibility:hidden;
+	position:absolute;
+}
+
+#prevIMG {
 	position:fixed;
 	right:0px;
 	bottom:0px;
+	padding:10px;
+	margin:5px;
+	border-style: solid;
+	border-color: #000031;
+	border-width: 1px;
+	background-color:#000000;
+	max-height:95%;
+	max-width:50%;
 }
 
 /*main menu*/
 #menu {
-	right:0.5cm;
+	right:0px;
+	top:0px;
 	position:fixed;
+	border-style: none none none solid;
+	border-color: #310000;
+	border-width: 1px;
+	padding:0.5cm;
+	height:100%;
+	margin:0px;
+	background-color:#000b00;
 }
 
 /*comic groups*/
 	.group {
-		margin-left:10px;
+		margin:10px;
+		display:inline-block;
+		background-color:#00000b;
+		border-style: solid;
+		border-color: #003100;
+		border-width: 1px;
 	}
+	
 	.group h1{
 		text-transform:capitalize;
+		margin:10px 0px 10px 0px;
+		text-align:center;
+	}
+	
+	.group table {
+		padding-left:10px;
 	}
 
 	/*comic names in groups*/
@@ -76,11 +111,29 @@ a[href^=http] {
 	div.frontpage #last {
 		float:right;
 	}
-	/*to have some consistency in the navigation placement*/
-	div.frontpage br {
-		clear:both;
-	}
+
 	
+/*navigation placement for frontpage and comic pages*/
+.navigation {
+	clear:both;
+	position:static;
+	border-style: solid none solid none;
+	border-color: #310000;
+	border-width: 1px;
+	padding:0.2cm;
+	margin:0.7cm 0px 0px 0px;
+	background-color:#00000b;
+}
+		
+/* comic pages */
+	div.comic {
+		text-align:center;
+		height:100%;
+	}
+	div.comic h3 {
+		display:none;
+	}
+
 /*striplist*/
 	div.striplist {
 		/*text-align:right;
@@ -95,14 +148,6 @@ a[href^=http] {
 	}
 	#prevbox {
 		/*display:none;*/
-	}
-
-/* comic pages */
-	div.comic {
-		text-align:center;
-	}
-	div.comic h3 {
-		display:none;
 	}
 	
 /*pod / documentation*/
