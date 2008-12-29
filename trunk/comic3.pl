@@ -11,7 +11,7 @@ use Comic;
 use dbutil;
 
 our $VERSION;
-$VERSION = '81' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '82' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -69,7 +69,7 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 	my $update_intervall = $dbh->selectrow_array(qq(select update_intervall from CONFIG));
 	if (!defined $update_intervall or $update_intervall eq '') {
 		$update_intervall = 45000;
-		print "no update interval specified using default = 45000 seconds\n";
+		print "no update interval specified using default = $update_intervall seconds\n";
 	}
 	
 	my %order;
@@ -89,29 +89,38 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 	
 	@comics = sort { $order{$b} <=> $order{$a} } @comics; 
 		
-	foreach my $comic (@comics) {
+	comic:foreach my $comic (@comics) {	
 		my $skip = 0;
 		my $broken = $comics->{$comic}->{'broken'};
 		if (defined $opmode) {
 			if ($opmode eq 'std') {
-				$skip = 1 if ($broken);
+				next comic if ($broken);
 				for my $opt (@opts) {
-					$skip = 1 unless ($comic =~ m/$opt/i);
+					next comic unless ($comic =~ m/$opt/i);
 				}
 			}
 			elsif (($opmode eq 'repair') or ($opmode eq 'exact') or ($opmode eq 'repairdelete')) {
 				for my $opt (@opts) {
-					$skip = 1 unless ($comic eq $opt);
+					next comic unless ($comic eq $opt);
 				}
 			}
 		}
 		else {
 			my $lu = $dbh->selectrow_array(qq(select last_update from USER where comic="$comic"));
-			$skip = 1 if (((time - $update_intervall) < ($lu||0)) or $broken);
+			next comic if (((time - $update_intervall) < ($lu||0)) or $broken);
 		}
-		next if ($skip);
 		last if $TERM;
+		{	#if we run multiple instances of the programm we dont want two to process  the same comic
+			if ($dbh->selectrow_array(qq(select processing from CONFIG where processing == "$comic"))) {
+				say "\nskipped $comic: processing!";
+				next comic;
+			}
+			$dbh->do(qq(insert into CONFIG (processing) values ("$comic")));
+		}
 		Comic::get_comic({"name" => $comic , "dbh"=> $dbh, "autocommit" => 1});
+		{	#unset processing when done
+			$dbh->do(qq(delete from CONFIG where processing = "$comic"));
+		}
 		last if $TERM;
 	}
 	$dbh->disconnect;

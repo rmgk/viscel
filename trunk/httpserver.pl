@@ -33,7 +33,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.42';
+$VERSION = '2.43';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
@@ -50,9 +50,14 @@ my $measure_time = 0; #set this to one to get some info on request time
 my $css; #we save our style sheet in here
 
 
+#if we are processing something, we dont want to update!
+if ($dbh->selectrow_array(qq(select processing from CONFIG where processing is not null and processing not like "")))  {
+	say "skipping update while comics are processed...";
+}
+else {
+	&update;
+}
 
-
-&update;
 
 =head1 Usage
 
