@@ -21,7 +21,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '24';
+$VERSION = '25';
 
 sub get_comic {
 	my $s = Comic->new(@_);
@@ -47,6 +47,8 @@ sub new {
 	$s->{path_err} //= "err.txt";
 	$s->{_CONF} //= 'comic.ini';
 	
+	$s->{LOG} = [];
+	
 	if ($s->{dbh}) {
 		$s->{dbh_no_disconnect} = 1;
 	}
@@ -66,8 +68,10 @@ sub new {
 	$s->status("-" x (10) . $s->name . "-" x (25 - length($s->name)),'UINFO');
 
 	unless (-e $s->{path_strips} . $s->name) {
+		mkdir $s->{path_strips} unless (-e $s->{path_strips} );
 		mkdir($s->{path_strips} . $s->name);
 		$s->status("WRITE: " . $s->{path_strips} . $s->name ,'OUT');
+		
 	}
 	
 	dbutil::check_table($s->dbh,"_".$s->name);
@@ -262,9 +266,7 @@ sub status {
 	my $type = shift;
 	my $addinfo = shift;
 	
-	open(LOG,">>".$s->{path_log});
-	print LOG $status . ($addinfo ? " -- >". $addinfo : "") . " -->". $type . "\n";
-	close LOG;
+	push (@{$s->{LOG}}, $status . ($addinfo ? " -- >". $addinfo : "") . " -->". $type);
 	
 	if ($type =~ m/ERR|WARN|DEF|UINFO/i) {
 		print $status . "\n";
@@ -286,6 +288,11 @@ sub get_all {
 		$b = $s->get_next();
 	} while ($b and !$::TERM);
 	$s->thread_cleanup;
+	{
+		open(LOG,">>".$s->{path_log});
+		print LOG join("\n",@{$s->{LOG}}); 
+		close LOG;
+	}
 	$s->usr('last_update',time) unless $::TERM;
 	$s->status("DONE: get_all",'DEBUG');
 }

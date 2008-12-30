@@ -11,7 +11,7 @@ use Comic;
 use dbutil;
 
 our $VERSION;
-$VERSION = '82' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '83' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -75,12 +75,12 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 	my %order;
 	
 	foreach my $comic (@comics) {
+		dbutil::check_table($dbh,"_$comic") unless $comics->{$comic}->{broken};
 		my $lu = $dbh->selectrow_array(qq(select last_update from USER where comic="$comic"));
 		my $ls = $dbh->selectrow_array(qq(select last_save from USER where comic="$comic"));
 		if (!$lu or !$ls) {
 			$order{$comic} = 1;
 			next;
-
 		}
 		my $up = (time - $lu) || 1;
 		my $sa = (time - $ls) || 1;
@@ -110,16 +110,18 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 			next comic if (((time - $update_intervall) < ($lu||0)) or $broken);
 		}
 		last if $TERM;
+		
+		my ($domain) = $comics->{$comic}->{url_start} =~ m#(?:http://)?([^.]+\.[^.]+?)/#; #use domain name to exclude multi downloading
 		{	#if we run multiple instances of the programm we dont want two to process  the same comic
-			if ($dbh->selectrow_array(qq(select processing from CONFIG where processing == "$comic"))) {
-				say "\nskipped $comic: processing!";
+			if ($dbh->selectrow_array(qq(select processing from CONFIG where processing == "$domain"))) {
+				say "\nskipped $comic: already downloading from '$domain'";
 				next comic;
 			}
-			$dbh->do(qq(insert into CONFIG (processing) values ("$comic")));
+			$dbh->do(qq(insert into CONFIG (processing) values ("$domain")));
 		}
 		Comic::get_comic({"name" => $comic , "dbh"=> $dbh, "autocommit" => 1});
 		{	#unset processing when done
-			$dbh->do(qq(delete from CONFIG where processing = "$comic"));
+			$dbh->do(qq(delete from CONFIG where processing = "$domain"));
 		}
 		last if $TERM;
 	}
