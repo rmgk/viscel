@@ -402,7 +402,7 @@ sub next {
 	my $url = shift || $sides[1];
 	
 	if ($url and $s->{visited_urls}->{$url}) {
-		my $flags = $s->usr('flags');
+		my $flags = $s->usr('flags') // '';
 		$flags .= 'l' unless $flags =~ /l/;
 		$s->usr('flags',$flags);
 	}

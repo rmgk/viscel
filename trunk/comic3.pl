@@ -21,7 +21,7 @@ $SIG{'INT'} = sub {
 		};
 
 print "remember: images must not be redistributed without the authors approval\n";
-print "press ctrl+c to abort (don't close it otherwise)\n";
+print "press ctrl+c to abort (or data corruption might occur)\n";
 print "comic3.pl version $VERSION\n";
 
 my @opts = @ARGV;
