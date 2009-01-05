@@ -1,5 +1,6 @@
 package dlutil;
 use strict;
+
 our($ua,@EXPORT,@EXPORT_OK);
 
 require Exporter;
@@ -8,7 +9,7 @@ require Exporter;
 @EXPORT_OK = qw($ua);
 
 our($VERSION);
-$VERSION = '3';
+$VERSION = '4';
 
 sub _init_ua {
 	require LWP;
@@ -29,11 +30,11 @@ sub get {
 	
 	my $request = HTTP::Request->new(GET => $url);
 	my $response = $ua->request($request);
-	return $response->is_success ? $response->content : undef;
+	return $response->is_success ? $response->content : $response->code;
 }
 
-sub getstore {
-	my($url, $file, $referer) = @_;
+sub getref {
+	my($url, $referer) = @_;
 	_init_ua() unless $ua;
 	unless (defined $referer) {
 		(my $referer = $url) =~ s/[\?\&]//;
@@ -41,9 +42,8 @@ sub getstore {
 	}
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
-	
-	my $response = $ua->request($request, $file);
-	return $response->code;
+	my $response = $ua->request($request);
+	return $response->is_success ? $response->content : $response->code;
 }
 
 1;

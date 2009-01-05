@@ -13,8 +13,13 @@ use DBI;
 use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
+use Digest::MD5 qw(md5_hex);
+use Digest::SHA qw(sha1_hex);
+use Time::HiRes;
+
+
 our $VERSION;
-$VERSION = '20';
+$VERSION = '21';
 
 sub new {
 	my $class = shift;
@@ -24,55 +29,161 @@ sub new {
 	return $s;
 }
 
-sub cmc {
+sub all_strips {
 	my $s = shift;
-	return $s->{cmc};
+	return 0 unless $s->body;
+	foreach my $strip (@{$s->strips}) {
+		$s->title($strip);
+		return unless $s->save($strip); #beim speichern wurde ein kritischer fehler gefunden
+	}
+	$s->index_all();
+	return 1;
 }
 
-sub name {
+sub index_all {
 	my $s = shift;
-	return $s->cmc->name;
+	my $n = $#{$s->strips};
+	for (0..($n-1)) {
+		$s->dat($s->file($_),'next',$s->file($_+1));
+		$s->dat($s->file($_+1),'prev',$s->file($_));
+	}
 }
 
-sub cfg {
+sub save {
 	my $s = shift;
-	return $s->cmc->cfg(@_);
+	my $strip = shift;
+	return -1 if ($s->dummy);
+	my $file_name = $s->get_file_name($strip);
+	if ($s->cmc->{seen_file_names}->{$file_name}) {
+		$s->status("ERROR: file name '$file_name' already seen in this session",'ERR');
+		$s->usr("url_current",0,1);
+		return 0;
+	}
+	$s->cmc->{seen_file_names}->{$file_name} = 1;
+	if  (-e "./strips/".$s->name."/$file_name") {
+		$s->status("EXISTS: ".$file_name,'UINFO');
+		return 1;
+	}
+	else {
+		my $home = $s->cmc->url_home();
+		$s->url =~ m#(?:$home)?(.+)#;
+		my $se_url = $1;
+		$strip =~ m#(?:$home)?(.+)#;
+		my $se_strip = $1;
+		local $| = 1;
+		print "GET: " . $se_url . " => " . $file_name;
+		$s->status("GET: $file_name URL: " . $s->url ." SURL: " .$strip,"DEBUG");
+		return $s->_save($strip,$file_name);
+	}
 }
 
-sub dat {
-	my $s = shift;
-	return $s->cmc->dat(@_);
+sub _save {
+	my ($s,$surl,$file_name) = @_;
+	my $u_referer = $s->cfg('referer');
+	my $time = Time::HiRes::time;
+	my $img = dlutil::getref($surl,$u_referer);
+	$time = Time::HiRes::time - $time;
+	if ($img =~ m/^\d+$/) {
+		$s->status("ERROR downloading $file_name code: $img","ERR");
+		return 0;
+	}
+	open(my $fh,">./strips/".$s->name."/".$file_name);
+	binmode $fh;
+	print $fh $img;
+	say " (".int((-s $fh)/($time*1000)) ." kb/s)";
+	close $fh;
+	$s->dat($file_name,'md5',md5_hex($img));
+	$s->dat($file_name,'sha1',sha1_hex($img));
+	$s->usr('last_save',time);
+	return 1;
 }
 
-sub usr {
+sub title {
 	my $s = shift;
-	return $s->cmc->usr(@_);
-}
-
-
-sub body {
-	my $s = shift;
-	unless ($s->{body}) {
-		return 0 if $s->{no_body};
-		$s->{'body'} = dlutil::get($s->url);
-		$s->status("BODY requestet: " . $s->url,'DEBUG');
-		unless ($s->{body}) {
-			sleep(1);
-			$s->{'body'} = dlutil::get($s->url);
-			unless ($s->{body}) {
-				$s->status("ERROR: no body found: " . $s->url,'ERR');
-				$s->{no_body} = 1;
-				return 0;
-			}
+	my $surl = shift;
+	my $file = $s->get_file_name($surl);
+	my $url = $s->url();
+	my $body = $s->body();
+	return unless $body;
+	my ($urlpart) = ($surl =~ m#.*/(.*)#);
+	
+	my $regex_title = $s->cfg('regex_title');
+	my @ut = ($body =~ m#$regex_title#gis) if ($regex_title);
+	$body =~ m#<title>([^<]*?)</title>#is;
+	my $st = $1;
+	
+	my $img;
+	if ($urlpart) {
+		if ($body =~ m#(<img[^>]*?src=["']?[^"']*?$urlpart(?:['"\s][^>]*?>|>))#is) {
+			$img = $1;
 		}
 	}
-	return \$s->{'body'};
+	my $it;
+	my $ia;
+	if ($img) {
+		if ($img =~ m#title=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
+			$it = $1;
+		}
+		if ($img =~ m#alt=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
+			$ia = $1;
+		}
+	}
+	
+	my @h1 = ($body =~ m#<h\d>([^<]*?)</h\d>#gis);
+	my @dt = ($body =~ m#<div[^>]+id="comic[^"]*?title"[^>]*>([^<]+?)</div>#gis);
+	my $sl;
+	if ($body =~ m#<option[^>]+?selected[^>]*>([^<]+)</option>#is) {
+		 $sl = $1;
+	}
+	
+	foreach my $one (@ut,$st,$it,$ia,@h1,@dt,$sl) {
+		next unless defined $one;
+		$one =~ s/"/''/g;
+		$one =~ s/\s+/ /g;
+	}
+	my $ut = ("['" . join("','",@ut) . "']") if @ut;
+	my $h1 = ("['" . join("','",@h1) . "']") if @h1;
+	my $dt = ("['" . join("','",@dt) . "']") if @dt;
+	$ut //= ''; $st //= '';	$it //= '';	$ia //= '';	$h1 //= '';	$dt //= ''; $st //= '';
+	my $title_string = "{ut=>q($ut),st=>q($st),it=>q($it),ia=>q($ia),h1=>q($h1),dt=>q($dt),st=>q($st)}";
+
+	$s->cmc->{sqlstr_title} //= $s->cmc->dbh->prepare(q(update _).$s->name .q( set title=?,url=?,surl=?,c_version=?,time=? where strip == ?));
+	$s->cmc->{sqlstr_title}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file);
+	# $s->dat($file,'title',$title_string);
+	# $s->dat($file,'url',$s->url);
+	# $s->dat($file,'surl',$surl);
+	# $s->dat($file,'c_version',$main::VERSION);
+	# $s->dat($file,'time',time);
+	
+	$s->status("TITEL $file: " . $title_string,'DEBUG');
+	return $title_string; 
 }
 
-sub url {
-	my $s = shift;
-	$s->{url} = "$_[0]" if @_;
-	return $s->{url};
+{ #side urls wrapper
+
+sub url_prev {
+	my ($s) = @_;
+	my ($url,undef) = $s->side_urls();
+	my $not_goto = $s->cfg("not_goto");
+	my $never_goto = $s->cfg("never_goto");
+	return if 	(
+					($s->curr->url eq $s->cfg("url_start")) or #nicht von der start url zurück
+					($not_goto and ($url =~ m#$not_goto#i)) or
+					($never_goto and ($url =~ m#$never_goto#i))
+				);
+	return $url;
+}
+
+sub url_next {
+	my ($s) = @_;
+	my (undef,$url) = $s->side_urls();
+	my $never_goto = $s->cfg("never_goto");
+	return if 	(	!($url and ($url ne $s->url)) or	#nicht die eigene url
+					($url eq $s->cfg("url_start")) or	#nicht die start url
+					($never_goto and ($url =~ m#$never_goto#i)) or
+					($s->{visited_urls}->{$url})
+				);
+	return $url;
 }
 
 sub side_urls {
@@ -84,14 +195,14 @@ sub side_urls {
 	if ($s->cfg('regex_next') or $s->cfg('regex_prev')) {
 		my $regex;
 		$regex = $s->cfg('regex_prev');
-		if ($$body =~ m#$regex#is) {
+		if ($body =~ m#$regex#is) {
 			$purl = $s->concat_url($1);
 		}
 		else {
 			$purl = 0;
 		}
 		$regex = $s->cfg('regex_next');
-		if ($$body =~ m#$regex#is) {
+		if ($body =~ m#$regex#is) {
 			$nurl = $s->concat_url($1);
 		}
 		else {
@@ -120,12 +231,12 @@ sub list_side_urls {
 	my $chap = $+{chap};
 	my $page = $+{page};
 	my @chaps;
-	while ($$body =~ m#$chap_regex#gis) {
+	while ($body =~ m#$chap_regex#gis) {
 		push(@chaps,$+{chaps} // $1) unless ($s->cfg('list_chap_reverse'));
 		unshift(@chaps,$+{chaps} // $1) if ($s->cfg('list_chap_reverse'));
 	}
 	my @pages;
-	while ($$body =~ m#$page_regex#gis) {
+	while ($body =~ m#$page_regex#gis) {
 		push(@pages,$+{pages} // $1) unless ($s->cfg('list_page_reverse'));
 		unshift(@pages,$+{pages} // $1) if ($s->cfg('list_page_reverse'));
 	}
@@ -142,7 +253,19 @@ sub list_side_urls {
 			$page_i = $i;
 			last;
 		}
-	}	
+	}
+	if ( !defined $page_i) {
+		my $next = $insert_into;
+		my $nc = $chaps[$chap_i + 1];
+		if ($nc) {
+			$next =~ s/{{chap}}/$nc/egi;
+			$next =~ s/{{page}}/$pages[0]/egi;
+		}
+		else {
+			$next = undef;
+		}
+		return (undef,$next);
+	}
 	if ($page_i > 0 and $page_i < $#pages) {
 		my $prev = $insert_into;
 		my $next = $insert_into;
@@ -192,14 +315,14 @@ sub try_get_side_url_parts {
 	my $s = shift;
 	my $body = $s->body();
 	return unless $body;
-	my @aref = ($$body =~ m#(<a\s+.*?>.*?</a>)#gis); 
+	my @aref = ($body =~ m#(<a\s+.*?>.*?</a>)#gis); 
 	my @filter;
 	foreach my $as (@aref) {
 		push(@filter,$as) if ($as =~ m#(prev(ious)?([^i][^e][^w])|next|[^be\s*]back[^ground]|forward|prior|ensuing)#gi);
 	}
 	my $prev = undef;
 	my $next = undef;
-	my $url_home = $s->cfg('url_home');
+	my $url_home = $s->cmc->url_home();
 	my $add_url_home = $s->cfg('add_url_home');
 	my $never_goto = $s->cfg('never_goto');
 	foreach my $fil (@filter) {
@@ -230,22 +353,19 @@ sub try_get_side_url_parts {
 	return ($prev,$next);
 }
 
+}
+
+{ #strip url wrapper
+
 sub strips {
 	my $s = shift;
 	$s->{strips} = $s->strip_urls() unless $s->{strips};
 	unless ($s->{strips}->[0]) {
-		$s->{strips}->[0] =  "dummy|" . $s->url;
-		$s->{strips}->[0] =~ s#[/?&=]#-#g;
+		$s->{strips}->[0] =  "dummy_" . time . "_" . int rand 1e10;
 		$s->{dummy} = 1;
 		$s->status("KEINE STRIPS: ".$s->url,'WARN')
 	}
 	return $s->{strips};
-}
-
-sub dummy {
-	my $s = shift;
-	$s->strips;
-	return $s->{dummy};
 }
 
 sub strip_urls {
@@ -255,7 +375,7 @@ sub strip_urls {
 		my $body = $s->body();
 		return unless $body;
 		my $regex = $s->cfg('regex_strip_url');
-		my @surl = ($$body =~ m#$regex#gsi);
+		my @surl = ($body =~ m#$regex#gsi);
 		if ($s->cfg('regex_strip_url2')) {
 			$regex = $s->cfg('regex_strip_url2');
 			@surl = ($surl[0] =~ m#$regex#gsi);
@@ -282,7 +402,7 @@ sub try_get_strip_urls_part {
 	return unless $body;
 	
 	my $imgs = [];
-	my @tags = ($$body =~ m#(<\s*ima?ge?[^>]+>)#gis);
+	my @tags = ($body =~ m#(<\s*ima?ge?[^>]+>)#gis);
 
 	my $i = 0;
 	foreach my $tag (@tags) {
@@ -325,7 +445,7 @@ sub try_get_strip_urls_part {
 			next;
 		}
 		if ($url =~ m#^http://#) {
-			my $url_home = $s->cfg('url_home');
+			my $url_home = $s->cmc->url_home;
 			my $add_url_home = $s->cfg('add_url_home');
 			next unless (($url =~ m#$url_home#) or 
 						((defined $add_url_home) and $url =~ m#$add_url_home#));
@@ -361,161 +481,31 @@ sub try_get_strip_urls_part {
 	return \@return;
 }
 
-sub concat_url {
+sub dummy {
 	my $s = shift;
-	my $url_part = shift;
-	my @url;
-	
-	if (ref $url_part) {
-		foreach my $part (@{$url_part}) {
-			push(@url,$s->_concat_url($part));
-		}
-	}
-	else {
-		$url[0] = $s->_concat_url($url_part);
-	}
-
-	return wantarray ? @url : $url[0];
+	$s->strips;
+	return $s->{dummy};
 }
 
-sub _concat_url {
-	my $s = shift;
-	my $url_part = shift;
-	return unless $url_part;
-	$url_part =~ s!([^&])&amp;|&#038;!$1&!gs;
-	return if ($url_part eq '#');
-	if ($s->cfg('use_home_only')) {
-		$url_part =~ s'^[\./]+'';
-		$url_part = "/" . $url_part;
-	}
-	return URI->new($url_part)->abs($s->url())->as_string;
 }
 
+{ #data wrapper and utils
 
-sub all_strips {
+sub name {
 	my $s = shift;
-	return 0 unless $s->body;
-	foreach my $strip (@{$s->strips}) {
-		$s->title($strip);
-		return unless $s->save($strip); #beim speichern wurde ein kritischer fehler gefunden
-	}
-	$s->index_all();
-	return 1;
+	return $s->cmc->name;
 }
 
-sub index_all {
+sub url {
 	my $s = shift;
-	my $n = $#{$s->strips};
-	for (0..($n-1)) {
-		$s->dat($s->file($_),'next',$s->file($_+1));
-		$s->dat($s->file($_+1),'prev',$s->file($_));
-		$s->status("VERBUNDEN: ".$s->file($_) . "<->".$s->file($_+1),'DEBUG')
-	}
+	$s->{url} = $_[0] if @_;
+	return $s->{url};
 }
 
 sub file {
 	my $s = shift;
 	my $n = shift;
 	return $s->get_file_name($s->strips->[$n]);
-}
-
-sub enque {
-	my $s = shift;
-	$s->cmc->{queue_dl}->enqueue(@_)
-}
-
-sub save {
-	my $s = shift;
-	my $strip = shift;
-	return 0 if ($s->dummy);
-	my $file_name = $s->get_file_name($strip);
-	if ($s->{seen_file_names}->{$file_name}) {
-		$s->status("ERROR: file name '$file_name' already seen in this session",'ERR');
-		$s->usr("url_current",0,1);
-		return 0;
-	}
-	$s->{seen_file_names}->{$file_name} = 1;
-	if  (-e "./strips/".$s->name."/$file_name") {
-		$s->status("EXISTS: ".$file_name,'UINFO');
-		$s->cmc->md5($file_name);
-		$s->usr('last_save',time) unless $s->usr('last_save');
-		return 1;
-	}
-	else {
-		$s->cmc->{semaphore}->down();
-		my $home = $s->cfg("url_home");
-		$s->url =~ m#(?:$home)?(.+)#;
-		my $se_url = $1;
-		$strip =~ m#(?:$home)?(.+)#;
-		my $se_strip = $1;
-		$s->status("GET: " . $se_url . " => " . $file_name,'UINFO', " URL: " . $s->url ." SURL: " .$strip);
-		$s->enque([$strip,$file_name,$s->cfg('referer')]);
-		return 1;
-	}
-}
-
-
-sub title {
-	my $s = shift;
-	my $surl = shift;
-	my $file = $s->get_file_name($surl);
-	my $url = $s->url();
-	my $body = $s->body();
-	return unless $body;
-	my ($urlpart) = ($surl =~ m#.*/(.*)#);
-	
-	my $regex_title = $s->cfg('regex_title');
-	my @ut = ($$body =~ m#$regex_title#gis) if ($regex_title);
-	$$body =~ m#<title>([^<]*?)</title>#is;
-	my $st = $1;
-	
-	my $img;
-	if ($urlpart) {
-		if ($$body =~ m#(<img[^>]*?src=["']?[^"']*?$urlpart(?:['"\s][^>]*?>|>))#is) {
-			$img = $1;
-		}
-	}
-	my $it;
-	my $ia;
-	if ($img) {
-		if ($img =~ m#title=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
-			$it = $1;
-		}
-		if ($img =~ m#alt=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
-			$ia = $1;
-		}
-	}
-	
-	my @h1 = ($$body =~ m#<h\d>([^<]*?)</h\d>#gis);
-	my @dt = ($$body =~ m#<div[^>]+id="comic[^"]*?title"[^>]*>([^<]+?)</div>#gis);
-	my $sl;
-	if ($$body =~ m#<option[^>]+?selected[^>]*>([^<]+)</option>#is) {
-		 $sl = $1;
-	}
-	
-	my $ut = join(" ~§~ ",@ut) if @ut;
-	my $h1 = join(" ~§~ ",@h1) if @h1;
-	my $dt = join(" ~§~ ",@dt) if @dt;
-	my @all = ($ut,$st,$it,$ia,$h1,$dt,$sl);
-	my @allout;
-	foreach my $one (@all) {
-		if (defined $one) {
-			$one =~ s/\s+/ /gs ;
-			$one =~ s/"/''/gs ;
-		}
-		else {
-			$one = "-§-";
-		}
-		push(@allout,$one);
-	}
-	$s->dat($file,'title',join(' !§! ',@allout));
-	$s->dat($file,'url',$s->url);
-	$s->dat($file,'surl',$surl);
-	$s->dat($file,'c_version',$main::VERSION);
-	$s->dat($file,'time',time);
-	
-	$s->status("TITEL $file: " . $s->dat($file,'title'),'DEBUG');
-	return $s->dat($file,'title'); 
 }
 
 sub get_file_name {
@@ -608,6 +598,71 @@ sub get_file_name {
 	return $filename;
 }
 
+sub body {
+	my $s = shift;
+	unless ($s->{body}) {
+		return undef if $s->{no_body};
+		$s->{'body'} = dlutil::get($s->url());
+		$s->status("BODY requestet: " . $s->url,'DEBUG');
+		if ($s->{body} =~ m#^\d+$#) {
+			$s->status("Body Request error: " . $s->{body},"ERR",$s->url());
+			$s->{body} = undef;
+			$s->{no_body} = 1;
+		}
+	}
+	return $s->{'body'};
+}
+
+sub concat_url {
+	my $s = shift;
+	my $url_part = shift;
+	my @url;
+	
+	if (ref $url_part) {
+		foreach my $part (@{$url_part}) {
+			push(@url,$s->_concat_url($part));
+		}
+	}
+	else {
+		$url[0] = $s->_concat_url($url_part);
+	}
+
+	return wantarray ? @url : $url[0];
+}
+
+sub _concat_url {
+	my $s = shift;
+	my $url_part = shift;
+	return unless $url_part;
+	$url_part =~ s!([^&])&amp;|&#038;!$1&!gs;
+	return if ($url_part eq '#');
+	if ($s->cfg('use_home_only')) {
+		$url_part =~ s'^[\./]+'';
+		$url_part = "/" . $url_part;
+	}
+	return URI->new($url_part)->abs($s->url())->as_string;
+}
+
+sub cmc {
+	my $s = shift;
+	return $s->{cmc};
+}
+
+sub cfg {
+	my $s = shift;
+	return $s->cmc->cfg(@_);
+}
+
+sub dat {
+	my $s = shift;
+	return $s->cmc->dat(@_);
+}
+
+sub usr {
+	my $s = shift;
+	return $s->cmc->usr(@_);
+}
+
 sub status {
 	my $s = shift;
 	$s->cmc->status(@_);
@@ -616,6 +671,8 @@ sub status {
 sub DESTROY {
 	my $s = shift;
 	$s->status('DESTROYED: '. $s->url,'DEBUG');
+}
+
 }
 
 1;

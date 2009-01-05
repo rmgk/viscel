@@ -16,7 +16,7 @@ $VERSION = '83' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 our $TERM = 0;
 $SIG{'INT'} = sub { 
-		print "Terminating (wait for downloads to finish)\n" ;
+		print "\nTerminating (wait for downloads to finish)\n" ;
 		$TERM = 1;
 		};
 
@@ -56,13 +56,18 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 		}
 		elsif (($opts[0] eq '-rd') and (@opts > 1)) {
 			$opmode = 'repairdelete';
-			shift @opts;
-			foreach (@opts) {
-				$dbh->do(qq(update USER set url_current = NULL,server_update = NULL,archive_current = NULL where comic="$_"));
-				$dbh->do(qq(DROP TABLE _$_));
+			unless ($dbh->selectrow_array(qq(select processing from CONFIG where processing is not null))) {
+				shift @opts;
+				foreach (@opts) {
+					$dbh->do(qq(update USER set url_current = NULL,server_update = NULL,archive_current = NULL where comic="$_"));
+					$dbh->do(qq(DROP TABLE _$_));
 
+				}
 			}
-			#$dbh->commit;
+			else {
+				say "please stop current progress before dropping tables";
+			}
+			
 		}
 	}
 	

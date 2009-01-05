@@ -10,9 +10,9 @@ use warnings;
 use DBI;
 
 our($VERSION);
-$VERSION = '8';
+$VERSION = '9';
 
-my @comic_columns = 	qw(strip c_version md5 prev next surl time title url number); 
+my @comic_columns = 	qw(strip c_version md5 sha1 prev next surl time title url number); 
 my @config_columns =	qw(update_intervall filter processing);
 my @user_columns =		qw(comic url_current first last last_save strip_count strips_counted kategorie aktuell bookmark last_update server_update flags iflags tags itags archive_current);
 

@@ -841,11 +841,11 @@ first of all, this will check the database structure.
 then it figures out which comics had new images B<saved> since they were last updated
 and does all of the following in this order to each comic one after another:
 
-it removes B<dummy|>s which dont have a prev or a next strip (are at the beginning or the end) and deletes links to them
+it removes B<dummy>s which dont have a prev or a next strip (are at the beginning or the end) and deletes links to them
 
 it adds the warn flag if two ore more strips are linking to the same strip in the same direction (have same prev or next)
 
-it tries to find the first strip that is a strip without a prev, if there are multiple, it tries to get a non I<dummy|> strip 
+it tries to find the first strip that is a strip without a prev, if there are multiple, it tries to get a non I<dummy> strip 
 (if there are multiple not dummy strips it takes whatever the database returns first)
 
 last it counts the strips (by going from the first to the last), gives each a number and determines the last strip.
@@ -857,7 +857,7 @@ sub update {
 	my $ttu = Time::HiRes::time;
 	dbutil::check_table($dbh,"USER");
 	dbutil::check_table($dbh,"CONFIG");
-	$dbh->do("UPDATE USER set first = NULL , server_update = NULL where first like 'dummy|%'");
+	$dbh->do("UPDATE USER set first = NULL , server_update = NULL where first like 'dummy%'");
 	
 	# foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic from USER where first IS NULL))}) {
 		# my @first = @{$dbh->selectcol_arrayref("select strip from _$comic where prev IS NULL and next IS NOT NULL")};
@@ -875,8 +875,8 @@ sub update {
 		
 		usr($comic,'server_update',time);
 		
-		my @dummys = $dbh->selectrow_array("select strip from _$comic where (strip like 'dummy|%') and ((prev IS NULL) or (next IS NULL))");
-		$dbh->do("DELETE FROM _$comic where (strip like 'dummy|%') and ((prev IS NULL) or (next IS NULL))");
+		my @dummys = $dbh->selectrow_array("select strip from _$comic where (strip like 'dummy%') and ((prev IS NULL) or (next IS NULL))");
+		$dbh->do("DELETE FROM _$comic where (strip like 'dummy%') and ((prev IS NULL) or (next IS NULL))");
 		foreach my $dummy (@dummys) {
 			$dbh->do("update _$comic set next = NULL where next = '$dummy'");
 			$dbh->do("update _$comic set prev = NULL where prev = '$dummy'");
