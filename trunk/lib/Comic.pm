@@ -17,7 +17,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '26';
+$VERSION = '27';
 
 sub get_comic {
 	my $s = Comic->new(@_);
@@ -72,9 +72,11 @@ sub new {
 sub get_all {
 	my $s = shift;
 	$s->status("START: get_all",'DEBUG');
-	while ( $s->curr->all_strips 
-			and $s->get_next()
-			and !$::TERM) {};
+	while (!$::TERM) {
+		last unless $s->curr->all_strips();
+		last if $::TERM;
+		last unless $s->get_next();
+	};
 	$s->usr('last_update',time) unless $::TERM;
 	$s->status("DONE: get_all",'DEBUG');
 }

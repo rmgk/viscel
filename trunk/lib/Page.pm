@@ -196,14 +196,14 @@ sub side_urls {
 		my $regex;
 		$regex = $s->cfg('regex_prev');
 		if ($body =~ m#$regex#is) {
-			$purl = $s->concat_url($1);
+			$purl = $s->concat_url($+{u}//$1);
 		}
 		else {
 			$purl = 0;
 		}
 		$regex = $s->cfg('regex_next');
 		if ($body =~ m#$regex#is) {
-			$nurl = $s->concat_url($1);
+			$nurl = $s->concat_url($+{u}//$1);
 		}
 		else {
 			$nurl = 0;
@@ -318,34 +318,34 @@ sub try_get_side_url_parts {
 	my @aref = ($body =~ m#(<a\s+.*?>.*?</a>)#gis); 
 	my @filter;
 	foreach my $as (@aref) {
-		push(@filter,$as) if ($as =~ m#(prev(ious)?([^i][^e][^w])|next|[^be\s*]back[^ground]|forward|prior|ensuing)#gi);
+		 if ($as =~ m#(prev|next|back|forward|prior|ensuing)#i
+			and $as !~m#(preview|be\s*back|background)#i) {
+			push(@filter,$as)
+		 }
 	}
 	my $prev = undef;
 	my $next = undef;
 	my $url_home = $s->cmc->url_home();
-	my $add_url_home = $s->cfg('add_url_home');
 	my $never_goto = $s->cfg('never_goto');
 	foreach my $fil (@filter) {
 		next unless $fil;
 		next if ($never_goto) and ($fil =~ m#$never_goto#i);
-		my $re_link = qr#href=(?<p>["']?)(?<link>.*?)(?:\k<p>|\s*>|\s+\w+\s*=)#i;
-		if (($fil =~ m#prev|back|prior#i) and (!$prev)) {
+		my $re_link = qr#<\s*a[^>]*href\s*=\s*((?<p>["'])(?<link>.*?)\k<p>|(?<link>.*?)(\s*>|\s+\w+\s*=))#i;
+		if ((!$prev) and ($fil =~ m#prev|back|prior#i)) {
 			if ($fil =~ $re_link) {
 				my $tmp_url = $+{link};
-				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#) or
-						(($tmp_url =~ m#http://#) and !(
-							($tmp_url =~ m#$url_home#) or 
-							($add_url_home and $tmp_url =~ m#$add_url_home#))));
+				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i) or
+						(($tmp_url =~ m#http://#i) and !(
+							($tmp_url =~ m#$url_home#i))));
 				$prev = $tmp_url;
 			}
 		}
-		if (($fil =~ m#next|forward|ensuing#i) and (!$next)) {
+		if ((!$next) and ($fil =~ m#next|forward|ensuing#i)) {
 			if ($fil =~ $re_link) {
 				my $tmp_url = $+{link};
-				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#) or
-						(($tmp_url =~ m#http://#) and !(
-							($tmp_url =~ m#$url_home#) or 
-							($add_url_home and $tmp_url =~ m#$add_url_home#))));
+				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i) or
+						(($tmp_url =~ m#http://#i) and !(
+							($tmp_url =~ m#$url_home#i))));
 				$next = $tmp_url;
 			}
 		}
@@ -406,14 +406,17 @@ sub try_get_strip_urls_part {
 
 	my $i = 0;
 	foreach my $tag (@tags) {
-		if ($tag =~ m#src\s*=\s*(?<o>['"])(?<src>.+?)\k<o>|src\s*=\s*(?<src>[^\s]+)#is) {
+		my $regex = q#src\s*=\s*((?<p>["'])(?<src>.*?)\k<p>|(?<src>.*?)(\s*>|\s+\w+\s*=))#;
+		if ($tag =~ m#$regex#is) {
 			$imgs->[$i]->{src} = $+{src};
 		}
-		if ($tag =~ m#width\s*=\s*(?<o>['"])(?<width>\d+)\k<o>|width\s*=\s*(?<width>\d+)#is) {
-			$imgs->[$i]->{width} = $+{width};
+		$regex =~ s/src/width/g;
+		if ($tag =~ m#$regex#is) {
+			$imgs->[$i]->{width} = ($+{width} =~ /\d+/);
 		}
-		if ($tag =~ m#height\s*=\s*(?<o>['"])(?<height>\d+)\k<o>|height\s*=\s*(?<height>\d+)#is) {
-			$imgs->[$i]->{height} = $+{height};
+		$regex =~ s/width/height/g;
+		if ($tag =~ m#$regex#is) {
+			$imgs->[$i]->{height} = ($+{height} =~ /\d+/);
 		} 
 		$i++;
 	}
@@ -608,6 +611,7 @@ sub body {
 			$s->status("Body Request error: " . $s->{body},"ERR",$s->url());
 			$s->{body} = undef;
 			$s->{no_body} = 1;
+			return undef;
 		}
 	}
 	return $s->{'body'};
