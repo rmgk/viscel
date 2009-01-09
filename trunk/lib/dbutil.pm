@@ -10,7 +10,7 @@ use warnings;
 use DBI;
 
 our($VERSION);
-$VERSION = '9';
+$VERSION = '10';
 
 my @comic_columns = 	qw(strip c_version md5 sha1 prev next surl time title url number); 
 my @config_columns =	qw(update_intervall filter processing);
@@ -105,6 +105,7 @@ sub readINI {
 		next if length $line == 0;
 		
 		my ($what,$is) = split(/=/, $line, 2);
+		$what = "url_start" unless $what;
 		$what =~ s/^\s*//g;
 		$what =~ s/\s*$//g;
 		$is =~ s/^\s*//g;

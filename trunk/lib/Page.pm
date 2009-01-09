@@ -19,7 +19,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '21';
+$VERSION = '22';
 
 sub new {
 	my $class = shift;
@@ -412,11 +412,11 @@ sub try_get_strip_urls_part {
 		}
 		$regex =~ s/src/width/g;
 		if ($tag =~ m#$regex#is) {
-			$imgs->[$i]->{width} = ($+{width} =~ /\d+/);
+			($imgs->[$i]->{width}) = ($+{width} =~ /^\D*(\d+)\D*$/);
 		}
 		$regex =~ s/width/height/g;
 		if ($tag =~ m#$regex#is) {
-			$imgs->[$i]->{height} = ($+{height} =~ /\d+/);
+			($imgs->[$i]->{height}) = ($+{height} =~ /^\D*(\d+)\D*$/);
 		} 
 		$i++;
 	}

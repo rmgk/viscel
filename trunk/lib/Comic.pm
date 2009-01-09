@@ -28,7 +28,7 @@ sub get_comic {
 		$s->dbh->disconnect unless $s->{dbh_no_disconnect};
 		#flush out the log
 		open(LOG,">>".$s->{path_log});
-		print LOG join("\n",@{$s->{LOG}}); 
+		print LOG join("\n",@{$s->{LOG}}) . "\n"; 
 		close LOG;
 		return $s;
 	}

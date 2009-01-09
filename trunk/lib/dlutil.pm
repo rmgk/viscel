@@ -9,7 +9,7 @@ require Exporter;
 @EXPORT_OK = qw($ua);
 
 our($VERSION);
-$VERSION = '4';
+$VERSION = '5';
 
 sub _init_ua {
 	require LWP;
@@ -22,6 +22,7 @@ sub _init_ua {
 	$ua->timeout(15);
 	$ua->env_proxy;
 	$ua->conn_cache(LWP::ConnCache->new());
+	$ua->cookie_jar( {} );
 }	
 
 sub get {
