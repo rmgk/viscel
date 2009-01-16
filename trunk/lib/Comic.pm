@@ -294,7 +294,7 @@ sub class_change {
 			$s->{config}->{worker} //= 0;
 			$s->{config}->{referer} //= '';
 			$s->{config}->{rename} //= q'url_only#^\D+$|^(\d\d_)?\d\d\.\w{3,4}$#/chapter\.(\d+)/page\.(\d+)/#';
-			$s->{config}->{never_goto} //= qr#/end/#;
+			$s->{config}->{never_goto} //= q#/end/#;
 		}
 		if ($s->{config}->{class} eq "anymanga") {
 			$s->{config}->{heur_strip_url} //= '/manga/[^/]+/\d+/\d+';

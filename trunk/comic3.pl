@@ -65,7 +65,7 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 				}
 			}
 			else {
-				say "please stop current progress before dropping tables";
+				say "\nplease stop current progress before dropping tables\n";
 			}
 			
 		}
