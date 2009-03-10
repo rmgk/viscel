@@ -19,7 +19,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '22';
+$VERSION = '23';
 
 sub new {
 	my $class = shift;
@@ -56,7 +56,7 @@ sub save {
 	my $file_name = $s->get_file_name($strip);
 	if ($s->cmc->{seen_file_names}->{$file_name}) {
 		$s->status("ERROR: file name '$file_name' already seen in this session",'ERR');
-		$s->usr("url_current",0,1);
+		$s->usr("url_current",0,1); #delete url current
 		return 0;
 	}
 	$s->cmc->{seen_file_names}->{$file_name} = 1;
@@ -70,7 +70,7 @@ sub save {
 		my $se_url = $1;
 		$strip =~ m#(?:$home)?(.+)#;
 		my $se_strip = $1;
-		local $| = 1;
+		local $| = 1; #dont wait for newline to print the text
 		print "GET: " . $se_url . " => " . $file_name;
 		$s->status("GET: $file_name URL: " . $s->url ." SURL: " .$strip,"DEBUG");
 		return $s->_save($strip,$file_name);
@@ -147,8 +147,11 @@ sub title {
 	$ut //= ''; $st //= '';	$it //= '';	$ia //= '';	$h1 //= '';	$dt //= ''; $st //= '';
 	my $title_string = "{ut=>q($ut),st=>q($st),it=>q($it),ia=>q($ia),h1=>q($h1),dt=>q($dt),st=>q($st)}";
 
-	$s->cmc->{sqlstr_title} //= $s->cmc->dbh->prepare(q(update _).$s->name .q( set title=?,url=?,surl=?,c_version=?,time=? where strip == ?));
-	$s->cmc->{sqlstr_title}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file);
+	$s->cmc->{sqlstr_title_update} //= $s->cmc->dbh->prepare('update _'.$s->name .' set title=?,url=?,surl=?,c_version=?,time=? where strip == ?');
+	if($s->cmc->{sqlstr_title_update}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file) < 1) {
+		$s->cmc->{sqlstr_title_insert} //= $s->cmc->dbh->prepare('insert into _'.$s->name .' (title,url,surl,c_version,time,strip) values (?,?,?,?,?,?)');
+		$s->cmc->{sqlstr_title_insert}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file);
+	}
 	# $s->dat($file,'title',$title_string);
 	# $s->dat($file,'url',$s->url);
 	# $s->dat($file,'surl',$surl);
