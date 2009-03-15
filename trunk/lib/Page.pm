@@ -7,6 +7,17 @@ package Page;
 use 5.010;
 use strict;
 use warnings;
+
+=head1 NAME
+
+Comic.pm 
+
+=head1 DESCRIPTION
+
+This package is used to navigate inside the comic and mange the list of pages.
+
+=cut
+
 use dlutil;
 
 use DBI;
@@ -19,7 +30,27 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '23';
+$VERSION = '25';
+
+=head1 general Methods
+
+=head2 new
+
+	Page->new($hashref);
+
+I<$hashref> needs the following keys:
+
+=over 4
+
+=item * C<cmc> - the comic object. required
+
+=item * C<url> - the url of the page. required
+
+=back
+
+returns: the newly blessed page object
+
+=cut
 
 sub new {
 	my $class = shift;
@@ -28,6 +59,16 @@ sub new {
 	$s->status("NEW PAGE: ".$s->url,'DEBUG');
 	return $s;
 }
+
+=head2 all_strips
+
+	Page->all_strips();
+
+finds L</title> for L</strips> and L<save>s them. L<index_all> afterwards
+
+returns: C<1> if successful, undefined if L<save> threw an error 
+
+=cut
 
 sub all_strips {
 	my $s = shift;
@@ -40,6 +81,16 @@ sub all_strips {
 	return 1;
 }
 
+=head2 index_all
+
+	Page->index_all();
+
+if there are multiple strips on the page links them with each other
+
+returns: nothing (useful)
+
+=cut
+
 sub index_all {
 	my $s = shift;
 	my $n = $#{$s->strips};
@@ -48,6 +99,20 @@ sub index_all {
 		$s->dat($s->file($_+1),'prev',$s->file($_));
 	}
 }
+
+=head2 save
+
+	Page->save($strip);
+
+C<$strip> is the url of the file to download. required
+
+L<get_file_name> and returns 0 if the file name was already seen in the seession. also deletes C<url_current>
+checks if the file already exists if not L<_save>s the file
+
+returns: -1 if there are no files on the page. 0 if the file_name is duplicated in the session, 1 if the file (name) exists on disk,
+0 if the download threw an error and 1 if the download was successful
+
+=cut
 
 sub save {
 	my $s = shift;
@@ -77,6 +142,20 @@ sub save {
 	}
 }
 
+=head2 _save
+
+	Page->_save($surl,$file_name);
+
+C<$surl> is the url of the file to download. required
+C<$file_name> is the name the file will be named on disk. required
+
+downloads the file with L<dlutil/getref>
+creates md5 and sha1 hashes and saves the file to disk
+
+returns: 0 if the download threw an error and 1 if the download was successful
+
+=cut
+
 sub _save {
 	my ($s,$surl,$file_name) = @_;
 	my $u_referer = $s->cfg('referer');
@@ -97,6 +176,20 @@ sub _save {
 	$s->usr('last_save',time);
 	return 1;
 }
+
+=head2 title
+
+	Page->title($surl);
+
+C<$surl> is the url of the strip. required
+
+uses L<get_file_name> and L<url> and L<body> to get information about the comic to store in the database.
+
+returns: the created title string or undef if there is no body
+
+database access: READ cfg, WRITE _comic
+
+=cut
 
 sub title {
 	my $s = shift;
@@ -162,65 +255,138 @@ sub title {
 	return $title_string; 
 }
 
+=head1 side url Methods
+
+=cut
+
 { #side urls wrapper
+
+=head1 url_prev
+
+	$s->url_prev();
+	
+gets previous url. 
+
+uses I<regex_prev> to get url from L</body> if both are defined.
+
+if not, trys to get them via L<list_side_urls> if I<list_url_regex> is defined.
+
+if that is also not defined it uses L<try_get_side_urls>
+
+checks for I<regex_never_goto>
+
+returns: array of prev urls
+
+database access: READ cfg(3)
+
+=cut
 
 sub url_prev {
 	my ($s) = @_;
-	my ($url,undef) = $s->side_urls();
-	my $not_goto = $s->cfg("not_goto");
-	my $never_goto = $s->cfg("never_goto");
-	return if 	(
-					($s->curr->url eq $s->cfg("url_start")) or #nicht von der start url zurück
-					($not_goto and ($url =~ m#$not_goto#i)) or
-					($never_goto and ($url =~ m#$never_goto#i))
-				);
-	return $url;
-}
-
-sub url_next {
-	my ($s) = @_;
-	my (undef,$url) = $s->side_urls();
-	my $never_goto = $s->cfg("never_goto");
-	return if 	(	!($url and ($url ne $s->url)) or	#nicht die eigene url
-					($url eq $s->cfg("url_start")) or	#nicht die start url
-					($never_goto and ($url =~ m#$never_goto#i)) or
-					($s->{visited_urls}->{$url})
-				);
-	return $url;
-}
-
-sub side_urls {
-	my $s = shift;
-	my $purl;
-	my $nurl;
 	my $body = $s->body();
 	return unless $body;
-	if ($s->cfg('regex_next') or $s->cfg('regex_prev')) {
-		my $regex;
-		$regex = $s->cfg('regex_prev');
-		if ($body =~ m#$regex#is) {
-			$purl = $s->concat_url($+{u}//$1);
-		}
-		else {
-			$purl = 0;
-		}
-		$regex = $s->cfg('regex_next');
-		if ($body =~ m#$regex#is) {
-			$nurl = $s->concat_url($+{u}//$1);
-		}
-		else {
-			$nurl = 0;
+	my $urls =[];
+	if (my $regex_prev = $s->cfg('regex_prev')) {
+		if ($body =~ m#$regex_prev#is) {
+			$urls->[0] = $s->concat_url($+{u}//$1);
 		}
 	}
 	elsif ($s->cfg('list_url_regex')) {
-		($purl,$nurl) = $s->list_side_urls();
+		my ($purl,$nurl) = $s->list_side_urls();
+		$urls->[0] = $purl;
 	}
 	else {
-		($purl,$nurl) = $s->try_get_side_urls();
+		my ($purl,$nurl) = $s->try_get_side_urls();
+		$urls = $purl;
 	}
-	$s->status("SIDE_URLS ".$s->url.": " . ($purl?$purl:'kein prev') . ", " . ($nurl?$nurl:'kein next'),'DEBUG');
-	return ($purl,$nurl);
+	
+	my $regex_not_goto = $s->cfg("regex_not_goto");
+	my $regex_never_goto = $s->cfg("regex_never_goto");
+	my $url_start = $s->cfg("url_start");
+	my @ret_urls;
+	foreach my $url (@{$urls}) { 
+		if 	(	!($url and ($url ne $s->url)) or	#nicht die eigene url
+					($s->url eq $url_start) or #nicht von der start url zurück
+					($regex_not_goto and ($url =~ m#$regex_not_goto#i)) or
+					($regex_never_goto and ($url =~ m#$regex_never_goto#i))
+			) {
+			next;
+		}
+		else {
+			push (@ret_urls,$url);
+		}
+	}
+	$s->status("PREV URLS: @ret_urls",'DEBUG');
+	return @ret_urls;
 }
+
+=head1 url_next
+
+	$s->url_next();
+	
+gets next url. 
+
+uses I<regex_next> to get url from L</body> if both are defined.
+
+if not, trys to get them via L<list_side_urls> if I<list_url_regex> is defined.
+
+if that is also not defined it uses L<try_get_side_urls>
+
+checks for I<regex_never_goto>
+
+returns: array of next urls
+
+database access: READ cfg(3)
+
+=cut
+
+sub url_next {
+	my ($s) = @_;
+	my $body = $s->body();
+	return unless $body;
+	my $urls = [];
+	if (my $regex_next = $s->cfg('regex_next')) {
+		if ($body =~ m#$regex_next#is) {
+			$urls->[0] = $s->concat_url($+{u}//$1);
+		}
+	}
+	elsif ($s->cfg('list_url_regex')) {
+		my ($purl,$nurl) = $s->list_side_urls();
+		$urls->[0] = $nurl;
+	}
+	else {
+		my ($purl,$nurl) = $s->try_get_side_urls();
+		$urls = $nurl;
+	}
+	my $regex_never_goto = $s->cfg("regex_never_goto");
+	my $url_start = $s->cfg("url_start");
+	my @ret_urls;
+	foreach my $url (@{$urls}) { 
+		if 	(	!($url and ($url ne $s->url)) or	#nicht die eigene url
+				($url eq $url_start) or	#nicht die start url
+				($regex_never_goto and ($url =~ m#$regex_never_goto#i))
+			) {
+			next;
+		}
+		else {
+			push (@ret_urls,$url);
+		}
+	}
+	$s->status("NEXT URLS: @ret_urls",'DEBUG');
+	return @ret_urls;
+}
+
+=head1 list_side_urls
+
+	$s->list_side_urls();
+	
+it works. dont ask how.
+
+returns: previous url, next url
+
+database access: READ cfg(4)
+
+=cut
 
 sub list_side_urls {
 	my $s = shift;
@@ -306,13 +472,39 @@ sub list_side_urls {
 
 }
 
+=head1 try_get_side_urls
+
+	$s->try_get_side_urls();
+	
+L<concat_url>s the result of L<try_get_side_url_parts>. thus just acting as a wrapper around these functions
+
+returns: arrayref with previous urls, hashref with next next urls
+
+database access: none
+
+=cut
+
 sub try_get_side_urls {
 	my $s = shift;
+	return (@{$s->{try_get_side_urls}}) if $s->{try_get_side_urls};
 	my ($prev,$next) = $s->try_get_side_url_parts();
-	my $prev_url = $s->concat_url($prev);
-	my $next_url = $s->concat_url($next);
-	return ($prev_url,$next_url);
+	my @prev_url = $s->concat_url($prev);
+	my @next_url = $s->concat_url($next);
+	$s->{try_get_side_urls} = [\@prev_url,\@next_url];
+	return (@{$s->{try_get_side_urls}});
 }
+
+=head1 try_get_side_url_parts
+
+	$s->try_get_side_url_parts();
+	
+searches L<body> for prev and next urls. uses a lot of guessing but is quite successful.
+
+returns: previous url, next url
+
+database access: READ cfg
+
+=cut
 
 sub try_get_side_url_parts {
 	my $s = shift;
@@ -326,39 +518,55 @@ sub try_get_side_url_parts {
 			push(@filter,$as)
 		 }
 	}
-	my $prev = undef;
-	my $next = undef;
+	my @prev;
+	my @next;
 	my $url_home = $s->cmc->url_home();
-	my $never_goto = $s->cfg('never_goto');
+	my $regex_never_goto = $s->cfg('regex_never_goto');
 	foreach my $fil (@filter) {
 		next unless $fil;
-		next if ($never_goto) and ($fil =~ m#$never_goto#i);
+		next if ($regex_never_goto) and ($fil =~ m#$regex_never_goto#i);
 		my $re_link = qr#<\s*a[^>]*href\s*=\s*((?<p>["'])(?<link>.*?)\k<p>|(?<link>.*?)(\s*>|\s+\w+\s*=))#i;
-		if ((!$prev) and ($fil =~ m#prev|back|prior#i)) {
+		if ($fil =~ m#prev|back|prior#i) {
 			if ($fil =~ $re_link) {
 				my $tmp_url = $+{link};
 				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i) or
 						(($tmp_url =~ m#http://#i) and !(
 							($tmp_url =~ m#$url_home#i))));
-				$prev = $tmp_url;
+				push (@prev, $tmp_url);
 			}
 		}
-		if ((!$next) and ($fil =~ m#next|forward|ensuing#i)) {
+		if ($fil =~ m#next|forward|ensuing#i) {
 			if ($fil =~ $re_link) {
 				my $tmp_url = $+{link};
 				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i) or
 						(($tmp_url =~ m#http://#i) and !(
 							($tmp_url =~ m#$url_home#i))));
-				$next = $tmp_url;
+				push (@next, $tmp_url);
 			}
 		}
 	}
-	return ($prev,$next);
+	return (\@prev,\@next);
 }
 
 }
+
+=head1 strip url Methods
+
+=cut
 
 { #strip url wrapper
+
+=head2 strips
+
+	$s->strips();
+	
+calls L<strip_urls> to get the urls of the strips, creates the dummy if there is no strip and sets I<dummy> to C<1>
+
+returns: a array with the strip urls
+
+database access: none
+
+=cut
 
 sub strips {
 	my $s = shift;
@@ -370,6 +578,19 @@ sub strips {
 	}
 	return $s->{strips};
 }
+
+=head2 strip_urls
+
+	$s->strip_urls();
+	
+searches L<body> for strip urls if I<regex_strip_url> is defined.
+calls L<try_get_strip_urls> otherwise
+
+returns: a array with the strip urls
+
+database access: READ cfg(2)
+
+=cut
 
 sub strip_urls {
 	my $s = shift;
@@ -389,15 +610,40 @@ sub strip_urls {
 	else {
 		$surl = $s->try_get_strip_urls();
 	}
-	$s->status("STRIP_URLS ".$s->url.": ". join(", ",@{$surl}),'DEBUG');
+	$s->status("STRIP_URLS ".$s->url.": ". ($surl?join(", ",@{$surl}):""),'DEBUG');
 	return $surl;
 }
+
+=head2 try_get_strip_urls
+
+	$s->try_get_strip_urls();
+	
+L<concat_url>s L<try_get_strip_urls_part>. so its just a wrapper
+
+returns: a array with the strip urls
+
+database access: none
+
+=cut
 
 sub try_get_strip_urls {
 	my $s = shift;
 	my @urls = $s->concat_url($s->try_get_strip_urls_part());
 	return \@urls;
 }
+
+=head2 try_get_strip_urls_part
+
+	$s->try_get_strip_urls_part();
+	
+searches L<body> for strip urls. filters images smaller than 21 pixel in width or height. 
+uses other filters operating on the found img src strings. and removes duplicates found.
+
+returns: a array ref with parts of the strip urls
+
+database access: READ cfg
+
+=cut
 
 sub try_get_strip_urls_part {
 	my $s = shift;
@@ -487,6 +733,18 @@ sub try_get_strip_urls_part {
 	return \@return;
 }
 
+=head2 dummy
+
+	$s->dummy();
+
+calls L<strips> which sets the dummy flag.	
+
+returns: returns true if there are no files found on the page.
+
+database access: READ cfg
+
+=cut
+
 sub dummy {
 	my $s = shift;
 	$s->strips;
@@ -495,24 +753,76 @@ sub dummy {
 
 }
 
+=head1 wrapper and utility Methods
+
+=cut
+
 { #data wrapper and utils
+
+=head2 name
+
+	$s->name();
+	
+see L<comic/name>
+	
+returns: the name of the comic
+
+database access: none
+
+=cut
 
 sub name {
 	my $s = shift;
 	return $s->cmc->name;
 }
 
+=head2 name
+
+	$s->name($new_url);
+	
+I<$new_url> will set the url to an new value (thats possibly a bad idea. create a new page object instead!)
+	
+returns: the url of the page
+
+database access: none
+
+=cut
+
 sub url {
 	my $s = shift;
-	$s->{url} = $_[0] if @_;
+ 	$s->{url} = $_[0] if @_;
 	return $s->{url};
 }
+
+=head2 name
+
+	$s->name($n);
+	
+L<get_file_name> of L<strip> number C<$n>
+	
+returns: the file name of the C<$n>th file.
+
+database access: none
+
+=cut
 
 sub file {
 	my $s = shift;
 	my $n = shift;
 	return $s->get_file_name($s->strips->[$n]);
 }
+
+=head2 name
+
+	$s->get_file_name($strip_url);
+	
+takes I<$strip_url> and extracts the file name. uses I<rename> if defined or some general logic if not.
+	
+returns: file name
+
+database access: READ cfg
+
+=cut
 
 sub get_file_name {
 	my $s = shift;
@@ -604,6 +914,18 @@ sub get_file_name {
 	return $filename;
 }
 
+=head2 body
+
+	$s->body();
+	
+calls L<dbutil/get> to fetch the body (well the complete source including the head!) from L<url>
+	
+returns: the body or undef
+
+database access: none
+
+=cut
+
 sub body {
 	my $s = shift;
 	unless ($s->{body}) {
@@ -619,6 +941,19 @@ sub body {
 	}
 	return $s->{'body'};
 }
+
+=head2 concat_url
+
+	$s->concat_url($url_part);
+	
+C<$url_part> can be a single url or an array ref with a list of urls. 
+it concats them with L<_concat_url>
+	
+returns: an array with all concatenated urls or the first url
+
+database access: none
+
+=cut
 
 sub concat_url {
 	my $s = shift;
@@ -637,6 +972,19 @@ sub concat_url {
 	return wantarray ? @url : $url[0];
 }
 
+=head2 _concat_url
+
+	$s->_concat_url($url_part);
+	
+calls the URI module to concat C<$url_part> with L<url> to a complete url. (replaces C<$amp;> and C<$#038;> with C<&>)
+
+	
+returns: url
+
+database access: none
+
+=cut
+
 sub _concat_url {
 	my $s = shift;
 	my $url_part = shift;
@@ -650,25 +998,95 @@ sub _concat_url {
 	return URI->new($url_part)->abs($s->url())->as_string;
 }
 
+=head2 cmc
+
+	$s->cmc();
+	
+returns: the comic object
+
+database access: none
+
+=cut
+
 sub cmc {
 	my $s = shift;
 	return $s->{cmc};
 }
+
+=head2 cfg
+
+	$s->cfg($key,$value);
+	
+loads config and sets defaults (L<class_change>)
+sets C<$key> to C<$value> if C<$value>
+	
+see L<comic/cfg>
+	
+returns: value of C<$key>
+
+database access: READ _CONF, WRITE _CONF
+
+=cut
 
 sub cfg {
 	my $s = shift;
 	return $s->cmc->cfg(@_);
 }
 
+=head2 dat  
+	
+	$s->dat($strip,$key,$value,$null);
+
+accesses the C<_I<comic>> table
+if C<$null> is true, sets $key for C<$strip> to C<NULL> 
+if C<$value> is C<defined> updates/inserts C<$value>
+
+see L<comic/dat>
+	
+returns: value of C<$key> where C<$strip>
+
+database access: READ _I<comic>, WRITE _I<comic>
+
+=cut
+
 sub dat {
 	my $s = shift;
 	return $s->cmc->dat(@_);
 }
 
+=head2 usr 
+	
+	$s->usr($key,$value,$null);
+
+accesses the C<USER> table
+if C<$null> is true, sets $key for comic to C<NULL>
+if C<$value> is C<defined> updates/inserts C<$value>
+	
+see L<comic/usr>
+	
+returns: value of C<$key>
+
+database access: READ USER, WRITE USER
+
+=cut
+
 sub usr {
 	my $s = shift;
 	return $s->cmc->usr(@_);
 }
+
+=head2 status 
+	
+	$s->status($status,$type,$addinfo);
+
+	
+see L<comic/status>
+	
+returns: C<1>
+
+database access: none
+
+=cut
 
 sub status {
 	my $s = shift;

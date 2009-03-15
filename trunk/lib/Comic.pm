@@ -7,6 +7,17 @@ use 5.010;
 use strict;
 use warnings;
 
+
+=head1 NAME
+
+Comic.pm 
+
+=head1 DESCRIPTION
+
+This package is used to navigate inside the comic and mange the list of pages.
+
+=cut
+
 use Page;
 use dbutil;
 use dlutil;
@@ -17,7 +28,22 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '27';
+$VERSION = '29';
+
+=head1	General Methods
+
+=head2 get_comic
+
+	Comic::get_comic($hashref);
+
+I<$hashref> is optional and will be directly passed to L</"new">
+
+creates a new comic object, L</get_all> the new pages, L</release_pages>, maybe commits 
+and disconnects the database handle and prints the log array to the log file.
+
+returns: comic object on success C<0> otherwise.
+
+=cut
 
 sub get_comic {
 	my $s = Comic->new(@_);
@@ -37,6 +63,42 @@ sub get_comic {
 	}
 }
 
+=head2 new
+
+	Comic->new($hashref)
+	
+I<$hashref> is optional and can contain the following keys:
+
+=over 4
+
+=item * C<DB> - path to the sqlite database. default: C<comics.db>
+
+=item * C<path_strips> - path to the strips folder. default: C<./strips/>
+
+=item * C<path_log> - path to the log file. default: C<log.txt>
+
+=item * C<path_err> - path to the error log. default: C<err.txt>
+
+=item * C<_CONF> - path to the config file. default: C<comic.ini>
+
+=item * C<LOG> - arrayreference to store logged lines. default: emtpy arrayref
+
+=item * C<dbh> - database hande object. default: creates a new database handle
+
+=item * C<dbh_no_disconnect> - C<bool> database will not be disconnected at the end of get_comic if this is true. default: always true if C<dbh> is set undefined otherwise
+
+=item * C<autocommit> - sets autocommit option if a new dbh is created. default: undefined
+
+=item * C<config> - arrayref to comic config. default: loads config from file specified with C<_CONF>
+
+=back
+
+C<new> will make sure that the strip folder exists and L<dbutil/check_table> of the comic
+
+returns: the comic object
+
+=cut
+
 sub new {
 	my $class = shift;
 	my $s = shift || {};
@@ -47,6 +109,7 @@ sub new {
 	$s->{path_log} //= "log.txt";
 	$s->{path_err} //= "err.txt";
 	$s->{_CONF} //= 'comic.ini';
+	$s->{time_to_stop} //= time + 60*60;
 	
 	$s->{LOG} = [];
 	
@@ -69,17 +132,45 @@ sub new {
 	return $s;
 }
 
+=head2 get_all
+
+	$s->get_all();
+	
+get L<page/all_strips> of the L</curr> page.
+checks for termination.
+when not terminated will update the I<last_update> time.
+
+returns: nothing (useful).
+
+=cut
+
 sub get_all {
 	my $s = shift;
 	$s->status("START: get_all",'DEBUG');
 	while (!$::TERM) {
 		last unless $s->curr->all_strips();
+		if (time > $s->{time_to_stop}) {
+			$s->status("STOPPED - timelimit reached",'UINFO');
+			last;
+		}
 		last if $::TERM;
 		last unless $s->get_next();
+		$s->{acnt}++>30?(say$s->name())&&($s->{acnt}=0):undef;
 	};
 	$s->usr('last_update',time) unless $::TERM;
 	$s->status("DONE: get_all",'DEBUG');
 }
+
+=head2 get_next
+
+	$s->get_next();
+	
+tries L</goto_next> if that fails and we have 
+I<archive_url> set in the config tries L</url_next_archive> and goes to the returned url.
+
+returns: 1 if C<goto_next>; 2 if C<url_next_archive>; 0 otherwise
+
+=cut
 
 sub get_next {
 	my $s = shift;
@@ -95,20 +186,50 @@ sub get_next {
 	return 0;
 }
 
+=head2 goto_next
+
+	$s->goto_next($page_object_or_url);
+	
+I<$page_object_or_url> will be directly passed to L</next>.
+
+sets L</prev> to L</curr>, aborts unless we have a next with body, sets L</curr> to L</next> and delets L</next>
+the now current file and the last file are linked.
+tries to set L<url_current>
+
+returns: L<url_current> if set to the new url or C<1>
+
+=cut
+
 sub goto_next {
 	my $s = shift;
-	$s->{prev} = $s->curr;
+	$s->prev($s->curr);
 	return 0 unless ($s->next(@_) and $s->next->body());
 	$s->curr($s->next());	#next page becomes current
 	delete $s->{next};		#we delete original after copying
 	unless ($s->curr->file(0) eq $s->prev->file(-1)) { #connecting last strip of previous page with first strip of current page
 		$s->dat($s->curr->file(0),'prev',$s->prev->file(-1));
-		$s->prev->dat($s->prev->file(-1),'next',$s->curr->file(0));
+		$s->dat($s->prev->file(-1),'next',$s->curr->file(0));
 	}
 	return ($s->url_current($s->curr->url()) or 1); #we return the url if it was set as current or true
 }
 
+=head1 page accessing Methods
+
+=cut 
+
 { #page accessors
+
+=head2 curr
+
+	$s->curr($new_page_object_or_url)
+
+I<$new_page_object_or_url> changes curr to given page object or creates new object with given url.
+
+creates new page object with L<url_current> as url if undefined.
+
+returns: current page object
+
+=cut 
 
 sub curr {
 	my ($s,$ref) = @_;
@@ -124,21 +245,45 @@ sub curr {
 	return $s->{curr};
 }
 
+=head2 prev
+
+	$s->prev($new_page_object_or_url)
+
+I<$new_page_object_or_url> changes prev to given page object or creates new object with given url.
+
+creates new page object with current L<page/url_prev> as url if undefined.
+
+returns: previous page object
+
+=cut 
+
 sub prev { 
 	my ($s,$ref) = @_;
 	if ($ref) {
-		(ref($ref) eq "Page") ? 
-			$s->{prev} = $ref :
-			$s->{prev} = Page->new({"cmc" => $s,'url' => $ref});
+		if (ref($ref) eq "Page") {
+			$s->{prev} = $ref ;
+		} else {
+			$s->{prev} = Page->new({"cmc" => $s,'url' => $ref});}
 	}
 	return $s->{prev} if $s->{prev};
 
-	my $url =  $s->curr->url_prev();
-	($url) ?
-		$s->{prev} = Page->new({"cmc" => $s,'url' => $url}) :
-		$s->status("FEHLER kein prev: " . $s->curr->url,'ERR');
+	my ($url) =  $s->curr->url_prev();
+	if ($url) { $s->{prev} = Page->new({"cmc" => $s,'url' => $url}); }
+	else { $s->status("FEHLER kein prev: " . $s->curr->url,'ERR'); }
 	return $s->{prev};
 }
+
+=head2 next
+
+	$s->next($new_page_object_or_url)
+
+I<$new_page_object_or_url> changes next to given page object or creates new object with given url.
+
+gets new page with L</get_next_page> if no parameters given.
+
+returns: next page object
+
+=cut 
 
 sub next {
 	my ($s,$ref) = @_;
@@ -149,23 +294,94 @@ sub next {
 	}
 	return $s->{next} if $s->{next};
 	
-	my $url = $s->curr->url_next();
-	return unless $url;
-	if ($s->{visited_urls}->{$url}) {
-		my $flags = $s->usr('flags') // '';
-		$flags .= 'l' unless $flags =~ /l/;
-		$s->usr('flags',$flags);
-		return;
-	}
-	$s->{visited_urls}->{$url} = 1;
-	
-	$s->{next} = Page->new({"cmc" => $s,'url' => $url});
+	$s->{next} = $s->get_next_page();
 	return $s->{next};
 }
 
+=head2 get_next_page
+
+	$s->get_next_page();
+
+gets urls with L<curr/url_next> uses some logic and returns the next page object.
+
+returns: next page object
+
+database access: READ _I<comic>
+
+=cut 
+
+sub get_next_page {
+	my ($s) = shift;
+	my @urls = $s->curr->url_next();
+	return unless @urls;
+	{ #lets do some counting!
+	my %count;
+	my ($maxname, $maxvalue) = ('',0);
+	foreach my $url (@urls) {
+		$count{$url} ++;
+		if ($maxvalue < $count{$url}) {
+			$maxvalue = $count{$url};
+			$maxname = $url;
+		}
+	}#maxname should now be the url we have seen most and maxcount the number of times seen.
+	unshift(@urls,$maxname) if ($maxvalue > 1) # we add the most common value again, but this time at the beginning!
+	}
+	my %double;
+	my $first_nondummy_page;
+	url:foreach my $url (@urls) {
+		next if $double{$url};
+		$double{$url} = 1;
+		if ($s->{visited_urls}->{$url}) {
+			next;
+		}
+		#we check if there already is a strip with the next url. if so we check if the current url contains the previous strip of the next page. 
+		#short: we check if that next has this curr as that prev.
+		if (my $next_page_prev_strips = $s->dbh->selectcol_arrayref("SELECT prev from _" . $s->name . ' where url == "' . $url . '"')) {
+			my $no_link = 1;
+			foreach my $curr_strips (@{$s->curr->strips()}) {
+				my $curr_file = $s->curr->get_file_name($curr_strips);
+				foreach my $strip (@{$next_page_prev_strips}) {
+					 $no_link = 0 if ($strip eq $curr_file);
+				}
+			}
+			if ($no_link) {
+				$s->status("WARNING: found next ($url) that already exists and does not link back!",'WARN');
+				next(url);
+			}
+		}
+		my $tmp_page = Page->new({"cmc" => $s,'url' => $url});
+		$first_nondummy_page //= $tmp_page unless ($tmp_page->dummy());
+		my @tmp_prev = $tmp_page->url_prev();
+		foreach my $prev (@tmp_prev) {
+			if ($prev eq $s->curr->url()) { #if the page has a link back to the current page its a good bet that its realy the next page!
+				$s->{visited_urls}->{$url} = 1;
+				return $tmp_page;
+			}
+		}
+	}
+	#so we had no previous matches huh? what now? maybe we just return a page where we found a strip!
+	if ($first_nondummy_page) { #we can only do that if such a page exists!
+		$s->status("no next with matching prev link found! using page with strip found!",'WARN'); # but we emit a warning first!
+		$s->{visited_urls}->{$first_nondummy_page->url()} = 1; #and we also set the url as visited!
+		return $first_nondummy_page;
+	}
+	return undef; 
 }
 
+
+}
+
+=head1 archive Methods
+
+=cut
+
 { #archive wrapper
+
+=head2 url_next_archive
+
+uhh .. headache! (TODO)
+
+=cut
 
 sub url_next_archive {
 	my ($s) = @_;
@@ -190,6 +406,12 @@ sub url_next_archive {
 	return 0;
 }
 
+=head2 u_get_next_archive
+
+uhh .. headache! (TODO)
+
+=cut
+
 sub u_get_next_archive {
 	my $s = shift;
 	my @archives = @{$s->ar_get_archives()};
@@ -205,6 +427,12 @@ sub u_get_next_archive {
 	}	
 	return 0;
 }
+
+=head2 ar_get_archives
+
+uhh .. headache! (TODO)
+
+=cut
 
 sub ar_get_archives {
 	my $s = shift;
@@ -222,12 +450,36 @@ sub ar_get_archives {
 
 }
 
+=head1 accessor and utility Methods
+
+=cut
+
 { #accessors and utilitys
+
+=head2 dbh 
+	
+	$s->dbh();
+	
+returns: the database handle
+
+=cut
 
 sub dbh {
 	my $s = shift;
 	return $s->{dbh};
 }
+
+=head2 cfg 
+	
+	$s->cfg($key,$value);
+	
+loads config and sets defaults (L<class_change>)
+
+sets C<$key> to C<$value> if C<$value>
+
+returns: value of C<$key>
+
+=cut
 
 sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränderliche informationen die zum download der comics benötigt werden drinstehen
 	my $s = shift;
@@ -246,6 +498,18 @@ sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränd
 	$s->{config}->{$key} = $value if $value;
 	return $s->{config}->{$key};
 }
+
+=head2 class_change 
+	
+	$s->class_change();
+
+sets default config values for known hosts
+	
+returns: noting (useful)
+
+database access: READ _CONF, WRITE _CONF
+
+=cut
 
 sub class_change {
 	my $s = shift;
@@ -294,7 +558,7 @@ sub class_change {
 			$s->{config}->{worker} //= 0;
 			$s->{config}->{referer} //= '';
 			$s->{config}->{rename} //= q'url_only#^\D+$|^(\d\d_)?\d\d\.\w{3,4}$#/chapter\.(\d+)/page\.(\d+)/#';
-			$s->{config}->{never_goto} //= q#/end/#;
+			$s->{config}->{regex_never_goto} //= q#/end/#;
 		}
 		if ($s->{config}->{class} eq "anymanga") {
 			$s->{config}->{heur_strip_url} //= '/manga/[^/]+/\d+/\d+';
@@ -309,6 +573,22 @@ sub class_change {
 		}
 	}
 }
+
+=head2 usr 
+	
+	$s->usr($key,$value,$null);
+
+accesses the C<USER> table
+
+if C<$null> is true, sets $key for comic to C<NULL>
+
+if C<$value> is C<defined> updates/inserts C<$value>
+	
+returns: value of C<$key>
+
+database access: READ USER, WRITE USER
+
+=cut
 
 sub usr { #gibt die aktuellen einstellungen des comics aus # hier gehören die veränderlichen informationen rein, die der nutzer auch selbst bearbeiten kann
 	my $s = shift;
@@ -326,6 +606,22 @@ sub usr { #gibt die aktuellen einstellungen des comics aus # hier gehören die ve
 	return $s->dbh->selectrow_array(qq(select $key from USER where comic="$c"));
 }
 
+=head2 dat  
+	
+	$s->dat($strip,$key,$value,$null);
+
+accesses the C<_I<comic>> table
+
+if C<$null> is true, sets $key for C<$strip> to C<NULL> 
+
+if C<$value> is C<defined> updates/inserts C<$value>
+	
+returns: value of C<$key> where C<$strip>
+
+database access: READ _I<comic>, WRITE _I<comic>
+
+=cut
+
 sub dat { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu dem comic und seinen strips gespeichert
 	my $s = shift;
 	my ($strip,$key,$value,$null) = @_;
@@ -342,10 +638,28 @@ sub dat { #gibt die dat und die dazugehörige configuration des comics aus # hier
 	return $s->dbh->selectrow_array(qq(select $key from _$c where strip="$strip"));
 }
 
+=head2 name  
+	
+	$s->name();
+
+returns: name of the comic
+
+=cut
+
 sub name {
 	my $s = shift;
 	return $s->{name};
 }
+
+=head2 url_home  
+	
+	$s->url_home();
+	
+extracts C<url_home> from C<url_start>
+
+returns: C<url_home>
+
+=cut
 
 sub url_home {
 	my $s = shift;
@@ -360,14 +674,26 @@ sub url_home {
 	return $s->cfg('url_home');
 }
 
+=head2 url_current  
+	
+	$s->url_current($url);
+	
+C<$url> sets C<url_current> to C<$url> but makes sure that the formatting is correct 
+and we are not setting it to something we dont want to go to (not/never_gotos, main/index pages or pages without strips
+extracts C<url_current> from C<url_start> if necessesary
+	
+returns: C<url_current>
+
+=cut
+
 sub url_current {
 	my ($s,$url) = @_;
 	if ($url) {
 		my ($curl) = ($url =~ m#https?://[^/]+(/.*)$#i);
 		if ($curl) {
-			my $reNot_goto = $s->cfg("not_goto");
+			my $regex_not_goto = $s->cfg("regex_not_goto");
 			$s->{not_goto} = 1 if ( 
-				($reNot_goto and ($curl =~ m#$reNot_goto#i)) or 
+				($regex_not_goto and ($curl =~ m#$regex_not_goto#i)) or 
 				($curl =~ m#(index|main)\.(php|html?)$#i) or 
 				($curl =~ m:#$:) or
 				($curl =~ m:^/$:)
@@ -389,6 +715,22 @@ sub url_current {
 	return $url;
 }
 
+=head2 status
+
+	$s->status($status,$type,$addinfo);
+	
+C<$status> text to print to screen/log
+
+C<$typ> can be ERR (printed to error file log and screen), WARN, DEF, UINFO (screen and log) or DEBUG (log only)
+
+C<$addinfo> depreceated
+
+returns: C<1>
+
+database access: none
+
+=cut
+
 sub status {
 	my $s = shift;
 	my $status = shift;
@@ -408,6 +750,16 @@ sub status {
 	}
 	return 1;
 }
+
+=head2 release_pages
+
+	$s->release_pages();
+	
+deletes prev, curr and next (memory management)
+
+returns: nothing (useful) 
+
+=cut
 
 sub release_pages {
 	my $s = shift;

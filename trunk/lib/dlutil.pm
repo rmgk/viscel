@@ -1,5 +1,16 @@
 package dlutil;
+use 5.010;
 use strict;
+
+=head1 NAME
+
+dlutil - download utility
+
+=head1 DESCRIPTION
+
+provides download utility functions
+
+=cut
 
 our($ua,@EXPORT,@EXPORT_OK);
 
@@ -9,7 +20,11 @@ require Exporter;
 @EXPORT_OK = qw($ua);
 
 our($VERSION);
-$VERSION = '5';
+$VERSION = '6';
+
+=head1 functions
+
+=cut
 
 sub _init_ua {
 	require LWP;
@@ -25,14 +40,33 @@ sub _init_ua {
 	$ua->cookie_jar( {} );
 }	
 
+=head2 get
+
+	dlutil::get($url);
+	
+gets C<$url> and returns contents.
+
+returns: fetched content on success, errorcode otherwise.
+
+=cut
+
 sub get {
 	my $url = shift;
 	_init_ua() unless $ua;
-	
 	my $request = HTTP::Request->new(GET => $url);
 	my $response = $ua->request($request);
 	return $response->is_success ? $response->content : $response->code;
 }
+
+=head2 getref
+
+	dlutil::getref($url,$referer);
+	
+gets C<$url> with referer set to C<$referer> and returns contents. if C<$referer> is omitted it uses C<$url> as referer
+
+returns: fetched content on success, errorcode otherwise.
+
+=cut
 
 sub getref {
 	my($url, $referer) = @_;

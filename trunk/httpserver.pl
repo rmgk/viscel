@@ -33,7 +33,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.43';
+$VERSION = '2.44';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
@@ -811,6 +811,8 @@ create a I<favicon.ico> in the comcol main folder to set this as your favicon!
 
 you can give I<toRead=1>, I<count=1> and I<counted> as parameters to the index page displaying more statistic!
 
+goto L<http://127.0.0.1/pod> for documentation! you can also add C<?file=> to specify any file besides httpserver as POD source!
+
 =cut
 
 
@@ -823,11 +825,23 @@ stop reading here unless you want to understand strange behavior or possible bug
 
 sub cpod {
 	require Pod::Simple::HTML;
+	my $path;
+	given (param("file")) {
+		when(/comic3/) {$path = "comic3.pl"}
+		when(/comic/) {$path = "lib/comic.pm"}
+		when(/httpserver/) {$path = "httpserver.pl"}
+		when(/page/) {$path = "lib/page.pm"}
+		when(/dbutil/) {$path = "lib/dbutil.pm"}
+		when(/dlutil/) {$path = "lib/dlutil.pm"}
+		default {$path = "httpserver.pl"};
+	}
 	my $ret = kopf('POD') . start_div({-class=>'pod'});
 	my $parser = Pod::Simple::HTML->new();
+	$parser->perldoc_url_prefix("/pod?file=");
+	$parser->index(1);
 	$parser->bare_output(1);
 	$parser->output_string( \$ret );
-	$parser->parse_file( "httpserver.pl" );
+	$parser->parse_file($path);
 	return $ret . end_div() . end_html;
 }
 

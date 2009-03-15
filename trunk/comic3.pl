@@ -11,7 +11,7 @@ use Comic;
 use dbutil;
 
 our $VERSION;
-$VERSION = '83' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '84' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -118,11 +118,18 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 		
 		my ($domain) = $comics->{$comic}->{url_start} =~ m#(?:http://)?([^.]+\.[^.]+?)/#; #use domain name to exclude multi downloading
 		{	#if we run multiple instances of the programm we dont want two to process  the same comic
-			if ($dbh->selectrow_array(qq(select processing from CONFIG where processing == "$domain"))) {
+			my $time = $dbh->selectrow_array(qq(select time from CONFIG where processing == "$domain")) // 0;
+			if ($time) { 
 				say "\nskipped $comic: already downloading from '$domain'";
 				next comic;
 			}
-			$dbh->do(qq(insert into CONFIG (processing) values ("$domain")));
+			elsif ((time - $time)  < 60*60*2 ){ #is downloading for more than two ours
+				say "\ndownloading from '$domain' for more than two hours, likely crashed. overwriting.";
+				$dbh->do("update CONFIG set time = " .time . qq! where processing == "$domain"!);
+			}
+			else {
+				$dbh->do(qq!insert into CONFIG (processing,time) values ("$domain",! .time . ")" );
+			}
 		}
 		Comic::get_comic({"name" => $comic , "dbh"=> $dbh, "autocommit" => 1});
 		{	#unset processing when done
