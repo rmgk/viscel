@@ -30,7 +30,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '25';
+$VERSION = '26';
 
 =head1 general Methods
 
@@ -610,7 +610,8 @@ sub strip_urls {
 	else {
 		$surl = $s->try_get_strip_urls();
 	}
-	$s->status("STRIP_URLS ".$s->url.": ". ($surl?join(", ",@{$surl}):""),'DEBUG');
+	return unless $surl and @{$surl};
+	$s->status("STRIP_URLS ".$s->url.": ". join(", ",@{$surl}),'DEBUG');
 	return $surl;
 }
 
@@ -629,6 +630,7 @@ database access: none
 sub try_get_strip_urls {
 	my $s = shift;
 	my @urls = $s->concat_url($s->try_get_strip_urls_part());
+	return unless $urls[0];
 	return \@urls;
 }
 

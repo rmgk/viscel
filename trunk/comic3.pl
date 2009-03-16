@@ -11,7 +11,7 @@ use Comic;
 use dbutil;
 
 our $VERSION;
-$VERSION = '84' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+$VERSION = '85' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
 
 
 our $TERM = 0;
@@ -119,11 +119,11 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 		my ($domain) = $comics->{$comic}->{url_start} =~ m#(?:http://)?([^.]+\.[^.]+?)/#; #use domain name to exclude multi downloading
 		{	#if we run multiple instances of the programm we dont want two to process  the same comic
 			my $time = $dbh->selectrow_array(qq(select time from CONFIG where processing == "$domain")) // 0;
-			if ($time) { 
+			if ($time and ((time - $time)  < 60*60*2 )) { 
 				say "\nskipped $comic: already downloading from '$domain'";
 				next comic;
 			}
-			elsif ((time - $time)  < 60*60*2 ){ #is downloading for more than two ours
+			elsif ($time){ #is downloading for more than two ours
 				say "\ndownloading from '$domain' for more than two hours, likely crashed. overwriting.";
 				$dbh->do("update CONFIG set time = " .time . qq! where processing == "$domain"!);
 			}

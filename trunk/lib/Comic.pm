@@ -28,7 +28,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '29';
+$VERSION = '30';
 
 =head1	General Methods
 
@@ -337,17 +337,22 @@ sub get_next_page {
 		#we check if there already is a strip with the next url. if so we check if the current url contains the previous strip of the next page. 
 		#short: we check if that next has this curr as that prev.
 		if (my $next_page_prev_strips = $s->dbh->selectcol_arrayref("SELECT prev from _" . $s->name . ' where url == "' . $url . '"')) {
+		if (@{$next_page_prev_strips}) { #we dont need to check anything if the next page has no strips!
 			my $no_link = 1;
+			say "next prev? $next_page_prev_strips";
 			foreach my $curr_strips (@{$s->curr->strips()}) {
+				say "curr : $curr_strips";
 				my $curr_file = $s->curr->get_file_name($curr_strips);
 				foreach my $strip (@{$next_page_prev_strips}) {
-					 $no_link = 0 if ($strip eq $curr_file);
+					say "$strip equals $curr_file ?";
+					$no_link = 0 if ($strip eq $curr_file);
 				}
 			}
 			if ($no_link) {
 				$s->status("WARNING: found next ($url) that already exists and does not link back!",'WARN');
 				next(url);
 			}
+		}
 		}
 		my $tmp_page = Page->new({"cmc" => $s,'url' => $url});
 		$first_nondummy_page //= $tmp_page unless ($tmp_page->dummy());
