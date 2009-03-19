@@ -123,6 +123,7 @@ sub kopf {
 							-head=>[
 									Link({-rel=>"stylesheet", -type=>"text/css", -href=>"/style.css"}),
 									Link({-rel=>'index',	-href=>"/"	})			,
+									Link({-rel=>'help',		-href=>"/pod"})			,
                             $next ?	Link({-rel=>'next',		-href=>$next})	: undef	,
                             $prev ?	Link({-rel=>'previous',	-href=>$prev})	: undef	,
 							$first?	Link({-rel=>'first',	-href=>$first})	: undef	,
