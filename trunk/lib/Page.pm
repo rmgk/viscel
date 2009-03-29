@@ -30,7 +30,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '28';
+$VERSION = '29';
 
 =head1 general Methods
 
@@ -612,7 +612,7 @@ sub strip_urls {
 	}
 	return unless $surl and @{$surl};
 	if (my $re_ignore = $s->cfg("regex_ignore_strip")) {
-		@{$surl} = grep {$_ =~ m#$re_ignore#i} @{$surl}; #we can ignore special srips, like 404 pages ore other placeholders
+		@{$surl} = grep {$_ !~ m#$re_ignore#i} @{$surl}; #we can ignore special srips, like 404 pages or other placeholders
 	}
 	$s->status("STRIP_URLS ".$s->url.": ". join(", ",@{$surl}),'DEBUG');
 	return $surl;
