@@ -30,7 +30,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '29';
+$VERSION = '30';
 
 =head1 general Methods
 
@@ -529,7 +529,7 @@ sub try_get_side_url_parts {
 		if ($fil =~ m#prev|back|prior#i) {
 			if ($fil =~ $re_link) {
 				my $tmp_url = $+{link};
-				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i) or
+				next if ((($tmp_url!~m#\.\w{3,4}\?#i) and ($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i)) or
 						(($tmp_url =~ m#http://#i) and !(
 							($tmp_url =~ m#$url_home#i))));
 				push (@prev, $tmp_url);
@@ -538,7 +538,7 @@ sub try_get_side_url_parts {
 		if ($fil =~ m#next|forward|ensuing#i) {
 			if ($fil =~ $re_link) {
 				my $tmp_url = $+{link};
-				next if (($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i) or
+				next if ((($tmp_url!~m#\.\w{3,4}\?#i) and ($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i)) or
 						(($tmp_url =~ m#http://#i) and !(
 							($tmp_url =~ m#$url_home#i))));
 				push (@next, $tmp_url);
@@ -613,6 +613,10 @@ sub strip_urls {
 	return unless $surl and @{$surl};
 	if (my $re_ignore = $s->cfg("regex_ignore_strip")) {
 		@{$surl} = grep {$_ !~ m#$re_ignore#i} @{$surl}; #we can ignore special srips, like 404 pages or other placeholders
+	}
+	if (my $subs = $s->cfg("substitute_strip_url")) {
+		my ($re_substitute,$substitute) = split(/#/,$subs,2);
+		@{$surl} = map {$_ =~ s#$re_substitute#substitute#i} @{$surl}; #if we really have to change a strip url, we can do so
 	}
 	$s->status("STRIP_URLS ".$s->url.": ". join(", ",@{$surl}),'DEBUG');
 	return $surl;
