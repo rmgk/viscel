@@ -616,8 +616,8 @@ sub strip_urls {
 	}
 	if (my $subs = $s->cfg("substitute_strip_url")) {
 		my ($re_substitute,$substitute) = split(/#/,$subs,2);
-		@{$surl} = map {$_ =~ s#$re_substitute#substitute#i} @{$surl}; #if we really have to change a strip url, we can do so
-	}
+ 		@{$surl} = map {$_ =~ s#$re_substitute#$substitute#i;$_} @{$surl}; #if we really have to change a strip url, we can do so
+		}
 	$s->status("STRIP_URLS ".$s->url.": ". join(", ",@{$surl}),'DEBUG');
 	return $surl;
 }
