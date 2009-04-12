@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#17:31 06.10.2008
+#22:12 11.04.2009
 package Comic;
 
 use 5.010;

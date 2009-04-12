@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#18:47 03.10.2008
-
+#22:12 11.04.2009
 package Page;
 
 use 5.010;
 use strict;
 use warnings;
+
 
 =head1 NAME
 
@@ -30,7 +30,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '30';
+$VERSION = '31';
 
 =head1 general Methods
 
@@ -237,8 +237,8 @@ sub title {
 	my $ut = ("['" . join("','",@ut) . "']") if @ut;
 	my $h1 = ("['" . join("','",@h1) . "']") if @h1;
 	my $dt = ("['" . join("','",@dt) . "']") if @dt;
-	$ut //= ''; $st //= '';	$it //= '';	$ia //= '';	$h1 //= '';	$dt //= ''; $st //= '';
-	my $title_string = "{ut=>q($ut),st=>q($st),it=>q($it),ia=>q($ia),h1=>q($h1),dt=>q($dt),st=>q($st)}";
+	$ut //= ''; $st //= '';	$it //= '';	$ia //= '';	$h1 //= '';	$dt //= ''; $sl //= '';
+	my $title_string = "{ut=>q($ut),st=>q($st),it=>q($it),ia=>q($ia),h1=>q($h1),dt=>q($dt),sl=>q($sl)}";
 
 	$s->cmc->{sqlstr_title_update} //= $s->cmc->dbh->prepare('update _'.$s->name .' set title=?,url=?,surl=?,c_version=?,time=? where strip == ?');
 	if($s->cmc->{sqlstr_title_update}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file) < 1) {

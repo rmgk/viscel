@@ -1,6 +1,11 @@
+#!/usr/bin/perl
+#this program is free software it may be redistributed under the same terms as perl itself
+#22:11 11.04.2009
 package dlutil;
+
 use 5.010;
 use strict;
+use warnings;
 
 =head1 NAME
 

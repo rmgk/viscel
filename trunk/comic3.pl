@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#17:16 06.10.2008
+#22:12 11.04.2009
 
+use 5.010;
 use strict;
 use warnings;
-use feature qw(say switch);
 use lib "./lib";
 use DBI;
 use Comic;

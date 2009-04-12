@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#17:15 06.10.2008
-
+#22:12 11.04.2009
 
 use 5.010;
 use strict;
@@ -28,12 +27,12 @@ use HTTP::Status;
 use CGI qw(:standard *table :html3 *div gradient);
 use DBI;
 use Data::Dumper; #this is for pretty printing the custom query output
-use Time::HiRes; #requests of about 0.005 seconds cant be measured in full seconds
+use Time::HiRes; #requests of about 0.005 seconds can't be measured in full seconds
 use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.44';
+$VERSION = '2.45';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
@@ -118,21 +117,27 @@ sub kopf {
 	my $next = shift;
 	my $first = shift;
 	my $last = shift;
+	my $prefetch = shift;
+	my $javascript = shift;
 	
-	return start_html(-title=>$title. " - ComCol ht $VERSION" ,
-							-head=>[
-									Link({-rel=>"stylesheet", -type=>"text/css", -href=>"/style.css"}),
+	return start_html(	-title=>$title. " - ComCol ht $VERSION" ,
+						-style=>"/style.css",
+						-head=>[
+									#Link({-rel=>"stylesheet", -type=>"text/css", -href=>}),
 									Link({-rel=>'index',	-href=>"/"	})			,
 									Link({-rel=>'help',		-href=>"/pod"})			,
-                            $next ?	Link({-rel=>'next',		-href=>$next})	: undef	,
-                            $prev ?	Link({-rel=>'previous',	-href=>$prev})	: undef	,
+							$next ?	Link({-rel=>'next',		-href=>$next})	: undef	,
+							$prev ?	Link({-rel=>'previous',	-href=>$prev})	: undef	,
 							$first?	Link({-rel=>'first',	-href=>$first})	: undef	,
 							$last ?	Link({-rel=>'last',		-href=>$last})	: undef	,
-									]);
+						$prefetch ?	Link({-rel=>'prefetch',	-href=>$prefetch})	: undef	,
+								],
+							$javascript ? ("-onload"=>"$javascript") : undef, 
+						);
 }
 
 sub preview_head { #some javascript to have a nice preview of image links your hovering
-	return q(
+	my $js =  q(
 <div id="prevbox"> </div>
 <script type="text/javascript">
 var preview = document.getElementById("prevbox");
@@ -146,6 +151,9 @@ function hideIMG () {
 }
 </script>
 );
+$js =~ s/\s+/ /gs;
+return "\n$js\n";
+
 }
 
 
@@ -181,26 +189,30 @@ Tools include:
 
 sub cindex {
 	my $ret = &kopf("Index",0,"/tools?tool=random");
-	my $i = 0;
 	my @tag = param('tag');
-	$ret .= div({-id=>"menu"},
-		"Tools:" . br 
-			#.	a({-href=>"/tools?tool=config",-accesskey=>'c',-title=>'config'},"Configuration") . br 
-			#.	a({-href=>"/tools?tool=user",-accesskey=>'u',-title=>'user'},"User Config"). br 
-			.	a({-href=>"/tools?tool=query",-accesskey=>'q',-title=>'query'},"Custom Query"). br 
-			.	a({-href=>"/tools?tool=filter",-accesskey=>'f',-title=>'filter'},"Custom Contents"). br 
-			.	a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random'},"Random Comic"). br 
-			.	br .
-		"Contents:" . br .
-		join("",map { a({href=>"#$_",-accesskey=>$i++,-title=>$_},$_) . br} (qw(continue other finished stopped),&filter))
-		. br. "Color Scale:" .br.
-		 join("",map {div({-style=>"color:#".colorGradient(log($_),10)},$_ )} (10000,5000,2000,1000,500,200,100,50,10,1))
-		 .br . "Tags:" .br.
-		 a({-href=>"/"},'Any Tag') . br .
-		 join("",map {a({-href=>"/?tag=$_".join("",map {"&tag=$_"} (@tag)) },$_) . br} (tags()))
-		);	
+	$ret .= start_div({-id=>"menu"});
+	$ret .=	"Tools:" . br 
+				#.	a({-href=>"/tools?tool=config",-accesskey=>'c',-title=>'config'},"Configuration") . br 
+				#.	a({-href=>"/tools?tool=user",-accesskey=>'u',-title=>'user'},"User Config"). br 
+				.	a({-href=>"/tools?tool=query",-accesskey=>'q',-title=>'query'},"Custom Query"). br 
+				.	a({-href=>"/tools?tool=filter",-accesskey=>'f',-title=>'filter'},"Custom Contents"). br 
+				.	a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random'},"Random Comic"). br ;
+				
+	my $i = 1;
+	$ret .=	br . "Contents:" . br .
+				join("",map { a({href=>"#$_",-accesskey=>$i++,-title=>$_},$_) . br} (qw(continue other finished stopped),&filter));
+				 
+	$ret .=	br . "Tags:" . br .
+				 a({-href=>"/"},'Any Tag') . br .
+				 join("",map {a({-href=>"/?tag=$_".join("",map {"&tag=$_"} (@tag)) },$_) . br} (tags()));	
+				 
+	$ret .=	br . "Color Scale:" .br.
+				 join("",map {div({-style=>"color:#".colorGradient(log($_),10)},$_ )} (10000,5000,2000,1000,500,200,100,50,10,1)) . br;
+		 
+	$ret .= end_div(); 
 	
 	$ret .= &preview_head();
+	
 	my $cmcs = $dbh->selectall_hashref("select * from user",'comic');
 	my $tagcheck = '1';
 	$tagcheck = join(' and ',map {"tags like '%$_%'"} (@tag)) if @tag;
@@ -252,18 +264,43 @@ sub html_comic_listing {
 		my $mul = $toRead{$comic};
 		$mul = log($mul) if $mul;
 		
-		$ret .= Tr([
-			td([
-			a({-href=>"/front?comic=$comic",-class=>($broken{$comic}?'broken':'comic'),-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;"},$comic) ,
-			$usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
-			$usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
-			$usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
-			($usr->{'aktuell'} and $usr->{'last'} and ($usr->{'aktuell'} eq $usr->{'last'})) ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
-			param('toread')? $toRead{$comic} :undef, 
-			param('count')?$usr->{'strip_count'}:undef,
-			param('counted')?$usr->{'strips_counted'}:undef,
-			])
-		]);
+		
+		my ($first,$current,$bookmark,$last) = ($usr->{'first'},$usr->{'aktuell'},$usr->{'bookmark'},$usr->{'last'});
+		my $cmc_str = td(a({-href=>"/comics?comic=$comic&strip=%s",-onmouseout=>"hideIMG();",
+						-onmouseover=>"showImg('/strips/$comic/%s')"},"%s"));
+		
+		$ret .= "<tr>";
+		$ret .= td(a({-href=>"/front?comic=$comic",-class=>($broken{$comic}?'broken':'comic'),
+			-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;"},$comic));
+			
+		$ret .= $first	 ?	sprintf($cmc_str , $first	 , $first	 , '|&lt;&lt;')  :td();
+		$ret .= $current ?	sprintf($cmc_str , $current	 , $current	 , '&gt;&gt;' )  :td();
+		$ret .= $bookmark?	sprintf($cmc_str , $bookmark , $bookmark , '||'		  )  :td();
+		
+		if ($current and $last and ($current eq $last)) {
+			$ret .=	td('&gt;&gt;|');
+		}
+		elsif ($last) {
+			$ret .= sprintf($cmc_str, $last ,$last , '&gt;&gt;|');
+		}
+		$ret .= td(toRead{$comic}) if param('toread');
+		$ret .= td($usr->{'strip_count'}) if param('count');
+		$ret .= td($usr->{'strips_counted'}) if param('counted');
+		
+		$ret .= "</tr>";
+		
+		# $ret .= Tr([
+			# td([
+			# a({-href=>"/front?comic=$comic",-class=>($broken{$comic}?'broken':'comic'),-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;"},$comic) ,
+			# $usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
+			# $usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
+			# $usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
+			# ($usr->{'aktuell'} and $usr->{'last'} and ($usr->{'aktuell'} eq $usr->{'last'})) ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
+			# param('toread')? $toRead{$comic} :undef, 
+			# param('count')?$usr->{'strip_count'}:undef,
+			# param('counted')?$usr->{'strips_counted'}:undef,
+			# ])
+		# ]);
 	}
 	return $ret . end_table . end_div;
 }
@@ -277,7 +314,7 @@ sub colorGradient {
 		return "${r}ff00";
 	}
 	if ($col<1) {
-		my $g = sprintf "%x", (1-$col) * 255 * 2;
+		my $g = sprintf "%02x", (1-$col) * 255 * 2;
 		return "ff${g}00";
 	}
 	return "ffffff";
@@ -303,39 +340,55 @@ sub cfront {
 					&usr($comic,'first') ?"/comics?comic=$comic&strip=".&usr($comic,'first') :"0",
 					&usr($comic,'last' ) ?"/comics?comic=$comic&strip=".&usr($comic,'last' ) :"0",
 					);
-	$ret .= div({-class=>'frontpage'},
-				h2($comic),
-				&usr($comic,'bookmark')?(
-					a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},
-						img({-class=>"front3",-id=>'first',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
-					a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},
-						img({-class=>"front3",-id=>'last',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"})),
-					a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),-accesskey=>'n',-title=>'bookmarked strip'},
-						img({-class=>"front3",-id=>'bookmark',-src=>"/strips/$comic/".&usr($comic,'bookmark'),-alt=>"bookmark"}))  ,
-					):(
-					a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},
-						img({-class=>"front2",-id=>'first',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"})) ,
-					a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},
-						img({-class=>"front2",-id=>'last',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}))
-					)
-				,
-				start_div({-class=>"navigation"}),
-				&usr($comic,'aktuell')?a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),-accesskey=>'c',-title=>'last read strip',
-				-onmouseover=>"document.getElementById('bookmark').src='/strips/$comic/".&usr($comic,'aktuell')."'",
+					
+	$ret .= start_div({-class=>'frontpage'});
+	$ret .=		h2($comic);
+	
+	if(&usr($comic,'bookmark')) {	#if a bookmark is set we display 3 strips at once.
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},
+				img({-class=>"front3",-id=>'first',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"}));
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},
+				img({-class=>"front3",-id=>'last',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}));
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),-accesskey=>'n',-title=>'bookmarked strip'},
+				img({-class=>"front3",-id=>'bookmark',-src=>"/strips/$comic/".&usr($comic,'bookmark'),-alt=>"bookmark"}));
+	} 
+	else { #if not we just display two
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},
+				img({-class=>"front2",-id=>'first',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"}));
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},
+				img({-class=>"front2",-id=>'last',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}));
+	};
+					
+	$ret .=		start_div({-class=>"navigation"});
+	
+	if (&usr($comic,'aktuell')) {
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell'),-accesskey=>'c',-title=>'last read strip',
+				-onmouseover =>"document.getElementById('bookmark').src='/strips/$comic/".&usr($comic,'aktuell')."'",
 				-onmouseout =>"document.getElementById('bookmark').src='/strips/$comic/".&usr($comic,'bookmark')."'"
-				},'current') . br : undef,
-				a({-href=>"/",-accesskey=>'i',-title=>'Index'},"Index"),
-				a({-href=>"/comics?comic=$comic",-accesskey=>'s',-title=>'striplist'},"Striplist"),
-				a({href=>"/tools?tool=cataflag&comic=$comic",-accesskey=>'c',-title=>'categorize'},'Categorize'),
-				br,
-				usr($comic,'strip_count'),usr($comic,'strips_counted'),
-				a({href=>"/tools?tool=datalyzer&comic=$comic",-accesskey=>'d',-title=>'datalyzer'},'datalyzer'),
-				a({href=>"/tools?tool=user&comic=$comic",-accesskey=>'u',-title=>'user'},'user'),
-				$broken{$comic} ? "broken" : undef ,br,
-				"tags: " ,tags($comic) ,
-				$random? br. a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random strip'},"Random"):undef,
-				end_div
-			);
+				},'current') . br;
+	}
+	
+	$ret .=		a({-href=>"/",-accesskey=>'i',-title=>'Index'},"Index").' '.
+				a({-href=>"/comics?comic=$comic",-accesskey=>'s',-title=>'striplist'},"Striplist").' '.
+				a({href=>"/tools?tool=cataflag&comic=$comic",-accesskey=>'c',-title=>'categorize'},'Categorize').
+				br;
+	$ret .=		usr($comic,'strip_count') .' '. usr($comic,'strips_counted').' '.
+				a({href=>"/tools?tool=datalyzer&comic=$comic",-accesskey=>'d',-title=>'datalyzer'},'datalyzer').' '.
+				a({href=>"/tools?tool=user&comic=$comic",-accesskey=>'u',-title=>'user'},'user'). br;
+				
+	if ($broken{$comic}) {
+		$ret .= "broken " 
+	}
+	
+
+	$ret .= "tags: " . join(" ",tags($comic)) if tags($comic);
+	
+	if ($random) {
+		$ret .= br. a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random strip'},"Random");
+	}
+	
+	$ret .=		end_div;
+	$ret .=		end_div();
 	
 	return $ret . end_html;
 }
@@ -359,8 +412,8 @@ sub ccomic {
 	return $ret . "no comic defined" unless $comic;
 	
 	if ($strip) {
-		my $return;
-		my $title = &dat($comic,$strip,'title');
+		my $ret;
+		my $title = &dat($comic,$strip,'title') // '';
 		my @titles = split(' !§! ',$title);
 		$title =~ s/-§-//g;
 		$title =~ s/!§!/|/g;
@@ -369,35 +422,65 @@ sub ccomic {
 		$strip =~ s/%7C/|/ig;
 		$strip =~ s/ /%20/ig;
 		
-		$return = &kopf($title,
-					&dat($comic,$strip,'prev')	?"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev')	:"0",
-					&dat($comic,$strip,'next')	?"/comics?comic=$comic&strip=".&dat($comic,$strip,'next')	:"0",
-					&usr($comic,'first')		?"/comics?comic=$comic&strip=".&usr($comic,'first')			:"0",
-					&usr($comic,'last')			?"/comics?comic=$comic&strip=".&usr($comic,'last')			:"0",
+		my ($prev,$next,$first,$last) = (&dat($comic,$strip,'prev'),&dat($comic,$strip,'next'),&usr($comic,'first'),&usr($comic,'last'));
+		
+		$ret = &kopf($title,
+					$prev  ?"/comics?comic=$comic&strip=" . $prev :"0",
+					$next  ?"/comics?comic=$comic&strip=" . $next :"0",
+					$first ?"/comics?comic=$comic&strip=" . $first:"0",
+					$last  ?"/comics?comic=$comic&strip=" . $last :"0",
+					"/strips/$comic/$next", #prefetch
+					$next  ?qq#(new Image()).src = '/strips/$comic/$next'#:"0",
 					);
-		$return .= div({-class=>"comic"},
-				h3($title),
-				(-e "./strips/$comic/$strip") ? 
-					img({-src=>"/strips/$comic/$strip",-title=>($titles[2]//''),-alt=>($titles[3]//'')}) :
-					$strip!~m/^dummy/ ? 
-						img({-src=>&dat($comic,$strip,'surl'),-title=>($titles[2]//''),-alt=>($titles[3]//'')}).br.
-						a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)") :
-						"This page is a dummy. Errors are likely",
-				start_div({-class=>"navigation"}),
-				&dat($comic,$strip,'prev')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'prev'),-accesskey=>'v',-title=>'previous strip'},'&lt;&lt;'):undef,
-				&dat($comic,$strip,'next')?a({-href=>"/comics?comic=$comic&strip=".&dat($comic,$strip,'next'),-accesskey=>'n',-title=>'next strip'},'&gt;&gt;'):undef,
-				br,
-				&dat($comic,$strip,'next')?a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r",-accesskey=>'d',-title=>'pause reading this comic'},"pause"):
-				flags($comic)->{c} ? a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=rcf",-accesskey=>'d',-title=>'finish reading this comic'},"finish"):
-				a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r",-accesskey=>'d',-title=>'pause reading this comic'},"pause")
-				,
-				a({-href=>"/front?comic=$comic",-accesskey=>'f',-title=>'frontpage'},"front"),
-				&dat($comic,$strip,'url')?a({-href=>&dat($comic,$strip,'url'),-accesskey=>'s',-title=>'original strip site'},"site"):undef,
-				end_div
-				);
+					
+		$ret .= start_div({-class=>"comic"});
+		
+		$ret .= h3($title);
+		
+		if (-e "./strips/$comic/$strip") { 
+			$ret .= img({-src=>"/strips/$comic/$strip",-title=>($titles[2]//''),-alt=>($titles[3]//'')});
+		}
+		elsif ($strip!~m/^dummy/) {
+			$ret .= img({-src=>&dat($comic,$strip,'surl'),-title=>($titles[2]//''),-alt=>($titles[3]//'')}).br.
+					a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)");
+		}
+		else {
+			$ret .= "This page is a dummy. Errors are likely";
+		}
+		
+		
+		$ret .=start_div({-class=>"navigation"});
+		
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".$prev,
+				-title=>'previous strip',-accesskey=>'v'},'&lt;&lt; ') if $prev;
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".$next,
+				-title=>'next strip',-accesskey=>'n'},'&gt;&gt; ') if $next;
+
+		$ret .= br;
+		if ($next) {
+			$ret .= a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r",
+					-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
+		}
+		elsif (flags($comic)->{c}) {
+			$ret .= a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=rcf",
+					-accesskey=>'d',-title=>'finish reading this comic'},"finish ");	
+		}
+		else {
+			$ret .= a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r",
+					-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
+		}
+		$ret .= a({-href=>"/front?comic=$comic",
+				-accesskey=>'f',-title=>'frontpage'},"front ");			
+				
+		$ret .= a({-href=>&dat($comic,$strip,'url'),
+				-accesskey=>'s',-title=>'homepage of the strip'},"site ") if &dat($comic,$strip,'url');	
+				
+		$ret .=end_div;
+		$ret .= end_div;
+		
 		&usr($comic,'aktuell',$strip) unless ($random or $strip=~m/^dummy/);
 		&usr($comic,'bookmark',$strip) if param('bookmark');
-		return $return . end_html;
+		return $ret . end_html;
 	}
 	else {
 		my $list;
@@ -408,9 +491,10 @@ sub ccomic {
 		
 		
 		#we save this string cause we need it really often, so we can save some processing time :)
-		my $strip_str = div({-class=>"striplist"},img({-src=>"%s"}) . #the img is normally hidden by the strylesheet
-			a({-href=>"%s",-onmouseout=>"hideIMG();",-onmouseover=>"showImg('%s')",}, "%s"));
-			
+		my $strip_str = div({-class=>"striplist"},img({-src=>"/strips/$comic/%s"}) . #the img is normally hidden by the strylesheet
+			a({-href=>"/comics?comic=$comic&strip=%s",-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/%s')",}, "%s"));
+		
+		
 		for (my $i = 1;defined $dat->{$i};$i++) {
 
 			my $title = $dat->{$i}->{'title'} // '';
@@ -418,9 +502,9 @@ sub ccomic {
 			$title =~ s/!§!/|/g;
 			$title =~ s/~§~/~/g;	
 			$list .= sprintf $strip_str,
-				"/strips/$comic/$dat->{$i}->{strip}", #direct img url
-				"./comics?comic=$comic&strip=$dat->{$i}->{strip}", #strip page url
-				"/strips/$comic/$dat->{$i}->{strip}", #direct img url
+				$dat->{$i}->{strip}, #direct img url
+				$dat->{$i}->{strip}, #strip page url
+				$dat->{$i}->{strip}, #direct img url
 				"$i : $dat->{$i}->{strip} : $title"; #strip title
 		}
 		$list .= end_html;

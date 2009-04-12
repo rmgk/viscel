@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-#17:58 22.10.2008
-
+#22:12 11.04.2009
 package dbutil;
 
 use 5.010;
