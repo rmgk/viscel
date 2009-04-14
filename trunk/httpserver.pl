@@ -430,7 +430,7 @@ sub ccomic {
 					$first ?"/comics?comic=$comic&strip=" . $first:"0",
 					$last  ?"/comics?comic=$comic&strip=" . $last :"0",
 					"/strips/$comic/$next", #prefetch
-					$next  ?qq#(new Image()).src = '/strips/$comic/$next'#:"0",
+					$next  ?qq#(new Image()).src = '/strips/$comic/$next'#:"0", #more prefetch .. 
 					);
 					
 		$ret .= start_div({-class=>"comic"});

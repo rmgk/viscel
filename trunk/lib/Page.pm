@@ -30,7 +30,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '31';
+$VERSION = '32';
 
 =head1 general Methods
 
@@ -690,7 +690,7 @@ sub try_get_strip_urls_part {
 	foreach my $img (@{$imgs}) {
 		my $url = $img->{src};
 		next unless defined $url;
-		if ((defined $img->{width} and $img->{width} < 21) or (defined $img->{height} and $img->{height} < 21)) {
+		if ((defined $img->{width} and $img->{width} < 51) or (defined $img->{height} and $img->{height} < 51)) {
 			next;
 		}
 		if (defined $s->cfg('heur_strip_url')) {
