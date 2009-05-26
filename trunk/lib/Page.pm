@@ -650,7 +650,7 @@ sub try_get_strip_urls {
 
 	$s->try_get_strip_urls_part();
 	
-searches L<body> for strip urls. filters images smaller than 21 pixel in width or height. 
+searches L<body> for strip urls. filters images smaller than 51 pixel in width or height. 
 uses other filters operating on the found img src strings. and removes duplicates found.
 
 returns: a array ref with parts of the strip urls

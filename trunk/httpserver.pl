@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.45';
+$VERSION = '2.46';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
@@ -45,7 +45,7 @@ $dbh->func(300000,'busy_timeout'); #we dont want to timeout (timeout happens if 
 my %broken; #we save all the comics marked as broken in comic.ini here
 my %rand_seen; #this is for remembering which comics we already selected randomly
 my @db_cache = ('','','',''); #i often need to get a value multiple times, so we safe the last value for each request as an element of this array
-my $measure_time = 0; #set this to one to get some info on request time
+my $measure_time = $ARGV[0]; #set this to one to get some info on request time
 my $css; #we save our style sheet in here
 
 
@@ -188,7 +188,7 @@ Tools include:
 
 
 sub cindex {
-	my $ret = &kopf("Index",0,"/tools?tool=random");
+	my $ret = &kopf("Index");
 	my @tag = param('tag');
 	$ret .= start_div({-id=>"menu"});
 	$ret .=	"Tools:" . br 
