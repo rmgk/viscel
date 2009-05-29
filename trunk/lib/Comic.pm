@@ -28,7 +28,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '30';
+$VERSION = '31';
 
 =head1	General Methods
 
@@ -316,15 +316,18 @@ sub get_next_page {
 	return unless @urls;
 	{ #lets do some counting!
 	my %count;
-	my ($maxname, $maxvalue) = ('',0);
+	my @tmp_urls;
+	#my ($maxname, $maxvalue) = ('',0);
 	foreach my $url (@urls) {
 		$count{$url} ++;
-		if ($maxvalue < $count{$url}) {
-			$maxvalue = $count{$url};
-			$maxname = $url;
-		}
+		push (@tmp_urls,$url)if ($count{$url} == 1); #we need the url just once
+		#if ($maxvalue < $count{$url}) {
+		#	$maxvalue = $count{$url};
+		#	$maxname = $url;
+		#}
 	}#maxname should now be the url we have seen most and maxcount the number of times seen.
-	unshift(@urls,$maxname) if ($maxvalue > 1) # we add the most common value again, but this time at the beginning!
+	#unshift(@urls,$maxname) if ($maxvalue > 1) # we add the most common value again, but this time at the beginning!
+	@urls = sort {$count{$a} <=> $count{$b}} @tmp_urls; #we sort the array according to the number of counts
 	}
 	my %double;
 	my $first_nondummy_page;
