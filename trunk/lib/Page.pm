@@ -574,7 +574,7 @@ sub strips {
 	unless ($s->{strips}->[0]) {
 		$s->{strips}->[0] =  "dummy_" . time . "_" . int rand 1e10;
 		$s->{dummy} = 1;
-		$s->status("KEINE STRIPS: ".$s->url,'WARN')
+		$s->status("NO STRIPS: ".$s->url,'WARN')
 	}
 	return $s->{strips};
 }

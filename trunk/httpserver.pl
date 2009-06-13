@@ -39,7 +39,7 @@ die "could not listen on port 80 - someones listening there already?" unless $d;
 
 my $res = HTTP::Response->new( 200, 'success', ['Content-Type','text/html; charset=iso-8859-1']); #our main response
 my $rescss = HTTP::Response->new( 200, 'success', ['Content-Type','text/css; charset=iso-8859-1']); #response for style
-my %index;
+#my %index;
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 $dbh->func(300000,'busy_timeout'); #we dont want to timeout (timeout happens if comic3.pl and httpserver.pl are run at the same time)
 my %broken; #we save all the comics marked as broken in comic.ini here
