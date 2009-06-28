@@ -34,6 +34,7 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 {
 	my $comics = dbutil::readINI('comic.ini');
 	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
+	#$dbh->{Profile} = "6/DBI::ProfileDumper";
 	$dbh->func(300000,'busy_timeout');
 	dbutil::check_table($dbh,'USER');
 	dbutil::check_table($dbh,'CONFIG');

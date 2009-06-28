@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.46';
+$VERSION = '2.47';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
@@ -48,6 +48,7 @@ my @db_cache = ('','','',''); #i often need to get a value multiple times, so we
 my $measure_time = $ARGV[0]; #set this to one to get some info on request time
 my $css; #we save our style sheet in here
 
+# $dbh->{Profile} = 6 if $measure_time;
 
 #if we are processing something, we dont want to update!
 if ($dbh->selectrow_array(qq(select processing from CONFIG where processing is not null and processing not like "")))  {
@@ -262,7 +263,8 @@ sub html_comic_listing {
 	foreach my $comic ( sort {$toRead{$b} <=> $toRead{$a}} @{$comics}) {
 		my $usr = $user->{$comic};
 		my $mul = $toRead{$comic};
-		$mul = log($mul) if $mul;
+
+		$mul = ($mul > 0) ? log($mul) : $mul;
 		
 		
 		my ($first,$current,$bookmark,$last) = ($usr->{'first'},$usr->{'aktuell'},$usr->{'bookmark'},$usr->{'last'});

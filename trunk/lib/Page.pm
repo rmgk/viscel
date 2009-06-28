@@ -1001,7 +1001,7 @@ sub _concat_url {
 	return unless $url_part;
 	$url_part =~ s!([^&])&amp;|&#038;!$1&!gs;
 	return if ($url_part eq '#');
-	if ($s->cfg('use_home_only')) {
+	if ($s->cfg('use_home_only') and ($url_part !~ m#^https?://#i)) {
 		$url_part =~ s'^[\./]+'';
 		$url_part = "/" . $url_part;
 	}
