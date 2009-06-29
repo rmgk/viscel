@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.47';
+$VERSION = '2.48';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
@@ -440,7 +440,13 @@ sub ccomic {
 		$ret .= h3($title);
 		
 		if (-e "./strips/$comic/$strip") { 
-			$ret .= img({-src=>"/strips/$comic/$strip",-title=>($titles[2]//''),-alt=>($titles[3]//'')});
+			if ($strip =~ m#.swf$#i) {
+				$ret .= embed({-src=>"./strips/$comic/$strip",-quality=>'high',-type=>'application/x-shockwave-flash',-width=>'800',-height=>'800'});
+			}
+			else {
+				$ret .= img({-src=>"/strips/$comic/$strip",-title=>($titles[2]//''),-alt=>($titles[3]//'')});
+			}
+			#<embed src="../fc/20030702.swf" quality=high pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" type="application/x-shockwave-flash" width="609" height="631">
 		}
 		elsif ($strip!~m/^dummy/) {
 			$ret .= img({-src=>&dat($comic,$strip,'surl'),-title=>($titles[2]//''),-alt=>($titles[3]//'')}).br.
