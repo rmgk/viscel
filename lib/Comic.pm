@@ -28,7 +28,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '31';
+$VERSION = '32';
 
 =head1	General Methods
 
@@ -129,6 +129,8 @@ sub new {
 	}
 	dbutil::check_table($s->dbh,"_".$s->name);
 	
+	$s->{existing_file_names} = $s->dbh->selectall_hashref('SELECT strip FROM _' . $s->name , 'strip');
+	
 	return $s;
 }
 
@@ -155,7 +157,7 @@ sub get_all {
 		}
 		last if $::TERM;
 		last unless $s->get_next();
-		$s->{acnt}++>30?(say$s->name())&&($s->{acnt}=0):undef;
+		$s->{acnt}++>30?(say$s->name())&&($s->{acnt}=0):undef; #announcing comic name every 30 lines
 	};
 	$s->usr('last_update',time) unless $::TERM;
 	$s->status("DONE: get_all",'DEBUG');
@@ -627,7 +629,7 @@ database access: READ _I<comic>, WRITE _I<comic>
 
 =cut
 
-sub dat { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu dem comic und seinen strips gespeichert
+sub dat { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu den strips gespeichert
 	my $s = shift;
 	my ($strip,$key,$value,$null) = @_;
 	my $c = $s->name;

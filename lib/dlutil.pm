@@ -25,7 +25,7 @@ require Exporter;
 @EXPORT_OK = qw($ua);
 
 our($VERSION);
-$VERSION = '6';
+$VERSION = '7';
 
 =head1 functions
 
@@ -84,6 +84,29 @@ sub getref {
 	$request->referer($referer);
 	my $response = $ua->request($request);
 	return $response->is_success ? $response->content : $response->code;
+}
+
+=head2 gethead
+
+	dlutil::gethead($url,$referer);
+	
+gets header of C<$url> with referer set to C<$referer> and returns response object. if C<$referer> is omitted it uses C<$url> as referer
+
+returns: response object
+
+=cut
+
+sub gethead {
+	my($url, $referer) = @_;
+	_init_ua() unless $ua;
+	unless (defined $referer) {
+		(my $referer = $url) =~ s/[\?\&]//;
+		$referer =~ s#/[^/]*$#/#;
+	}
+	my $request = HTTP::Request->new(GET => $url);
+	$request->referer($referer);
+	my $response = $ua->head($url);
+	return $response;
 }
 
 1;

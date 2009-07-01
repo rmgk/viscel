@@ -30,7 +30,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '32';
+$VERSION = '34';
 
 =head1 general Methods
 
@@ -56,6 +56,7 @@ sub new {
 	my $class = shift;
 	my $s = shift;
 	bless $s,$class;
+	$s->{filename_depth} = $s->usr('filename_depth') // 1;
 	$s->status("NEW PAGE: ".$s->url,'DEBUG');
 	return $s;
 }
@@ -66,7 +67,7 @@ sub new {
 
 finds L</title> for L</strips> and L<save>s them. L<index_all> afterwards
 
-returns: C<1> if successful, undefined if L<save> threw an error 
+returns: C<1> if successful, undefined if L<save> returned an error 
 
 =cut
 
@@ -74,8 +75,8 @@ sub all_strips {
 	my $s = shift;
 	return 0 unless $s->body;
 	foreach my $strip (@{$s->strips}) {
-		$s->title($strip);
 		return unless $s->save($strip); #beim speichern wurde ein kritischer fehler gefunden
+		$s->title($strip);
 	}
 	$s->index_all();
 	return 1;
@@ -119,12 +120,26 @@ sub save {
 	my $strip = shift;
 	return -1 if ($s->dummy);
 	my $file_name = $s->get_file_name($strip);
-	if ($s->cmc->{seen_file_names}->{$file_name}) {
-		$s->status("ERROR: file name '$file_name' already seen in this session",'ERR');
-		$s->usr("url_current",0,1); #delete url current
-		return 0;
+	unless ($file_name) {
+		$s->status('ERROR could not get filename: ' . $s->{gfn_error} , 'ERR');
+		return undef;
 	}
-	$s->cmc->{seen_file_names}->{$file_name} = 1;
+	if ($s->cmc->{existing_file_names}->{$file_name}) {
+		my $other_surl = $s->dat($file_name,'surl');
+		if ($other_surl ne $strip) {
+			$s->status("ERROR: file name '$file_name' already seen",'ERR');
+
+			my $new_depth = $s->handle_equal_filenames($other_surl,$strip);
+			unless ($new_depth) {
+				$s->status('ERROR: could not find new filename depth','ERR');
+				return undef;
+			}
+			$s->usr('filename_depth',$new_depth);
+			
+			return 0;
+		}
+	}
+	$s->cmc->{existing_file_names}->{$file_name} = 1;
 	if  (-e "./strips/".$s->name."/$file_name") {
 		$s->status("EXISTS: ".$file_name,'UINFO');
 		return 1;
@@ -140,6 +155,23 @@ sub save {
 		$s->status("GET: $file_name URL: " . $s->url ." SURL: " .$strip,"DEBUG");
 		return $s->_save($strip,$file_name);
 	}
+}
+
+sub handle_equal_filenames {
+	my ($s, $sA , $sB) = @_;
+	
+	my $depth = $s->{filename_depth};
+	my $diff_names = 0;
+	my ($fnA , $fnB);
+	do {
+		$depth++;
+		$fnA = $s->get_file_name($sA,$depth);
+		return undef if $s->{gfn_error};
+		$fnB = $s->get_file_name($sB,$depth);
+		return undef if $s->{gfn_error};
+	} while ($fnA eq $fnB);
+	
+	return $depth;
 }
 
 =head2 _save
@@ -824,102 +856,69 @@ sub file {
 
 =head2 name
 
-	$s->get_file_name($strip_url);
+	$s->get_file_name($strip_url,$depth);
 	
-takes I<$strip_url> and extracts the file name. uses I<rename> if defined or some general logic if not.
+takes I<$strip_url> and extracts the file name. 
+I<$depth> is optional ans specifies how much of the url is part of the filename.
 	
 returns: file name
 
-database access: READ cfg
+database access: READ cfg (not always)
 
 =cut
 
 sub get_file_name {
-	my $s = shift;
-	my $surl = shift;
-	my $url = $s->url();
-	return $surl if ($s->dummy);
-	my $filename = $surl;
-	$filename =~ s#^.*/##;
-	
-	if ($surl =~ /drunkduck/) {
-		$url =~ m/p=(\d+)/;
-		my $name = $1;
-		my $ending;
-		if ($surl =~ m#(\.(jpe?g|gif|png))#) {
-			$ending = $1;
-		}
-		$ending = ".jpg" unless ($ending);
-		$filename = $name . $ending;
+	my ($s,$surl,$depth) = @_;
+	$s->{gfn_error} = undef;
+	unless ($surl) {
+		$s->{gfn_error} = "no url";
+		return undef;
 	}
-	if ($s->cfg('rename')) {
-		if ($s->cfg('rename') =~ m/^strip_url#(?<reg>.*)#(?<nm>\d*)/) {
-			my $regex = $+{reg};
-			my @wnum = split('',$+{nm});
-			my @num = ($surl =~ m#$regex#g);
-			
-			my $name;
-			foreach my $wnum (@wnum) {
-				$name .= $num[$wnum];
-			}
-			$name = join('',@num) unless @wnum;
-			my $ending;
-			if ($surl =~ m#(\.(jpe?g|gif|png))#) {
-				$ending = $1;
-			}
-			$ending = ".jpg" unless ($ending);
-			$filename = $name . $ending;
+	return $surl if ($s->dummy);
+ 	$depth ||= $s->{filename_depth};
+	$surl =~ s#^\w+://##; #remove protokoll
+
+	my @surl = split( '/' , $surl); 
+	
+	if ($depth > @surl) {	
+		$s->{gfn_error}="depth overflow";
+		return undef;
+	}
+	
+	my $filename;
+	
+	my $bc = '/?&=#';
+	
+	my $part = pop @surl;
+	
+	if ($part =~ m#(?:^|.*[$bc])([^$bc]+\.(jpe?g|gif|png|bmp))#i) { # line start or invalid char til filetype
+		$filename = $1;
+	}
+	else {
+		my $header_res = dlutil::gethead($surl,$s->cfg('referer'));
+		unless ($header_res->is_success()) {
+			$s->{gfn_error} = "header failure " .  $header_res->status_line();
+			return undef;
 		}
-		if ($s->cfg('rename') =~ m/^url#(.*)#(\d*)/) {
-			my $regex = $1;
-			my @wnum = split('',$2);
-			
-			my @num = ($url =~ m#$regex#g);
-			
-			my $name;
-			foreach my $wnum (@wnum) {
-				$name .= $num[$wnum];
-			}
-			$name = join('',@num) unless @wnum;
-			my $ending;
-			if ($surl =~ m#(\.(jpe?g|gif|png))#) {
-				$ending = $1;
-			}
-			$ending = ".jpg" unless ($ending);
-			$filename = $name . $ending;
+		my $filetype = $header_res->header('Content-Type');
+		if ($part =~ m#^[^$bc]+$#) {
+			$filename = $part . $filetype;
 		}
-		if ($s->cfg('rename') =~ m/^url_only#(.*)#(.*)#(\d*)/) {
-			my $only = $1;
-			my $regex = $2;
-			my @wnum = split('',$3);
-			if ($filename =~ /$only/i) {
-				my @num = ($url =~ m#$regex#g);
-				
-				my $name;
-				foreach my $wnum (@wnum) {
-					$name .= $num[$wnum];
-				}
-				$name = join('',@num) unless @wnum;
-				$filename = $name . $filename;
-			}
+		elsif ($part =~ m#=(\d{4,})(\D|$)#) {
+			$filename = $1 . $filetype;
 		}
-		if ($s->cfg('rename') =~ m/^strip_url_only#(.*)#(.*)#(\d*)/) {
-			my $only = $1;
-			my $regex = $2;
-			my @wnum = split('',$3);
-			if ($filename =~ /$only/i) {
-				$surl =~ m#^(.+)/([^/]+)$#i;
-				my $burl = $1;
-				my $strp = $2;
-				my @num = ($surl =~ m#$regex#g);
-				my $name;
-				foreach my $wnum (@wnum) {
-					$name .= $num[$wnum];
-				}
-				$name = join('',@num) unless @wnum;
-				$filename = $name . $filename;
-			}
+		elsif ($part =~ m#=(\d+)(\D|$)#) {
+			$filename = $1 . $filetype;
 		}
+		else {
+			$s->{gfn_error} = "no match";
+			return undef;
+		}
+	}
+	while(--$depth>0) {
+		$part = pop @surl;
+		#$part =~ s#[^/?&=]##g; #removing invalid chars
+		$filename = $part . $filename;
 	}
 	return $filename;
 }

@@ -20,11 +20,11 @@ provides some database utility functions
 use DBI;
 
 our($VERSION);
-$VERSION = '11';
+$VERSION = '12';
 
 my @comic_columns = 	qw(strip c_version md5 sha1 prev next surl time title url number); 
 my @config_columns =	qw(update_intervall filter processing time);
-my @user_columns =		qw(comic url_current first last last_save strip_count strips_counted kategorie aktuell bookmark last_update server_update flags iflags tags itags archive_current);
+my @user_columns =		qw(comic url_current first last last_save strip_count strips_counted kategorie aktuell bookmark last_update server_update flags iflags tags itags archive_current filename_depth);
 
 
 =head1 Functions
