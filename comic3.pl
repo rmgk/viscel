@@ -10,7 +10,7 @@ use DBI;
 use Comic;
 use dbutil;
 
-my $build = 86 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+my $build = 87 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
 our $VERSION = 3.500 . '.'. $build;
 
 
@@ -34,7 +34,7 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 
 {
 	my $comics = dbutil::readINI('comic.ini');
-	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
+	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 0,PrintError => 1});
 	#$dbh->{Profile} = "6/DBI::ProfileDumper";
 	$dbh->func(300000,'busy_timeout');
 	dbutil::check_table($dbh,'comics');
