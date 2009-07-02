@@ -23,7 +23,6 @@ use dlutil;
 use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
-use Digest::SHA qw(sha1_hex);
 use Time::HiRes;
 
 use Strip;
@@ -72,32 +71,20 @@ returns: C<1> if successful, undefined if L<save> returned an error
 
 sub all_strips {
 	my $s = shift;
+	my ($prev_strip) = @_;
 	return 0 unless $s->body;
+	
 	foreach my $strip (@{$s->strips}) {
-		return unless $strip->save(); #beim speichern wurde ein kritischer fehler gefunden
-		#$s->title($strip); TODO
+		return undef unless $strip->get_data();
+		$prev_strip->next($strip) if $prev_strip;
+		$strip->prev($prev_strip);
+		return undef unless $strip->save_to_disk();
+		$prev_strip = $strip;
 	}
-	$s->index_all();
-	return 1;
-}
-
-=head2 index_all
-
-	Page->index_all();
-
-if there are multiple strips on the page links them with each other
-
-returns: nothing (useful)
-
-=cut
-
-sub index_all {
-	my $s = shift;
-	my $n = $#{$s->strips};
-	for (0..($n-1)) {
-		$s->strip($_)->next($s->strip($_+1));
-		$s->strip($_+1)->prev($s->strip($_));
-	}
+	
+	$s->free_strips;
+	
+	return $prev_strip;
 }
 
 =head1 side url Methods
@@ -429,6 +416,11 @@ sub strips {
 	return $s->{strips};
 }
 
+sub free_strips {
+	my $s = shift;
+	delete $s->{strips};
+}
+
 =head2 strip_urls
 
 	$s->strip_urls();
@@ -688,14 +680,14 @@ sub body {
 	unless ($s->{body}) {
 		return undef if $s->{no_body};
 		my $res = dlutil::get($s->url(),$s->ini('referer'));
-		$s->{'body'} = $res->content(); #TODO
 		$s->status("BODY requestet: " . $s->url,'DEBUG');
-		if ($s->{body} =~ m#^\d+$#) {
-			$s->status("Body Request error: " . $s->{body},"ERR",$s->url());
+		if ($res->is_error()) {
+			$s->status("Body Request error: " . $res->status_line(),"ERR",$s->url());
 			$s->{body} = undef;
 			$s->{no_body} = 1;
 			return undef;
 		}
+		$s->{'body'} = $res->content(); #TODO
 	}
 	return $s->{'body'};
 }

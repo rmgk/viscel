@@ -127,9 +127,10 @@ sub new {
 		mkdir($s->{path_strips} . $s->name);
 		$s->status("WRITE: " . $s->{path_strips} . $s->name ,'OUT');
 	}
-	dbutil::check_table($s->dbh,"_".$s->name);
 	
-	$s->{existing_file_names} = $s->dbh->selectall_hashref('SELECT file FROM _' . $s->name , 'file');
+	if (dbutil::check_table($s->dbh,"_".$s->name) == 1) {
+		$s->dbcmc('first',$s->curr->strip(0)->id) unless $s->curr->dummy;
+	}
 	
 	return $s;
 }
@@ -149,8 +150,10 @@ returns: nothing (useful).
 sub get_all {
 	my $s = shift;
 	$s->status("START: get_all",'DEBUG');
+	my $last_strip = undef;
 	while (!$::TERM) {
-		last unless $s->curr->all_strips();
+		$last_strip = $s->curr->all_strips($last_strip);
+		return undef unless $last_strip;
 		if (time > $s->{time_to_stop}) {
 			$s->status("STOPPED - timelimit reached",'UINFO');
 			last;
@@ -204,14 +207,17 @@ returns: L<url_current> if set to the new url or C<1>
 
 sub goto_next {
 	my $s = shift;
+	
 	$s->prev($s->curr);
 	return 0 unless ($s->next(@_) and $s->next->body());
 	$s->curr($s->next());	#next page becomes current
 	delete $s->{next};		#we delete original after copying
-	unless ($s->curr->strip(0)->id == $s->prev->strip(-1)->id) { #connecting last strip of previous page with first strip of current page
-		$s->curr->strip(0)->prev($s->prev->strip(-1));
-		$s->prev->strip(-1)->next($s->curr->strip(0));
-	}
+	
+	# unless ($s->curr->strip(0)->id == $s->prev->strip(-1)->id) { #connecting last strip of previous page with first strip of current page
+		# $s->curr->strip(0)->prev($s->prev->strip(-1));
+		# $s->prev->strip(-1)->next($s->curr->strip(0));
+	# }
+	
 	return ($s->url_current($s->curr->url()) or 1); #we return the url if it was set as current or true
 }
 
@@ -703,7 +709,6 @@ sub url_current {
 		$url = $s->ini('url_start');
 		$s->dbcmc('url_current',$url);
 		$s->status("WRITE: url_current: " . $url, 'DEF');
-		$s->dbcmc('first',$s->curr->strip(0)->id) unless $s->curr->dummy;
 	}
 	$url = URI->new($url)->abs($s->url_home)->as_string unless $url =~ m#^https?://#i;
 	return $url;
@@ -760,6 +765,7 @@ sub release_pages {
 	delete $s->{prev};
 	delete $s->{curr};
 	delete $s->{next};
+	sleep(1);
 }
 
 sub DESTROY {

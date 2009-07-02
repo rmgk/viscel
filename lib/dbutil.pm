@@ -43,9 +43,9 @@ sub check_table {
 	my $dbh = shift;
 	my $table = shift;
 	given ($table) {
-		when ('comics') {&comics($dbh)}
-#		when ('CONFIG') {&config($dbh)}
-		when (/^_\w+/) {&strips($dbh,$table)}
+		when ('comics') {return &comics($dbh)}
+#		when ('CONFIG') {return &config($dbh)}
+		when (/^_\w+/) {return &strips($dbh,$table)}
 		default { warn "incorrect table name: $table\n" }
 	}
 }
@@ -53,7 +53,7 @@ sub check_table {
 sub comics {
 	my $dbh = shift;
 	unless($dbh->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name='comics'")) {
-		$dbh->do("CREATE TABLE comics ( id INTEGER PRIMARY KEY ASC " . join(",",@comics_columns) . ")");
+		$dbh->do("CREATE TABLE comics ( " . join(",",@comics_columns) . ")");
 		return 1;
 	};
 	my @sql = $dbh->selectrow_array("SELECT sql FROM sqlite_master WHERE type='table' AND name='comics'");
@@ -93,7 +93,7 @@ sub strips {
 	my $dbh = shift;
 	my $table = shift;
 	unless($dbh->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name='" . $table ."'")) {
-		$dbh->do("CREATE TABLE " .  $table . " (" . join(",",@strips_columns) . ")");
+		$dbh->do("CREATE TABLE " .  $table . " ( id INTEGER PRIMARY KEY ASC , " . join(",",@strips_columns) . ")");
 		return 1;
 	};
 	my @sql = $dbh->selectrow_array("SELECT sql FROM sqlite_master WHERE type='table' AND name='" . $table ."'");

@@ -24,7 +24,7 @@ use Digest::SHA qw(sha1_hex);
 
 
 our $VERSION;
-$VERSION = '35';
+$VERSION = '1';
 
 =head1 general Methods
 
@@ -50,8 +50,33 @@ sub new {
 	my $class = shift;
 	my $s = shift;
 	bless $s,$class;
+	$s->check_id;
 	$s->status("NEW STRIP: ".$s->url,'DEBUG');
 	return $s;
+}
+
+sub check_id {
+	my $s = shift;
+	my $eid = $s->dbstrps('surl' => $s->url , 'id');
+	if ($eid) {
+		my $db_strip = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$eid);
+		my $epurl =	$db_strip->{purl};
+		my $purl = $s->page->url;
+		$epurl =~ s/\?.+$//; # removing scripts and such
+		$purl =~ s/\?.+$//;
+		
+		if ($epurl eq $purl) {
+			$s->{id} = $eid;
+			$s->prev($db_strip->{prev});
+			$s->prev($db_strip->{next});
+			$s->file_name($db_strip->{file});
+		}
+	}
+	else {
+		$s->dbh->do('INSERT INTO _'. $s->name .' (surl) VALUES (?)');
+		$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
+		$s->dbh->commit;
+	}
 }
 
 sub prev {
@@ -68,61 +93,86 @@ sub next {
 	return $s->{next}
 }
 
+sub get_data {
+	my $s = shift;
+	$s->download();
+	$s->title();
+}
 
-=head2 save
+sub save_to_disk {
+	my $s = shift;
+	if (!$s->{need_save}) {
+		$s->status("no save needed: ".$s->url,'DEBUG');
+		return 2;
+	}
+	elsif (!$s->{file_blob}) {
+		$s->status("ERROR: no file blob",'ERR');
+		return undef;
+	}
+	elsif (open(my $fh,'>'.$s->file_path)) {
+		binmode $fh;
+		print $fh $s->{file_blob};
+		say " (".int((-s $fh)/($s->{need_save})) ." kb/s)";
+		close $fh;
+	}
+	else {
+		$s->status("ERROR: could not open ". $s->file_path,'ERR');
+		return undef
+	}
+	$s->page->cmc->{sqlstr_title_update} //= $s->dbh->prepare('UPDATE _'.$s->name .' SET title=?,purl=?,surl=?,time=?,file=? where id == ?');
+	$s->page->cmc->{sqlstr_title_update}->execute($s->title,$s->page->url,$s->url,time,$s->file_name,$s->id);
+	$s->dbh->commit;
+	return 1;
+}
 
-	Strip->save($strip);
 
-C<$strip> is the url of the file to download. required
+=head2 download
 
-L<get_file_name> and returns 0 if the file name was already seen in the seession. also deletes C<url_current>
-checks if the file already exists if not L<_save>s the file
+	Strip->download();
 
-returns: -1 if there are no files on the page. 0 if the file_name is duplicated in the session, 1 if the file (name) exists on disk,
-0 if the download threw an error and 1 if the download was successful
+does some voodoo TODO
+
+returns: undef on error, 1 if successful, 2 if exists
 
 =cut
 
-sub save {
+sub download {
 	my $s = shift;
-	my $strip = $s->url;
 	#return -1 if ($s->dummy); TODO
-	my $file_name = $s->get_file_name($strip);
-	unless ($file_name) {
+	if ($s->sha1) {
+		$s->status("EXISTS: ".$s->file_name,'UINFO');
+		return 2;
+	}
+	unless ($s->file_name) {
 		$s->status('ERROR could not get filename: ' . $s->{gfn_error} , 'ERR');
 		return undef;
 	}
-	if ($s->page->cmc->{existing_file_names}->{$file_name}) { # TODO: needs new dat
-		my $other_surl = $s->dbstrps(file => $file_name,'surl');
-		if ($other_surl ne $strip) {
-			$s->status("ERROR: file name '$file_name' already seen",'ERR');
+	my $osurl = $s->dbstrps(file=>$s->file_name,'surl');
+	if ((defined $osurl) && ($osurl ne $s->url)) {
 
-			my $new_depth = $s->handle_equal_filenames($other_surl,$strip);
-			unless ($new_depth) {
-				$s->status('ERROR: could not find new filename depth','ERR');
-				return undef;
-			}
-			#$s->dbcmc('filename_depth',$new_depth); TODO
-			
-			return 0;
+		$s->status("WARN: file name '".$s->file_name."' already used",'ERR');
+
+		my $new_depth = $s->handle_equal_filenames($osurl,$s->url);
+		unless ($new_depth) {
+			$s->status('ERROR: could not find new filename depth','ERR');
+			return undef;
 		}
+		$s->file_name($s->get_file_name($s->url,$new_depth));
+		$s->status("WARN: new depth $new_depth filename: " . $s->file_name ,'ERR');
 	}
-	$s->page->cmc->{existing_file_names}->{$file_name} = 1;
-	if  (-e "./strips/".$s->page->name."/$file_name") {
-		$s->status("EXISTS: ".$file_name,'UINFO');
-		return 1;
+	
+	if (-e $s->file_path) {
+		$s->status("EXISTS on disk: ".$s->file_name,'UINFO');
+		return 2;
 	}
-	else {
-		my $home = $s->page->cmc->url_home();
-		$s->url =~ m#(?:$home)?(.+)#;
-		my $se_url = $1;
-		$strip =~ m#(?:$home)?(.+)#;
-		my $se_strip = $1;
-		local $| = 1; #dont wait for newline to print the text
-		print "GET: " . $se_url . " => " . $file_name;
-		$s->status("GET: $file_name URL: " . $s->page->url ." SURL: " .$strip,"DEBUG");
-		return $s->_save($strip,$file_name);
-	}
+	
+	my $home = $s->page->cmc->url_home();
+	$s->page->url =~ m#(?:$home)?(.+)#;
+	my $se_url = $1;
+	local $| = 1; #dont wait for newline to print the text
+	print "GET: " . $se_url . " => " . $s->file_name;
+	$s->status("GET: ".$s->file_name." URL: " . $s->page->url ." SURL: " .$s->url,"DEBUG");
+	return $s->_download($s->url,$s->file_name);
 }
 
 sub handle_equal_filenames {
@@ -142,9 +192,9 @@ sub handle_equal_filenames {
 	return $depth;
 }
 
-=head2 _save
+=head2 _download
 
-	Page->_save($surl,$file_name);
+	Page->_download($surl,$file_name);
 
 C<$surl> is the url of the file to download. required
 C<$file_name> is the name the file will be named on disk. required
@@ -156,7 +206,7 @@ returns: 0 if the download threw an error and 1 if the download was successful
 
 =cut
 
-sub _save {
+sub _download {
 	my ($s,$surl,$file_name) = @_;
 	my $u_referer = $s->ini('referer');
 	my $time = Time::HiRes::time;
@@ -166,15 +216,18 @@ sub _save {
 		$s->status("ERROR downloading $file_name code: " .$img_res->status_line(),"ERR");
 		return 0;
 	}
-	my $img = $img_res->content();
-	open(my $fh,">./strips/".$s->page->name."/".$file_name);
-	binmode $fh;
-	print $fh $img;
-	say " (".int((-s $fh)/($time*1000)) ." kb/s)";
-	close $fh;
-	$s->sha1(sha1_hex($img));  # TODO: sha1 hash as part of the strip object
-	$s->dbcmc('last_save',time);
+	$s->{file_blob} = $img_res->content();
+	$s->sha1(sha1_hex($s->{file_blob}));
+	$s->{need_save} = $time*1000;
 	return 1;
+}
+
+sub file_name {
+	my $s = shift;
+	($s->{file_name}) = @_ if @_;
+	return $s->{file_name} if $s->{file_name};
+	$s->{file_name} = $s->get_file_name($s->url);
+	return $s->{file_name} ;
 }
 
 =head2 get_file_name
@@ -262,10 +315,11 @@ database access: READ ini, WRITE _comic
 
 sub title {
 	my $s = shift;
-	my $surl = shift;
-	my $file = $s->get_file_name($surl);
-	my $url = $s->url();
-	my $body = $s->body();
+	return $s->{title} if $s->{title};
+	my $surl = $s->url;
+	my $file = $s->file_name;
+	my $url = $s->page->url();
+	my $body = $s->page->body();
 	return unless $body;
 	my ($urlpart) = ($surl =~ m#.*/(.*)#);
 	
@@ -309,18 +363,19 @@ sub title {
 	$ut //= ''; $st //= '';	$it //= '';	$ia //= '';	$h1 //= '';	$dt //= ''; $sl //= '';
 	my $title_string = "{ut=>q($ut),st=>q($st),it=>q($it),ia=>q($ia),h1=>q($h1),dt=>q($dt),sl=>q($sl)}";
 
-	$s->page->cmc->{sqlstr_title_update} //= $s->page->cmc->dbh->prepare('UPDATE _'.$s->name .' SET title=?,url=?,surl=?,c_version=?,time=? where strip == ?');
-	if($s->page->cmc->{sqlstr_title_update}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file) < 1) {
-		$s->page->cmc->{sqlstr_title_insert} //= $s->page->cmc->dbh->prepare('insert into _'.$s->name .' (title,url,surl,c_version,time,strip) values (?,?,?,?,?,?)');
-		$s->page->cmc->{sqlstr_title_insert}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file);
-	}
+	# $s->page->cmc->{sqlstr_title_update} //= $s->page->cmc->dbh->prepare('UPDATE _'.$s->name .' SET title=?,url=?,surl=?,c_version=?,time=? where strip == ?');
+	# if($s->page->cmc->{sqlstr_title_update}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file) < 1) {
+		# $s->page->cmc->{sqlstr_title_insert} //= $s->page->cmc->dbh->prepare('insert into _'.$s->name .' (title,url,surl,c_version,time,strip) values (?,?,?,?,?,?)');
+		# $s->page->cmc->{sqlstr_title_insert}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file);
+	# }
 	# $s->dat($file,'title',$title_string);
 	# $s->dat($file,'url',$s->url);
 	# $s->dat($file,'surl',$surl);
 	# $s->dat($file,'c_version',$main::VERSION);
 	# $s->dat($file,'time',time);
 	
-	$s->status("TITEL $file: " . $title_string,'DEBUG');
+	$s->status("TITLE $file: " . $title_string,'DEBUG');
+	$s->{title} = $title_string;
 	return $title_string; 
 }
 
@@ -331,26 +386,18 @@ sub title {
 sub id {
 	my $s = shift;
 	return $s->{id} if defined $s->{id};
-	my $eid = $s->dbstrps('surl' => $s->url , 'id');
-	if ($eid) {
-		my $epurl = $s->dbstrps('id' => $eid , 'purl');
-		my $purl = $s->page->url;
-		$epurl =~ s/\?.+$//; # removing scripts and such
-		$purl =~ s/\?.+$//;
-		
-		if ($epurl eq $purl) {
-			$s->{id} = $eid;
-			return $s->{id};
-		}
-	}
-	
+	$s->status("ERROR: ID not defined: " . $s->url, 'ERR');
 	return undef;
+}
+
+sub file_path {
+	my $s = shift;
+	return "./strips/".$s->page->name."/".$s->file_name;
 }
 
 sub sha1 {
 	my $s = shift;
-	my ($sha1) = @_;
-	$s->{sha1} = $sha1 if $sha1;
+	$s->{sha1} = @_ if @_;
 	return $s->{sha1};
 }
 
@@ -383,6 +430,21 @@ sub dbstrps {
 sub dbcmc {
 	my $s = shift;
 	return $s->page->dbcmc(@_);
+}
+
+sub name {
+	my $s = shift;
+	return $s->page->name;
+}
+
+sub dbh {
+	my $s = shift;
+	return $s->page->cmc->dbh;
+}
+
+sub DESTROY {
+	my $s = shift;
+	$s->status('DESTROYED: '. $s->url,'DEBUG');
 }
 
 }

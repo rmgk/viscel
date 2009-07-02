@@ -10,7 +10,7 @@ use DBI;
 use Comic;
 use dbutil;
 
-my $build = 86 + $Comic::VERSION + $Page::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+my $build = 86 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
 our $VERSION = 3.500 . '.'. $build;
 
 
@@ -133,7 +133,7 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 				#$dbh->do(qq!INSERT INTO CONFIG (processing,time) values ("$domain",! .time . ")" ); # TODO
 			}
 		}
-		Comic::get_comic({"name" => $comic , "dbh"=> $dbh, "autocommit" => 1});
+		Comic::get_comic({"name" => $comic , "dbh"=> $dbh, "autocommit" => 0});
 		{	#unset processing when done
 			#$dbh->do(qq(DELETE FROM CONFIG WHERE processing = "$domain")); TODO
 			;
