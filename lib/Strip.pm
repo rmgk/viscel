@@ -24,7 +24,7 @@ use Digest::SHA qw(sha1_hex);
 
 
 our $VERSION;
-$VERSION = '1';
+$VERSION = '2';
 
 =head1 general Methods
 
@@ -82,14 +82,20 @@ sub check_id {
 sub prev {
 	my $s = shift;
 	my ($o) = @_;
-	$s->{prev} = $o->id if $o;
+	if (ref $o) {
+		$o = $o->id;
+	}
+	$s->{prev} = $o if $o;
 	return $s->{prev}
 }
 
 sub next {
 	my $s = shift;
 	my ($o) = @_;
-	$s->{next} = $o->id if $o;
+	if (ref $o) {
+		$o = $o->id;
+	}
+	$s->{next} = $o if $o;
 	return $s->{next}
 }
 
