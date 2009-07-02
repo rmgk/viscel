@@ -20,11 +20,11 @@ provides some database utility functions
 use DBI;
 
 our($VERSION);
-$VERSION = '12';
+$VERSION = '13';
 
-my @comic_columns = 	qw(strip c_version md5 sha1 prev next surl time title url number); 
+my @strips_columns = 	qw(file prev next number surl purl title time sha1); 
 my @config_columns =	qw(update_intervall filter processing time);
-my @user_columns =		qw(comic url_current first last last_save strip_count strips_counted kategorie aktuell bookmark last_update server_update flags iflags tags itags archive_current filename_depth);
+my @comics_columns =	qw(comic url_current archive_current current first last bookmark strip_count last_update last_save server_update flags tags);
 
 
 =head1 Functions
@@ -43,64 +43,64 @@ sub check_table {
 	my $dbh = shift;
 	my $table = shift;
 	given ($table) {
-		when ('USER') {&user($dbh)}
-		when ('CONFIG') {&config($dbh)}
-		when (/^_\w+/) {&comic($dbh,$table)}
+		when ('comics') {&comics($dbh)}
+#		when ('CONFIG') {&config($dbh)}
+		when (/^_\w+/) {&strips($dbh,$table)}
 		default { warn "incorrect table name: $table\n" }
 	}
 }
 
-sub user {
+sub comics {
 	my $dbh = shift;
-	unless($dbh->selectrow_array("select name from sqlite_master where type='table' and name='USER'")) {
-		$dbh->do("create table USER (" . join(",",@user_columns) . ")");
+	unless($dbh->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name='comics'")) {
+		$dbh->do("CREATE TABLE comics ( id INTEGER PRIMARY KEY ASC " . join(",",@comics_columns) . ")");
 		return 1;
 	};
-	my @sql = $dbh->selectrow_array("select sql from sqlite_master where type='table' and name='USER'");
+	my @sql = $dbh->selectrow_array("SELECT sql FROM sqlite_master WHERE type='table' AND name='comics'");
 	$sql[0] =~ /\(([\w,\s]+)\)/s;
 	my $col_having = $1;
 	my @missing_column;
-	foreach my $column (@user_columns) {
+	foreach my $column (@comics_columns) {
 		push(@missing_column,$column) unless $col_having =~ /\b$column\b/is;
 	}
 	foreach my $column (@missing_column) {
-		$dbh->do("alter table USER add column " . $column);
+		$dbh->do("ALTER TABLE comics ADD COLUMN " . $column);
 	}
 	return 2;
 }
 
-sub config {
-	my $dbh = shift;
-	my $table = shift;
-	unless($dbh->selectrow_array("select name from sqlite_master where type='table' and name='CONFIG'")) {
-		$dbh->do("create table CONFIG (" . join(",",@config_columns) . ")");
-		return 1;
-	};
-	my @sql = $dbh->selectrow_array("select sql from sqlite_master where type='table' and name='CONFIG'");
-	$sql[0] =~ /\(([\w,\s]+)\)/s;
-	my $col_having = $1;
-	my @missing_column;
-	foreach my $column (@config_columns) {
-		push(@missing_column,$column) unless $col_having =~ /\b$column\b/is;
-	}
-	foreach my $column (@missing_column) {
-		$dbh->do("alter table CONFIG add column " . $column);
-	}
-	return 2;
-}
+# sub config {
+	# my $dbh = shift;
+	# my $table = shift;
+	# unless($dbh->selectrow_array("select name from sqlite_master where type='table' and name='CONFIG'")) {
+		# $dbh->do("create table CONFIG (" . join(",",@config_columns) . ")");
+		# return 1;
+	# };
+	# my @sql = $dbh->selectrow_array("select sql from sqlite_master where type='table' and name='CONFIG'");
+	# $sql[0] =~ /\(([\w,\s]+)\)/s;
+	# my $col_having = $1;
+	# my @missing_column;
+	# foreach my $column (@config_columns) {
+		# push(@missing_column,$column) unless $col_having =~ /\b$column\b/is;
+	# }
+	# foreach my $column (@missing_column) {
+		# $dbh->do("alter table CONFIG add column " . $column);
+	# }
+	# return 2;
+# }
 
-sub comic {
+sub strips {
 	my $dbh = shift;
 	my $table = shift;
-	unless($dbh->selectrow_array("select name from sqlite_master where type='table' and name='" . $table ."'")) {
-		$dbh->do("create table " .  $table . " (" . join(",",@comic_columns) . ")");
+	unless($dbh->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name='" . $table ."'")) {
+		$dbh->do("CREATE TABLE " .  $table . " (" . join(",",@strips_columns) . ")");
 		return 1;
 	};
-	my @sql = $dbh->selectrow_array("select sql from sqlite_master where type='table' and name='" . $table ."'");
+	my @sql = $dbh->selectrow_array("SELECT sql FROM sqlite_master WHERE type='table' AND name='" . $table ."'");
 	$sql[0] =~ /\(([\w,\s]+)\)/s;
 	my $col_having = $1;
 	my @missing_column;
-	foreach my $column (@comic_columns) {
+	foreach my $column (@strips_columns) {
 		push(@missing_column,$column) unless $col_having =~ /\b$column\b/is;
 	}
 	foreach my $column (@missing_column) {

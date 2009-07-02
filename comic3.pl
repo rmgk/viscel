@@ -10,8 +10,9 @@ use DBI;
 use Comic;
 use dbutil;
 
-our $VERSION;
-$VERSION = '85' . '.' . $Comic::VERSION . '.' . $Page::VERSION;
+my $build = 86 + $Comic::VERSION + $Page::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+our $VERSION = 3.500 . '.'. $build;
+
 
 
 our $TERM = 0;
@@ -36,8 +37,8 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 	#$dbh->{Profile} = "6/DBI::ProfileDumper";
 	$dbh->func(300000,'busy_timeout');
-	dbutil::check_table($dbh,'USER');
-	dbutil::check_table($dbh,'CONFIG');
+	dbutil::check_table($dbh,'comics');
+	# dbutil::check_table($dbh,'CONFIG'); TODO
 	my @comics;
 	@comics = keys %{$comics};
 	my $opmode;
@@ -47,7 +48,7 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 			$opmode = 'repair';
 			shift @opts;
 			foreach (@opts) {
-				$dbh->do(qq(update USER set url_current = NULL,server_update = NULL,archive_current = NULL where comic="$_"));
+				$dbh->do(qq(UPDATE comics SET url_current = NULL,server_update = NULL,archive_current = NULL where comic="$_"));
 			}
 			#$dbh->commit;
 		}
@@ -57,10 +58,10 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 		}
 		elsif (($opts[0] eq '-rd') and (@opts > 1)) {
 			$opmode = 'repairdelete';
-			unless ($dbh->selectrow_array(qq(select processing from CONFIG where processing is not null))) {
+			unless ($dbh->selectrow_array(qq(SELECT processing FROM CONFIG WHERE processing IS NOT NULL))) { # TODO
 				shift @opts;
 				foreach (@opts) {
-					$dbh->do(qq(update USER set url_current = NULL,server_update = NULL,archive_current = NULL where comic="$_"));
+					$dbh->do(qq(UPDATE comics SET url_current = NULL,server_update = NULL,archive_current = NULL where comic="$_"));
 					$dbh->do(qq(DROP TABLE _$_));
 
 				}
@@ -72,7 +73,7 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 		}
 	}
 	
-	my $update_intervall = $dbh->selectrow_array(qq(select update_intervall from CONFIG));
+	my $update_intervall = 45000; #$dbh->selectrow_array(qq(SELECT update_intervall FROM config)); #TODO
 	if (!defined $update_intervall or $update_intervall eq '') {
 		$update_intervall = 45000;
 		print "no update interval specified using default = $update_intervall seconds\n";
@@ -82,8 +83,8 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 	
 	foreach my $comic (@comics) {
 		dbutil::check_table($dbh,"_$comic") unless $comics->{$comic}->{broken};
-		my $lu = $dbh->selectrow_array(qq(select last_update from USER where comic="$comic"));
-		my $ls = $dbh->selectrow_array(qq(select last_save from USER where comic="$comic"));
+		my $lu = $dbh->selectrow_array(qq(SELECT last_update FROM comics WHERE comic="$comic"));
+		my $ls = $dbh->selectrow_array(qq(SELECT last_save FROM comics WHERE comic="$comic"));
 		if (!$lu or !$ls) {
 			$order{$comic} = 1;
 			next;
@@ -112,29 +113,30 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 			}
 		}
 		else {
-			my $lu = $dbh->selectrow_array(qq(select last_update from USER where comic="$comic"));
+			my $lu = $dbh->selectrow_array(qq(SELECT last_update FROM comics WHERE comic="$comic"));
 			next comic if (((time - $update_intervall) < ($lu||0)) or $broken);
 		}
 		last if $TERM;
 		
 		my ($domain) = $comics->{$comic}->{url_start} =~ m#(?:http://)?([^.]+\.[^.]+?)/#; #use domain name to exclude multi downloading
 		{	#if we run multiple instances of the programm we dont want two to process  the same comic
-			my $time = $dbh->selectrow_array(qq(select time from CONFIG where processing == "$domain")) // 0;
+			my $time = 0; #$dbh->selectrow_array(qq(SELECT time FROM CONFIG WHERE processing == "$domain")) // 0; # todo
 			if ($time and ((time - $time)  < 60*60*2 )) { 
 				say "\nskipped $comic: already downloading from '$domain'";
 				next comic;
 			}
 			elsif ($time){ #is downloading for more than two ours
 				say "\ndownloading from '$domain' for more than two hours, likely crashed. overwriting.";
-				$dbh->do("update CONFIG set time = " .time . qq! where processing == "$domain"!);
+				$dbh->do("UPDATE config SET time = " .time . qq( WHERE processing == "$domain")); # TODO
 			}
 			else {
-				$dbh->do(qq!insert into CONFIG (processing,time) values ("$domain",! .time . ")" );
+				#$dbh->do(qq!INSERT INTO CONFIG (processing,time) values ("$domain",! .time . ")" ); # TODO
 			}
 		}
 		Comic::get_comic({"name" => $comic , "dbh"=> $dbh, "autocommit" => 1});
 		{	#unset processing when done
-			$dbh->do(qq(delete from CONFIG where processing = "$domain"));
+			#$dbh->do(qq(DELETE FROM CONFIG WHERE processing = "$domain")); TODO
+			;
 		}
 		last if $TERM;
 	}

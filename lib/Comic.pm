@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/dbcmc/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
 #22:12 11.04.2009
 package Comic;
@@ -28,7 +28,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '32';
+$VERSION = '33';
 
 =head1	General Methods
 
@@ -129,7 +129,7 @@ sub new {
 	}
 	dbutil::check_table($s->dbh,"_".$s->name);
 	
-	$s->{existing_file_names} = $s->dbh->selectall_hashref('SELECT strip FROM _' . $s->name , 'strip');
+	$s->{existing_file_names} = $s->dbh->selectall_hashref('SELECT file FROM _' . $s->name , 'file');
 	
 	return $s;
 }
@@ -159,7 +159,7 @@ sub get_all {
 		last unless $s->get_next();
 		$s->{acnt}++>30?(say$s->name())&&($s->{acnt}=0):undef; #announcing comic name every 30 lines
 	};
-	$s->usr('last_update',time) unless $::TERM;
+	$s->dbcmc('last_update',time) unless $::TERM;
 	$s->status("DONE: get_all",'DEBUG');
 }
 
@@ -179,7 +179,7 @@ sub get_next {
 	if ($s->goto_next()) {
 		return 1;
 	}
-	elsif($s->cfg("archive_url")) {
+	elsif($s->ini("archive_url")) {
 		my $url_archive = $s->url_next_archive();
 		if ($url_archive) {
 			return 2 if $s->goto_next($url_archive);
@@ -195,7 +195,7 @@ sub get_next {
 I<$page_object_or_url> will be directly passed to L</next>.
 
 sets L</prev> to L</curr>, aborts unless we have a next with body, sets L</curr> to L</next> and delets L</next>
-the now current file and the last file are linked.
+the now current strip and the last strip are linked.
 tries to set L<url_current>
 
 returns: L<url_current> if set to the new url or C<1>
@@ -208,9 +208,9 @@ sub goto_next {
 	return 0 unless ($s->next(@_) and $s->next->body());
 	$s->curr($s->next());	#next page becomes current
 	delete $s->{next};		#we delete original after copying
-	unless ($s->curr->file(0) eq $s->prev->file(-1)) { #connecting last strip of previous page with first strip of current page
-		$s->dat($s->curr->file(0),'prev',$s->prev->file(-1));
-		$s->dat($s->prev->file(-1),'next',$s->curr->file(0));
+	unless ($s->curr->strip(0)->id == $s->prev->strip(-1)->id) { #connecting last strip of previous page with first strip of current page
+		$s->curr->strip(0)->prev($s->prev->strip(-1));
+		$s->prev->strip(-1)->next($s->curr->strip(0));
 	}
 	return ($s->url_current($s->curr->url()) or 1); #we return the url if it was set as current or true
 }
@@ -331,23 +331,19 @@ sub get_next_page {
 	#unshift(@urls,$maxname) if ($maxvalue > 1) # we add the most common value again, but this time at the beginning!
 	@urls = sort {$count{$a} <=> $count{$b}} @tmp_urls; #we sort the array according to the number of counts
 	}
-	my %double;
 	my $first_nondummy_page;
 	url:foreach my $url (@urls) {
-		next if $double{$url};
-		$double{$url} = 1;
 		if ($s->{visited_urls}->{$url}) {
 			next;
 		}
 		#we check if there already is a strip with the next url. if so we check if the current url contains the previous strip of the next page. 
 		#short: we check if that next has this curr as that prev.
-		if (my $next_page_prev_strips = $s->dbh->selectcol_arrayref("SELECT prev from _" . $s->name . ' where url == "' . $url . '"')) {
-		if (@{$next_page_prev_strips}) { #we dont need to check anything if the next page has no strips!
+		if (my $next_page_prev_strip_ids = $s->dbh->selectcol_arrayref("SELECT prev FROM _" . $s->name . ' WHERE purl == "' . $url . '"')) { 
+		if (@{$next_page_prev_strip_ids}) { #we dont need to check anything if the next page has no strips!
 			my $no_link = 1;
-			foreach my $curr_strips (@{$s->curr->strips()}) {
-				my $curr_file = $s->curr->get_file_name($curr_strips);
-				foreach my $strip (@{$next_page_prev_strips}) {
-					$no_link = 0 if ($strip eq $curr_file);
+			foreach my $curr_strip (@{$s->curr->strips()}) {
+				foreach my $strip (@{$next_page_prev_strip_ids}) {
+					$no_link = 0 if ($strip == $curr_strip->id);
 				}
 			}
 			if ($no_link) {
@@ -395,10 +391,10 @@ sub url_next_archive {
 	my $next_archive = $s->u_get_next_archive();
 	return 0 unless $next_archive;
 	$s->status("NEXT ARCHIVE: " . $next_archive , 'UINFO');
-	$s->usr('archive_current',$next_archive);
+	$s->dbcmc('archive_current',$next_archive);
 	$next_archive =~ s!([^&])&amp;|&#038;!$1&!gs;
-	my $url_arch = URI->new($next_archive)->abs($s->cfg("archive_url"))->as_string;
-	my $reg_deeper = $s->cfg('archive_regex_deeper');
+	my $url_arch = URI->new($next_archive)->abs($s->ini("archive_url"))->as_string;
+	my $reg_deeper = $s->ini('archive_regex_deeper');
 	unless ($reg_deeper) {
 		return $url_arch;
 	}
@@ -425,7 +421,7 @@ sub u_get_next_archive {
 	$s->status("ARCHIVE count: " . scalar(@archives),"UINFO") unless $s->{info_arch_count};
 	$s->{info_arch_count} = 1;
 	return 0 unless @archives;
-	my $arch_curr = $s->usr('archive_current');
+	my $arch_curr = $s->dbcmc('archive_current');
 	return $archives[1] unless ($arch_curr);
 	for (my $i = 0;$i <= $#archives;$i++) {
 		if ($archives[$i] eq $arch_curr) {
@@ -444,12 +440,12 @@ uhh .. headache! (TODO)
 sub ar_get_archives {
 	my $s = shift;
 	return $s->{archives} if $s->{archives};
-	my $body = dlutil::get($s->cfg('archive_url'));
-	my $regex = $s->cfg('archive_regex');
+	my $body = dlutil::get($s->ini('archive_url'));
+	my $regex = $s->ini('archive_regex');
 	my @archives;
 	while ($body =~ m#$regex#gis) {
-		push(@archives,$+{url} // $1) unless ($s->cfg('archive_reverse'));
-		unshift(@archives,$+{url} // $1) if ($s->cfg('archive_reverse'));
+		push(@archives,$+{url} // $1) unless ($s->ini('archive_reverse'));
+		unshift(@archives,$+{url} // $1) if ($s->ini('archive_reverse'));
 	}
 	$s->{archives} = \@archives;
 	return $s->{archives};
@@ -476,9 +472,9 @@ sub dbh {
 	return $s->{dbh};
 }
 
-=head2 cfg 
+=head2 ini 
 	
-	$s->cfg($key,$value);
+	$s->ini($key,$value);
 	
 loads config and sets defaults (L<class_change>)
 
@@ -488,7 +484,7 @@ returns: value of C<$key>
 
 =cut
 
-sub cfg { #gibt die cfg des aktuellen comics aus # hier sollten nur nicht veränderliche informationen die zum download der comics benötigt werden drinstehen
+sub ini { #gibt die ini des aktuellen comics aus # hier sollten nur nicht veränderliche informationen die zum download der comics benötigt werden drinstehen
 	my $s = shift;
 	my ($key,$value) = @_;
 	
@@ -581,68 +577,59 @@ sub class_change {
 	}
 }
 
-=head2 usr 
+=head2 dbcmc 
 	
-	$s->usr($key,$value,$null);
+	$s->dbcmc($key,$value);
 
-accesses the C<USER> table
+accesses the C<comics> table
 
-if C<$null> is true, sets $key for comic to C<NULL>
-
-if C<$value> is C<defined> updates/inserts C<$value>
+if C<$value> is C<defined> updates C<$value>
 	
 returns: value of C<$key>
 
-database access: READ USER, WRITE USER
+database access: READ comics, WRITE comics
 
 =cut
 
-sub usr { #gibt die aktuellen einstellungen des comics aus # hier gehören die veränderlichen informationen rein, die der nutzer auch selbst bearbeiten kann
+sub dbcmc { #gibt die aktuellen einstellungen des comics aus # hier gehören die veränderlichen informationen rein, die der nutzer auch selbst bearbeiten kann
 	my $s = shift;
-	my ($key,$value,$null) = @_;
-	my $c = $s->name;
-	if ($null) {
-			$s->dbh->do(qq(update USER set $key = NULL where comic="$c"));
-			$s->status("DELETE: $key",'WARN');
+	my ($key,$value) = @_;
+	if (defined $value) {
+		my $sth = $s->dbh->prepare("UPDATE comics SET $key = ? WHERE comic=?");
+		$sth->execute($value,$s->name);
 	}
-	elsif (defined $value) {
-		if ($s->dbh->do(qq(update USER set $key = "$value" where comic="$c")) < 1) { #try to update
-			$s->dbh->do(qq(insert into USER (comic,$key) VALUES ("$c","$value"))); #insert if update fails
-		}
-	}
-	return $s->dbh->selectrow_array(qq(select $key from USER where comic="$c"));
+	my $sth = $s->dbh->prepare("SELECT $key FROM comics WHERE comic=?");
+	$sth->execute($s->name);
+	return $sth->fetchrow_array();
 }
 
-=head2 dat  
+=head2 dbstrps  
 	
-	$s->dat($strip,$key,$value,$null);
+	$s->dbstrps($get,$key,$select,$value);
 
 accesses the C<_I<comic>> table
 
-if C<$null> is true, sets $key for C<$strip> to C<NULL> 
-
-if C<$value> is C<defined> updates/inserts C<$value>
+where column C<$get> equals C<$key>:
+if C<$value> is C<defined> updates C<$select> to C<$value>
 	
-returns: value of C<$key> where C<$strip>
+returns: value of C<$select> where column C<$get> equals C<$key>
 
 database access: READ _I<comic>, WRITE _I<comic>
 
 =cut
 
-sub dat { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu den strips gespeichert
+sub dbstrps { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu den strips gespeichert
 	my $s = shift;
-	my ($strip,$key,$value,$null) = @_;
+	my ($get,$key,$select,$value) = @_;
 	my $c = $s->name;
-	if ($null) {
-		$s->dbh->do(qq(update _$c set $key = NULL where strip="$strip"));
-		$s->status("DELETE: $key from $strip",'WARN');
+
+	if (defined $value) {
+		my $sth = $s->dbh->prepare(qq(UPDATE _$c SET $select = ? WHERE $get = ?));
+		$sth->execute($value,$key);
 	}
-	elsif (defined $value) {
-		if ($s->dbh->do(qq(update _$c set $key = "$value" where strip="$strip")) < 1) { #try to update
-			$s->dbh->do(qq(insert into _$c  (strip,$key) values ("$strip","$value"))); #insert if update fails
-		}
-	}
-	return $s->dbh->selectrow_array(qq(select $key from _$c where strip="$strip"));
+	my $sth = $s->dbh->prepare(qq(SELECT $select FROM _$c WHERE $get = ?));
+	$sth->execute($key);
+	return $sth->fetchrow_array();
 }
 
 =head2 name  
@@ -670,15 +657,15 @@ returns: C<url_home>
 
 sub url_home {
 	my $s = shift;
-	unless($s->cfg('url_home')) {
-		my $uri = URI->new($s->cfg('url_start'));
+	unless($s->ini('url_home')) {
+		my $uri = URI->new($s->ini('url_start'));
 		my $p = $uri->path_query;
 		my $u = $uri->as_string;
 		$u =~ m#(.+)\Q$p\E#; #removes path from url
-		$s->cfg('url_home',$1."/");
+		$s->ini('url_home',$1."/");
 		$s->status("DEF: url_home: " . $1 . "/", 'DEBUG');
 	}
-	return $s->cfg('url_home');
+	return $s->ini('url_home');
 }
 
 =head2 url_current  
@@ -698,7 +685,7 @@ sub url_current {
 	if ($url) {
 		my ($curl) = ($url =~ m#https?://[^/]+(/.*)$#i);
 		if ($curl) {
-			my $regex_not_goto = $s->cfg("regex_not_goto");
+			my $regex_not_goto = $s->ini("regex_not_goto");
 			$s->{not_goto} = 1 if ( 
 				($regex_not_goto and ($curl =~ m#$regex_not_goto#i)) or 
 				($curl =~ m#(index|main)\.(php|html?)$#i) or 
@@ -706,17 +693,17 @@ sub url_current {
 				($curl =~ m:^/$:)
 			);
 			unless ($s->{not_goto} or $s->curr->dummy) {
-				$s->usr("url_current",$url);
+				$s->dbcmc("url_current",$url);
 				$s->status("URL_CURRENT: ". $url ,'DEBUG');
 			}
 		}
 	}
-	$url //= $s->usr('url_current');
+	$url //= $s->dbcmc('url_current');
 	unless($url) {
-		$url = $s->cfg('url_start');
-		$s->usr('url_current',$url);
+		$url = $s->ini('url_start');
+		$s->dbcmc('url_current',$url);
 		$s->status("WRITE: url_current: " . $url, 'DEF');
-		$s->usr('first',$s->curr->file(0)) unless $s->curr->dummy;
+		$s->dbcmc('first',$s->curr->strip(0)->id) unless $s->curr->dummy;
 	}
 	$url = URI->new($url)->abs($s->url_home)->as_string unless $url =~ m#^https?://#i;
 	return $url;
