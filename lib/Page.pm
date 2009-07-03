@@ -28,7 +28,7 @@ use Time::HiRes;
 use Strip;
 
 our $VERSION;
-$VERSION = '35';
+$VERSION = '36';
 
 =head1 general Methods
 
@@ -78,11 +78,11 @@ sub all_strips {
 		return undef unless $strip->get_data();
 		$prev_strip->next($strip) if $prev_strip;
 		$strip->prev($prev_strip);
-		return undef unless $strip->save_to_disk();
+		return undef unless $strip->commit_info();
 		$prev_strip = $strip;
 	}
 	
-	$s->free_strips;
+	$s->release_strips;
 	
 	return $prev_strip;
 }
@@ -174,6 +174,7 @@ database access: READ ini(3)
 
 sub url_next {
 	my ($s) = @_;
+	return @{$s->{url_next_arrayref}} if $s->{url_next_arrayref};
 	my $body = $s->body();
 	return unless $body;
 	my $urls = [];
@@ -205,6 +206,7 @@ sub url_next {
 		}
 	}
 	$s->status("NEXT URLS: @ret_urls",'DEBUG');
+	$s->{url_next_arrayref} = \@ret_urls;
 	return @ret_urls;
 }
 
@@ -212,7 +214,9 @@ sub url_next {
 
 	$s->list_side_urls();
 	
-it works. dont ask how.
+takes the page url and matches against I<list_url_regex>. 
+finds chapters and pages listet on current page with I<list_chap_regex> and I<list_page_regex>.
+inserts next chapter/page into I<list_url_insert> and returns prev and or next;
 
 returns: previous url, next url
 
@@ -357,23 +361,18 @@ sub try_get_side_url_parts {
 	foreach my $fil (@filter) {
 		next unless $fil;
 		next if ($regex_never_goto) and ($fil =~ m#$regex_never_goto#i);
+		
 		my $re_link = qr#<\s*a[^>]*href\s*=\s*((?<p>["'])(?<link>.*?)\k<p>|(?<link>.*?)(\s*>|\s+\w+\s*=))#i;
-		if ($fil =~ m#prev|back|prior#i) {
-			if ($fil =~ $re_link) {
-				my $tmp_url = $+{link};
-				next if ((($tmp_url!~m#\.\w{3,4}\?#i) and ($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i)) or
-						(($tmp_url =~ m#http://#i) and !(
-							($tmp_url =~ m#$url_home#i))));
-				push (@prev, $tmp_url);
+		if ($fil =~ $re_link) {
+			my $tmp_url = $+{link};
+			next if (($tmp_url!~m#\.\w{3,4}\?#i) and ($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i));
+			next if (($tmp_url =~ m#http://#i) and !($tmp_url =~ m#$url_home#i));
+			next if ($tmp_url =~ m#^\w+:#) and !($tmp_url =~ m#https?://#i);
+			if ($fil =~ m#prev|back|prior#i) {
+					push (@prev, $tmp_url);
 			}
-		}
-		if ($fil =~ m#next|forward|ensuing#i) {
-			if ($fil =~ $re_link) {
-				my $tmp_url = $+{link};
-				next if ((($tmp_url!~m#\.\w{3,4}\?#i) and ($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i)) or
-						(($tmp_url =~ m#http://#i) and !(
-							($tmp_url =~ m#$url_home#i))));
-				push (@next, $tmp_url);
+			if ($fil =~ m#next|forward|ensuing#i) {
+					push (@next, $tmp_url);
 			}
 		}
 	}
@@ -416,7 +415,7 @@ sub strips {
 	return $s->{strips};
 }
 
-sub free_strips {
+sub release_strips {
 	my $s = shift;
 	delete $s->{strips};
 }
@@ -687,6 +686,8 @@ sub body {
 			$s->{no_body} = 1;
 			return undef;
 		}
+		$s->url($res->request->uri);
+
 		$s->{'body'} = $res->content(); #TODO
 	}
 	return $s->{'body'};

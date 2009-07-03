@@ -28,7 +28,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '33';
+$VERSION = '34';
 
 =head1	General Methods
 
@@ -179,7 +179,8 @@ returns: 1 if C<goto_next>; 2 if C<url_next_archive>; 0 otherwise
 
 sub get_next {
 	my $s = shift;
-	if ($s->goto_next()) {
+	if ($s->curr->url_next()) {
+		$s->goto_next();
 		return 1;
 	}
 	elsif($s->ini("archive_url")) {
@@ -242,6 +243,9 @@ returns: current page object
 sub curr {
 	my ($s,$ref) = @_;
 	if ($ref) {
+		if (ref $s->{curr}) {
+			$s->{curr}->release_strips;
+		}
 		if (ref($ref) eq "Page") {
 			$s->{curr} = $ref;
 		}
@@ -268,6 +272,9 @@ returns: previous page object
 sub prev { 
 	my ($s,$ref) = @_;
 	if ($ref) {
+		if (ref $s->{prev}) {
+			$s->{prev}->release_strips;
+		}
 		if (ref($ref) eq "Page") {
 			$s->{prev} = $ref ;
 		} else {
@@ -296,6 +303,9 @@ returns: next page object
 sub next {
 	my ($s,$ref) = @_;
 	if ($ref) {
+		if (ref $s->{next}) {
+			$s->{next}->release_strips;
+		}
 		(ref($ref) eq "Page") ? 
 			$s->{next} = $ref :
 			$s->{next} = Page->new({"cmc" => $s,'url' => $ref});
@@ -367,6 +377,7 @@ sub get_next_page {
 				return $tmp_page;
 			}
 		}
+		$tmp_page->release_strips();#we dont want to leak memory
 	}
 	#so we had no previous matches huh? what now? maybe we just return a page where we found a strip!
 	if ($first_nondummy_page) { #we can only do that if such a page exists!
@@ -388,7 +399,9 @@ sub get_next_page {
 
 =head2 url_next_archive
 
-uhh .. headache! (TODO)
+gets C<u_get_next_archive> 
+
+returns: next page url
 
 =cut
 
@@ -406,18 +419,26 @@ sub url_next_archive {
 	}
 	$url_arch .= '/' unless $url_arch =~ m#/$|\.\w{3,4}$#; #ugly fix | workaround warning
 	$s->status("NEXT ARCHIVE deeper, get body: ". $url_arch, 'UINFO');
-	my $body = dlutil::get($url_arch);
-	if ($body =~ m#$reg_deeper#is) {
-		my $deep_url = URI->new($+{url} // $1)->abs($url_arch)->as_string;
-		$s->status("NEXT ARCHIVE deeper: " .$deep_url, 'UINFO');
-		return $deep_url;
+	my $res = dlutil::get($url_arch);
+	if ( $res->is_success() ) {
+		my $body = $res->content;
+		if ($body =~ m#$reg_deeper#is) {
+			my $deep_url = URI->new($+{url} // $1)->abs($url_arch)->as_string;
+			$s->status("NEXT ARCHIVE deeper: " .$deep_url, 'UINFO');
+			return $deep_url;
+		}
 	}
-	return 0;
+	else {
+		$s->status('ERR: could not get body ' . $url_arch . ' for archive deeper: ' . $res->status_line() , 'ERR' );
+		return 0;
+	}
+	return undef;
 }
 
 =head2 u_get_next_archive
 
-uhh .. headache! (TODO)
+gets C<ar_get_archives>
+returns: next url found in archive
 
 =cut
 
@@ -439,14 +460,21 @@ sub u_get_next_archive {
 
 =head2 ar_get_archives
 
-uhh .. headache! (TODO)
+gets body from C<$s->ini('archive_url')> matches aganinst C<$s->ini('archive_regex')> reverses list if C<$s->ini('archive_reverse')>
+
+returns: list of archives as arrayref
 
 =cut
 
 sub ar_get_archives {
 	my $s = shift;
 	return $s->{archives} if $s->{archives};
-	my $body = dlutil::get($s->ini('archive_url'));
+	my $res = dlutil::get($s->ini('archive_url'));
+	if ($res->is_error) {
+		$s->status('ERROR: could not get body '. $s->ini('archive_url') . ' ' . $res->status_line(), 'ERR');
+		return undef;
+	}
+	my $body = $res->content();
 	my $regex = $s->ini('archive_regex');
 	my @archives;
 	while ($body =~ m#$regex#gis) {
@@ -556,13 +584,23 @@ sub class_change {
 			$s->{config}->{worker} //= 0;
 		}
 		if ($s->{config}->{class} eq "mangafox") {
-			my $url_insert = $s->{config}->{url_start};
-			my $str = q"/chapter.{{chap}}/page.{{page}}/";
-			$url_insert =~ s#/chapter\..+$#$str#egi;
-			$s->{config}->{list_url_regex} //= q#/chapter.(?<chap>\d+)/page.(?<page>\d+)/#;
-			$s->{config}->{list_url_insert} //= $url_insert;
-			$s->{config}->{list_chap_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\s*[^<]+(?:vol|ch)[^<]+</option>#;
-			$s->{config}->{list_page_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\d+</option>#;
+			#my $url_insert = $s->{config}->{url_start};
+			#my $str = q"/chapter.{{chap}}/page.{{page}}/";
+			#$url_insert =~ s#/chapter\..+$#$str#egi;
+			#$s->{config}->{list_url_regex} //= q#/chapter.(?<chap>\d+)/page.(?<page>\d+)/#;
+			#$s->{config}->{list_url_insert} //= $url_insert;
+			#$s->{config}->{list_chap_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\s*[^<]+(?:vol|ch)[^<]+</option>#;
+			#$s->{config}->{list_page_regex} //= q#<option value="(\d+)"\s*(?:selected="?selected"?)?>\d+</option>#;
+			my $archive_url = $s->{config}->{url_start};
+			if ($archive_url =~ m#^http://www.mangafox.com/page/manga/read/\d+/#i) {
+				$archive_url =~ s#^(http://www.mangafox.com/)page/(manga)/read/\d+(/[^/]+/).*$#$1$2$3?no_warning=1#i;
+			}
+			elsif ($archive_url =~ m#^http://www.mangafox.com/manga/#i) {
+				$archive_url =~ s#^(http://www.mangafox.com/manga/[^/]+/).*$#$1?no_warning=1#i;
+			}
+			$s->{config}->{archive_url} //= $archive_url;
+			$s->{config}->{archive_regex} //= q#edit</a>\s+<a href="(?<url>[^"]+)" class="chico">#;
+			$s->{config}->{archive_reverse} //= 1;
 			$s->{config}->{heur_strip_url} //= q#compressed#;
 			$s->{config}->{worker} //= 0;
 			$s->{config}->{referer} //= '';
@@ -762,6 +800,9 @@ returns: nothing (useful)
 
 sub release_pages {
 	my $s = shift;
+	$s->{prev}->release_strips if $s->{prev};
+	$s->{curr}->release_strips if $s->{curr};
+	$s->{next}->release_strips if $s->{next};
 	delete $s->{prev};
 	delete $s->{curr};
 	delete $s->{next};

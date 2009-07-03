@@ -24,7 +24,7 @@ use Digest::SHA qw(sha1_hex);
 
 
 our $VERSION;
-$VERSION = '2';
+$VERSION = '3';
 
 =head1 general Methods
 
@@ -66,36 +66,63 @@ sub check_id {
 		$purl =~ s/\?.+$//;
 		
 		if ($epurl eq $purl) {
-			$s->{id} = $eid;
-			$s->prev($db_strip->{prev});
-			$s->prev($db_strip->{next});
-			$s->file_name($db_strip->{file});
+			$s->{$_} = $db_strip->{$_} for keys %$db_strip;
+			return;
 		}
 	}
-	else {
-		$s->dbh->do('INSERT INTO _'. $s->name .' (surl) VALUES (?)');
-		$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
-		$s->dbh->commit;
-	}
+	$s->dbh->do('INSERT INTO _'. $s->name .' (surl) VALUES (?)');
+	$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
+	$s->dbh->commit;
 }
 
 sub prev {
 	my $s = shift;
 	my ($o) = @_;
-	if (ref $o) {
-		$o = $o->id;
+	if ($o) {
+		if (ref $o) {
+			$o = $o->id;
+		}
+		if ($s->{prev}) {
+			if ($s->{prev} != $o) {
+				$s->status("ERROR: tried to set prev to $o but it is already " .$s->{prev} , 'ERR');
+				return $s->{prev};
+			}
+		}
+		else {
+			$s->{prev} = $o;
+			if ($s->{is_commited}) { 
+				$s->dbstrps(id=>$s->id,prev=>$s->{prev});
+				$s->dbh->commit;
+				$s->status("commited prev $o , ".$s->url,'DEBUG');
+			}
+		}
 	}
-	$s->{prev} = $o if $o;
 	return $s->{prev}
 }
 
 sub next {
 	my $s = shift;
 	my ($o) = @_;
-	if (ref $o) {
-		$o = $o->id;
+	if ($o) {
+		if (ref $o) {
+			$o = $o->id;
+		}
+		if ($s->{next}) {
+			if ($s->{next} != $o) {
+				$s->status("ERROR: tried to set next to $o but it is already " .$s->{next} , 'ERR');
+				return $s->{next};
+			}
+		}
+		else {
+			$s->{next} = $o;
+			if ($s->{is_commited}) { 
+				$s->dbstrps(id=>$s->id,next=>$s->{next});
+				$s->dbh->commit;
+				$s->status("commited prev $o , ".$s->url,'DEBUG');
+			}
+		}
 	}
-	$s->{next} = $o if $o;
+	
 	return $s->{next}
 }
 
@@ -105,29 +132,16 @@ sub get_data {
 	$s->title();
 }
 
-sub save_to_disk {
+sub commit_info {
 	my $s = shift;
-	if (!$s->{need_save}) {
-		$s->status("no save needed: ".$s->url,'DEBUG');
-		return 2;
+	if ($s->{is_commited}) {
+		$s->status("ERROR: already commited: ".$s->url,'ERR');
+		return 0;
 	}
-	elsif (!$s->{file_blob}) {
-		$s->status("ERROR: no file blob",'ERR');
-		return undef;
-	}
-	elsif (open(my $fh,'>'.$s->file_path)) {
-		binmode $fh;
-		print $fh $s->{file_blob};
-		say " (".int((-s $fh)/($s->{need_save})) ." kb/s)";
-		close $fh;
-	}
-	else {
-		$s->status("ERROR: could not open ". $s->file_path,'ERR');
-		return undef
-	}
-	$s->page->cmc->{sqlstr_title_update} //= $s->dbh->prepare('UPDATE _'.$s->name .' SET title=?,purl=?,surl=?,time=?,file=? where id == ?');
-	$s->page->cmc->{sqlstr_title_update}->execute($s->title,$s->page->url,$s->url,time,$s->file_name,$s->id);
+	$s->page->cmc->{sqlstr_title_update} //= $s->dbh->prepare('UPDATE _'.$s->name .' SET title=?,purl=?,surl=?,next=?,prev=?,number=?,time=?,file=?,sha1=? where id == ?');
+	$s->page->cmc->{sqlstr_title_update}->execute($s->title,$s->page->url,$s->url,$s->next,$s->prev,$s->number,time,$s->file_name,$s->sha1,$s->id);
 	$s->dbh->commit;
+	$s->{is_commited} = 1;
 	return 1;
 }
 
@@ -156,19 +170,26 @@ sub download {
 	my $osurl = $s->dbstrps(file=>$s->file_name,'surl');
 	if ((defined $osurl) && ($osurl ne $s->url)) {
 
-		$s->status("WARN: file name '".$s->file_name."' already used",'ERR');
+		$s->status("WARN: file name '".$s->file_name."' already used",'WARN');
 
 		my $new_depth = $s->handle_equal_filenames($osurl,$s->url);
 		unless ($new_depth) {
-			$s->status('ERROR: could not find new filename depth','ERR');
+			$s->status('ERROR: could not find new filename depth '. $s->url,'ERR');
 			return undef;
 		}
 		$s->file_name($s->get_file_name($s->url,$new_depth));
-		$s->status("WARN: new depth $new_depth filename: " . $s->file_name ,'ERR');
+		$s->status("WARN: new depth $new_depth filename: " . $s->file_name ,'WARN');
+		$s->{filename_depth} = $new_depth;
+		return $s->download();
 	}
 	
 	if (-e $s->file_path) {
 		$s->status("EXISTS on disk: ".$s->file_name,'UINFO');
+		unless ($s->sha1) {
+			open(my $fh , '<'.$s->file_path);
+			$s->sha1(sha1_hex(<$fh>));
+			close $fh;
+		}
 		return 2;
 	}
 	
@@ -178,7 +199,7 @@ sub download {
 	local $| = 1; #dont wait for newline to print the text
 	print "GET: " . $se_url . " => " . $s->file_name;
 	$s->status("GET: ".$s->file_name." URL: " . $s->page->url ." SURL: " .$s->url,"DEBUG");
-	return $s->_download($s->url,$s->file_name);
+	return $s->_download();
 }
 
 sub handle_equal_filenames {
@@ -213,24 +234,33 @@ returns: 0 if the download threw an error and 1 if the download was successful
 =cut
 
 sub _download {
-	my ($s,$surl,$file_name) = @_;
-	my $u_referer = $s->ini('referer');
+	my ($s) = @_;
 	my $time = Time::HiRes::time;
-	my $img_res = dlutil::get($surl,$u_referer);
+	my $img_res = dlutil::get($s->url,$s->ini('referer'));
 	$time = Time::HiRes::time - $time;
 	if ($img_res->is_error) {
-		$s->status("ERROR downloading $file_name code: " .$img_res->status_line(),"ERR");
+		$s->status("ERROR downloading ".$s->file_name." code: " .$img_res->status_line(),"ERR");
 		return 0;
 	}
-	$s->{file_blob} = $img_res->content();
-	$s->sha1(sha1_hex($s->{file_blob}));
-	$s->{need_save} = $time*1000;
+	my $img = $img_res->content();
+	$s->sha1(sha1_hex($img));
+	if (open(my $fh,'>'.$s->file_path)) {
+		binmode $fh;
+		print $fh $img;
+		say " (".int((-s $fh)/($time*1000)) ." kb/s)";
+		close $fh;
+	}
+	else {
+		$s->status("ERROR: could not open ". $s->file_path,'ERR');
+		return undef
+	}
 	return 1;
 }
 
 sub file_name {
 	my $s = shift;
-	($s->{file_name}) = @_ if @_;
+	my $nfn = shift;
+	$s->{file_name} = $nfn if $nfn;
 	return $s->{file_name} if $s->{file_name};
 	$s->{file_name} = $s->get_file_name($s->url);
 	return $s->{file_name} ;
@@ -392,8 +422,22 @@ sub title {
 sub id {
 	my $s = shift;
 	return $s->{id} if defined $s->{id};
-	$s->status("ERROR: ID not defined: " . $s->url, 'ERR');
+	$s->status("ERROR: ID not defined: ".join(":",caller)." " . $s->url, 'ERR');
 	return undef;
+}
+
+sub number {
+	my $s = shift;
+	unless ($s->{number}) {
+		if ($s->prev) {
+			my $pnum = $s->dbstrps(id=>$s->prev,'number');
+			$s->{number} = $pnum + 1;
+		}
+		else {
+			$s->{number} = 1;
+		}
+	}
+	return $s->{number} ;
 }
 
 sub file_path {
@@ -403,7 +447,15 @@ sub file_path {
 
 sub sha1 {
 	my $s = shift;
-	$s->{sha1} = @_ if @_;
+	my ($sha) = @_;
+	if ($sha) {
+		if ($s->{sha1} and ($s->{sha1} != $sha)) {
+			$s->status("ERROR: tried to set existing sha1 hash do different value ". $s->url,'ERR')
+		}
+		else {
+			$s->{sha1} = $sha;
+		}
+	}
 	return $s->{sha1};
 }
 
@@ -450,6 +502,11 @@ sub dbh {
 
 sub DESTROY {
 	my $s = shift;
+	my $db = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->page->name.' WHERE id = ?',undef,$s->id);
+	unless (((defined $db->{file}) + (defined $db->{next}) + (defined $db->{prev}))>1) {
+		$s->dbh->do('DELETE FROM _' . $s->page->name . ' WHERE id = ?' , undef,$s->id);
+		$s->dbh->commit();
+	}
 	$s->status('DESTROYED: '. $s->url,'DEBUG');
 }
 
