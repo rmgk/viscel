@@ -28,7 +28,7 @@ use Time::HiRes;
 use Strip;
 
 our $VERSION;
-$VERSION = '36';
+$VERSION = '38';
 
 =head1 general Methods
 
@@ -127,6 +127,9 @@ sub url_prev {
 		my ($purl,$nurl) = $s->list_side_urls();
 		$urls->[0] = $purl;
 	}
+	elsif ($s->{header}->{prev}) {
+		$urls->[0] = $s->{header}->{prev};
+	}
 	else {
 		my ($purl,$nurl) = $s->try_get_side_urls();
 		$urls = $purl;
@@ -186,6 +189,9 @@ sub url_next {
 	elsif ($s->ini('list_url_regex')) {
 		my ($purl,$nurl) = $s->list_side_urls();
 		$urls->[0] = $nurl;
+	}
+	elsif ($s->{header}->{next}) {
+		$urls->[0] = $s->{header}->{next};
 	}
 	else {
 		my ($purl,$nurl) = $s->try_get_side_urls();
@@ -404,9 +410,9 @@ sub strips {
 	return $s->{strips} if $s->{strips};
 	my $urls = $s->strip_urls();
 	unless ($urls->[0]) {
-		$urls->[0] =  "dummy_" . time . "_" . int rand 1e10;
 		$s->{dummy} = 1;
-		$s->status("NO STRIPS: ".$s->url,'WARN')
+		$s->status("NO STRIPS: ".$s->url,'WARN');
+		$s->{strips}->[0] =  Strip->new({page=>$s,dummy=>1})
 	}
 	$s->{strips} = [];
 	foreach my $url (@$urls) {
@@ -687,6 +693,13 @@ sub body {
 			return undef;
 		}
 		$s->url($res->request->uri);
+		if (($s->{header}->{next}) = grep {/rel=["']next["']/i} $res->header('Link')) {
+			$s->{header}->{next} =~ s#^<([^>]+)>.*$#$1#;
+		}
+		if (($s->{header}->{prev}) = grep {/rel=["']prev["']/i} $res->header('Link')) {
+			$s->{header}->{prev} =~ s#^<([^>]+)>.*$#$1#;
+		}
+		say "OMG OMG OMG HAS NEXT OR PREV HEADER!!!!!!!!!!!!!"  if $s->{header}->{next} or $s->{header}->{prev};
 
 		$s->{'body'} = $res->content(); #TODO
 	}

@@ -20,11 +20,11 @@ provides some database utility functions
 use DBI;
 
 our($VERSION);
-$VERSION = '13';
+$VERSION = '14';
 
 my @strips_columns = 	qw(file prev next number surl purl title time sha1); 
 my @config_columns =	qw(update_intervall filter processing time);
-my @comics_columns =	qw(comic url_current archive_current current first last bookmark strip_count last_update last_save server_update flags tags);
+my @comics_columns =	qw(url_current archive_current current first last bookmark strip_count last_update last_save server_update flags tags);
 
 
 =head1 Functions
@@ -53,7 +53,7 @@ sub check_table {
 sub comics {
 	my $dbh = shift;
 	unless($dbh->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name='comics'")) {
-		$dbh->do("CREATE TABLE comics ( " . join(",",@comics_columns) . ")");
+		$dbh->do("CREATE TABLE comics ( comic PRIMARY KEY," . join(",",@comics_columns) . ")");
 		return 1;
 	};
 	my @sql = $dbh->selectrow_array("SELECT sql FROM sqlite_master WHERE type='table' AND name='comics'");

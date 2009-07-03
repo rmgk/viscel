@@ -28,7 +28,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '34';
+$VERSION = '35';
 
 =head1	General Methods
 
@@ -128,8 +128,12 @@ sub new {
 		$s->status("WRITE: " . $s->{path_strips} . $s->name ,'OUT');
 	}
 	
-	if (dbutil::check_table($s->dbh,"_".$s->name) == 1) {
-		$s->dbcmc('first',$s->curr->strip(0)->id) unless $s->curr->dummy;
+	#dbutil::check_table($s->dbh,"_".$s->name);
+	unless ($s->dbcmc('comic')) {
+		$s->dbh->do('INSERT INTO comics (comic) VALUES (?)',undef,$s->name);
+	}
+	if (!$s->dbcmc('first') and !$s->dbcmc('url_current')) {
+		$s->dbh->do('UPDATE comics  SET first = ? WHERE comic = ?',undef,$s->curr->strip(0)->id,$s->name);
 	}
 	
 	return $s;
@@ -154,6 +158,7 @@ sub get_all {
 	while (!$::TERM) {
 		$last_strip = $s->curr->all_strips($last_strip);
 		return undef unless $last_strip;
+		$s->write_url_current();
 		if (time > $s->{time_to_stop}) {
 			$s->status("STOPPED - timelimit reached",'UINFO');
 			last;
@@ -180,8 +185,10 @@ returns: 1 if C<goto_next>; 2 if C<url_next_archive>; 0 otherwise
 sub get_next {
 	my $s = shift;
 	if ($s->curr->url_next()) {
-		$s->goto_next();
-		return 1;
+		if ($s->goto_next()) {
+			return 1;
+		}
+		return 0;
 	}
 	elsif($s->ini("archive_url")) {
 		my $url_archive = $s->url_next_archive();
@@ -354,15 +361,34 @@ sub get_next_page {
 		}
 		#we check if there already is a strip with the next url. if so we check if the current url contains the previous strip of the next page. 
 		#short: we check if that next has this curr as that prev.
-		if (my $next_page_prev_strip_ids = $s->dbh->selectcol_arrayref("SELECT prev FROM _" . $s->name . ' WHERE purl == "' . $url . '"')) { 
-		if (@{$next_page_prev_strip_ids}) { #we dont need to check anything if the next page has no strips!
-			my $no_link = 1;
-			foreach my $curr_strip (@{$s->curr->strips()}) {
-				foreach my $strip (@{$next_page_prev_strip_ids}) {
-					$no_link = 0 if ($strip == $curr_strip->id);
+		if (my $next_exists = $s->dbh->selectall_arrayref("SELECT id,prev,next FROM _" . $s->name . ' WHERE purl = "' . $url . '"',{Slice => {}})) { 
+		if (@{$next_exists}) { #we dont need to check anything if the next page has no strips!
+			my $back_link = 0;
+			my $has_no_next = 0;
+			foreach my $n_data (@{$next_exists}) {
+				if ($n_data->{next}) {
+					if ($n_data->{prev}) {
+						if ($n_data->{prev} == $s->curr->strip(-1)->id) {
+							$back_link = 1;
+						}
+					}
+					else {
+						my $first = $s->dbcmc('first');
+						if ($first == $n_data->{id}) {
+							next(url);
+						}
+						$back_link = 1; #no prev is a joker
+					}
+				}
+				else {
+					$has_no_next=1;
 				}
 			}
-			if ($no_link) {
+			if ($has_no_next) {
+				$s->status("WARNING: found next ($url) without next, deleting",'WARN');
+				$s->dbh->do('DELETE FROM _'.$s->name . ' WHERE purl = ? ',undef,$url);
+			}
+			elsif (!$back_link) {
 				$s->status("WARNING: found next ($url) that already exists and does not link back!",'WARN');
 				next(url);
 			}
@@ -568,6 +594,7 @@ sub class_change {
 			$s->{config}->{regex_prev} //= q#if \(keycode == 37\) {\s+window.location = '([^']+)'#;
 			$s->{config}->{regex_strip_url} //= q#<img class="manga-page" src="([^"]+)"#;
 			$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
+			$s->{config}->{rename_depth} //= 2; 
 			$s->{config}->{worker} //= 0;
 		}
 		if ($s->{config}->{class} eq "animea") {
@@ -580,6 +607,7 @@ sub class_change {
 			$s->{config}->{regex_prev} //= q#<input value="back" onclick="javascript:window.location='([^']+)';" type="button">#;
 			$s->{config}->{heur_strip_url} //= q#img.cartooniverse#;
 			$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
+			$s->{config}->{rename_depth} //= 2;
 			$s->{config}->{referer} //= q#http://www.cartooniverse.co.uk/#;
 			$s->{config}->{worker} //= 0;
 		}
@@ -610,6 +638,7 @@ sub class_change {
 		if ($s->{config}->{class} eq "anymanga") {
 			$s->{config}->{heur_strip_url} //= '/manga/[^/]+/\d+/\d+';
 			$s->{config}->{rename} //= q"strip_url#manga/([\w-]+)/(\d+)/(\d+)/([^\.]+)\.\w{3,4}#0123";
+			$s->{config}->{rename_depth} //= 4;
 			$s->{config}->{regex_prev} //= q"var url_back = '([^']+)';";
 			$s->{config}->{regex_next} //= q"var url_next = '([^']+)';";
 		}
@@ -737,19 +766,25 @@ sub url_current {
 				($curl =~ m:^/$:)
 			);
 			unless ($s->{not_goto} or $s->curr->dummy) {
-				$s->dbcmc("url_current",$url);
-				$s->status("URL_CURRENT: ". $url ,'DEBUG');
+				$s->{last_url_current} = $url;
+				#$s->status("URL_CURRENT: ". $url ,'DEBUG');
 			}
+			$s->{url_current} = $url;
 		}
 	}
-	$url //= $s->dbcmc('url_current');
-	unless($url) {
-		$url = $s->ini('url_start');
-		$s->dbcmc('url_current',$url);
-		$s->status("WRITE: url_current: " . $url, 'DEF');
-	}
-	$url = URI->new($url)->abs($s->url_home)->as_string unless $url =~ m#^https?://#i;
-	return $url;
+	
+	return $s->{url_current} if $s->{url_current};
+	
+	
+	$s->{url_current} = $s->dbcmc('url_current') // $s->ini('url_start');
+	$s->status("SET: url_current: " . $s->{url_current}, 'DEF');
+	
+	return $s->{url_current};
+}
+
+sub write_url_current {
+	my $s = shift;
+	$s->dbcmc('url_current',$s->{last_url_current}) if $s->{last_url_current};
 }
 
 =head2 status

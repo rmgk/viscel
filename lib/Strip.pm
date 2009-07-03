@@ -24,7 +24,7 @@ use Digest::SHA qw(sha1_hex);
 
 
 our $VERSION;
-$VERSION = '3';
+$VERSION = '4';
 
 =head1 general Methods
 
@@ -51,12 +51,18 @@ sub new {
 	my $s = shift;
 	bless $s,$class;
 	$s->check_id;
-	$s->status("NEW STRIP: ".$s->url,'DEBUG');
+	$s->status("NEW STRIP: ".($s->dummy?'dummy'.$s->id:$s->url),'DEBUG');
 	return $s;
 }
 
 sub check_id {
 	my $s = shift;
+	if ($s->dummy) {
+		$s->dbh->do('INSERT INTO _'. $s->name .' DEFAULT VALUES');
+		$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
+		#$s->dbh->commit;
+		return -1;
+	}
 	my $eid = $s->dbstrps('surl' => $s->url , 'id');
 	if ($eid) {
 		my $db_strip = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$eid);
@@ -67,12 +73,13 @@ sub check_id {
 		
 		if ($epurl eq $purl) {
 			$s->{$_} = $db_strip->{$_} for keys %$db_strip;
-			return;
+			return 2;
 		}
 	}
-	$s->dbh->do('INSERT INTO _'. $s->name .' (surl) VALUES (?)');
+	$s->dbh->do('INSERT INTO _'. $s->name .' DEFAULT VALUES');
 	$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
-	$s->dbh->commit;
+	#$s->dbh->commit;
+	return 1
 }
 
 sub prev {
@@ -92,7 +99,7 @@ sub prev {
 			$s->{prev} = $o;
 			if ($s->{is_commited}) { 
 				$s->dbstrps(id=>$s->id,prev=>$s->{prev});
-				$s->dbh->commit;
+				#$s->dbh->commit;
 				$s->status("commited prev $o , ".$s->url,'DEBUG');
 			}
 		}
@@ -109,15 +116,22 @@ sub next {
 		}
 		if ($s->{next}) {
 			if ($s->{next} != $o) {
-				$s->status("ERROR: tried to set next to $o but it is already " .$s->{next} , 'ERR');
-				return $s->{next};
+				if ($s->dbstrps(id=>$s->{next},'next')) { #next of next is also set everythings fine
+					$s->status("ERROR: tried to set next to $o but it is already " .$s->{next} , 'ERR');
+					return $s->{next};
+				}
+				else { #next of next is not set so next is last so we can change this and delete the next
+					$s->status("WARNING: changed next of prev of last, delete last ". $s->{next}, 'WARN');
+					$s->dbh->do('DELETE FROM _'.$s->page->name . ' WHERE id = ?',undef,$s->{next});
+					$s->{next} = $o;
+				}
 			}
 		}
 		else {
 			$s->{next} = $o;
 			if ($s->{is_commited}) { 
 				$s->dbstrps(id=>$s->id,next=>$s->{next});
-				$s->dbh->commit;
+				#$s->dbh->commit;
 				$s->status("commited prev $o , ".$s->url,'DEBUG');
 			}
 		}
@@ -128,19 +142,28 @@ sub next {
 
 sub get_data {
 	my $s = shift;
+	return -1 if $s->dummy(); 
 	$s->download();
 	$s->title();
+	return 1;
 }
 
 sub commit_info {
 	my $s = shift;
+	if ($s->dummy()) {
+		my $sth =  $s->dbh->prepare('UPDATE _'.$s->name .' SET purl=?,next=?,prev=?,number=? where id == ?');
+		$sth->execute($s->page->url,$s->next,$s->prev,$s->number,$s->id);
+		#$s->dbh->commit;
+		$s->{is_commited} = 1;
+		return -1;
+	}
 	if ($s->{is_commited}) {
 		$s->status("ERROR: already commited: ".$s->url,'ERR');
 		return 0;
 	}
 	$s->page->cmc->{sqlstr_title_update} //= $s->dbh->prepare('UPDATE _'.$s->name .' SET title=?,purl=?,surl=?,next=?,prev=?,number=?,time=?,file=?,sha1=? where id == ?');
 	$s->page->cmc->{sqlstr_title_update}->execute($s->title,$s->page->url,$s->url,$s->next,$s->prev,$s->number,time,$s->file_name,$s->sha1,$s->id);
-	$s->dbh->commit;
+	#$s->dbh->commit;
 	$s->{is_commited} = 1;
 	return 1;
 }
@@ -179,7 +202,7 @@ sub download {
 		}
 		$s->file_name($s->get_file_name($s->url,$new_depth));
 		$s->status("WARN: new depth $new_depth filename: " . $s->file_name ,'WARN');
-		$s->{filename_depth} = $new_depth;
+		$s->filename_depth($new_depth);
 		return $s->download();
 	}
 	
@@ -205,7 +228,7 @@ sub download {
 sub handle_equal_filenames {
 	my ($s, $sA , $sB) = @_;
 	
-	my $depth = $s->{filename_depth};
+	my $depth = $s->filename_depth;
 	my $diff_names = 0;
 	my ($fnA , $fnB);
 	do {
@@ -287,7 +310,7 @@ sub get_file_name {
 		return undef;
 	}
 	#return $surl if ($s->dummy); TODO
- 	$depth ||= $s->{filename_depth} || 1;
+ 	$depth ||= $s->filename_depth;
 	$surl =~ s#^\w+://##; #remove protokoll
 
 	my @surl = split( '/' , $surl); 
@@ -459,9 +482,22 @@ sub sha1 {
 	return $s->{sha1};
 }
 
+sub filename_depth {
+	my $s = shift;
+	$s->{filename_depth} = $_[0] if @_;
+	return $s->{filename_depth} || $s->ini('rename_depth') || 1;
+	
+}
+
 sub url {
 	my $s = shift; 
 	return $s->{url};
+}
+
+sub dummy {
+	my $s = shift; 
+	$s->{dummy} = $_[0] if @_;
+	return $s->{dummy};
 }
 
 
@@ -505,9 +541,9 @@ sub DESTROY {
 	my $db = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->page->name.' WHERE id = ?',undef,$s->id);
 	unless (((defined $db->{file}) + (defined $db->{next}) + (defined $db->{prev}))>1) {
 		$s->dbh->do('DELETE FROM _' . $s->page->name . ' WHERE id = ?' , undef,$s->id);
-		$s->dbh->commit();
+		#$s->dbh->commit();
 	}
-	$s->status('DESTROYED: '. $s->url,'DEBUG');
+	$s->status('DESTROYED: '. ($s->dummy?'dummy'.$s->id:$s->url),'DEBUG');
 }
 
 }

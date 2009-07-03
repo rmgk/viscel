@@ -34,7 +34,7 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 
 {
 	my $comics = dbutil::readINI('comic.ini');
-	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 0,PrintError => 1});
+	my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 	#$dbh->{Profile} = "6/DBI::ProfileDumper";
 	$dbh->func(300000,'busy_timeout');
 	dbutil::check_table($dbh,'comics');
@@ -58,11 +58,11 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 		}
 		elsif (($opts[0] eq '-rd') and (@opts > 1)) {
 			$opmode = 'repairdelete';
-			unless ($dbh->selectrow_array(qq(SELECT processing FROM CONFIG WHERE processing IS NOT NULL))) { # TODO
+			unless ($dbh->selectrow_array('SELECT processing FROM CONFIG WHERE processing IS NOT NULL')) { # TODO
 				shift @opts;
 				foreach (@opts) {
-					$dbh->do(qq(UPDATE comics SET url_current = NULL,server_update = NULL,archive_current = NULL where comic="$_"));
-					$dbh->do(qq(DROP TABLE _$_));
+					$dbh->do('DELETE FROM comics WHERE comic=?',undef,$_);
+					$dbh->do("DROP TABLE _$_");
 
 				}
 			}
@@ -133,7 +133,7 @@ if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
 				#$dbh->do(qq!INSERT INTO CONFIG (processing,time) values ("$domain",! .time . ")" ); # TODO
 			}
 		}
-		Comic::get_comic({"name" => $comic , "dbh"=> $dbh, "autocommit" => 0});
+		Comic::get_comic({"name" => $comic , "dbh"=> $dbh, "autocommit" => 1});
 		{	#unset processing when done
 			#$dbh->do(qq(DELETE FROM CONFIG WHERE processing = "$domain")); TODO
 			;
