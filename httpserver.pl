@@ -75,7 +75,7 @@ you can connect with any webbrowser and start reading some comics.
 print "Please contact me at: <URL:", "http://127.0.0.1/" ,">\n";
 while (my $c = $d->accept) {
 	while (my $r = $c->get_request) {
-		if ($r->method eq 'GET') {
+		if (($r->method eq 'GET')) {
 			my $req_start_time = Time::HiRes::time if $measure_time; 
 			if ($r->url->path eq '/favicon.ico') {
 				$c->send_file_response("./favicon.ico");
@@ -99,8 +99,16 @@ while (my $c = $d->accept) {
 				elsif ($r->url->path eq '/front') {
 					$res->content(&cfront);
 				}
+				elsif ($r->url->path =~ m#^/tools/(\w+)(?:/(\w+))?#i) {
+					my $answ = &ctools($1,$2);
+					if (!$answ)  { 
+						$c->send_redirect( 'http://127.0.0.1' . $r->url->path );
+						next;
+					}
+					$res->content($answ);
+				}
 				elsif ($r->url->path eq '/tools') {
-					$res->content(&ctools);
+					say "error called old tool link";
 				}
 				elsif ($r->url->path eq '/pod') {
 					$res->content(&cpod);
@@ -113,7 +121,8 @@ while (my $c = $d->accept) {
 			say $r->url->path . '?' . ($r->url->query // '') . " " . (Time::HiRes::time - $req_start_time) if $measure_time;
 			$measure_time = param('measure_time') if defined param('measure_time');
 		}
-		$c->close;
+		$c->send_crlf;
+		#$c->close;
 		#$dbh->commit;
 	}
 	undef($c);
@@ -202,11 +211,11 @@ sub cindex {
 	my @tag = param('tag');
 	$ret .= start_div({-id=>"menu"});
 	$ret .=	"Tools:" . br 
-				#.	a({-href=>"/tools?tool=config",-accesskey=>'c',-title=>'config'},"Configuration") . br 
-				#.	a({-href=>"/tools?tool=user",-accesskey=>'u',-title=>'user'},"User Config"). br 
-				.	a({-href=>"/tools?tool=query",-accesskey=>'q',-title=>'query'},"Custom Query"). br 
-				.	a({-href=>"/tools?tool=filter",-accesskey=>'f',-title=>'filter'},"Custom Contents"). br 
-				.	a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random'},"Random Comic"). br ;
+				#.	a({-href=>"/tools/config",-accesskey=>'c',-title=>'config'},"Configuration") . br 
+				#.	a({-href=>"/tools/user",-accesskey=>'u',-title=>'user'},"User Config"). br 
+				.	a({-href=>"/tools/query",-accesskey=>'q',-title=>'query'},"Custom Query"). br 
+				.	a({-href=>"/tools/filter",-accesskey=>'f',-title=>'filter'},"Custom Contents"). br 
+				.	a({-href=>"/tools/random",-accesskey=>'r',-title=>'random'},"Random Comic"). br ;
 				
 	my $i = 1;
 	$ret .=	br . "Contents:" . br .
@@ -231,6 +240,7 @@ sub cindex {
 	$ret .= html_comic_listing('finished',$cmcs,qq{flags like '%f%' and ($tagcheck)}).br;
 	$ret .= html_comic_listing('stopped',$cmcs,qq{flags like '%s%' and ($tagcheck)}).br;
 	foreach (&filter) {
+		next unless $_;
 		$ret .= html_comic_listing($_,$cmcs, '(' . filter($_) .") and ($tagcheck)").br;
 	}
 	return $ret . end_html;
@@ -251,7 +261,7 @@ sub html_comic_listing {
 	my %toRead;
 	foreach my $comic ( @{$comics}) {
 		if ($broken{$comic}) {
-			$toRead{$comic} = 0;
+			$toRead{$comic} = -1;
 			next;
 		}
 		my $bookmark = $user->{$comic}->{'bookmark'};
@@ -381,11 +391,9 @@ sub cfront {
 	
 	$ret .=		a({-href=>"/",-accesskey=>'i',-title=>'Index'},"Index").' '.
 				a({-href=>"/comics?comic=$comic",-accesskey=>'s',-title=>'striplist'},"Striplist").' '.
-				a({href=>"/tools?tool=cataflag&comic=$comic",-accesskey=>'c',-title=>'categorize'},'Categorize').
+				a({href=>"/tools/cataflag/$comic",-accesskey=>'c',-title=>'categorize'},'Categorize').
 				br;
-	$ret .=		$last .' '; #dbcmcs($comic,'strip_count').' ';
-	$ret .=		a({href=>"/tools?tool=datalyzer&comic=$comic",-accesskey=>'d',-title=>'datalyzer'},'datalyzer').' '.
-				a({href=>"/tools?tool=user&comic=$comic",-accesskey=>'u',-title=>'user'},'user'). br;
+	$ret .=		'Strips: ' . $last .' '; #dbcmcs($comic,'strip_count').' ';
 				
 	if ($broken{$comic}) {
 		$ret .= "broken " 
@@ -395,7 +403,7 @@ sub cfront {
 	$ret .= "tags: " . join(" ",tags($comic)) if tags($comic);
 	
 	if ($random) {
-		$ret .= br. a({-href=>"/tools?tool=random",-accesskey=>'r',-title=>'random strip'},"Random");
+		$ret .= br. a({-href=>"/tools/random",-accesskey=>'r',-title=>'random strip'},"Random");
 	}
 	
 	$ret .=		end_div;
@@ -452,7 +460,7 @@ sub ccomic {
 		}
 		elsif ($file) {
 			$ret .= img({-src=>dbstrps($comic,'id'=>$strip,'surl'),-title=>($titles{it}//''),-alt=>($titles{ia}//'')}).br.
-					a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)");
+					a({-href=>"/tools/download/$comic?strip=$strip"},"(download)");
 		}
 		else {
 			$ret .= "This page is a dummy. Errors are likely";
@@ -468,15 +476,15 @@ sub ccomic {
 
 		$ret .= br;
 		if ($next) {
-			$ret .= a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r",
+			$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=r",
 					-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
 		}
 		elsif (flags($comic)->{c}) {
-			$ret .= a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=rcf",
+			$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=rcf",
 					-accesskey=>'d',-title=>'finish reading this comic'},"finish ");	
 		}
 		else {
-			$ret .= a({-href=>"/tools?tool=cataflag&comic=$comic&bookmark=$strip&addflag=r",
+			$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=r",
 					-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
 		}
 		$ret .= a({-href=>"/front?comic=$comic",
@@ -493,7 +501,7 @@ sub ccomic {
 	}
 	else {
 		my $list;
-		my $dat = $dbh->selectall_hashref("select strip,number,title,file from _$comic where number is not null","number");
+		my $dat = $dbh->selectall_hashref("SELECT id,number,title,file FROM _$comic WHERE number IS NOT NULL","number");
 		
 		$list = &kopf($comic);
 		$list .= preview_head;
@@ -506,12 +514,12 @@ sub ccomic {
 		
 		for (my $i = 1;defined $dat->{$i};$i++) {
 
-			my %titles = get_title($comic,$strip);
+			my %titles = get_title($comic,$dat->{$i}->{id});
 			$list .= sprintf $strip_str,
 				$dat->{$i}->{file}, #direct img url
-				$dat->{$i}->{file}, #strip page url
+				$dat->{$i}->{id}, #strip page url
 				$dat->{$i}->{file}, #direct img url
-				"$i : $dat->{$i}->{file} : " .join(' - ',grep(defined, values %titles )); #strip title
+				"$i : $dat->{$i}->{file} : " .join(' - ',grep { $_ } values(%titles) ); #strip title
 		}
 		$list .= end_html;
 		return $list;
@@ -547,9 +555,11 @@ sub get_title {
 =cut
 
 sub ctools {
-	my $tool = param('tool');
-	my $comic = param('comic');
-	
+	my $tool = shift;
+	my $comic = shift;
+	if (!$tool) {
+		say 'called tools without tool TODO';
+	}
 	
 =head2 Cataflag
 
@@ -565,8 +575,10 @@ you can also I<strop reading> a comic which basically means that you dont like i
 	if ($tool eq "cataflag") {
 		my $tags = join(" ",param('tags')) .  (param('new_tag') ? " ". param('new_tag') : '');
 		if ($tags) { tags($comic,$tags); }
-		elsif (param('ok') ) { tags($comic,'<>'); };
-		
+		elsif (param('st')) { tags($comic,'<>'); }
+		my $flags = join ('',param('flags'));
+		if ($flags) {flags($comic,$flags)}
+		elsif (param('sf')) { flags($comic,'<>'); }
 		my $addflag = param('addflag');
 		flags($comic,"+$addflag") if $addflag;
 		if (param('bookmark')) {
@@ -574,33 +586,51 @@ you can also I<strop reading> a comic which basically means that you dont like i
 			$bookmark =~ s/ /%20/ig; #TODO bookmarks are now numbers!
 			dbcmcs($comic,'bookmark',$bookmark );
 		}
+		if (param()) {
+			return undef; # this causes to redirect back to this page without parameters
+		}
 		my $res = &kopf($comic." tags and flags");
 
 		$res .= h1('Tags');
-		$res .= start_form({-method=>'GET',-action=>'tools',-name=>'setTags'});
-		$res .= hidden('comic',$comic);
-		$res .= hidden('tool',"cataflag");
-		$res .= hidden('ok',1);
+		$res .= start_form({-method=>'GET',-action=>"/tools/cataflag/$comic",-name=>'setTags'});
+		$res .= hidden('st',1);
 		$res .= checkbox_group(-name=>'tags',
 								 -onclick=>'document.setTags.submit()',
 	                             -values=>[&tags],
 								 -default=>[&tags($comic)],
 	                             -linebreak=>'true');
-		$res .= "new: " . textfield(-name=>'new_tag');
-		$res .= br . submit('ok');
+		$res .= br . textfield(-name=>'new_tag') . " enter new";
+		#$res .= br . submit('ok');
 		$res .= end_form;
-		$res .= br . (flags($comic)->{c} ?a({-href=>"/tools?tool=cataflag&comic=$comic&addflag=rf"},"this comic is complete and i have finished reading it")
-					: a({href=>"/tools?tool=cataflag&comic=$comic&addflag=c"},'this comic is complete'));
-		$res .= br . a({href=>"/tools?tool=cataflag&comic=$comic&addflag=s"},'stop reading this comic');
-		$res .= br. a({-href=>"/tools?tool=user&comic=$comic"},"advanced") .br;
-		$res .= br. a({-href=>"/tools?comic=$comic&tool=cataflag"},"reload") .br. a({-href=>"/front?comic=$comic"},"Frontpage").br. a({-href=>"/"},"Index");
+		$res .= h1('Flags');
+		$res .= start_form({-method=>'GET',-action=>"/tools/cataflag/$comic",-name=>'setFlags'});
+		$res .= hidden('sf',1);
+		$res .= checkbox_group(-name=>'flags',
+								 -onclick=>'document.setFlags.submit()',
+	                             -values=>[qw(c r f s l w)],
+								 -default=>[ keys %{flags($comic)}],
+	                             -linebreak=>'true',
+								 -disabled=>[qw(l w)],
+								 -labels=>{c=>'this comic is complete',r=>'you are reading this comic',
+								 f=>'you finished reading this comic (needs c)',s=>'you stopped reading this comic',
+								 l=>'this comic has a loop',w=>'database error warning'});
+		#$res .= br . submit('ok');
+		$res .= end_form;
+		# $res .= br . (flags($comic)->{c} ?a({-href=>"/tools/cataflag/$comic?addflag=rf"},"this comic is complete and i have finished reading it")
+					# : a({href=>"/tools/cataflag/$comic?addflag=c"},'this comic is complete'));
+		# $res .= br . a({href=>"/tools/cataflag/$comic?addflag=s"},'stop reading this comic');
+		$res .= br. a({-href=>"/tools/comics/$comic"},"advanced") .br;
+		$res .= a({href=>"/tools/datalyzer/$comic",-accesskey=>'d',-title=>'datalyzer'},'datalyzer').br;
+		$res .= br. a({-href=>"/tools/cataflag/$comic"},"reload") .br. a({-href=>"/front?comic=$comic"},"Frontpage").br. a({-href=>"/"},"Index");
 		$res .= end_html;;
 		return $res;	
 	}	
+	
+	
 	if ($tool eq "download") {
 		require dlutil;
 		my $strip = param('strip');
-		say "TODO not working";
+		say "TODO not working: download";
 		#&dlutil::getstore(&dat($comic,$strip,'surl'),"./strips/$comic/$strip");
 		return &ccomic;
 	}
@@ -689,22 +719,22 @@ this are normal healty strips somewhere in the comic
 		if ($sec and ($sec eq 'strps')) {
 			$res .= table(Tr([map {td([ #creating table with key : value pairs via map
 					#if it is prev or next make it a link; else just print out the information
-					$_,":",	($_ =~ m/prev|next/)	?	a({href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
+					$_,":",	($_ =~ m/prev|next/)	?	a({href=>"/tools/datalyzer/$comic?section=strps&strip=".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
 					#make links klickable
 					($_ =~ m/url/)	?	 a({href=>$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
 					$d{$sec}->{param('strip')}->{$_}
 					])} grep {$_ ne 'n'} keys %{$d{$sec}->{param('strip')}}]));	#getting all keys 
-			$res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
+			$res .= br . a({-href=>"/tools/datalyzer/$comic"},"Back")
 		}
 		elsif ($sec) {
 			$res .= table(Tr([map {td([	#creating table with key : value pairs via map
-					a({-href=>"/tools?tool=datalyzer&comic=$comic&section=strps&strip=" . $d{$sec}->{$_}},$d{$sec}->{$_})
+					a({-href=>"/tools/datalyzer/$comic?section=strps&strip=" . $d{$sec}->{$_}},$d{$sec}->{$_})
 					])} grep {$_ ne 'n'} keys %{$d{$sec}}]));	#getting all keys 
-			$res .= br . a({-href=>"/tools?tool=datalyzer&comic=$comic"},"Back")
+			$res .= br . a({-href=>"/tools/datalyzer/$comic"},"Back")
 		}
 		else {
 			$res .= table(Tr([map {td([	#creating table with key : value pairs via map
-					a({-href=>"/tools?tool=datalyzer&comic=$comic&section=$_"},$_) , ':' , $d{$_}->{n}
+					a({-href=>"/tools/datalyzer/$comic?section=$_"},$_) , ':' , $d{$_}->{n}
 					])} grep {$_ ne 'strps'} keys %d]));	#getting all keys 
 		}
 		return $res .= br . a({-href=>"/"},"Index") . end_html;
@@ -717,35 +747,46 @@ here you can edit the user table directly. this is just for debugging purposes.
 
 =cut
 
-	if ($tool eq 'user') {
-		my $user = $dbh->selectall_hashref("SELECT * FROM comics","comic");
+	if ($tool eq 'comics') {
 		my $res = &kopf('comics');
 		if ($comic) {
-			$res .= start_form("GET","tools");
-			$res .= hidden('tool',"user");
+			my $user = $dbh->selectrow_hashref("SELECT * FROM comics WHERE comic = ?",undef,$comic);
 			$res .= start_table;
-			if (param('delete') and (param('delete') ne '')) {
-				#&usr($comic,param('delete'),0,'delete');
-				say "TODO no longer implemented, use custom query";
+			foreach my $key (keys %{$user}) {
+				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>dbcmcs($comic,$key), -size=>"100")));
 			}
-			foreach my $key (keys %{$user->{param('comic')}}) {
-				if (param($key)) {
-					dbcmcs($comic,$key,param($key));
-				}
-				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>dbcmcs($comic,$key), -size=>"100")),td(a({-href=>"/tools?tool=user&delete=$key&comic=" .$comic},"delete $key")));
-			}
-			return $res . end_table . submit('ok'). br . br .a({-href=>"/tools?tool=user&comic=".$comic},"reload") .br. a({-href=>"/tools?tool=user"},"all comics") . br . a({-href=>"/"},"Index") . end_html;
+			$res .= end_table . br . br. a({-href=>"/tools/strips/$comic"},"strips") . br.br;
+			$res .= a({-href=>"/tools/comics/$comic"},"reload") .br.a({-href=>"/tools/cataflag/$comic"},"back")  . br ;
+			$res .= a({-href=>"/"},"Index") . end_html;
+			return $res;
 		}
+		my $user = $dbh->selectall_hashref("SELECT * FROM comics","comic");
 		$res .= start_table;
 		my $h = 0;
 		foreach my $cmc (sort{uc($a) cmp uc($b)} (keys %{$user})) {
 
 			$res .=  Tr(td('name'),td([keys %{$user->{$cmc}}])) if !$h;
 			$h = 1;
-			$res .=  Tr(td(a({-href=>"/tools?tool=user&comic=". $cmc},$cmc)),td([map {textfield(-name=>$_, -default=>dbcmcs($cmc,$_))} keys %{$user->{$cmc}}]));
+			$res .=  Tr(td(a({-href=>"/tools/comics/$cmc"},$cmc)),td([map {textfield(-name=>$_, -default=>dbcmcs($cmc,$_))} keys %{$user->{$cmc}}]));
 		}
 		return $res . end_table . br . br .  a({-href=>"/"},"Index") . end_html;
 	}
+	
+	if ($tool eq 'strips') {
+		my $res = &kopf('strips');
+		if ($comic) {
+			my $user = $dbh->selectall_hashref("SELECT * FROM _$comic",'id');
+			$res .= start_table;
+			my $h = 0;
+			foreach my $key (keys %{$user}) {
+				$res .=  Tr(td([keys %{$user->{$key}}])) if !$h;
+				$h = 1;
+				$res .=  Tr(td([map {textfield(-name=>$_, -default=>$user->{$key}->{$_})} keys %{$user->{$key}}]));
+			}
+			return $res . end_table . br . br .a({-href=>"/tools/strips/$comic"},"reload") .br.a({-href=>"/tools/comics/$comic"},"back")  . br . a({-href=>"/"},"Index") . end_html;
+		}
+	}
+	
 	
 =head2 Custom Query
 
@@ -763,10 +804,9 @@ if you input a column in the second field, the output becomes more readable
 			else {
 				$res .= pre(Dumper($dbh->selectall_arrayref(param('query'))));
 			}
-			return $res . br . br . a({-href=>"/tools?tool=query"},"Back") . br .  a({-href=>"/"},"Index") . end_html;
+			return $res . br . br . a({-href=>"/tools/query"},"Back") . br .  a({-href=>"/"},"Index") . end_html;
 		}
-		$res .= start_form("GET","tools");
-		$res .= hidden('tool',"query");
+		$res .= start_form("GET","/tools/query");
 		$res .= textfield(-name=>"query", -size=>"200") . br;
 		$res .= textfield(-name=>"hashkey", -size=>"20");
 		$res .= br . submit('ok');
@@ -787,7 +827,7 @@ if used without a comic parameter it will update all comics (this may take some 
 			return &kopf("Force Update $comic") . "Time: " . (Time::HiRes::time - $time) . " Seconds" . end_html;
 		}
 		my $time = Time::HiRes::time;
-		$dbh->do("UPDATE USER set server_update = NULL");
+		$dbh->do("UPDATE comics SET server_update = NULL");
 		&update;
 		return &kopf('Force Update All') . "Time: " . (Time::HiRes::time - $time) . " Seconds" . end_html;
 	}
@@ -820,7 +860,7 @@ with import all .cie files in your current folder will be importet, renamed and 
 no changes to your data are made, imported values are just placed on top of your values.
 you can delete all imported data via this link:
 
-L<http://127.0.0.1/tools?tool=query&query=update+user+set+itags+%3D+NULL%2C+iflags+%3D+NULL>
+L<http://127.0.0.1/tools/query?query=update+user+set+itags+%3D+NULL%2C+iflags+%3D+NULL>
 
 copy all the files from you ./import folder to your main folder to reimport everything you had imported.
 
@@ -892,17 +932,16 @@ endless possibilitys!
 			filter(param('delete'),0)
 		}
 		my $res = &kopf('Filter');
-		$res .= start_form("GET","tools");
-		$res .= hidden('tool',"filter");
+		$res .= start_form("GET","/tools/filter");
 		$res .= start_table;
 		foreach my $filter (&filter) {
 			if (defined param($filter) and param($filter) ne '') {
 				filter($filter,param($filter));
 			}
-			$res .=  Tr(td($filter),td(filter($filter),td(a({-href=>"/tools?tool=filter&delete=$filter"},'delete'))));
+			$res .=  Tr(td($filter),td(filter($filter),td(a({-href=>"/tools/filter&delete=$filter"},'delete'))));
 		}
 		$res .=  Tr(td(textfield(-name=>"new_filter_name", -size=>"20")),td(textfield(-name=>"new_filter", -size=>"100")));
-		return $res . end_table . submit('ok'). br . br . a({-href=>"/tools?tool=filter"},"reload") .br. a({-href=>"/"},"Index") . end_html;
+		return $res . end_table . submit('ok'). br . br . a({-href=>"/tools/filter"},"reload") .br. a({-href=>"/"},"Index") . end_html;
 	}
 }
 
@@ -1276,6 +1315,8 @@ with name and new, sets filter (deletes if new is defined but not true)
 =cut
 
 sub filter {
+	say join(':',caller) . ' called non supportet routine FILTER  TODO';
+	return '';
 	my $filter = shift;
 	my $new = shift;
 	my $str_fil = config('filter') // '';
