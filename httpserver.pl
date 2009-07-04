@@ -250,22 +250,24 @@ sub html_comic_listing {
 	
 	my %toRead;
 	foreach my $comic ( @{$comics}) {
+		if ($broken{$comic}) {
+			$toRead{$comic} = 0;
+			next;
+		}
 		my $bookmark = $user->{$comic}->{'bookmark'};
 		if ($bookmark) {
-			my $sc = $user->{$comic}->{'strip_count'};
+			#my $sc = $user->{$comic}->{'strip_count'};
+			my $sc = dbstrps($comic,'id'=>$user->{$comic}->{'last'},'number');
 			my $num = dbstrps($comic,'id'=>$bookmark,'number');
 			if ($sc and $num) {
 				$toRead{$comic} =  $sc - $num;
 			}
 			else {
-				$sc //= '';
-				$num //= '';
-				say "comic '$comic' strip '$bookmark' strips counted '$sc' number '$num'"; 
-				$toRead{$comic} = $sc;
+				$toRead{$comic} = -1;
 			}
 		}
 		else {
-			$toRead{$comic} = $user->{$comic}->{'strip_count'} // 0;
+			$toRead{$comic} = dbstrps($comic,'id'=>$user->{$comic}->{'last'},'number') // -1;
 		}
 	}
 	
@@ -276,7 +278,7 @@ sub html_comic_listing {
 		$mul = ($mul > 0) ? log($mul) : $mul;
 		
 		
-		my ($first,$current,$bookmark,$last) = ($usr->{'first'},$usr->{'current'},$usr->{'bookmark'},$usr->{'last'});
+		my ($first,$bookmark,$last) = ($usr->{'first'},$usr->{'bookmark'},$usr->{'last'});
 		my $cmc_str = td(a({-href=>"/comics?comic=$comic&strip=%s",-onmouseout=>"hideIMG();",
 						-onmouseover=>"showImg('/strips/$comic/%s')"},"%s"));
 		
@@ -285,10 +287,9 @@ sub html_comic_listing {
 			-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;"},$comic));
 			
 		$ret .= $first	 ?	sprintf($cmc_str , $first	 , $first	 , '|&lt;&lt;')  :td();
-		$ret .= $current ?	sprintf($cmc_str , $current	 , $current	 , '&gt;&gt;' )  :td();
 		$ret .= $bookmark?	sprintf($cmc_str , $bookmark , $bookmark , '||'		  )  :td();
 		
-		if ($current and $last and ($current eq $last)) {
+		if ($bookmark and $last and ($bookmark eq $last)) {
 			$ret .=	td('&gt;&gt;|');
 		}
 		elsif ($last) {
@@ -320,6 +321,9 @@ sub colorGradient {
 	my $cv = shift;
 	my $base = shift;
 	my $col = $cv/$base;
+	if ($col<0) {
+		return 'ffffff';
+	}
 	if ($col<0.5) {
 		my $r = sprintf "%02x", $col * 255 * 2;
 		return "${r}ff00";
@@ -349,7 +353,6 @@ sub cfront {
 	my $random = shift;
 	my $first =  dbcmcs($comic,'first');
 	my $last = dbcmcs($comic,'last' );
-	my $current = dbcmcs($comic,'current' );
 	my $bookmark = dbcmcs($comic,'bookmark' );
 	my $ret = &kopf($comic . " Frontpage",0,0,
 					$first ?"/comics?comic=$comic&strip=".$first :"0",
@@ -376,19 +379,12 @@ sub cfront {
 					
 	$ret .=		start_div({-class=>"navigation"});
 	
-	if ($current) {
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".$current,-accesskey=>'c',-title=>'last read strip',
-				-onmouseover =>"document.getElementById('bookmark').src='/strips/$comic/".$current."'",
-				-onmouseout =>"document.getElementById('bookmark').src='/strips/$comic/".$bookmark."'"
-				},'current') . br;
-	}
-	
 	$ret .=		a({-href=>"/",-accesskey=>'i',-title=>'Index'},"Index").' '.
 				a({-href=>"/comics?comic=$comic",-accesskey=>'s',-title=>'striplist'},"Striplist").' '.
 				a({href=>"/tools?tool=cataflag&comic=$comic",-accesskey=>'c',-title=>'categorize'},'Categorize').
 				br;
-	$ret .=		dbcmcs($comic,'strip_count') .' '. #usr($comic,'strips_counted').' '.
-				a({href=>"/tools?tool=datalyzer&comic=$comic",-accesskey=>'d',-title=>'datalyzer'},'datalyzer').' '.
+	$ret .=		$last .' '; #dbcmcs($comic,'strip_count').' ';
+	$ret .=		a({href=>"/tools?tool=datalyzer&comic=$comic",-accesskey=>'d',-title=>'datalyzer'},'datalyzer').' '.
 				a({href=>"/tools?tool=user&comic=$comic",-accesskey=>'u',-title=>'user'},'user'). br;
 				
 	if ($broken{$comic}) {
@@ -492,7 +488,6 @@ sub ccomic {
 		$ret .= end_div;
 		$ret .= end_div;
 		
-		dbcmcs($comic,'current',$strip) unless ($random or !$file);
 		dbcmcs($comic,'bookmark',$strip) if param('bookmark');
 		return $ret . end_html;
 	}
@@ -652,7 +647,7 @@ this are normal healty strips somewhere in the comic
 		$d{prev}->{n} = 0;
 		$d{next}->{n} = 0;
 		$d{none}->{n} = 0;
-		my $strips = $dbh->selectall_hashref("SELECT * FROM _$comic","STRIP");
+		my $strips = $dbh->selectall_hashref("SELECT * FROM _$comic","id");
 		foreach my $strp (keys %{$strips}) {
 			$d{count}->{$d{count}->{n}} = $strp;
 			$d{count}->{n}++;
@@ -1064,7 +1059,7 @@ sub update { #TODO! is it even neccessary?
 			}
 		}
 		dbcmcs($comic,'last',$strp);
-		dbcmcs($comic,'strip_count',$i);
+		#dbcmcs($comic,'strip_count',$i);
 		print ".";
 	}
 	print "\nupdating: ". (Time::HiRes::time - $ttu) . " seconds\ncommiting: " if @comics;
@@ -1094,6 +1089,8 @@ usr and dat use caching, so asking them for the same value over and over again s
 
 sub config {  #todo
 	my ($key,$value,$null) = @_;
+	say join(':',caller) . ' called non supportet routine config TODO';
+	return;
 	return $dbh->selectrow_array(qq(SELECT $key FROM config));
 }
 
@@ -1101,6 +1098,7 @@ sub dbcmcs { #gibt die aktuellen einstellungen des comics aus # hier gehören die
 	my ($c,$key,$value) = @_;
 	if (defined $value and $value ne '') {
 		$dbh->do("UPDATE comics SET $key = ? WHERE comic = ?",undef,$value,$c);
+		%strpscache = ();
 	}
 	if ($strpscache{comic} and ($c eq $strpscache{comic})) {
 		return $strpscache{$key};
@@ -1116,6 +1114,7 @@ sub dbstrps { #gibt die dat und die dazugehörige configuration des comics aus # 
 	if (defined $value) {
 		my $sth = $dbh->prepare("UPDATE _$c SET $select = ? WHERE $get = ?");
 		$sth->execute($value,$key);
+		%strpscache = ();
 	}
 	if ($strpscache{comic} and ($c eq $strpscache{comic}) and ($get eq 'id')) {
 		return $strpscache{$key}->{$select};

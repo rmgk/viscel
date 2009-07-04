@@ -28,7 +28,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '36';
+$VERSION = '37';
 
 =head1	General Methods
 
@@ -159,6 +159,7 @@ sub get_all {
 		$last_strip = $s->curr->all_strips($last_strip);
 		return undef unless $last_strip;
 		$s->write_url_current();
+		$s->dbcmc('last',$last_strip->number());
 		if (time > $s->{time_to_stop}) {
 			$s->status("STOPPED - timelimit reached",'UINFO');
 			last;
