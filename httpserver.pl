@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.47';
+$VERSION = '2.50';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
@@ -44,18 +44,24 @@ my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,Prin
 $dbh->func(300000,'busy_timeout'); #we dont want to timeout (timeout happens if comic3.pl and httpserver.pl are run at the same time)
 my %broken; #we save all the comics marked as broken in comic.ini here
 my %rand_seen; #this is for remembering which comics we already selected randomly
-my @db_cache = ('','','',''); #i often need to get a value multiple times, so we safe the last value for each request as an element of this array
 my $measure_time = $ARGV[0]; #set this to one to get some info on request time
 my $css; #we save our style sheet in here
+my %strpscache; #caching strips db
 
 # $dbh->{Profile} = 6 if $measure_time;
 
 #if we are processing something, we dont want to update!
-if ($dbh->selectrow_array(qq(select processing from CONFIG where processing is not null and processing not like "")))  {
-	say "skipping update while comics are processed...";
-}
-else {
-	&update;
+# if ($dbh->selectrow_array(qq(select processing from CONFIG where processing is not null and processing not like "")))  {
+	# say "skipping update while comics are processed..."; TODO
+# }
+# else {
+	# &update;
+# }
+my $comini = dbutil::readINI('comic.ini',);
+foreach my $name (keys %{$comini}) {
+	if ($comini->{$name}->{broken}) {
+		$broken{$name} = 1;
+	}
 }
 
 
@@ -75,7 +81,9 @@ while (my $c = $d->accept) {
 				$c->send_file_response("./favicon.ico");
 			}
 			elsif ($r->url->path =~ m#^/strips/(.*?)/(.*)$#) {
-				$c->send_file_response("./strips/$1/$2");
+				my ($comic,$strip) = ($1,$2);
+				($strip =~ /^\d+$/) ? $strip = dbstrps($comic,'id'=>$strip,'file') : undef;
+				$c->send_file_response("./strips/$comic/$strip");
 			}
 			elsif ($r->url->path eq '/style.css') {
 					$rescss->content(&ccss);
@@ -85,6 +93,7 @@ while (my $c = $d->accept) {
 				restore_parameters($r->url->query);
 
 				if ($r->url->path eq '/comics') {
+					cache_strps(param('comic'));
 					$res->content(&ccomic);
 				}
 				elsif ($r->url->path eq '/front') {
@@ -214,7 +223,7 @@ sub cindex {
 	
 	$ret .= &preview_head();
 	
-	my $cmcs = $dbh->selectall_hashref("select * from user",'comic');
+	my $cmcs = $dbh->selectall_hashref("SELECT * FROM comics",'comic');
 	my $tagcheck = '1';
 	$tagcheck = join(' and ',map {"tags like '%$_%'"} (@tag)) if @tag;
 	$ret .= html_comic_listing('continue',$cmcs,qq{flags like '%r%' and flags not like '%f%' and flags not like '%s%' and ($tagcheck)}).br;
@@ -231,7 +240,7 @@ sub html_comic_listing {
 	my $name = shift;
 	my $user = shift;
 	my $filter = shift;
-	my $comics = $dbh->selectcol_arrayref(qq{select comic from USER where ($filter)});
+	my $comics = $dbh->selectcol_arrayref("SELECT comic FROM comics WHERE ($filter)");
 	
 	my $ret = start_div({-class=>"group"}) . h1(a({name=>$name},$name));
 	$ret .= start_table();
@@ -243,8 +252,8 @@ sub html_comic_listing {
 	foreach my $comic ( @{$comics}) {
 		my $bookmark = $user->{$comic}->{'bookmark'};
 		if ($bookmark) {
-			my $sc = $user->{$comic}->{'strips_counted'};
-			my $num = dat($comic,$bookmark,'number');
+			my $sc = $user->{$comic}->{'strip_count'};
+			my $num = dbstrps($comic,'id'=>$bookmark,'number');
 			if ($sc and $num) {
 				$toRead{$comic} =  $sc - $num;
 			}
@@ -256,7 +265,7 @@ sub html_comic_listing {
 			}
 		}
 		else {
-			$toRead{$comic} = $user->{$comic}->{'strips_counted'} // 0;
+			$toRead{$comic} = $user->{$comic}->{'strip_count'} // 0;
 		}
 	}
 	
@@ -267,7 +276,7 @@ sub html_comic_listing {
 		$mul = ($mul > 0) ? log($mul) : $mul;
 		
 		
-		my ($first,$current,$bookmark,$last) = ($usr->{'first'},$usr->{'aktuell'},$usr->{'bookmark'},$usr->{'last'});
+		my ($first,$current,$bookmark,$last) = ($usr->{'first'},$usr->{'current'},$usr->{'bookmark'},$usr->{'last'});
 		my $cmc_str = td(a({-href=>"/comics?comic=$comic&strip=%s",-onmouseout=>"hideIMG();",
 						-onmouseover=>"showImg('/strips/$comic/%s')"},"%s"));
 		
@@ -287,7 +296,7 @@ sub html_comic_listing {
 		}
 		$ret .= td(toRead{$comic}) if param('toread');
 		$ret .= td($usr->{'strip_count'}) if param('count');
-		$ret .= td($usr->{'strips_counted'}) if param('counted');
+		#$ret .= td($usr->{'strips_counted'}) if param('counted');
 		
 		$ret .= "</tr>";
 		
@@ -338,35 +347,39 @@ and last but not least you can L<categorize|/"Cataflag"> the comic.
 sub cfront {
 	my $comic = param('comic') // shift;
 	my $random = shift;
+	my $first =  dbcmcs($comic,'first');
+	my $last = dbcmcs($comic,'last' );
+	my $current = dbcmcs($comic,'current' );
+	my $bookmark = dbcmcs($comic,'bookmark' );
 	my $ret = &kopf($comic . " Frontpage",0,0,
-					&usr($comic,'first') ?"/comics?comic=$comic&strip=".&usr($comic,'first') :"0",
-					&usr($comic,'last' ) ?"/comics?comic=$comic&strip=".&usr($comic,'last' ) :"0",
+					$first ?"/comics?comic=$comic&strip=".$first :"0",
+					dbcmcs($comic,'last' ) ?"/comics?comic=$comic&strip=".dbcmcs($comic,'last' ) :"0",
 					);
 					
 	$ret .= start_div({-class=>'frontpage'});
 	$ret .=		h2($comic);
 	
-	if(&usr($comic,'bookmark')) {	#if a bookmark is set we display 3 strips at once.
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},
-				img({-class=>"front3",-id=>'first',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"}));
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},
-				img({-class=>"front3",-id=>'last',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}));
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'bookmark'),-accesskey=>'n',-title=>'bookmarked strip'},
-				img({-class=>"front3",-id=>'bookmark',-src=>"/strips/$comic/".&usr($comic,'bookmark'),-alt=>"bookmark"}));
+	if($bookmark) {	#if a bookmark is set we display 3 strips at once.
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".$first,-accesskey=>'f',-title=>'first strip'},
+				img({-class=>"front3",-id=>'first',-src=>"/strips/$comic/".$first,-alt=>"first"}));
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".$last,-accesskey=>'l',-title=>'last strip'},
+				img({-class=>"front3",-id=>'last',-src=>"/strips/$comic/".$last,-alt=>"last"}));
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".$bookmark,-accesskey=>'n',-title=>'bookmarked strip'},
+				img({-class=>"front3",-id=>'bookmark',-src=>"/strips/$comic/".$bookmark,-alt=>"bookmark"}));
 	} 
 	else { #if not we just display two
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'first'),-accesskey=>'f',-title=>'first strip'},
-				img({-class=>"front2",-id=>'first',-src=>"/strips/$comic/".&usr($comic,'first'),-alt=>"first"}));
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'last'),-accesskey=>'l',-title=>'last strip'},
-				img({-class=>"front2",-id=>'last',-src=>"/strips/$comic/".&usr($comic,'last'),-alt=>"last"}));
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".$first,-accesskey=>'f',-title=>'first strip'},
+				img({-class=>"front2",-id=>'first',-src=>"/strips/$comic/".$first,-alt=>"first"}));
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".$last,-accesskey=>'l',-title=>'last strip'},
+				img({-class=>"front2",-id=>'last',-src=>"/strips/$comic/".$last,-alt=>"last"}));
 	};
 					
 	$ret .=		start_div({-class=>"navigation"});
 	
-	if (&usr($comic,'aktuell')) {
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".&usr($comic,'aktuell'),-accesskey=>'c',-title=>'last read strip',
-				-onmouseover =>"document.getElementById('bookmark').src='/strips/$comic/".&usr($comic,'aktuell')."'",
-				-onmouseout =>"document.getElementById('bookmark').src='/strips/$comic/".&usr($comic,'bookmark')."'"
+	if ($current) {
+		$ret .= a({-href=>"/comics?comic=$comic&strip=".$current,-accesskey=>'c',-title=>'last read strip',
+				-onmouseover =>"document.getElementById('bookmark').src='/strips/$comic/".$current."'",
+				-onmouseout =>"document.getElementById('bookmark').src='/strips/$comic/".$bookmark."'"
 				},'current') . br;
 	}
 	
@@ -374,7 +387,7 @@ sub cfront {
 				a({-href=>"/comics?comic=$comic",-accesskey=>'s',-title=>'striplist'},"Striplist").' '.
 				a({href=>"/tools?tool=cataflag&comic=$comic",-accesskey=>'c',-title=>'categorize'},'Categorize').
 				br;
-	$ret .=		usr($comic,'strip_count') .' '. usr($comic,'strips_counted').' '.
+	$ret .=		dbcmcs($comic,'strip_count') .' '. #usr($comic,'strips_counted').' '.
 				a({href=>"/tools?tool=datalyzer&comic=$comic",-accesskey=>'d',-title=>'datalyzer'},'datalyzer').' '.
 				a({href=>"/tools?tool=user&comic=$comic",-accesskey=>'u',-title=>'user'},'user'). br;
 				
@@ -415,18 +428,17 @@ sub ccomic {
 	
 	if ($strip) {
 		my $ret;
-		my $title = &dat($comic,$strip,'title') // '';
-		my @titles = split(' !§! ',$title);
-		$title =~ s/-§-//g;
-		$title =~ s/!§!/|/g;
-		$title =~ s/~§~/~/g;
+
+		my %titles = get_title($comic,$strip);
+		#$strip =~ s/%7C/|/ig;
+		#$strip =~ s/ /%20/ig;
 		
-		$strip =~ s/%7C/|/ig;
-		$strip =~ s/ /%20/ig;
+		my ($prev,$next, $first,$last,$file) = (
+			dbstrps($comic,'id'=>$strip,'prev'),dbstrps($comic,'id'=>$strip,'next'),
+			dbcmcs($comic,'first'),dbcmcs($comic,'last'),dbstrps($comic,'id'=>$strip,'file')
+			);
 		
-		my ($prev,$next,$first,$last) = (&dat($comic,$strip,'prev'),&dat($comic,$strip,'next'),&usr($comic,'first'),&usr($comic,'last'));
-		
-		$ret = &kopf($title,
+		$ret = &kopf($titles{st},
 					$prev  ?"/comics?comic=$comic&strip=" . $prev :"0",
 					$next  ?"/comics?comic=$comic&strip=" . $next :"0",
 					$first ?"/comics?comic=$comic&strip=" . $first:"0",
@@ -437,13 +449,13 @@ sub ccomic {
 					
 		$ret .= start_div({-class=>"comic"});
 		
-		$ret .= h3($title);
+		$ret .= h3($titles{h1});
 		
-		if (-e "./strips/$comic/$strip") { 
-			$ret .= img({-src=>"/strips/$comic/$strip",-title=>($titles[2]//''),-alt=>($titles[3]//'')});
+		if (-e "./strips/$comic/$file") { 
+			$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
 		}
-		elsif ($strip!~m/^dummy/) {
-			$ret .= img({-src=>&dat($comic,$strip,'surl'),-title=>($titles[2]//''),-alt=>($titles[3]//'')}).br.
+		elsif ($file) {
+			$ret .= img({-src=>dbstrps($comic,'id'=>$strip,'surl'),-title=>($titles{it}//''),-alt=>($titles{ia}//'')}).br.
 					a({-href=>"/tools?tool=download&comic=$comic&strip=$strip"},"(download)");
 		}
 		else {
@@ -474,19 +486,19 @@ sub ccomic {
 		$ret .= a({-href=>"/front?comic=$comic",
 				-accesskey=>'f',-title=>'frontpage'},"front ");			
 				
-		$ret .= a({-href=>&dat($comic,$strip,'url'),
-				-accesskey=>'s',-title=>'homepage of the strip'},"site ") if &dat($comic,$strip,'url');	
+		my $purl = dbstrps($comic,'id'=>$strip,'purl');
+		$ret .= a({-href=>$purl, -accesskey=>'s',-title=>'homepage of the strip'},"site ") if $purl;	
 				
-		$ret .=end_div;
+		$ret .= end_div;
 		$ret .= end_div;
 		
-		&usr($comic,'aktuell',$strip) unless ($random or $strip=~m/^dummy/);
-		&usr($comic,'bookmark',$strip) if param('bookmark');
+		dbcmcs($comic,'current',$strip) unless ($random or !$file);
+		dbcmcs($comic,'bookmark',$strip) if param('bookmark');
 		return $ret . end_html;
 	}
 	else {
 		my $list;
-		my $dat = $dbh->selectall_hashref(qq(select strip,number,title from _$comic where number is not null),"number");
+		my $dat = $dbh->selectall_hashref("select strip,number,title,file from _$comic where number is not null","number");
 		
 		$list = &kopf($comic);
 		$list .= preview_head;
@@ -499,21 +511,41 @@ sub ccomic {
 		
 		for (my $i = 1;defined $dat->{$i};$i++) {
 
-			my $title = $dat->{$i}->{'title'} // '';
-			$title =~ s/-§-//g;
-			$title =~ s/!§!/|/g;
-			$title =~ s/~§~/~/g;	
+			my %titles = get_title($comic,$strip);
 			$list .= sprintf $strip_str,
-				$dat->{$i}->{strip}, #direct img url
-				$dat->{$i}->{strip}, #strip page url
-				$dat->{$i}->{strip}, #direct img url
-				"$i : $dat->{$i}->{strip} : $title"; #strip title
+				$dat->{$i}->{file}, #direct img url
+				$dat->{$i}->{file}, #strip page url
+				$dat->{$i}->{file}, #direct img url
+				"$i : $dat->{$i}->{file} : " .join(' - ',grep(defined, values %titles )); #strip title
 		}
 		$list .= end_html;
 		return $list;
 	}
 }
 
+sub get_title {
+	my ($comic,$strip) = @_;
+	my $title = dbstrps($comic,'id'=>$strip,'title') // '';
+	my %titles;
+	if ($title =~ /^\{.*\}$/) {
+		%titles = %{eval($title)};
+		#ut - user title; st - site title; it - image title; ia - image alt; h1 - head 1; dt - div title ; sl - selected title;
+	}
+	else {
+		my @titles = split(' !§! ',$title);
+		$title =~ s/-§-//g;
+		$title =~ s/!§!/|/g;
+		$title =~ s/~§~/~/g;
+		$titles{ut} = $titles[0];
+		$titles{st} = $titles[1];
+		$titles{it} = $titles[2];
+		$titles{ia} = $titles[3];
+		$titles{h1} = $titles[4];
+		$titles{dt} = $titles[5];
+		$titles{sl} = $titles[6];
+	}
+	return %titles;
+}
 
 =head1 Tools
 
@@ -544,10 +576,10 @@ you can also I<strop reading> a comic which basically means that you dont like i
 		flags($comic,"+$addflag") if $addflag;
 		if (param('bookmark')) {
 			my $bookmark = param('bookmark');
-			$bookmark =~ s/ /%20/ig;
-			usr($comic,'bookmark',$bookmark );
+			$bookmark =~ s/ /%20/ig; #TODO bookmarks are now numbers!
+			dbcmcs($comic,'bookmark',$bookmark );
 		}
-		my $res = &kopf($comic."tags and flags");
+		my $res = &kopf($comic." tags and flags");
 
 		$res .= h1('Tags');
 		$res .= start_form({-method=>'GET',-action=>'tools',-name=>'setTags'});
@@ -573,7 +605,8 @@ you can also I<strop reading> a comic which basically means that you dont like i
 	if ($tool eq "download") {
 		require dlutil;
 		my $strip = param('strip');
-		&dlutil::getstore(&dat($comic,$strip,'surl'),"./strips/$comic/$strip");
+		say "TODO not working";
+		#&dlutil::getstore(&dat($comic,$strip,'surl'),"./strips/$comic/$strip");
 		return &ccomic;
 	}
 	
@@ -612,14 +645,14 @@ this are normal healty strips somewhere in the comic
 
 =cut
 	
-	if ($tool eq "datalyzer") {
+	if ($tool eq "datalyzer") { #TODO maybe needs to be more adjusted to new db?
 		my %d;
 		$d{count}->{n} = 0;
 		$d{prevnext}->{n} = 0;
 		$d{prev}->{n} = 0;
 		$d{next}->{n} = 0;
 		$d{none}->{n} = 0;
-		my $strips = $dbh->selectall_hashref("select * from _$comic","strip");
+		my $strips = $dbh->selectall_hashref("SELECT * FROM _$comic","STRIP");
 		foreach my $strp (keys %{$strips}) {
 			$d{count}->{$d{count}->{n}} = $strp;
 			$d{count}->{n}++;
@@ -690,20 +723,21 @@ here you can edit the user table directly. this is just for debugging purposes.
 =cut
 
 	if ($tool eq 'user') {
-		my $user = $dbh->selectall_hashref("select * from USER","comic");
-		my $res = &kopf('user');
+		my $user = $dbh->selectall_hashref("SELECT * FROM comics","comic");
+		my $res = &kopf('comics');
 		if ($comic) {
 			$res .= start_form("GET","tools");
 			$res .= hidden('tool',"user");
 			$res .= start_table;
 			if (param('delete') and (param('delete') ne '')) {
-				&usr($comic,param('delete'),0,'delete');
+				#&usr($comic,param('delete'),0,'delete');
+				say "TODO no longer implemented, use custom query";
 			}
 			foreach my $key (keys %{$user->{param('comic')}}) {
 				if (param($key)) {
-					&usr($comic,$key,param($key));
+					dbcmcs($comic,$key,param($key));
 				}
-				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>&usr($comic,$key), -size=>"100")),td(a({-href=>"/tools?tool=user&delete=$key&comic=" .$comic},"delete $key")));
+				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>dbcmcs($comic,$key), -size=>"100")),td(a({-href=>"/tools?tool=user&delete=$key&comic=" .$comic},"delete $key")));
 			}
 			return $res . end_table . submit('ok'). br . br .a({-href=>"/tools?tool=user&comic=".$comic},"reload") .br. a({-href=>"/tools?tool=user"},"all comics") . br . a({-href=>"/"},"Index") . end_html;
 		}
@@ -713,7 +747,7 @@ here you can edit the user table directly. this is just for debugging purposes.
 
 			$res .=  Tr(td('name'),td([keys %{$user->{$cmc}}])) if !$h;
 			$h = 1;
-			$res .=  Tr(td(a({-href=>"/tools?tool=user&comic=". $cmc},$cmc)),td([map {textfield(-name=>$_, -default=>&usr($cmc,$_))} keys %{$user->{$cmc}}]));
+			$res .=  Tr(td(a({-href=>"/tools?tool=user&comic=". $cmc},$cmc)),td([map {textfield(-name=>$_, -default=>dbcmcs($cmc,$_))} keys %{$user->{$cmc}}]));
 		}
 		return $res . end_table . br . br .  a({-href=>"/"},"Index") . end_html;
 	}
@@ -753,7 +787,7 @@ if used without a comic parameter it will update all comics (this may take some 
 	if ($tool eq 'forceupdate') {
 		if ($comic) {
 			my $time = Time::HiRes::time;
-			$dbh->do("UPDATE USER set server_update = NULL where comic like '$comic'");
+			$dbh->do("UPDATE comics SET server_update = NULL WHERE comic = ?",undef,$comic);
 			&update;
 			return &kopf("Force Update $comic") . "Time: " . (Time::HiRes::time - $time) . " Seconds" . end_html;
 		}
@@ -771,7 +805,7 @@ get a random comic frontpage. you dont get comics that you are reading, have com
 =cut
 	
 	if ($tool eq 'random') {
-		my $firsts = $dbh->selectall_hashref('SELECT comic,first FROM user where (flags not like "%r%" and flags not like "%f%" and flags not like "%s%") OR flags IS NULL' , 'comic');
+		my $firsts = $dbh->selectall_hashref('SELECT comic,first FROM comics WHERE (flags NOT LIKE "%r%" AND flags NOT LIKE "%f%" AND flags NOT LIKE "%s%") OR flags IS NULL' , 'comic');
 		my @comics = keys %{$firsts};
 		my $comic;
 		while($comic = splice(@comics,rand(int @comics),1)) {
@@ -798,6 +832,8 @@ copy all the files from you ./import folder to your main folder to reimport ever
 =cut	
 
 	if($tool eq 'export') {
+		say "TODO no longer supported";
+		return undef;
 		my $data = $dbh->selectall_hashref("select comic,tags,flags from user where tags is not null or flags like '%c%'",'comic');
 		open(EX,">export.cie");
 		print EX "v1 This file is a tag and flag export of httpserver v$VERSION\n";
@@ -808,6 +844,8 @@ copy all the files from you ./import folder to your main folder to reimport ever
 		close(EX);
 	}
 	if($tool eq 'import') {
+		say "TODO no longer supported";
+		return undef;
 		opendir(DIR,'.');
 		while (my $file = readdir DIR) {
 			next unless $file =~ m/\w+\.cie$/;
@@ -920,6 +958,7 @@ sub cpod {
 		when(/page/) {$path = "lib/page.pm"}
 		when(/dbutil/) {$path = "lib/dbutil.pm"}
 		when(/dlutil/) {$path = "lib/dlutil.pm"}
+		when(/strip/) {$path = "lib/Strip.pm"}
 		default {$path = "httpserver.pl"};
 	}
 	my $ret = kopf('POD') . start_div({-class=>'pod'});
@@ -954,11 +993,11 @@ last it counts the strips (by going from the first to the last), gives each a nu
 
 =cut
 
-sub update {
+sub update { #TODO! is it even neccessary?
 	my $ttu = Time::HiRes::time;
-	dbutil::check_table($dbh,"USER");
-	dbutil::check_table($dbh,"CONFIG");
-	$dbh->do("UPDATE USER set first = NULL , server_update = NULL where first like 'dummy%'");
+	#dbutil::check_table($dbh,"comics");
+	#dbutil::check_table($dbh,"CONFIG");
+	#$dbh->do("UPDATE USER set first = NULL , server_update = NULL where first like 'dummy%'");TODO?
 	
 	# foreach my $comic (@{$dbh->selectcol_arrayref(qq(select comic from USER where first IS NULL))}) {
 		# my @first = @{$dbh->selectcol_arrayref("select strip from _$comic where prev IS NULL and next IS NOT NULL")};
@@ -966,52 +1005,52 @@ sub update {
 		# @first = grep {$_ !~ /^dummy/} @first if (@first > 1);
 		# usr($comic,'first',$first[0]);
 	# }
-	my @comics = @{$dbh->selectcol_arrayref(qq(select comic,server_update - last_save as time from USER where (time <= 0) OR (server_update IS NULL)))};
+	my @comics = @{$dbh->selectcol_arrayref(qq(SELECT comic,server_update - last_save AS time FROM comics WHERE (time <= 0) OR (server_update IS NULL)))};
 	local $| = 1;
 	$dbh->{AutoCommit} = 0;
 	print "updating ". scalar(@comics) ." comics:\n" if @comics;
 	foreach my $comic (@comics) {
 		
-		dbutil::check_table($dbh,"_$comic");
+		#dbutil::check_table($dbh,"_$comic");
 		
-		usr($comic,'server_update',time);
+		dbcmcs($comic,'server_update',time);
 		
-		my @dummys = $dbh->selectrow_array("select strip from _$comic where (strip like 'dummy%') and ((prev IS NULL) or (next IS NULL))");
-		$dbh->do("DELETE FROM _$comic where (strip like 'dummy%') and ((prev IS NULL) or (next IS NULL))");
-		foreach my $dummy (@dummys) {
-			$dbh->do("update _$comic set next = NULL where next = '$dummy'");
-			$dbh->do("update _$comic set prev = NULL where prev = '$dummy'");
-		}
+		#my @dummys = $dbh->selectrow_array("SELECT strip FROM _$comic WHERE (strip like 'dummy%') and ((prev IS NULL) or (next IS NULL))");
+		#$dbh->do("DELETE FROM _$comic where (strip like 'dummy%') and ((prev IS NULL) or (next IS NULL))");
+		#foreach my $dummy (@dummys) {
+		#	$dbh->do("update _$comic set next = NULL where next = '$dummy'");
+		#	$dbh->do("update _$comic set prev = NULL where prev = '$dummy'");
+		#}
 		
-		if ($dbh->selectrow_array("SELECT COUNT(next) AS dup_count FROM _$comic GROUP BY next HAVING (COUNT(next) > 1)")
-		or  $dbh->selectrow_array("SELECT COUNT(prev) AS dup_count FROM _$comic GROUP BY prev HAVING (COUNT(prev) > 1)")) {
+		if ($dbh->selectrow_array("SELECT COUNT(next) AS dup_count FROM _$comic WHERE next > 0 GROUP BY next HAVING (COUNT(next) > 1)")
+		or  $dbh->selectrow_array("SELECT COUNT(prev) AS dup_count FROM _$comic WHERE prev > 0 GROUP BY prev HAVING (COUNT(prev) > 1)")) {
 			&flags($comic,'+w');
 		}
 		else {
 			&flags($comic,'-w');
 		}
 		
-		my $first = usr($comic,'first');
+		my $first = dbcmcs($comic,'first');
 		unless ($first) {
-			my @first = @{$dbh->selectcol_arrayref("select strip from _$comic where prev IS NULL and next IS NOT NULL")};
+			my @first = @{$dbh->selectcol_arrayref("SELECT id FROM _$comic WHERE prev IS NULL AND next IS NOT NULL")};
 			next if (@first == 0); 
 			@first = grep {$_ !~ /^dummy/} @first if (@first > 1);
-			usr($comic,'first',$first[0]);
+			dbcmcs($comic,'first',$first[0]);
 			$first = $first[0];
 		}
 		
-		usr($comic,'strip_count',$dbh->selectrow_array(qq(select count(*) from _$comic)));
+		#usr($comic,'strip_count',$dbh->selectrow_array(qq(select count(*) from _$comic)));
 		
 		my %double;
 		my $strp = $first;
 		my $strps = {};
-		$strps = $dbh->selectall_hashref(qq(select strip , next, number from _$comic), "strip");
+		$strps = $dbh->selectall_hashref(qq(SELECT id , next, number FROM _$comic), "id");
 		
 		my $i = 0;
 		my $prevstrip;
 		if ($strp) {
 			$i++ ;
-			dat($comic,$strp,'number',$i) unless ($strps->{$strp}->{number} and $strps->{$strp}->{number} == $i);
+			dbstrps($comic,'id'=>$strp,'number',$i) unless ($strps->{$strp}->{number} and $strps->{$strp}->{number} == $i);
 			while((defined $strps->{$strp}->{next}) and $strps->{$strps->{$strp}->{next}}) {
 				$prevstrip = $strp;
 				$strp = $strps->{$strp}->{next};
@@ -1021,30 +1060,24 @@ sub update {
 				}
 				$double{$strp} = 1;
 				$i++;
-				dat($comic,$strp,'number',$i) unless ($strps->{$strp}->{number} and $strps->{$strp}->{number} == $i);
+				dbstrps($comic,'id'=>$strp,'number',$i) unless ($strps->{$strp}->{number} and $strps->{$strp}->{number} == $i);
 			}
 		}
-		usr($comic,'last',$strp);
-		usr($comic,'strips_counted',$i);
+		dbcmcs($comic,'last',$strp);
+		dbcmcs($comic,'strip_count',$i);
 		print ".";
 	}
 	print "\nupdating: ". (Time::HiRes::time - $ttu) . " seconds\ncommiting: " if @comics;
 	my $ttc = Time::HiRes::time;
 	$dbh->{AutoCommit} = 1;
 	say "" . (Time::HiRes::time - $ttc) . " seconds" if @comics;
-	my $comini = dbutil::readINI('comic.ini',);
-	foreach my $name (keys %{$comini}) {
-		if ($comini->{$name}->{broken}) {
-			$broken{$name} = 1;
-		}
-	}
 }
 
 
 
 sub comics {
 	#return @{$comics->{__SECTIONS__}};
-	return @{$dbh->selectcol_arrayref("select comic from USER")};
+	return @{$dbh->selectcol_arrayref("SELECT comic FROM comics")};
 }
 
 =head2 config usr dat
@@ -1059,57 +1092,49 @@ usr and dat use caching, so asking them for the same value over and over again s
 
 =cut
 
-sub config {
+sub config {  #todo
 	my ($key,$value,$null) = @_;
-	if ($null) {
-		$dbh->do(qq(update CONFIG set $key = NULL));
-	}
-	elsif (defined $value and $value ne '') {
-		if ($dbh->do(qq(update CONFIG set $key = "$value"))< 1) {
-			$dbh->do(qq(insert into CONFIG ($key) VALUES ("$value")));
-		}
-	}
-	return $dbh->selectrow_array(qq(select $key from CONFIG));
+	return $dbh->selectrow_array(qq(SELECT $key FROM config));
 }
 
-sub usr { #gibt die aktuellen einstellungen des comics aus # hier gehören die veränderlichen informationen rein, die der nutzer auch selbst bearbeiten kann
-	my ($c,$key,$value,$null) = @_;
-	if ($null) {
-			$dbh->do(qq(update USER set $key = NULL where comic="$c"));
+sub dbcmcs { #gibt die aktuellen einstellungen des comics aus # hier gehören die veränderlichen informationen rein, die der nutzer auch selbst bearbeiten kann
+	my ($c,$key,$value) = @_;
+	if (defined $value and $value ne '') {
+		$dbh->do("UPDATE comics SET $key = ? WHERE comic = ?",undef,$value,$c);
 	}
-	elsif (defined $value and $value ne '') {
-		if ($dbh->do(qq(update USER set $key = "$value" where comic="$c")) < 1) { #try to update
-			$dbh->do(qq(insert into USER (comic,$key) VALUES ("$c","$value"))); #insert if update fails
-		}
+	if ($strpscache{comic} and ($c eq $strpscache{comic})) {
+		return $strpscache{$key};
 	}
-	else {
-		if (($c . $key) eq $db_cache[0]) {
-			return $db_cache[1];
-		}
-	}
-	$db_cache[0] = $c . $key;
-	$db_cache[1] = $dbh->selectrow_array(qq(select $key from USER where comic="$c"));
-	return $db_cache[1];
+	my $sth = $dbh->prepare("SELECT $key FROM comics WHERE comic = ?");
+	$sth->execute($c);
+	say "db access";
+	return $sth->fetchrow_array();
+	
 }
 
-sub dat { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu dem comic und seinen srips gespeichert
-	my ($c,$strip,$key,$value,$null) = @_;
-	if ($null) {
-			$dbh->do(qq(update _$c set $key = NULL where strip="$strip"));
+sub dbstrps { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu dem comic und seinen srips gespeichert
+	my ($c,$get,$key,$select,$value) = @_;
+	if (defined $value) {
+		my $sth = $dbh->prepare("UPDATE _$c SET $select = ? WHERE $get = ?");
+		$sth->execute($value,$key);
 	}
-	elsif (defined $value and $value ne '') {
-		if ($dbh->do(qq(update _$c set $key = "$value" where strip="$strip")) < 1) { #try to update
-			$dbh->do(qq(insert into _$c  (strip,$key) values ("$strip","$value"))); #insert if update fails
-		}
+	if ($strpscache{comic} and ($c eq $strpscache{comic}) and ($get eq 'id')) {
+		return $strpscache{$key}->{$select};
 	}
-	else {
-		if (($c . $strip . $key) eq $db_cache[2]) {
-			return $db_cache[3];
-		}
-	}
-	$db_cache[2] = $c . $strip . $key;
-	$db_cache[3] = $dbh->selectrow_array(qq(select $key from _$c where strip="$strip"));
-	return $db_cache[3];
+	my $sth = $dbh->prepare("SELECT $select FROM _$c WHERE $get = ?");
+	$sth->execute($key);
+	say "db access";
+	return $sth->fetchrow_array();
+}
+
+sub cache_strps {
+	my ($comic) = @_;
+	return if $strpscache{comic} and ($comic eq $strpscache{comic});
+	say "caching $comic";
+	%strpscache = %{$dbh->selectall_hashref("SELECT * FROM _$comic",'id')};
+	my $cmc = $dbh->selectrow_hashref("SELECT * FROM comics WHERE comic = ?",undef,$comic);
+	$strpscache{$_} = $cmc->{$_} for keys %$cmc; 
+
 }
 
 =head2 tags and flags
@@ -1140,66 +1165,53 @@ begins with wordcharacter (or space for flags): sets flags|tags to given string 
 sub tags {
 	my $comic = shift || '';
 	my $new = shift || '';
-	my $import = shift;
 	
 	if ($comic) {
 		if ($new eq '<>') {
-			usr($comic,'itags',0,'delete');
-			usr($comic,'tags',0,'delete') if !$import;
+			#usr($comic,'itags',0,'delete');
+			#dbcmcs($comic,'tags',0,'delete') if !$import;
+			$dbh->do('UPDATE comics SET tags = NULL where comic = ?',undef,$comic );
 			return 1;
 		}
 		
-		my $tagsref = $dbh->selectrow_arrayref("select tags,itags from USER where comic='$comic'");
-		my $otags = ($tagsref->[0]//'');
-		my $itags = ($tagsref->[1]//'');
+		my $otags = dbcmcs($comic,'tags') // '';
 		
 		my $otag = {};
-		my $itag = {};
 		
 		$otag->{lc $_} = 1 for(split(/\W+/,$otags));
-		$itag->{lc $_} = 1 for(split(/\W+/,$itags));
-		delete $itag->{lc $_} for (keys %$otag); 
 		
 		
 		if ($new) {
 			if ($new =~ /^\+([\w\s]+)/) {
 				for (split(/\W+/,$1)) {
 					$otag->{lc $_} = 1;
-					$itag->{lc $_} = 1 if $import; # we dont need to add to import if were not importing
 				}
 			}	
 			elsif ($new =~ /^-([\w\s]+)/) {
 				for (split(/\W+/,$1)) {
-					delete $otag->{lc $_};  #subtracting from both, cause we dont know which containts
-					delete $itag->{lc $_};	
+					delete $otag->{lc $_};
 				}
 			}
 			elsif($new =~ /^([\w\s]+)$/) {
-				unless ($import) { # on normal circumstances
-					$otag = {};	#we delete all of our tags
-					$otag->{lc $_} = 1 for (split(/\W+/,$new)); #and recreate with the given ones
-					delete $otag->{lc $_} or delete $itag->{lc $_} for (keys %$itag); #then we delete all which were imported previously, and delete all imported which were not in the new ones
-				}
-				else { #same as above just changed imported and original
-					$itag = {};	
-					$itag->{lc $_} = 1 for (split(/\W+/,$new));
-					delete $itag->{lc $_} or delete $otag->{lc $_} for (keys %$otag); 
-				}
+				$otag = {};	#we delete all of our tags
+				$otag->{lc $_} = 1 for (split(/\W+/,$new)); #and recreate with the given ones
+
 			}
 			my $ot = join(' ',keys %{$otag});
-			my $it = join(' ',keys %{$itag});
-			($ot ? usr($comic,'tags',$ot) : usr($comic,'tags',0,'delete')) if (!$import); #we dont want to save the originals while importing!
-			$it ? usr($comic,'itags',$it) : usr($comic,'itags',0,'delete'); #if we are not importingwe save both (deleting from both)
+			if ($ot) { 
+				dbcmcs($comic,'tags',$ot) ;
+			}
+			else {
+				$dbh->do('UPDATE comics SET tags = NULL where comic = ?',undef,$comic )
+			}
 
 		}
-		$otag->{$_} = 1 for keys(%$itag);
 		return keys %$otag;
 	}
 	else {
-		my $tags = $dbh->selectcol_arrayref("select tags from USER");
-		my $itags = $dbh->selectcol_arrayref("select itags from USER");
+		my $tags = $dbh->selectcol_arrayref("SELECT tags FROM comics");
 		my %taglist;
-		foreach (@{$tags},@{$itags}) {
+		foreach (@{$tags}) {
 			next unless defined $_;
 			foreach my $tag ($_ =~ m/(\w+)/gs) {
 				$taglist{lc $tag} = 1;
@@ -1213,61 +1225,44 @@ sub tags {
 sub flags {
 	my $comic = shift || '';
 	my $new = shift || '';
-	my $import = shift;
 	return 0 unless $comic;
 	
 	if ($new eq '<>') {
-		usr($comic,'iflags',0,'delete');
-		usr($comic,'flags',0,'delete') if !$import;
+		$dbh->do('UPDATE comics SET flags = NULL where comic = ?',undef,$comic );
 		return 1;
 	}
 	
-	my $flagref = $dbh->selectrow_arrayref("select flags,iflags from USER where comic='$comic'");
-	my $oflags = $flagref->[0]//'';
-	my $iflags = $flagref->[1]//'';
+	my $oflags = dbcmcs($comic,'flags') // '';
 	
 	my $oflag = {};
-	my $iflag = {};
 	
 	$oflag->{$_} = 1 for(split(//,$oflags));
-	$iflag->{$_} = 1 for(split(//,$iflags));
-	delete $iflag->{$_} for(keys %$oflag);
-	
 	
 	if ($new) {
 		if ($new =~ /^\+(\w+)/) {
 			for (split(//,$1)) {
 				$oflag->{$_} = 1;
-				$iflag->{$_} = 1 if $import;
 			}		
 		}	
 		elsif ($new =~ /^-(\w+)/) {
 			for (split(//,$1)) {
-				delete $oflag->{$_};	
-				delete $iflag->{$_};
+				delete $oflag->{$_};
 			}		
 		}
 		elsif ($new =~ /^(\w+)$/) {
-			unless ($import) { # on normal circumstances
-				$oflag = {};	#we delete all of our flags
-				$oflag->{$_} = 1 for (split(//,$new)); #and recreate with the given ones
-				delete $oflag->{$_} or delete $iflag->{$_} for (keys %$iflag); #then we delete all which were imported previously, and delete all imported which were not in the new ones
-			}
-			else { #same as above just changed imported and original
-				$iflag = {};	
-				$iflag->{$_} = 1 for (split(//,$new));
-				delete $iflag->{$_} or delete $oflag->{$_} for (keys %$oflag);
-			}			
+			$oflag = {};	#we delete all of our flags
+			$oflag->{$_} = 1 for (split(//,$new)); #and recreate with the given ones
 		}
 		my $of = join('',keys %$oflag);
-		my $if = join('',keys %$iflag);
-		if (!$import) {
-			($of) ? usr($comic,'flags',$of) : usr($comic,'flags',0,'delete');
+		
+		if ($of) {
+			dbcmcs($comic,'flags',$of) 
 		}
-		($if) ? usr($comic,'iflags',$if) : usr($comic,'iflags',0,'delete');
+		else {
+			$dbh->do('UPDATE comics SET flags = NULL where comic = ?',undef,$comic);
+		}
 
 	}
-	$oflag->{$_} = 1 for keys(%$iflag);
 	return $oflag;
 }
 

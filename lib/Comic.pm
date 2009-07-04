@@ -28,7 +28,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '35';
+$VERSION = '36';
 
 =head1	General Methods
 
@@ -385,8 +385,8 @@ sub get_next_page {
 				}
 			}
 			if ($has_no_next) {
-				$s->status("WARNING: found next ($url) without next, deleting",'WARN');
-				$s->dbh->do('DELETE FROM _'.$s->name . ' WHERE purl = ? ',undef,$url);
+				$s->status("WARNING: found next ($url) without next, that might be okay? we could also delete it!",'WARN');
+				#$s->dbh->do('DELETE FROM _'.$s->name . ' WHERE purl = ? ',undef,$url);
 			}
 			elsif (!$back_link) {
 				$s->status("WARNING: found next ($url) that already exists and does not link back!",'WARN');
@@ -776,7 +776,7 @@ sub url_current {
 	return $s->{url_current} if $s->{url_current};
 	
 	
-	$s->{url_current} = $s->dbcmc('url_current') // $s->ini('url_start');
+	$s->{url_current} = $s->dbcmc('url_current') || $s->ini('url_start');
 	$s->status("SET: url_current: " . $s->{url_current}, 'DEF');
 	
 	return $s->{url_current};
@@ -817,7 +817,8 @@ sub status {
 	
 	if ($type  =~ m/ERR/i) {
 		open(ERR,">>".$s->{path_err});
-		print ERR $s->name() .">$type: " . $status ." -- >". ($addinfo // ""). "\n";
+		my @time = localtime();
+		print ERR $s->name() . sprintf(":%04d-%02d-%02d",$time[5]+1900,$time[4]+1,$time[3]) .">$type: " . $status ." -- >". ($addinfo // ""). "\n";
 		close ERR;
 	}
 	return 1;

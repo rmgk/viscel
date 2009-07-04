@@ -24,7 +24,7 @@ use Digest::SHA qw(sha1_hex);
 
 
 our $VERSION;
-$VERSION = '4';
+$VERSION = '5';
 
 =head1 general Methods
 
@@ -58,8 +58,10 @@ sub new {
 sub check_id {
 	my $s = shift;
 	if ($s->dummy) {
+		$s->dbh->{AutoCommit} = 0;
 		$s->dbh->do('INSERT INTO _'. $s->name .' DEFAULT VALUES');
 		$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
+		$s->dbh->{AutoCommit} = 1;
 		#$s->dbh->commit;
 		return -1;
 	}
@@ -76,8 +78,10 @@ sub check_id {
 			return 2;
 		}
 	}
+	$s->dbh->{AutoCommit} = 0;
 	$s->dbh->do('INSERT INTO _'. $s->name .' DEFAULT VALUES');
 	$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
+	$s->dbh->{AutoCommit} = 1;
 	#$s->dbh->commit;
 	return 1
 }
@@ -272,6 +276,7 @@ sub _download {
 		print $fh $img;
 		say " (".int((-s $fh)/($time*1000)) ." kb/s)";
 		close $fh;
+		$s->dbcmc('last_save',time);
 	}
 	else {
 		$s->status("ERROR: could not open ". $s->file_path,'ERR');
@@ -421,6 +426,7 @@ sub title {
 	my $dt = ("['" . join("','",@dt) . "']") if @dt;
 	$ut //= ''; $st //= '';	$it //= '';	$ia //= '';	$h1 //= '';	$dt //= ''; $sl //= '';
 	my $title_string = "{ut=>q($ut),st=>q($st),it=>q($it),ia=>q($ia),h1=>q($h1),dt=>q($dt),sl=>q($sl)}";
+	#ut - user title; st - site title; it - image title; ia - image alt; h1 - head 1; dt - div title ; sl - selected title;
 
 	# $s->page->cmc->{sqlstr_title_update} //= $s->page->cmc->dbh->prepare('UPDATE _'.$s->name .' SET title=?,url=?,surl=?,c_version=?,time=? where strip == ?');
 	# if($s->page->cmc->{sqlstr_title_update}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file) < 1) {
@@ -538,9 +544,9 @@ sub dbh {
 
 sub DESTROY {
 	my $s = shift;
-	my $db = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->page->name.' WHERE id = ?',undef,$s->id);
+	my $db = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$s->id);
 	unless (((defined $db->{file}) + (defined $db->{next}) + (defined $db->{prev}))>1) {
-		$s->dbh->do('DELETE FROM _' . $s->page->name . ' WHERE id = ?' , undef,$s->id);
+		$s->dbh->do('DELETE FROM _' . $s->name . ' WHERE id = ?' , undef,$s->id);
 		#$s->dbh->commit();
 	}
 	$s->status('DESTROYED: '. ($s->dummy?'dummy'.$s->id:$s->url),'DEBUG');
