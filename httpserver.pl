@@ -443,8 +443,8 @@ sub ccomic {
 					$next  ?"/comics?comic=$comic&strip=" . $next :"0",
 					$first ?"/comics?comic=$comic&strip=" . $first:"0",
 					$last  ?"/comics?comic=$comic&strip=" . $last :"0",
-					"/strips/$comic/$next", #prefetch
-					$next  ?qq#(new Image()).src = '/strips/$comic/$next'#:"0", #more prefetch .. 
+					"/strips/$comic/$file", #prefetch
+					$next  ?qq#(new Image()).src = '/strips/$comic/$file'#:"0", #more prefetch .. 
 					);
 					
 		$ret .= start_div({-class=>"comic"});
@@ -1107,7 +1107,6 @@ sub dbcmcs { #gibt die aktuellen einstellungen des comics aus # hier gehören die
 	}
 	my $sth = $dbh->prepare("SELECT $key FROM comics WHERE comic = ?");
 	$sth->execute($c);
-	say "db access";
 	return $sth->fetchrow_array();
 	
 }
@@ -1123,7 +1122,6 @@ sub dbstrps { #gibt die dat und die dazugehörige configuration des comics aus # 
 	}
 	my $sth = $dbh->prepare("SELECT $select FROM _$c WHERE $get = ?");
 	$sth->execute($key);
-	say "db access";
 	return $sth->fetchrow_array();
 }
 
