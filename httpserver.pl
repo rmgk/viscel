@@ -92,12 +92,14 @@ while (my $c = $d->accept) {
 			else {
 				restore_parameters($r->url->query);
 
-				if ($r->url->path eq '/comics') {
-					cache_strps(param('comic'));
-					$res->content(&ccomic);
+				if ($r->url->path =~ m#/comics/(\w+)(?:/(\w+))#i) {
+					cache_strps($1);
+					if ($2) { $res->content(&ccomic($1,$2)); }
+					else { $res->content(&cclist($1)); }
+					
 				}
-				elsif ($r->url->path eq '/front') {
-					$res->content(&cfront);
+				elsif ($r->url->path =~ m#/front/(\w+)#i) {
+					$res->content(&cfront($1));
 				}
 				elsif ($r->url->path =~ m#^/tools/(\w+)(?:/(\w+))?#i) {
 					my $answ = &ctools($1,$2);
@@ -181,8 +183,8 @@ return "\n$js\n";
 connecting to the server will bring you to this page.
 here you can click on a comic name to go to the comics L<frontpage|/"Frontpage">.
 
-the four (you can only see those actually linking to something) links next to the comic name 
-will bring you to the I<first>, I<current>, I<bookmarked> and I<last> strip.
+the three (you can only see those actually linking to something) links next to the comic name 
+will bring you to the I<first>, I<bookmarked> and I<last> strip.
 
 the comics are divided in 4 main L<filters|/"Filter"> you can access them via the content links and you can also create your own.
 inside each filter, the comics are sortet by I<strips to read> 
@@ -211,15 +213,14 @@ sub cindex {
 	my @tag = param('tag');
 	$ret .= start_div({-id=>"menu"});
 	$ret .=	"Tools:" . br 
-				#.	a({-href=>"/tools/config",-accesskey=>'c',-title=>'config'},"Configuration") . br 
-				#.	a({-href=>"/tools/user",-accesskey=>'u',-title=>'user'},"User Config"). br 
 				.	a({-href=>"/tools/query",-accesskey=>'q',-title=>'query'},"Custom Query"). br 
-				.	a({-href=>"/tools/filter",-accesskey=>'f',-title=>'filter'},"Custom Contents"). br 
-				.	a({-href=>"/tools/random",-accesskey=>'r',-title=>'random'},"Random Comic"). br ;
+				#.	a({-href=>"/tools/filter",-accesskey=>'f',-title=>'filter'},"Custom Contents"). br 
+				.	a({-href=>"/tools/random",-accesskey=>'r',-title=>'random'},"Random Comic"). br 
+				.	a({-href=>"/pod",-accesskey=>'h',-title=>'help'},"Help"). br ;
 				
 	my $i = 1;
 	$ret .=	br . "Contents:" . br .
-				join("",map { a({href=>"#$_",-accesskey=>$i++,-title=>$_},$_) . br} (qw(continue other finished stopped),&filter));
+				join("",map { a({href=>"#$_",-accesskey=>$i++,-title=>$_},$_) . br} (qw(continue other finished stopped),)); #TODO &filter));
 				 
 	$ret .=	br . "Tags:" . br .
 				 a({-href=>"/"},'Any Tag') . br .
@@ -239,10 +240,10 @@ sub cindex {
 	$ret .= html_comic_listing('other',$cmcs,qq{((flags not like '%r%' and flags not like '%f%' and flags not like '%s%') or flags is null) and ($tagcheck) }).br;
 	$ret .= html_comic_listing('finished',$cmcs,qq{flags like '%f%' and ($tagcheck)}).br;
 	$ret .= html_comic_listing('stopped',$cmcs,qq{flags like '%s%' and ($tagcheck)}).br;
-	foreach (&filter) {
-		next unless $_;
-		$ret .= html_comic_listing($_,$cmcs, '(' . filter($_) .") and ($tagcheck)").br;
-	}
+	# foreach (&filter) { TODO
+		# next unless $_;
+		# $ret .= html_comic_listing($_,$cmcs, '(' . filter($_) .") and ($tagcheck)").br;
+	# }
 	return $ret . end_html;
 }
 
@@ -289,11 +290,11 @@ sub html_comic_listing {
 		
 		
 		my ($first,$bookmark,$last) = ($usr->{'first'},$usr->{'bookmark'},$usr->{'last'});
-		my $cmc_str = td(a({-href=>"/comics?comic=$comic&strip=%s",-onmouseout=>"hideIMG();",
+		my $cmc_str = td(a({-href=>"/comics/$comic/%s",-onmouseout=>"hideIMG();",
 						-onmouseover=>"showImg('/strips/$comic/%s')"},"%s"));
 		
 		$ret .= "<tr>";
-		$ret .= td(a({-href=>"/front?comic=$comic",-class=>($broken{$comic}?'broken':'comic'),
+		$ret .= td(a({-href=>"/front/$comic",-class=>($broken{$comic}?'broken':'comic'),
 			-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;"},$comic));
 			
 		$ret .= $first	 ?	sprintf($cmc_str , $first	 , $first	 , '|&lt;&lt;')  :td();
@@ -307,22 +308,8 @@ sub html_comic_listing {
 		}
 		$ret .= td(toRead{$comic}) if param('toread');
 		$ret .= td($usr->{'strip_count'}) if param('count');
-		#$ret .= td($usr->{'strips_counted'}) if param('counted');
 		
 		$ret .= "</tr>";
-		
-		# $ret .= Tr([
-			# td([
-			# a({-href=>"/front?comic=$comic",-class=>($broken{$comic}?'broken':'comic'),-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;"},$comic) ,
-			# $usr->{'first'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'first'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'first'}."')"},"|&lt;&lt;") : undef ,
-			# $usr->{'aktuell'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'aktuell'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'aktuell'}."')"},"&gt;&gt;") : undef ,
-			# $usr->{'bookmark'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'bookmark'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'bookmark'}."')"},"||") : undef ,
-			# ($usr->{'aktuell'} and $usr->{'last'} and ($usr->{'aktuell'} eq $usr->{'last'})) ? "&gt;&gt;|" : $usr->{'last'} ? a({-href=>"/comics?comic=$comic&strip=".$usr->{'last'},-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/".$usr->{'last'}."')"},"&gt;&gt;|") : undef ,
-			# param('toread')? $toRead{$comic} :undef, 
-			# param('count')?$usr->{'strip_count'}:undef,
-			# param('counted')?$usr->{'strips_counted'}:undef,
-			# ])
-		# ]);
 	}
 	return $ret . end_table . end_div;
 }
@@ -349,48 +336,45 @@ sub colorGradient {
 =head2 Frontpage
 
 here you see the first, (the L<bookmarked|/"Cataflag">) and the last strip. 
-you can click them to start reading. you can also click on current (you will see a preview while hovering) 
-to go to the strip you viewed last.
+you can click them to start reading.
 
 you can also click the B<stripslist> which is basically just a list of all strips,
-go to the L<datalyzer|/"Datalyzer"> or the L<user config|/"User Config"> 
-and last but not least you can L<categorize|/"Cataflag"> the comic.
+and you can L<categorize|/"Cataflag"> the comic.
 
 =cut 
 
 sub cfront {
 	my $comic = param('comic') // shift;
-	my $random = shift;
 	my $first =  dbcmcs($comic,'first');
 	my $last = dbcmcs($comic,'last' );
 	my $bookmark = dbcmcs($comic,'bookmark' );
 	my $ret = &kopf($comic . " Frontpage",0,0,
-					$first ?"/comics?comic=$comic&strip=".$first :"0",
-					dbcmcs($comic,'last' ) ?"/comics?comic=$comic&strip=".dbcmcs($comic,'last' ) :"0",
+					$first ?"/comics/$comic/$first" :"0",
+					$last  ?"/comics/$comic/$last " :"0",
 					);
 					
 	$ret .= start_div({-class=>'frontpage'});
 	$ret .=		h2($comic);
 	
 	if($bookmark) {	#if a bookmark is set we display 3 strips at once.
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".$first,-accesskey=>'f',-title=>'first strip'},
+		$ret .= a({-href=>"/comics/$comic/$first",-accesskey=>'f',-title=>'first strip'},
 				img({-class=>"front3",-id=>'first',-src=>"/strips/$comic/".$first,-alt=>"first"}));
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".$last,-accesskey=>'l',-title=>'last strip'},
+		$ret .= a({-href=>"/comics/$comic/$last",-accesskey=>'l',-title=>'last strip'},
 				img({-class=>"front3",-id=>'last',-src=>"/strips/$comic/".$last,-alt=>"last"}));
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".$bookmark,-accesskey=>'n',-title=>'bookmarked strip'},
+		$ret .= a({-href=>"/comics/$comic/$bookmark",-accesskey=>'n',-title=>'bookmarked strip'},
 				img({-class=>"front3",-id=>'bookmark',-src=>"/strips/$comic/".$bookmark,-alt=>"bookmark"}));
 	} 
 	else { #if not we just display two
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".$first,-accesskey=>'f',-title=>'first strip'},
+		$ret .= a({-href=>"/comics/$comic/$first",-accesskey=>'f',-title=>'first strip'},
 				img({-class=>"front2",-id=>'first',-src=>"/strips/$comic/".$first,-alt=>"first"}));
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".$last,-accesskey=>'l',-title=>'last strip'},
+		$ret .= a({-href=>"/comics/$comic/$last",-accesskey=>'l',-title=>'last strip'},
 				img({-class=>"front2",-id=>'last',-src=>"/strips/$comic/".$last,-alt=>"last"}));
 	};
 					
 	$ret .=		start_div({-class=>"navigation"});
 	
 	$ret .=		a({-href=>"/",-accesskey=>'i',-title=>'Index'},"Index").' '.
-				a({-href=>"/comics?comic=$comic",-accesskey=>'s',-title=>'striplist'},"Striplist").' '.
+				a({-href=>"/comics/$comic",-accesskey=>'s',-title=>'striplist'},"Striplist").' '.
 				a({href=>"/tools/cataflag/$comic",-accesskey=>'c',-title=>'categorize'},'Categorize').
 				br;
 	$ret .=		'Strips: ' . $last .' '; #dbcmcs($comic,'strip_count').' ';
@@ -401,10 +385,6 @@ sub cfront {
 	
 
 	$ret .= "tags: " . join(" ",tags($comic)) if tags($comic);
-	
-	if ($random) {
-		$ret .= br. a({-href=>"/tools/random",-accesskey=>'r',-title=>'random strip'},"Random");
-	}
 	
 	$ret .=		end_div;
 	$ret .=		end_div();
@@ -418,112 +398,112 @@ sub cfront {
 
 these pages are pretty straight forward use the B<next> and B<prev> links to navigate 
 use B<pause> to bookmark the strip and go to the L<categorize|/"Cataflag"> page
-B<front> return you to the L<frontpage|/"Frontpage"> and B<site> links to the page the strip was downloaded
+B<front> returns you to the L<frontpage|/"Frontpage"> and B<site> links to the page the strip was downloaded from
 
 =cut
 
 sub ccomic {
-	my $comic = param('comic') // shift;
-	my $strip = param('strip') // shift;
-	my $random = shift;
+	my $comic = shift;
+	my $strip = shift;
+	
+	return &kopf("Error") . "no comic defined" unless $comic;
+	return &kopf("Error") . "no strip defined" unless $strip;
+
+	my %titles = get_title($comic,$strip);
+	
+	my ($prev,$next, $first,$last,$file) = (
+		dbstrps($comic,'id'=>$strip,'prev'),dbstrps($comic,'id'=>$strip,'next'),
+		dbcmcs($comic,'first'),dbcmcs($comic,'last'),dbstrps($comic,'id'=>$strip,'file')
+		);
+	
+	my $ret = &kopf($titles{st},
+				$prev  ?"/comics/$comic/$prev" :"0",
+				$next  ?"/comics/$comic/$next" :"0",
+				$first ?"/comics/$comic/$first":"0",
+				$last  ?"/comics/$comic/$last" :"0",
+				"/strips/$comic/$file", #prefetch
+				$next  ?qq#(new Image()).src = '/strips/$comic/$file'#:"0", #more prefetch .. 
+				);
+				
+	$ret .= start_div({-class=>"comic"});
+	
+	$ret .= h3($titles{h1});
+	
+	if (-e "./strips/$comic/$file") { 
+		$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
+	}
+	elsif ($file) {
+		$ret .= img({-src=>dbstrps($comic,'id'=>$strip,'surl'),-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
+		$ret .= br . 'this strip is not local';
+	}
+	else {
+		$ret .= "This page is a dummy. Errors are likely";
+	}
+	
+	
+	$ret .=start_div({-class=>"navigation"});
+	
+	$ret .= a({-href=>"/comics/$comic/$prev",
+			-title=>'previous strip',-accesskey=>'v'},'&lt;&lt; ') if $prev;
+	$ret .= a({-href=>"/comics/$comic/$next",
+			-title=>'next strip',-accesskey=>'n'},'&gt;&gt; ') if $next;
+
+	$ret .= br;
+	if ($next) {
+		$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=r",
+				-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
+	}
+	elsif (flags($comic)->{c}) {
+		$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=rcf",
+				-accesskey=>'d',-title=>'finish reading this comic'},"finish ");	
+	}
+	else {
+		$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=r",
+				-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
+	}
+	$ret .= a({-href=>"/front/$comic",
+			-accesskey=>'f',-title=>'frontpage'},"front ");			
+			
+	my $purl = dbstrps($comic,'id'=>$strip,'purl');
+	$ret .= a({-href=>$purl, -accesskey=>'s',-title=>'homepage of the strip'},"site ") if $purl;	
+			
+	$ret .= end_div;
+	$ret .= end_div;
+	
+	dbcmcs($comic,'bookmark',$strip) if param('bookmark');
+	return $ret . end_html;
+
+}
+
+sub cclist {
+	my $comic = shift;
 	my $ret = &kopf("Error");
 	
 	return $ret . "no comic defined" unless $comic;
 	
-	if ($strip) {
-		my $ret;
+	my $list;
+	my $dat = $dbh->selectall_hashref("SELECT id,number,title,file FROM _$comic WHERE number IS NOT NULL","number");
+	
+	$list = &kopf($comic);
+	$list .= preview_head;
+	
+	
+	#we save this string cause we need it really often, so we can save some processing time :)
+	my $strip_str = div({-class=>"striplist"},img({-src=>"/strips/$comic/%s"}) . #the img is normally hidden by the strylesheet
+		a({-href=>"/comics/$comic/%s",-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/%s')",}, "%s"));
+	
+	
+	for (my $i = 1;defined $dat->{$i};$i++) {
 
-		my %titles = get_title($comic,$strip);
-		#$strip =~ s/%7C/|/ig;
-		#$strip =~ s/ /%20/ig;
-		
-		my ($prev,$next, $first,$last,$file) = (
-			dbstrps($comic,'id'=>$strip,'prev'),dbstrps($comic,'id'=>$strip,'next'),
-			dbcmcs($comic,'first'),dbcmcs($comic,'last'),dbstrps($comic,'id'=>$strip,'file')
-			);
-		
-		$ret = &kopf($titles{st},
-					$prev  ?"/comics?comic=$comic&strip=" . $prev :"0",
-					$next  ?"/comics?comic=$comic&strip=" . $next :"0",
-					$first ?"/comics?comic=$comic&strip=" . $first:"0",
-					$last  ?"/comics?comic=$comic&strip=" . $last :"0",
-					"/strips/$comic/$file", #prefetch
-					$next  ?qq#(new Image()).src = '/strips/$comic/$file'#:"0", #more prefetch .. 
-					);
-					
-		$ret .= start_div({-class=>"comic"});
-		
-		$ret .= h3($titles{h1});
-		
-		if (-e "./strips/$comic/$file") { 
-			$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
-		}
-		elsif ($file) {
-			$ret .= img({-src=>dbstrps($comic,'id'=>$strip,'surl'),-title=>($titles{it}//''),-alt=>($titles{ia}//'')}).br.
-					a({-href=>"/tools/download/$comic?strip=$strip"},"(download)");
-		}
-		else {
-			$ret .= "This page is a dummy. Errors are likely";
-		}
-		
-		
-		$ret .=start_div({-class=>"navigation"});
-		
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".$prev,
-				-title=>'previous strip',-accesskey=>'v'},'&lt;&lt; ') if $prev;
-		$ret .= a({-href=>"/comics?comic=$comic&strip=".$next,
-				-title=>'next strip',-accesskey=>'n'},'&gt;&gt; ') if $next;
-
-		$ret .= br;
-		if ($next) {
-			$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=r",
-					-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
-		}
-		elsif (flags($comic)->{c}) {
-			$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=rcf",
-					-accesskey=>'d',-title=>'finish reading this comic'},"finish ");	
-		}
-		else {
-			$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=r",
-					-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
-		}
-		$ret .= a({-href=>"/front?comic=$comic",
-				-accesskey=>'f',-title=>'frontpage'},"front ");			
-				
-		my $purl = dbstrps($comic,'id'=>$strip,'purl');
-		$ret .= a({-href=>$purl, -accesskey=>'s',-title=>'homepage of the strip'},"site ") if $purl;	
-				
-		$ret .= end_div;
-		$ret .= end_div;
-		
-		dbcmcs($comic,'bookmark',$strip) if param('bookmark');
-		return $ret . end_html;
+		my %titles = get_title($comic,$dat->{$i}->{id});
+		$list .= sprintf $strip_str,
+			$dat->{$i}->{file}, #direct img url
+			$dat->{$i}->{id}, #strip page url
+			$dat->{$i}->{file}, #direct img url
+			"$i : $dat->{$i}->{file} : " .join(' - ',grep { $_ } values(%titles) ); #strip title
 	}
-	else {
-		my $list;
-		my $dat = $dbh->selectall_hashref("SELECT id,number,title,file FROM _$comic WHERE number IS NOT NULL","number");
-		
-		$list = &kopf($comic);
-		$list .= preview_head;
-		
-		
-		#we save this string cause we need it really often, so we can save some processing time :)
-		my $strip_str = div({-class=>"striplist"},img({-src=>"/strips/$comic/%s"}) . #the img is normally hidden by the strylesheet
-			a({-href=>"/comics?comic=$comic&strip=%s",-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/%s')",}, "%s"));
-		
-		
-		for (my $i = 1;defined $dat->{$i};$i++) {
-
-			my %titles = get_title($comic,$dat->{$i}->{id});
-			$list .= sprintf $strip_str,
-				$dat->{$i}->{file}, #direct img url
-				$dat->{$i}->{id}, #strip page url
-				$dat->{$i}->{file}, #direct img url
-				"$i : $dat->{$i}->{file} : " .join(' - ',grep { $_ } values(%titles) ); #strip title
-		}
-		$list .= end_html;
-		return $list;
-	}
+	$list .= end_html;
+	return $list;
 }
 
 sub get_title {
@@ -558,17 +538,35 @@ sub ctools {
 	my $tool = shift;
 	my $comic = shift;
 	if (!$tool) {
-		say 'called tools without tool TODO';
+		return kopf('Eroor') . 'called tools without tool';
 	}
 	
 =head2 Cataflag
 
 add or remove I<tags> by clicking the boxes next to them. or add new tags by typing their name into the box and press ok.
+you should not add to many or to specialized tags because they are globally visible. try to find categories fitting a lot of comics.
 
-I<this comic is complete> marks the comic to be I<complete> (the story is complete and the comic will no longer update) 
-afterwards you can mark the comic as I<finished> to  indicate that you finished reading the whole storyline.
 
-you can also I<strop reading> a comic which basically means that you dont like it and wont red any further.
+you can odd or remove I<flags> the same way. 
+
+=over
+
+=item * r : you are B<r>eading this comic
+
+=item * c and f : the comic is B<c>omplete and you have B<f>inished reading it
+
+=item * s : comic is B<stopped>
+
+=item * l and w : comic has B<l>oop or B<w>arning
+
+=back
+
+r will be set when you click pause to bookmark the comic, w and l are for debugging
+
+
+click L<advanced|/"Database View"> to see a view of the comics table 
+
+click L<datalyzer|/"Datalyzer"> gives you some counts on the comics table
 
 =cut
 
@@ -583,14 +581,13 @@ you can also I<strop reading> a comic which basically means that you dont like i
 		flags($comic,"+$addflag") if $addflag;
 		if (param('bookmark')) {
 			my $bookmark = param('bookmark');
-			$bookmark =~ s/ /%20/ig; #TODO bookmarks are now numbers!
 			dbcmcs($comic,'bookmark',$bookmark );
 		}
 		if (param()) {
 			return undef; # this causes to redirect back to this page without parameters
 		}
 		my $res = &kopf($comic." tags and flags");
-
+		$res .= start_div({-class=>'tools'});
 		$res .= h1('Tags');
 		$res .= start_form({-method=>'GET',-action=>"/tools/cataflag/$comic",-name=>'setTags'});
 		$res .= hidden('st',1);
@@ -621,18 +618,9 @@ you can also I<strop reading> a comic which basically means that you dont like i
 		# $res .= br . a({href=>"/tools/cataflag/$comic?addflag=s"},'stop reading this comic');
 		$res .= br. a({-href=>"/tools/comics/$comic"},"advanced") .br;
 		$res .= a({href=>"/tools/datalyzer/$comic",-accesskey=>'d',-title=>'datalyzer'},'datalyzer').br;
-		$res .= br. a({-href=>"/tools/cataflag/$comic"},"reload") .br. a({-href=>"/front?comic=$comic"},"Frontpage").br. a({-href=>"/"},"Index");
-		$res .= end_html;;
+		$res .= br. a({-href=>"/tools/cataflag/$comic"},"reload") .br. a({-href=>"/front/$comic"},"Frontpage").br. a({-href=>"/"},"Index");
+		$res .= end_div.end_html;;
 		return $res;	
-	}	
-	
-	
-	if ($tool eq "download") {
-		require dlutil;
-		my $strip = param('strip');
-		say "TODO not working: download";
-		#&dlutil::getstore(&dat($comic,$strip,'surl'),"./strips/$comic/$strip");
-		return &ccomic;
 	}
 	
 	
@@ -670,7 +658,7 @@ this are normal healty strips somewhere in the comic
 
 =cut
 	
-	if ($tool eq "datalyzer") { #TODO maybe needs to be more adjusted to new db?
+	if ($tool eq "datalyzer") {
 		my %d;
 		$d{count}->{n} = 0;
 		$d{prevnext}->{n} = 0;
@@ -714,6 +702,7 @@ this are normal healty strips somewhere in the comic
 		}
 		
 		my $res = &kopf("Datalyzer");
+		$res .= start_div({-class=>'tools'});
 		my $sec = param('section') ;
 		
 		if ($sec and ($sec eq 'strps')) {
@@ -737,18 +726,19 @@ this are normal healty strips somewhere in the comic
 					a({-href=>"/tools/datalyzer/$comic?section=$_"},$_) , ':' , $d{$_}->{n}
 					])} grep {$_ ne 'strps'} keys %d]));	#getting all keys 
 		}
-		return $res .= br . a({-href=>"/"},"Index") . end_html;
+		return $res .= br . a({-href=>"/"},"Index") . end_div.end_html;
 	}
 
 	
-=head2 User Config
+=head2 Database View
 
-here you can edit the user table directly. this is just for debugging purposes.
+here you can view the comics table directly. this is just for debugging purposes.
 
 =cut
 
 	if ($tool eq 'comics') {
 		my $res = &kopf('comics');
+		$res .= start_div({-class=>'tools'});
 		if ($comic) {
 			my $user = $dbh->selectrow_hashref("SELECT * FROM comics WHERE comic = ?",undef,$comic);
 			$res .= start_table;
@@ -769,11 +759,12 @@ here you can edit the user table directly. this is just for debugging purposes.
 			$h = 1;
 			$res .=  Tr(td(a({-href=>"/tools/comics/$cmc"},$cmc)),td([map {textfield(-name=>$_, -default=>dbcmcs($cmc,$_))} keys %{$user->{$cmc}}]));
 		}
-		return $res . end_table . br . br .  a({-href=>"/"},"Index") . end_html;
+		return $res . end_table . br . br .  a({-href=>"/"},"Index") . end_div.end_html;
 	}
 	
 	if ($tool eq 'strips') {
 		my $res = &kopf('strips');
+		#$res .= start_div({-class=>'tools'});
 		if ($comic) {
 			my $user = $dbh->selectall_hashref("SELECT * FROM _$comic",'id');
 			$res .= start_table;
@@ -797,6 +788,7 @@ if you input a column in the second field, the output becomes more readable
 	
 	if ($tool eq 'query') {
 		my $res = &kopf('Query');
+		$res .= start_div({-class=>'tools'});
 		if (param('query')) {
 			if (param('hashkey')) {
 				$res .= pre(Dumper($dbh->selectall_hashref(param('query'),param('hashkey'))));
@@ -804,32 +796,15 @@ if you input a column in the second field, the output becomes more readable
 			else {
 				$res .= pre(Dumper($dbh->selectall_arrayref(param('query'))));
 			}
-			return $res . br . br . a({-href=>"/tools/query"},"Back") . br .  a({-href=>"/"},"Index") . end_html;
+			return $res . br . br . a({-href=>"/tools/query"},"Back") . br .  a({-href=>"/"},"Index") . end_div.end_html;
 		}
 		$res .= start_form("GET","/tools/query");
-		$res .= textfield(-name=>"query", -size=>"200") . br;
+		$res .= 'enter sql query string here'.br;
+		$res .= textarea(-name=>"query", -rows=>4,-columns=>80) . br.br;
+		$res .= 'select hash key'.br;
 		$res .= textfield(-name=>"hashkey", -size=>"20");
 		$res .= br . submit('ok');
-		return $res . br . br .  a({-href=>"/"},"Index") . end_html;
-	}
-	
-=head2 force update
-
-if used without a comic parameter it will update all comics (this may take some time). else it updates just the single comic
-
-=cut
-	
-	if ($tool eq 'forceupdate') {
-		if ($comic) {
-			my $time = Time::HiRes::time;
-			$dbh->do("UPDATE comics SET server_update = NULL WHERE comic = ?",undef,$comic);
-			&update;
-			return &kopf("Force Update $comic") . "Time: " . (Time::HiRes::time - $time) . " Seconds" . end_html;
-		}
-		my $time = Time::HiRes::time;
-		$dbh->do("UPDATE comics SET server_update = NULL");
-		&update;
-		return &kopf('Force Update All') . "Time: " . (Time::HiRes::time - $time) . " Seconds" . end_html;
+		return $res . br . br .  a({-href=>"/"},"Index") . end_div.end_html;
 	}
 	
 =head2 Random
@@ -847,64 +822,15 @@ get a random comic frontpage. you dont get comics that you are reading, have com
 			next if $broken{$comic};
 			next if $rand_seen{$comic};
 			$rand_seen{$comic} = 1;
-			return cfront($comic,1);
+			return cfront($comic);
 		}
 		undef %rand_seen;
 	}
-
-=head2 Export and Import
-
-use export to export to I<export.cie>. containing your I<tags> and I<complete flags>
-
-with import all .cie files in your current folder will be importet, renamed and put into the import folder. 
-no changes to your data are made, imported values are just placed on top of your values.
-you can delete all imported data via this link:
-
-L<http://127.0.0.1/tools/query?query=update+user+set+itags+%3D+NULL%2C+iflags+%3D+NULL>
-
-copy all the files from you ./import folder to your main folder to reimport everything you had imported.
-
-=cut	
-
-	if($tool eq 'export') {
-		say "TODO no longer supported";
-		return undef;
-		my $data = $dbh->selectall_hashref("select comic,tags,flags from user where tags is not null or flags like '%c%'",'comic');
-		open(EX,">export.cie");
-		print EX "v1 This file is a tag and flag export of httpserver v$VERSION\n";
-		foreach my $cmc (keys %{$data}) {
-			$data->{$cmc}->{flags} =~ s/[^c]//g;
-			print EX join(",",@{[$data->{$cmc}->{comic},$data->{$cmc}->{tags}//'',$data->{$cmc}->{flags}//'']}) . "\n";
-		}
-		close(EX);
-	}
-	if($tool eq 'import') {
-		say "TODO no longer supported";
-		return undef;
-		opendir(DIR,'.');
-		while (my $file = readdir DIR) {
-			next unless $file =~ m/\w+\.cie$/;
-			open(EX,"<$file");
-			my $v = <EX> =~ m/^v(\d+)/;
-			while (my $line = <EX>) {
-				chomp($line);
-				my ($comic,$tags,$flags) = split(',',$line);
-				flags($comic,"+$flags",1);
-				tags($comic,"+$tags",1);
-			}
-			close(EX);
-			unless (-e "./import/") {
-				mkdir("./import/");
-			}
-			rename($file,'./import/'.time.$file);
-		}
-		closedir(DIR);
-	}
 	
 	
-=head2 Filter
+=head2 Filter (disabled)
 
-the first field is the name of the filter (use aplphanumeric without spaces for peace of mind) 
+the first field is the name of the filter (use alphanumeric without spaces for peace of mind) 
 
 the second field is a sqlite expression. if it returns true the comic is displayed with this filter. 
 it works somewhat like this:
@@ -913,7 +839,7 @@ it works somewhat like this:
 
 you can use all the fields of user to filter from. try this to get only comics with mor than 500 strips:
 
-	strips_counted > 500
+	strip_count > 500
 	
 or just comics beginning with C or S
 
@@ -985,7 +911,7 @@ stop reading here unless you want to understand strange behavior or possible bug
 sub cpod {
 	require Pod::Simple::HTML;
 	my $path;
-	given (param("file")) {
+	given (param("file") // '') {
 		when(/comic3/) {$path = "comic3.pl"}
 		when(/comic/) {$path = "lib/comic.pm"}
 		when(/httpserver/) {$path = "httpserver.pl"}

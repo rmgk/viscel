@@ -28,7 +28,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '37';
+$VERSION = '38';
 
 =head1	General Methods
 
@@ -130,7 +130,7 @@ sub new {
 	
 	#dbutil::check_table($s->dbh,"_".$s->name);
 	unless ($s->dbcmc('comic')) {
-		$s->dbh->do('INSERT INTO comics (comic) VALUES (?)',undef,$s->name);
+		$s->dbh->do('INSERT INTO comics (comic,flags,tags) VALUES (?,?,?)',undef,$s->name,$s->{flags},$s->{tags});
 	}
 	if (!$s->dbcmc('first') and !$s->dbcmc('url_current')) {
 		$s->dbh->do('UPDATE comics  SET first = ? WHERE comic = ?',undef,$s->curr->strip(0)->id,$s->name);
