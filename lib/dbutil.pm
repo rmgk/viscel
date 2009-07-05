@@ -20,7 +20,7 @@ provides some database utility functions
 use DBI;
 
 our($VERSION);
-$VERSION = '14';
+$VERSION = '15';
 
 my @strips_columns = 	qw(file prev next number surl purl title time sha1); 
 my @config_columns =	qw(update_intervall filter processing time);
@@ -46,6 +46,7 @@ sub check_table {
 		when ('comics') {return &comics($dbh)}
 #		when ('CONFIG') {return &config($dbh)}
 		when (/^_\w+/) {return &strips($dbh,$table)}
+		when (ref($_) eq 'ARRAY') {return all($dbh,$table)}
 		default { warn "incorrect table name: $table\n" }
 	}
 }
@@ -64,7 +65,7 @@ sub comics {
 		push(@missing_column,$column) unless $col_having =~ /\b$column\b/is;
 	}
 	foreach my $column (@missing_column) {
-		$dbh->do("ALTER TABLE comics ADD COLUMN " . $column);
+		$dbh->do("ALTER TABLE comics ADD COLUMN $column");
 	}
 	return 2;
 }
@@ -92,11 +93,11 @@ sub comics {
 sub strips {
 	my $dbh = shift;
 	my $table = shift;
-	unless($dbh->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name='" . $table ."'")) {
-		$dbh->do("CREATE TABLE " .  $table . " ( id INTEGER PRIMARY KEY ASC , " . join(",",@strips_columns) . ")");
+	unless($dbh->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name= ?",undef, $table)) {
+		$dbh->do("CREATE TABLE $table ( id INTEGER PRIMARY KEY ASC , " . join(",",@strips_columns) . ")");
 		return 1;
 	};
-	my @sql = $dbh->selectrow_array("SELECT sql FROM sqlite_master WHERE type='table' AND name='" . $table ."'");
+	my @sql = $dbh->selectrow_array("SELECT sql FROM sqlite_master WHERE type='table' AND name= ?",undef, $table);
 	$sql[0] =~ /\(([\w,\s]+)\)/s;
 	my $col_having = $1;
 	my @missing_column;
@@ -104,9 +105,21 @@ sub strips {
 		push(@missing_column,$column) unless $col_having =~ /\b$column\b/is;
 	}
 	foreach my $column (@missing_column) {
-		$dbh->do("alter table " . $table . " add column " . $column);
+		$dbh->do("ALTER TABLE $table ADD COLUMN $column");
 	}
 	return 2;
+}
+
+sub all {
+	my $dbh = shift;
+	my $cmc_list = shift;
+	my $tables = $dbh->selectall_hashref("SELECT name FROM sqlite_master WHERE type='table'",'name');
+	
+	foreach my $comic (@$cmc_list) {
+		if (!$tables->{"_$comic"}) {
+			strips($dbh,"_$comic")
+		}
+	}
 }
 
 =head2 readINI
