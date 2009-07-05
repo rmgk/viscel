@@ -24,7 +24,7 @@ use Digest::SHA qw(sha1_hex);
 
 
 our $VERSION;
-$VERSION = '5';
+$VERSION = '6';
 
 =head1 general Methods
 
@@ -65,7 +65,7 @@ sub check_id {
 		#$s->dbh->commit;
 		return -1;
 	}
-	my $eid = $s->dbstrps('surl' => $s->url , 'id');
+	my $eid = $s->dbstrps('file' => $s->file_name , 'id'); #TODO get the eid from file name surl or maybe even somethign else?
 	if ($eid) {
 		my $db_strip = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$eid);
 		my $epurl =	$db_strip->{purl};
@@ -185,7 +185,7 @@ returns: undef on error, 1 if successful, 2 if exists
 
 sub download {
 	my $s = shift;
-	#return -1 if ($s->dummy); TODO
+	return -1 if (!$s->url);
 	if ($s->sha1) {
 		$s->status("EXISTS: ".$s->file_name,'UINFO');
 		return 2;
@@ -314,7 +314,6 @@ sub get_file_name {
 		$s->{gfn_error} = "no url";
 		return undef;
 	}
-	#return $surl if ($s->dummy); TODO
  	$depth ||= $s->filename_depth;
 	$surl =~ s#^\w+://##; #remove protokoll
 

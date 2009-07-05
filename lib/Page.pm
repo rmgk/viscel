@@ -28,7 +28,7 @@ use Time::HiRes;
 use Strip;
 
 our $VERSION;
-$VERSION = '38';
+$VERSION = '39';
 
 =head1 general Methods
 
@@ -54,7 +54,6 @@ sub new {
 	my $class = shift;
 	my $s = shift;
 	bless $s,$class;
-	$s->{filename_depth} = 1; #$s->dbcmc('filename_depth') // 1; TODO
 	$s->status("NEW PAGE: ".$s->url,'DEBUG');
 	return $s;
 }
@@ -558,9 +557,7 @@ sub try_get_strip_urls_part {
 		}
 		if ($url =~ m#^http://#) {
 			my $url_home = $s->cmc->url_home;
-			my $add_url_home = $s->ini('add_url_home');
-			next unless (($url =~ m#$url_home#) or 
-						((defined $add_url_home) and $url =~ m#$add_url_home#));
+			next unless ($url =~ m#$url_home#);
 		}
 		if (($url =~ m#(^|\D)(\d{8}|\d{14})\D[^/]*$#) or ($url =~ m#(^|\D)\d{4}-\d\d-\d\d\D[^/]*$#)) {
 			push(@return,$url);
@@ -701,7 +698,7 @@ sub body {
 		}
 		say "OMG OMG OMG HAS NEXT OR PREV HEADER!!!!!!!!!!!!!"  if $s->{header}->{next} or $s->{header}->{prev};
 
-		$s->{'body'} = $res->content(); #TODO
+		$s->{'body'} = $res->content();
 	}
 	return $s->{'body'};
 }
