@@ -25,7 +25,7 @@ require Exporter;
 @EXPORT_OK = qw($ua);
 
 our($VERSION);
-$VERSION = '10';
+$VERSION = '11';
 
 =head1 functions
 
@@ -58,10 +58,6 @@ returns: $response object
 sub get {
 	my($url, $referer) = @_;
 	_init_ua() unless $ua;
-	unless (defined $referer) {
-		(my $referer = $url) =~ s/[\?\&]//;
-		$referer =~ s#/[^/]*$#/#;
-	}
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
 	$request->accept_decodable();

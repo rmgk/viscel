@@ -25,7 +25,7 @@ use Scalar::Util;
 
 
 our $VERSION;
-$VERSION = '9';
+$VERSION = '10';
 
 our $Strips = 0;
 
@@ -423,7 +423,14 @@ sub title {
 
 	my $ew;
 	my $eh;
-	if ($urlpart) {
+	if (my $re_em = $s->ini('regex_embed')) {
+		if ($body =~ $re_em) {
+			$ew = $+{width};
+			$eh = $+{height};
+			$titles{et} = $+{type};
+		}
+	}
+	elsif ($urlpart) {
 		my $embed;
 		if ($body =~ m#(<embed[^>]*?src=["']?[^"']*?$urlpart(?:['"\s][^>]*?>|>))#is) {
 			$embed = $1;
