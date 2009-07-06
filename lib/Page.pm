@@ -29,7 +29,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '41';
+$VERSION = '42';
 
 our $Pages = 0;
 
@@ -715,7 +715,7 @@ sub body {
 		}
 		say "OMG OMG OMG HAS NEXT OR PREV HEADER!!!!!!!!!!!!!"  if $s->{header}->{next} or $s->{header}->{prev};
 
-		$s->{'body'} = $res->content();
+		$s->{'body'} = $res->decoded_content();
 	}
 	return $s->{'body'};
 }

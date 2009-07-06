@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '39';
+$VERSION = '40';
 
 =head1	General Methods
 
@@ -152,7 +152,8 @@ returns: nothing (useful).
 sub get_all {
 	my $s = shift;
 	$s->status("START: get_all",'DEBUG');
-	my $last_strip = undef;
+	my $last_strip;
+	$last_strip = $s->prev->strip(-1) if $s->prev;
 
 	while (!$::TERM) {
 		$last_strip = $s->curr->all_strips($last_strip);
@@ -291,7 +292,7 @@ sub prev {
 
 	my ($url) =  $s->curr->url_prev();
 	if ($url) { $s->{prev} = Page->new({"cmc" => $s,'url' => $url}); }
-	else { $s->status("FEHLER kein prev: " . $s->curr->url,'ERR'); }
+	else { $s->status("ERROR no prev: " . $s->curr->url,'ERR'); }
 	return $s->{prev};
 }
 
@@ -447,7 +448,7 @@ sub url_next_archive {
 	$s->status("NEXT ARCHIVE deeper, get body: ". $url_arch, 'UINFO');
 	my $res = dlutil::get($url_arch);
 	if ( $res->is_success() ) {
-		my $body = $res->content;
+		my $body = $res->decoded_content;
 		if ($body =~ m#$reg_deeper#is) {
 			my $deep_url = URI->new($+{url} // $1)->abs($url_arch)->as_string;
 			$s->status("NEXT ARCHIVE deeper: " .$deep_url, 'UINFO');
@@ -500,7 +501,7 @@ sub ar_get_archives {
 		$s->status('ERROR: could not get body '. $s->ini('archive_url') . ' ' . $res->status_line(), 'ERR');
 		return undef;
 	}
-	my $body = $res->content();
+	my $body = $res->decoded_content();
 	my $regex = $s->ini('archive_regex');
 	my @archives;
 	while ($body =~ m#$regex#gis) {

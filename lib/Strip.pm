@@ -25,7 +25,7 @@ use Scalar::Util;
 
 
 our $VERSION;
-$VERSION = '8';
+$VERSION = '9';
 
 our $Strips = 0;
 
@@ -274,7 +274,7 @@ sub _download {
 	}
 	if (open(my $fh,'>'.$s->file_path)) {
 		binmode $fh;
-		my $img = \$img_res->content();
+		my $img = \$img_res->decoded_content();
 		$s->sha1($SHA->add($$img)->hexdigest());
 		print $fh $$img;
 		say " (".int((-s $fh)/($time*1000)) ." kb/s)";

@@ -25,7 +25,7 @@ require Exporter;
 @EXPORT_OK = qw($ua);
 
 our($VERSION);
-$VERSION = '9';
+$VERSION = '10';
 
 =head1 functions
 
@@ -64,6 +64,7 @@ sub get {
 	}
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
+	$request->accept_decodable();
 	return $ua->request($request);
 }
 
