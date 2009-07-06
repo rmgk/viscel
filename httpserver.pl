@@ -34,6 +34,7 @@ use dbutil;
 use vars qw($VERSION);
 $VERSION = '2.51';
 
+
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
 
@@ -429,7 +430,12 @@ sub ccomic {
 	
 	$ret .= h3($titles{h1}) if $titles{h1};
 	if ($file and (-e "./strips/$comic/$file")) { 
-		$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
+		if ($strip =~ m#.swf$#i) {
+			$ret .= embed({-src=>"./strips/$comic/$file",-quality=>'high',-type=>($titles{et}//''),-width=>($titles{ew}//''),-height=>($titles{eh}//'')});
+		}
+		else {
+			$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
+		}
 	}
 	elsif ($file) {
 		$ret .= img({-src=>dbstrps($comic,'id'=>$strip,'surl'),-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
