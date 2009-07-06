@@ -271,7 +271,7 @@ returns: 0 if the download threw an error and 1 if the download was successful
 sub _download {
 	my ($s) = @_;
 	my $time = Time::HiRes::time;
-	my $img_res = dlutil::get($s->url,$s->ini('referer'));
+	my $img_res = dlutil::get($s->url,$s->ini('referer')//$s->page->url);
 	$time = Time::HiRes::time - $time;
 	if ($img_res->is_error) {
 		say " error"; #were waiting for speed and newline
