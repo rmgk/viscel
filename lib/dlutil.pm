@@ -21,11 +21,11 @@ our($ua,@EXPORT,@EXPORT_OK);
 
 require Exporter;
 
-@EXPORT = qw(get gethead);
+@EXPORT = qw();
 @EXPORT_OK = qw($ua);
 
 our($VERSION);
-$VERSION = '8';
+$VERSION = '9';
 
 =head1 functions
 
@@ -64,8 +64,7 @@ sub get {
 	}
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
-	my $response = $ua->request($request);
-	return $response;
+	return $ua->request($request);
 }
 
 =head2 gethead
@@ -87,8 +86,7 @@ sub gethead {
 	}
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
-	my $response = $ua->head($url);
-	return $response;
+	return $ua->head($url);
 }
 
 1;

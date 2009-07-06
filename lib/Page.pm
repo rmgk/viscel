@@ -24,11 +24,14 @@ use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 use Time::HiRes;
+use Scalar::Util;
 
 use Strip;
 
 our $VERSION;
-$VERSION = '39';
+$VERSION = '40';
+
+our $Pages = 0;
 
 =head1 general Methods
 
@@ -54,7 +57,9 @@ sub new {
 	my $class = shift;
 	my $s = shift;
 	bless $s,$class;
-	$s->status("NEW PAGE: ".$s->url,'DEBUG');
+	$Page::Pages++;
+	$s->status("NEW PAGE: ($Page::Pages) ".$s->url,'DEBUG');
+	Scalar::Util::weaken($s->{cmc});
 	return $s;
 }
 
@@ -81,7 +86,7 @@ sub all_strips {
 		$prev_strip = $strip;
 	}
 	
-	$s->release_strips;
+	#$s->release_strips;
 	
 	return $prev_strip;
 }
@@ -413,7 +418,6 @@ sub strips {
 		$s->status("NO STRIPS: ".$s->url,'WARN');
 		$s->{strips}->[0] =  Strip->new({page=>$s,dummy=>1})
 	}
-	$s->{strips} = [];
 	foreach my $url (@$urls) {
 		push (@{$s->{strips}},Strip->new({url=>$url,page=>$s}));
 	}
@@ -853,7 +857,9 @@ sub status {
 
 sub DESTROY {
 	my $s = shift;
-	$s->status('DESTROYED: '. $s->url,'DEBUG');
+	delete $s->{strips}; # we need to manually destroy the strips so that this object still exists while strips are gc'd
+	$Page::Pages--;
+	$s->status("DESTROYED: ($Page::Pages) ". $s->url,'DEBUG');
 }
 
 }

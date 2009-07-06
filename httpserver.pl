@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.50';
+$VERSION = '2.51';
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
@@ -92,7 +92,7 @@ while (my $c = $d->accept) {
 			else {
 				restore_parameters($r->url->query);
 
-				if ($r->url->path =~ m#/comics/(\w+)(?:/(\w+))#i) {
+				if ($r->url->path =~ m#/comics/(\w+)(?:/(\w+))?#i) {
 					cache_strps($1);
 					if ($2) { $res->content(&ccomic($1,$2)); }
 					else { $res->content(&cclist($1)); }
@@ -412,24 +412,23 @@ sub ccomic {
 	my %titles = get_title($comic,$strip);
 	
 	my ($prev,$next, $first,$last,$file) = (
-		dbstrps($comic,'id'=>$strip,'prev'),dbstrps($comic,'id'=>$strip,'next'),
-		dbcmcs($comic,'first'),dbcmcs($comic,'last'),dbstrps($comic,'id'=>$strip,'file')
+			dbstrps($comic,'id'=>$strip,'prev'),dbstrps($comic,'id'=>$strip,'next'),
+			dbcmcs($comic,'first'),dbcmcs($comic,'last'),dbstrps($comic,'id'=>$strip,'file')
 		);
-	
-	my $ret = &kopf($titles{st},
+	my $nfile = dbstrps($comic,'id'=>$next,'file');
+	my $ret = &kopf($titles{st}//($comic .' - '. $strip),
 				$prev  ?"/comics/$comic/$prev" :"0",
 				$next  ?"/comics/$comic/$next" :"0",
 				$first ?"/comics/$comic/$first":"0",
 				$last  ?"/comics/$comic/$last" :"0",
-				"/strips/$comic/$file", #prefetch
-				$next  ?qq#(new Image()).src = '/strips/$comic/$file'#:"0", #more prefetch .. 
+				$nfile ?"/strips/$comic/$nfile":"0", #prefetch
+				$nfile  ?"(new Image()).src = '/strips/$comic/$nfile'":"0", #more prefetch .. 
 				);
 				
 	$ret .= start_div({-class=>"comic"});
 	
-	$ret .= h3($titles{h1});
-	
-	if (-e "./strips/$comic/$file") { 
+	$ret .= h3($titles{h1}) if $titles{h1};
+	if ($file and (-e "./strips/$comic/$file")) { 
 		$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
 	}
 	elsif ($file) {
@@ -437,7 +436,15 @@ sub ccomic {
 		$ret .= br . 'this strip is not local';
 	}
 	else {
-		$ret .= "This page is a dummy. Errors are likely";
+		my @animals = (	['(\__/)','|\__/|','()__()','(\.../)',,'@_@'],
+						["(0'.'0)",'(o.o)','(O.o)','( °.° )','(*,,*)'],
+						['( >< )','(")_(")','( >.< )','(>_<)','(")(")']
+					);
+		my @animal = map { $_->[rand(@$_)]} @animals;
+		
+		$ret .= br.br.join(br,@animal).br;
+		$ret .= 'something has stolen the strip! ';
+		$ret .= 'check the site for reasons';
 	}
 	
 	
@@ -1053,14 +1060,16 @@ usr and dat use caching, so asking them for the same value over and over again s
 =cut
 
 sub config {  #todo
-	my ($key,$value,$null) = @_;
+	my ($key,$value) = @_;
+	return unless $key;
 	say join(':',caller) . ' called non supportet routine config TODO';
 	return;
-	return $dbh->selectrow_array(qq(SELECT $key FROM config));
+	return $dbh->selectrow_array("SELECT $key FROM config");
 }
 
 sub dbcmcs { #gibt die aktuellen einstellungen des comics aus # hier gehören die veränderlichen informationen rein, die der nutzer auch selbst bearbeiten kann
 	my ($c,$key,$value) = @_;
+	return unless $c and $key;
 	if (defined $value and $value ne '') {
 		$dbh->do("UPDATE comics SET $key = ? WHERE comic = ?",undef,$value,$c);
 		%strpscache = ();
@@ -1068,25 +1077,21 @@ sub dbcmcs { #gibt die aktuellen einstellungen des comics aus # hier gehören die
 	if ($strpscache{comic} and ($c eq $strpscache{comic})) {
 		return $strpscache{$key};
 	}
-	my $sth = $dbh->prepare("SELECT $key FROM comics WHERE comic = ?");
-	$sth->execute($c);
-	return $sth->fetchrow_array();
+	return $dbh->selectrow_array("SELECT $key FROM comics WHERE comic = ?",undef,$c);
 	
 }
 
 sub dbstrps { #gibt die dat und die dazugehörige configuration des comics aus # hier werden alle informationen zu dem comic und seinen srips gespeichert
 	my ($c,$get,$key,$select,$value) = @_;
+	return unless $c and $get and $key;
 	if (defined $value) {
-		my $sth = $dbh->prepare("UPDATE _$c SET $select = ? WHERE $get = ?");
-		$sth->execute($value,$key);
+		$dbh->do("UPDATE _$c SET $select = ? WHERE $get = ?",undef,$value,$key);
 		%strpscache = ();
 	}
 	if ($strpscache{comic} and ($c eq $strpscache{comic}) and ($get eq 'id')) {
 		return $strpscache{$key}->{$select};
 	}
-	my $sth = $dbh->prepare("SELECT $select FROM _$c WHERE $get = ?");
-	$sth->execute($key);
-	return $sth->fetchrow_array();
+	return $dbh->selectrow_array("SELECT $select FROM _$c WHERE $get = ?",undef,$key);
 }
 
 sub cache_strps {

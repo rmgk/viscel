@@ -10,7 +10,7 @@ use DBI;
 use Comic;
 use dbutil;
 
-my $build = 88 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+my $build = 89 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
 our $VERSION = 3.050 . '.'. $build;
 
 
@@ -44,6 +44,11 @@ if (!defined $update_intervall or $update_intervall eq '') {
 	$update_intervall = 45000;
 	print "no update interval specified using default = $update_intervall seconds\n";
 }
+
+my $skip = 1;
+
+use Devel::Cycle;
+
 if ($ARGV[0]) {
 	if ($ARGV[0] and ($ARGV[0] =~ m/^-\w+/)) {
 		die "no such comic: $ARGV[1]" unless defined $comics->{$ARGV[1]};
@@ -64,12 +69,14 @@ if ($ARGV[0]) {
 		}
 		@comics = ();
 		$comics[0] = $ARGV[1];
+		$skip = 0;
 		
 	}
 	elsif ($ARGV[0] =~ m#^(\w+)$#) {
 		die "no such comic: $ARGV[0]" unless defined $comics->{$ARGV[0]};
 		@comics = ();
 		$comics[0] = $ARGV[0];
+		$skip = 0;
 	}
 	elsif ($ARGV[0] =~ m#^/(.*)/$#) {
 		@comics = grep { $_ ~~ /$1/i} @comics;
@@ -94,10 +101,10 @@ dbutil::check_table($dbh,\@comics);
 	
 	
 comic:foreach my $comic (@comics) {	
-	my $skip = 0;
-	
-	my $lu = $dbh->selectrow_array('SELECT last_update FROM comics WHERE comic = ?',undef,$comic);
-	next comic if ((time - $update_intervall) < ($lu||0));
+	if ($skip) {
+		my $lu = $cdb->{$comic}->{last_update};
+		next comic if ((time - $update_intervall) < ($lu||0));
+	}
 	
 	last if $TERM;
 	
@@ -116,10 +123,10 @@ comic:foreach my $comic (@comics) {
 			#$dbh->do(qq!INSERT INTO CONFIG (processing,time) values ("$domain",! .time . ")" ); # TODO
 		}
 	}
-	Comic::get_comic({	"name" => $comic , "dbh" => $dbh, "autocommit" => 1, 
+	 find_cycle(Comic::get_comic({	"name" => $comic , "dbh" => $dbh, "autocommit" => 1, 
 						'flags' => $comics->{$comic}->{flags}, 
 						'tags' => $comics->{$comic}->{tags}
-						});
+						}));
 
 	#$dbh->do(qq(DELETE FROM CONFIG WHERE processing = "$domain")); TODO
 	last if $TERM;

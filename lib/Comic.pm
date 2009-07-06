@@ -21,14 +21,12 @@ This package is used to navigate inside the comic and mange the list of pages.
 use Page;
 use dbutil;
 use dlutil;
-
-#use Data::Dumper;
  
 use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '38';
+$VERSION = '39';
 
 =head1	General Methods
 
@@ -49,7 +47,7 @@ sub get_comic {
 	my $s = Comic->new(@_);
 	if ($s) {
 		$s->get_all;
-		$s->release_pages;
+		#$s->release_pages;
 		$s->dbh->commit unless $s->{autocommit};
 		$s->dbh->disconnect unless $s->{dbh_no_disconnect};
 		#flush out the log
@@ -155,6 +153,7 @@ sub get_all {
 	my $s = shift;
 	$s->status("START: get_all",'DEBUG');
 	my $last_strip = undef;
+
 	while (!$::TERM) {
 		$last_strip = $s->curr->all_strips($last_strip);
 		return undef unless $last_strip;
@@ -252,7 +251,7 @@ sub curr {
 	my ($s,$ref) = @_;
 	if ($ref) {
 		if (ref $s->{curr}) {
-			$s->{curr}->release_strips;
+			#$s->{curr}->release_strips;
 		}
 		if (ref($ref) eq "Page") {
 			$s->{curr} = $ref;
@@ -281,7 +280,7 @@ sub prev {
 	my ($s,$ref) = @_;
 	if ($ref) {
 		if (ref $s->{prev}) {
-			$s->{prev}->release_strips;
+			#$s->{prev}->release_strips;
 		}
 		if (ref($ref) eq "Page") {
 			$s->{prev} = $ref ;
@@ -312,7 +311,7 @@ sub next {
 	my ($s,$ref) = @_;
 	if ($ref) {
 		if (ref $s->{next}) {
-			$s->{next}->release_strips;
+			#$s->{next}->release_strips;
 		}
 		(ref($ref) eq "Page") ? 
 			$s->{next} = $ref :
@@ -404,7 +403,7 @@ sub get_next_page {
 				return $tmp_page;
 			}
 		}
-		$tmp_page->release_strips();#we dont want to leak memory
+		#$tmp_page->release_strips();#we dont want to leak memory
 	}
 	#so we had no previous matches huh? what now? maybe we just return a page where we found a strip!
 	if ($first_nondummy_page) { #we can only do that if such a page exists!
@@ -669,12 +668,9 @@ sub dbcmc { #gibt die aktuellen einstellungen des comics aus # hier gehören die 
 	my $s = shift;
 	my ($key,$value) = @_;
 	if (defined $value) {
-		my $sth = $s->dbh->prepare("UPDATE comics SET $key = ? WHERE comic=?");
-		$sth->execute($value,$s->name);
+		$s->dbh->do("UPDATE comics SET $key = ? WHERE comic=?",undef,$value,$s->name);
 	}
-	my $sth = $s->dbh->prepare("SELECT $key FROM comics WHERE comic=?");
-	$sth->execute($s->name);
-	return $sth->fetchrow_array();
+	return $s->dbh->selectrow_array("SELECT $key FROM comics WHERE comic=?",undef,$s->name);
 }
 
 =head2 dbstrps  
@@ -698,12 +694,9 @@ sub dbstrps { #gibt die dat und die dazugehörige configuration des comics aus # 
 	my $c = $s->name;
 
 	if (defined $value) {
-		my $sth = $s->dbh->prepare(qq(UPDATE _$c SET $select = ? WHERE $get = ?));
-		$sth->execute($value,$key);
+		$s->dbh->do("UPDATE _$c SET $select = ? WHERE $get = ?",undef,$value,$key);
 	}
-	my $sth = $s->dbh->prepare(qq(SELECT $select FROM _$c WHERE $get = ?));
-	$sth->execute($key);
-	return $sth->fetchrow_array();
+	return $s->dbh->selectrow_array("SELECT $select FROM _$c WHERE $get = ?",undef,$key);
 }
 
 =head2 name  
@@ -848,6 +841,9 @@ sub release_pages {
 
 sub DESTROY {
 	my $s = shift;
+	delete $s->{prev}; # gc pages before comic
+	delete $s->{curr};
+	delete $s->{next}; 
 	$s->status('DESTROYED: '. $s->name,'DEBUG');
 }
 

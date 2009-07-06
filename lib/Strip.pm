@@ -20,11 +20,16 @@ This package is used to organize files and dates of a strip.
 
 use dlutil;
 
-use Digest::SHA qw(sha1_hex);
+use Digest::SHA;
+use Scalar::Util;
 
 
 our $VERSION;
-$VERSION = '6';
+$VERSION = '7';
+
+our $Strips = 0;
+
+our $SHA = Digest::SHA->new();
 
 =head1 general Methods
 
@@ -51,7 +56,9 @@ sub new {
 	my $s = shift;
 	bless $s,$class;
 	$s->check_id;
-	$s->status("NEW STRIP: ".($s->dummy?'dummy'.$s->id:$s->url),'DEBUG');
+	$Strip::Strips++;
+	$s->status("NEW STRIP: ($Strip::Strips) ".($s->dummy?'dummy'.$s->id:$s->url),'DEBUG');
+	Scalar::Util::weaken($s->{page});
 	return $s;
 }
 
@@ -103,8 +110,7 @@ sub prev {
 			$s->{prev} = $o;
 			if ($s->{is_commited}) { 
 				$s->dbstrps(id=>$s->id,prev=>$s->{prev});
-				#$s->dbh->commit;
-				$s->status("commited prev $o , ".$s->url,'DEBUG');
+				$s->status("COMMITED prev $o , ".($s->url//$s->id),'DEBUG');
 			}
 		}
 	}
@@ -135,8 +141,7 @@ sub next {
 			$s->{next} = $o;
 			if ($s->{is_commited}) { 
 				$s->dbstrps(id=>$s->id,next=>$s->{next});
-				#$s->dbh->commit;
-				$s->status("commited prev $o , ".$s->url,'DEBUG');
+				$s->status("COMMITED next $o to ".($s->url//$s->id),'DEBUG');
 			}
 		}
 	}
@@ -154,16 +159,15 @@ sub get_data {
 
 sub commit_info {
 	my $s = shift;
-	if ($s->dummy()) {
-		my $sth =  $s->dbh->prepare('UPDATE _'.$s->name .' SET purl=?,next=?,prev=?,number=? where id == ?');
-		$sth->execute($s->page->url,$s->next,$s->prev,$s->number,$s->id);
-		#$s->dbh->commit;
-		$s->{is_commited} = 1;
-		return -1;
-	}
 	if ($s->{is_commited}) {
 		$s->status("ERROR: already commited: ".$s->url,'ERR');
 		return 0;
+	}
+	if ($s->dummy()) {
+		my $sth =  $s->dbh->prepare('UPDATE _'.$s->name .' SET purl=?,next=?,prev=?,number=? where id == ?');
+		$sth->execute($s->page->url,$s->next,$s->prev,$s->number,$s->id);
+		$s->{is_commited} = 1;
+		return -1;
 	}
 	$s->page->cmc->{sqlstr_title_update} //= $s->dbh->prepare('UPDATE _'.$s->name .' SET title=?,purl=?,surl=?,next=?,prev=?,number=?,time=?,file=?,sha1=? where id == ?');
 	$s->page->cmc->{sqlstr_title_update}->execute($s->title,$s->page->url,$s->url,$s->next,$s->prev,$s->number,time,$s->file_name,$s->sha1,$s->id);
@@ -213,9 +217,7 @@ sub download {
 	if (-e $s->file_path) {
 		$s->status("EXISTS on disk: ".$s->file_name,'UINFO');
 		unless ($s->sha1) {
-			open(my $fh , '<'.$s->file_path);
-			$s->sha1(sha1_hex(<$fh>));
-			close $fh;
+			$s->sha1($SHA->addfile($s->file_path,"b")->hexdigest);
 		}
 		return 2;
 	}
@@ -266,19 +268,21 @@ sub _download {
 	my $img_res = dlutil::get($s->url,$s->ini('referer'));
 	$time = Time::HiRes::time - $time;
 	if ($img_res->is_error) {
+		say " error"; #were waiting for speed and newline
 		$s->status("ERROR downloading ".$s->file_name." code: " .$img_res->status_line(),"ERR");
 		return 0;
 	}
-	my $img = $img_res->content();
-	$s->sha1(sha1_hex($img));
 	if (open(my $fh,'>'.$s->file_path)) {
 		binmode $fh;
-		print $fh $img;
+		my $img = \$img_res->content();
+		$s->sha1($SHA->add($$img)->hexdigest());
+		print $fh $$img;
 		say " (".int((-s $fh)/($time*1000)) ." kb/s)";
 		close $fh;
 		$s->dbcmc('last_save',time);
 	}
 	else {
+		say " error"; #were waiting for speed and newline
 		$s->status("ERROR: could not open ". $s->file_path,'ERR');
 		return undef
 	}
@@ -543,12 +547,14 @@ sub dbh {
 
 sub DESTROY {
 	my $s = shift;
+	
 	my $db = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$s->id);
 	unless (((defined $db->{file}) + (defined $db->{next}) + (defined $db->{prev}))>1) {
 		$s->dbh->do('DELETE FROM _' . $s->name . ' WHERE id = ?' , undef,$s->id);
 		#$s->dbh->commit();
 	}
-	$s->status('DESTROYED: '. ($s->dummy?'dummy'.$s->id:$s->url),'DEBUG');
+	$Strip::Strips--;
+	$s->status("DESTROYED: ($Strip::Strips) ". ($s->dummy?'dummy'.$s->id:$s->url),'DEBUG');
 }
 
 }
