@@ -424,7 +424,7 @@ sub title {
 	my $ew;
 	my $eh;
 	if (my $re_em = $s->ini('regex_embed')) {
-		if ($body =~ $re_em) {
+		if ($body =~ m#$re_em#is) {
 			$ew = $+{width};
 			$eh = $+{height};
 			$titles{et} = $+{type};
