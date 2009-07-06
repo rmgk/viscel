@@ -72,13 +72,19 @@ sub check_id {
 		#$s->dbh->commit;
 		return -1;
 	}
-	my $eid = $s->dbstrps('file' => $s->file_name , 'id'); #TODO get the eid from file name surl or maybe even somethign else?
+	#my $eid = $s->dbstrps('file' => $s->file_name , 'id'); #TODO get the eid from file name surl or maybe even something else?
+	my $strip_path = $s->url;
+	$strip_path =~ s#^\w+://[^/]+(/.*)$#$1#;
+	$strip_path = '%'. $strip_path;
+	my $eid = $s->dbh->selectrow_array('SELECT id FROM _'.$s->name.' WHERE surl like ?',undef,$strip_path);
 	if ($eid) {
 		my $db_strip = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$eid);
 		my $epurl =	$db_strip->{purl};
 		my $purl = $s->page->url;
 		$epurl =~ s/\?.+$//; # removing scripts and such
 		$purl =~ s/\?.+$//;
+		$epurl =~ s#://[^/]+(/.*)$#$1#;
+		$purl =~ s#://[^/]+(/.*)$#$1#;
 		
 		if ($epurl eq $purl) {
 			$s->{$_} = $db_strip->{$_} for keys %$db_strip;
