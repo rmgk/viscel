@@ -47,8 +47,6 @@ if (!defined $update_intervall or $update_intervall eq '') {
 
 my $skip = 1;
 
-use Devel::Cycle;
-
 if ($ARGV[0]) {
 	if ($ARGV[0] and ($ARGV[0] =~ m/^-\w+/)) {
 		die "no such comic: $ARGV[1]" unless defined $comics->{$ARGV[1]};
@@ -123,10 +121,10 @@ comic:foreach my $comic (@comics) {
 			#$dbh->do(qq!INSERT INTO CONFIG (processing,time) values ("$domain",! .time . ")" ); # TODO
 		}
 	}
-	 find_cycle(Comic::get_comic({	"name" => $comic , "dbh" => $dbh, "autocommit" => 1, 
+	Comic::get_comic({	"name" => $comic , "dbh" => $dbh, "autocommit" => 1, 
 						'flags' => $comics->{$comic}->{flags}, 
 						'tags' => $comics->{$comic}->{tags}
-						}));
+						});
 
 	#$dbh->do(qq(DELETE FROM CONFIG WHERE processing = "$domain")); TODO
 	last if $TERM;
