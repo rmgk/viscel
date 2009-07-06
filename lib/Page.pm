@@ -593,6 +593,7 @@ sub try_get_strip_urls_part {
 			my $regex = q#src\s*=\s*((?<p>["'])(?<src>.*?)\k<p>|(?<src>.*?)(\s*>|\s+\w+\s*=))#;
 			foreach my $em (@embed) {
 				if ($em  =~ m#$regex#is) {
+					next if ($+{src} !~ m#\?[^/]*$#is);
 					push (@return, $+{src});
 					$s->status('WARNING: using embedded object as strip: '. $+{src},'WARN');
 				}
