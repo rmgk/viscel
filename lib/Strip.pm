@@ -87,7 +87,15 @@ sub check_id {
 		$purl =~ s#://[^/]+(/.*)$#$1#;
 		
 		if ($epurl eq $purl) {
-			$s->{$_} = $db_strip->{$_} for keys %$db_strip;
+			$s->{id} = $db_strip->{id}; 
+			$s->{prev} = $db_strip->{prev}; 
+			$s->{next} = $db_strip->{next}; 
+			$s->{number} = $db_strip->{number}; 
+			$s->{title} = $db_strip->{title}; 
+			$s->{sha1} = $db_strip->{sha1}; 
+			$s->{file_name} = $db_strip->{file};
+			say $s->{file_name} ;
+			
 			return 2;
 		}
 	}
@@ -351,6 +359,7 @@ sub get_file_name {
 			return undef;
 		}
 		my $filetype = $header_res->header('Content-Type');
+		$filetype =~ s#^.*/(\w+)$#.$1#;
 		if ($part =~ m#^[^$bc]+$#) {
 			$filename = $part . $filetype;
 		}
