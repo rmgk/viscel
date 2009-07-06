@@ -94,7 +94,7 @@ sub check_id {
 			$s->{title} = $db_strip->{title}; 
 			$s->{sha1} = $db_strip->{sha1}; 
 			$s->{file_name} = $db_strip->{file};
-			say $s->{file_name} ;
+			$s->status('Loaded ' .$s->{file_name} . ' info from database','UINFO' );
 			
 			return 2;
 		}
@@ -215,7 +215,7 @@ sub download {
 	my $osurl = $s->dbstrps(file=>$s->file_name,'surl');
 	if ((defined $osurl) && ($osurl ne $s->url)) {
 
-		$s->status("WARN: file name '".$s->file_name."' already used",'WARN');
+		$s->status("WARN: file name '".$s->file_name."' already used ($osurl)",'WARN');
 
 		my $new_depth = $s->handle_equal_filenames($osurl,$s->url);
 		unless ($new_depth) {
