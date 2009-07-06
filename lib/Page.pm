@@ -29,7 +29,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '40';
+$VERSION = '41';
 
 our $Pages = 0;
 
@@ -586,6 +586,19 @@ sub try_get_strip_urls_part {
 		}		
 	}
 	@return = @bad_return unless $return[0];
+	
+	if (!@return) {
+		my (@embed) = ($body =~ m#<embed([^>]+)>#is);
+		if (@embed) {
+			my $regex = q#src\s*=\s*((?<p>["'])(?<src>.*?)\k<p>|(?<src>.*?)(\s*>|\s+\w+\s*=))#;
+			foreach my $em (@embed) {
+				if ($em  =~ m#$regex#is) {
+					push (@return, $+{src});
+					say $+{src};
+				}
+			}
+		}
+	}
 	
 	return \@return;
 }

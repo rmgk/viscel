@@ -25,7 +25,7 @@ use Scalar::Util;
 
 
 our $VERSION;
-$VERSION = '7';
+$VERSION = '8';
 
 our $Strips = 0;
 
@@ -312,13 +312,14 @@ database access: READ ini (not always)
 =cut
 
 sub get_file_name {
-	my ($s,$surl,$depth) = @_;
+	my ($s,$url,$depth) = @_;
 	$s->{gfn_error} = undef;
-	unless ($surl) {
+	unless ($url) {
 		$s->{gfn_error} = "no url";
 		return undef;
 	}
  	$depth ||= $s->filename_depth;
+	my $surl = $url;
 	$surl =~ s#^\w+://##; #remove protokoll
 
 	my @surl = split( '/' , $surl); 
@@ -334,11 +335,11 @@ sub get_file_name {
 	
 	my $part = pop @surl;
 	
-	if ($part =~ m#(?:^|.*[$bc])([^$bc]+\.(jpe?g|gif|png|bmp))#i) { # line start or invalid char til filetype
+	if ($part =~ m#(?:^|.*[$bc])([^$bc]+\.(jpe?g|gif|png|bmp|swf))#i) { # line start or invalid char til filetype
 		$filename = $1;
 	}
 	else {
-		my $header_res = dlutil::gethead($surl,$s->ini('referer'));
+		my $header_res = dlutil::gethead($url,$s->ini('referer'));
 		unless ($header_res->is_success()) {
 			$s->{gfn_error} = "header failure " .  $header_res->status_line();
 			return undef;
@@ -395,22 +396,42 @@ sub title {
 	$body =~ m#<title>([^<]*?)</title>#is;
 	my $st = $1;
 	
-	my $img;
+
+	my $it;
+	my $ia;
 	if ($urlpart) {
+		my $img;
 		if ($body =~ m#(<img[^>]*?src=["']?[^"']*?$urlpart(?:['"\s][^>]*?>|>))#is) {
 			$img = $1;
 		}
-	}
-	my $it;
-	my $ia;
-	if ($img) {
-		if ($img =~ m#title=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
-			$it = $1;
-		}
-		if ($img =~ m#alt=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
-			$ia = $1;
+		if ($img) {
+			if ($img =~ m#title=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
+				$it = $1;
+			}
+			if ($img =~ m#alt=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
+				$ia = $1;
+			}
 		}
 	}
+
+	my $ew;
+	my $eh;
+	if ($urlpart) {
+		my $embed;
+		if ($body =~ m#(<embed[^>]*?src=["']?[^"']*?$urlpart(?:['"\s][^>]*?>|>))#is) {
+			$embed = $1;
+		}
+		if ($embed) {
+			if ($embed =~ m#width=["']?\s*(\d+)#is) {
+				$ew = $1;
+			}
+			if ($embed =~ m#height=["']?\s*(\d+)#is) {
+				$eh = $1;
+			}
+		}
+	}
+
+	
 	
 	my @h1 = ($body =~ m#<h\d>([^<]*?)</h\d>#gis);
 	my @dt = ($body =~ m#<div[^>]+id="comic[^"]*?title"[^>]*>([^<]+?)</div>#gis);
@@ -427,20 +448,14 @@ sub title {
 	my $ut = ("['" . join("','",@ut) . "']") if @ut;
 	my $h1 = ("['" . join("','",@h1) . "']") if @h1;
 	my $dt = ("['" . join("','",@dt) . "']") if @dt;
-	$ut //= ''; $st //= '';	$it //= '';	$ia //= '';	$h1 //= '';	$dt //= ''; $sl //= '';
-	my $title_string = "{ut=>q($ut),st=>q($st),it=>q($it),ia=>q($ia),h1=>q($h1),dt=>q($dt),sl=>q($sl)}";
+	
+	my %titles;
+	$titles{ut} = $ut; $titles{st} = $st; $titles{it} = $it; $titles{ia} = $ia; 
+	$titles{h1} = $h1; $titles{dt} = $dt; $titles{sl} = $sl; $titles{ew} = $ew; $titles{eh} = $eh; 
+	
+	my $title_string = '{' . (join ',' , map {"$_=>($titles{$_})"} grep {defined $titles{$_} } keys %titles) .'}';
+	#my $title_string = "{ut=>q($ut),st=>q($st),it=>q($it),ia=>q($ia),h1=>q($h1),dt=>q($dt),sl=>q($sl)}";
 	#ut - user title; st - site title; it - image title; ia - image alt; h1 - head 1; dt - div title ; sl - selected title;
-
-	# $s->page->cmc->{sqlstr_title_update} //= $s->page->cmc->dbh->prepare('UPDATE _'.$s->name .' SET title=?,url=?,surl=?,c_version=?,time=? where strip == ?');
-	# if($s->page->cmc->{sqlstr_title_update}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file) < 1) {
-		# $s->page->cmc->{sqlstr_title_insert} //= $s->page->cmc->dbh->prepare('insert into _'.$s->name .' (title,url,surl,c_version,time,strip) values (?,?,?,?,?,?)');
-		# $s->page->cmc->{sqlstr_title_insert}->execute($title_string,$s->url,$surl,$main::VERSION,time,$file);
-	# }
-	# $s->dat($file,'title',$title_string);
-	# $s->dat($file,'url',$s->url);
-	# $s->dat($file,'surl',$surl);
-	# $s->dat($file,'c_version',$main::VERSION);
-	# $s->dat($file,'time',time);
 	
 	$s->status("TITLE $file: " . $title_string,'DEBUG');
 	$s->{title} = $title_string;
