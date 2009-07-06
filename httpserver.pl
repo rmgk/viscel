@@ -45,7 +45,7 @@ my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,Prin
 $dbh->func(300000,'busy_timeout'); #we dont want to timeout (timeout happens if comic3.pl and httpserver.pl are run at the same time)
 my %broken; #we save all the comics marked as broken in comic.ini here
 my %rand_seen; #this is for remembering which comics we already selected randomly
-my $measure_time = $ARGV[0]; #set this to one to get some info on request time
+my $measure_time = $ARGV[1]; #set this to one to get some info on request time
 my $css; #we save our style sheet in here
 my %strpscache; #caching strips db
 
@@ -72,6 +72,15 @@ when you run httpserver.pl it will update the database and listen for you on por
 you can connect with any webbrowser and start reading some comics.
 
 =cut
+
+if ($ARGV[0]) {
+	if ($comini->{$ARGV[0]} and !$broken{$ARGV[0]} ) {
+		system('start http://127.0.0.1/front/'.$ARGV[0]);
+	}
+	else {
+		system('start http://127.0.0.1/');
+	}
+}
 
 print "Please contact me at: <URL:", "http://127.0.0.1/" ,">\n";
 while (my $c = $d->accept) {
