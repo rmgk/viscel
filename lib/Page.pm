@@ -594,7 +594,7 @@ sub try_get_strip_urls_part {
 			foreach my $em (@embed) {
 				if ($em  =~ m#$regex#is) {
 					push (@return, $+{src});
-					say $+{src};
+					$s->status('WARNING: using embedded object as strip: '. $+{src},'WARN');
 				}
 			}
 		}

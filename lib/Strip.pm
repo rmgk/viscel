@@ -384,6 +384,7 @@ database access: READ ini, WRITE _comic
 sub title {
 	my $s = shift;
 	return $s->{title} if $s->{title};
+	my %titles;
 	my $surl = $s->url;
 	my $file = $s->file_name;
 	my $url = $s->page->url();
@@ -428,6 +429,9 @@ sub title {
 			if ($embed =~ m#height=["']?\s*(\d+)#is) {
 				$eh = $1;
 			}
+			if ($embed =~ m#type\s*=\s*["']\s*([^"']+?)\s*["']#is) {
+				$titles{et} = $1;
+			}
 		}
 	}
 
@@ -449,11 +453,10 @@ sub title {
 	my $h1 = ("['" . join("','",@h1) . "']") if @h1;
 	my $dt = ("['" . join("','",@dt) . "']") if @dt;
 	
-	my %titles;
 	$titles{ut} = $ut; $titles{st} = $st; $titles{it} = $it; $titles{ia} = $ia; 
 	$titles{h1} = $h1; $titles{dt} = $dt; $titles{sl} = $sl; $titles{ew} = $ew; $titles{eh} = $eh; 
 	
-	my $title_string = '{' . (join ',' , map {"$_=>($titles{$_})"} grep {defined $titles{$_} } keys %titles) .'}';
+	my $title_string = '{' . (join ',' , map {"$_=>q($titles{$_})"} grep {defined $titles{$_} } keys %titles) .'}';
 	#my $title_string = "{ut=>q($ut),st=>q($st),it=>q($it),ia=>q($ia),h1=>q($h1),dt=>q($dt),sl=>q($sl)}";
 	#ut - user title; st - site title; it - image title; ia - image alt; h1 - head 1; dt - div title ; sl - selected title;
 	

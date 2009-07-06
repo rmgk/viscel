@@ -430,8 +430,8 @@ sub ccomic {
 	
 	$ret .= h3($titles{h1}) if $titles{h1};
 	if ($file and (-e "./strips/$comic/$file")) { 
-		if ($strip =~ m#.swf$#i) {
-			$ret .= embed({-src=>"./strips/$comic/$file",-quality=>'high',-type=>($titles{et}//''),-width=>($titles{ew}//''),-height=>($titles{eh}//'')});
+		if ($file =~ m#.swf$#i) {
+			$ret .= embed({-src=>"/strips/$comic/$file",-quality=>'high',-type=>($titles{et}//''),-width=>($titles{ew}//''),-height=>($titles{eh}//'')});
 		}
 		else {
 			$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
