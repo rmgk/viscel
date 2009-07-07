@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.51';
+$VERSION = '2.52';
 
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
@@ -102,13 +102,13 @@ while (my $c = $d->accept) {
 			else {
 				restore_parameters($r->url->query);
 
-				if ($r->url->path =~ m#/comics/(\w+)(?:/(\w+))?#i) {
+				if ($r->url->path =~ m#^/comics/(\w+)(?:/(\w+))?#i) {
 					cache_strps($1);
 					if ($2) { $res->content(&ccomic($1,$2)); }
 					else { $res->content(&cclist($1)); }
 					
 				}
-				elsif ($r->url->path =~ m#/front/(\w+)#i) {
+				elsif ($r->url->path =~ m#^/front/(\w+)#i) {
 					$res->content(&cfront($1));
 				}
 				elsif ($r->url->path =~ m#^/tools/(\w+)(?:/(\w+))?#i) {

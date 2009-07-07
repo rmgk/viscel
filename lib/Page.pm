@@ -29,7 +29,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '42';
+$VERSION = '43';
 
 our $Pages = 0;
 
@@ -360,7 +360,7 @@ sub try_get_side_url_parts {
 	my @filter;
 	foreach my $as (@aref) {
 		 if ($as =~ m#(prev|next|back|forward|prior|ensuing)#i
-			and $as !~m#(preview|be\s*back|background)#i) {
+			and $as !~m#(preview|be\s*back|give\s*back|background)#i) {
 			push(@filter,$as)
 		 }
 	}

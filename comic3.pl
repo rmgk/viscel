@@ -10,7 +10,7 @@ use DBI;
 use Comic;
 use dbutil;
 
-my $build = 89 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+my $build = 90 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
 our $VERSION = 3.050 . '.'. $build;
 
 
@@ -25,7 +25,7 @@ print "remember: images must not be redistributed without the authors approval\n
 print "press ctrl+c to abort (or data corruption might occur)\n";
 print "comic3.pl version $VERSION\n";
 
-if (-e 'log.txt.' && (-s _ > 10 * 2**20)) {
+if (-e 'log.txt.' && (-s _ > 2 * 2**20)) {
 	unlink("log.txt");
 }
 
@@ -84,14 +84,18 @@ if ($ARGV[0]) {
 my %order;
 my $cdb = $dbh->selectall_hashref('SELECT comic,last_update,last_save FROM comics','comic');
 foreach my $comic (@comics) {
-	if (!$cdb->{$comic}->{last_update} or !$cdb->{$comic}->{last_save} ) {
-		$order{$comic} = 1;
-		next;
-	}
-	my $up = (time - $cdb->{$comic}->{last_update} ) || 1;
-	my $sa = (time - $cdb->{$comic}->{last_save} ) || 1;
-	$order{$comic} =  $up/$sa;
+	# if (!$cdb->{$comic}->{last_update} or !$cdb->{$comic}->{last_save} ) {
+		# $order{$comic} = 1;
+		# next;
+	# }
+	# my $up = (time - $cdb->{$comic}->{last_update} ) || 1;
+	# my $sa = (time - $cdb->{$comic}->{last_save} ) || 1;
+	# $order{$comic} =  $up/$sa;
+	my $up = $cdb->{$comic}->{last_update} // 0;
+	my $sa = $cdb->{$comic}->{last_save} // 0;
+	$order{$comic} = time - $up - $up + $sa;;
 }
+
 
 dbutil::check_table($dbh,\@comics);
 

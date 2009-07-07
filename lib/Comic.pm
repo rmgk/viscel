@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '40';
+$VERSION = '41';
 
 =head1	General Methods
 
@@ -153,7 +153,7 @@ sub get_all {
 	my $s = shift;
 	$s->status("START: get_all",'DEBUG');
 	my $last_strip;
-	$last_strip = $s->prev->strip(-1) if $s->prev;
+	$last_strip = $s->prev->strip(-1) if ($s->prev and !$s->prev->dummy);
 
 	while (!$::TERM) {
 		$last_strip = $s->curr->all_strips($last_strip);
@@ -770,8 +770,8 @@ sub url_current {
 	
 	return $s->{url_current} if $s->{url_current};
 	
-	
-	$s->{url_current} = $s->dbcmc('url_current') || $s->ini('url_start');
+	my $url_current = $s->dbcmc('url_current') || $s->ini('url_start');
+	$s->{url_current} = URI->new($url_current)->abs($s->url_home())->as_string;
 	$s->status("SET: url_current: " . $s->{url_current}, 'DEF');
 	
 	return $s->{url_current};

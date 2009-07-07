@@ -25,7 +25,7 @@ use Scalar::Util;
 
 
 our $VERSION;
-$VERSION = '10';
+$VERSION = '11';
 
 our $Strips = 0;
 
@@ -69,22 +69,17 @@ sub check_id {
 		$s->dbh->do('INSERT INTO _'. $s->name .' DEFAULT VALUES');
 		$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
 		$s->dbh->{AutoCommit} = 1;
-		#$s->dbh->commit;
 		return -1;
 	}
-	#my $eid = $s->dbstrps('file' => $s->file_name , 'id'); #TODO get the eid from file name surl or maybe even something else?
-	my $strip_path = $s->url;
-	$strip_path =~ s#^\w+://[^/]+(/.*)$#$1#;
+	my $strip_path = $s->url_path;
 	$strip_path = '%'. $strip_path;
 	my $eid = $s->dbh->selectrow_array('SELECT id FROM _'.$s->name.' WHERE surl like ?',undef,$strip_path);
 	if ($eid) {
 		my $db_strip = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$eid);
-		my $epurl =	$db_strip->{purl};
-		my $purl = $s->page->url;
+		my $epurl =	$s->url_path($db_strip->{purl});
+		my $purl = $s->url_path($s->page->url);
 		$epurl =~ s/\?.+$//; # removing scripts and such
 		$purl =~ s/\?.+$//;
-		$epurl =~ s#://[^/]+(/.*)$#$1#;
-		$purl =~ s#://[^/]+(/.*)$#$1#;
 		
 		if ($epurl eq $purl) {
 			$s->{id} = $db_strip->{id}; 
@@ -103,7 +98,6 @@ sub check_id {
 	$s->dbh->do('INSERT INTO _'. $s->name .' DEFAULT VALUES');
 	$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
 	$s->dbh->{AutoCommit} = 1;
-	#$s->dbh->commit;
 	return 1
 }
 
@@ -116,7 +110,7 @@ sub prev {
 		}
 		if ($s->{prev}) {
 			if ($s->{prev} != $o) {
-				$s->status("ERROR: tried to set prev to $o but it is already " .$s->{prev} , 'ERR');
+				$s->status("ERROR: tried to set prev to $o but it is already " .$s->{prev} . " at ". join(" ",caller) , 'ERR');
 				return $s->{prev};
 			}
 		}
@@ -141,7 +135,7 @@ sub next {
 		if ($s->{next}) {
 			if ($s->{next} != $o) {
 				if ($s->dbstrps(id=>$s->{next},'next')) { #next of next is also set everythings fine
-					$s->status("ERROR: tried to set next to $o but it is already " .$s->{next} , 'ERR');
+					$s->status("ERROR: tried to set next to $o but it is already " .$s->{next} . " at ". join(" ",caller) , 'ERR');
 					return $s->{next};
 				}
 				else { #next of next is not set so next is last so we can change this and delete the next
@@ -213,7 +207,7 @@ sub download {
 		return undef;
 	}
 	my $osurl = $s->dbstrps(file=>$s->file_name,'surl');
-	if ((defined $osurl) && ($osurl ne $s->url)) {
+	if ((defined $osurl) && ($s->url_path($osurl) ne $s->url_path)) {
 
 		$s->status("WARN: file name '".$s->file_name."' already used ($osurl)",'WARN');
 
@@ -515,6 +509,17 @@ sub number {
 sub file_path {
 	my $s = shift;
 	return "./strips/".$s->page->name."/".$s->file_name;
+}
+
+sub url_path {
+	my $s = shift;
+	my $url = shift // $s->url;
+	if ($url =~ m#^https?://[^/]+(/.*)$#i) {
+		return $1;
+	}
+	else {
+		return $url;
+	}
 }
 
 sub sha1 {
