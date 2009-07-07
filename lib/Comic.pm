@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '43';
+$VERSION = '44';
 
 =head1	General Methods
 
@@ -131,7 +131,8 @@ sub new {
 		$s->dbh->do('INSERT INTO comics (comic,flags,tags) VALUES (?,?,?)',undef,$s->name,$s->{flags},$s->{tags});
 	}
 	if (!$s->dbcmc('first') and !$s->dbcmc('url_current')) {
-		$s->dbh->do('UPDATE comics  SET first = ? WHERE comic = ?',undef,$s->curr->strip(0)->id,$s->name);
+		$s->curr->strip(0)->get_data();
+		$s->dbh->do('UPDATE comics  SET first = ? WHERE comic = ?',undef,$s->curr->strip(0)->sha1,$s->name);
 	}
 	
 	return $s;
@@ -221,11 +222,6 @@ sub goto_next {
 	return 0 unless ($s->next(@_) and $s->next->body());
 	$s->curr($s->next());	#next page becomes current
 	delete $s->{next};		#we delete original after copying
-	
-	# unless ($s->curr->strip(0)->id == $s->prev->strip(-1)->id) { #connecting last strip of previous page with first strip of current page
-		# $s->curr->strip(0)->prev($s->prev->strip(-1));
-		# $s->prev->strip(-1)->next($s->curr->strip(0));
-	# }
 	
 	return ($s->url_current($s->curr->url()) or 1); #we return the url if it was set as current or true
 }
@@ -362,20 +358,20 @@ sub get_next_page {
 		}
 		#we check if there already is a strip with the next url. if so we check if the current url contains the previous strip of the next page. 
 		#short: we check if that next has this curr as that prev.
-		if (my $next_exists = $s->dbh->selectall_arrayref("SELECT id,prev,next FROM _" . $s->name . ' WHERE purl = "' . $url . '"',{Slice => {}})) { 
+		if (my $next_exists = $s->dbh->selectall_arrayref("SELECT sha1,prev,next FROM _" . $s->name . ' WHERE purl = "' . $url . '"',{Slice => {}})) { 
 		if (@{$next_exists}) { #we dont need to check anything if the next page has no strips!
 			my $back_link = 0;
 			my $has_no_next = 0;
 			foreach my $n_data (@{$next_exists}) {
 				if ($n_data->{next}) {
 					if ($n_data->{prev}) {
-						if ($n_data->{prev} == $s->curr->strip(-1)->id) {
+						if ($n_data->{prev} == $s->curr->strip(-1)->sha) {
 							$back_link = 1;
 						}
 					}
 					else {
 						my $first = $s->dbcmc('first');
-						if ($first == $n_data->{id}) {
+						if ($first == $n_data->{sha}) {
 							next(url);
 						}
 						$back_link = 1; #no prev is a joker

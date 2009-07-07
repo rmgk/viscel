@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.52';
+$VERSION = '2.06.0';
 
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
@@ -92,7 +92,7 @@ while (my $c = $d->accept) {
 			}
 			elsif ($r->url->path =~ m#^/strips/(.*?)/(.*)$#) {
 				my ($comic,$strip) = ($1,$2);
-				($strip =~ /^\d+$/) ? $strip = dbstrps($comic,'id'=>$strip,'file') : undef;
+				($strip =~ /^\w{40}$/) ? $strip = dbstrps($comic,'sha1'=>$strip,'file') : undef;
 				$c->send_file_response("./strips/$comic/$strip");
 			}
 			elsif ($r->url->path eq '/style.css') {
@@ -278,8 +278,8 @@ sub html_comic_listing {
 		my $bookmark = $user->{$comic}->{'bookmark'};
 		if ($bookmark) {
 			#my $sc = $user->{$comic}->{'strip_count'};
-			my $sc = dbstrps($comic,'id'=>$user->{$comic}->{'last'},'number');
-			my $num = dbstrps($comic,'id'=>$bookmark,'number');
+			my $sc = dbstrps($comic,'sha1'=>$user->{$comic}->{'last'},'number');
+			my $num = dbstrps($comic,'sha1'=>$bookmark,'number');
 			if ($sc and $num) {
 				$toRead{$comic} =  $sc - $num;
 			}
@@ -288,7 +288,7 @@ sub html_comic_listing {
 			}
 		}
 		else {
-			$toRead{$comic} = dbstrps($comic,'id'=>$user->{$comic}->{'last'},'number') // -1;
+			$toRead{$comic} = dbstrps($comic,'sha1'=>$user->{$comic}->{'last'},'number') // -1;
 		}
 	}
 	
@@ -387,7 +387,7 @@ sub cfront {
 				a({-href=>"/comics/$comic",-accesskey=>'s',-title=>'striplist'},"Striplist").' '.
 				a({href=>"/tools/cataflag/$comic",-accesskey=>'c',-title=>'categorize'},'Categorize').
 				br;
-	$ret .=		'Strips: ' . $last .' '; #dbcmcs($comic,'strip_count').' ';
+	$ret .=		'Strips: ' . dbstrps($comic,'sha1'=>$last,'number') .' '; #dbcmcs($comic,'strip_count').' ';
 				
 	if ($broken{$comic}) {
 		$ret .= "broken " 
@@ -420,25 +420,24 @@ sub ccomic {
 	return &kopf("Error") . "no strip defined" unless $strip;
 
 	my %titles = get_title($comic,$strip);
-	
-	my ($prev,$next, $first,$last,$file) = (
-			dbstrps($comic,'id'=>$strip,'prev'),dbstrps($comic,'id'=>$strip,'next'),
-			dbcmcs($comic,'first'),dbcmcs($comic,'last'),dbstrps($comic,'id'=>$strip,'file')
+	my ($prev,$next, $first,$last,$number,$file) = (
+			dbstrps($comic,'sha1'=>$strip,'prev'),dbstrps($comic,'sha1'=>$strip,'next'),
+			dbcmcs($comic,'first'),dbcmcs($comic,'last'),dbstrps($comic,'sha1'=>$strip,'number'),dbstrps($comic,'sha1'=>$strip,'file')
 		);
-	my $nfile = dbstrps($comic,'id'=>$next,'file');
-	my $ret = &kopf($titles{st}//($comic .' - '. $strip),
+	my $nfile = dbstrps($comic,'sha1'=>$next,'file');
+	my $ret = &kopf(($titles{st}//$comic) .' - '. $number.'/'.dbstrps($comic,'sha1'=>$last,'number'),
 				$prev  ?"/comics/$comic/$prev" :"0",
 				$next  ?"/comics/$comic/$next" :"0",
 				$first ?"/comics/$comic/$first":"0",
 				$last  ?"/comics/$comic/$last" :"0",
 				$nfile ?"/strips/$comic/$nfile":"0", #prefetch
-				$nfile  ?"(new Image()).src = '/strips/$comic/$nfile'":"0", #more prefetch .. 
+				$nfile ?"(new Image()).src = '/strips/$comic/$nfile'":"0", #more prefetch .. 
 				);
 				
 	$ret .= start_div({-class=>"comic"});
 	
 	$ret .= h3($titles{h1}) if $titles{h1};
-	if ($file and (-e "./strips/$comic/$file")) { 
+	if ($strip and (-e "./strips/$comic/$file")) { 
 		if ($file =~ m#.swf$#i) {
 			$ret .= embed({-src=>"/strips/$comic/$file",-quality=>'high',-type=>($titles{et}//''),-width=>($titles{ew}//800),-height=>($titles{eh}//800)});
 		}
@@ -446,8 +445,8 @@ sub ccomic {
 			$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
 		}
 	}
-	elsif ($file) {
-		$ret .= img({-src=>dbstrps($comic,'id'=>$strip,'surl'),-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
+	elsif ($strip) {
+		$ret .= img({-src=>dbstrps($comic,'sha1'=>$strip,'surl'),-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
 		$ret .= br . 'this strip is not local';
 	}
 	else {
@@ -486,7 +485,7 @@ sub ccomic {
 	$ret .= a({-href=>"/front/$comic",
 			-accesskey=>'f',-title=>'frontpage'},"front ");			
 			
-	my $purl = dbstrps($comic,'id'=>$strip,'purl');
+	my $purl = dbstrps($comic,'sha1'=>$strip,'purl');
 	$ret .= a({-href=>$purl, -accesskey=>'s',-title=>'homepage of the strip'},"site ") if $purl;	
 			
 	$ret .= end_div;
@@ -504,7 +503,7 @@ sub cclist {
 	return $ret . "no comic defined" unless $comic;
 	
 	my $list;
-	my $dat = $dbh->selectall_hashref("SELECT id,number,title,file FROM _$comic WHERE number IS NOT NULL","number");
+	my $dat = $dbh->selectall_hashref("SELECT sha1,number,title,file FROM _$comic WHERE number IS NOT NULL","number");
 	
 	$list = &kopf($comic);
 	$list .= preview_head;
@@ -517,10 +516,10 @@ sub cclist {
 	
 	for (my $i = 1;defined $dat->{$i};$i++) {
 
-		my %titles = get_title($comic,$dat->{$i}->{id});
+		my %titles = get_title($comic,$dat->{$i}->{sha1});
 		$list .= sprintf $strip_str,
 			$dat->{$i}->{file}, #direct img url
-			$dat->{$i}->{id}, #strip page url
+			$dat->{$i}->{sha1}, #strip page url
 			$dat->{$i}->{file}, #direct img url
 			"$i : $dat->{$i}->{file} : " .join(' - ',grep { $_ } values(%titles) ); #strip title
 	}
@@ -530,7 +529,7 @@ sub cclist {
 
 sub get_title {
 	my ($comic,$strip) = @_;
-	my $title = dbstrps($comic,'id'=>$strip,'title') // '';
+	my $title = dbstrps($comic,'sha1'=>$strip,'title') // '';
 	my %titles;
 	if ($title =~ /^\{.*\}$/) {
 		%titles = %{eval($title)};
@@ -687,7 +686,7 @@ this are normal healty strips somewhere in the comic
 		$d{prev}->{n} = 0;
 		$d{next}->{n} = 0;
 		$d{none}->{n} = 0;
-		my $strips = $dbh->selectall_hashref("SELECT * FROM _$comic","id");
+		my $strips = $dbh->selectall_hashref("SELECT * FROM _$comic","sha1");
 		foreach my $strp (keys %{$strips}) {
 			$d{count}->{$d{count}->{n}} = $strp;
 			$d{count}->{n}++;
@@ -733,6 +732,7 @@ this are normal healty strips somewhere in the comic
 					$_,":",	($_ =~ m/prev|next/)	?	a({href=>"/tools/datalyzer/$comic?section=strps&strip=".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
 					#make links klickable
 					($_ =~ m/url/)	?	 a({href=>$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
+					($_ =~ m/sha1/) ?	 a({href=>"/comics/$comic/".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_}) :
 					$d{$sec}->{param('strip')}->{$_}
 					])} grep {$_ ne 'n'} keys %{$d{$sec}->{param('strip')}}]));	#getting all keys 
 			$res .= br . a({-href=>"/tools/datalyzer/$comic"},"Back")
@@ -788,7 +788,7 @@ here you can view the comics table directly. this is just for debugging purposes
 		my $res = &kopf('strips');
 		#$res .= start_div({-class=>'tools'});
 		if ($comic) {
-			my $user = $dbh->selectall_hashref("SELECT * FROM _$comic",'id');
+			my $user = $dbh->selectall_hashref("SELECT * FROM _$comic",'sha1');
 			$res .= start_table;
 			my $h = 0;
 			foreach my $key (keys %{$user}) {
@@ -1103,7 +1103,7 @@ sub dbstrps { #gibt die dat und die dazugehörige configuration des comics aus # 
 		$dbh->do("UPDATE _$c SET $select = ? WHERE $get = ?",undef,$value,$key);
 		%strpscache = ();
 	}
-	if ($strpscache{comic} and ($c eq $strpscache{comic}) and ($get eq 'id')) {
+	if ($strpscache{comic} and ($c eq $strpscache{comic}) and ($get eq 'sha1')) {
 		return $strpscache{$key}->{$select};
 	}
 	return $dbh->selectrow_array("SELECT $select FROM _$c WHERE $get = ?",undef,$key);
@@ -1113,7 +1113,7 @@ sub cache_strps {
 	my ($comic) = @_;
 	return if $strpscache{comic} and ($comic eq $strpscache{comic});
 	say "caching $comic";
-	%strpscache = %{$dbh->selectall_hashref("SELECT * FROM _$comic",'id')};
+	%strpscache = %{$dbh->selectall_hashref("SELECT * FROM _$comic",'sha1')};
 	my $cmc = $dbh->selectrow_hashref("SELECT * FROM comics WHERE comic = ?",undef,$comic);
 	$strpscache{$_} = $cmc->{$_} for keys %$cmc; 
 
