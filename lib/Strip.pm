@@ -160,7 +160,7 @@ sub next {
 sub get_data {
 	my $s = shift;
 	return -1 if $s->dummy(); 
-	$s->download();
+	return 0 unless $s->download();
 	$s->title();
 	return 1;
 }
