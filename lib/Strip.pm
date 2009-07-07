@@ -110,7 +110,7 @@ sub prev {
 		}
 		if ($s->{prev}) {
 			if ($s->{prev} != $o) {
-				$s->status("ERROR: tried to set prev to $o but it is already " .$s->{prev} . " at ". join(" ",caller) , 'ERR');
+				$s->status("ERROR: tried to set prev of (".$s->url.") to $o but it is already " .$s->{prev} . " at ". join(" ",caller) , 'ERR');
 				return $s->{prev};
 			}
 		}
@@ -135,7 +135,7 @@ sub next {
 		if ($s->{next}) {
 			if ($s->{next} != $o) {
 				if ($s->dbstrps(id=>$s->{next},'next')) { #next of next is also set everythings fine
-					$s->status("ERROR: tried to set next to $o but it is already " .$s->{next} . " at ". join(" ",caller) , 'ERR');
+					$s->status("ERROR: tried to set next of (".$s->url.") to $o but it is already " .$s->{next} . " at ". join(" ",caller) , 'ERR');
 					return $s->{next};
 				}
 				else { #next of next is not set so next is last so we can change this and delete the next

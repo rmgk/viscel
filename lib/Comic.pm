@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '41';
+$VERSION = '42';
 
 =head1	General Methods
 
@@ -153,7 +153,7 @@ sub get_all {
 	my $s = shift;
 	$s->status("START: get_all",'DEBUG');
 	my $last_strip;
-	$last_strip = $s->prev->strip(-1) if ($s->prev and !$s->prev->dummy);
+	#$last_strip = $s->prev->strip(-1) if ($s->prev and !$s->prev->dummy);
 
 	while (!$::TERM) {
 		$last_strip = $s->curr->all_strips($last_strip);
