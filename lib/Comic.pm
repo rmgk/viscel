@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '42';
+$VERSION = '43';
 
 =head1	General Methods
 
@@ -353,7 +353,7 @@ sub get_next_page {
 		#}
 	}#maxname should now be the url we have seen most and maxcount the number of times seen.
 	#unshift(@urls,$maxname) if ($maxvalue > 1) # we add the most common value again, but this time at the beginning!
-	@urls = sort {$count{$a} <=> $count{$b}} @tmp_urls; #we sort the array according to the number of counts
+	@urls = sort {$count{$b} <=> $count{$a}} @tmp_urls; #we sort the array according to the number of counts
 	}
 	my $first_nondummy_page;
 	url:foreach my $url (@urls) {
@@ -448,7 +448,7 @@ sub url_next_archive {
 	$s->status("NEXT ARCHIVE deeper, get body: ". $url_arch, 'UINFO');
 	my $res = dlutil::get($url_arch);
 	if ( $res->is_success() ) {
-		my $body = $res->decoded_content;
+		my $body = $res->decoded_content(raise_error=>1);
 		if ($body =~ m#$reg_deeper#is) {
 			my $deep_url = URI->new($+{url} // $1)->abs($url_arch)->as_string;
 			$s->status("NEXT ARCHIVE deeper: " .$deep_url, 'UINFO');
@@ -501,7 +501,7 @@ sub ar_get_archives {
 		$s->status('ERROR: could not get body '. $s->ini('archive_url') . ' ' . $res->status_line(), 'ERR');
 		return undef;
 	}
-	my $body = $res->decoded_content();
+	my $body = $res->decoded_content(raise_error=>1);
 	my $regex = $s->ini('archive_regex');
 	my @archives;
 	while ($body =~ m#$regex#gis) {

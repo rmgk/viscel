@@ -131,9 +131,6 @@ sub url_prev {
 		my ($purl,$nurl) = $s->list_side_urls();
 		$urls->[0] = $purl;
 	}
-	elsif ($s->{header}->{prev}) {
-		$urls->[0] = $s->{header}->{prev};
-	}
 	else {
 		my ($purl,$nurl) = $s->try_get_side_urls();
 		$urls = $purl;
@@ -193,9 +190,6 @@ sub url_next {
 	elsif ($s->ini('list_url_regex')) {
 		my ($purl,$nurl) = $s->list_side_urls();
 		$urls->[0] = $nurl;
-	}
-	elsif ($s->{header}->{next}) {
-		$urls->[0] = $s->{header}->{next};
 	}
 	else {
 		my ($purl,$nurl) = $s->try_get_side_urls();
@@ -356,6 +350,22 @@ sub try_get_side_url_parts {
 	my $s = shift;
 	my $body = $s->body();
 	return unless $body;
+	
+	my @prev;
+	my @next;
+	
+	push(@prev,$s->{header}->{prev}) if $s->{header}->{prev};
+	push(@next,$s->{header}->{next}) if $s->{header}->{next};
+	
+	if ($body =~ m#<head>(.*?)</head>#is) {
+		my $head = $1;
+		if ($head =~ m#<link.*?rel=['"]prev['"].*?href=["'](.*?)['"]#is) {
+			push(@prev,$1);
+		}
+		if ($head =~ m#<link.*?rel=['"]next['"].*?href=["'](.*?)['"]#is) {
+			push(@next,$1);
+		}
+	}
 	my @aref = ($body =~ m#(<a\s+.*?>.*?</a>)#gis); 
 	my @filter;
 	foreach my $as (@aref) {
@@ -364,8 +374,6 @@ sub try_get_side_url_parts {
 			push(@filter,$as)
 		 }
 	}
-	my @prev;
-	my @next;
 	my $url_home = $s->cmc->url_home();
 	my $regex_never_goto = $s->ini('regex_never_goto');
 	foreach my $fil (@filter) {
@@ -714,9 +722,8 @@ sub body {
 		if (($s->{header}->{prev}) = grep {/rel=["']prev["']/i} $res->header('Link')) {
 			$s->{header}->{prev} =~ s#^<([^>]+)>.*$#$1#;
 		}
-		say "OMG OMG OMG HAS NEXT OR PREV HEADER!!!!!!!!!!!!!"  if $s->{header}->{next} or $s->{header}->{prev};
 
-		$s->{'body'} = $res->decoded_content();
+		$s->{'body'} = $res->decoded_content(raise_error=>1);
 	}
 	return $s->{'body'};
 }
