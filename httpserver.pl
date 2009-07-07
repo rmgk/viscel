@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.06.0';
+$VERSION = '2.06.1';
 
 
 my $d = HTTP::Daemon->new(LocalPort => 80);
@@ -450,7 +450,7 @@ sub ccomic {
 			$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
 		}
 	}
-	elsif ($file) {
+	elsif (dbstrps($comic,'sha1'=>$strip,'surl')) {
 		$ret .= img({-src=>dbstrps($comic,'sha1'=>$strip,'surl'),-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
 		$ret .= br . 'this strip is not local';
 	}
@@ -742,19 +742,20 @@ this are normal healty strips somewhere in the comic
 					($_ =~ m/sha1/) ?	 a({href=>"/comics/$comic/".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_}) :
 					$d{$sec}->{param('strip')}->{$_}
 					])} grep {$_ ne 'n'} keys %{$d{$sec}->{param('strip')}}]));	#getting all keys 
-			$res .= br . a({-href=>"/tools/datalyzer/$comic"},"Back")
+			$res .= br . a({-href=>"/tools/datalyzer/$comic"},"datalyzer main");
 		}
 		elsif ($sec) {
 			$res .= table(Tr([map {td([	#creating table with key : value pairs via map
 					a({-href=>"/tools/datalyzer/$comic?section=strps&strip=" . $d{$sec}->{$_}},$d{$sec}->{$_})
 					])} grep {$_ ne 'n'} keys %{$d{$sec}}]));	#getting all keys 
-			$res .= br . a({-href=>"/tools/datalyzer/$comic"},"Back")
+			$res .= br . a({-href=>"/tools/datalyzer/$comic"},"Back");
 		}
 		else {
 			$res .= table(Tr([map {td([	#creating table with key : value pairs via map
 					a({-href=>"/tools/datalyzer/$comic?section=$_"},$_) , ':' , $d{$_}->{n}
 					])} grep {$_ ne 'strps'} keys %d]));	#getting all keys 
 		}
+		$res .= br . a({-href=>"/tools/comics/$comic"},"comic overview") .br;
 		return $res .= br . a({-href=>"/"},"Index") . end_div.end_html;
 	}
 
@@ -767,16 +768,23 @@ here you can view the comics table directly. this is just for debugging purposes
 
 	if ($tool eq 'comics') {
 		my $res = &kopf('comics');
-		$res .= start_div({-class=>'tools'});
 		if ($comic) {
+			cache_strps($comic);
+			$res .= start_div({-class=>'tools'});
 			my $user = $dbh->selectrow_hashref("SELECT * FROM comics WHERE comic = ?",undef,$comic);
 			$res .= start_table;
 			foreach my $key (keys %{$user}) {
-				$res .=  Tr(td("$key"),td(textfield(-name=>$key, -default=>dbcmcs($comic,$key), -size=>"100")));
+				$res .=  Tr(td("$key :"),td( 
+					dbcmcs($comic,$key) =~ /^\w{40}$/
+					? a({href=>"/tools/datalyzer/$comic?section=strps&strip=".dbcmcs($comic,$key)},dbcmcs($comic,$key))
+					: dbcmcs($comic,$key)
+					));
 			}
-			$res .= end_table . br . br. a({-href=>"/tools/strips/$comic"},"strips") . br.br;
+			$res .= end_table . br . br;
+			$res .= a({-href=>"/tools/datalyzer/$comic"},"datalyzer main"). br.br;
+			$res .= a({-href=>"/tools/strips/$comic"},"strips").br.br;
 			$res .= a({-href=>"/tools/comics/$comic"},"reload") .br.a({-href=>"/tools/cataflag/$comic"},"back")  . br ;
-			$res .= a({-href=>"/"},"Index") . end_html;
+			$res .= a({-href=>"/"},"Index") . end_div.end_html;
 			return $res;
 		}
 		my $user = $dbh->selectall_hashref("SELECT * FROM comics","comic");
@@ -788,7 +796,7 @@ here you can view the comics table directly. this is just for debugging purposes
 			$h = 1;
 			$res .=  Tr(td(a({-href=>"/tools/comics/$cmc"},$cmc)),td([map {textfield(-name=>$_, -default=>dbcmcs($cmc,$_))} keys %{$user->{$cmc}}]));
 		}
-		return $res . end_table . br . br .  a({-href=>"/"},"Index") . end_div.end_html;
+		return $res . end_table . br . br .  a({-href=>"/"},"Index") . end_html;
 	}
 	
 	if ($tool eq 'strips') {
