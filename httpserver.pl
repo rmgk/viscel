@@ -442,7 +442,7 @@ sub ccomic {
 	$ret .= start_div({-class=>"comic"});
 	
 	$ret .= h3($titles{h1}) if $titles{h1};
-	if ($strip and (-e "./strips/$comic/$file")) { 
+	if ($file and (-e "./strips/$comic/$file")) { 
 		if ($file =~ m#.swf$#i) {
 			$ret .= embed({-src=>"/strips/$comic/$file",-quality=>'high',-type=>($titles{et}//''),-width=>($titles{ew}//800),-height=>($titles{eh}//800)});
 		}
@@ -450,7 +450,7 @@ sub ccomic {
 			$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
 		}
 	}
-	elsif ($strip) {
+	elsif ($file) {
 		$ret .= img({-src=>dbstrps($comic,'sha1'=>$strip,'surl'),-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
 		$ret .= br . 'this strip is not local';
 	}
