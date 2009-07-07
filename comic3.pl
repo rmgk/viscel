@@ -10,8 +10,9 @@ use DBI;
 use Comic;
 use dbutil;
 
-my $build = 92 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
-our $VERSION = 3.060 . '.'. $build;
+
+my $build = 93 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+our $VERSION = 3.051 . '.'. $build;
 
 
 

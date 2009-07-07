@@ -55,36 +55,34 @@ sub new {
 	my $class = shift;
 	my $s = shift;
 	bless $s,$class;
-	$s->check_identity;
+	$s->check_id;
 	$Strip::Strips++;
-	$s->status("NEW STRIP: ($Strip::Strips) ".($s->dummy?'dummy'.$s->sha1:$s->url),'DEBUG');
+	$s->status("NEW STRIP: ($Strip::Strips) ".($s->dummy?'dummy'.$s->id:$s->url),'DEBUG');
 	Scalar::Util::weaken($s->{page});
 	return $s;
 }
 
-sub check_identity {
+sub check_id {
 	my $s = shift;
 	if ($s->dummy) {
-		# $s->dbh->{AutoCommit} = 0;
-		# $s->dbh->do('INSERT INTO _'. $s->name .' DEFAULT VALUES');
-		# $s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
-		# $s->sha1($s->{id});
-		# $s->dbh->{AutoCommit} = 1;
-		$s->sha1($SHA->add($s->page->url)->hexdigest);
+		$s->dbh->{AutoCommit} = 0;
+		$s->dbh->do('INSERT INTO _'. $s->name .' DEFAULT VALUES');
+		$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
+		$s->dbh->{AutoCommit} = 1;
 		return -1;
 	}
 	my $strip_path = $s->url_path;
 	$strip_path = '%'. $strip_path;
-	my $o_sha = $s->dbh->selectrow_array('SELECT sha1 FROM _'.$s->name.' WHERE surl like ?',undef,$strip_path);
-	if ($o_sha) {
-		my $db_strip = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE sha1 = ?',undef,$o_sha);
+	my $eid = $s->dbh->selectrow_array('SELECT id FROM _'.$s->name.' WHERE surl like ?',undef,$strip_path);
+	if ($eid) {
+		my $db_strip = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$eid);
 		my $epurl =	$s->url_path($db_strip->{purl});
 		my $purl = $s->url_path($s->page->url);
 		$epurl =~ s/\?.+$//; # removing scripts and such
 		$purl =~ s/\?.+$//;
 		
 		if ($epurl eq $purl) {
-			#$s->{id} = $db_strip->{id}; 
+			$s->{id} = $db_strip->{id}; 
 			$s->{prev} = $db_strip->{prev}; 
 			$s->{next} = $db_strip->{next}; 
 			$s->{number} = $db_strip->{number}; 
@@ -96,10 +94,10 @@ sub check_identity {
 			return 2;
 		}
 	}
-	# $s->dbh->{AutoCommit} = 0;
-	# $s->dbh->do('INSERT INTO _'. $s->name .' DEFAULT VALUES');
-	# $s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
-	# $s->dbh->{AutoCommit} = 1;
+	$s->dbh->{AutoCommit} = 0;
+	$s->dbh->do('INSERT INTO _'. $s->name .' DEFAULT VALUES');
+	$s->{id} = $s->dbh->last_insert_id(undef,undef,'_'.$s->name,'id');
+	$s->dbh->{AutoCommit} = 1;
 	return 1
 }
 
@@ -108,10 +106,10 @@ sub prev {
 	my ($o) = @_;
 	if ($o) {
 		if (ref $o) {
-			$o = $o->sha1;
+			$o = $o->id;
 		}
 		if ($s->{prev}) {
-			if ($s->{prev} ne $o) {
+			if ($s->{prev} != $o) {
 				$s->status("ERROR: tried to set prev of (".$s->url.") to $o but it is already " .$s->{prev} . " at ". join(" ",caller) , 'ERR');
 				return $s->{prev};
 			}
@@ -119,8 +117,8 @@ sub prev {
 		else {
 			$s->{prev} = $o;
 			if ($s->{is_commited}) { 
-				$s->dbstrps(sha1=>$s->sha1,prev=>$s->{prev});
-				$s->status("COMMITED prev $o , ".($s->url//$s->sha1),'DEBUG');
+				$s->dbstrps(id=>$s->id,prev=>$s->{prev});
+				$s->status("COMMITED prev $o , ".($s->url//$s->id),'DEBUG');
 			}
 		}
 	}
@@ -132,17 +130,17 @@ sub next {
 	my ($o) = @_;
 	if ($o) {
 		if (ref $o) {
-			$o = $o->sha1;
+			$o = $o->id;
 		}
 		if ($s->{next}) {
-			if ($s->{next} ne $o) {
-				if ($s->dbstrps(sha1=>$s->{next},'next')) { #next of next is also set everythings fine
+			if ($s->{next} != $o) {
+				if ($s->dbstrps(id=>$s->{next},'next')) { #next of next is also set everythings fine
 					$s->status("ERROR: tried to set next of (".$s->url.") to $o but it is already " .$s->{next} . " at ". join(" ",caller) , 'ERR');
 					return $s->{next};
 				}
 				else { #next of next is not set so next is last so we can change this and delete the next
 					$s->status("WARNING: changed next of prev of last, delete last ". $s->{next}, 'WARN');
-					$s->dbh->do('DELETE FROM _'.$s->page->name . ' WHERE sha1 = ?',undef,$s->{next});
+					$s->dbh->do('DELETE FROM _'.$s->page->name . ' WHERE id = ?',undef,$s->{next});
 					$s->{next} = $o;
 				}
 			}
@@ -150,8 +148,8 @@ sub next {
 		else {
 			$s->{next} = $o;
 			if ($s->{is_commited}) { 
-				$s->dbstrps(sha1=>$s->sha1,next=>$s->{next});
-				$s->status("COMMITED next $o to ".($s->url//$s->sha1),'DEBUG');
+				$s->dbstrps(id=>$s->id,next=>$s->{next});
+				$s->status("COMMITED next $o to ".($s->url//$s->id),'DEBUG');
 			}
 		}
 	}
@@ -162,10 +160,8 @@ sub next {
 sub get_data {
 	my $s = shift;
 	return -1 if $s->dummy(); 
-	return 1 if $s->{has_data};
 	return 0 unless $s->download();
 	$s->title();
-	$s->{has_data}=1;
 	return 1;
 }
 
@@ -176,19 +172,14 @@ sub commit_info {
 		return 0;
 	}
 	if ($s->dummy()) {
-		my $sth =  $s->dbh->prepare('UPDATE _'.$s->name .' SET purl=?,next=?,prev=?,number=? WHERE sha1=?');
-		unless ($sth->execute($s->page->url,$s->next,$s->prev,$s->number,$s->sha1)>0) {
-			$s->dbh->do('INSERT INTO _'.$s->name .'(purl,next,prev,number,sha1) VALUES (?,?,?,?,?)',undef,
-												$s->page->url,$s->next,$s->prev,$s->number,$s->sha1);
-		}
+		my $sth =  $s->dbh->prepare('UPDATE _'.$s->name .' SET purl=?,next=?,prev=?,number=? where id == ?');
+		$sth->execute($s->page->url,$s->next,$s->prev,$s->number,$s->id);
 		$s->{is_commited} = 1;
 		return -1;
 	}
-	my $sth = $s->dbh->prepare('UPDATE _'.$s->name .' SET title=?,purl=?,surl=?,next=?,prev=?,number=?,time=?,file=? where sha1 == ?');
-	unless ($sth->execute($s->title,$s->page->url,$s->url,$s->next,$s->prev,$s->number,time,$s->file_name,$s->sha1)>0) { 
-		$s->dbh->do('INSERT INTO _'.$s->name .'(title,purl,surl,next,prev,number,time,file,sha1) VALUES (?,?,?,?,?,?,?,?,?)',undef,
-										$s->title,$s->page->url,$s->url,$s->next,$s->prev,$s->number,time,$s->file_name,$s->sha1);
-	}
+	$s->page->cmc->{sqlstr_title_update} //= $s->dbh->prepare('UPDATE _'.$s->name .' SET title=?,purl=?,surl=?,next=?,prev=?,number=?,time=?,file=?,sha1=? where id == ?');
+	$s->page->cmc->{sqlstr_title_update}->execute($s->title,$s->page->url,$s->url,$s->next,$s->prev,$s->number,time,$s->file_name,$s->sha1,$s->id);
+	#$s->dbh->commit;
 	$s->{is_commited} = 1;
 	return 1;
 }
@@ -496,7 +487,6 @@ sub title {
 
 sub id {
 	my $s = shift;
-	say join(" ", caller) . " called id";
 	return $s->{id} if defined $s->{id};
 	$s->status("ERROR: ID not defined: ".join(":",caller)." " . $s->url, 'ERR');
 	return undef;
@@ -506,7 +496,7 @@ sub number {
 	my $s = shift;
 	unless ($s->{number}) {
 		if ($s->prev) {
-			my $pnum = $s->dbstrps(sha1=>$s->prev,'number');
+			my $pnum = $s->dbstrps(id=>$s->prev,'number');
 			$s->{number} = $pnum + 1;
 		}
 		else {
@@ -603,13 +593,13 @@ sub dbh {
 sub DESTROY {
 	my $s = shift;
 	
-	#my $db = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$s->id);
-	#unless (((defined $db->{file}) + (defined $db->{next}) + (defined $db->{prev}))>1) {
-	#	$s->dbh->do('DELETE FROM _' . $s->name . ' WHERE id = ?' , undef,$s->id);
+	my $db = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$s->id);
+	unless (((defined $db->{file}) + (defined $db->{next}) + (defined $db->{prev}))>1) {
+		$s->dbh->do('DELETE FROM _' . $s->name . ' WHERE id = ?' , undef,$s->id);
 		#$s->dbh->commit();
-	#}
+	}
 	$Strip::Strips--;
-	$s->status("DESTROYED: ($Strip::Strips) ". ($s->dummy?'dummy'.$s->sha1:$s->url),'DEBUG');
+	$s->status("DESTROYED: ($Strip::Strips) ". ($s->dummy?'dummy'.$s->id:$s->url),'DEBUG');
 }
 
 }
