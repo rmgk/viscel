@@ -25,7 +25,7 @@ use Scalar::Util;
 
 
 our $VERSION;
-$VERSION = '12';
+$VERSION = '13';
 
 our $Strips = 0;
 
@@ -111,7 +111,7 @@ sub prev {
 			$o = $o->sha1;
 		}
 		if ($s->{prev}) {
-			if ($s->{prev} != $o) {
+			if ($s->{prev} ne $o) {
 				$s->status("ERROR: tried to set prev of (".$s->url.") to $o but it is already " .$s->{prev} . " at ". join(" ",caller) , 'ERR');
 				return $s->{prev};
 			}
@@ -135,7 +135,7 @@ sub next {
 			$o = $o->sha1;
 		}
 		if ($s->{next}) {
-			if ($s->{next} != $o) {
+			if ($s->{next} ne $o) {
 				if ($s->dbstrps(sha1=>$s->{next},'next')) { #next of next is also set everythings fine
 					$s->status("ERROR: tried to set next of (".$s->url.") to $o but it is already " .$s->{next} . " at ". join(" ",caller) , 'ERR');
 					return $s->{next};

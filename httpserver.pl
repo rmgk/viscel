@@ -275,9 +275,13 @@ sub html_comic_listing {
 			$toRead{$comic} = -1;
 			next;
 		}
+		my $to_read = $user->{$comic}->{'strip_count'};
+		if (defined $to_read) {
+			$toRead{$comic} = $to_read;
+			next;
+		}
 		my $bookmark = $user->{$comic}->{'bookmark'};
 		if ($bookmark) {
-			#my $sc = $user->{$comic}->{'strip_count'};
 			my $sc = dbstrps($comic,'sha1'=>$user->{$comic}->{'last'},'number');
 			my $num = dbstrps($comic,'sha1'=>$bookmark,'number');
 			if ($sc and $num) {
@@ -290,6 +294,7 @@ sub html_comic_listing {
 		else {
 			$toRead{$comic} = dbstrps($comic,'sha1'=>$user->{$comic}->{'last'},'number') // -1;
 		}
+		dbcmcs($comic,'strip_count'=>$toRead{$comic});
 	}
 	
 	foreach my $comic ( sort {$toRead{$b} <=> $toRead{$a}} @{$comics}) {
@@ -491,7 +496,6 @@ sub ccomic {
 	$ret .= end_div;
 	$ret .= end_div;
 	
-	dbcmcs($comic,'bookmark',$strip) if param('bookmark');
 	return $ret . end_html;
 
 }
@@ -603,6 +607,9 @@ click L<datalyzer|/"Datalyzer"> gives you some counts on the comics table
 		if (param('bookmark')) {
 			my $bookmark = param('bookmark');
 			dbcmcs($comic,'bookmark',$bookmark );
+			my $lnum = dbstrps($comic,'sha1'=>dbcmcs($comic,'last'),'number');
+			my $bnum = dbstrps($comic,'sha1'=>$bookmark,'number');
+			dbcmcs($comic,'strip_count',$lnum-$bnum)
 		}
 		if (param()) {
 			return undef; # this causes to redirect back to this page without parameters

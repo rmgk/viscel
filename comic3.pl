@@ -10,7 +10,7 @@ use DBI;
 use Comic;
 use dbutil;
 
-my $build = 90 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+my $build = 92 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
 our $VERSION = 3.060 . '.'. $build;
 
 
@@ -51,14 +51,15 @@ if ($ARGV[0]) {
 	if ($ARGV[0] and ($ARGV[0] =~ m/^-\w+/)) {
 		die "no such comic: $ARGV[1]" unless defined $comics->{$ARGV[1]};
 		if ($ARGV[0] eq '-r') {
-			$dbh->do('UPDATE comics SET url_current = NULL,server_update = NULL,archive_current = NULL where comic=?',undef,$ARGV[1]);
+			$dbh->do('UPDATE comics SET url_current = NULL,server_update = NULL,archive_current = NULL,first=NULL where comic=?',undef,$ARGV[1]);
 			#$dbh->commit;
 		}
 		elsif ($ARGV[0] eq '-rd') {
 			#unless ($dbh->selectrow_array('SELECT processing FROM CONFIG WHERE processing IS NOT NULL')) { # TODO
-				$dbh->do('DELETE FROM comics WHERE comic=?',undef,$ARGV[1]);
-				($comics->{$ARGV[1]}->{tags},$comics->{$ARGV[1]}->{flags}) = 
-						$dbh->selectrow_array('SELECT tags,flags FROM comics WHERE comic = ?',undef,$ARGV[1]);
+				#$dbh->do('DELETE FROM comics WHERE comic=?',undef,$ARGV[1]);
+				$dbh->do('UPDATE comics SET url_current=NULL,server_update=NULL,archive_current=NULL,first=NULL,last=NULL where comic=?',undef,$ARGV[1]);
+				# ($comics->{$ARGV[1]}->{tags},$comics->{$ARGV[1]}->{flags}) = 
+						# $dbh->selectrow_array('SELECT tags,flags FROM comics WHERE comic = ?',undef,$ARGV[1]);
 				$dbh->do("DROP TABLE _". $ARGV[1]);
 			#}
 			#else {

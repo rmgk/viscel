@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '44';
+$VERSION = '45';
 
 =head1	General Methods
 
@@ -159,8 +159,6 @@ sub get_all {
 	while (!$::TERM) {
 		$last_strip = $s->curr->all_strips($last_strip);
 		return undef unless $last_strip;
-		$s->write_url_current();
-		$s->dbcmc('last',$last_strip->number());
 		if (time > $s->{time_to_stop}) {
 			$s->status("STOPPED - timelimit reached",'UINFO');
 			last;
@@ -169,8 +167,19 @@ sub get_all {
 		last unless $s->get_next();
 		$s->{acnt}++>30?(say$s->name())&&($s->{acnt}=0):undef; #announcing comic name every 30 lines
 	};
+	$s->write_url_current();
+	$s->set_last($last_strip);
 	$s->dbcmc('last_update',time) unless $::TERM;
 	$s->status("DONE: get_all",'DEBUG');
+}
+
+sub set_last {
+	my $s = shift;
+	my $last_strip = shift;
+	$s->dbcmc('last',$last_strip->sha1());
+	my $bm_num = $s->dbstrps('sha1'=>$s->dbcmc('bookmark'),'number');
+	$s->dbcmc('strip_count',$last_strip->number() - ($bm_num // 0));
+	return 1;
 }
 
 =head2 get_next
@@ -365,13 +374,13 @@ sub get_next_page {
 			foreach my $n_data (@{$next_exists}) {
 				if ($n_data->{next}) {
 					if ($n_data->{prev}) {
-						if ($n_data->{prev} == $s->curr->strip(-1)->sha) {
+						if ($n_data->{prev} eq $s->curr->strip(-1)->sha1) {
 							$back_link = 1;
 						}
 					}
 					else {
 						my $first = $s->dbcmc('first');
-						if ($first == $n_data->{sha}) {
+						if ($first == $n_data->{sha1}) {
 							next(url);
 						}
 						$back_link = 1; #no prev is a joker
