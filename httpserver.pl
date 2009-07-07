@@ -756,6 +756,7 @@ this are normal healty strips somewhere in the comic
 					])} grep {$_ ne 'strps'} keys %d]));	#getting all keys 
 		}
 		$res .= br . a({-href=>"/tools/comics/$comic"},"comic overview") .br;
+		$res .= br.a({-href=>"/tools/cataflag/$comic"},"back")  . br ;
 		return $res .= br . a({-href=>"/"},"Index") . end_div.end_html;
 	}
 
