@@ -158,6 +158,7 @@ sub get_all {
 	while (!$::TERM) {
 		$last_strip = $s->curr->all_strips($last_strip);
 		return undef unless $last_strip;
+		$s->write_url_current();
 		if (time > $s->{time_to_stop}) {
 			$s->status("STOPPED - timelimit reached",'UINFO');
 			last;
@@ -166,7 +167,6 @@ sub get_all {
 		last unless $s->get_next();
 		$s->{acnt}++>30?(say$s->name())&&($s->{acnt}=0):undef; #announcing comic name every 30 lines
 	};
-	$s->write_url_current();
 	$s->set_last($last_strip);
 	$s->dbcmc('last_update',time) unless $::TERM;
 	$s->status("DONE: get_all",'DEBUG');
@@ -175,8 +175,8 @@ sub get_all {
 sub set_last {
 	my $s = shift;
 	my $last_strip = shift;
-	$s->dbcmc('last',$last_strip->sha1());
-	my $bm_num = $s->dbstrps('sha1'=>$s->dbcmc('bookmark'),'number');
+	$s->dbcmc('last',$last_strip->id());
+	my $bm_num = $s->dbstrps('id'=>$s->dbcmc('bookmark'),'number');
 	$s->dbcmc('strip_count',$last_strip->number() - ($bm_num // 0));
 	return 1;
 }

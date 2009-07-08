@@ -302,7 +302,7 @@ sub html_comic_listing {
 		my $usr = $user->{$comic};
 		my $mul = $toRead{$comic};
 
-		$mul = ($mul > 0) ? log($mul) : $mul;
+		$mul = ($mul > 0) ? log($mul) : -1;
 		
 		
 		my ($first,$bookmark,$last) = ($usr->{'first'},$usr->{'bookmark'},$usr->{'last'});
@@ -322,7 +322,8 @@ sub html_comic_listing {
 		elsif ($last) {
 			$ret .= sprintf($cmc_str, $last ,$last , '&gt;&gt;|');
 		}
-		$ret .= td(toRead{$comic}) if param('toread');
+		$ret .= td($toRead{$comic}) if param('toread');
+		#$ret .= td($mul);
 		$ret .= td($usr->{'strip_count'}) if param('count');
 		
 		$ret .= "</tr>";
@@ -393,7 +394,7 @@ sub cfront {
 				a({-href=>"/comics/$comic",-accesskey=>'s',-title=>'striplist'},"Striplist").' '.
 				a({href=>"/tools/cataflag/$comic",-accesskey=>'c',-title=>'categorize'},'Categorize').
 				br;
-	$ret .=		'Strips: ' . $last .' '; #dbcmcs($comic,'strip_count').' ';
+	$ret .=		'Strips: ' . dbstrps($comic,'id'=>$last,'number');
 				
 	if ($broken{$comic}) {
 		$ret .= "broken " 
@@ -432,7 +433,7 @@ sub ccomic {
 			dbcmcs($comic,'first'),dbcmcs($comic,'last'),dbstrps($comic,'id'=>$strip,'file')
 		);
 	my $nfile = dbstrps($comic,'id'=>$next,'file');
-	my $ret = &kopf($titles{st}//($comic .' - '. $strip),
+	my $ret = &kopf(($titles{st}//$comic) .' - '. dbstrps($comic,'id'=>$strip,'number')."/".$last,
 				$prev  ?"/comics/$comic/$prev" :"0",
 				$next  ?"/comics/$comic/$next" :"0",
 				$first ?"/comics/$comic/$first":"0",
@@ -741,6 +742,7 @@ this are normal healty strips somewhere in the comic
 					$_,":",	($_ =~ m/prev|next/)	?	a({href=>"/tools/datalyzer/$comic?section=strps&strip=".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
 					#make links klickable
 					($_ =~ m/url/)	?	 a({href=>$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
+					($_ =~ m/^id$/)	?	 a({href=>"/comics/$comic/".$d{$sec}->{param('strip')}->{$_}},$d{$sec}->{param('strip')}->{$_})	:
 					$d{$sec}->{param('strip')}->{$_}
 					])} grep {$_ ne 'n'} keys %{$d{$sec}->{param('strip')}}]));	#getting all keys 
 			$res .= br . a({-href=>"/tools/datalyzer/$comic"},"datalyzer main");
@@ -777,7 +779,7 @@ here you can view the comics table directly. this is just for debugging purposes
 			$res .= start_table;
 			foreach my $key (keys %{$user}) {
 				$res .=  Tr(td("$key :"),td( 
-					dbcmcs($comic,$key) =~ /^\w{40}$/
+					$key =~ /^first$|^last$|^bookmark$/
 					? a({href=>"/tools/datalyzer/$comic?section=strps&strip=".dbcmcs($comic,$key)},dbcmcs($comic,$key))
 					: dbcmcs($comic,$key)
 					));
