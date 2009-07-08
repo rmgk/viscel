@@ -395,7 +395,7 @@ sub get_next_page {
 				}
 			}
 			if ($has_no_next) {
-				$s->status("WARNING: found next ($url) without next, that might be okay? we could also delete it!",'WARN');
+				$s->status("WARNING: found next ($url) without next, that might be okay? we could also delete it!",'DEBUG');
 				#$s->dbh->do('DELETE FROM _'.$s->name . ' WHERE purl = ? ',undef,$url);
 			}
 			elsif (!$back_link) {
@@ -610,7 +610,7 @@ sub class_change {
 		if ($s->{config}->{class} eq "animea") {
 			$s->{config}->{regex_next} //= q#value="Next"\s*onClick="javascript:window.location='([^']+)'" />#;
 			$s->{config}->{regex_prev} //= q#value="Previous"\s*onClick="javascript:window.location='([^']+)'" />#;
-			$s->{config}->{heur_strip_url} //= "/tobemoved/|/data/";
+			$s->{config}->{heur_strip_url} //= "/tobemoved/|/data/|/i/";
 		}
 		if ($s->{config}->{class} eq "cartooniverse") {
 			$s->{config}->{regex_next} //= q#<input value="next" onclick="javascript:window.location='([^']+)';" type="button">#;

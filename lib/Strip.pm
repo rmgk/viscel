@@ -139,7 +139,7 @@ sub next {
 					return $s->{next};
 				}
 				else { #next of next is not set so next is last so we can change this and delete the next
-					$s->status("WARNING: changed next of prev of last, delete last ". $s->{next}, 'WARN');
+					$s->status("WARNING: changed next of prev of last, delete last ". $s->{next}, 'DEBUG');
 					$s->dbh->do('DELETE FROM _'.$s->page->name . ' WHERE id = ?',undef,$s->{next});
 					$s->{next} = $o;
 				}
