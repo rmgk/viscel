@@ -67,6 +67,11 @@ if ($ARGV[0]) {
 			#	say "\nplease stop current progress before dropping tables\n";
 			#}
 		}
+		elsif ($ARGV[0] eq '-u') {
+			say "marking $ARGV[1] as recently updated";
+			$dbh->do('UPDATE comics SET last_update = ? where comic=?',undef,time,$ARGV[1]);
+			exit;
+		}
 		@comics = ();
 		$comics[0] = $ARGV[1];
 		$skip = 0;

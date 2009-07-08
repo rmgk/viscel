@@ -417,7 +417,7 @@ sub get_next_page {
 	}
 	#so we had no previous matches huh? what now? maybe we just return a page where we found a strip!
 	if ($first_nondummy_page) { #we can only do that if such a page exists!
-		$s->status("no next with matching prev link found! using page with strip found!",'WARN'); # but we emit a warning first!
+		$s->status("no next with matching prev link found! using page with strip found!",'WARN') unless $s->ignore_warning('no_next_links_back');
 		$s->{visited_urls}->{$first_nondummy_page->url()} = 1; #and we also set the url as visited!
 		return $first_nondummy_page;
 	}
@@ -442,8 +442,8 @@ returns: next page url
 =cut
 
 sub url_next_archive {
-	my ($s) = @_;
-	my $next_archive = $s->u_get_next_archive();
+	my ($s) = shift;
+	my $next_archive = shift // $s->u_get_next_archive();
 	return 0 unless $next_archive;
 	$s->status("NEXT ARCHIVE: " . $next_archive , 'UINFO');
 	$s->dbcmc('archive_current',$next_archive);
@@ -615,7 +615,7 @@ sub class_change {
 		if ($s->{config}->{class} eq "cartooniverse") {
 			$s->{config}->{regex_next} //= q#<input value="next" onclick="javascript:window.location='([^']+)';" type="button">#;
 			$s->{config}->{regex_prev} //= q#<input value="back" onclick="javascript:window.location='([^']+)';" type="button">#;
-			$s->{config}->{heur_strip_url} //= q#img.cartooniverse#;
+			$s->{config}->{heur_strip_url} //= q#img.cartooniverse|mangastorage#;
 			$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
 			$s->{config}->{rename_depth} //= 2;
 			$s->{config}->{referer} //= q#http://www.cartooniverse.co.uk/#;
@@ -779,7 +779,17 @@ sub url_current {
 	
 	return $s->{url_current} if $s->{url_current};
 	
-	my $url_current = $s->dbcmc('url_current') || $s->ini('url_start');
+	my $url_current = $s->dbcmc('url_current');
+	if (!$url_current) {
+		if ($s->ini("archive_url")) {
+			$url_current = $s->url_next_archive($s->ar_get_archives->[0]);
+			$s->status('WARN starting with archive url','WARN');
+		}
+		else {
+			$url_current = $s->ini('url_start');
+		}
+	}
+	
 	$s->{url_current} = URI->new($url_current)->abs($s->url_home())->as_string;
 	$s->status("SET: url_current: " . $s->{url_current}, 'DEF');
 	
@@ -826,6 +836,15 @@ sub status {
 		close ERR;
 	}
 	return 1;
+}
+
+sub ignore_warning {
+	my $s = shift;
+	my $warn = shift;
+	if ($s->ini('ignore_warning')) {
+		return $s->ini('ignore_warning') =~ /$warn/;
+	}
+	return 0;
 }
 
 =head2 release_pages
