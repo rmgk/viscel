@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.05.3';
+$VERSION = '2.05.4';
 
 
 
@@ -83,9 +83,11 @@ if ($ARGV[0]) {
 	}
 }
 
+@ARGV = (); # i dont know why, but redirect does not work if it is set
+
 print "Please contact me at: <URL:", "http://127.0.0.1/" ,">\n";
 while (my $c = $d->accept) {
-	while (my $r = $c->get_request) {
+	req:while (my $r = $c->get_request) {
 		if (($r->method eq 'GET')) {
 			my $req_start_time = Time::HiRes::time if $measure_time; 
 			if ($r->url->path eq '/favicon.ico') {
@@ -116,7 +118,7 @@ while (my $c = $d->accept) {
 					my $answ = &ctools($1,$2);
 					if (!$answ)  { 
 						$c->send_redirect( 'http://127.0.0.1' . $r->url->path );
-						next;
+						next req;
 					}
 					$res->content($answ);
 				}
