@@ -22,10 +22,11 @@ use dlutil;
 
 use Digest::SHA;
 use Scalar::Util;
+use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '13';
+$VERSION = '14';
 
 our $Strips = 0;
 
@@ -273,7 +274,7 @@ returns: 0 if the download threw an error and 1 if the download was successful
 sub _download {
 	my ($s) = @_;
 	my $time = Time::HiRes::time;
-	my $img_res = dlutil::get($s->url,$s->ini('referer')//$s->page->url);
+	my $img_res = dlutil::get($s->url,$s->page->url);
 	$time = Time::HiRes::time - $time;
 	if ($img_res->is_error) {
 		say " error"; #were waiting for speed and newline
@@ -339,7 +340,7 @@ sub get_file_name {
 	
 	my $filename;
 	
-	my $bc = '/?&=#';
+	my $bc = '/?&=#'; #bad characters
 	
 	my $part = pop @surl;
 	
@@ -347,7 +348,7 @@ sub get_file_name {
 		$filename = $1;
 	}
 	else {
-		my $header_res = dlutil::gethead($url,$s->ini('referer'));
+		my $header_res = dlutil::gethead($url,$s->page->url);
 		unless ($header_res->is_success()) {
 			$s->{gfn_error} = "header failure " .  $header_res->status_line();
 			return undef;
@@ -373,6 +374,12 @@ sub get_file_name {
 		#$part =~ s#[^/?&=]##g; #removing invalid chars
 		$filename = $part . $filename;
 	}
+	
+	if ($s->ini('rename_substitute')) {
+		my ($re,$sub) =  split(/#/, $s->ini('rename_substitute'), 2);
+		$filename =~ s#$re#$sub#gi;
+	}
+	
 	return $filename;
 }
 

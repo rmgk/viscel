@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '45';
+$VERSION = '46';
 
 =head1	General Methods
 
@@ -455,7 +455,7 @@ sub url_next_archive {
 	}
 	$url_arch .= '/' unless $url_arch =~ m#/$|\.\w{3,4}$#; #ugly fix | workaround warning
 	$s->status("NEXT ARCHIVE deeper, get body: ". $url_arch, 'UINFO');
-	my $res = dlutil::get($url_arch);
+	my $res = dlutil::get($url_arch,$s->ini('referer'));
 	if ( $res->is_success() ) {
 		my $body = $res->decoded_content(raise_error=>1);
 		if ($body =~ m#$reg_deeper#is) {
@@ -505,7 +505,7 @@ returns: list of archives as arrayref
 sub ar_get_archives {
 	my $s = shift;
 	return $s->{archives} if $s->{archives};
-	my $res = dlutil::get($s->ini('archive_url'));
+	my $res = dlutil::get($s->ini('archive_url'),$s->ini('referer'));
 	if ($res->is_error) {
 		$s->status('ERROR: could not get body '. $s->ini('archive_url') . ' ' . $res->status_line(), 'ERR');
 		return undef;
@@ -595,7 +595,6 @@ sub class_change {
 		when (m#^http://manga.animea.net/#) {$s->{config}->{class} //= "animea"};
 		when (m#^http://www.onemanga.com/#) {$s->{config}->{class} //= "onemanga"};
 		when (m#^http://(www.)?cartooniverse.\w+.co.uk/#) {$s->{config}->{class} //= "cartooniverse"};
-		when (m#^http://\w+.comicgenesis.com/#) {$s->{config}->{class} //= "comicgenesis"};
 	}
 	
 	if ($s->{config}->{class}) {
@@ -603,9 +602,9 @@ sub class_change {
 			$s->{config}->{regex_next} //= q#if \(keycode == 39\) {\s+window.location = '([^']+)'#;
 			$s->{config}->{regex_prev} //= q#if \(keycode == 37\) {\s+window.location = '([^']+)'#;
 			$s->{config}->{regex_strip_url} //= q#<img class="manga-page" src="([^"]+)"#;
-			$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
+			#$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
 			$s->{config}->{rename_depth} //= 2; 
-			$s->{config}->{worker} //= 0;
+			#$s->{config}->{worker} //= 0;
 		}
 		if ($s->{config}->{class} eq "animea") {
 			$s->{config}->{regex_next} //= q#value="Next"\s*onClick="javascript:window.location='([^']+)'" />#;
@@ -616,10 +615,10 @@ sub class_change {
 			$s->{config}->{regex_next} //= q#<input value="next" onclick="javascript:window.location='([^']+)';" type="button">#;
 			$s->{config}->{regex_prev} //= q#<input value="back" onclick="javascript:window.location='([^']+)';" type="button">#;
 			$s->{config}->{heur_strip_url} //= q#img.cartooniverse|mangastorage#;
-			$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
+			#$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
 			$s->{config}->{rename_depth} //= 2;
-			$s->{config}->{referer} //= q#http://www.cartooniverse.co.uk/#;
-			$s->{config}->{worker} //= 0;
+			#$s->{config}->{referer} //= q#http://www.cartooniverse.co.uk/#;
+			#$s->{config}->{worker} //= 0;
 		}
 		if ($s->{config}->{class} eq "mangafox") {
 			#my $url_insert = $s->{config}->{url_start};
@@ -640,22 +639,19 @@ sub class_change {
 			$s->{config}->{archive_regex} //= q#edit</a>\s+<a href="(?<url>[^"]+)" class="chico">#;
 			$s->{config}->{archive_reverse} //= 1;
 			$s->{config}->{heur_strip_url} //= q#compressed#;
-			$s->{config}->{worker} //= 0;
-			$s->{config}->{referer} //= '';
-			$s->{config}->{rename} //= q'url_only#^\D+$|^(\d\d_)?\d\d\.\w{3,4}$#/chapter\.(\d+)/page\.(\d+)/#';
+			#$s->{config}->{worker} //= 0;
+			#$s->{config}->{referer} //= '';
+			#$s->{config}->{rename} //= q'url_only#^\D+$|^(\d\d_)?\d\d\.\w{3,4}$#/chapter\.(\d+)/page\.(\d+)/#';
+			$s->{config}->{rename_depth} //= 3;
+			$s->{config}->{rename_substitute} //= 'compressed#';
 			$s->{config}->{regex_never_goto} //= q#/end/#;
 		}
 		if ($s->{config}->{class} eq "anymanga") {
 			$s->{config}->{heur_strip_url} //= '/manga/[^/]+/\d+/\d+';
-			$s->{config}->{rename} //= q"strip_url#manga/([\w-]+)/(\d+)/(\d+)/([^\.]+)\.\w{3,4}#0123";
+			#$s->{config}->{rename} //= q"strip_url#manga/([\w-]+)/(\d+)/(\d+)/([^\.]+)\.\w{3,4}#0123";
 			$s->{config}->{rename_depth} //= 4;
 			$s->{config}->{regex_prev} //= q"var url_back = '([^']+)';";
 			$s->{config}->{regex_next} //= q"var url_next = '([^']+)';";
-		}
-		if ($s->{config}->{class} eq "comicgenesis") {
-			$s->{config}->{worker} //= 0;
-			$s->{config}->{url_start} =~ m#(^http://\w+.comicgenesis.com/)#;
-			$s->{config}->{referer} //= $1;
 		}
 	}
 }

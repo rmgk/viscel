@@ -23,7 +23,6 @@ use dlutil;
 use URI;
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
-use Time::HiRes;
 use Scalar::Util;
 
 use Strip;
