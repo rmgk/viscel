@@ -11,7 +11,7 @@ use Comic;
 use dbutil;
 
 
-my $build = 94 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+my $build = 95 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
 our $VERSION = 3.052 . '.'. $build;
 
 
@@ -184,19 +184,20 @@ comic:foreach my $comic (@comics) {
 	}
 	last if $TERM;
 }
-$dbh->disconnect;
-
-if ($multi) {
-	$lock->do('DELETE FROM worker WHERE worker_number = ?',undef,$worker_number);
-	$lock->commit();
-	my $remaining = $lock->selectrow_array('SELECT COUNT(*) FROM worker');
-	$lock->disconnect;
-	say "worker $worker_number shutting down $remaining workers remaining";
-	if ($remaining == 0) {
-		say "all workers finished deleting lock";
-		unlink ('.multilock.db') or die 'error deleting lock';
-	} 
-}
-else {
-	unlink ('.singlelock') or die 'error deleting lock';
+END {
+	$dbh->disconnect;
+	if ($multi) {
+		$lock->do('DELETE FROM worker WHERE worker_number = ?',undef,$worker_number);
+		$lock->commit();
+		my $remaining = $lock->selectrow_array('SELECT COUNT(*) FROM worker');
+		$lock->disconnect;
+		say "worker $worker_number shutting down $remaining workers remaining";
+		if ($remaining == 0) {
+			say "all workers finished deleting lock";
+			unlink ('.multilock.db') or die 'error deleting lock';
+		} 
+	}
+	else {
+		unlink ('.singlelock') or die 'error deleting lock';
+	}
 }
