@@ -29,7 +29,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '43';
+$VERSION = '44';
 
 our $Pages = 0;
 
@@ -351,6 +351,8 @@ sub try_get_side_url_parts {
 	my $body = $s->body();
 	return unless $body;
 	
+	$body =~ s/(<!--[^>]*(<[^>]*>[^>]*)*-->)//g; #strip comments
+	
 	my @prev;
 	my @next;
 	
@@ -522,6 +524,7 @@ sub try_get_strip_urls_part {
 	my $body = $s->body;
 	return unless $body;
 	
+	$body =~ s/(<!--[^>]*(<[^>]*>[^>]*)*-->)//g; #strip comments
 	my $imgs = [];
 	my @tags = ($body =~ m#(<\s*ima?ge?[^>]+>)#gis);
 
