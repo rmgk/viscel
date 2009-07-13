@@ -11,8 +11,8 @@ use Comic;
 use dbutil;
 
 
-my $build = 93 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
-our $VERSION = 3.051 . '.'. $build;
+my $build = 94 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+our $VERSION = 3.052 . '.'. $build;
 
 
 
@@ -24,7 +24,32 @@ $SIG{'INT'} = sub {
 
 print "remember: images must not be redistributed without the authors approval\n";
 print "press ctrl+c to abort (or data corruption might occur)\n";
-print "comic3.pl version $VERSION\n";
+print "comic3.pl version $VERSION\n\n";
+
+die 'it seems there is another instance running, delete singelelock if there is not.
+start with --multi if you want to run multiple instances.' if (-e '.singlelock');
+
+my $multi = 0;
+if (-e '.multilock.db') {
+	if ($ARGV[0] and ($ARGV[0] eq'--multi')) {
+		$multi = 2;
+		@ARGV = ();
+	}
+	else {
+		die 'it seems we are running in multi mode, start with --multi if we are or delete ".multilock.db" if we are not.';
+	}
+}
+if ($ARGV[0] and ($ARGV[0] eq'--multi')) {
+	$multi = 1;
+	say "please wait before starting another instance";
+	@ARGV = ();
+}
+unless ($multi) {
+	open(LOCK,">.singlelock");
+	print LOCK "delete this file if no instances of comic3.pl is running";
+	close LOCK;
+}
+
 
 if (-e 'log.txt.' && (-s _ > 2 * 2**20)) {
 	unlink("log.txt");
@@ -35,7 +60,6 @@ if (-e 'log.txt.' && (-s _ > 2 * 2**20)) {
 my $comics = dbutil::readINI('comic.ini');
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 $dbh->func(300000,'busy_timeout');
-dbutil::check_table($dbh,'comics');
 # dbutil::check_table($dbh,'CONFIG'); TODO
 my @comics;
 @comics = grep {!$comics->{$_}->{'broken'}} keys %{$comics};
@@ -49,7 +73,7 @@ if (!defined $update_intervall or $update_intervall eq '') {
 my $skip = 1;
 
 if ($ARGV[0]) {
-	if ($ARGV[0] and ($ARGV[0] =~ m/^-\w+/)) {
+	if ($ARGV[0] =~ m/^-\w+/) {
 		die "no such comic: $ARGV[1]" unless defined $comics->{$ARGV[1]};
 		if ($ARGV[0] eq '-r') {
 			$dbh->do('UPDATE comics SET url_current = NULL,server_update = NULL,archive_current = NULL,first=NULL where comic=?',undef,$ARGV[1]);
@@ -88,6 +112,29 @@ if ($ARGV[0]) {
 	}
 }
 
+
+if (($multi == 0) or ($multi == 1)) {
+	dbutil::check_table($dbh,'comics');
+	dbutil::check_table($dbh,\@comics);
+}
+my $lock;
+my $worker_number;
+if ($multi == 1) {
+	$lock = DBI->connect("dbi:SQLite:dbname=.multilock.db","","",{AutoCommit => 0,PrintError => 1});
+	$lock->do('CREATE TABLE lock (comic,domain,time)');
+	$lock->do('CREATE TABLE worker (worker_number INTEGER PRIMARY KEY ASC)');
+	$lock->do('INSERT INTO worker DEFAULT VALUES');
+	$worker_number = $lock->last_insert_id(undef,undef,'worker','worker_number');
+	$lock->commit();
+	say 'created lock database, start more instances with --multi';
+}
+elsif ($multi == 2) {
+	$lock = DBI->connect("dbi:SQLite:dbname=.multilock.db","","",{AutoCommit => 0,PrintError => 1});
+	$lock->do('INSERT INTO worker DEFAULT VALUES');
+	$worker_number = $lock->last_insert_id(undef,undef,'worker','worker_number');
+	$lock->commit();
+}
+
 my %order;
 my $cdb = $dbh->selectall_hashref('SELECT comic,last_update,last_save FROM comics','comic');
 foreach my $comic (@comics) {
@@ -103,41 +150,53 @@ foreach my $comic (@comics) {
 	$order{$comic} = time - $up - $up + $sa;;
 }
 
-
-dbutil::check_table($dbh,\@comics);
-
 @comics = sort { $order{$b} <=> $order{$a} } @comics; 
 	
-	
+my $nl = ''; #needed for some nice newline messages :D
 comic:foreach my $comic (@comics) {	
+	print $nl;
+	$nl = '';
 	if ($skip) {
 		my $lu = $cdb->{$comic}->{last_update};
 		next comic if ((time - $update_intervall) < ($lu||0));
 	}
-	
 	last if $TERM;
-	
-	my ($domain) = $comics->{$comic}->{url_start} =~ m#(?:http://)?([^.]+\.[^.]+?)/#; #use domain name to exclude multi downloading
-	{	#if we run multiple instances of the programm we dont want two to process  the same comic
-		my $time = 0; #$dbh->selectrow_array(qq(SELECT time FROM CONFIG WHERE processing == "$domain")) // 0; # todo
-		if ($time and ((time - $time)  < 60*60*2 )) { 
-			say "\nskipped $comic: already downloading from '$domain'";
+	if ($multi) {
+		my ($domain) = $comics->{$comic}->{url_start} =~ m#^(?:https?://)?(?:[^./]+\.)*?([^./]+\.[^./]+?)/#; #use domain name to exclude multi downloading
+		$lock->do('INSERT INTO lock (domain,time,comic) values (?,?,?)',undef,$domain,time,$comic);
+		my $count = $lock->selectrow_array('SELECT COUNT(*) FROM lock WHERE domain == ?',undef,$domain);
+		die 'error writing lock' unless ($count);
+		if ($count > 1) {
+			$lock->rollback();
+			say "skipped $comic: already downloading from '$domain'";
 			next comic;
 		}
-		elsif ($time){ #is downloading for more than two ours
-			say "\ndownloading from '$domain' for more than two hours, likely crashed. overwriting.";
-			$dbh->do("UPDATE config SET time = " .time . qq( WHERE processing == "$domain")); # TODO
-		}
-		else {
-			#$dbh->do(qq!INSERT INTO CONFIG (processing,time) values ("$domain",! .time . ")" ); # TODO
-		}
+		$lock->commit();
 	}
+	$nl = "\n";
 	Comic::get_comic({	"name" => $comic , "dbh" => $dbh, "autocommit" => 1, 
 						'flags' => $comics->{$comic}->{flags}, 
 						'tags' => $comics->{$comic}->{tags}
 						});
-
-	#$dbh->do(qq(DELETE FROM CONFIG WHERE processing = "$domain")); TODO
+	if ($multi) {
+		$lock->do('DELETE FROM lock WHERE comic = ?',undef,$comic);
+		$lock->commit();
+	}
 	last if $TERM;
 }
 $dbh->disconnect;
+
+if ($multi) {
+	$lock->do('DELETE FROM worker WHERE worker_number = ?',undef,$worker_number);
+	$lock->commit();
+	my $remaining = $lock->selectrow_array('SELECT COUNT(*) FROM worker');
+	$lock->disconnect;
+	say "worker $worker_number shutting down $remaining workers remaining";
+	if ($remaining == 0) {
+		say "all workers finished deleting lock";
+		unlink ('.multilock.db') or die 'error deleting lock';
+	} 
+}
+else {
+	unlink ('.singlelock') or die 'error deleting lock';
+}
