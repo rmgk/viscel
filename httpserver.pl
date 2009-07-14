@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.6.0';
+$VERSION = '2.6.1';
 
 
 
@@ -309,7 +309,7 @@ sub html_comic_listing {
 		my $usr = $user->{$comic};
 		my $mul = $toRead{$comic};
 
-		$mul = ($mul > 0) ? log($mul) : -1;
+		$mul = ($mul > 0) ? log($mul) : $mul ? -1 : 0;# dont hit me! (bigger 0 is log; equal 0 is 0; smaller zero is -1)
 		
 		
 		my ($first,$bookmark,$last) = ($usr->{'first'},$usr->{'bookmark'},$usr->{'last'});
@@ -344,6 +344,9 @@ sub colorGradient {
 	my $col = $cv/$base;
 	if ($col<0) {
 		return 'ffffff';
+	}
+	elsif ($col==0) {
+		return '33cc55';
 	}
 	if ($col<0.5) {
 		my $r = sprintf "%02x", $col * 255 * 2;
