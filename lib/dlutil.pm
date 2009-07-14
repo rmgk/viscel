@@ -61,7 +61,11 @@ sub get {
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
 	$request->accept_decodable();
-	return $ua->request($request);
+	my $res = $ua->request($request);
+	if ($res->header("Content-Encoding") =~ m/none/i) { #none eq identity - but HTTP::Message doesnt know!
+		$res->header("Content-Encoding" => 'identity'); 
+	}
+	return $res;
 }
 
 =head2 gethead

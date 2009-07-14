@@ -28,7 +28,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '45';
+$VERSION = '46';
 
 our $Pages = 0;
 
@@ -386,7 +386,7 @@ sub try_get_side_url_parts {
 			my $tmp_url = $+{link};
 			next if (($tmp_url!~m#\.\w{3,4}\?#i) and ($tmp_url =~ m#\.jpe?g$|\.png$|\.gif$#i));
 			next if (($tmp_url =~ m#http://#i) and !($tmp_url =~ m#$url_home#i));
-			next if ($tmp_url =~ m#^\w+:#) and !($tmp_url =~ m#https?://#i);
+			next if (($tmp_url =~ m#^\w+:#) and !($tmp_url =~ m#^https?://#i));
 			if ($fil =~ m#prev|back|prior#i) {
 					push (@prev, $tmp_url);
 			}

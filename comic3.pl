@@ -165,10 +165,10 @@ comic:foreach my $comic (@comics) {
 		my ($domain) = $comics->{$comic}->{url_start} =~ m#^(?:https?://)?(?:[^./]+\.)*?([^./]+\.[^./]+?)/#; #use domain name to exclude multi downloading
 		$lock->do('INSERT INTO lock (domain,time,comic) values (?,?,?)',undef,$domain,time,$comic);
 		my $count = $lock->selectrow_array('SELECT COUNT(*) FROM lock WHERE domain == ?',undef,$domain);
-		die 'error writing lock' unless ($count);
+		die "error writing lock $comic : $domain" unless ($count);
 		if ($count > 1) {
 			$lock->rollback();
-			say "skipped $comic: already downloading from '$domain'";
+			#say "skipped $comic: already downloading from '$domain'";
 			next comic;
 		}
 		$lock->commit();
