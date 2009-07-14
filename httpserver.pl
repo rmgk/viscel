@@ -464,7 +464,7 @@ sub ccomic {
 	
 	$ret .= h3($titles{h1}) if $titles{h1};
 	if ($file and (-e "./strips/$comic/$file")) { 
-		if ($file =~ m#.swf$#i) {
+		if ($file =~ m#.dcr$|.swf$#i) {
 			$ret .= embed({-src=>"/strips/$comic/$file",-quality=>'high',-type=>($titles{et}//''),-width=>($titles{ew}//800),-height=>($titles{eh}//800)});
 		}
 		else {

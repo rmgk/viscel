@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '14';
+$VERSION = '15';
 
 our $Strips = 0;
 
@@ -344,7 +344,7 @@ sub get_file_name {
 	
 	my $part = pop @surl;
 	
-	if ($part =~ m#(?:^|.*[$bc])([^$bc]+\.(jpe?g|gif|png|bmp|swf))#i) { # line start or invalid char til filetype
+	if ($part =~ m#(?:^|.*[$bc])([^$bc]+\.(jpe?g|gif|png|bmp|swf|dcr))#i) { # line start or invalid char til filetype
 		$filename = $1;
 	}
 	else {
