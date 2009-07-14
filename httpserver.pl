@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.05.4';
+$VERSION = '2.6.0';
 
 
 
@@ -59,12 +59,14 @@ my %strpscache; #caching strips db
 # else {
 	# &update;
 # }
-my $comini = dbutil::readINI('comic.ini',);
+my $comini = dbutil::readINI('comic.ini');
+
 foreach my $name (keys %{$comini}) {
 	if ($comini->{$name}->{broken}) {
 		$broken{$name} = 1;
 	}
 }
+dbutil::check_table($dbh,'favourites');
 
 
 =head1 Usage
@@ -214,6 +216,8 @@ Tools include:
 
 =item * L<"Custom Contents"|/"Filter">
 
+=item * L</"Favourites">
+
 =item * L</"Random">
 
 =back
@@ -228,6 +232,7 @@ sub cindex {
 	$ret .=	"Tools:" . br 
 				.	a({-href=>"/tools/query",-accesskey=>'q',-title=>'query'},"Custom Query"). br 
 				#.	a({-href=>"/tools/filter",-accesskey=>'f',-title=>'filter'},"Custom Contents"). br 
+				.	a({-href=>"/tools/favourites",-accesskey=>'f',-title=>'favourites'},"Favourites"). br
 				.	a({-href=>"/tools/random",-accesskey=>'r',-title=>'random'},"Random Comic"). br 
 				.	a({-href=>"/pod",-accesskey=>'h',-title=>'help'},"Help"). br ;
 				
@@ -427,6 +432,14 @@ sub ccomic {
 	
 	return &kopf("Error") . "no comic defined" unless $comic;
 	return &kopf("Error") . "no strip defined" unless $strip;
+	
+	if (param('fav')) {
+		unless ($dbh->selectrow_array('SELECT * FROM favourites WHERE sha1 = ?',undef,dbstrps($comic,'id'=>$strip,'sha1'))) {
+			my @values = $dbh->selectrow_array("SELECT file,id,sha1,number,surl,purl,title FROM _$comic WHERE id = ?",undef,$strip);
+			unshift(@values,$comic);
+			$dbh->do('INSERT INTO favourites (comic,file,id,sha1,number,surl,purl,title) VALUES (?,?,?,?,?,?,?,?)',undef,@values);
+		}
+	}
 
 	my %titles = get_title($comic,$strip);
 	
@@ -492,6 +505,8 @@ sub ccomic {
 		$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=r",
 				-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
 	}
+	$ret .= a({-href=>"/comics/$comic/$strip?fav=1",
+		-accesskey=>'s',-title=>'save this strip as favourite'},"fav ");	
 	$ret .= a({-href=>"/front/$comic",
 			-accesskey=>'f',-title=>'frontpage'},"front ");			
 			
@@ -537,8 +552,8 @@ sub cclist {
 }
 
 sub get_title {
-	my ($comic,$strip) = @_;
-	my $title = dbstrps($comic,'id'=>$strip,'title') // '';
+	my ($comic,$strip,$title) = @_;
+	$title //= dbstrps($comic,'id'=>$strip,'title') // '';
 	my %titles;
 	if ($title =~ /^\{.*\}$/) {
 		%titles = %{eval($title)};
@@ -837,15 +852,15 @@ if you input a column in the second field, the output becomes more readable
 				$res .= pre(Dumper($dbh->selectall_hashref(param('query'),param('hashkey'))));
 			}
 			else {
-				$res .= pre(Dumper($dbh->selectall_arrayref(param('query'))));
+				$res .= pre(Dumper($dbh->selectall_arrayref(param('query'),{Slice=>{}})));
 			}
 			return $res . br . br . a({-href=>"/tools/query"},"Back") . br .  a({-href=>"/"},"Index") . end_div.end_html;
 		}
 		$res .= start_form("GET","/tools/query");
 		$res .= 'enter sql query string here'.br;
-		$res .= textarea(-name=>"query", -rows=>4,-columns=>80) . br.br;
-		$res .= 'select hash key'.br;
-		$res .= textfield(-name=>"hashkey", -size=>"20");
+		$res .= textarea(-name=>"query", -rows=>4,-columns=>80) . br;
+		#$res .= 'select hash key'.br;
+		#$res .= textfield(-name=>"hashkey", -size=>"20");
 		$res .= br . submit('ok');
 		return $res . br . br .  a({-href=>"/"},"Index") . end_div.end_html;
 	}
@@ -911,6 +926,45 @@ endless possibilitys!
 		}
 		$res .=  Tr(td(textfield(-name=>"new_filter_name", -size=>"20")),td(textfield(-name=>"new_filter", -size=>"100")));
 		return $res . end_table . submit('ok'). br . br . a({-href=>"/tools/filter"},"reload") .br. a({-href=>"/"},"Index") . end_html;
+	}
+
+=head2 Filter (disabled)
+
+this is a straight forward list of all you favourites. click the fav link of any strip to make it a favourite
+
+=cut
+	
+	if ($tool eq 'favourites') {		
+		my $list;
+		my $dat = $dbh->selectall_arrayref("SELECT id,title,file,comic FROM favourites ORDER BY comic,file",{Slice => {}});
+		
+		$list = &kopf('favourites');		
+		$list .= preview_head;
+		
+		#we save this string cause we need it really often, so we can save some processing time :)
+		my $strip_str = a({-href=>"/comics/%s/%s",-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/%s/%s')",}, "%s") .br .br;
+		
+		my $i = 0;
+		my $comic = '';
+		for my $fav (@$dat) {
+			if ($comic ne $fav->{comic}) {
+				$list .= end_div() if $comic;
+				$list .= start_div({-class=>"favlist"});
+				$comic = $fav->{comic};
+				$list .= h3($comic);
+			}
+			$i ++;
+			my %titles = get_title($fav->{comic},$fav->{id},$fav->{title});
+			$list .= sprintf $strip_str,
+				$fav->{comic},
+				$fav->{id}, #strip page url
+				$fav->{comic},
+				$fav->{file}, #direct img url
+				"$i : $fav->{file} : " .join(' - ',grep { $_ } values(%titles) ); #strip title
+		}
+		$list .= end_div().div({-class=>"favlist"},a({-href=>"/"},"Index")) .end_html;
+		return $list;
+
 	}
 }
 

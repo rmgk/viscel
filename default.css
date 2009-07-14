@@ -146,8 +146,17 @@ a[href^=http] {
 	.striplist br {
 		clear:both;
 	}
-	#prevbox {
-		/*display:none;*/
+	
+/*favlist*/
+	div.favlist {
+		margin:4%;
+		background-color:#001000;
+		border:solid brown;
+		padding:0.5cm 1cm;
+	}
+	div.favlist h3 {
+		margin:0;
+		padding:5px 0;
 	}
 	
 /*pod / documentation*/

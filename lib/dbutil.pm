@@ -20,11 +20,12 @@ provides some database utility functions
 use DBI;
 
 our($VERSION);
-$VERSION = '16';
+$VERSION = '17';
 
 my @strips_columns = 	qw(file prev next number surl purl title time sha1); 
 my @config_columns =	qw(update_intervall filter processing time);
 my @comics_columns =	qw(url_current archive_current current first last bookmark strip_count last_update last_save flags tags);
+my @favourites_columns = qw(comic file id sha1 number surl purl title);
 
 
 =head1 Functions
@@ -45,6 +46,7 @@ sub check_table {
 	given ($table) {
 		when ('comics') {return &comics($dbh)}
 #		when ('CONFIG') {return &config($dbh)}
+		when ('favourites') {return &favourites($dbh)}
 		when (/^_\w+/) {return &strips($dbh,$table)}
 		when (ref($_) eq 'ARRAY') {return all($dbh,$table)}
 		default { warn "incorrect table name: $table\n" }
@@ -89,6 +91,25 @@ sub comics {
 	# }
 	# return 2;
 # }
+
+sub favourites {
+	my $dbh = shift;
+	unless($dbh->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name='favourites'")) {
+		$dbh->do("CREATE TABLE favourites ( " . join(",",@favourites_columns) . ")");
+		return 1;
+	};
+	my @sql = $dbh->selectrow_array("SELECT sql FROM sqlite_master WHERE type='table' AND name='favourites'");
+	$sql[0] =~ /\(([\w,\s]+)\)/s;
+	my $col_having = $1;
+	my @missing_column;
+	foreach my $column (@favourites_columns) {
+		push(@missing_column,$column) unless $col_having =~ /\b$column\b/is;
+	}
+	foreach my $column (@missing_column) {
+		$dbh->do("ALTER TABLE favourites ADD COLUMN $column");
+	}
+	return 2;
+}
 
 sub strips {
 	my $dbh = shift;
