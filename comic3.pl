@@ -11,7 +11,7 @@ use Comic;
 use dbutil;
 
 
-my $build = 95 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+my $build = 96 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
 our $VERSION = 3.052 . '.'. $build;
 
 
@@ -157,7 +157,7 @@ comic:foreach my $comic (@comics) {
 	print $nl;
 	$nl = '';
 	if ($skip) {
-		my $lu = $cdb->{$comic}->{last_update};
+		my $lu = $dbh->selectrow_array('SELECT last_update FROM comics WHERE comic = ?',undef,$comic);
 		next comic if ((time - $update_intervall) < ($lu||0));
 	}
 	last if $TERM;
