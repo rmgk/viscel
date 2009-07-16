@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '15';
+$VERSION = '17';
 
 our $Strips = 0;
 
@@ -109,6 +109,10 @@ sub prev {
 		if (ref $o) {
 			$o = $o->id;
 		}
+		if ($o == $s->id) {
+			$s->status("ERROR: tried to set prev of (".$s->url.") to itself at". join(" ",caller) , 'ERR');
+			return $s->{prev};
+		}
 		if ($s->{prev}) {
 			if ($s->{prev} != $o) {
 				$s->status("ERROR: tried to set prev of (".$s->url.") to $o but it is already " .$s->{prev} . " at ". join(" ",caller) , 'ERR');
@@ -132,6 +136,10 @@ sub next {
 	if ($o) {
 		if (ref $o) {
 			$o = $o->id;
+		}
+		if ($o == $s->id) {
+			$s->status("ERROR: tried to set next of (".$s->url.") to itself at". join(" ",caller) , 'ERR');
+			return $s->{next};
 		}
 		if ($s->{next}) {
 			if ($s->{next} != $o) {
@@ -354,7 +362,13 @@ sub get_file_name {
 			return undef;
 		}
 		my $filetype = $header_res->header('Content-Type');
-		$filetype =~ s#^.*/(\w+)$#.$1#;
+		if ($filetype =~ m#^image/(\w+)$#) {
+			$filetype = '.' . $1;
+		}
+		else {
+			$s->{gfn_error} = "could not get image format from header: " . $header_res->header('Content-Type');
+			return undef;
+		}
 		if ($part =~ m#^[^$bc]+$#) {
 			$filename = $part . $filetype;
 		}

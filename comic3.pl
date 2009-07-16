@@ -11,8 +11,8 @@ use Comic;
 use dbutil;
 
 
-my $build = 96 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
-our $VERSION = 3.052 . '.'. $build;
+my $build = 98 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+our $VERSION = 3.060 . '.'. $build;
 
 
 
@@ -46,12 +46,12 @@ if ($ARGV[0] and ($ARGV[0] eq'--multi')) {
 }
 unless ($multi) {
 	open(LOCK,">.singlelock");
-	print LOCK "delete this file if no instances of comic3.pl is running";
+	print LOCK "delete this file if no instances of comic3.pl are running";
 	close LOCK;
 }
 
 
-if (-e 'log.txt.' && (-s _ > 2 * 2**20)) {
+if (-e 'log.txt.' && (-s _ > 2 * 2**20) && $multi != 2) {
 	unlink("log.txt");
 }
 
@@ -60,15 +60,8 @@ if (-e 'log.txt.' && (-s _ > 2 * 2**20)) {
 my $comics = dbutil::readINI('comic.ini');
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 $dbh->func(300000,'busy_timeout');
-# dbutil::check_table($dbh,'CONFIG'); TODO
 my @comics;
 @comics = grep {!$comics->{$_}->{'broken'}} keys %{$comics};
-
-my $update_intervall = 45000; #$dbh->selectrow_array(qq(SELECT update_intervall FROM config)); #TODO
-if (!defined $update_intervall or $update_intervall eq '') {
-	$update_intervall = 45000;
-	print "no update interval specified using default = $update_intervall seconds\n";
-}
 
 my $skip = 1;
 
@@ -76,20 +69,11 @@ if ($ARGV[0]) {
 	if ($ARGV[0] =~ m/^-\w+/) {
 		die "no such comic: $ARGV[1]" unless defined $comics->{$ARGV[1]};
 		if ($ARGV[0] eq '-r') {
-			$dbh->do('UPDATE comics SET url_current = NULL,server_update = NULL,archive_current = NULL,first=NULL where comic=?',undef,$ARGV[1]);
-			#$dbh->commit;
+			$dbh->do('UPDATE comics SET url_current = NULL,server_update = NULL,archive_current = NULL,first=NULL,last=NULL,strip_count=NULL where comic=?',undef,$ARGV[1]);
 		}
 		elsif ($ARGV[0] eq '-rd') {
-			#unless ($dbh->selectrow_array('SELECT processing FROM CONFIG WHERE processing IS NOT NULL')) { # TODO
-				#$dbh->do('DELETE FROM comics WHERE comic=?',undef,$ARGV[1]);
-				$dbh->do('UPDATE comics SET url_current=NULL,server_update=NULL,archive_current=NULL,first=NULL,last=NULL where comic=?',undef,$ARGV[1]);
-				# ($comics->{$ARGV[1]}->{tags},$comics->{$ARGV[1]}->{flags}) = 
-						# $dbh->selectrow_array('SELECT tags,flags FROM comics WHERE comic = ?',undef,$ARGV[1]);
-				$dbh->do("DROP TABLE _". $ARGV[1]);
-			#}
-			#else {
-			#	say "\nplease stop current progress before dropping tables\n";
-			#}
+			$dbh->do('UPDATE comics SET url_current=NULL,server_update=NULL,archive_current=NULL,first=NULL,last=NULL,strip_count=NULL where comic=?',undef,$ARGV[1]);
+			$dbh->do("DROP TABLE _". $ARGV[1]);
 		}
 		elsif ($ARGV[0] eq '-u') {
 			say "marking $ARGV[1] as recently updated";
@@ -152,6 +136,7 @@ foreach my $comic (@comics) {
 
 @comics = sort { $order{$b} <=> $order{$a} } @comics; 
 	
+my $update_intervall = 45000;
 my $nl = ''; #needed for some nice newline messages :D
 comic:foreach my $comic (@comics) {	
 	print $nl;
@@ -185,7 +170,7 @@ comic:foreach my $comic (@comics) {
 	last if $TERM;
 }
 END {
-	$dbh->disconnect;
+	$dbh->disconnect if $dbh;
 	if ($multi) {
 		$lock->do('DELETE FROM worker WHERE worker_number = ?',undef,$worker_number);
 		$lock->commit();
