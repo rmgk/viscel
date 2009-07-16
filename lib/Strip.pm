@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '15';
+$VERSION = '16';
 
 our $Strips = 0;
 
@@ -354,7 +354,13 @@ sub get_file_name {
 			return undef;
 		}
 		my $filetype = $header_res->header('Content-Type');
-		$filetype =~ s#^.*/(\w+)$#.$1#;
+		if ($filetype =~ m#^image/(\w+)$#) {
+			$filetype = '.' . $1;
+		}
+		else {
+			$s->{gfn_error} = "could not get image format from header: " . $header_res->header('Content-Type');
+			return undef;
+		}
 		if ($part =~ m#^[^$bc]+$#) {
 			$filename = $part . $filetype;
 		}
