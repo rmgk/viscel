@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '46';
+$VERSION = '47';
 
 =head1	General Methods
 
@@ -158,7 +158,8 @@ sub get_all {
 	while (!$::TERM) {
 		$last_strip = $s->curr->all_strips($last_strip);
 		return undef unless $last_strip;
-		$s->write_url_current();
+		$s->write_url_current() unless $s->curr->{error_download};
+		$s->set_last($last_strip) unless $s->curr->{error_download};
 		if (time > $s->{time_to_stop}) {
 			$s->status("STOPPED - timelimit reached",'UINFO');
 			last;
@@ -167,7 +168,6 @@ sub get_all {
 		last unless $s->get_next();
 		$s->{acnt}++>30?(say$s->name())&&($s->{acnt}=0):undef; #announcing comic name every 30 lines
 	};
-	$s->set_last($last_strip);
 	$s->dbcmc('last_update',time) unless $::TERM;
 	$s->status("DONE: get_all",'DEBUG');
 }

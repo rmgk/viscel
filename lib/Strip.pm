@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '17';
+$VERSION = '18';
 
 our $Strips = 0;
 
@@ -287,6 +287,10 @@ sub _download {
 	if ($img_res->is_error) {
 		say " error"; #were waiting for speed and newline
 		$s->status("ERROR downloading ".$s->file_name." code: " .$img_res->status_line(),"ERR");
+		$s->{error_download} = $img_res->status_line();
+		if ($img_res->status_code() == 404) {
+			return -2;
+		}
 		return 0;
 	}
 	if (open(my $fh,'>'.$s->file_path)) {

@@ -28,7 +28,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '46';
+$VERSION = '47';
 
 our $Pages = 0;
 
@@ -79,6 +79,7 @@ sub all_strips {
 	
 	foreach my $strip (@{$s->strips}) {
 		return undef unless $strip->get_data();
+		my $s->{error_download} //= $strip->{error_download};
 		$prev_strip->next($strip) if $prev_strip;
 		$strip->prev($prev_strip);
 		return undef unless $strip->commit_info();
