@@ -30,7 +30,7 @@ foreach my $comic (keys %$comics) {
 				}
 			}
 			else {
-				$dbh->do("UPDATE _$comic SET sha1 = ? WHERE id = ?",undef,$ent->{id},$ent->{id});
+				#$dbh->do("UPDATE _$comic SET sha1 = ? WHERE id = ?",undef,$ent->{id},$ent->{id});
 				say "$file not found";
 			}
 		}

@@ -13,14 +13,14 @@ mkdir("bak") unless -d "bak";
 
 foreach my $comic (keys %$comics) {
 	say $comic;
-	my $files = $dbh->selectall_hashref("SELECT file FROM _$comic",'file');
-	opendir(CD,"../strips/$comic") or die "could not open ../strips/$comic";
+	my $files = $dbh->selectall_hashref("SELECT file FROM _$comic",'file') unless $comics->{$comic}->{broken};
+	opendir(CD,"../strips/$comic") or next;
 		my $file_count = 0;
 		my $move_count = 0;
 		while (my $file = readdir(CD)) {
 			next if $file =~ m/^\.\.?$/;
 			$file_count ++;
-			if (!$files->{$file} || $comics->{$comic}->{broken}) {
+			if ($comics->{$comic}->{broken} or !$files->{$file}) {
 				mkdir("bak/$comic") unless -d "bak/$comic";
 				say "move ../strips/$comic/$file to bak/$comic/";
 				move("../strips/$comic/$file","bak/$comic/") or die "Move failed: $!";
@@ -28,7 +28,8 @@ foreach my $comic (keys %$comics) {
 			}
 		}
 		if (($file_count - $move_count) == 0) {
-			unlink("../strips/$comic/")
+			say "remove dir ../strips/$comic/";
+			rmdir("../strips/$comic/");
 		}
 	closedir (CD);
 }
