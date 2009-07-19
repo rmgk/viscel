@@ -11,7 +11,7 @@ use Comic;
 use dbutil;
 
 
-my $build = 98 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+my $build = 99 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
 our $VERSION = 3.060 . '.'. $build;
 
 
@@ -69,10 +69,10 @@ if ($ARGV[0]) {
 	if ($ARGV[0] =~ m/^-\w+/) {
 		die "no such comic: $ARGV[1]" unless defined $comics->{$ARGV[1]};
 		if ($ARGV[0] eq '-r') {
-			$dbh->do('UPDATE comics SET url_current = NULL,server_update = NULL,archive_current = NULL,first=NULL,last=NULL,strip_count=NULL where comic=?',undef,$ARGV[1]);
+			$dbh->do('UPDATE comics SET url_current = NULL,archive_current = NULL,first=NULL,last=NULL,strip_count=NULL where comic=?',undef,$ARGV[1]);
 		}
 		elsif ($ARGV[0] eq '-rd') {
-			$dbh->do('UPDATE comics SET url_current=NULL,server_update=NULL,archive_current=NULL,first=NULL,last=NULL,strip_count=NULL where comic=?',undef,$ARGV[1]);
+			$dbh->do('UPDATE comics SET url_current=NULL,last_update=NULL,archive_current=NULL,first=NULL,last=NULL,strip_count=NULL where comic=?',undef,$ARGV[1]);
 			$dbh->do("DROP TABLE _". $ARGV[1]);
 		}
 		elsif ($ARGV[0] eq '-u') {

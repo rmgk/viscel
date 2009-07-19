@@ -32,7 +32,7 @@ use dbutil;
 
 
 use vars qw($VERSION);
-$VERSION = '2.6.1';
+$VERSION = '2.7.0';
 
 
 
@@ -498,22 +498,27 @@ sub ccomic {
 	$ret .= br;
 	if ($next) {
 		$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=r",
-				-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
+				-accesskey=>'d',-title=>'pause reading this comic'},"pause");
+		$ret .= ' - ';
 	}
 	elsif (flags($comic)->{c}) {
 		$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=rcf",
 				-accesskey=>'d',-title=>'finish reading this comic'},"finish ");	
+		$ret .= ' - ';
 	}
 	else {
 		$ret .= a({-href=>"/tools/cataflag/$comic?bookmark=$strip&addflag=r",
 				-accesskey=>'d',-title=>'pause reading this comic'},"pause ");	
+		$ret .= ' - ';
 	}
 	$ret .= a({-href=>"/comics/$comic/$strip?fav=1",
 		-accesskey=>'s',-title=>'save this strip as favourite'},"fav ");	
+	$ret .= ' - ';
 	$ret .= a({-href=>"/front/$comic",
-			-accesskey=>'f',-title=>'frontpage'},"front ");			
+			-accesskey=>'f',-title=>'frontpage'},"front ");	
 			
 	my $purl = dbstrps($comic,'id'=>$strip,'purl');
+	$ret .= ' - ' if $purl;
 	$ret .= a({-href=>$purl, -accesskey=>'s',-title=>'homepage of the strip'},"site ") if $purl;	
 			
 	$ret .= end_div;
@@ -716,11 +721,13 @@ this are normal healty strips somewhere in the comic
 		$d{prev}->{n} = 0;
 		$d{next}->{n} = 0;
 		$d{none}->{n} = 0;
+		$d{no_backlink_next}->{n} = 0;
+		$d{no_backlink_prev}->{n} = 0;
 		my $strips = $dbh->selectall_hashref("SELECT * FROM _$comic","id");
 		foreach my $strp (keys %{$strips}) {
 			$d{count}->{$d{count}->{n}} = $strp;
 			$d{count}->{n}++;
-			$d{strps}->{$strp} = \%{$strips->{$strp}};
+			$d{strps}->{$strp} = $strips->{$strp};
 			if ($strp =~ m/^dummy/) {
 				$d{dummy}->{$d{dummy}->{n}} = $strp;
 				$d{dummy}->{n}++ ;
@@ -740,14 +747,14 @@ this are normal healty strips somewhere in the comic
 			}
 			
 			my $next = $strips->{$strp}->{next};
-			if ($next and !($strips->{$next}->{prev} eq $strp)) { #if prev of next is not self
-				$d{backlink_next}->{$d{backlink_next}->{n}} = $strp;
-				$d{backlink_next}->{n}++;
+			if ($next and !($strips->{$next}->{prev} == $strp)) { #if prev of next is not self
+				$d{no_backlink_next}->{$d{no_backlink_next}->{n}} = $strp;
+				$d{no_backlink_next}->{n}++;
 			}
 			my $prev = $strips->{$strp}->{prev};
-			if ($prev and !($strips->{$prev}->{next} eq $strp)) { #if next of prev is not self
-				$d{backlink_prev}->{$d{backlink_prev}->{n}} = $strp;
-				$d{backlink_prev}->{n}++;
+			if ($prev and !($strips->{$prev}->{next} == $strp)) { #if next of prev is not self
+				$d{no_backlink_prev}->{$d{no_backlink_prev}->{n}} = $strp;
+				$d{no_backlink_prev}->{n}++;
 			}
 			
 		}
@@ -770,16 +777,16 @@ this are normal healty strips somewhere in the comic
 		elsif ($sec) {
 			$res .= table(Tr([map {td([	#creating table with key : value pairs via map
 					a({-href=>"/tools/datalyzer/$comic?section=strps&strip=" . $d{$sec}->{$_}},$d{$sec}->{$_})
-					])} grep {$_ ne 'n'} keys %{$d{$sec}}]));	#getting all keys 
-			$res .= br . a({-href=>"/tools/datalyzer/$comic"},"Back");
+					])} sort {$d{$sec}->{$a} <=> $d{$sec}->{$b}} grep {$_ ne 'n'} keys %{$d{$sec}}]));	#getting all keys 
+			$res .= br . a({-href=>"/tools/datalyzer/$comic"},"datalyzer main");
 		}
 		else {
 			$res .= table(Tr([map {td([	#creating table with key : value pairs via map
 					a({-href=>"/tools/datalyzer/$comic?section=$_"},$_) , ':' , $d{$_}->{n}
-					])} grep {$_ ne 'strps'} keys %d]));	#getting all keys 
+					])} grep {$_ ne 'strps'} sort keys %d]));	#getting all keys 
 		}
 		$res .= br . a({-href=>"/tools/comics/$comic"},"comic overview") .br;
-		$res .= br.a({-href=>"/tools/cataflag/$comic"},"back")  . br ;
+		$res .= br.a({-href=>"/tools/cataflag/$comic"},"cataflag")  . br ;
 		return $res .= br . a({-href=>"/"},"Index") . end_div.end_html;
 	}
 
@@ -807,7 +814,7 @@ here you can view the comics table directly. this is just for debugging purposes
 			$res .= end_table . br . br;
 			$res .= a({-href=>"/tools/datalyzer/$comic"},"datalyzer main"). br.br;
 			$res .= a({-href=>"/tools/strips/$comic"},"strips").br.br;
-			$res .= a({-href=>"/tools/comics/$comic"},"reload") .br.a({-href=>"/tools/cataflag/$comic"},"back")  . br ;
+			$res .= a({-href=>"/tools/comics/$comic"},"reload") .br.a({-href=>"/tools/cataflag/$comic"},"cataflag")  . br ;
 			$res .= a({-href=>"/"},"Index") . end_div.end_html;
 			return $res;
 		}
@@ -969,6 +976,37 @@ this is a straight forward list of all you favourites. click the fav link of any
 		return $list;
 
 	}
+	
+	if ($tool eq  'checkallcomics') {
+		my $delnone = 0;
+		if ($comic eq 'delete_none') { #comic is not actually the comic but the second parameter i the address (e.g. /tools/checkallcomics/delete_none
+			$delnone = 1;
+		}
+		my $ret = &kopf('checkall');
+		$ret .= start_div({-class=>'tools'});
+		$ret .= start_table();
+		my $comics = $dbh->selectcol_arrayref("SELECT comic FROM comics ORDER BY comic");
+		foreach my $comic (@$comics) {
+			my ($prev) = $dbh->selectrow_array("SELECT COUNT(*) FROM _$comic WHERE prev IS NOT NULL AND next IS NULL");
+			my ($next) = $dbh->selectrow_array("SELECT COUNT(*) FROM _$comic WHERE next IS NOT NULL AND prev IS NULL");
+			my ($none) = $dbh->selectrow_array("SELECT COUNT(*) FROM _$comic WHERE next IS NULL AND prev IS NULL");
+			if ($none and $delnone) {
+				$dbh->do("DELETE FROM _$comic WHERE next IS NULL AND prev IS NULL");
+				($none) = $dbh->selectrow_array("SELECT COUNT(*) FROM _$comic WHERE next IS NULL AND prev IS NULL");
+			}
+			
+			if (($prev != 1) || ($next != 1) || ($none  != 0)) {
+				$ret .= Tr(
+					td([a({-href=>"/tools/datalyzer/$comic"},"$comic"),
+					($prev != 1)?"prev":'',
+					($next != 1)?"next":'',
+					($none != 0)?"none":'' 
+					]));
+			}
+		}
+		$ret .= end_table();
+		return $ret . end_div . end_html;
+	}
 }
 
 =head2 custom style sheets
@@ -994,9 +1032,9 @@ add I<measure_time=1> as a parameter to any link to get some hi res time output 
 
 create a I<favicon.ico> in the comcol main folder to set this as your favicon!
 
-you can give I<toRead=1>, I<count=1> and I<counted> as parameters to the index page displaying more statistic!
+go to L<http://127.0.0.1/tools/checkallcomics> to get a overview of irregularities in your database (this may take a while to load)
 
-goto L<http://127.0.0.1/pod> for documentation! you can also add C<?file=> to specify any file besides httpserver as POD source!
+go to L<http://127.0.0.1/pod> for documentation! you can also add C<?file=> to specify any file besides httpserver as POD source!
 
 =cut
 
