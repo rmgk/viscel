@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '19';
+$VERSION = '20';
 
 our $Strips = 0;
 
@@ -371,7 +371,13 @@ sub get_file_name {
 		}
 		else {
 			$s->{gfn_error} = "could not get image format from header: " . $header_res->header('Content-Type');
-			return undef;
+			if ($part =~ m#\b(jpe?g|gif|png|bmp|swf|dcr)\b#i) {
+				$filetype = '.' . $1;
+				$s->status("WARN: guessed filetype $1 for $part",'DEBUG');
+			}
+			else{
+				$s->status("WARN: could not find filetype for $part",'WARN');
+			}
 		}
 		if ($part =~ m#^[^$bc]+$#) {
 			$filename = $part . $filetype;
