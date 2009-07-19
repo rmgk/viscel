@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '49';
+$VERSION = '50';
 
 =head1	General Methods
 
@@ -158,8 +158,11 @@ sub get_all {
 	while (!$::TERM) {
 		$last_strip = $s->curr->all_strips($last_strip);
 		return undef unless $last_strip;
-		$s->write_url_current() unless $s->curr->{error_download};
-		$s->set_last($last_strip) unless $s->curr->{error_download};
+		if (!$s->curr->{error_download} and !$s->curr->dummy()) {
+			$s->write_url_current();
+			$s->set_last($last_strip);
+			$s->status("WROTE: url_current and last",'DEBUG');
+		}
 		if (time > $s->{time_to_stop}) {
 			$s->status("STOPPED - timelimit reached",'UINFO');
 			last;

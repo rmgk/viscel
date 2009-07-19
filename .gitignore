@@ -2,3 +2,5 @@ strips
 comics.db
 log.txt
 err.txt
+.multilock.db
+.singlelock
