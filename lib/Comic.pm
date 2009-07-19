@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '47';
+$VERSION = '48';
 
 =head1	General Methods
 
@@ -405,6 +405,7 @@ sub get_next_page {
 		}
 		}
 		my $tmp_page = Page->new({"cmc" => $s,'url' => $url});
+		next(url) if (!$tmp_page->body());
 		$first_nondummy_page //= $tmp_page unless ($tmp_page->dummy());
 		my @tmp_prev = $tmp_page->url_prev();
 		foreach my $prev (@tmp_prev) {

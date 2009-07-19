@@ -8,10 +8,13 @@ use DBI;
 my $comics = dbutil::readINI('../comic.ini');
 my $dbh = DBI->connect("dbi:SQLite:dbname=../comics.db","","",{AutoCommit => 0,PrintError => 1});
 
-
-comic: foreach my $comic (sort keys %$comics) {
-	next if $comics->{$comic}->{broken};
+my $ok = 0;
+my $all = 0;
+my @comics = scalar(@ARGV) ? @ARGV : sort keys %$comics;
+comic: foreach my $comic (@comics) {
+	next if !$comics->{$comic} or $comics->{$comic}->{broken};
 	#say $comic;
+	$all++;
 	my ($first,$last) = $dbh->selectrow_array("SELECT first,last FROM comics WHERE comic = ?",undef,$comic);
 	if (!$first or !$last) {
 		say "$comic: first or last missing";
@@ -30,10 +33,11 @@ comic: foreach my $comic (sort keys %$comics) {
 			say "$comic: $curr does not exist";
 			next comic;
 		}
+		if ($curr == $last) {
+			$ok ++;
+			next comic;
+		}
 		if (!$strips->{$curr}->{next}) {
-			if ($curr == $last) {
-				next comic;
-			}
 			say "$comic: $curr has no next";
 			next comic;
 		}
@@ -54,3 +58,5 @@ comic: foreach my $comic (sort keys %$comics) {
 		}
 	} while ($curr = $strips->{$curr}->{next});
 }
+
+say "all: $all ok: $ok nok: " . ($all - $ok); 
