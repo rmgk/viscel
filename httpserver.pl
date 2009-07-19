@@ -979,7 +979,7 @@ this is a straight forward list of all you favourites. click the fav link of any
 	
 	if ($tool eq  'checkallcomics') {
 		my $delnone = 0;
-		if ($comic eq 'delete_none') { #comic is not actually the comic but the second parameter i the address (e.g. /tools/checkallcomics/delete_none
+		if ($comic and $comic eq 'delete_none') { #comic is not actually the comic but the second parameter i the address (e.g. /tools/checkallcomics/delete_none
 			$delnone = 1;
 		}
 		my $ret = &kopf('checkall');
