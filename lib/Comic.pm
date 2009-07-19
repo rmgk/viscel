@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '48';
+$VERSION = '49';
 
 =head1	General Methods
 
@@ -600,12 +600,11 @@ sub class_change {
 	
 	if ($s->{config}->{class}) {
 		if ($s->{config}->{class} eq "onemanga") {
-			$s->{config}->{regex_next} //= q#if \(keycode == 39\) {\s+window.location = '([^']+)'#;
-			$s->{config}->{regex_prev} //= q#if \(keycode == 37\) {\s+window.location = '([^']+)'#;
+			$s->{config}->{regex_next} //= q#var next = '([^']+)'#;
+			$s->{config}->{regex_prev} //= q#var back = '([^']+)'#;
 			$s->{config}->{regex_strip_url} //= q#<img class="manga-page" src="([^"]+)"#;
 			#$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
 			$s->{config}->{rename_depth} //= 2; 
-			#$s->{config}->{worker} //= 0;
 		}
 		if ($s->{config}->{class} eq "animea") {
 			$s->{config}->{regex_next} //= q#value="Next"\s*onClick="javascript:window.location='([^']+)'" />#;

@@ -28,7 +28,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '47';
+$VERSION = '48';
 
 our $Pages = 0;
 
@@ -359,7 +359,7 @@ sub try_get_side_url_parts {
 	push(@prev,$s->{header}->{prev}) if $s->{header}->{prev};
 	push(@next,$s->{header}->{next}) if $s->{header}->{next};
 	
-	if ($body =~ m#<head>(.*?)</head>#is) {
+	if ($body =~ m#<head[^>]*>(.*?)</head>#is) {
 		my $head = $1;
 		if ($head =~ m#<link.*?rel=['"]prev(?:ious)?['"].*?href=["'](.*?)['"]#is) {
 			push(@prev,$1);

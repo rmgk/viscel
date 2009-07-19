@@ -11,8 +11,8 @@ use Comic;
 use dbutil;
 
 
-my $build = 99 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
-our $VERSION = 3.060 . '.'. $build;
+my $build = 100 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
+our $VERSION = 3.061 . '.'. $build;
 
 
 
@@ -67,7 +67,11 @@ my $skip = 1;
 
 if ($ARGV[0]) {
 	if ($ARGV[0] =~ m/^-\w+/) {
-		die "no such comic: $ARGV[1]" unless defined $comics->{$ARGV[1]};
+		
+		unless (defined $comics->{$ARGV[1]}) {
+			&cleanup();
+			die "no such comic: $ARGV[1]";
+		}
 		if ($ARGV[0] eq '-r') {
 			$dbh->do('UPDATE comics SET url_current = NULL,archive_current = NULL,first=NULL,last=NULL,strip_count=NULL where comic=?',undef,$ARGV[1]);
 		}
@@ -86,7 +90,10 @@ if ($ARGV[0]) {
 		
 	}
 	elsif ($ARGV[0] =~ m#^(\w+)$#) {
-		die "no such comic: $ARGV[0]" unless defined $comics->{$ARGV[0]};
+		unless (defined $comics->{$ARGV[0]}) {
+			&cleanup();
+			die "no such comic: $ARGV[0]"
+		}
 		@comics = ();
 		$comics[0] = $ARGV[0];
 		$skip = 0;
@@ -169,8 +176,13 @@ comic:foreach my $comic (@comics) {
 	}
 	last if $TERM;
 }
-END {
-	$dbh->disconnect if $dbh;
+
+
+$dbh->disconnect if $dbh;
+
+&cleanup();
+
+sub cleanup {
 	if ($multi) {
 		$lock->do('DELETE FROM worker WHERE worker_number = ?',undef,$worker_number);
 		$lock->commit();

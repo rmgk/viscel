@@ -22,6 +22,8 @@ else {
 
 my %results;
 
+use Time::HiRes;
+my $time = Time::HiRes::time;
 comic: foreach my $comic (@comics) {
 	next if !$comics->{$comic} or $comics->{$comic}->{broken};
 	#say $comic;
@@ -92,33 +94,49 @@ if ($full_test) {
 	my $sth = $dbh->prepare("INSERT INTO test_$curr_test (comic,result,strips_counted) VALUES (?,?,?)");
 	$sth->execute_array(undef,[keys %results],[map {$results{$_}->{result}} keys %results],[map {$results{$_}->{count}} keys %results]);
 	if ($last_test) {
+		my $progress = 0;
+		my $regress = 0;
+		my $gress = 0;
 		my ($lall,$lok,$lnok) = $dbh->selectrow_array('SELECT count,ok,nok FROM results WHERE id = ?',undef,$last_test);
 		my %lres = %{$dbh->selectall_hashref("SELECT * FROM test_$last_test",'comic')};
 		my @cmcs = (scalar keys %results)>(scalar keys %lres)?keys %results: keys %lres;
 		foreach my $cmc (@cmcs) {
 			if (!$results{$cmc}->{result}) {
-				say "$cmc was not tested anymore";
+				say "$cmc was not tested anymore count was: ". $lres{$cmc}->{strips_counted};
 				next;
 			}
 			if (!$lres{$cmc}->{result}) {
-				say "$cmc was newly tested";
+				say "$cmc was newly tested count: " . $results{$cmc}->{count};
 				next;
 			}
-			if ((!defined $results{$cmc}->{count}) or  (!defined $lres{$cmc}->{strips_counted})) {
-				say "$cmc has no count defined?!";
-			}
-			elsif ($results{$cmc}->{count} != $lres{$cmc}->{strips_counted}) {
-				say "count changed from " . $lres{$cmc}->{strips_counted} . " to " . $results{$cmc}->{count};
-			}
 			if ($results{$cmc}->{result} eq 'ok' and $lres{$cmc}->{result} eq 'ok') {
+				if ($results{$cmc}->{count} < $lres{$cmc}->{strips_counted}) {
+					say "$cmc count was reduced from ".$lres{$cmc}->{strips_counted}." to ".$results{$cmc}->{count};
+				}
 				next; #both ok
 			}
 			if ($results{$cmc}->{result} eq $lres{$cmc}->{result}) {
+				if ($results{$cmc}->{count} < $lres{$cmc}->{strips_counted}) {
+					say "$cmc count was reduced from ".$lres{$cmc}->{strips_counted}." to ".$results{$cmc}->{count};
+				}
 				next; #no change both error
 			}
-			say "$cmc was " . $lres{$cmc}->{result} . " and is now " . $results{$cmc};
+			say "$cmc was '" . $lres{$cmc}->{result} . "' and is now '" . $results{$cmc}->{result},
+				"' count changed from " . $lres{$cmc}->{strips_counted}." to ".$results{$cmc}->{count};
+			if ($lres{$cmc}->{result} ne 'ok' and $results{$cmc}->{result} eq 'ok') {
+				$progress ++;
+			}
+			elsif ($lres{$cmc}->{result} eq 'ok' and $results{$cmc}->{result} ne 'ok') {
+				$regress++;
+			}
+			else {
+				$gress++;
+			}
+			
 		}		
+		say '';
 		say "lall: $lall lok: $lok lnok: $lnok"; 
+		say "progress: $progress  regression: $regress  random changes: $gress";
 	}
 	$dbh->commit;
 	$dbh->disconnect;
@@ -127,3 +145,5 @@ if ($full_test) {
 
 
 say "all: $all ok: $ok nok: " . ($all - $ok); 
+
+say Time::HiRes::time - $time;
