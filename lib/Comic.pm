@@ -764,7 +764,7 @@ sub url_current {
 			my $regex_not_goto = $s->ini("regex_not_goto");
 			$s->{not_goto} = 1 if ( 
 				($regex_not_goto and ($curl =~ m#$regex_not_goto#i)) or 
-				($curl =~ m#(index|main)\.(php|html?)$#i) or 
+				($curl =~ m#(index|main)\.(php|s?html?)$#i) or 
 				($curl =~ m:#$:) or
 				($curl =~ m:^/$:)
 			);

@@ -93,7 +93,7 @@ my $seen;
 for ($curr = $first; $curr ; $curr = $strips->{$curr}->{next}) {
 	$number++;
 	die "circular reference $curr" if $seen->{$curr};
-	$seen->{$curr} = $number; 
+	$seen->{$curr} = $number // 0; 
 	say "$curr number ".$strips->{$curr}->{number}." not matching $number" if ($strips->{$curr}->{number} != $number);
 	if ($curr == $last) {
 		say "we successfully travelled the comic! curr $curr last $last number $number";
@@ -177,22 +177,25 @@ for ($curr = $first; $curr ; $curr = $strips->{$curr}->{next}) {
 
 if ($curr != $last) {
 	say "curr $curr did not travel to last $last";
-	say "check if url_current $url_current matches curr ${curr}'s purl " .  $strips->{$curr}->{purl};
-	if ($strips->{$curr}->{purl} =~ m#\Q$url_current\E$#i) {
-		say "we have a match it seems save to assume that $curr is the $last";
-		$dbh->do("UPDATE comics SET last = ? WHERE comic = ?",undef,$curr,$comic) or die 'database access failed';
+	say "check if url_current $url_current matches curr ${curr}'s purl:\n" .  $strips->{$curr}->{purl};
+	my $prev_purl = $strips->{$strips->{$curr}->{prev}}->{purl};
+	say "or the prev purl: " . $prev_purl;
+	if ($strips->{$curr}->{purl} =~ m#\Q$url_current\E$#i or $prev_purl =~ m#\Q$url_current\E$#i) {
+		say "we have a match it seems save to assume that $curr is the last";
+		$dbh->do("UPDATE comics SET last = ?,url_current=? WHERE comic = ?",undef,$curr,$prev_purl,$comic) or die 'database access failed';
 		$dbh->do("UPDATE _$comic SET next = NULL WHERE id = ?",undef,$curr) or die 'database access failed';
 		say "database successfully updated";
 	}
 	else {
 		say "no match";
-		say "should i force curr $curr to be the last and update url_current to the currents purl? [yes|NO]";
+		say "should i force curr $curr to be the last and update url_current? [yes|NO]";
 		if (<STDIN> =~ m/yes/) {
-			$dbh->do("UPDATE comics SET last = ?,url_current=? WHERE comic = ?",undef,$curr,$strips->{$curr}->{purl},$comic) or die 'database access failed';
+			$dbh->do("UPDATE comics SET last = ?,url_current=? WHERE comic = ?",undef,$curr,$prev_purl,$comic) or die 'database access failed';
 			$dbh->do("UPDATE _$comic SET next = NULL WHERE id = ?",undef,$curr) or die 'database access failed';
 			say "try to update the comic and check back afterwards";
 		}
 	}
+
 }
 
 
