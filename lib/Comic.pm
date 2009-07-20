@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '50';
+$VERSION = '51';
 
 =head1	General Methods
 
@@ -762,9 +762,11 @@ sub url_current {
 		my ($curl) = ($url =~ m#https?://[^/]+(/.*)$#i);
 		if ($curl) {
 			my $regex_not_goto = $s->ini("regex_not_goto");
+			my $regex_never_goto = $s->ini("regex_never_goto");
 			$s->{not_goto} = 1 if ( 
 				($regex_not_goto and ($curl =~ m#$regex_not_goto#i)) or 
-				($curl =~ m#(index|main)\.(php|s?html?)$#i) or 
+				($regex_never_goto and ($curl =~ m#$regex_never_goto#i)) or 
+				($curl =~ m#(index|main|latest)\.(php|s?html?)$#i) or 
 				($curl =~ m:#$:) or
 				($curl =~ m:^/$:)
 			);

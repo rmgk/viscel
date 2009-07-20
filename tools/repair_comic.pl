@@ -225,7 +225,7 @@ if ($seen_count != $strip_count) {
 say "should i commit all changes i made? [yes|NO]";
 if (<STDIN> =~ m/yes/) {
 	$dbh->commit;
-	say "commited";
+	say "commit";
 }
 else {
 	$dbh->rollback();
