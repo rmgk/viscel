@@ -13,16 +13,12 @@ my $all = 0;
 my $full_test = 1;
 my @comics = sort keys %$comics;
 
-my $do_clean = 0;
+
 
 if (scalar(@ARGV)) {
-	if ($ARGV[0] =~ m/--clean/) {
-		$do_clean = 1;
-	}
-	else {
-		@comics = @ARGV;
-		$full_test = 0;
-	}
+	@comics = @ARGV;
+	$full_test = 0;
+
 }
 
 my %results;
@@ -35,22 +31,6 @@ comic: foreach my $comic (@comics) {
 	$all++;
 	$results{$comic}->{result} = 'undef';
 	$results{$comic}->{count} = 0;
-	
-	if ($do_clean) {
-		my $prev_clean = $dbh->do("UPDATE _$comic SET prev = NULL WHERE prev NOT IN (SELECT id FROM _$comic)");
-		my $next_clean = $dbh->do("UPDATE _$comic SET next = NULL WHERE next NOT IN (SELECT id FROM _$comic)");
-		my $none_clean = $dbh->do("DELETE FROM _$comic WHERE next IS NULL AND prev IS NULL");
-		my $solo_clean = $dbh->do("DELETE FROM _$comic WHERE id NOT IN(SELECT prev FROM _$comic) AND id NOT IN(SELECT next FROM _$comic)");
-		
-		if (0<($prev_clean + $next_clean + $none_clean + $solo_clean)) {
-			print "$comic: cleaned";
-			print " prev: $prev_clean" if ($prev_clean != 0);
-			print " next: $next_clean" if ($next_clean != 0);
-			print " none: $none_clean" if ($none_clean != 0);
-			print " solo: $solo_clean" if ($solo_clean != 0);
-			print "\n";
-		}
-	}
 	
 	my ($first,$last) = $dbh->selectrow_array("SELECT first,last FROM comics WHERE comic = ?",undef,$comic);
 	if (!$first or !$last) {
@@ -105,7 +85,6 @@ comic: foreach my $comic (@comics) {
 	} while ($curr = $strips->{$curr}->{next});
 }
 say "\n";
-$dbh->commit if $do_clean;
 $dbh->disconnect;
 if ($full_test) {
 	$dbh = DBI->connect("dbi:SQLite:dbname=check_database.db","","",{AutoCommit => 0,PrintError => 1});
