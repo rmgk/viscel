@@ -28,7 +28,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '48';
+$VERSION = '49';
 
 our $Pages = 0;
 
@@ -605,7 +605,7 @@ sub try_get_strip_urls_part {
 			foreach my $em (@embed) {
 				if ($em  =~ m#$regex#is) {
 					next unless $+{src};
-					next if ($+{src} !~ m#\?[^/]*$#is);
+					next if ($+{src} =~ m#\?[^/]*$#is);
 					push (@return, $+{src});
 					$s->status('WARNING: using embedded object as strip: '. $+{src},'WARN');
 				}
@@ -714,10 +714,17 @@ sub body {
 		my $res = dlutil::get($s->url(),$s->ini('referer'));
 		$s->status("BODY requestet: " . $s->url,'DEBUG');
 		if ($res->is_error()) {
-			$s->status("Body Request error: " . $res->status_line(),"ERR",$s->url());
-			$s->{body} = undef;
-			$s->{no_body} = 1;
-			return undef;
+			$s->{body} = $res->decoded_content(raise_error=>1);
+			if ($s->{body}) {
+				$s->status("ERROR: this should not have happened. the body request returned an error, but there still seems to be some data its length is: ". length $s->{body},'ERR');
+			say $s->{body};
+			}
+			#else {
+				$s->status("Body Request error: " . $res->status_line(),"ERR",$s->url());
+				$s->{body} = undef;
+				$s->{no_body} = 1;
+				return undef;
+			#}
 		}
 		$s->url($res->request->uri);
 		if (($s->{header}->{next}) = grep {/rel=["']next["']/i} $res->header('Link')) {
@@ -727,9 +734,9 @@ sub body {
 			$s->{header}->{prev} =~ s#^<([^>]+)>.*$#$1#;
 		}
 
-		$s->{'body'} = $res->decoded_content(raise_error=>1);
+		$s->{body} = $res->decoded_content(raise_error=>1);
 	}
-	return $s->{'body'};
+	return $s->{body};
 }
 
 =head2 concat_url

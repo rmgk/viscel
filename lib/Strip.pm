@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '20';
+$VERSION = '21';
 
 our $Strips = 0;
 
@@ -79,8 +79,8 @@ sub check_id {
 		my $db_strip = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$eid);
 		my $epurl =	$s->url_path($db_strip->{purl});
 		my $purl = $s->url_path($s->page->url);
-		$epurl =~ s/\?.+$//; # removing scripts and such
-		$purl =~ s/\?.+$//;
+		#$epurl =~ s/\?.+$//; # removing scripts and such
+		#$purl =~ s/\?.+$//;
 		
 		if ($epurl eq $purl) {
 			$s->{id} = $db_strip->{id}; 
