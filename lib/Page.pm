@@ -28,7 +28,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '49';
+$VERSION = '50';
 
 our $Pages = 0;
 
@@ -717,12 +717,12 @@ sub body {
 		$s->status("BODY requestet: " . $s->url,'DEBUG');
 		if ($res->is_error()) {
 			$s->{body} = $res->decoded_content(raise_error=>1);
-			if ($s->{body} !~ $res->status_line()) {
+			my $status_line = $res->status_line();
+			if ($s->{body} !~ m#\Q$status_line\E#i) {
 				$s->status("ERROR: this should not have happened. the body request returned an error, but there still seems to be some data its length is: ". length $s->{body},'ERR');
-				say $s->{body};
 			}
 			#else {
-				$s->status("Body Request error: " . $res->status_line(),"ERR",$s->url());
+				$s->status("Body Request error: " . $status_line,"ERR",$s->url());
 				$s->{body} = undef;
 				$s->{no_body} = 1;
 				return undef;
