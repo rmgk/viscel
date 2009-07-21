@@ -82,6 +82,7 @@ if ($ARGV[0]) {
 		elsif ($ARGV[0] eq '-u') {
 			say "marking $ARGV[1] as recently updated";
 			$dbh->do('UPDATE comics SET last_update = ? where comic=?',undef,time,$ARGV[1]);
+			&cleanup();
 			exit;
 		}
 		@comics = ();
