@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '21';
+$VERSION = '22';
 
 our $Strips = 0;
 
@@ -58,7 +58,7 @@ sub new {
 	bless $s,$class;
 	$s->check_id;
 	$Strip::Strips++;
-	$s->status("NEW STRIP: ($Strip::Strips) ".($s->dummy?'dummy'.$s->id:$s->url),'DEBUG');
+	$s->status("NEW STRIP: ($Strip::Strips) ".($s->dummy?'dummy'.$s->id:$s->id .":". $s->url),'DEBUG');
 	Scalar::Util::weaken($s->{page});
 	return $s;
 }
@@ -156,10 +156,10 @@ sub next {
 		}
 		else {
 			$s->{next} = $o;
-			if ($s->{is_commited}) { 
-				$s->dbstrps(id=>$s->id,next=>$s->{next});
-				$s->status("COMMITED next $o to ".($s->url//$s->id),'DEBUG');
-			}
+		}
+		if ($s->{is_commited}) { 
+			$s->dbstrps(id=>$s->id,next=>$s->{next});
+			$s->status("COMMITED next $o to ".($s->url//$s->id),'DEBUG');
 		}
 	}
 	
