@@ -606,6 +606,8 @@ sub try_get_strip_urls_part {
 				if ($em  =~ m#$regex#is) {
 					next unless $+{src};
 					next if ($+{src} =~ m#\?[^/]*$#is);
+					my $url_home = $s->cmc->url_home();
+					next if ($+{src} =~ m#^https?://#i and $+{src} !~ m#$url_home#i);
 					push (@return, $+{src});
 					$s->status('WARNING: using embedded object as strip: '. $+{src},'WARN');
 				}
@@ -715,9 +717,9 @@ sub body {
 		$s->status("BODY requestet: " . $s->url,'DEBUG');
 		if ($res->is_error()) {
 			$s->{body} = $res->decoded_content(raise_error=>1);
-			if ($s->{body}) {
+			if ($s->{body} !~ $res->status_line()) {
 				$s->status("ERROR: this should not have happened. the body request returned an error, but there still seems to be some data its length is: ". length $s->{body},'ERR');
-			say $s->{body};
+				say $s->{body};
 			}
 			#else {
 				$s->status("Body Request error: " . $res->status_line(),"ERR",$s->url());
