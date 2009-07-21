@@ -12,7 +12,7 @@ use CGI qw(:standard *table :html3 *div gradient);
 use ServerPlugin qw(dbh make_head dbstrps dbcmcs tags flags is_broken);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '0.9.0';
+our $VERSION = '1.0.0';
 
 sub get_content {
 	my ($plugin,@arguments) = @_;

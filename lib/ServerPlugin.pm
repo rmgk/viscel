@@ -17,7 +17,7 @@ our @EXPORT = qw();
 our @EXPORT_OK = qw(make_head tags flags dbcmcs dbstrps cache_strps dbh is_broken);
 
 
-our $VERSION = '0.9.0';
+our $VERSION = '1.0.0';
 
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 $dbh->func(300000,'busy_timeout');

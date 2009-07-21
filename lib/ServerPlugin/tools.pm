@@ -12,7 +12,7 @@ use Data::Dumper;
 use ServerPlugin qw(dbh make_head dbstrps dbcmcs is_broken tags flags cache_strps);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '0.9.0';
+our $VERSION = '1.0.0';
 
 my %rand_seen;
 
@@ -33,8 +33,6 @@ sub handle_request {
 
 sub get_content {
 	my ($plugin,@arguments) = @_;
-
-
 	return (ctools($arguments[0],$arguments[1]));
 }
 
@@ -406,7 +404,7 @@ this is a straight forward list of all you favourites. click the fav link of any
 		my $dat = dbh->selectall_arrayref("SELECT id,title,file,comic FROM favourites ORDER BY comic,file",{Slice => {}});
 		
 		$list = make_head('favourites');		
-		#$list .= preview_head;
+		$list .= preview_head();
 		
 		#we save this string cause we need it really often, so we can save some processing time :)
 		my $strip_str = a({-href=>"/pages/%s/%s",-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/%s/%s')",}, "%s") .br .br;
@@ -464,6 +462,26 @@ this is a straight forward list of all you favourites. click the fav link of any
 		$ret .= end_table();
 		return $ret . end_div . end_html;
 	}
+}
+
+sub preview_head { #some javascript to have a nice preview of image links your hovering
+	my $js =  q(
+<div id="prevbox"> </div>
+<script type="text/javascript">
+var preview = document.getElementById("prevbox");
+function showImg (imgSrc) {
+	preview.innerHTML = "<img id='prevIMG' src='"+imgSrc+"' alt='' />";
+	preview.style.visibility='visible';
+}
+function hideIMG () {
+	preview.style.visibility='hidden';
+	preview.innerHTML = "";
+}
+</script>
+);
+$js =~ s/\s+/ /gs;
+return "\n$js\n";
+
 }
 
 1;

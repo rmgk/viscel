@@ -12,7 +12,7 @@ use Pod::Simple::HTML;
 use ServerPlugin qw(make_head);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '0.9.0';
+our $VERSION = '1.0.0';
 
 my %rand_seen;
 

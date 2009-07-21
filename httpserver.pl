@@ -16,6 +16,7 @@ use ServerPlugin::css;
 use ServerPlugin::front;
 use ServerPlugin::pages;
 use ServerPlugin::tools;
+use ServerPlugin::striplist;
 use ServerPlugin::pod;
 
 our $VERSION = '3.0.0';

@@ -9,7 +9,7 @@ use warnings;
 use ServerPlugin;
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '0.9.0';
+our $VERSION = '1.0.0';
 
 my $css;
 load_css();

@@ -11,7 +11,7 @@ use CGI qw(:standard *div);
 use ServerPlugin qw(make_head dbstrps dbcmcs tags cache_strps);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '0.9.0';
+our $VERSION = '1.0.0';
 
 sub get_content {
 	my ($plugin,@arguments) = @_;
@@ -61,7 +61,7 @@ sub cfront {
 	$ret .=		start_div({-class=>"navigation"});
 	
 	$ret .=		a({-href=>"/index",-accesskey=>'i',-title=>'Index'},"Index").' '.
-				a({-href=>"/pages/$comic",-accesskey=>'s',-title=>'striplist'},"Striplist").' '.
+				a({-href=>"/striplist/$comic",-accesskey=>'s',-title=>'striplist'},"Striplist").' '.
 				a({href=>"/tools/cataflag/$comic",-accesskey=>'c',-title=>'categorize'},'Categorize').
 				br;
 	$ret .=		'Strips: ' . dbstrps($comic,'id'=>$last,'number');

@@ -8,13 +8,14 @@ use warnings;
 
 use CGI qw(:standard *div);
 
-use ServerPlugin qw(dbh make_head dbstrps dbcmcs);
+use ServerPlugin qw(dbh make_head dbstrps dbcmcs cache_strps);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '0.9.0';
+our $VERSION = '1.0.0';
 
 sub get_content {
 	my ($plugin,@arguments) = @_;
+	cache_strps($arguments[0]);
 	return (ccomic($arguments[0],$arguments[1]));
 }
 
