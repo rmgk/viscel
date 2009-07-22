@@ -99,6 +99,8 @@ sub html_comic_listing {
 	my $filter = shift;
 	my $comics = dbh->selectcol_arrayref("SELECT comic FROM comics WHERE ($filter)");
 	
+	return undef unless $comics;
+	
 	my $ret = start_div({-class=>"group"}) . h1(a({name=>$name},$name));
 	$ret .= start_table();
 	
