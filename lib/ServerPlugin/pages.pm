@@ -8,7 +8,7 @@ use warnings;
 
 use CGI qw(:standard *div);
 
-use ServerPlugin qw(dbh make_head dbstrps dbcmcs cache_strps);
+use ServerPlugin qw(dbh make_head dbstrps dbcmcs cache_strps flags);
 our @ISA = qw(ServerPlugin);
 
 our $VERSION = '1.0.0';

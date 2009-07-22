@@ -27,7 +27,7 @@ die "could not listen on port 80 - someones listening there already?" unless $d;
 print "Please contact me at: <URL:", "http://127.0.0.1/index" ,">\n";
 while (my $c = $d->accept) {
 	while (my $r = $c->get_request) {
-		if (($r->method eq 'GET')) {			
+		if (($r->method eq 'GET')) {
 			if ($r->url->path =~ m#^/(?<plugin>\w+)/?(?<args>.*?)/?$#i) {
 				my @args = split('/',$+{args});
 				$c->close and next if $+{plugin} eq 'favicon';
@@ -36,14 +36,16 @@ while (my $c = $d->accept) {
 					$plugin->handle_request($c,$r,@args);
 				}
 				else {
-					say $!;
-					say "oh noes an expected error - plugin: $plugin";
+					say "err message: $! - plugin: $plugin";
 				}				
 			}
-			$c->send_crlf;
+			#$c->send_crlf;
 			$c->close;	
 		}
 	}
 	undef($c);
 }
+
+
+
 

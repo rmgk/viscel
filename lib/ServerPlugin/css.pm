@@ -21,7 +21,7 @@ sub get_content {
 }
 
 sub get_response {
-	HTTP::Response->new( 200, 'success', ['Content-Type','text/css; charset=iso-8859-1']);
+	HTTP::Response->new( 200, 'OK', ['Content-Type','text/css; charset=iso-8859-1']);
 }
 
 =head2 custom style sheets
