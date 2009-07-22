@@ -20,7 +20,7 @@ provides some database utility functions
 use DBI;
 
 our($VERSION);
-$VERSION = '18';
+$VERSION = '19';
 
 my @strips_columns = 	qw(file prev next number surl purl title time sha1); 
 my @config_columns =	qw(update_intervall filter processing time);
@@ -163,7 +163,8 @@ sub readINI {
 	my @allowed = qw(url_start	heur_strip_url	regex_next	regex_prev	regex_not_goto	regex_never_goto	regex_strip_url
 					ignore_warning	broken	substitute_strip_url	rename_depth	rename_substitute	regex_title	use_home_only
 					regex_ignore_strip	flags	tags	archive_url	archive_regex	archive_reverse	archive_regex_deeper
-					list_url_regex	list_url_insert list_chap_regex list_page_regex list_chap_reverse	referer	regex_embed);
+					list_url_regex	list_url_insert list_chap_regex list_page_regex list_chap_reverse	referer	regex_embed
+					reverse_strip_order);
 	my $allowed = join('|',@allowed);
 	$allowed = qr/$allowed/;
 	

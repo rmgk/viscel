@@ -28,7 +28,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '50';
+$VERSION = '51';
 
 our $Pages = 0;
 
@@ -359,15 +359,6 @@ sub try_get_side_url_parts {
 	push(@prev,$s->{header}->{prev}) if $s->{header}->{prev};
 	push(@next,$s->{header}->{next}) if $s->{header}->{next};
 	
-	if ($body =~ m#<head[^>]*>(.*?)</head>#is) {
-		my $head = $1;
-		if ($head =~ m#<link.*?rel=['"]prev(?:ious)?['"].*?href=["'](.*?)['"]#is) {
-			push(@prev,$1);
-		}
-		if ($head =~ m#<link.*?rel=['"]next['"].*?href=["'](.*?)['"]#is) {
-			push(@next,$1);
-		}
-	}
 	my @aref = ($body =~ m#(<a\s+.*?>.*?</a>)#gis); 
 	my @filter;
 	foreach my $as (@aref) {
@@ -396,6 +387,17 @@ sub try_get_side_url_parts {
 			}
 		}
 	}
+	
+	if ($body =~ m#<head[^>]*>(.*?)</head>#is) {
+		my $head = $1;
+		if ($head =~ m#<link.*?rel=['"]prev(?:ious)?['"].*?href=["'](.*?)['"]#is) {
+			push(@prev,$1);
+		}
+		if ($head =~ m#<link.*?rel=['"]next['"].*?href=["'](.*?)['"]#is) {
+			push(@next,$1);
+		}
+	}
+	
 	return (\@prev,\@next);
 }
 
@@ -460,10 +462,6 @@ sub strip_urls {
 		return unless $body;
 		my $regex = $s->ini('regex_strip_url');
 		my @surl = ($body =~ m#$regex#gsi);
-		if ($s->ini('regex_strip_url2')) {
-			$regex = $s->ini('regex_strip_url2');
-			@surl = ($surl[0] =~ m#$regex#gsi);
-		}
 		@surl = $s->concat_url(\@surl);
 		$surl = \@surl;
 	}
@@ -478,6 +476,9 @@ sub strip_urls {
 		my ($re_substitute,$substitute) = split(/#/,$subs,2);
  		@{$surl} = map {$_ =~ s#$re_substitute#$substitute#i;$_} @{$surl}; #if we really have to change a strip url, we can do so
 		}
+	if ($s->ini("reverse_strip_order") and @{$surl} > 1) {
+		@{$surl} = reverse @{$surl};
+	}
 	$s->status("STRIP_URLS ".$s->url.": ". join(", ",@{$surl}),'DEBUG');
 	return $surl;
 }
