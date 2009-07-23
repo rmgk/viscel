@@ -462,9 +462,7 @@ add some comment for the comic
 			$res .= start_div({-class=>'tools'});
 			my $comment = param('comment') // dbh->selectrow_array("SELECT title FROM favourites WHERE comic=? AND file='comment' AND id IS NULL",undef,$comic);
 			if (param('comment')) {
-				say $comment;
 				unless (0 < dbh->do("UPDATE favourites SET title = ? WHERE comic=? AND file='comment' AND id IS NULL",undef,param('comment'),$comic)) {
-						say "oo";
 					dbh->do("INSERT INTO favourites (title,comic,file) VALUES (?,?,'comment')",undef,param('comment'),$comic);
 				}
 			}

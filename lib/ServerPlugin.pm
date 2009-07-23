@@ -35,12 +35,10 @@ you should overwrite it if you dont want to send a normal response.
 (you want to redirect or send a file)
 
 =cut
-
 sub handle_request {
 	my ($plugin,$connection,$request,@arguments) = @_;
 	restore_parameters($request->url->query);
 	my $res = $plugin->get_response();
-	$res->request($request);
 	$res->content($plugin->get_content(@arguments));
 	$connection->send_response($res);
 	#$connection->close;
@@ -54,9 +52,9 @@ sub handle_request {
 returns the HTTP::Response object for the content;
 
 =cut
-
 sub get_response {
 	return HTTP::Response->new( 200, 'OK', ['Content-Type','text/html; charset=iso-8859-1']); #our main response
+	
 }
 
 
