@@ -91,6 +91,7 @@ click L<datalyzer|/"Datalyzer"> gives you some counts on the comics table
 			dbcmcs($comic,'bookmark',$bookmark );
 			my $lnum = dbstrps($comic,'sha1'=>dbcmcs($comic,'last'),'number');
 			my $bnum = dbstrps($comic,'sha1'=>$bookmark,'number');
+			$lnum //= 0; $bnum //=0;
 			dbcmcs($comic,'strip_count',$lnum-$bnum)
 		}
 		if (param()) {
@@ -127,6 +128,8 @@ click L<datalyzer|/"Datalyzer"> gives you some counts on the comics table
 					# : a({href=>"/tools/cataflag/$comic?addflag=c"},'this comic is complete'));
 		# $res .= br . a({href=>"/tools/cataflag/$comic?addflag=s"},'stop reading this comic');
 		$res .= br. a({-href=>"/tools/comics/$comic"},"advanced") .br;
+		$res .= a({href=>"/tools/comment/$comic"},'comment').br;
+		
 		$res .= a({href=>"/tools/datalyzer/$comic",-accesskey=>'d',-title=>'datalyzer'},'datalyzer').br;
 		$res .= br. a({-href=>"/tools/cataflag/$comic"},"reload") .br. a({-href=>"/front/$comic"},"Frontpage").br. a({-href=>"/index"},"Index");
 		$res .= end_div.end_html;;
@@ -401,7 +404,7 @@ this is a straight forward list of all you favourites. click the fav link of any
 	
 	if ($tool eq 'favourites') {		
 		my $list;
-		my $dat = dbh->selectall_arrayref("SELECT id,title,file,comic FROM favourites ORDER BY comic,file",{Slice => {}});
+		my $dat = dbh->selectall_arrayref("SELECT id,title,file,comic FROM favourites WHERE id IS NOT NULL ORDER BY comic,file",{Slice => {}});
 		
 		$list = make_head('favourites');		
 		$list .= preview_head();
@@ -462,6 +465,32 @@ this is a straight forward list of all you favourites. click the fav link of any
 		$ret .= end_table();
 		return $ret . end_div . end_html;
 	}
+	
+=head2 Comment
+
+add some comment for the comic
+
+=cut
+		
+		if ($tool eq 'comment') {
+			my $res = make_head('Comment');
+			$res .= start_div({-class=>'tools'});
+			my $comment = param('comment') // dbh->selectrow_array("SELECT title FROM favourites WHERE comic=? AND file='comment' AND id IS NULL",undef,$comic);
+			if (param('comment')) {
+				say $comment;
+				unless (0 < dbh->do("UPDATE favourites SET title = ? WHERE comic=? AND file='comment' AND id IS NULL",undef,param('comment'),$comic)) {
+						say "oo";
+					dbh->do("INSERT INTO favourites (title,comic,file) VALUES (?,?,'comment')",undef,param('comment'),$comic);
+				}
+			}
+			$res .= start_form("GET","/tools/comment/$comic");
+			$res .= 'enter comment here'.br;
+			$res .= textarea(-name=>"comment", -rows=>4,-columns=>80,-default=>$comment) . br;
+			#$res .= 'select hash key'.br;
+			#$res .= textfield(-name=>"hashkey", -size=>"20");
+			$res .= br . submit('ok');
+			return $res . br . br .  a({-href=>"/index"},"Index") . end_div.end_html;
+		}
 }
 
 sub preview_head { #some javascript to have a nice preview of image links your hovering

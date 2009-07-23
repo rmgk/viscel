@@ -143,13 +143,12 @@ sub next {
 		}
 		if ($s->{next}) {
 			if ($s->{next} != $o) {
-				if ($s->dbstrps(id=>$s->{next},'next')) { #next of next is also set everythings fine
+				if ($s->next_or_delete($s->{next},2)) { #next of next is set everythings fine
 					$s->status("ERROR: tried to set next of (".$s->url.") to $o but it is already " .$s->{next} . " at ". join(" ",caller) , 'ERR');
 					return $s->{next};
 				}
 				else { #next of next is not set so next is last so we can change this and delete the next
 					$s->status("WARNING: changed next of prev of last, delete last ". $s->{next}, 'DEBUG');
-					$s->dbh->do('DELETE FROM _'.$s->page->name . ' WHERE id = ?',undef,$s->{next});
 					$s->{next} = $o;
 				}
 			}
@@ -164,6 +163,23 @@ sub next {
 	}
 	
 	return $s->{next}
+}
+
+sub next_or_delete {
+	my ($s,$curr,$rec) = @_;
+	return 1 unless $rec; #depth reached all had next
+	my $next = $s->dbstrps(id=>$curr,'next');
+	if (!$next) {
+		$s->status("WARNING: $curr has no next, deleting", 'DEBUG');
+		$s->dbh->do('DELETE FROM _'.$s->page->name . ' WHERE id = ?',undef,$curr);
+		return 0; #we deleted next
+	}
+	if (!$s->next_or_delete($next,$rec-1)) {
+		$s->status("WARNING: $curr had next deleted, deleting too", 'DEBUG');
+		$s->dbh->do('DELETE FROM _'.$s->page->name . ' WHERE id = ?',undef,$curr);
+		return 0; #we deleted next
+	}
+	return 1;
 }
 
 sub get_data {

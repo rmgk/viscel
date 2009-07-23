@@ -11,7 +11,7 @@ use CGI qw(:standard *div);
 use ServerPlugin qw(dbh make_head dbstrps cache_strps);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '1.0.0';
+our $VERSION = '1.0.1';
 
 sub get_content {
 	my ($plugin,@arguments) = @_;
@@ -33,7 +33,7 @@ sub cclist {
 	
 	#we save this string cause we need it really often, so we can save some processing time :)
 	my $strip_str = div({-class=>"striplist"},img({-src=>"/strips/$comic/%s"}) . #the img is normally hidden by the strylesheet
-		a({-href=>"/comics/$comic/%s",-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/%s')",}, "%s"));
+		a({-href=>"/pages/$comic/%s",-onmouseout=>"hideIMG();",-onmouseover=>"showImg('/strips/$comic/%s')",}, "%s"));
 	
 	
 	for (my $i = 1;defined $dat->{$i};$i++) {
@@ -71,6 +71,7 @@ return "\n$js\n";
 
 sub get_title {
 	my ($comic,$strip,$title) = @_;
+	return undef unless $title;
 	my %titles;
 	if ($title =~ /^\{.*\}$/) {
 		%titles = %{eval($title)};
