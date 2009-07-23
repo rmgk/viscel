@@ -12,24 +12,9 @@ use Data::Dumper;
 use ServerPlugin qw(dbh make_head dbstrps dbcmcs is_broken tags flags cache_strps);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '1.0.0';
+our $VERSION = '1.0.1';
 
 my %rand_seen;
-
-
-sub handle_request {
-	my ($plugin,$connection,$request,@arguments) = @_;
-	restore_parameters($request->url->query);
-	my $res = $plugin->get_response();
-	my $content = $plugin->get_content(@arguments);
-	if (!$content)  { 
-		$connection->send_redirect( 'http://127.0.0.1' . $request->url->path );
-	}
-	else {
-		$res->content($content);
-		$connection->send_response($res);
-	}
-}
 
 sub get_content {
 	my ($plugin,@arguments) = @_;
@@ -89,14 +74,14 @@ click L<datalyzer|/"Datalyzer"> gives you some counts on the comics table
 		if (param('bookmark')) {
 			my $bookmark = param('bookmark');
 			dbcmcs($comic,'bookmark',$bookmark );
-			my $lnum = dbstrps($comic,'sha1'=>dbcmcs($comic,'last'),'number');
-			my $bnum = dbstrps($comic,'sha1'=>$bookmark,'number');
+			my $lnum = dbstrps($comic,'id'=>dbcmcs($comic,'last'),'number');
+			my $bnum = dbstrps($comic,'id'=>$bookmark,'number');
 			$lnum //= 0; $bnum //=0;
-			dbcmcs($comic,'strip_count',$lnum-$bnum)
+			dbcmcs($comic,'strip_count',$lnum-$bnum);
 		}
-		if (param()) {
-			return undef; # this causes to redirect back to this page without parameters
-		}
+		#if (param()) {
+			#return undef; # this causes to redirect back to this page without parameters
+		#}
 		my $res = make_head($comic." tags and flags");
 		$res .= start_div({-class=>'tools'});
 		$res .= h1('Tags');

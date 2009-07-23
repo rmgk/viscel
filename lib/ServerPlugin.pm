@@ -95,7 +95,7 @@ sub make_head {
 	my $prefetch = shift;
 	my $javascript = shift;
 	
-	return start_html(	-title=>$title. " - ComCol ht $VERSION" ,
+	return start_html(	-title=>$title. " - ComCol ht $::VERSION" ,
 						-style=>"/css/",
 						-head=>[
 									#Link({-rel=>"stylesheet", -type=>"text/css", -href=>}),
