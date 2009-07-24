@@ -26,7 +26,7 @@ use URI;
 use DBI;
 
 our $VERSION;
-$VERSION = '51';
+$VERSION = '52';
 
 =head1	General Methods
 
@@ -461,7 +461,7 @@ sub url_next_archive {
 	$s->status("NEXT ARCHIVE deeper, get body: ". $url_arch, 'UINFO');
 	my $res = dlutil::get($url_arch,$s->ini('referer'));
 	if ( $res->is_success() ) {
-		my $body = $res->decoded_content(raise_error=>1);
+		my $body = $res->content();
 		if ($body =~ m#$reg_deeper#is) {
 			my $deep_url = URI->new($+{url} // $1)->abs($url_arch)->as_string;
 			$s->status("NEXT ARCHIVE deeper: " .$deep_url, 'UINFO');
@@ -514,7 +514,7 @@ sub ar_get_archives {
 		$s->status('ERROR: could not get body '. $s->ini('archive_url') . ' ' . $res->status_line(), 'ERR');
 		return undef;
 	}
-	my $body = $res->decoded_content(raise_error=>1);
+	my $body = $res->content();
 	my $regex = $s->ini('archive_regex');
 	my @archives;
 	while ($body =~ m#$regex#gis) {

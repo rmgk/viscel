@@ -28,7 +28,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '52';
+$VERSION = '53';
 
 our $Pages = 0;
 
@@ -209,10 +209,10 @@ sub url_next {
 			push (@ret_urls,$url);
 		}
 	}
-	if (!@ret_urls and $s->ini('code_next_url')) {
-		my $code = $s->ini('code_next_url');
-		eval $code;
-	}
+	#if (!@ret_urls and $s->ini('code_next_url')) {
+	#	my $code = $s->ini('code_next_url');
+	#	eval $code;
+	#}
 	$s->status("NEXT URLS: @ret_urls",'DEBUG');
 	$s->{url_next_arrayref} = \@ret_urls;
 	return @ret_urls;
@@ -721,7 +721,7 @@ sub body {
 		my $res = dlutil::get($s->url(),$s->ini('referer'));
 		$s->status("BODY requestet: " . $s->url,'DEBUG');
 		if ($res->is_error()) {
-			$s->{body} = $res->decoded_content(raise_error=>1);
+			$s->{body} = $res->content();
 			my $status_line = $res->status_line();
 			if ($s->{body} !~ m#\Q$status_line\E#i) {
 				$s->status("ERROR: this should not have happened. the body request returned an error, but there still seems to be some data its length is: ". length $s->{body},'ERR');
@@ -741,7 +741,7 @@ sub body {
 			$s->{header}->{prev} =~ s#^<([^>]+)>.*$#$1#;
 		}
 
-		$s->{body} = $res->decoded_content(raise_error=>1);
+		$s->{body} = $res->content();
 	}
 	return $s->{body};
 }

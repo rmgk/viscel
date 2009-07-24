@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '23';
+$VERSION = '24';
 
 our $Strips = 0;
 
@@ -311,7 +311,7 @@ sub _download {
 	}
 	if (open(my $fh,'>'.$s->file_path)) {
 		binmode $fh;
-		my $img = \$img_res->decoded_content(raise_error=>1);
+		my $img = \$img_res->content();
 		$s->sha1($SHA->add($$img)->hexdigest());
 		print $fh $$img;
 		say " (".int((-s $fh)/($time*1000)) ." kb/s)";
