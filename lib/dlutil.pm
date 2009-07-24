@@ -25,7 +25,7 @@ require Exporter;
 @EXPORT_OK = qw($ua);
 
 our($VERSION);
-$VERSION = '11';
+$VERSION = '12';
 
 =head1 functions
 
@@ -60,11 +60,11 @@ sub get {
 	_init_ua() unless $ua;
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
-	$request->accept_decodable();
+	#$request->accept_decodable();
 	my $res = $ua->request($request);
-	if ($res->header("Content-Encoding") and ($res->header("Content-Encoding") =~ m/none/i)) { #none eq identity - but HTTP::Message doesnt know!
-		$res->header("Content-Encoding" => 'identity'); 
-	}
+	#if ($res->header("Content-Encoding") and ($res->header("Content-Encoding") =~ m/none/i)) { #none eq identity - but HTTP::Message doesnt know!
+	#	$res->header("Content-Encoding" => 'identity'); 
+	#}
 	return $res;
 }
 
