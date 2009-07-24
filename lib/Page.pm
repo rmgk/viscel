@@ -28,7 +28,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '53';
+$VERSION = '54';
 
 our $Pages = 0;
 
@@ -360,9 +360,6 @@ sub try_get_side_url_parts {
 	my @prev;
 	my @next;
 	
-	push(@prev,$s->{header}->{prev}) if $s->{header}->{prev};
-	push(@next,$s->{header}->{next}) if $s->{header}->{next};
-	
 	my @aref = ($body =~ m#(<a\s+.*?>.*?</a>)#gis); 
 	my @filter;
 	foreach my $as (@aref) {
@@ -392,14 +389,18 @@ sub try_get_side_url_parts {
 		}
 	}
 	
-	if ($body =~ m#<head[^>]*>(.*?)</head>#is) {
-		my $head = $1;
-		if ($head =~ m#<link.*?rel=['"]prev(?:ious)?['"].*?href=["'](.*?)['"]#is) {
-			push(@prev,$1);
+	if (($body !~ m#wordpress#is)) {
+		if (($body =~ m#<head[^>]*>(.*?)</head>#is) ) {
+			my $head = $1;
+			if ($head =~ m#<link.*?rel=['"]prev(?:ious)?['"].*?href=["'](.*?)['"]#is) {
+				push(@prev,$1);
+			}
+			if ($head =~ m#<link.*?rel=['"]next['"].*?href=["'](.*?)['"]#is) {
+				push(@next,$1);
+			}
 		}
-		if ($head =~ m#<link.*?rel=['"]next['"].*?href=["'](.*?)['"]#is) {
-			push(@next,$1);
-		}
+		unshift(@prev,$s->{header}->{prev}) if $s->{header}->{prev};
+		unshift(@next,$s->{header}->{next}) if $s->{header}->{next};
 	}
 	
 	return (\@prev,\@next);
