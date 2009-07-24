@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '22';
+$VERSION = '23';
 
 our $Strips = 0;
 
@@ -393,6 +393,7 @@ sub get_file_name {
 			}
 			else{
 				$s->status("WARN: could not find filetype for $part",'WARN');
+				$filetype = '';
 			}
 		}
 		if ($part =~ m#^[^$bc]+$#) {
