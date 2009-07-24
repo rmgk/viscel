@@ -28,7 +28,7 @@ use Scalar::Util;
 use Strip;
 
 our $VERSION;
-$VERSION = '51';
+$VERSION = '52';
 
 our $Pages = 0;
 
@@ -208,6 +208,10 @@ sub url_next {
 		else {
 			push (@ret_urls,$url);
 		}
+	}
+	if (!@ret_urls and $s->ini('code_next_url')) {
+		my $code = $s->ini('code_next_url');
+		eval $code;
 	}
 	$s->status("NEXT URLS: @ret_urls",'DEBUG');
 	$s->{url_next_arrayref} = \@ret_urls;
