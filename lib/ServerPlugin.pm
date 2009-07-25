@@ -14,10 +14,10 @@ use dbutil;
 use Exporter qw(import);
 
 our @EXPORT = qw();
-our @EXPORT_OK = qw(make_head tags flags dbcmcs dbstrps cache_strps dbh is_broken);
+our @EXPORT_OK = qw(make_head tags flags dbcmcs dbstrps cache_strps dbh is_broken get_title);
 
 
-our $VERSION = '1.0.0';
+our $VERSION = '1.0.1';
 
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 $dbh->func(300000,'busy_timeout');
@@ -306,6 +306,38 @@ sub get_broken {
 sub is_broken {
 	get_broken() unless %broken;
 	return $broken{$_[0]};
+}
+
+sub get_title {
+	my ($comic,$strip,$title) = @_;
+	$title //= dbstrps($comic,'id'=>$strip,'title') // '';
+	return undef unless $title;
+	my %titles = ();
+	if ($title =~ /^\{.*\}$/) {
+		while($title =~ m#(?<id>\w+)=>q\((?<text>.*?)\)[,}]#g) {
+			foreach (0..$#{$-{id}}) {
+				$titles{$-{id}->[$_]} = $-{text}->[$_];
+			}
+		}
+		#say "$title\n";
+		#%titles = %{eval($title)} if $title ;
+		#ut - user title; st - site title; it - image title; ia - image alt; h1 - head 1; dt - div title ; sl - selected title;
+	}
+	else {
+		my @titles = split(' !§! ',$title);
+		$title =~ s/-§-//g;
+		$title =~ s/!§!/|/g;
+		$title =~ s/~§~/~/g;
+		$titles{ut} = $titles[0];
+		$titles{st} = $titles[1];
+		$titles{it} = $titles[2];
+		$titles{ia} = $titles[3];
+		$titles{h1} = $titles[4];
+		$titles{dt} = $titles[5];
+		$titles{sl} = $titles[6];
+	}
+	
+	return %titles;
 }
 
 1;

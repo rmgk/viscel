@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '24';
+$VERSION = '26';
 
 our $Strips = 0;
 
@@ -463,11 +463,11 @@ sub title {
 			$img = $1;
 		}
 		if ($img) {
-			if ($img =~ m#title=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
-				$it = $1;
+			if ($img =~ m#title=(?<p>["'])(?<title>.*?)\k<p>#is) {
+				$it = $+{title};
 			}
-			if ($img =~ m#alt=["']?((:?[^"']*?(?:\w'\w)?)+)(?:[^\w]'[^\w]|"|>)#is) {
-				$ia = $1;
+			if ($img =~ m#alt=(?<p>["'])(?<alt>.*?)\k<p>#is) {
+				$ia = $alt;
 			}
 		}
 	}

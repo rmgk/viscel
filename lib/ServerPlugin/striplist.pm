@@ -8,10 +8,10 @@ use warnings;
 
 use CGI qw(:standard *div);
 
-use ServerPlugin qw(dbh make_head dbstrps cache_strps);
+use ServerPlugin qw(dbh make_head dbstrps cache_strps get_title);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '1.0.1';
+our $VERSION = '1.0.2';
 
 sub get_content {
 	my ($plugin,@arguments) = @_;
@@ -67,30 +67,6 @@ function hideIMG () {
 $js =~ s/\s+/ /gs;
 return "\n$js\n";
 
-}
-
-sub get_title {
-	my ($comic,$strip,$title) = @_;
-	return undef unless $title;
-	my %titles;
-	if ($title =~ /^\{.*\}$/) {
-		%titles = %{eval($title)};
-		#ut - user title; st - site title; it - image title; ia - image alt; h1 - head 1; dt - div title ; sl - selected title;
-	}
-	else {
-		my @titles = split(' !§! ',$title);
-		$title =~ s/-§-//g;
-		$title =~ s/!§!/|/g;
-		$title =~ s/~§~/~/g;
-		$titles{ut} = $titles[0];
-		$titles{st} = $titles[1];
-		$titles{it} = $titles[2];
-		$titles{ia} = $titles[3];
-		$titles{h1} = $titles[4];
-		$titles{dt} = $titles[5];
-		$titles{sl} = $titles[6];
-	}
-	return %titles;
 }
 
 1;
