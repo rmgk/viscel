@@ -467,7 +467,7 @@ sub title {
 				$it = $+{title};
 			}
 			if ($img =~ m#alt=(?<p>["'])(?<alt>.*?)\k<p>#is) {
-				$ia = $alt;
+				$ia = $+{alt};
 			}
 		}
 	}
