@@ -9,10 +9,10 @@ use warnings;
 use CGI qw(:standard *div *table);
 use Data::Dumper;
 
-use ServerPlugin qw(dbh make_head dbstrps dbcmcs is_broken tags flags cache_strps);
+use ServerPlugin qw(dbh make_head dbstrps dbcmcs is_broken tags flags cache_strps get_title);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '1.0.1';
+our $VERSION = '1.0.4';
 
 my %rand_seen;
 
@@ -105,7 +105,7 @@ click L<datalyzer|/"Datalyzer"> gives you some counts on the comics table
 	                             -linebreak=>'true',
 								 -disabled=>[qw(l w)],
 								 -labels=>{c=>'this comic is complete',r=>'you are reading this comic',
-								 f=>'you finished reading this comic (needs c)',s=>'you stopped reading this comic',
+								 f=>'you finished reading this comic (needs completed)',s=>'you stopped reading this comic',
 								 l=>'this comic has a loop',w=>'database error warning'});
 		#$res .= br . submit('ok');
 		$res .= end_form;
@@ -333,7 +333,7 @@ get a random comic frontpage. you dont get comics that you are reading, have com
 			next if $rand_seen{$comic};
 			$rand_seen{$comic} = 1;
 			require ServerPlugin::front;
-			return ServerPlugin::front->get_content($comic);
+			return ServerPlugin::front::cfront($comic);
 		}
 		undef %rand_seen;
 	}
