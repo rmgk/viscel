@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '26';
+$VERSION = '27';
 
 our $Strips = 0;
 
@@ -74,25 +74,25 @@ sub check_id {
 	}
 	my $strip_path = $s->url_path;
 	$strip_path = '%'. $strip_path;
-	my $eid = $s->dbh->selectrow_array('SELECT id FROM _'.$s->name.' WHERE surl like ?',undef,$strip_path);
-	if ($eid) {
-		my $db_strip = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$eid);
-		my $epurl =	$s->url_path($db_strip->{purl});
-		my $purl = $s->url_path($s->page->url);
-		#$epurl =~ s/\?.+$//; # removing scripts and such
-		#$purl =~ s/\?.+$//;
-		
-		if ($epurl eq $purl) {
-			$s->{id} = $db_strip->{id}; 
-			$s->{prev} = $db_strip->{prev}; 
-			$s->{next} = $db_strip->{next}; 
-			$s->{number} = $db_strip->{number}; 
-			$s->{title} = $db_strip->{title}; 
-			$s->{sha1} = $db_strip->{sha1}; 
-			$s->{file_name} = $db_strip->{file};
-			$s->status('Loaded ' .$s->{file_name} . ' info from database','UINFO' );
-			
-			return 2;
+	my $eids = $s->dbh->selectcol_arrayref('SELECT id FROM _'.$s->name.' WHERE surl like ?',undef,$strip_path);
+	foreach my $eid (reverse @$eids) {
+		if ($eid) {
+			my $db_strip = $s->dbh->selectrow_hashref('SELECT * FROM _'.$s->name.' WHERE id = ?',undef,$eid);
+			my $epurl =	$s->url_path($db_strip->{purl});
+			my $purl = $s->url_path($s->page->url);
+			#$epurl =~ s/\?.+$//; # removing scripts and such
+			#$purl =~ s/\?.+$//;
+			if ($epurl eq $purl) {
+				$s->{id} = $db_strip->{id}; 
+				$s->{prev} = $db_strip->{prev}; 
+				$s->{next} = $db_strip->{next}; 
+				$s->{number} = $db_strip->{number}; 
+				$s->{title} = $db_strip->{title}; 
+				$s->{sha1} = $db_strip->{sha1}; 
+				$s->{file_name} = $db_strip->{file};
+				$s->status('Loaded ' .$s->{file_name} . ' info from database','UINFO' );
+				return 2;
+			}
 		}
 	}
 	$s->dbh->{AutoCommit} = 0;
