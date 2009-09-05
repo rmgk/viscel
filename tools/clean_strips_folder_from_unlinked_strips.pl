@@ -20,7 +20,7 @@ foreach my $comic (keys %$comics) {
 		while (my $file = readdir(CD)) {
 			next if $file =~ m/^\.\.?$/;
 			$file_count ++;
-			if ($comics->{$comic}->{broken} or !$files->{$file}) {
+			if (($comics->{$comic}->{broken} and $ARGV[0]) or !$files->{$file}) {
 				mkdir("bak/$comic") unless -d "bak/$comic";
 				say "move ../strips/$comic/$file to bak/$comic/";
 				move("../strips/$comic/$file","bak/$comic/") or die "Move failed: $!";
