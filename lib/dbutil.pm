@@ -20,7 +20,7 @@ provides some database utility functions
 use DBI;
 
 our($VERSION);
-$VERSION = '19';
+$VERSION = '20';
 
 my @strips_columns = 	qw(file prev next number surl purl title time sha1); 
 my @config_columns =	qw(update_intervall filter processing time);
@@ -170,8 +170,9 @@ sub readINI {
 	
 	open (FILE, $file);
 	while (my $line = <FILE>) {
-		if ($line =~ /^\s*\[(.*?)\]\s*$/) {
-			$block = $1;
+		if ($line =~ /^\s*\[(?<block>.*?)\]\s*(?<url_start>\S+)?$/) {
+			$block = $+{block};
+			$data->{$block}->{url_start} = $+{url_start} if ($+{url_start});
 			next;
 		}
 		next if $line =~ /^\s*\;/;

@@ -12,7 +12,7 @@ use dbutil;
 
 
 my $build = 100 + $Comic::VERSION + $Page::VERSION + $Strip::VERSION + $dbutil::VERSION + $dlutil::VERSION;
-our $VERSION = 3.061 . '.'. $build;
+our $VERSION = 3.062 . '.'. $build;
 
 
 
