@@ -17,7 +17,7 @@ our @EXPORT = qw();
 our @EXPORT_OK = qw(make_head tags flags dbcmcs dbstrps cache_strps dbh is_broken get_title);
 
 
-our $VERSION = '1.0.1';
+our $VERSION = '1.0.2';
 
 my $dbh = DBI->connect("dbi:SQLite:dbname=comics.db","","",{AutoCommit => 1,PrintError => 1});
 $dbh->func(300000,'busy_timeout');
@@ -35,6 +35,7 @@ you should overwrite it if you dont want to send a normal response.
 (you want to redirect or send a file)
 
 =cut
+
 sub handle_request {
 	my ($plugin,$connection,$request,@arguments) = @_;
 	restore_parameters($request->url->query);
@@ -52,9 +53,9 @@ sub handle_request {
 returns the HTTP::Response object for the content;
 
 =cut
+
 sub get_response {
 	return HTTP::Response->new( 200, 'OK', ['Content-Type','text/html; charset=iso-8859-1']); #our main response
-	
 }
 
 
@@ -281,6 +282,7 @@ caches the database for C<$comic> unless it is cached. this should be done if th
 
 sub cache_strps {
 	my ($comic) = @_;
+	return 0;
 	return if $strpscache{comic} and ($comic eq $strpscache{comic});
 	say "caching $comic";
 	%strpscache = %{$dbh->selectall_hashref("SELECT * FROM _$comic",'id')};

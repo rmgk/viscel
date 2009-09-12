@@ -11,7 +11,7 @@ use CGI qw(:standard *div);
 use ServerPlugin qw(make_head dbstrps dbcmcs tags cache_strps);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '1.0.0';
+our $VERSION = '1.0.1';
 
 sub get_content {
 	my ($plugin,@arguments) = @_;
@@ -48,7 +48,7 @@ sub cfront {
 				img({-class=>"front3",-id=>'first',-src=>"/strips/$comic/".$first,-alt=>"first"}));
 		$ret .= a({-href=>"/pages/$comic/$last",-accesskey=>'l',-title=>'last strip'},
 				img({-class=>"front3",-id=>'last',-src=>"/strips/$comic/".$last,-alt=>"last"}));
-		$ret .= a({-href=>"/pages/$comic/$bookmark",-accesskey=>'n',-title=>'bookmarked strip'},
+		$ret .= a({-href=>"/pages/$comic/$bookmark",-accesskey=>'b',-title=>'bookmarked strip'},
 				img({-class=>"front3",-id=>'bookmark',-src=>"/strips/$comic/".$bookmark,-alt=>"bookmark"}));
 	} 
 	else { #if not we just display two

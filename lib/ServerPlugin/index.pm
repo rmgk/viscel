@@ -138,14 +138,11 @@ sub html_comic_listing {
 	foreach my $comic ( sort {$toRead{$b} <=> $toRead{$a}} @{$comics}) {
 		my $usr = $user->{$comic};
 		my $mul = $toRead{$comic};
-
-		$mul = ($mul > 0) ? log($mul) : $mul ? -1 : 0;# dont hit me! (bigger 0 is log; equal 0 is 0; smaller zero is -1)
-		
-		
+		$mul = ($mul > 0) ? log($mul) : $mul ? -1 : 0;# dont hit me! (greater 0 is log; equal 0 is 0; lesser zero is -1)
 		my ($first,$bookmark,$last) = ($usr->{'first'},$usr->{'bookmark'},$usr->{'last'});
 		my $cmc_str = td(a({-href=>"/pages/$comic/%s",-onmouseout=>"hideIMG();",
-						-onmouseover=>"showImg('/strips/$comic/%s')"},"%s"));
-		
+				-onmouseover=>"showImg('/strips/$comic/%s')"},"%s"));
+
 		$ret .= "<tr>";
 		$ret .= td(a({-href=>"/front/$comic",-class=>(is_broken($comic)?'broken':'comic'),
 			-style=>"color:#". colorGradient($mul,10) .";font-size:".(($mul/40)+0.875)."em;"},$comic));
