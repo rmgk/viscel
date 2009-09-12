@@ -26,7 +26,7 @@ use Time::HiRes;
 
 
 our $VERSION;
-$VERSION = '27';
+$VERSION = '28';
 
 our $Strips = 0;
 
@@ -420,6 +420,8 @@ sub get_file_name {
 		my ($re,$sub) =  split(/#/, $s->ini('rename_substitute'), 2);
 		$filename =~ s#$re#$sub#gi;
 	}
+	
+	$filename =~ s/\*/_/g; #we cant have some characters in file names
 	
 	return $filename;
 }
