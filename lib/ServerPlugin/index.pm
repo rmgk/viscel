@@ -112,6 +112,7 @@ sub html_comic_listing {
 	
 	my %toRead;
 	foreach my $comic ( @{$comics}) {
+		$user->{$comic}->{last_save} //= 0;
 		if (is_broken($comic)) {
 			$toRead{$comic} = -1;
 			next;
@@ -138,7 +139,7 @@ sub html_comic_listing {
 		dbcmcs($comic,'strip_count'=>$toRead{$comic});
 	}
 	
-	foreach my $comic ( sort {$toRead{$b} <=> $toRead{$a}} @{$comics}) {
+	foreach my $comic ( sort {$user->{$b}->{last_save} <=> $user->{$a}->{last_save}} @{$comics}) {
 		my $usr = $user->{$comic};
 		my $mul = $toRead{$comic};
 		$mul = ($mul > 0) ? log($mul)+1e-100 : $mul ? -1 : 0;# add small to not get log(1) == 0 (greater 0 is log; equal 0 is 0; lesser zero is -1)
