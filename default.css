@@ -52,6 +52,7 @@ a[href^=http] {
 	height:100%;
 	margin:0px;
 	background-color:#000b00;
+	overflow:auto;
 }
 
 /*comic groups*/
@@ -72,6 +73,10 @@ a[href^=http] {
 	
 	.group table {
 		padding-left:10px;
+	}
+	
+	.group a  {
+		display: block;
 	}
 
 	/*comic names in groups*/
