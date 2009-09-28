@@ -69,6 +69,7 @@ a[href^=http] {
 		text-transform:capitalize;
 		margin:10px 0px 10px 0px;
 		text-align:center;
+		font-size:x-large;
 	}
 	
 	.group table {

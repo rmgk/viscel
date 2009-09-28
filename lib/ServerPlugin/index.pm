@@ -66,7 +66,7 @@ sub cindex {
 				
 	my $i = 1;
 	$ret .=	br . "Contents:" . br .
-				join("",map { a({href=>"#$_",-accesskey=>$i++,-title=>$_},$_) . br} (qw(continue other finished stopped),)); #TODO &filter));
+				join("",map { a({href=>"#$_",-accesskey=>$i++,-title=>$_},$_) . br} (qw(follow continue other finished stopped),)); #TODO &filter));
 				 
 	$ret .=	br . "Tags:" . br .
 				 a({-href=>"/index"},'Any Tag') . br .
@@ -101,9 +101,10 @@ sub html_comic_listing {
 	my $comics = dbh->selectcol_arrayref("SELECT comic FROM comics WHERE ($filter)");
 	
 	return undef unless $comics;
-	return undef unless @{$comics};
+	my $comcount = scalar @{$comics};
+	return undef unless $comcount;
 	
-	my $ret = start_div({-class=>"group"}) . h1(a({name=>$name},$name));
+	my $ret = start_div({-class=>"group"}) . h1(a({name=>$name},$name ." ($comcount)" ));
 	$ret .= start_table();
 	
 	my $count;
