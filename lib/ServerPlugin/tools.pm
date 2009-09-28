@@ -100,13 +100,13 @@ click L<datalyzer|/"Datalyzer"> gives you some counts on the comics table
 		$res .= hidden('sf',1+rand(1000));#it smells like hack! its needed for the redirect not to be saved just leave it as it is :) 
 		$res .= checkbox_group(-name=>'flags',
 								 -onclick=>'document.setFlags.submit()',
-	                             -values=>[qw(c r f s l w)],
+	                             -values=>[qw(o c r f s l w)],
 								 -default=>[ keys %{flags($comic)}],
 	                             -linebreak=>'true',
 								 -disabled=>[qw(l w)],
 								 -labels=>{c=>'this comic is complete',r=>'you are reading this comic',
 								 f=>'you finished reading this comic (needs completed)',s=>'you stopped reading this comic',
-								 l=>'this comic has a loop',w=>'database error warning'});
+								 l=>'this comic has a loop',w=>'database error warning',o=>'follow this comic'});
 		#$res .= br . submit('ok');
 		$res .= end_form;
 		# $res .= br . (flags($comic)->{c} ?a({-href=>"/tools/cataflag/$comic?addflag=rf"},"this comic is complete and i have finished reading it")
