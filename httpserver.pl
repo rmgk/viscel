@@ -44,9 +44,16 @@ while (my $c = $d->accept) {
 				if ($plugin =~ m/strips$/i) {
 					my $comic = $args[0];
 					my $strip = $args[1];
-					if ($strip =~ /^\d+$/) {
+					if ((not defined $comic) or (not defined $strip)) {
+						$c->send_response(HTTP::Response->new( 500, 'Comic or Strip undefined'));
+					} 
+					elsif ($strip =~ /^\d+$/) {
 						$strip = dbstrps($comic,'id'=>$strip,'file');
-						$c->send_redirect("http://127.0.0.1/strips/$comic/$strip" );
+						unless ($strip) {
+							$c->send_response(HTTP::Response->new( 500, 'strip id had no file'));
+						} else {
+							$c->send_redirect("http://127.0.0.1/strips/$comic/$strip" );
+						}
 					}
 					else {
 						$c->send_file_response("./strips/$comic/$strip");
