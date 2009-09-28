@@ -82,6 +82,7 @@ sub cindex {
 	my $cmcs = dbh->selectall_hashref("SELECT * FROM comics",'comic');
 	my $tagcheck = '1';
 	$tagcheck = join(' and ',map {"tags like '%$_%'"} (@tag)) if @tag;
+	$ret .= html_comic_listing('follow',$cmcs,qq{flags like '%o%' and ($tagcheck)}).br;
 	$ret .= html_comic_listing('continue',$cmcs,qq{flags like '%r%' and flags not like '%f%' and flags not like '%s%' and ($tagcheck)}).br;
 	$ret .= html_comic_listing('other',$cmcs,qq{((flags not like '%r%' and flags not like '%f%' and flags not like '%s%') or flags is null) and ($tagcheck) }).br;
 	$ret .= html_comic_listing('finished',$cmcs,qq{flags like '%f%' and ($tagcheck)}).br;
@@ -100,6 +101,7 @@ sub html_comic_listing {
 	my $comics = dbh->selectcol_arrayref("SELECT comic FROM comics WHERE ($filter)");
 	
 	return undef unless $comics;
+	return undef unless @{$comics};
 	
 	my $ret = start_div({-class=>"group"}) . h1(a({name=>$name},$name));
 	$ret .= start_table();
@@ -138,7 +140,7 @@ sub html_comic_listing {
 	foreach my $comic ( sort {$toRead{$b} <=> $toRead{$a}} @{$comics}) {
 		my $usr = $user->{$comic};
 		my $mul = $toRead{$comic};
-		$mul = ($mul > 0) ? log($mul) : $mul ? -1 : 0;# dont hit me! (greater 0 is log; equal 0 is 0; lesser zero is -1)
+		$mul = ($mul > 0) ? log($mul)+1e-100 : $mul ? -1 : 0;# add small to not get log(1) == 0 (greater 0 is log; equal 0 is 0; lesser zero is -1)
 		my ($first,$bookmark,$last) = ($usr->{'first'},$usr->{'bookmark'},$usr->{'last'});
 		my $cmc_str = td(a({-href=>"/pages/$comic/%s",-onmouseout=>"hideIMG();",
 				-onmouseover=>"showImg('/strips/$comic/%s')"},"%s"));
