@@ -12,7 +12,7 @@ use CGI qw(:standard *table :html3 *div gradient);
 use ServerPlugin qw(dbh make_head dbstrps dbcmcs tags flags is_broken);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '1.0.0';
+our $VERSION = '1.0.1';
 
 sub get_content {
 	my ($plugin,@arguments) = @_;
@@ -83,8 +83,8 @@ sub cindex {
 	my $tagcheck = '1';
 	$tagcheck = join(' and ',map {"tags like '%$_%'"} (@tag)) if @tag;
 	$ret .= html_comic_listing('follow',$cmcs,qq{flags like '%o%' and ($tagcheck)}).br;
-	$ret .= html_comic_listing('continue',$cmcs,qq{flags like '%r%' and flags not like '%f%' and flags not like '%s%' and ($tagcheck)}).br;
-	$ret .= html_comic_listing('other',$cmcs,qq{((flags not like '%r%' and flags not like '%f%' and flags not like '%s%') or flags is null) and ($tagcheck) }).br;
+	$ret .= html_comic_listing('continue',$cmcs,qq{flags like '%r%' and flags not like '%f%' and flags not like '%s%' and flags not like '%o%' and ($tagcheck)}).br;
+	$ret .= html_comic_listing('other',$cmcs,qq{((flags not like '%r%' and flags not like '%f%' and flags not like '%s%' and flags not like '%o%') or flags is null) and ($tagcheck) }).br;
 	$ret .= html_comic_listing('finished',$cmcs,qq{flags like '%f%' and ($tagcheck)}).br;
 	$ret .= html_comic_listing('stopped',$cmcs,qq{flags like '%s%' and ($tagcheck)}).br;
 	# foreach (&filter) { TODO
