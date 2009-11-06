@@ -12,7 +12,7 @@ use Data::Dumper;
 use ServerPlugin qw(dbh make_head dbstrps dbcmcs is_broken tags flags cache_strps get_title);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '1.0.4';
+our $VERSION = '1.0.5';
 
 my %rand_seen;
 
@@ -325,7 +325,7 @@ get a random comic frontpage. you dont get comics that you are reading, have com
 =cut
 	
 	if ($tool eq 'random') {
-		my $firsts = dbh->selectall_hashref('SELECT comic,first FROM comics WHERE (flags NOT LIKE "%r%" AND flags NOT LIKE "%f%" AND flags NOT LIKE "%s%") OR flags IS NULL' , 'comic');
+		my $firsts = dbh->selectall_hashref('SELECT comic,first FROM comics WHERE (flags NOT LIKE "%r%" AND flags NOT LIKE "%f%" AND flags NOT LIKE "%s%" AND flags NOT LIKE "%o%") OR flags IS NULL' , 'comic');
 		my @comics = keys %{$firsts};
 		my $comic;
 		while($comic = splice(@comics,rand(int @comics),1)) {
