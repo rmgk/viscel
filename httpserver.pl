@@ -23,7 +23,7 @@ use ServerPlugin::pod;
 
 our $VERSION = '3.0.2';
 
-my $d = HTTP::Daemon->new(LocalPort => 80);
+my $d = HTTP::Daemon->new(LocalAddr => "127.0.0.1" ,LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
 
 print "Please contact me at: <URL:", "http://127.0.0.1/index" ,">\n";
