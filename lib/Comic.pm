@@ -610,9 +610,12 @@ sub class_change {
 			$s->{config}->{rename_depth} //= 2; 
 		}
 		if ($s->{config}->{class} eq "animea") {
-			$s->{config}->{regex_next} //= q#value="Next"\s*onClick="javascript:window.location='([^']+)'" />#;
-			$s->{config}->{regex_prev} //= q#value="Previous"\s*onClick="javascript:window.location='([^']+)'" />#;
-			$s->{config}->{heur_strip_url} //= "/tobemoved/|/data/|/i/";
+			#$s->{config}->{regex_next} //= q#value="Next"\s*onClick="javascript:window.location='([^']+)'" />#;
+			$s->{config}->{regex_next} //= q#<input type="button"\s*onclick="javascript:window.location='([^']+)'" value="Next"#;
+			#$s->{config}->{regex_prev} //= q#value="Previous"\s*onClick="javascript:window.location='([^']+)'" />#;
+			$s->{config}->{regex_prev} //= q#<input type="button"\s*onclick="javascript:window.location='([^']+)'" value="Previous"#;
+			#$s->{config}->{heur_strip_url} //= "/tobemoved/|/data/|/i/";
+			$s->{config}->{regex_strip_url} //= '<img src="([^"]+)"';
 		}
 		if ($s->{config}->{class} eq "cartooniverse") {
 			$s->{config}->{regex_next} //= q#<input value="next" onclick="javascript:window.location='([^']+)';" type="button">#;
