@@ -656,8 +656,8 @@ sub class_change {
 			$s->{config}->{heur_strip_url} //= '/manga/[^/]+/\d+/\d+';
 			#$s->{config}->{rename} //= q"strip_url#manga/([\w-]+)/(\d+)/(\d+)/([^\.]+)\.\w{3,4}#0123";
 			$s->{config}->{rename_depth} //= 4;
-			$s->{config}->{regex_prev} //= q"var url_back = '([^']+)';";
-			$s->{config}->{regex_next} //= q"var url_next = '([^']+)';";
+			$s->{config}->{regex_prev} //= q~var url_back = ["'](.+?)["'];~;
+			$s->{config}->{regex_next} //= q~var url_next = ["'](.+?)["'];~;
 		}
 	}
 }
