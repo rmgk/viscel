@@ -11,7 +11,7 @@ use CGI qw(:standard *div);
 use ServerPlugin qw(dbh make_head dbstrps dbcmcs cache_strps flags get_title);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '1.0.2';
+our $VERSION = '1.0.3';
 
 sub get_content {
 	my ($plugin,@arguments) = @_;
@@ -61,7 +61,7 @@ sub ccomic {
 				
 	$ret .= start_div({-class=>"comic"});
 	
-	$ret .= h3($titles{h1}) if $titles{h1};
+	$ret .= h3({-id=>'title'},$titles{h1}) if $titles{h1};
 	if ($file and (-e "./strips/$comic/$file")) { 
 		if ($file =~ m#.dcr$|.swf$#i) {
 			$ret .= embed({-src=>"/strips/$comic/$file",-quality=>'high',-type=>($titles{et}//''),-width=>($titles{ew}//800),-height=>($titles{eh}//800)});
@@ -85,12 +85,13 @@ sub ccomic {
 		$ret .= 'something has stolen the strip! ';
 		$ret .= 'check the site for reasons';
 	}
-	
+	$ret .= end_div;
 	
 	$ret .=start_div({-class=>"navigation"});
 	
 	$ret .= a({-href=>"/pages/$comic/$prev",
 			-title=>'previous strip',-accesskey=>'v'},'&lt;&lt; ') if $prev;
+	$ret .= span({-id=>'pagecount'},dbstrps($comic,'id'=>$strip,'number')."/".$last);
 	$ret .= a({-href=>"/pages/$comic/$next",
 			-title=>'next strip',-accesskey=>'n'},'&gt;&gt; ') if $next;
 
@@ -119,8 +120,7 @@ sub ccomic {
 	my $purl = dbstrps($comic,'id'=>$strip,'purl');
 	$ret .= ' - ' if $purl;
 	$ret .= a({-href=>$purl, -accesskey=>'s',-title=>'homepage of the strip'},"site ") if $purl;	
-			
-	$ret .= end_div;
+
 	$ret .= end_div;
 	
 	return $ret . end_html;

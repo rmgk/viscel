@@ -121,6 +121,7 @@ a[href^=http] {
 	
 /*navigation placement for frontpage and comic pages*/
 .navigation {
+	text-align:center;
 	clear:both;
 	position:static;
 	border-style: solid none solid none;
@@ -138,6 +139,9 @@ a[href^=http] {
 	}
 	div.comic h3 {
 		display:none;
+	}
+	#pagecount {
+		color : #0050cc;
 	}
 
 /*striplist*/
