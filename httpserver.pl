@@ -10,6 +10,8 @@ use lib "./lib";
 use HTTP::Daemon;
 use CGI qw(:standard);
 
+use Socket;
+
 #we use the standard plugins to get debug messages and such
 use ServerPlugin qw(dbstrps);
 use ServerPlugin::index;
@@ -27,9 +29,16 @@ my $d = HTTP::Daemon->new(LocalAddr => "127.0.0.1" ,LocalPort => 80);
 die "could not listen on port 80 - someones listening there already?" unless $d;
 
 print "Please contact me at: <URL:", "http://127.0.0.1/index" ,">\n";
-while (my $c = $d->accept) {
+while (my ($c, $addr) = $d->accept) {
+	my ($port, $iaddr) = sockaddr_in($addr);
+	my $addr_str = inet_ntoa($iaddr);
 	#say "connection accepted";
 	if (my $r = $c->get_request) {
+	
+		if ($addr_str ne '127.0.0.1') {
+			say "from $addr_str : $port path:" . $r->url->path;
+		}
+		
 		$c->force_last_request();
 		#say "got request " . $r->method;
 		if (($r->method eq 'GET')) {
