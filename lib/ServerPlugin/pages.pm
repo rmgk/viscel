@@ -11,7 +11,7 @@ use CGI qw(:standard *div);
 use ServerPlugin qw(dbh make_head dbstrps dbcmcs cache_strps flags get_title);
 our @ISA = qw(ServerPlugin);
 
-our $VERSION = '1.0.3';
+our $VERSION = '1.1.0';
 
 sub get_content {
 	my ($plugin,@arguments) = @_;
@@ -67,7 +67,12 @@ sub ccomic {
 			$ret .= embed({-src=>"/strips/$comic/$file",-quality=>'high',-type=>($titles{et}//''),-width=>($titles{ew}//800),-height=>($titles{eh}//800)});
 		}
 		else {
+			$ret .= start_div();
 			$ret .= img({-src=>"/strips/$comic/$file",-title=>($titles{it}//''),-alt=>($titles{ia}//'')});
+			$ret .= end_div();
+			$ret .= start_div();
+			$ret .= img({-src=>"/strips/$comic/$nfile",-title=>(''),-alt=>('')}) if ($nfile);
+			$ret .= end_div();
 		}
 	}
 	elsif (dbstrps($comic,'id'=>$strip,'surl')) {

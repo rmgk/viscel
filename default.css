@@ -143,6 +143,11 @@ a[href^=http] {
 	#pagecount {
 		color : #0050cc;
 	}
+	div.comic div {
+		display:inline-block;
+		text-align:center;
+		width: 50%;
+	}
 
 /*striplist*/
 	div.striplist {
