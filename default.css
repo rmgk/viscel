@@ -146,7 +146,7 @@ a[href^=http] {
 	div.comic div {
 		display:inline-block;
 		text-align:center;
-		width: 50%;
+		min-width: 50%;
 	}
 
 /*striplist*/
