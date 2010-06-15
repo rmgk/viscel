@@ -1,0 +1,85 @@
+Lightbringer: archivsprung http://lightbringer.comicgenesis.com/d/20090108.html zum neusten
+somethingpositive - keine strips
+
+lücken und nicht lücken?! (generelles escaping?) http://www.pasteldefender.com/to%20save%20her%20369.html
+
+chapter erkennen
+informationen über bookmark bei rd speichern (das sha1 vielleicht?)
+
+commentare 'best practice' zu tags?
+
+server infos in eigener datenbank (macht suchen und ordnen der comics schwerer - comic3.pl schreibt first last und toread, toread wird auch von server geschrieben)
+
+url current ungültig? error beim laden (5xx) oder redirect (3xx) comic neu runterladen?
+url werden "plötzlich" umbenannt?! was tun wenn cartoonisten sich entschließen archivformate zu ändern?
+
+
+generelle probleme:
+	output der comic3.pl (sollte als modul brauchbar sein - einstellbare output level)
+	generell mehr brauchbarkeit als modul (siehe oben)
+	solidere speicherung der nummerierung der strips und
+	speicherung von first (dann unnötig) bookmark und last als stripnummer (stripnummern sind *etwas* zuverlässiger als ids)
+	überprüfung der 'umgebung' beim start eines comics (neues comic oder url_current, gibts die aktuelle url, findet er da nen strip, wurde sie weitergeleitet usw. siehe auch weiter oben)
+	httpserver: trennung von anzeige und logik
+	
+
+
+
+geordnete sammlung
+
+es gibt genau einen fest definierten *anfang*
+dieser *anfang* zeigt auf genau ein *objekt*
+ein *objekt* kann höchstens eine medien datei enthalten
+mehrere *objekt* können die selbe datei enthalten
+ein *objekt* kann informationen wie titel/format/größe/ursprung/kommentare/... enthalten
+jedes *objekt* hat genau einen *vorgänger* und einen *nachfolger*
+kein *objekt* darf der *vorgänger* oder *nachfolger* von mehr als einem *objekt* sein
+außer dem *anfang-objekt* welches keinen *vorgänger* hat und dem *ende-objekt* welches keinen nachfolger hat
+jedes *objekt* hat eine eindeutige nummer
+das *anfang-objekt* hat nummer 1
+jedes andere *objekt* hat die nummer des *vorgänger-objekt* plus 1
+ein *objekt* darf nicht geändert werden
+das *ende-objekt* darf geändert werden
+das *ende-objekt* darf gelöscht werden, dann wird sein *vorgänger* zum *ende-objekt*, dabei darf das *vorgänger-objekt* geändert werden
+die *sammlung* kann *abgeschlossen* sein, ist also vollständig in der korrekten reihenfolge vorhanden
+
+
+
+nutzerdaten
+
+lesezeichen
+persönliche attribute (möglichen vorlagen)
+eigene datenbank mit werten für comics
+
+
+datenstruktur:
+
+tabelle: collections
+
+name ; klar
+url_current ; wo fängt er an nach neuen strips zu suchen?
+archive_current ; in welchem archiv befanden wir uns gerade?
+count ; wie viele elemente gibt es (und damit auch, welches ist das letzte element)
+checked ; wann haben wir die sammlung zum letzten mal nach neuerungen untersucht? (timestamp)
+updated ; wann haben wir das letzte mal neuerungen in der sammlung gefunden? (timestamp)
+plan ; was haben wir vor mit der sammlung? 
+	(	skip - immer ignorieren, nicht mehr in der liste aufführen
+		demand - ignorieren und bei bedarf im hintergrund runterladen ; 
+		some - die ersten paar runterladen und dann wie demand ;
+		all - nach und nach alle herunterladen ;
+		current - häufig nach updates suchen ;
+		complete - sammlung ist vollständig )
+bookmark ; eine sammlung wird als "wird immoment gelesen" aufgefasst wenn dieser wert gesetzt ist. 'closed' wenn die sammlung beendet ist.
+tags ; tags sind imemr gut, oder?
+
+
+tabellen für jede einzelne collection:
+
+id ; die nummer des objektes
+file ; der dateiname unter dem das objekt gespeichert wurde
+sha1 ; das hash des objektes
+surl ; self url , die ursprüngliche url des objektes
+purl ; page url , die url der seite auf der das objekt gefunden wurde
+meta ; eine komplexe datenstruktur die weitere informationen wie titel des objektes der seite, kommentare oder formate enthalten kann.
+		wenn eine datensruktur enthalten ist, geben die ersten word characters (\w) an um was für eine struktur es sich handelt
+		wenn es ausschließlich word characters enthält, kann es als eine flag benutzt werden (z.b. für dummy)

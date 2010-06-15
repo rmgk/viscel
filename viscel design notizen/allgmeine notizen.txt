@@ -1,0 +1,51 @@
+viscel - VISualCoLlEctions (pff reihenfolgen -.-)
+mit (wl) sind elemente der wunschliste gekennzeichnet. dies sind features die nicht wichtig sind, aber deren mögliche implementierung bei der implementierung anderer funktionen eventuell zu berücksichtigen ist.
+
+überischt, namensräume, zuständigkeiten:
+
+Core <-> Control <-> Service
+
+das zugrundelegende schema entspricht also in etwa einem MVC (modell view control) aufbau.
+
+
+Core: Kern Modul Schnittstelle (CMI) generelle schnittstelle zum zugreifen auf die jeweiligen gruppen von datensammlungen (es kann verschiedene Kern Module geben um bestimmte problemgruppen zu erschlagen, ein beispiel wäre ein eigenes modul für große anbieter wie comicgenesis oder mangafox, aber auch eigene module für sehr spezielle fälle sind denkbar (pown?) siehe auch geordnete sammlung aus den comcol notizen als referenz). 
+angedachte funktionene der CMI: 
+
+	liste der unterstützen sammlungen
+	
+	status einer bestimmten sammlung (wichtig sind 'etwas heruntergeladen' und 'noch nichts heruntergeladen' weitere information wie 'ist vollständig' oder 'es gibt insgesamt so und so viele elemente in der sammlung und so viele davon hast du bereits' sind optional. weitere informationen?)
+	
+	sammlung initialisieren (datenbanken/ordner erstellen)
+	
+	sammlung überprüfen (eine möglichkeit eine gewisse konsistenz der sammlung nachzuprüfen, einerseits ob durch neue versionen irgendwelche änderungen aufgetreten sind z.b. an der datenbank struktur, andererseits ob die sammlung noch konsistent zu der quelle ist. überprüfungen könnten url checks beinhalten, oder auch dateien auf hashsummen überprüfen. möglicherweise eine aufteilung, in eine kurze schnelle prüfung und eine etwas genauere dafür kostspieligere untersuchung)
+	
+	nächstes minimalelement herunterladen (ein minimalelement ist die kleiste herunterladbare einheit. im regelfall wird dies ein bild sein, es könnte sich aber auch um ein ganzes archiv handeln, wenn die elemente nicht atomar vorliegen.) (statt nächstes element vielleicht direkte addressierung? also im stil von 'lade element 100'? zustandslosigkeit wäre ein vorteil, aber viele sammlungen sind verkettete listen. ) 
+	
+	nächste logische einheit herunterladen  (die logisch nächste einheit entspricht bis zu einem kapitel, eine einheit am anfang sollte genug sein um einem menschen einen eindruch von der sammlung zu vermitteln)
+	
+	addressierbarkeit einzelner sammlungselemente (man kann nach dem 1. oder dem 100. element fragen und verschiedene repräsentationen davon erhalten, binäre daten, metadaten, hml repräsentation?)
+	
+	(wl) sammlung exportieren? (sammlung in ein einheitliches format exportieren? möglichst universal lesbar)
+	
+	
+Control: Haupt Anwendungs Logik  wird beim programmaufruf gestarte und geht dann durch die folgenden phasen:
+allgmeine überprüfung der umgebung (kann das programm überhaupt ordnungsgemäß laufen)
+aufgabenüberprüfung (gibt es irgendwas wichtiges was JETZT getan werden muss (aktualisierung, ..)
+(parallele) aufgabenabarbeitung (quasi der main loop, hier sollte alles passieren bis das programm sich beendet, siehe etwas weiter unten
+(hoffentlich) sauberes beenden :)
+
+abzuarbeitende aufgaben sind dinge wie folgendes:
+	nutzer interaktion (irgendwann will man schließlich was sehen, diese aufgabe sollte eine hohe priorität haben, und im besten fall in einem eigenen thread ausgeführt werden)
+	sammlungen aktualiseren und neue sammlungen herunterladen
+	"garbage collection" alte sammmlungen auf konsistenz überprüfen, möglicherweise neu indexen 
+	
+
+Service: HTTP/HTML interface (httpserver) siehe aktuelle implementierung des httpservers als grundlegende referenz :D
+"zustandslosigkeit" eine nutzeranfrage sollte keine der daten verändern, es sei denn diese anfrage ist speziell gekennzeichnet (put/post request), klare trennung zwischen verändernden und nicht verändernden aufrufen, möglicher rechteverwaltung (ändern nur mit passwort/von lokaler ip) 
+
+überflüssige funktionene (?): tags, kommentare, verschieden flags ...
+
+
+
+
+ 
