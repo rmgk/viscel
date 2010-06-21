@@ -1,0 +1,45 @@
+angedachte funktionene der CMI: 
+
+	liste der unterstützen sammlungen
+	
+	status einer bestimmten sammlung (wichtig sind 'etwas heruntergeladen' und 'noch nichts heruntergeladen' weitere information wie 'ist vollständig' oder 'es gibt insgesamt so und so viele elemente in der sammlung und so viele davon hast du bereits' sind optional. weitere informationen?)
+	
+	sammlung initialisieren (datenbanken/ordner erstellen)
+	
+	sammlung überprüfen (eine möglichkeit eine gewisse konsistenz der sammlung nachzuprüfen, einerseits ob durch neue versionen irgendwelche änderungen aufgetreten sind z.b. an der datenbank struktur, andererseits ob die sammlung noch konsistent zu der quelle ist. überprüfungen könnten url checks beinhalten, oder auch dateien auf hashsummen überprüfen. möglicherweise eine aufteilung, in eine kurze schnelle prüfung und eine etwas genauere dafür kostspieligere untersuchung)
+	
+	nächstes minimalelement herunterladen (ein minimalelement ist die kleiste herunterladbare einheit. im regelfall wird dies ein bild sein, es könnte sich aber auch um ein ganzes archiv handeln, wenn die elemente nicht atomar vorliegen.) (statt nächstes element vielleicht direkte addressierung? also im stil von 'lade element 100'? zustandslosigkeit wäre ein vorteil, aber viele sammlungen sind verkettete listen. ) 
+	
+	(veraltet) nächste logische einheit herunterladen  (die logisch nächste einheit entspricht bis zu einem kapitel, eine einheit am anfang sollte genug sein um einem menschen einen eindruch von der sammlung zu vermitteln)
+	
+	addressierbarkeit einzelner sammlungselemente (man kann nach dem 1. oder dem 100. element fragen und verschiedene repräsentationen davon erhalten, binäre daten, metadaten, hml repräsentation?)
+	
+	(wl) sammlung exportieren? (sammlung in ein einheitliches format exportieren? möglichst universal lesbar)
+	
+
+
+identifier, jede sammlung hat eine eindeutige id. diese ist global einmalig, die sammlungen zweier verschiedener kerne haben auch immer verschiedene ids. 
+jeder kern hat einen zustand (state) einen einfachen string, der in einer datenbank gespeichert werden kann. ein kern kann mit einer id und einem zustand genau feststellen, welches objekt momentan von interesse ist. zustände können ungültig geworden sein (wenn sich die entfernte repräsentation geändert hat). 
+ein kern befindet sich immer in genau einem zustand und ändert diesen nie. (der zustand wird beim instanziieren festgelegt und ist möglicherweise der *anfangs* zustand)
+ein kern kann mithilfe einer id und eines zustandes einen nachfolgezustand berechnen und eine neue instanz desselben zurückgeben.
+ein zustand kann ein *innerer zustand* sein. in einem solchen ist es effizienter die daten des nächsten zustandes zu erfassen (als zu pausieren)
+ein zustand kann sich selbst als uri darstellen (eine beste näherung für das auf was er zeigt)
+
+
+ablauf:
+(neue sammlung herunterladen)
+	$state = Cores->get("id","startzustand");
+	Datenbank->create_table("c_id");
+	
+(neue elemente herunterladen)
+	$state = Cores->get("id",Datenbank->get_state_of("id"));
+	if ! $state->check_consistent()  #existiert das wofür der zustand steht überhaupt noch?
+		abbrechen und sammlung zum überprüfen markieren
+	else 
+	wiederhole:
+		$state = $state->next_state();
+		$object = $state->get_object(); #hier wird (möglicherweise) eine verbindung zur entfernten repräsentation aufgebaut und das objekt damit befüllt
+		Datenbank->save("id",$state,$object); #ein objekt kennt seine nummer, seine metadaten und seien binäre repräsentation
+	ende;
+	Datenbakn->save_state("id",$state);
+	
