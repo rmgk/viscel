@@ -598,6 +598,7 @@ sub class_change {
 		when (m#^http://www.mangafox.com/#) {$s->{config}->{class} //= "mangafox"};
 		when (m#^http://manga.animea.net/#) {$s->{config}->{class} //= "animea"};
 		when (m#^http://www.onemanga.com/#) {$s->{config}->{class} //= "onemanga"};
+		when (m#^http://www.1000manga.com/#) {$s->{config}->{class} //= "onemanga"};
 		when (m#^http://(www.)?cartooniverse.\w+.co.uk/#) {$s->{config}->{class} //= "cartooniverse"};
 	}
 	
@@ -605,7 +606,7 @@ sub class_change {
 		if ($s->{config}->{class} eq "onemanga") {
 			$s->{config}->{regex_next} //= q#var next = '([^']+)'#;
 			$s->{config}->{regex_prev} //= q#var back = '([^']+)'#;
-			$s->{config}->{regex_strip_url} //= q#<img class="manga-page" src="([^"]+)"#;
+			$s->{config}->{regex_strip_url} //= q#<img(?: id="mangaPic" )?class="manga-page" src="([^"]+)"#;
 			#$s->{config}->{rename} //= q"strip_url#(\d+)/([^/]+)\.#01";
 			$s->{config}->{rename_depth} //= 2; 
 		}
