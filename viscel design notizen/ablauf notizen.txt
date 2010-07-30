@@ -1,0 +1,35 @@
+möglichst viel sollte im haupt thread laufen das bedeutet,
+	das interface (httpserver),
+	die download logick für die nächsten comics
+da das downloaden von neuen seiten und strips verhältnismäßig lange dauert und das interface dadurch behindert wird, sollten diese anfragen in asynchrone subroutinene ausgelagert werden.
+
+grobe ablaufskizze: 
+	initialisierung
+	wiederhole:
+		user interface query response
+		user input bearbeiten
+		aktuelle sammlungen bearbeiten
+
+asynchrone abläufe:
+	wenn eine neue seite bearbeitet wird, muss der inhalt dieser seite meistens bekannt sein um eine nächste seite finden zu können. in diesem fall wird die aktuelle aufgabe zum warten gezwungen.
+	es sollten nicht mehrere seiten gleichzeitig behandelt werden, die reihenfolge zu berücksichtigen, und den entfernten server nciht zu überlasten.
+	wird ein objekt (bild) gefunden, so kann seine addresse in eine warteschlange eingefügt werden. diese kann direkt abgehandelt werden, oder aber erst viel später (nur indexerzeugung, ohen daten zu laden)
+	es muss sichergestellt werden, das die reihenfolge der objekte nicht durcheinandergebracht wird, besonders wenn außer der (nicht unbedingt eindeutigen) adresse kaum weitere informationen vorhanden sind.
+
+synchrone abläufe:
+(neue sammlung herunterladen)
+	$state = Cores->get("id","startzustand");
+	Datenbank->create_table("c_id");
+	
+(neue elemente herunterladen)
+	$state = Cores->get("id",Datenbank->get_state_of("id"));
+	if ! $state->check_consistent()  #existiert das wofür der zustand steht überhaupt noch?
+		abbrechen und sammlung zum überprüfen markieren
+	else 
+	wiederhole:
+		$state = $state->next_state();
+		$object = $state->get_object(); #hier wird (möglicherweise) eine verbindung zur entfernten repräsentation aufgebaut und das objekt damit befüllt
+		Datenbank->save("id",$state,$object); #ein objekt kennt seine nummer, seine metadaten und seien binäre repräsentation
+	ende;
+	Datenbakn->save_state("id",$state);
+	

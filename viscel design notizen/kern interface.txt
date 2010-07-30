@@ -26,20 +26,3 @@ ein zustand kann ein *innerer zustand* sein. in einem solchen ist es effizienter
 ein zustand kann sich selbst als uri darstellen (eine beste näherung für das auf was er zeigt)
 
 
-ablauf:
-(neue sammlung herunterladen)
-	$state = Cores->get("id","startzustand");
-	Datenbank->create_table("c_id");
-	
-(neue elemente herunterladen)
-	$state = Cores->get("id",Datenbank->get_state_of("id"));
-	if ! $state->check_consistent()  #existiert das wofür der zustand steht überhaupt noch?
-		abbrechen und sammlung zum überprüfen markieren
-	else 
-	wiederhole:
-		$state = $state->next_state();
-		$object = $state->get_object(); #hier wird (möglicherweise) eine verbindung zur entfernten repräsentation aufgebaut und das objekt damit befüllt
-		Datenbank->save("id",$state,$object); #ein objekt kennt seine nummer, seine metadaten und seien binäre repräsentation
-	ende;
-	Datenbakn->save_state("id",$state);
-	
