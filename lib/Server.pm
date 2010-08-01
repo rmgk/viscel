@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #this program is free software it may be redistributed under the same terms as perl itself
-package HTTPServer;
+package Server;
 
 use 5.012;
 use strict;

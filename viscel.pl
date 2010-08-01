@@ -12,7 +12,10 @@ use Log::Log4perl qw(:easy);
 
 use HTTP::Date qw(time2str);
 
-use HTTPServer;
+use dlutil;
+
+use Server;
+use Cores;
 
 
 
@@ -23,45 +26,40 @@ my $l = get_logger();
 my $toq = Thread::Queue->new();
 my $fromq = Thread::Queue->new();
 	 
-#threads->create('factorizer', $toq, $fromq);
+threads->create('getter', $toq, $fromq);
+
+sub getter {
+	my ($inq , $outq) = @_;
+	while (my $url = $inq->dequeue()) {
+		$l->info("enqueued " , $url);
+		$outq->enqueue([$url,dlutil::get($url)]);
+	}
+}
 
 my %f;
-sub factorizer {
-	my ($inq , $outq) = @_;
-	while (my $num = $inq->dequeue()) {
-		$l->info("enqueued " , $num);
-		$outq->enqueue([$num,get("http://inverloch.seraph-inn.com/pages/$num.jpg")->content()]);
 
-	}
-}
-
-sub factors {
-	my ($num) = @_;
-	$l->info("query ",$num);
-	if (!defined $f{$num}) {
-		$toq->enqueue($num);
-		$f{$num} = HTTP::Response->new( 200, 'OK', ['Content-Type','text/html; charset=iso-8859-1']);
-		$f{$num}->content("please wait");
-	}
-	return $f{$num};
+sub adder {
+	my ($url,$cb) = @_;
+	$toq->enqueue($url);
+	$f{$url} = $cb;
 }
 
 
-HTTPServer::init();
-HTTPServer::req_handler('kekse',sub {
+my $inv  = Cores::get('Inverloch');
+$inv->fetch(\&adder);
+
+Server::init();
+Server::req_handler('inverloch',sub {
 my ($c,$r) = @_;
-	$c->send_response(HTTP::Response->new( 200, 'OK', ['Last-Modified' , time2str(time)],'<!DOCTYPE html><head><title>kekse für alle</title></head><body><a href="/kekse">kekse für alle</a></body>' )); 
+	$c->send_response(HTTP::Response->new( 200, 'OK', ['Last-Modified' , time2str(time),'Content-Type','image/jpeg'],$inv->get())); 
 });
 
 
 
 while (1) {
-	#$l->debug("checking for connections");
-	HTTPServer::handle_connections();
+	Server::handle_connections();
 	while (defined(my $item = $fromq->dequeue_nb())) {
-		$f{$item->[0]} = HTTP::Response->new( 200, 'OK', ['Content-Type','image/jpg']);
-		$f{$item->[0]}->content($item->[1]);
-
+		$f{$item->[0]}($item->[1]);
 		$l->info("finished ", $item->[0]);
 	}
 }
