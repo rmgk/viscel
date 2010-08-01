@@ -55,6 +55,7 @@ sub handlereq {
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
 		$l->debug("connection accepted from ",$addr_str ,":",$port);
+		$c->timeout(1);
 		while (my $r = $c->get_request) {
 			
 			$l->debug("request on ", $r->url->path , " method ", $r->method);

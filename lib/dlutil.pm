@@ -25,7 +25,7 @@ require Exporter;
 @EXPORT_OK = qw($ua);
 
 our($VERSION);
-$VERSION = '12';
+$VERSION = '13';
 
 =head1 functions
 
@@ -38,7 +38,7 @@ sub _init_ua {
 	#require HTTP::Status;
 	#require HTTP::Date;
 	$ua = new LWP::UserAgent;  # we create a global UserAgent object
-	$ua->agent("comcol/$::VERSION");
+	$ua->agent("vdlu/$VERSION");
 	$ua->timeout(15);
 	$ua->env_proxy;
 	$ua->conn_cache(LWP::ConnCache->new());
