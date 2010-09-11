@@ -23,7 +23,7 @@ sub new {
 #logs $msg if $level is high enough
 sub log {
 	my ($s) = shift;
-	say join ' ', @_;
+	say join '', @_;
 } 
 
 #$msg
