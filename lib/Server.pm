@@ -1,26 +1,30 @@
-#!/usr/bin/perl
+#!perl
 #this program is free software it may be redistributed under the same terms as perl itself
 package Server;
 
 use 5.012;
-use strict;
 use warnings;
 
-use HTTP::Daemon;
-use Log::Log4perl qw(get_logger);
+our $VERSION = v1;
 
-our $VERSION = '1';
+use Log;
+use HTTP::Daemon;
+
 my $d;
-my $l = get_logger();
+my $l = Log->new();
 my %req_handler;
 
+#$port -> $daemon
+#initialises the http server
 sub init {
 	my $port = shift // 80;
 	$l->info("launching server on port $port");
 	$d = HTTP::Daemon->new(LocalPort => $port);
-	return $d or $l->logdie("could not listen on port $port");
+	return $d or die("could not listen on port $port");
 }
 
+#$path, \&request_handler -> \&request_handler
+#sets the request handler for $path and returns it
 sub req_handler {
 	my ($path,$handler) = @_;
 	if ($handler) {
@@ -30,6 +34,8 @@ sub req_handler {
 	return $req_handler{$path};
 }
 
+#-> $bool
+#returns 1 if an incoming connection was handled 0 if not
 sub handle_connections {
 	if (my ($c, $addr) = $d->accept) {
 		my ($port, $iaddr) = sockaddr_in($addr);
@@ -39,9 +45,11 @@ sub handle_connections {
 		handle_connection($c);
 		return 1;
 	}
-	return;
+	return 0;
 }
 
+#$connection
+#handles requests on the $connection
 sub handle_connection {
 	my $c = shift;
 	$l->trace("handling connection");
@@ -51,6 +59,8 @@ sub handle_connection {
 	$l->debug("no more requests: " . $c->reason);
 }
 
+#$connection, $request
+#dispatches the request to the request handler or sends a 404 error if no handler is registered
 sub handle_request {
 	my ($c,$r) = @_;
 	$l->debug("handling request: " , $r->method(), ' ', $r->url->as_string());
