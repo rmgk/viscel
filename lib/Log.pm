@@ -7,7 +7,7 @@ use warnings;
 
 our $VERSION = 1;
 our ($TRACE, $DEBUG, $INFO, $WARN, $ERROR, $FATAL, $SILENT) = 0..6;
-my $DEFAULT = $INFO;
+my $DEFAULT = $TRACE;
 
 #$class, \%settings -> \%self
 #consctructor
