@@ -22,48 +22,45 @@ sub new {
 #$level, $msg
 #logs $msg if $level is high enough
 sub log {
-	my ($s,$msg) = @_;
-	say $msg;
+	my ($s) = shift;
+	say join ' ', @_;
 } 
 
 #$msg
 sub trace { 
-	my ($s,$msg) = @_;
+	my ($s) = shift;
 	return if ($TRACE < $s->{level});
-	$s->log($msg);
+	$s->log(@_);
 }
 #$msg
 sub debug { 
-	my ($s,$msg) = @_;
+	my ($s) = shift;
 	return if ($DEBUG < $s->{level});
-	$s->log($msg);
+	$s->log(@_);
 }
 #$msg
 sub info { 
-	my ($s,$msg) = @_;
+	my ($s) = shift;
 	return if ($INFO < $s->{level});
-	$s->log($msg);
+	$s->log(@_);
 }
 #$msg
 sub warn { 
-	my ($s,$msg) = @_;
+	my ($s) = shift;
 	return if ($WARN < $s->{level});
-	$s->log($msg);
+	$s->log(@_);
 }
 #$msg
 sub error { 
-	my ($s,$msg) = @_;
+	my ($s) = shift;
 	return if ($ERROR < $s->{level});
-	$s->log($msg);
+	$s->log(@_);
 }
 #$msg
 sub fatal { 
-	my ($s,$msg) = @_;
+	my ($s) = shift;
 	return if ($FATAL < $s->{level});
-	$s->log($msg);
+	$s->log(@_);
 }
 
-
-
-
-1;	
+1;
