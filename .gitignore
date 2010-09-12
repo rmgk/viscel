@@ -4,3 +4,5 @@ log.txt
 err.txt
 .multilock.db
 .singlelock
+collections.db
+cache
