@@ -10,6 +10,7 @@ our $VERSION = v1;
 
 use Log;
 use DBI;
+use Entity;
 
 my $l = Log->new();
 my $DBH;
@@ -23,10 +24,10 @@ sub init {
 }
 
 #$class, $id, $pos -> \%self
-#creates a new collection instance of $id at position $pos
+#creates a new spot of $id at position $pos
 sub create {
 	my ($class,$id,$pos) = @_;
-	my $self = {id => $id, position => $pos, fail => 'not mounted'};
+	my $self = {id => $id, position => $pos};
 	$l->debug('creating new core ' , $class, ' id: ', $id, ,' position: ', $pos);
 	$class->new($self);
 	if ($self->check()) {
@@ -41,6 +42,7 @@ sub create {
 sub new {
 	my ($class,$self) = @_;
 	$l->trace('new ',$class,' instance');
+	$self->{fail} = 'not mounted';
 	bless $self, $class;
 	return $self;
 }
@@ -73,7 +75,7 @@ sub check {
 #makes preparations to find objects
 sub mount {
 	my ($s) = @_;
-	$l->trace('mounting ' . $s->{id} . $s->{position});
+	$l->trace('mounting ' . $s->{id} .' '. $s->{position});
 	my $comic = $s->{id};
 	$comic =~ s/^.*_//;
 	my $entry;
@@ -87,8 +89,8 @@ sub mount {
 	return 1;
 }
 
-#-> \%object
-#returns the object 
+#-> \%entity
+#returns the entity
 sub fetch {
 	my ($s) = @_;
 	return 0 if $s->{fail};
@@ -96,18 +98,32 @@ sub fetch {
 	my $object = {};
 	my $comic = $s->{id};
 	$comic =~ s/^.*_//;
-	open (my $fh, '<', $DIR."strips/$comic/".$s->{_data}->{file});
+	my $fh;
+	unless(open ($fh, '<', $DIR."strips/$comic/".$s->{_data}->{file})) {
+		$l->warn('failed to open' . $s->{_data}->{file});
+		return undef;
+	}
 	binmode $fh;
 	local $/ = undef;
-	$object->{blob} .= <$fh>;
+	$object->{blob} = <$fh>;
 	close $fh;
 	$object->{filename} = $s->{_data}->{file};
 	$object->{sha1} = $s->{_data}->{sha1};
 	$object->{url} = $s->{_data}->{surl};
 	$object->{page_url} = $s->{_data}->{purl};
+	$object->{cid} = $s->{id};
 	#here be dragons
-	$s->{object} = $object;
-	return $object;
+	$s->{entity} = Entity->new($object);
+	return $s->{entity};
+}
+
+#returns the next spot
+sub next {
+	my ($s) = @_;
+	$l->trace('creating next');
+	my $next = {id => $s->{id}, position => $s->{position} + 1 };
+	$next = Core::Comcol->new($next);
+	return $next;
 }
 
 1;
