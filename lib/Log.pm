@@ -23,43 +23,50 @@ sub new {
 #logs $msg if $level is high enough
 sub log {
 	my ($s) = shift;
-	say join '', @_;
+	my @call = caller 1;
+	say "\t". join("\t", @call[2,0]) . ":\t" . join '', @_;
 } 
 
 #$msg
 sub trace { 
 	my ($s) = shift;
 	return if ($TRACE < $s->{level});
+	print 'TRACE';
 	$s->log(@_);
 }
 #$msg
 sub debug { 
 	my ($s) = shift;
 	return if ($DEBUG < $s->{level});
+	print 'DEBUG';
 	$s->log(@_);
 }
 #$msg
 sub info { 
 	my ($s) = shift;
 	return if ($INFO < $s->{level});
+	print 'INFO';
 	$s->log(@_);
 }
 #$msg
 sub warn { 
 	my ($s) = shift;
 	return if ($WARN < $s->{level});
+	print 'WARN';
 	$s->log(@_);
 }
 #$msg
 sub error { 
 	my ($s) = shift;
 	return if ($ERROR < $s->{level});
+	print 'ERROR';
 	$s->log(@_);
 }
 #$msg
 sub fatal { 
 	my ($s) = shift;
 	return if ($FATAL < $s->{level});
+	print 'FATAL';
 	$s->log(@_);
 }
 
