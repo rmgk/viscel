@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-#this program is free software it may be redistributed under the same terms as perl itself
+#!perl
+#This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
 package Core::Inverloch;
 
 use 5.012;
