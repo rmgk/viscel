@@ -15,7 +15,7 @@ my $l = Log->new();
 sub new {
 	my ($class,$self) = @_;
 	$l->trace('creating new entity');
-	foreach my $needed (qw(blob sha1 filename cid)) {
+	foreach my $needed (qw(position blob sha1 filename cid)) {
 		unless (defined $self->{$needed}) {
 			$l->debug($needed . ' not defined');
 			return undef;

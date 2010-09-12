@@ -109,9 +109,10 @@ sub fetch {
 	close $fh;
 	$object->{filename} = $s->{_data}->{file};
 	$object->{sha1} = $s->{_data}->{sha1};
-	$object->{url} = $s->{_data}->{surl};
+	$object->{src} = $s->{_data}->{surl};
 	$object->{page_url} = $s->{_data}->{purl};
 	$object->{cid} = $s->{id};
+	$object->{position} = $s->{position};
 	#here be dragons
 	$s->{entity} = Entity->new($object);
 	return $s->{entity};

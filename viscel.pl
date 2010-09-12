@@ -11,6 +11,7 @@ use Log;
 use Server;
 use Core::Comcol;
 use Cache;
+use Collection::Ordered;
 
 # ------ initialisation --------------------
 
@@ -18,12 +19,11 @@ my $l = Log->new();
 
 #Server::init();
 Cache::init();
-
-my $i = 1;
-
 Core::Comcol::init();
+
 for my $comic (qw(Inverloch)) {
 	my $spot = Core::Comcol->create('Comcol_'.$comic,1);
+	my $col = Collection::Ordered->new({id => 'Comcol_'.$comic});
 	next unless $spot;
 	while ($spot->mount()) {
 		my $ent = $spot->fetch();
@@ -31,8 +31,8 @@ for my $comic (qw(Inverloch)) {
 			$spot = $spot->next();
 			next;
 		}
-		my $blob = \$ent->{blob}; 
-		Cache::put($ent->{sha1},$blob);
+		$col->store($ent);
 		$spot = $spot->next();
 	}
+	$col->clean();
 }
