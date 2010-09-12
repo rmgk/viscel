@@ -1,6 +1,6 @@
 #!perl
 #this program is free software it may be redistributed under the same terms as perl itself
-package Storage;
+package Cache;
 
 use 5.012;
 use warnings;
@@ -11,14 +11,14 @@ use Log;
 
 my $l = Log->new();
 
-our $DIR = 'store/';
+our $DIR = 'cache/';
 
 
-#initialises the storage
+#initialises the cache
 sub init {
-	$l->trace('initialising storage');
+	$l->trace('initialising cache');
 	unless (-e $DIR or mkdir $DIR) {
-		$l->error('could not create storage dir ' .$DIR);
+		$l->error('could not create cache dir ' .$DIR);
 		return undef;
 	}
 	
