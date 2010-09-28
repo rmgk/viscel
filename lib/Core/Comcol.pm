@@ -132,7 +132,9 @@ sub fetch {
 	$object->{page_url} = $s->{_data}->{purl};
 	$object->{cid} = $s->{id};
 	$object->{position} = $s->{position};
-	#here be dragons
+	my %titles = get_title($object->{title});
+	$object->{title} = $titles{it};
+	$object->{alt} = $titles{ia};
 	$s->{entity} = Entity->new($object);
 	return $s->{entity};
 }
@@ -148,8 +150,7 @@ sub next {
 
 #gets strip titles
 sub get_title {
-	my ($comic,$strip,$title) = @_;
-	$title //= dbstrps($comic,'id'=>$strip,'title') // '';
+	my ($title) = @_;
 	return undef unless $title;
 	my %titles = ();
 	if ($title =~ /^\{.*\}$/) {
