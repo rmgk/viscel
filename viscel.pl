@@ -22,7 +22,6 @@ Server::init();
 Cache::init();
 Core::Comcol::init();
 
-#say join "\n" , sort @{Core::Comcol::list_ids()};
 Server::req_handler('index',\&RequestHandler::index);
 Server::req_handler('col',\&RequestHandler::col);
 Server::req_handler('blob',\&RequestHandler::blob);

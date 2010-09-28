@@ -62,10 +62,6 @@ sub store {
 sub get {
 	my ($s, $pos) = @_;
 	$l->trace('get '. $s->{id} .' '. $pos);
-	if (defined $s->{ent_cache_pos} and $s->{ent_cache_pos} == $pos) {
-		$l->debug('using cached entity');
-		return $s->{ent_cache};
-	} 
 	my $ret;
 	unless (defined ($ret = $s->{dbh}->selectrow_hashref('SELECT '.Entity::attribute_list_string().' FROM ' . $s->{id} . ' WHERE position = ?',undef, $pos))) {
 		$l->warn('could not retrieve entity ' .$!);
@@ -73,8 +69,6 @@ sub get {
 	}
 	$ret->{cid} = $s->{id};
 	$ret = Entity->new($ret);
-	$s->{ent_cache} = $ret;
-	$s->{ent_cache_pos} = $pos;
 	return $ret;
 }
 

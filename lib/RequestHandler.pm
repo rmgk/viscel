@@ -21,6 +21,7 @@ my $l = Log->new();
 #extracts the arguments and the parameters from a request object
 sub parse_request {
 	my $r = shift;
+	$l->trace('parse request');
 	my @args;
 	if ($r->url->path =~ m#^/(?<handler>\w+)/?(?<args>.*?)/?$#i) {
 		@args = split('/',$+{args});
@@ -35,8 +36,16 @@ sub parse_request {
 #sends a default html response
 sub send_response {
 	my ($c,$html) = @_;
+	$l->trace('sending response');
 	my $res = HTTP::Response->new( 200, 'OK', ['Content-Type','text/html; charset=utf-8']);
 	$res->content($html);
+	$c->send_response($res);
+}
+
+sub send_404 {
+	my ($c) = @_;
+	$l->trace('sending 404');
+	my $res = HTTP::Response->new( 404, 'File Not Found');
 	$c->send_response($res);
 }
 
@@ -63,12 +72,22 @@ sub col {
 	my $ent = $col->get($args->[1]);
 	unless ($ent) {
 		my $spot = Core::Comcol->create($args->[0],$args->[1]);
-		return undef unless $spot;
+		unless ($spot) {
+			$l->warn('could not get spot');
+			$col->clean();
+			return send_404($c);
+		}
 		$spot->mount();
 		$ent = $spot->fetch();
+		unless ($ent) {
+			$l->error('could not fetch entity');
+			$col->clean();
+			return send_404($c); 
+		}
 		$col->store($ent);
 	} 
 	$col->clean();
+	$l->trace('creating response content');
 	$html .= $ent->html();
 	$html .= $cgi->a({href=>"/col/". $args->[0] . "/" .($args->[1] + 1)},'next');
 	$html .= $cgi->end_html();

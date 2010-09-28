@@ -11,6 +11,7 @@ our $VERSION = v1;
 use Log;
 use DBI;
 use Entity;
+use HTML::Entities;
 
 my $l = Log->new();
 my $DBH;
@@ -116,7 +117,7 @@ sub fetch {
 	$comic =~ s/^.*_//;
 	my $fh;
 	unless(open ($fh, '<', $DIR."strips/$comic/".$s->{_data}->{file})) {
-		$l->error('failed to open' . $s->{_data}->{file});
+		$l->error('failed to open: ' . $s->{_data}->{file});
 		return undef;
 	}
 	binmode $fh;
@@ -124,7 +125,7 @@ sub fetch {
 	$object->{blob} = <$fh>;
 	close $fh;
 	$object->{filename} = $s->{_data}->{file};
-	my $ext = $object->{filename} ~~ m/.*\.\w{3,4}$/;
+	my ($ext) = $object->{filename} ~~ m/.*\.(\w{3,4})$/;
 	$ext = $ext eq 'jpg' ? 'jpeg' : $ext;
 	$object->{type} = "image/$ext"; #its a goood enough guess as the archives contain very little non image files
 	$object->{sha1} = $s->{_data}->{sha1};
@@ -132,9 +133,9 @@ sub fetch {
 	$object->{page_url} = $s->{_data}->{purl};
 	$object->{cid} = $s->{id};
 	$object->{position} = $s->{position};
-	my %titles = get_title($object->{title});
-	$object->{title} = $titles{it};
-	$object->{alt} = $titles{ia};
+	my %titles = get_title($s->{_data}->{title});
+	$object->{title} = $titles{it} ? decode_entities($titles{it}) : undef;
+	$object->{alt} = $titles{ia} ? decode_entities($titles{ia}) : undef;
 	$s->{entity} = Entity->new($object);
 	return $s->{entity};
 }
