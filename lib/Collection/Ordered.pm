@@ -26,7 +26,7 @@ sub new {
 	$l->trace('new ordered collection: ' . $self->{id});
 	$self->{dbh} = DBI->connect("dbi:SQLite:dbname=$DB_DIR","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 	unless ($self->{dbh}->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name=?",undef,$self->{id})) {
-		unless($self->{dbh}->do('CREATE TABLE ' . $self->{id} . ' (position INTEGER PRIMARY KEY, sha1 CHAR, filename CHAR, title CHAR, alt CHAR, src CHAR)')) {
+		unless($self->{dbh}->do('CREATE TABLE ' . $self->{id} . ' (position INTEGER PRIMARY KEY, sha1 CHAR, type CHAR, filename CHAR, title CHAR, alt CHAR, src CHAR)')) {
 			$l->error('could not create table '. $self->{id});
 			return undef;
 		}
@@ -50,7 +50,32 @@ sub store {
 		return undef;
 	}
 	my $blob = \$ent->{blob}; 
+	unless (defined $blob) {
+		$l->error('blob not defined');
+		return undef;
+	}
 	return Cache::put($ent->{sha1},$blob);
+}
+
+#$pos -> \%entity
+#retrieves the entity at position pos
+sub get {
+	my ($s, $pos) = @_;
+	$l->trace('get '. $s->{id} .' '. $pos);
+	if (defined $s->{ent_cache_pos} and $s->{ent_cache_pos} == $pos) {
+		$l->debug('using cached entity');
+		return $s->{ent_cache};
+	} 
+	my $ret;
+	unless (defined ($ret = $s->{dbh}->selectrow_hashref('SELECT position, sha1, filename, title, alt, src FROM ' . $s->{id} . ' WHERE position = ?',undef, $pos))) {
+		$l->warn('could not retrieve entity ' .$!);
+		return undef;
+	}
+	$ret->{cid} = $s->{id};
+	$ret = Entity->new($ret);
+	$s->{ent_cache} = $ret;
+	$s->{ent_cache_pos} = $pos;
+	return $ret;
 }
 
 #commits the database changes

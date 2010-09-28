@@ -64,7 +64,7 @@ sub handle_connection {
 sub handle_request {
 	my ($c,$r) = @_;
 	$l->debug("handling request: " , $r->method(), ' ', $r->url->as_string());
-	$l->trace($r->as_string());
+	#$l->trace($r->as_string());
 	if ($r->url->path =~ m#^/([^/]*)#) {
 		my $path = $1;
 		if ($path ne '' and $req_handler{$path}) {
@@ -77,6 +77,7 @@ sub handle_request {
 	}
 	else {
 		$l->warn('unexpected uri path: ', $r->url->path);
+		$c->send_response(HTTP::Response->new( 404, 'File Not Found'));
 	}
 }
 

@@ -5,12 +5,12 @@ package Log;
 use 5.012;
 use warnings;
 
-our $VERSION = 1;
+our $VERSION = v1;
 our ($TRACE, $DEBUG, $INFO, $WARN, $ERROR, $FATAL, $SILENT) = 0..6;
 my $DEFAULT = $TRACE;
 
 #$class, \%settings -> \%self
-#consctructor
+#constructor
 sub new {
 	my ($class,$self) = @_;
 	$self //= {}; 

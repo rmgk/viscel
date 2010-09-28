@@ -12,14 +12,23 @@ use Server;
 use Core::Comcol;
 use Cache;
 use Collection::Ordered;
+use RequestHandler;
 
 # ------ initialisation --------------------
 
 my $l = Log->new();
 
-#Server::init();
+Server::init();
 Cache::init();
 Core::Comcol::init();
+
+#say join "\n" , sort @{Core::Comcol::list_ids()};
+Server::req_handler('index',\&RequestHandler::index);
+Server::req_handler('col',\&RequestHandler::col);
+Server::req_handler('img',\&RequestHandler::img);
+while (1) { Server::handle_connections(); }
+
+__END__
 
 for my $comic (qw(Inverloch)) {
 	my $spot = Core::Comcol->create('Comcol_'.$comic,1);

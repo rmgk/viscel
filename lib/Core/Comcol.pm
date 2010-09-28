@@ -23,6 +23,22 @@ sub init {
 	$DBH = DBI->connect("dbi:SQLite:dbname=".$DIR.'comics.db',"","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 }
 
+#lists the known ids
+sub list_ids {
+	unless ($DBH) {
+		$l->error('$DBH undefined call init');
+		return undef;
+	}
+	my $cmcs;
+	unless ($cmcs = $DBH->selectcol_arrayref('SELECT comic FROM comics')) {
+		$l->error('could not get info from database');
+		return undef;
+	}
+	@$cmcs = map {'Comcol_' . $_} @$cmcs;
+	return $cmcs
+	
+}
+
 #$class, $id, $pos -> \%self
 #creates a new spot of $id at position $pos
 sub create {
@@ -33,7 +49,7 @@ sub create {
 	if ($self->check()) {
 		return $self;
 	}
-	$l->warn('failed environment checks');
+	$l->error('failed environment checks');
 	return undef;
 }
 
@@ -54,19 +70,19 @@ sub check {
 	my ($s) = @_;
 	$l->trace('checking environment');
 	unless (defined $DBH) {
-		$l->debug('$DBH undefined call init');
+		$l->error('$DBH undefined call init');
 		return 0;
 	}
 	my $comic = $s->{id};
 	$comic =~ s/^.*_//;
 	if (my $last = $DBH->selectrow_array('SELECT last FROM comics WHERE comic = ?', undef, $comic)) {
 		if ($last < $s->{position}) {
-			$l->debug('invalid position, last was '.$last);
-			return 0;
+			$l->error('invalid position, last was '.$last);
+			return undef;
 		}
 	}
 	else {
-		$l->debug('invalid id');
+		$l->error('invalid id');
 		return 0;
 	}
 	return 1;
@@ -80,7 +96,7 @@ sub mount {
 	$comic =~ s/^.*_//;
 	my $entry;
 	unless ( $entry = $DBH->selectrow_hashref('SELECT file,surl,purl,sha1,title FROM _'.$comic.' WHERE number = ?', undef, $s->{position})) {
-		$l->debug('could not get file information');
+		$l->error('could not get file information');
 		$s->{fail} = 'no db entry found';
 		return undef;
 	}
@@ -93,14 +109,14 @@ sub mount {
 #returns the entity
 sub fetch {
 	my ($s) = @_;
-	return 0 if $s->{fail};
+	return undef if $s->{fail};
 	$l->trace('fetching object');
 	my $object = {};
 	my $comic = $s->{id};
 	$comic =~ s/^.*_//;
 	my $fh;
 	unless(open ($fh, '<', $DIR."strips/$comic/".$s->{_data}->{file})) {
-		$l->warn('failed to open' . $s->{_data}->{file});
+		$l->error('failed to open' . $s->{_data}->{file});
 		return undef;
 	}
 	binmode $fh;
@@ -108,6 +124,9 @@ sub fetch {
 	$object->{blob} = <$fh>;
 	close $fh;
 	$object->{filename} = $s->{_data}->{file};
+	my $ext = $object->{filename} ~~ m/.*\.\w{3,4}$/;
+	$ext = $ext eq 'jpg' ? 'jpeg' : $ext;
+	$object->{type} = "image/$ext"; #its a goood enough guess as the archives contain very little non image files
 	$object->{sha1} = $s->{_data}->{sha1};
 	$object->{src} = $s->{_data}->{surl};
 	$object->{page_url} = $s->{_data}->{purl};
@@ -125,6 +144,39 @@ sub next {
 	my $next = {id => $s->{id}, position => $s->{position} + 1 };
 	$next = Core::Comcol->new($next);
 	return $next;
+}
+
+#gets strip titles
+sub get_title {
+	my ($comic,$strip,$title) = @_;
+	$title //= dbstrps($comic,'id'=>$strip,'title') // '';
+	return undef unless $title;
+	my %titles = ();
+	if ($title =~ /^\{.*\}$/) {
+		while($title =~ m#(?<id>\w+)=>q\((?<text>.*?)\)[,}]#g) {
+			foreach (0..$#{$-{id}}) {
+				$titles{$-{id}->[$_]} = $-{text}->[$_];
+			}
+		}
+		#say "$title\n";
+		#%titles = %{eval($title)} if $title ;
+		#ut - user title; st - site title; it - image title; ia - image alt; h1 - head 1; dt - div title ; sl - selected title;
+	}
+	else {
+		my @titles = split(' !§! ',$title);
+		$title =~ s/-§-//g;
+		$title =~ s/!§!/|/g;
+		$title =~ s/~§~/~/g;
+		$titles{ut} = $titles[0];
+		$titles{st} = $titles[1];
+		$titles{it} = $titles[2];
+		$titles{ia} = $titles[3];
+		$titles{h1} = $titles[4];
+		$titles{dt} = $titles[5];
+		$titles{sl} = $titles[6];
+	}
+	
+	return %titles;
 }
 
 1;
