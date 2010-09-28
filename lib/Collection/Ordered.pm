@@ -26,7 +26,7 @@ sub new {
 	$l->trace('new ordered collection: ' . $self->{id});
 	$self->{dbh} = DBI->connect("dbi:SQLite:dbname=$DB_DIR","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 	unless ($self->{dbh}->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name=?",undef,$self->{id})) {
-		unless($self->{dbh}->do('CREATE TABLE ' . $self->{id} . ' (position INTEGER PRIMARY KEY, sha1 CHAR, type CHAR, filename CHAR, title CHAR, alt CHAR, src CHAR)')) {
+		unless($self->{dbh}->do('CREATE TABLE ' . $self->{id} . ' (' .Entity::create_table_column_string(). ')')) {
 			$l->error('could not create table '. $self->{id});
 			return undef;
 		}
@@ -44,8 +44,8 @@ sub store {
 		$l->error('can not store entity with different id from self');
 		return undef;
 	}
-	unless($s->{dbh}->do('INSERT OR FAIL INTO '. $s->{id} . ' (position, sha1, filename, title, alt, src) VALUES (?,?,?,?,?,?)',undef,
-														$ent->{position}, $ent->{sha1}, $ent->{filename}, $ent->{title}, $ent->{alt}, $ent->{src})) {
+	my @values = $ent->attribute_list_array();
+	unless($s->{dbh}->do('INSERT OR FAIL INTO '. $s->{id} . ' ('.Entity::attribute_list_string().') VALUES ('.(join ',',map {'?'} @values).')',undef,@values)) {
 		$l->error('could not insert into table: ' . $s->{dbh}->errstr);
 		return undef;
 	}
@@ -67,7 +67,7 @@ sub get {
 		return $s->{ent_cache};
 	} 
 	my $ret;
-	unless (defined ($ret = $s->{dbh}->selectrow_hashref('SELECT position, sha1, filename, title, alt, src FROM ' . $s->{id} . ' WHERE position = ?',undef, $pos))) {
+	unless (defined ($ret = $s->{dbh}->selectrow_hashref('SELECT '.Entity::attribute_list_string().' FROM ' . $s->{id} . ' WHERE position = ?',undef, $pos))) {
 		$l->warn('could not retrieve entity ' .$!);
 		return undef;
 	}

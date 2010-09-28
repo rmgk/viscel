@@ -25,7 +25,7 @@ Core::Comcol::init();
 #say join "\n" , sort @{Core::Comcol::list_ids()};
 Server::req_handler('index',\&RequestHandler::index);
 Server::req_handler('col',\&RequestHandler::col);
-Server::req_handler('img',\&RequestHandler::img);
+Server::req_handler('blob',\&RequestHandler::blob);
 while (1) { Server::handle_connections(); }
 
 __END__

@@ -7,9 +7,22 @@ use warnings;
 
 our $VERSION = v1;
 
+use CGI qw(img);
+
 use Log;
 
+
 my $l = Log->new();
+my %attributes = ( 	position => 'INTEGER PRIMARY KEY', 
+					sha1 => 'CHAR',
+					type => 'CHAR',
+					filename => 'CHAR',
+					title => 'CHAR',
+					alt => 'CHAR',
+					src => 'CHAR',
+					width => 'INTEGER',
+					height => 'INTEGER'
+					);
 
 #$class, \%data -> \%data
 sub new {
@@ -25,6 +38,38 @@ sub new {
 	return $self;
 }
 
+#returns the string of columns
+sub create_table_column_string {
+	return join ',', map {$_ . ' '. $attributes{$_}} sort keys %attributes;
+}
+
+#returns ordered list of attributes
+sub attribute_list_string {
+	return join ',' , sort keys %attributes;
+}
+
+#returns array of attributes
+sub attribute_list_array {
+	my $s = shift;
+	return @$s{sort keys %attributes};
+}
+
+#-> $html
+#returns html representation of the entity
+sub html {
+	my $s = shift;
+	if ($s->type ~~ m'^image/'i) {
+		my $html .= img({	src	=>	"/blob/". $s->sha1,#.'/'.$s->filename,
+							alt => $s->alt,
+							title => $s->title,
+							width => $s->width,
+							height => $s->height
+						});
+		return $html;
+	}
+	return undef;
+}
+
 #accessors:
 sub position { my $s = shift; return $s->{position}; }
 sub sha1 { my $s = shift; return $s->{sha1}; }
@@ -36,5 +81,7 @@ sub alt { my $s = shift; return $s->{alt}; }
 sub src { my $s = shift; return $s->{src}; }
 sub width { my $s = shift; return $s->{width}; }
 sub height { my $s = shift; return $s->{height}; }
+
+
 
 1;

@@ -69,7 +69,7 @@ sub col {
 		$col->store($ent);
 	} 
 	$col->clean();
-	$html .= $cgi->img({src=>"/img/". $ent->{sha1}.'/'.$ent->{filename}});
+	$html .= $ent->html();
 	$html .= $cgi->a({href=>"/col/". $args->[0] . "/" .($args->[1] + 1)},'next');
 	$html .= $cgi->end_html();
 	send_response($c,$html);
@@ -78,10 +78,10 @@ sub col {
 
 
 #$connection, $request
-#handles img requests
-sub img {
+#handles blob requests
+sub blob {
 	my ($c,$r) = @_;
-	$l->trace('handling collection');
+	$l->trace('handling blob');
 	my ($args,$cgi) = parse_request($r);
 	my $res = HTTP::Response->new( 200, 'OK');
 	$res->content(${Cache::get($args->[0])});#
