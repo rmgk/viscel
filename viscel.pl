@@ -10,6 +10,7 @@ our $VERSION = v4.0.0;
 use Log;
 use Server;
 use Core::Comcol;
+use Core::AnyManga;
 use Cache;
 use Collection::Ordered;
 use RequestHandler;
@@ -21,6 +22,9 @@ my $l = Log->new();
 Server::init();
 Cache::init();
 Core::Comcol::init();
+Core::AnyManga::init();
+
+
 
 Server::req_handler('index',\&RequestHandler::index);
 Server::req_handler('col',\&RequestHandler::col);

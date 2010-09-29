@@ -12,6 +12,7 @@ use HTTP::Daemon;
 use CGI;
 
 use Core::Comcol;
+use Core::AnyManga;
 use Collection::Ordered;
 use Cache;
 
@@ -56,7 +57,9 @@ sub index {
 	$l->trace('handling index');
 	my ($args,$cgi) = parse_request($r);
 	my $html = $cgi->start_html(-title => 'index');
-	$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$_).$cgi->br()} @{Core::Comcol::list_ids()};
+	my $collections = Core::AnyManga::list();
+	$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$collections->{$_}->{name}).$cgi->br()} keys %$collections;
+	#$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$_).$cgi->br()} @{Core::Comcol::list_ids()};
 	$html .= $cgi->end_html();
 	send_response($c,$html);
 }
@@ -71,7 +74,20 @@ sub col {
 	my $col = Collection::Ordered->new({id=> $args->[0]});
 	my $ent = $col->get($args->[1]);
 	unless ($ent) {
-		my $spot = Core::Comcol->create($args->[0],$args->[1]);
+		my $spot;
+		if ($args->[1] == 1) {
+			$spot = Core::AnyManga->first($args->[0]);
+		}
+		else {
+			$spot = Core::AnyManga->create($args->[0],$args->[1]-1,$col->get($args->[1]-1)->state());
+			unless ($spot) {
+				$l->warn('could not get spot');
+				$col->clean();
+				return send_404($c);
+			}
+			$spot->mount();
+			$spot = $spot->next();
+		}
 		unless ($spot) {
 			$l->warn('could not get spot');
 			$col->clean();

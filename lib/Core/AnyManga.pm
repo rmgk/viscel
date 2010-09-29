@@ -1,0 +1,167 @@
+#!perl
+#This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
+package Core::AnyManga;
+
+use 5.012;
+use warnings;
+use lib "..";
+
+our $VERSION = v1;
+
+use Log;
+use DBI;
+use Entity;
+use HTML::Entities;
+use DlUtil;
+use HTML::TreeBuilder;
+use Digest::SHA;
+
+my $l = Log->new();
+my $SHA = Digest::SHA->new();
+my %mangalist;
+
+#initialises the database connection
+sub init {
+	$l->trace('initialising Core::AnyManga');
+	$l->warn('list already initialised, reinitialising') if %mangalist;
+	return _create_list();
+}
+
+#creates the list of known manga
+sub _create_list {
+	$l->trace('create list of known collections');
+	my $page = DlUtil::get('http://www.anymanga.com/directory/all/');
+	if ($page->is_error()) {
+		$l->error('error getting http://www.anymanga.com/directory/all/');
+		return undef;
+	}
+	$l->trace('parsing HTML');
+	my $tree = HTML::TreeBuilder->new();
+	$tree->parse_content($page->content());
+	foreach my $list ($tree->look_down('_tag' => 'ul', 'class' => 'mainmangalist')) {
+		foreach my $item ($list->look_down('_tag'=>'li')) {
+			my $a = $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->look_down('_tag'=>'a');
+			my $href = $a->attr('href');
+			my $name = $a->as_text();
+			my ($id) = ($href =~ m'^/(.*)/$');
+			$id =~ s/\W/_/g;
+			$id = 'AnyManga_' . $id;
+			$href = 'http://www.anymanga.com' . $href .'001/001/';
+			#$l->trace("found $id ($href) ($name)");
+			$mangalist{$id} = {url_start => $href, name => $name};
+		}
+	}
+	$tree->delete();
+	$l->debug('found ' . keys(%mangalist) . ' collections');
+	return 1;
+}
+
+#->\%collection_hash
+#returns a hash containing all the collection ids as keys and their names and urls as values
+sub list {
+	return \%mangalist;
+}
+
+#$class,$id -> \%self
+#returns the first spot
+sub first {
+	my ($class,$id) = @_;
+	$l->trace('creating first');
+	return $class->create($id,1,$mangalist{$id}->{url_start});
+}
+
+#$class, $id, $state -> \%self
+#creates a new spot of $id at in state $state
+sub create {
+	my ($class,$id,$pos,$state) = @_;
+	my $self = {id => $id, position => $pos, state => $state};
+	$l->debug('creating new core ' , $class, ' id: ', $id, ,' position: ', $pos);
+	unless (exists $mangalist{$self->{id}}) {
+		$l->error('id unknown: ' . $self->{id});
+		return undef;
+	}
+	$class->new($self);
+	return $self;
+}
+
+#$class, \%self -> \%self
+#creates a new collection instance of $id at position $pos
+sub new {
+	my ($class,$self) = @_;
+	$l->trace('new ',$class,' instance');
+	$self->{fail} = 'not mounted';
+	bless $self, $class;
+	return $self;
+}
+
+#makes preparations to find objects
+sub mount {
+	my ($s) = @_;
+	$l->trace('mounting ' . $s->{id} .' '. $s->{state});
+	my $page = DlUtil::get($s->{state});
+	if ($page->is_error()) {
+		$l->error('error getting ' . $s->{state});
+		$s->{fail} = 'could not get page';
+		return undef;
+	}
+	$l->trace('parsing page');
+	my $tree = HTML::TreeBuilder->new();
+	$tree->parse_content($page->content());
+	my $img = $tree->look_down(_tag => 'img', title => qr'Click to view next page or press next or back buttons'i);
+	map {$s->{$_} = $img->attr($_)} qw( src title alt );
+	$s->{next} = 'http://www.anymanga.com' . $img->look_up(_tag => 'a')->attr('href');
+	$s->{src} = 'http://www.anymanga.com' . $s->{src};
+	$s->{title} =~ s/\n.*//;
+	$s->{alt} =~ s/\n.*//;
+	$s->{fail} = undef;
+	$l->trace(join "\n\t\t\t\t", map {"$_: " .$s->{$_}} qw(src next title alt));
+	$tree->delete();
+	return 1;
+}
+
+#-> \%entity
+#returns the entity
+sub fetch {
+	my ($s) = @_;
+	if ($s->{fail}) {
+		$l->error('fail is set: ' . $s->{fail});
+		return undef;
+	}
+	$l->trace('fetching object');
+	my $object = {};
+
+	my $file = DlUtil::get($s->{src},$s->{state});
+	if ($file->is_error()) {
+		$l->error('error getting ' . $s->{src});
+		return undef;
+	}
+	$object->{blob} = $file->content();
+
+	($object->{filename}) = ($s->{src} =~ m'/manga/[^/]+/(.*+)'i) ;
+	$object->{filename} =~ s'/''g;
+	$object->{type} = $file->header('Content-Type');
+	$object->{sha1} = $SHA->add($object->{blob})->hexdigest();
+	$object->{src} = $s->{src};
+	$object->{page_url} = $s->{state};
+	$object->{cid} = $s->{id};
+	$object->{position} = $s->{position};
+	$object->{state} = $s->{state};
+	$object->{title} = $s->{title};
+	$object->{alt} = $s->{alt};
+	$s->{entity} = Entity->new($object);
+	return $s->{entity};
+}
+
+
+#returns the next spot
+sub next {
+	my ($s) = @_;
+	$l->trace('creating next');
+	my $next = {id => $s->{id}, position => $s->{position} + 1, state => $s->{next} };
+	$next = Core::AnyManga->new($next);
+	return $next;
+}
+
+
+
+1;

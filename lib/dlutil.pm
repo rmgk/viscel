@@ -1,21 +1,16 @@
-#!/usr/bin/perl
-#this program is free software it may be redistributed under the same terms as perl itself
-#22:11 11.04.2009
-package dlutil;
+#!perl
+#This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
+package DlUtil;
 
-use 5.010;
-use strict;
+use 5.012;
 use warnings;
+use lib "..";
 
-=head1 NAME
+our $VERSION = v14;
 
-dlutil - download utility
+use Log;
 
-=head1 DESCRIPTION
-
-provides download utility functions
-
-=cut
+my $l = Log->new();
 
 our($ua,@EXPORT,@EXPORT_OK);
 
@@ -24,14 +19,10 @@ require Exporter;
 @EXPORT = qw();
 @EXPORT_OK = qw($ua);
 
-our($VERSION);
-$VERSION = '13';
 
-=head1 functions
-
-=cut
-
+#initialises the user agent
 sub _init_ua {
+	$l->trace('initialising user agent');
 	require LWP;
 	require LWP::UserAgent;
 	require LWP::ConnCache;
@@ -45,19 +36,14 @@ sub _init_ua {
 	$ua->cookie_jar( {} );
 }
 
-=head2 get
 
-	dlutil::get($url,$referer);
-	
-gets C<$url> with referer set to C<$referer> and returns contents. if C<$referer> is omitted it uses C<$url> as referer
-
-returns: $response object
-
-=cut
-
+#$url,$referer -> $response
+#gets $url with referr $referer and returns the response object
 sub get {
 	my($url, $referer) = @_;
+	$referer //= '';
 	_init_ua() unless $ua;
+	$l->debug("get $url (referer $referer)");
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
 	#$request->accept_decodable();
@@ -65,29 +51,22 @@ sub get {
 	#if ($res->header("Content-Encoding") and ($res->header("Content-Encoding") =~ m/none/i)) { #none eq identity - but HTTP::Message doesnt know!
 	#	$res->header("Content-Encoding" => 'identity'); 
 	#}
+	$l->trace('response code: '. $res->code);
 	return $res;
 }
 
-=head2 gethead
-
-	dlutil::gethead($url,$referer);
-	
-gets header of C<$url> with referer set to C<$referer> and returns response object. if C<$referer> is omitted it uses C<$url> as referer
-
-returns: response object
-
-=cut
-
+#$url,$referer -> $response
+#gets head of $url with referr $referer and returns the response object
 sub gethead {
 	my($url, $referer) = @_;
+	$referer //= '';
 	_init_ua() unless $ua;
-	unless (defined $referer) {
-		(my $referer = $url) =~ s/[\?\&]//;
-		$referer =~ s#/[^/]*$#/#;
-	}
+	$l->debug("head $url (referer $referer)");
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
-	return $ua->head($url);
+	my $res = $ua->head($url);
+	$l->trace('response code: '. $res->code);
+	return $res;
 }
 
 1;

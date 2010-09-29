@@ -14,6 +14,7 @@ use Log;
 
 my $l = Log->new();
 my %attributes = ( 	position => 'INTEGER PRIMARY KEY', 
+					state => 'CHAR UNIQUE',
 					sha1 => 'CHAR',
 					type => 'CHAR',
 					filename => 'CHAR',
@@ -29,7 +30,7 @@ my %attributes = ( 	position => 'INTEGER PRIMARY KEY',
 sub new {
 	my ($class,$self) = @_;
 	$l->trace('creating new entity');
-	foreach my $needed (qw(position sha1 type filename cid)) {
+	foreach my $needed (qw(position state sha1 type filename cid)) {
 		unless (defined $self->{$needed}) {
 			$l->debug($needed . ' not defined');
 			return undef;
@@ -73,6 +74,7 @@ sub html {
 
 #accessors:
 sub position { my $s = shift; return $s->{position}; }
+sub state { my $s = shift; return $s->{state}; }
 sub sha1 { my $s = shift; return $s->{sha1}; }
 sub type { my $s = shift; return $s->{type}; }
 sub filename { my $s = shift; return $s->{filename}; }

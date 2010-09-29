@@ -24,6 +24,7 @@ sub init {
 	$DBH = DBI->connect("dbi:SQLite:dbname=".$DIR.'comics.db',"","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 }
 
+#->\@id_list
 #lists the known ids
 sub list_ids {
 	unless ($DBH) {
@@ -133,6 +134,7 @@ sub fetch {
 	$object->{page_url} = $s->{_data}->{purl};
 	$object->{cid} = $s->{id};
 	$object->{position} = $s->{position};
+	$object->{state} = $s->{position};
 	my %titles = get_title($s->{_data}->{title});
 	$object->{title} = $titles{it} ? decode_entities($titles{it}) : undef;
 	$object->{alt} = $titles{ia} ? decode_entities($titles{ia}) : undef;
