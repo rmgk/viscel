@@ -21,6 +21,7 @@ my $l = Log->new();
 
 Server::init();
 Cache::init();
+Collection::Ordered::init();
 Core::Comcol::init();
 Core::AnyManga::init();
 

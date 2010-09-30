@@ -30,11 +30,22 @@ my %attributes = ( 	position => 'INTEGER PRIMARY KEY',
 sub new {
 	my ($class,$self) = @_;
 	$l->trace('creating new entity');
-	foreach my $needed (qw(position state sha1 type filename cid)) {
+	foreach my $needed (qw(position state sha1 type cid)) {
 		unless (defined $self->{$needed}) {
 			$l->debug($needed . ' not defined');
 			return undef;
 		} 
+	}
+	foreach my $want (keys %attributes, 'blob') {
+		unless (exists $self->{$want}) {
+			$l->warn($want . ' does not exist');
+		} 
+	}
+	foreach my $has (keys %$self) {
+		unless (exists $attributes{$has} or $has ~~ m/^(blob|cid)$/i) {
+			$l->warn("unknown attribute $has deleting");
+			delete $self->{$has};
+		}
 	}
 	bless $self, $class;
 	return $self;
@@ -50,8 +61,8 @@ sub attribute_list_string {
 	return join ',' , sort keys %attributes;
 }
 
-#returns array of attributes
-sub attribute_list_array {
+#returns array of attribute values
+sub attribute_values_array {
 	my $s = shift;
 	return @$s{sort keys %attributes};
 }

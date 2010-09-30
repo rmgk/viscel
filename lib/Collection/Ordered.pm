@@ -15,6 +15,14 @@ use Cache;
 
 my $l = Log->new();
 our $DB_DIR = 'collections.db';
+my $DBH;
+
+#initialises the database
+sub init {
+	$l->trace('initialising database');
+	$l->warn('already initialised, reinitialising') if $DBH;
+	$DBH = DBI->connect("dbi:SQLite:dbname=$DB_DIR","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
+}
 
 #instanciates an ordered collection
 sub new {
@@ -24,12 +32,12 @@ sub new {
 		return undef;
 	}
 	$l->trace('new ordered collection: ' . $self->{id});
-	$self->{dbh} = DBI->connect("dbi:SQLite:dbname=$DB_DIR","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
-	unless ($self->{dbh}->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name=?",undef,$self->{id})) {
-		unless($self->{dbh}->do('CREATE TABLE ' . $self->{id} . ' (' .Entity::create_table_column_string(). ')')) {
+	unless ($DBH->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name=?",undef,$self->{id})) {
+		unless($DBH->do('CREATE TABLE ' . $self->{id} . ' (' .Entity::create_table_column_string(). ')')) {
 			$l->error('could not create table '. $self->{id});
 			return undef;
 		}
+		$DBH->commit();
 	}
 	bless $self, $class;
 	return $self;
@@ -39,13 +47,13 @@ sub new {
 #stores the given entity returns false if storing has failed
 sub store {
 	my ($s, $ent) = @_;
-	$l->trace('store '. $ent->{cid});
-	if ($s->{id} ne $ent->{cid}) {
-		$l->error('can not store entity with different id from self');
+	$l->trace('store '. $ent->cid);
+	if ($s->{id} ne $ent->cid) {
+		$l->error('can not store entity with mismatching id');
 		return undef;
 	}
-	my @values = $ent->attribute_list_array();
-	unless($s->{dbh}->do('INSERT OR FAIL INTO '. $s->{id} . ' ('.Entity::attribute_list_string().') VALUES ('.(join ',',map {'?'} @values).')',undef,@values)) {
+	my @values = $ent->attribute_values_array();
+	unless($DBH->do('INSERT OR FAIL INTO '. $s->{id} . ' ('.Entity::attribute_list_string().') VALUES ('.(join ',',map {'?'} @values).')',undef,@values)) {
 		$l->error('could not insert into table: ' . $s->{dbh}->errstr);
 		return undef;
 	}
@@ -54,7 +62,7 @@ sub store {
 		$l->error('blob not defined');
 		return undef;
 	}
-	return Cache::put($ent->{sha1},$blob);
+	return Cache::put($ent->sha1,$blob);
 }
 
 #$pos -> \%entity
@@ -63,7 +71,7 @@ sub get {
 	my ($s, $pos) = @_;
 	$l->trace('get '. $s->{id} .' '. $pos);
 	my $ret;
-	unless (defined ($ret = $s->{dbh}->selectrow_hashref('SELECT '.Entity::attribute_list_string().' FROM ' . $s->{id} . ' WHERE position = ?',undef, $pos))) {
+	unless (defined ($ret = $DBH->selectrow_hashref('SELECT '.Entity::attribute_list_string().' FROM ' . $s->{id} . ' WHERE position = ?',undef, $pos))) {
 		$l->warn('could not retrieve entity ' .$!);
 		return undef;
 	}
@@ -75,7 +83,7 @@ sub get {
 #commits the database changes
 sub clean {
 	my ($s) = @_;
-	$s->{dbh}->commit;
+	$DBH->commit;
 }
 
 1;
