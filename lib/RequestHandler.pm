@@ -61,13 +61,17 @@ sub index {
 	my $html = $cgi->start_html(-title => 'index');
 	my $collections = Core::AnyManga::list();
 	my $bm = UserPrefs->block('bookmark');
+	$html .= $cgi->start_div({-style=>'display: inline-block'});
 	$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$collections->{$_}->{name}).
 		($bm->get($_) ? $cgi->a({href=>"/col/$_/".$bm->get($_),-style=>'color:#00ff00'},' Bookmark').$cgi->br() : $cgi->br())
 		} sort {lc($collections->{$a}->{name}) cmp lc($collections->{$b}->{name})} keys %$collections;
+	$html .= $cgi->end_div();
 	$collections = Core::ComicGenesis::list();
+	$html .= $cgi->start_div({-style=>'display: inline-block'});
 	$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$collections->{$_}->{name}).
 		($bm->get($_) ? $cgi->a({href=>"/col/$_/".$bm->get($_),-style=>'color:#00ff00'},' Bookmark').$cgi->br() : $cgi->br())
 		} sort {lc($collections->{$a}->{name}) cmp lc($collections->{$b}->{name})} keys %$collections;
+	$html .= $cgi->end_div();
 	$html .= $cgi->end_html();
 	send_response($c,$html);
 	return 'index';

@@ -31,7 +31,7 @@ sub init {
 #creates the list of comic
 sub _create_list {
 	$l->trace('create list of known collections');
-	foreach my $num (1..10){
+	foreach my $num (1..11){
 		$l->trace("get page for number $num");
 		my $page = DlUtil::get("http://guide.comicgenesis.com/KeenspaceNumPL_$num.html");
 		if ($page->is_error()) {
