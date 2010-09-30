@@ -6,3 +6,4 @@ err.txt
 .singlelock
 collections.db
 cache
+userprefs.ini

@@ -15,6 +15,7 @@ use Core::Comcol;
 use Core::AnyManga;
 use Collection::Ordered;
 use Cache;
+use UserPrefs;
 
 my $l = Log->new();
 our $ADDR = '127.0.0.1';
@@ -59,7 +60,10 @@ sub index {
 	my ($args,$cgi) = parse_request($r);
 	my $html = $cgi->start_html(-title => 'index');
 	my $collections = Core::AnyManga::list();
-	$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$collections->{$_}->{name}).$cgi->br()} keys %$collections;
+	my $bm = UserPrefs->block('bookmark');
+	$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$collections->{$_}->{name}).
+		($bm->get($_) ? $cgi->a({href=>"/col/$_/".$bm->get($_),-style=>'color:#00ff00'},' Bookmark').$cgi->br() : $cgi->br())
+		} sort {lc($collections->{$a}->{name}) cmp lc($collections->{$b}->{name})} keys %$collections;
 	#$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$_).$cgi->br()} @{Core::Comcol::list_ids()};
 	$html .= $cgi->end_html();
 	send_response($c,$html);
@@ -74,6 +78,10 @@ sub col {
 	my ($args,$cgi) = parse_request($r);
 	my $id = $args->[0];
 	my $pos = $args->[1];
+	if ($r->method eq 'POST') {
+		$l->debug("set bookmark of $id to $pos");
+		UserPrefs->block('bookmark')->set($id,$pos);
+	}
 	my $html = $cgi->start_html(-title => $pos);
 	my $col = Collection::Ordered->get($id);
 	my $ent = $col->fetch($pos);
@@ -107,6 +115,9 @@ sub col {
 	$col->clean();
 	$l->trace('creating response content');
 	$html .= $ent->html();
+	$html .= $cgi->start_form(-method=>'POST',-action=>"/col/$id/$pos");
+	$html .= $cgi->submit(-value => 'pause', -style => 'border-style:none; background:transparent; color:#000; padding:0; cursor:pointer;');
+	$html .= $cgi->end_form();
 	$html .= $cgi->a({href=>"/col/$id/" .($pos + 1)},'next');
 	$html .= $cgi->end_html();
 	send_response($c,$html);
@@ -122,7 +133,7 @@ sub blob {
 	$l->trace('handling blob');
 	my ($args,$cgi) = parse_request($r);
 	my $res = HTTP::Response->new( 200, 'OK');
-	$res->content(${Cache::get($args->[0])});#
+	$res->content(${Cache::get($args->[0])});
 	$c->send_response($res);
 	return 'blob';
 }

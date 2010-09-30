@@ -14,6 +14,7 @@ use Core::AnyManga;
 use Cache;
 use Collection::Ordered;
 use RequestHandler;
+use UserPrefs;
 
 # ------ initialisation --------------------
 
@@ -24,7 +25,7 @@ Cache::init();
 Collection::Ordered::init();
 Core::Comcol::init();
 Core::AnyManga::init();
-
+UserPrefs::init();
 
 
 Server::req_handler('index',\&RequestHandler::index);
@@ -61,7 +62,8 @@ while (1) {
 		$col->store($ent);
 		$col->clean();
 		last;
-	} 
+	}
+	UserPrefs::save(); 
 }
 
 __END__
