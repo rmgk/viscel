@@ -17,6 +17,7 @@ use Collection::Ordered;
 use Cache;
 
 my $l = Log->new();
+our $ADDR = '127.0.0.1';
 
 #$request -> \@args,$cgi
 #extracts the arguments and the parameters from a request object
@@ -62,6 +63,7 @@ sub index {
 	#$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$_).$cgi->br()} @{Core::Comcol::list_ids()};
 	$html .= $cgi->end_html();
 	send_response($c,$html);
+	return 'index';
 }
 
 #$connection, $request
@@ -70,44 +72,45 @@ sub col {
 	my ($c,$r) = @_;
 	$l->trace('handling collection');
 	my ($args,$cgi) = parse_request($r);
-	my $html = $cgi->start_html(-title => $args->[1]);
-	my $col = Collection::Ordered->new({id=> $args->[0]});
-	my $ent = $col->get($args->[1]);
+	my $id = $args->[0];
+	my $pos = $args->[1];
+	my $html = $cgi->start_html(-title => $pos);
+	my $col = Collection::Ordered->get($id);
+	my $ent = $col->fetch($pos);
 	unless ($ent) {
-		my $spot;
-		if ($args->[1] == 1) {
-			$spot = Core::AnyManga->first($args->[0]);
-		}
-		else {
-			$spot = Core::AnyManga->create($args->[0],$args->[1]-1,$col->get($args->[1]-1)->state());
+		if ($pos == 1) { #requesting first
+			my $spot;
+			$spot = Core::AnyManga->first($id);
+			
 			unless ($spot) {
-				$l->warn('could not get spot');
+				$l->warn('could not fetch spot');
 				$col->clean();
 				return send_404($c);
 			}
 			$spot->mount();
-			$spot = $spot->next();
+			$ent = $spot->fetch();
+			unless ($ent) {
+				$l->error('could not fetch entity');
+				$col->clean();
+				return send_404($c); 
+			}
+			$col->store($ent);
 		}
-		unless ($spot) {
-			$l->warn('could not get spot');
-			$col->clean();
-			return send_404($c);
+		else { #redirecting to last
+			my $last = $col->last();
+			$last ||= 1;
+			$l->debug("$pos not found redirecting to last $last");
+			$c->send_redirect( "http://$ADDR/col/$id/".$last, 303 );
+			return [$id,$last];
 		}
-		$spot->mount();
-		$ent = $spot->fetch();
-		unless ($ent) {
-			$l->error('could not fetch entity');
-			$col->clean();
-			return send_404($c); 
-		}
-		$col->store($ent);
 	} 
 	$col->clean();
 	$l->trace('creating response content');
 	$html .= $ent->html();
-	$html .= $cgi->a({href=>"/col/". $args->[0] . "/" .($args->[1] + 1)},'next');
+	$html .= $cgi->a({href=>"/col/$id/" .($pos + 1)},'next');
 	$html .= $cgi->end_html();
 	send_response($c,$html);
+	return [$id,$pos];
 }
 
 
@@ -121,6 +124,7 @@ sub blob {
 	my $res = HTTP::Response->new( 200, 'OK');
 	$res->content(${Cache::get($args->[0])});#
 	$c->send_response($res);
+	return 'blob';
 }
 
 1;

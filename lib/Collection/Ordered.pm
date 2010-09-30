@@ -16,6 +16,8 @@ use Cache;
 my $l = Log->new();
 our $DB_DIR = 'collections.db';
 my $DBH;
+my $cache;
+my $cache_id = '';
 
 #initialises the database
 sub init {
@@ -24,6 +26,18 @@ sub init {
 	$DBH = DBI->connect("dbi:SQLite:dbname=$DB_DIR","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 }
 
+#$class,$id->$self
+sub get {
+	my ($class,$id) = @_;
+	$l->trace("get collection of $id");
+	unless ($cache_id eq $id) {
+		$cache = $class->new({id => $id});
+		$cache_id = $id;
+	}
+	return $cache;
+}
+
+#$class,$self -> $self
 #instanciates an ordered collection
 sub new {
 	my ($class,$self) = @_;
@@ -67,17 +81,29 @@ sub store {
 
 #$pos -> \%entity
 #retrieves the entity at position pos
-sub get {
+sub fetch {
 	my ($s, $pos) = @_;
-	$l->trace('get '. $s->{id} .' '. $pos);
+	$l->trace('fetch '. $s->{id} .' '. $pos);
 	my $ret;
 	unless (defined ($ret = $DBH->selectrow_hashref('SELECT '.Entity::attribute_list_string().' FROM ' . $s->{id} . ' WHERE position = ?',undef, $pos))) {
-		$l->warn('could not retrieve entity ' .$!);
+		$l->warn('could not retrieve entity '.$DBH->errstr) if $DBH->err;
 		return undef;
 	}
 	$ret->{cid} = $s->{id};
 	$ret = Entity->new($ret);
 	return $ret;
+}
+
+#->$pos
+#returns the last position
+sub last {
+	my ($s) = @_;
+	$l->trace('last '. $s->{id});
+	if (my $pos = $DBH->selectrow_array('SELECT MAX(position) FROM ' . $s->{id})) {
+		return $pos;
+	}
+	$l->warn('could not retrieve position ' .$DBH->errstr);
+	return undef;
 }
 
 #commits the database changes

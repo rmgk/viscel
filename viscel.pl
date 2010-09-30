@@ -30,7 +30,39 @@ Core::AnyManga::init();
 Server::req_handler('index',\&RequestHandler::index);
 Server::req_handler('col',\&RequestHandler::col);
 Server::req_handler('blob',\&RequestHandler::blob);
-while (1) { Server::handle_connections(); }
+
+my $spot;
+
+while (1) { 
+	my $status = Server::handle_connections();
+	$l->trace("handling status " . @$status);
+	while(@$status) {
+		my $stat = pop(@$status);
+		next unless ref $stat;
+		my $id = $stat->[0];
+		my $pos = $stat->[1];
+		my $col = Collection::Ordered->get($id);
+		next if $col->fetch($pos+1);
+		$l->debug("try to get $id $pos");
+		unless (defined $spot and $spot->{id} eq $id and $spot->{position} == $pos) {
+			my $ent = $col->fetch($pos);
+			if ($ent) { 
+				$spot = $ent->get_spot();
+				$spot->mount();
+			}
+			else {
+				next;
+			}
+		}
+		$spot = $spot->next();
+		next unless $spot;
+		$spot->mount();
+		my $ent = $spot->fetch();
+		$col->store($ent);
+		$col->clean();
+		last;
+	} 
+}
 
 __END__
 
