@@ -20,6 +20,7 @@ sub init {
 	my $port = shift // 80;
 	$l->info("launching server on port $port");
 	$d = HTTP::Daemon->new(LocalPort => $port);
+	#$d->timeout(0);
 	return $d or die("could not listen on port $port");
 }
 
@@ -42,10 +43,9 @@ sub handle_connections {
 		my $addr_str = inet_ntoa($iaddr);
 		$l->debug("connection accepted from ",$addr_str ,":",$port);
 		$c->timeout(1);
-		handle_connection($c);
-		return 1;
+		return handle_connection($c);
 	}
-	return 0;
+	return undef;
 }
 
 #$connection
@@ -53,10 +53,12 @@ sub handle_connections {
 sub handle_connection {
 	my $c = shift;
 	$l->trace("handling connection");
+	my @status;
 	while (my $r = $c->get_request) {
-		handle_request($c,$r);
+		push(@status,handle_request($c,$r));
 	}
 	$l->debug("no more requests: " . $c->reason);
+	return \@status;
 }
 
 #$connection, $request
@@ -65,19 +67,21 @@ sub handle_request {
 	my ($c,$r) = @_;
 	$l->debug("handling request: " , $r->method(), ' ', $r->url->as_string());
 	#$l->trace($r->as_string());
-	if ($r->url->path =~ m#^/([^/]*)#) {
+	if ($r->url->path =~ m#^/([^/]+)#) {
 		my $path = $1;
-		if ($path ne '' and $req_handler{$path}) {
-			$req_handler{$path}($c,$r);
+		if ($req_handler{$path}) {
+			return $req_handler{$path}($c,$r);
 		}
 		else {
 			$l->debug('sending 404');
 			$c->send_response(HTTP::Response->new( 404, 'File Not Found'));
+			return undef;
 		}
 	}
 	else {
-		$l->warn('unexpected uri path: ', $r->url->path);
+		$l->warn('unexpected url path: ', $r->url->path);
 		$c->send_response(HTTP::Response->new( 404, 'File Not Found'));
+		return undef;
 	}
 }
 
