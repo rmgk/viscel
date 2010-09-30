@@ -4,7 +4,6 @@ package DlUtil;
 
 use 5.012;
 use warnings;
-use lib "..";
 
 our $VERSION = v14;
 

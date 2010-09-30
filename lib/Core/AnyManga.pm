@@ -158,7 +158,7 @@ sub next {
 	my ($s) = @_;
 	$l->trace('creating next');
 	my $next = {id => $s->{id}, position => $s->{position} + 1, state => $s->{next} };
-	$next = Core::AnyManga->new($next);
+	$next = ref($s)->new($next);
 	return $next;
 }
 
