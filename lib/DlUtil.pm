@@ -40,9 +40,8 @@ sub _init_ua {
 #gets $url with referr $referer and returns the response object
 sub get {
 	my($url, $referer) = @_;
-	$referer //= '';
 	_init_ua() unless $ua;
-	$l->debug("get $url (referer $referer)");
+	$l->debug("get $url" .( $referer ? " (referer $referer)" : ''));
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
 	#$request->accept_decodable();
@@ -58,9 +57,8 @@ sub get {
 #gets head of $url with referr $referer and returns the response object
 sub gethead {
 	my($url, $referer) = @_;
-	$referer //= '';
 	_init_ua() unless $ua;
-	$l->debug("head $url (referer $referer)");
+	$l->debug("head $url" .( $referer ? " (referer $referer)" : ''));
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
 	my $res = $ua->head($url);

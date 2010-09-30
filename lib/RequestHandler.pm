@@ -40,7 +40,7 @@ sub parse_request {
 sub send_response {
 	my ($c,$html) = @_;
 	$l->trace('sending response');
-	my $res = HTTP::Response->new( 200, 'OK', ['Content-Type','text/html; charset=utf-8']);
+	my $res = HTTP::Response->new( 200, 'OK', ['Content-Type','text/html']);
 	$res->content($html);
 	$c->send_response($res);
 }
@@ -64,7 +64,10 @@ sub index {
 	$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$collections->{$_}->{name}).
 		($bm->get($_) ? $cgi->a({href=>"/col/$_/".$bm->get($_),-style=>'color:#00ff00'},' Bookmark').$cgi->br() : $cgi->br())
 		} sort {lc($collections->{$a}->{name}) cmp lc($collections->{$b}->{name})} keys %$collections;
-	#$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$_).$cgi->br()} @{Core::Comcol::list_ids()};
+	$collections = Core::ComicGenesis::list();
+	$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$collections->{$_}->{name}).
+		($bm->get($_) ? $cgi->a({href=>"/col/$_/".$bm->get($_),-style=>'color:#00ff00'},' Bookmark').$cgi->br() : $cgi->br())
+		} sort {lc($collections->{$a}->{name}) cmp lc($collections->{$b}->{name})} keys %$collections;
 	$html .= $cgi->end_html();
 	send_response($c,$html);
 	return 'index';
@@ -88,7 +91,7 @@ sub col {
 	unless ($ent) {
 		if ($pos == 1) { #requesting first
 			my $spot;
-			$spot = Core::AnyManga->first($id);
+			$spot = $col->core->first($id);
 			
 			unless ($spot) {
 				$l->warn('could not fetch spot');

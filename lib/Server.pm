@@ -67,7 +67,10 @@ sub handle_request {
 	my ($c,$r) = @_;
 	$l->debug("handling request: " , $r->method(), ' ', $r->url->as_string());
 	#$l->trace($r->as_string());
-	if ($r->url->path =~ m#^/([^/]+)#) {
+	if ($r->url->path eq '/') {
+		$c->send_redirect( "http://127.0.0.1/index",301);
+	}
+	elsif ($r->url->path =~ m#^/([^/]+)#) {
 		my $path = $1;
 		if ($req_handler{$path}) {
 			return $req_handler{$path}($c,$r);

@@ -11,6 +11,7 @@ use Log;
 use Server;
 use Core::Comcol;
 use Core::AnyManga;
+use Core::ComicGenesis;
 use Cache;
 use Collection::Ordered;
 use RequestHandler;
@@ -23,9 +24,10 @@ my $l = Log->new();
 Server::init();
 Cache::init();
 Collection::Ordered::init();
+UserPrefs::init();
 Core::Comcol::init();
 Core::AnyManga::init();
-UserPrefs::init();
+Core::ComicGenesis::init();
 
 
 Server::req_handler('index',\&RequestHandler::index);
@@ -57,9 +59,10 @@ while (1) {
 		}
 		$spot = $spot->next();
 		next unless $spot;
-		$spot->mount();
-		my $ent = $spot->fetch();
-		$col->store($ent);
+		if ($spot->mount()) {
+			my $ent = $spot->fetch();
+			$col->store($ent) if $ent;
+		}
 		$col->clean();
 		last;
 	}

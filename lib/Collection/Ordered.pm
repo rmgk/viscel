@@ -94,6 +94,15 @@ sub fetch {
 	return $ret;
 }
 
+#->$core
+#returns the core of the given id
+sub core {
+	my ($s) = @_;
+	my $id = $s->{id};
+	$id =~ s/_.*$//;
+	return "Core::$id";
+}
+
 #->$pos
 #returns the last position
 sub last {
