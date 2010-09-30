@@ -36,7 +36,7 @@ sub new {
 			return undef;
 		} 
 	}
-	foreach my $want (keys %attributes, 'blob') {
+	foreach my $want (keys %attributes) {
 		unless (exists $self->{$want}) {
 			$l->warn($want . ' does not exist');
 		} 
@@ -49,6 +49,15 @@ sub new {
 	}
 	bless $self, $class;
 	return $self;
+}
+
+#creates the Core at the position of the entity
+sub get_spot {
+	my ($s) = @_;
+	my $core = $s->cid;
+	$core =~ s/_.*//;
+	$core = "Core::$core";
+	return $core->create($s->cid,$s->position,$s->state);
 }
 
 #returns the string of columns
