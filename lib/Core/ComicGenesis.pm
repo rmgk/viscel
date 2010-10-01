@@ -64,6 +64,7 @@ sub _create_list {
 			my $a = $main->look_down('_tag'=> 'a', 'target' => '_blank', sub {$_[0]->as_text =~ /^\d{8}$/});
 			next unless $a;
 			my $href = URI->new($a->attr('href'))->as_string();
+			$href =~ s'^.*http://'http://'g; #hack to fix some broken urls
 			my ($id) = ($href =~ m'^http://(.*?)\.comicgen(?:esis)?\.com/'i);
 			unless ($id) {
 				$l->debug("could not parse $href");
