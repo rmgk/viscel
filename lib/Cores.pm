@@ -21,7 +21,7 @@ my %cores = (	'Core::AnyManga' => 1,
 #->@cores
 #returns the list of used cores
 sub list {
-	$l->trace('core list requested: ', caller);
+	$l->trace('core list requested');
 	return keys %cores;
 }
 
