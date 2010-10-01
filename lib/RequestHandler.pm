@@ -17,7 +17,34 @@ use Cache;
 use UserPrefs;
 
 my $l = Log->new();
+my $cgi;
 our $ADDR = '127.0.0.1';
+
+#$request -> $cgi
+#returns the cgi object and possibly initialises its parameters
+sub cgi {
+	if (ref $_[0]) {
+		$l->trace('parse query parameters');
+		$cgi = CGI->new($_[0]->url->query);
+	}
+	$cgi = CGI->new() unless $cgi;
+	return $cgi;
+}
+
+#link generating functions
+sub link_main {		return cgi->a({-href=>url_main(@_)}, $_[0] // 'index') } #/ padre dispaly bug
+sub url_main { return '/index' }
+sub link_front {	return cgi->a({-href=>url_front(@_)}, $_[1] // $_[0] ) } #/ padre display bug
+sub url_front { return "/f/$_[0]" };
+sub link_view {		return cgi->a({-href=>url_view(@_)}, $_[2] // $_[1])} #/ padre dispaly bug
+sub url_view {"/v/$_[0]/$_[1]"}
+
+#initialises the request handlers
+sub init {
+	Server::req_handler('index',\&index);
+	Server::req_handler('v',\&col);
+	Server::req_handler('b',\&blob);
+}
 
 #$request -> \@args,$cgi
 #extracts the arguments and the parameters from a request object
@@ -31,7 +58,7 @@ sub parse_request {
 	else {
 		$l->warn('could not parse request');
 	}
-	return \@args,CGI->new($r->url->query);
+	return @args;
 }
 
 #$c
@@ -56,18 +83,17 @@ sub send_404 {
 sub index {
 	my ($c,$r) = @_;
 	$l->trace('handling index');
-	my ($args,$cgi) = parse_request($r);
-	my $html = $cgi->start_html(-title => 'index');
+	my $html = cgi->start_html(-title => 'index');
 	my $bm = UserPrefs->block('bookmark');
 	foreach my $core (Cores::list()) {
 		my $collections = $core->list();
-		$html .= $cgi->start_div({-style=>'display: inline-block'});
-		$html .= join '', map {$cgi->a({href=>"/col/$_/1"},$collections->{$_}->{name}).
-			($bm->get($_) ? $cgi->a({href=>"/col/$_/".$bm->get($_),-style=>'color:#00ff00'},' Bookmark').$cgi->br() : $cgi->br())
+		$html .= cgi->start_div({-style=>'border: solid black; padding: 1em; margin: 1em;'});
+		$html .= join '', map {link_view($_,1,$collections->{$_}->{name}).
+			($bm->get($_) ? link_view($_,$bm->get($_),' Bookmark') . cgi->br() : cgi->br())
 			} sort {lc($collections->{$a}->{name}) cmp lc($collections->{$b}->{name})} keys %$collections;
-		$html .= $cgi->end_div();
+		$html .= cgi->end_div();
 	}
-	$html .= $cgi->end_html();
+	$html .= cgi->end_html();
 	send_response($c,$html);
 	return 'index';
 }
@@ -77,14 +103,12 @@ sub index {
 sub col {
 	my ($c,$r) = @_;
 	$l->trace('handling collection');
-	my ($args,$cgi) = parse_request($r);
-	my $id = $args->[0];
-	my $pos = $args->[1];
+	my ($id,$pos) = parse_request($r);
 	if ($r->method eq 'POST') {
 		$l->debug("set bookmark of $id to $pos");
 		UserPrefs->block('bookmark')->set($id,$pos);
 	}
-	my $html = $cgi->start_html(-title => $pos);
+	my $html = cgi->start_html(-title => $pos, -bgcolor=>'black');
 	my $col = Collection::Ordered->get($id);
 	my $ent = $col->fetch($pos);
 	unless ($ent) {
@@ -110,18 +134,27 @@ sub col {
 			my $last = $col->last();
 			$last ||= 1;
 			$l->debug("$pos not found redirecting to last $last");
-			$c->send_redirect( "http://$ADDR/col/$id/".$last, 303 );
-			return [$id,$last];
+			$c->send_redirect( "http://$ADDR".url_view($id,$last), 303 );
+			return "read redirect";
 		}
 	} 
 	$col->clean();
 	$l->trace('creating response content');
+	$html .= cgi->start_div({-style => 'text-align: center;'});
 	$html .= $ent->html();
-	$html .= $cgi->start_form(-method=>'POST',-action=>"/col/$id/$pos");
-	$html .= $cgi->submit(-value => 'pause', -style => 'border-style:none; background:transparent; color:#000; padding:0; cursor:pointer;');
-	$html .= $cgi->end_form();
-	$html .= $cgi->a({href=>"/col/$id/" .($pos + 1)},'next');
-	$html .= $cgi->end_html();
+	$html .= cgi->end_div();
+	$html .= cgi->start_div({-style => 'text-align: center;'});
+	$html .= link_view($id,($pos - 1),'prev') if ($pos - 1 > 0);
+	$html .= ' ';
+	$html .= cgi->start_form(-method=>'POST',-action=>url_view($id,$pos),-enctype=>&CGI::URL_ENCODED, -style => 'display:inline');
+	$html .= cgi->submit(-value => 'pause', -style => 'border-style:none; background:transparent; color:grey; padding:0; cursor:pointer;');
+	$html .= cgi->end_form();
+	$html .= ' ';
+	$html .= link_main();
+	$html .= ' ';
+	$html .= link_view($id,($pos + 1),'next');
+	$html .= cgi->end_div();
+	$html .= cgi->end_html();
 	send_response($c,$html);
 	return [$id,$pos];
 }
@@ -133,9 +166,9 @@ sub col {
 sub blob {
 	my ($c,$r) = @_;
 	$l->trace('handling blob');
-	my ($args,$cgi) = parse_request($r);
+	my ($sha) = parse_request($r);
 	my $res = HTTP::Response->new( 200, 'OK');
-	$res->content(${Cache::get($args->[0])});
+	$res->content(${Cache::get($sha)});
 	$c->send_response($res);
 	return 'blob';
 }

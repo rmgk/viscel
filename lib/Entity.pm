@@ -79,7 +79,7 @@ sub attribute_values_array {
 sub html {
 	my $s = shift;
 	if ($s->type ~~ m'^image/'i) {
-		my $html .= img({	src	=>	"/blob/". $s->sha1,#.'/'.$s->filename,
+		my $html .= img({	src	=>	"/b/". $s->sha1,#.'/'.$s->filename,
 							alt => $s->alt,
 							title => $s->title,
 							width => $s->width,

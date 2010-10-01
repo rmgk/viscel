@@ -24,11 +24,7 @@ Cache::init();
 Collection::Ordered::init();
 UserPrefs::init();
 Cores::init();
-
-
-Server::req_handler('index',\&RequestHandler::index);
-Server::req_handler('col',\&RequestHandler::col);
-Server::req_handler('blob',\&RequestHandler::blob);
+RequestHandler::init();
 
 UserPrefs::save(); 
 
