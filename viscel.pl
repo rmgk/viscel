@@ -9,9 +9,7 @@ our $VERSION = v4.0.0;
 
 use Log;
 use Server;
-use Core::Comcol;
-use Core::AnyManga;
-use Core::ComicGenesis;
+use Cores;
 use Cache;
 use Collection::Ordered;
 use RequestHandler;
@@ -25,9 +23,7 @@ Server::init();
 Cache::init();
 Collection::Ordered::init();
 UserPrefs::init();
-Core::Comcol::init();
-Core::AnyManga::init();
-Core::ComicGenesis::init();
+Cores::init();
 
 
 Server::req_handler('index',\&RequestHandler::index);

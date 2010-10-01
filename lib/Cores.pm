@@ -3,24 +3,36 @@
 package Cores;
 
 use 5.012;
-use strict;
 use warnings;
 
-use Log::Log4perl qw(get_logger);
+our $VERSION = v1;
 
-my $l = get_logger();
+use Core::AnyManga;
+use Core::Comcol;
+use Core::ComicGenesis;
+use Log;
 
-use Core::Inverloch;
+my $l = Log->new();
+my %cores = (	'Core::AnyManga' => 1,
+				'Core::Comcol' => 1,
+				'Core::ComicGenesis' => 1,
+				);
 
+#->@cores
+#returns the list of used cores
 sub list {
 	$l->trace('core list requested: ', caller);
-	return qw(Inverloch);
+	return keys %cores;
 }
 
-sub get {
-	my ($cid) = @_;
-	$l->trace('get core ', $cid);
-	return Core::Inverloch->new();
+#initialises all used cores
+sub init {
+	$l->trace('initialising cores');
+	for (list()) {
+		unless ($_->init()) {
+			delete $cores{$_};
+		}
+	}
 }
 
 1;
