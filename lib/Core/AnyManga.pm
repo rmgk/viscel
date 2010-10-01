@@ -109,7 +109,10 @@ sub mount {
 	$tree->parse_content($page->content());
 	my $img = $tree->look_down(_tag => 'img', title => qr'Click to view next page or press next or back buttons'i);
 	map {$s->{$_} = $img->attr($_)} qw( src title alt );
-	$s->{next} = 'http://www.anymanga.com' . $img->look_up(_tag => 'a')->attr('href');
+	my $a_next = $img->look_up(_tag => 'a');
+	if ($a_next) {
+		$s->{next} = 'http://www.anymanga.com' . $a_next->attr('href');
+	}
 	$s->{src} = 'http://www.anymanga.com' . $s->{src};
 	$s->{title} =~ s/\n.*//;
 	$s->{alt} =~ s/\n.*//;
@@ -157,6 +160,14 @@ sub fetch {
 sub next {
 	my ($s) = @_;
 	$l->trace('creating next');
+	if ($s->{fail}) {
+		$l->error('fail is set: ' . $s->{fail});
+		return undef;
+	}
+	unless ($s->{next}) {
+		$l->error('no next was found');
+		return undef;
+	}
 	my $next = {id => $s->{id}, position => $s->{position} + 1, state => $s->{next} };
 	$next = ref($s)->new($next);
 	return $next;
