@@ -30,6 +30,8 @@ Server::req_handler('index',\&RequestHandler::index);
 Server::req_handler('col',\&RequestHandler::col);
 Server::req_handler('blob',\&RequestHandler::blob);
 
+UserPrefs::save(); 
+
 my $spot;
 
 while (1) { 
@@ -65,20 +67,3 @@ while (1) {
 	UserPrefs::save(); 
 }
 
-__END__
-
-for my $comic (qw(Inverloch)) {
-	my $spot = Core::Comcol->create('Comcol_'.$comic,1);
-	my $col = Collection::Ordered->new({id => 'Comcol_'.$comic});
-	next unless $spot;
-	while ($spot->mount()) {
-		my $ent = $spot->fetch();
-		unless ($ent) {
-			$spot = $spot->next();
-			next;
-		}
-		$col->store($ent);
-		$spot = $spot->next();
-	}
-	$col->clean();
-}
