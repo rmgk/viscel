@@ -15,18 +15,29 @@ use HTML::Entities;
 
 my $l = Log->new();
 my $DBH;
-my $DIR = 'F:\\Comics\\';
+my $DIR;
 
 #initialises the database connection
 sub init {
 	$l->trace('initialising Core::Comcol');
+	$DIR = UserPrefs->block('folders')->get('Comcol') || '';
+	unless (-e $DIR) {
+		$l->warn("Comcol directory dir ($DIR) does not exists correct preferences");
+		UserPrefs->block('folders')->set('Comcol','');
+		return undef;
+	}
 	$l->warn('database handle already initialised, reinitialising') if defined $DBH;
 	$DBH = DBI->connect("dbi:SQLite:dbname=".$DIR.'comics.db',"","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
+	unless ($DBH) {
+		$l->warn('could not connect to database');
+		return undef;
+	}
+	return 1;
 }
 
 #->\@id_list
 #lists the known ids
-sub list_ids {
+sub list {
 	unless ($DBH) {
 		$l->error('$DBH undefined call init');
 		return undef;
@@ -36,9 +47,17 @@ sub list_ids {
 		$l->error('could not get info from database');
 		return undef;
 	}
-	@$cmcs = map {'Comcol_' . $_} @$cmcs;
-	return $cmcs
+	my %cmcs = map {'Comcol_' . $_ , {name => $_}} @$cmcs;
+	return \%cmcs
 	
+}
+
+#$class,$id -> \%self
+#returns the first spot
+sub first {
+	my ($class,$id) = @_;
+	$l->trace('creating first');
+	return $class->create($id,1,1);
 }
 
 #$class, $id, $pos -> \%self
@@ -73,7 +92,7 @@ sub check {
 	$l->trace('checking environment');
 	unless (defined $DBH) {
 		$l->error('$DBH undefined call init');
-		return 0;
+		return undef;
 	}
 	my $comic = $s->{id};
 	$comic =~ s/^.*_//;
@@ -85,7 +104,7 @@ sub check {
 	}
 	else {
 		$l->error('invalid id');
-		return 0;
+		return undef;
 	}
 	return 1;
 }
