@@ -16,10 +16,14 @@ use DlUtil;
 use HTML::TreeBuilder;
 use Digest::SHA;
 use URI;
+use Data::Dumper;
 
 my $l = Log->new();
 my $SHA = Digest::SHA->new();
 my %comiclist;
+
+$Data::Dumper::Purity = 1; 
+$Data::Dumper::Indent = 0;
 
 #initialises the list of known comics
 sub init {
@@ -30,12 +34,27 @@ sub init {
 
 #creates the list of comic
 sub _create_list {
+	if (-e 'ComicGenesis.txt') {
+		$l->debug('loading comicgenesis comics from file');
+		if (open (my $fh, '<', 'ComicGenesis.txt')) {
+			local $/;
+			#%comiclist
+			my $txt = <$fh>;
+			close $fh;
+			%comiclist = %{eval($txt)};
+			$l->debug('loaded ' . keys(%comiclist) . ' collections');
+			return 1;
+		}
+		else {
+			$l->warn('failed to open filehandle');
+		}
+	}
 	$l->trace('create list of known collections');
-	foreach my $num (1..11){
-		$l->trace("get page for number $num");
-		my $page = DlUtil::get("http://guide.comicgenesis.com/KeenspaceNumPL_$num.html");
+	foreach my $letter('0','A'..'Z') {
+		$l->trace("get page for letter $letter");
+		my $page = DlUtil::get("http://guide.comicgenesis.com/Keenspace_$letter.html");
 		if ($page->is_error()) {
-			$l->error("http://guide.comicgenesis.com/KeenspaceNumPL_$num.html");
+			$l->error("http://guide.comicgenesis.com/Keenspace_$letter.html");
 			return undef;
 		}
 		$l->trace('parsing HTML');
@@ -44,7 +63,7 @@ sub _create_list {
 		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'comicmain')) {
 			my $a = $main->look_down('_tag'=> 'a', 'target' => '_blank', sub {$_[0]->as_text =~ /^\d{8}$/});
 			next unless $a;
-			my $href = $a->attr('href');
+			my $href = URI->new($a->attr('href'))->as_string();
 			my ($id) = ($href =~ m'^http://(.*?)\.comicgen(?:esis)?\.com/'i);
 			unless ($id) {
 				$l->debug("could not parse $href");
@@ -63,6 +82,14 @@ sub _create_list {
 		$tree->delete();
 	}
 	$l->debug('found ' . keys(%comiclist) . ' collections');
+	$l->debug('saving list to file');
+	if (open (my $fh, '>', 'ComicGenesis.txt')) {
+		print $fh 'my ',Dumper(\%comiclist);
+		close $fh;
+	}
+	else {
+		$l->warn('failed to open filehandle');
+	}
 	return 1;
 }
 
