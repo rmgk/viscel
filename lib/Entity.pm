@@ -96,6 +96,7 @@ sub state { my $s = shift; return $s->{state}; }
 sub sha1 { my $s = shift; return $s->{sha1}; }
 sub type { my $s = shift; return $s->{type}; }
 sub filename { my $s = shift; return $s->{filename}; }
+sub page_url { my $s = shift; return $s->{page_url}; }
 sub cid { my $s = shift; return $s->{cid}; }
 sub title { my $s = shift; return $s->{title}; }
 sub alt { my $s = shift; return $s->{alt}; }
