@@ -60,7 +60,7 @@ sub _create_list {
 		$l->trace('parsing HTML');
 		my $tree = HTML::TreeBuilder->new();
 		$tree->parse_content($page->content());
-		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'comicmain', sub { my ($num) = ($_[0]->as_text =~ m/Number of Days: (\d+)/i); $num > 20} )) {
+		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'comicmain', sub { $_[0]->as_text =~ m/Number of Days: (\d+)/i; $1 > 20} )) {
 			my $a = $main->look_down('_tag'=> 'a', 'target' => '_blank', sub {$_[0]->as_text =~ /^\d{8}$/});
 			next unless $a;
 			my $href = URI->new($a->attr('href'))->as_string();
