@@ -8,9 +8,7 @@ use warnings;
 our $VERSION = v1;
 
 use CGI qw(img);
-
 use Log;
-
 
 my $l = Log->new();
 my %attributes = ( 	position => 'INTEGER PRIMARY KEY', 
