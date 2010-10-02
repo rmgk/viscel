@@ -34,7 +34,7 @@ sub log {
 		' ' x (3-length($line)), #number of spaces depends on line numer length
 		'-' x ($d-2) , '>', #add call depth indicator
 		$module, 
-		"\t" x ((6/length($module))+1.5), #uhm well it works for now
+		' ' x ((24-$d-length($module))), #uhm well it works for now
 		join '', @_; #the message itself
 } 
 
