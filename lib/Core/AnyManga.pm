@@ -15,6 +15,7 @@ use HTML::Entities;
 use DlUtil;
 use HTML::TreeBuilder;
 use Digest::SHA;
+use Data::Dumper;
 
 my $l = Log->new();
 my $SHA = Digest::SHA->new();
@@ -29,6 +30,20 @@ sub init {
 
 #creates the list of known manga
 sub _create_list {
+	if (-e 'AnyManga.txt') {
+		$l->debug('loading anymanga manga from file');
+		if (open (my $fh, '<', 'AnyManga.txt')) {
+			local $/;
+			my $txt = <$fh>;
+			close $fh;
+			%mangalist = %{eval($txt)};
+			$l->debug('loaded ' . keys(%mangalist) . ' collections');
+			return 1;
+		}
+		else {
+			$l->warn('failed to open filehandle');
+		}
+	}
 	$l->trace('create list of known collections');
 	my $page = DlUtil::get('http://www.anymanga.com/directory/all/');
 	if ($page->is_error()) {
@@ -53,6 +68,16 @@ sub _create_list {
 	}
 	$tree->delete();
 	$l->debug('found ' . keys(%mangalist) . ' collections');
+	
+	$l->debug('saving list to file');
+	if (open (my $fh, '>', 'AnyManga.txt')) {
+		print $fh 'my ',Dumper(\%mangalist);
+		close $fh;
+	}
+	else {
+		$l->warn('failed to open filehandle');
+	}
+	
 	return 1;
 }
 
@@ -117,7 +142,7 @@ sub mount {
 	$s->{title} =~ s/\n.*//;
 	$s->{alt} =~ s/\n.*//;
 	$s->{fail} = undef;
-	$l->trace(join "\n\t\t\t\t", map {"$_: " .$s->{$_}} qw(src next title alt));
+	$l->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next title alt)); #/padre display bug
 	$tree->delete();
 	return 1;
 }
