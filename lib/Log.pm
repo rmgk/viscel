@@ -35,7 +35,7 @@ sub log {
 		'-' x ($d-2) , '>', #add call depth indicator
 		$module, 
 		' ' x ((24-$d-length($module))), #uhm well it works for now
-		join '', @_; #the message itself
+		join '', grep {defined} @_; #the message itself
 } 
 
 #$msg
