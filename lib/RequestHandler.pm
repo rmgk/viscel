@@ -42,7 +42,7 @@ sub url_view {"/v/$_[0]/$_[1]"}
 #initialises the request handlers
 sub init {
 	Server::req_handler('index',\&index);
-	Server::req_handler('v',\&col);
+	Server::req_handler('v',\&view);
 	Server::req_handler('b',\&blob);
 }
 
@@ -99,8 +99,8 @@ sub index {
 }
 
 #$connection, $request
-#handles col requests
-sub col {
+#handles view requests
+sub view {
 	my ($c,$r) = @_;
 	$l->trace('handling collection');
 	my ($id,$pos) = parse_request($r);
@@ -135,7 +135,7 @@ sub col {
 			$last ||= 1;
 			$l->debug("$pos not found redirecting to last $last");
 			$c->send_redirect( "http://$ADDR".url_view($id,$last), 303 );
-			return "read redirect";
+			return "view redirect";
 		}
 	} 
 	$col->clean();
@@ -158,7 +158,7 @@ sub col {
 	$html .= cgi->end_div();
 	$html .= cgi->end_html();
 	send_response($c,$html);
-	return [$id,$pos];
+	return ['view',$id,$pos];
 }
 
 

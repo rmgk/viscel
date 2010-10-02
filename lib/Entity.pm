@@ -50,7 +50,7 @@ sub new {
 }
 
 #creates the Core at the position of the entity
-sub get_spot {
+sub create_spot {
 	my ($s) = @_;
 	my $core = $s->cid;
 	$core =~ s/_.*//;
