@@ -215,6 +215,9 @@ sub next {
 	return $next;
 }
 
+#accessors:
+sub id { return $_[0]->{id} }
+sub position { return $_[0]->{position} }
 
 
 1;
