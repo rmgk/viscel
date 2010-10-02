@@ -21,7 +21,11 @@ sub init {
 	$l->info("launching server on port $port");
 	$d = HTTP::Daemon->new(LocalPort => $port);
 	#$d->timeout(0);
-	return $d or die("could not listen on port $port");
+	unless($d){
+		$l->error("could not listen on port $port");
+		return undef;
+	}
+	return 1;
 }
 
 #$path, \&request_handler -> \&request_handler
@@ -53,12 +57,12 @@ sub handle_connections {
 sub handle_connection {
 	my $c = shift;
 	$l->trace("handling connection");
-	my @status;
+	my @hint;
 	while (my $r = $c->get_request) {
-		push(@status,handle_request($c,$r));
+		push(@hint,handle_request($c,$r));
 	}
 	$l->debug("no more requests: " . $c->reason);
-	return \@status;
+	return \@hint;
 }
 
 #$connection, $request

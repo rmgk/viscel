@@ -19,7 +19,7 @@ sub init {
 	$l->trace('initialising userprefs');
 	unless (-e $FILE) {
 		%data = ();
-		return;
+		return 1;
 	}
 	my $block;
 	open (my $fh, '<', $FILE);
@@ -41,6 +41,7 @@ sub init {
 		$data{$block}->{$what} = $is;
 	}
 	close ($fh);
+	return 1;
 }
 
 #$class, $block -> $self

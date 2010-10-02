@@ -24,6 +24,9 @@ sub init {
 	$l->trace('initialising database');
 	$l->warn('already initialised, reinitialising') if $DBH;
 	$DBH = DBI->connect("dbi:SQLite:dbname=$DB_DIR","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
+	return 1 if $DBH;
+	$l->error('could not connect to database');
+	return undef;
 }
 
 #$class,$id->$self
