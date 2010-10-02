@@ -105,6 +105,10 @@ sub list {
 sub first {
 	my ($class,$id) = @_;
 	$l->trace('creating first');
+	unless($id ~~ %comiclist) {
+		$l->error("unknown id: ", $id);
+		return undef;
+	}
 	return $class->create($id,1,$comiclist{$id}->{url_start});
 }
 
