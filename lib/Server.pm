@@ -32,6 +32,10 @@ sub init {
 #sets the request handler for $path and returns it
 sub req_handler {
 	my ($path,$handler) = @_;
+	unless ($path) {
+		$l->error('path not specified');
+		return undef;
+	}
 	if ($handler) {
 		$l->debug('adding request handler for ', $path); 
 		$req_handler{$path} = $handler ;
@@ -42,13 +46,17 @@ sub req_handler {
 #-> $bool
 #returns 1 if an incoming connection was handled 0 if not
 sub handle_connections {
+	#my @hint;
+	$l->trace('accepting connections');
 	if (my ($c, $addr) = $d->accept) {
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
 		$l->debug("connection accepted from ",$addr_str ,":",$port);
-		$c->timeout(1);
-		return handle_connection($c);
+		$c->timeout(0.1);
+		#push (@hint, handle_connection($c));
+		return handle_connection($c)
 	}
+	#return \@hint;
 	return undef;
 }
 
@@ -74,82 +82,42 @@ sub handle_request {
 	if ($r->url->path eq '/') {
 		$c->send_redirect( "http://127.0.0.1/index",301);
 	}
-	elsif ($r->url->path =~ m#^/([^/]+)#) {
-		my $path = $1;
+	elsif ($r->url->path =~ m#^/(?<path>[^/]+)/?(?<args>.*?)/?$#i) {
+		my $path = $+{path};
+		my @args = split '/',$+{args};
 		if ($req_handler{$path}) {
-			return $req_handler{$path}($c,$r);
+			return $req_handler{$path}($c,$r,@args);
 		}
 		else {
-			$l->debug('sending 404');
-			$c->send_response(HTTP::Response->new( 404, 'File Not Found'));
+			send_404($c);
 			return undef;
 		}
 	}
 	else {
 		$l->warn('unexpected url path: ', $r->url->path);
-		$c->send_response(HTTP::Response->new( 404, 'File Not Found'));
+		send_404($c);
 		return undef;
 	}
 }
 
-# while (my ($c, $addr) = $d->accept) {
-	# my ($port, $iaddr) = sockaddr_in($addr);
-	# my $addr_str = inet_ntoa($iaddr);
-	# #say "connection accepted";
-	# if (my $r = $c->get_request) {
-	
-		# if ($addr_str ne '127.0.0.1') {
-			# say "from $addr_str : $port path:" . $r->url->path;
-		# }
-		
-		# $c->force_last_request();
-		# #say "got request " . $r->method;
-		# if (($r->method eq 'GET')) {
-			# #say "handling get";
-			# if ($r->url->path =~ m#^/favicon.ico$#) {
-				# $c->send_response(HTTP::Response->new( 404, 'File Not Found'));
-			# }
-			# elsif ($r->url->path =~ m#^/(?<plugin>\w+)/?(?<args>.*?)/?$#i) {
-				# my @args = split('/',$+{args});
-				# my $plugin = "ServerPlugin::$+{plugin}";
-				
-				# if ($plugin =~ m/strips$/i) {
-					# my $comic = $args[0];
-					# my $strip = $args[1];
-					# if ((not defined $comic) or (not defined $strip)) {
-						# $c->send_response(HTTP::Response->new( 500, 'Comic or Strip undefined'));
-					# } 
-					# elsif ($strip =~ /^\d+$/) {
-						# $strip = dbstrps($comic,'id'=>$strip,'file');
-						# unless ($strip) {
-							# $c->send_response(HTTP::Response->new( 500, 'strip id had no file'));
-						# } else {
-							# $c->send_redirect("http://127.0.0.1/strips/$comic/$strip" );
-						# }
-					# }
-					# else {
-						# $c->send_file_response("./strips/$comic/$strip");
-					# }
-				# }
-				# elsif (eval("require $plugin")) {
-					# #say "success $plugin";
-					# restore_parameters($r->url->query);
-					# my $res = $plugin->get_response();
-					# $res->content($plugin->get_content(@args));
-					# $c->send_response($res);
-				# }
-				# else {
-					# say "err message: $! - plugin: $plugin";
-				# }		
-			# }
-		# }
-	# }
-	# else {
-		# say "could not get request: " . $c->reason;
-	# }
-# }
 
+#$c
+#sends a default html response
+sub send_response {
+	my ($c,$html) = @_;
+	$l->trace('sending response');
+	my $res = HTTP::Response->new( 200, 'OK', ['Content-Type','text/html']);
+	$res->content($html);
+	$c->send_response($res);
+}
 
-
+#$c
+#sends a 404 file not found response
+sub send_404 {
+	my ($c) = @_;
+	$l->trace('sending 404');
+	my $res = HTTP::Response->new( 404, 'File Not Found',undef,'file not found');
+	$c->send_response($res);
+}
 
 1;
