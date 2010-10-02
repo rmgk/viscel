@@ -22,7 +22,7 @@ my %cores = (	'Core::AnyManga' => 1,
 #returns the list of used cores
 sub list {
 	$l->trace('core list requested');
-	return keys %cores;
+	return grep {$cores{$_} } keys %cores;
 }
 
 #initialises all used cores
@@ -30,9 +30,10 @@ sub init {
 	$l->trace('initialising cores');
 	for (list()) {
 		unless ($_->init()) {
-			delete $cores{$_};
+			$cores{$_} = 0;
 		}
 	}
+	return 1;
 }
 
 1;
