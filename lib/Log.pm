@@ -7,14 +7,13 @@ use warnings;
 
 our $VERSION = v1;
 our ($TRACE, $DEBUG, $INFO, $WARN, $ERROR, $FATAL, $SILENT) = 0..6;
-my $DEFAULT = $TRACE;
 
 #$class, \%settings -> \%self
 #constructor
 sub new {
 	my ($class,$self) = @_;
 	$self //= {}; 
-	$self->{level} //= $DEFAULT;  
+	#$self->{level} //= $main::LOGLVL;
 	bless $self, $class;
 	return $self;
 }
@@ -41,42 +40,42 @@ sub log {
 #$msg
 sub trace { 
 	my ($s) = shift;
-	return if ($TRACE < $s->{level});
+	return if ($TRACE < $main::LOGLVL);
 	print 'TRACE ';
 	$s->log(@_);
 }
 #$msg
 sub debug { 
 	my ($s) = shift;
-	return if ($DEBUG < $s->{level});
+	return if ($DEBUG < $main::LOGLVL);
 	print 'DEBUG ';
 	$s->log(@_);
 }
 #$msg
 sub info { 
 	my ($s) = shift;
-	return if ($INFO < $s->{level});
+	return if ($INFO < $main::LOGLVL);
 	print 'INFO  ';
 	$s->log(@_);
 }
 #$msg
 sub warn { 
 	my ($s) = shift;
-	return if ($WARN < $s->{level});
+	return if ($WARN < $main::LOGLVL);
 	print 'WARN  ';
 	$s->log(@_);
 }
 #$msg
 sub error { 
 	my ($s) = shift;
-	return if ($ERROR < $s->{level});
+	return if ($ERROR < $main::LOGLVL);
 	print 'ERROR ';
 	$s->log(@_);
 }
 #$msg
 sub fatal { 
 	my ($s) = shift;
-	return if ($FATAL < $s->{level});
+	return if ($FATAL < $main::LOGLVL);
 	print 'FATAL ';
 	$s->log(@_);
 }

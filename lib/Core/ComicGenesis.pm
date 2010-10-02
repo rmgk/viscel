@@ -34,9 +34,9 @@ sub init {
 
 #creates the list of comic
 sub _create_list {
-	if (-e 'ComicGenesis.txt') {
+	if (-e $main::DIRDATA.'ComicGenesis.txt') {
 		$l->debug('loading comicgenesis comics from file');
-		if (open (my $fh, '<', 'ComicGenesis.txt')) {
+		if (open (my $fh, '<', $main::DIRDATA.'ComicGenesis.txt')) {
 			local $/;
 			#%comiclist
 			my $txt = <$fh>;
@@ -85,7 +85,7 @@ sub _create_list {
 	}
 	$l->debug('found ' . keys(%comiclist) . ' collections');
 	$l->debug('saving list to file');
-	if (open (my $fh, '>', 'ComicGenesis.txt')) {
+	if (open (my $fh, '>', $main::DIRDATA.'ComicGenesis.txt')) {
 		print $fh 'my ',Dumper(\%comiclist);
 		close $fh;
 	}

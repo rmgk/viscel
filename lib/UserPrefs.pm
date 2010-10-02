@@ -17,12 +17,12 @@ my $changed = 0;
 #initialises the preferences
 sub init {
 	$l->trace('initialising userprefs');
-	unless (-e $FILE) {
+	unless (-e $main::DIRDATA.$FILE) {
 		%data = ();
 		return 1;
 	}
 	my $block;
-	open (my $fh, '<', $FILE);
+	open (my $fh, '<', $main::DIRDATA.$FILE);
 	while (my $line = <$fh>) {
 		if ($line =~ /^\s*\[\s*(?<block>\w+)\s*\]\s*$/) {
 			$block = $+{block};
@@ -81,7 +81,7 @@ sub set {
 sub save {
 	return unless $changed;
 	$l->trace('saving');
-	open (my $fh, '>',$FILE);
+	open (my $fh, '>',$main::DIRDATA.$FILE);
 	print $fh as_string();
 	close $fh;
 	$changed = 0;

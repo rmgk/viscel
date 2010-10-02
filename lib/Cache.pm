@@ -11,19 +11,16 @@ use Log;
 
 my $l = Log->new();
 
-our $DIR = 'cache/';
-
-
 #initialises the cache
 sub init {
 	$l->trace('initialising cache');
-	unless (-e $DIR or mkdir $DIR) {
-		$l->error('could not create cache dir ' .$DIR);
+	unless (-e $main::DIRCACHE or mkdir $main::DIRCACHE) {
+		$l->error('could not create cache dir ' , $main::DIRCACHE);
 		return undef;
 	}
 	
 	for my $a ('0'..'9','a'..'f') { for my $b ('0'..'9','a'..'f') { 
-		my $dir = $DIR.$a.$b.'/';
+		my $dir = $main::DIRCACHE.$a.$b.'/';
 		unless (-e $dir or mkdir $dir) {
 			$l->error('could not create storage dir ' .$dir);
 			return undef;
@@ -40,8 +37,8 @@ sub put {
 	$l->trace('store ' . $sha1);
 	substr($sha1,2,0) = '/';
 	my $fh;
-	unless (open $fh, '>', $DIR.$sha1) {
-		$l->error("could not open $DIR$sha1 for write");
+	unless (open $fh, '>', $main::DIRCACHE.$sha1) {
+		$l->error("could not open $main::DIRCACHE$sha1 for write");
 		return undef;
 	}
 	binmode $fh;
@@ -61,8 +58,8 @@ sub get {
 	$l->trace('retrieve ' . $sha1);
 	substr($sha1,2,0) = '/';
 	my $fh;
-	unless (open $fh, '<', $DIR.$sha1) {
-		$l->error("could not open $DIR.$sha1 for read");
+	unless (open $fh, '<', $main::DIRCACHE.$sha1) {
+		$l->error("could not open $main::DIRCACHE$sha1 for read");
 		return undef;
 	}
 	binmode $fh;

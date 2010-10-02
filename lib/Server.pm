@@ -17,7 +17,7 @@ my %req_handler;
 #$port -> $daemon
 #initialises the http server
 sub init {
-	my $port = shift // 80;
+	my $port = shift // $main::PORT;
 	$l->info("launching server on port $port");
 	$d = HTTP::Daemon->new(LocalPort => $port);
 	#$d->timeout(0);
@@ -37,7 +37,7 @@ sub req_handler {
 		return undef;
 	}
 	if ($handler) {
-		$l->debug('adding request handler for ', $path); 
+		$l->trace('adding request handler for ', $path); 
 		$req_handler{$path} = $handler ;
 	}
 	return $req_handler{$path};

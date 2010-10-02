@@ -14,16 +14,16 @@ use Entity;
 use Cache;
 
 my $l = Log->new();
-our $DB_DIR = 'collections.db';
 my $DBH;
 my $cache;
 my $cache_id = '';
 
 #initialises the database
 sub init {
+	my $db_dir = $main::DIRDATA.'collections.db';
 	$l->trace('initialising database');
 	$l->warn('already initialised, reinitialising') if $DBH;
-	$DBH = DBI->connect("dbi:SQLite:dbname=$DB_DIR","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
+	$DBH = DBI->connect("dbi:SQLite:dbname=$db_dir","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 	return 1 if $DBH;
 	$l->error('could not connect to database');
 	return undef;

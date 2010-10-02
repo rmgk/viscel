@@ -30,9 +30,9 @@ sub init {
 
 #creates the list of known manga
 sub _create_list {
-	if (-e 'AnyManga.txt') {
+	if (-e $main::DIRDATA.'AnyManga.txt') {
 		$l->debug('loading anymanga manga from file');
-		if (open (my $fh, '<', 'AnyManga.txt')) {
+		if (open (my $fh, '<', $main::DIRDATA.'AnyManga.txt')) {
 			local $/;
 			my $txt = <$fh>;
 			close $fh;
@@ -70,7 +70,7 @@ sub _create_list {
 	$l->debug('found ' . keys(%mangalist) . ' collections');
 	
 	$l->debug('saving list to file');
-	if (open (my $fh, '>', 'AnyManga.txt')) {
+	if (open (my $fh, '>', $main::DIRDATA.'AnyManga.txt')) {
 		print $fh 'my ',Dumper(\%mangalist);
 		close $fh;
 	}

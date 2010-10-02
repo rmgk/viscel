@@ -7,11 +7,22 @@ use lib "./lib";
 
 our $VERSION = v4.0.0;
 
+use Log;
 use Controller;
 
-# ------ initialisation --------------------
+# ----- global default variables -----
+
+our $LOGLVL = $Log::TRACE;
+our $PORT = 80; 
+our $DIRCACHE = './cache/';
+our $DIRDATA = './data/';
+
+# ------------------------------------
 
 my $l = Log->new();
+
+mkdir $main::DIRDATA unless (-e $DIRDATA);
+mkdir $main::DIRCACHE unless (-e $DIRCACHE);
 
 unless (Controller::init()) {
 	$l->fatal('could not initialise controller');
