@@ -65,7 +65,8 @@ sub _create_list {
 			next unless $a;
 			my $href = URI->new($a->attr('href'))->as_string();
 			$href =~ s'^.*http://'http://'g; #hack to fix some broken urls
-			my ($id) = ($href =~ m'^http://(.*?)\.comicgen(?:esis)?\.com/'i);
+			$href =~ s'\.comicgen\.com'.comicgenesis.com'gi; #hack to fix more broken urls
+			my ($id) = ($href =~ m'^http://(.*?)\.comicgenesis?\.com/'i);
 			unless ($id) {
 				$l->debug("could not parse $href");
 				next;
@@ -152,6 +153,8 @@ sub mount {
 	my $img = $tree->look_down(_tag => 'img', src => qr'/comics/.*\d{8}'i,width=>qr/\d+/,height=>qr/\d+/);
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width height);
 	$s->{src} = URI->new_abs($s->{src},$s->{state});
+	$s->{src} =~ s'^.*http://'http://'g; #hack to fix some broken urls
+	$s->{src} =~ s'\.comicgen\.com'.comicgenesis.com'gi; #hack to fix more broken urls
 	my $a = $tree->look_down(_tag => 'a', sub {$_[0]->as_text =~ m/^Next comic$/});
 	unless ($a) {
 		my $img_next = $tree->look_down(_tag => 'img', alt => 'Next comic');
@@ -165,6 +168,8 @@ sub mount {
 	if ($a) {
 		$s->{next} = $a->attr('href');
 		$s->{next} = URI->new_abs($s->{next} ,$s->{state});
+		$s->{next} =~ s'^.*http://'http://'g; #hack to fix some broken urls
+		$s->{next} =~ s'\.comicgen\.com'.comicgenesis.com'gi; #hack to fix more broken urls
 	}
 	$s->{fail} = undef;
 	$l->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_} // '')} qw(src next title alt)); #/padre syntax?!
