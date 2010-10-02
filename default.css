@@ -7,16 +7,45 @@ body {
 
 a {
 	text-decoration:none;
-	color:#0050cc;
+	color:#3654d9;
 }
 
 a:visited {
-	color:#007080;
+	color:#404c80;
 }
 
 a.extern {
-	color:red;
+	color:#7a1818;
 }
+/*collection groups*/
+.group {
+	margin:10px;
+	padding: 10px;
+	background-color:#00000b;
+	border-style: solid;
+	border-color: #310000;
+	border-width: 1px;
+}
+
+/*navigation placement for frontpage and comic pages*/
+.navigation {
+	text-align:center;
+	clear:both;
+	position:static;
+	border-style: solid none solid none;
+	border-color: #310000;
+	border-width: 1px;
+	padding:0.2cm;
+	margin:0px 0px 0px 0px;
+	background-color:#00000b;
+}
+		
+/* comic pages */
+	div.content {
+		text-align:center;
+		height:100%;
+		padding: 0.2cm;
+	}
 
 /* pause form */
 .navigation  form {
@@ -25,12 +54,14 @@ a.extern {
 .navigation form input {
 	border-style:none;
 	background:transparent;
-	color:#0050cc;
+	color:#beac0a;
 	padding:0;
 	cursor:pointer;'
 }
 
-/*preview box*/
+/*legacy stylesheet for reference***
+
+/*preview box***
 #prevbox {
 	visibility:hidden;
 	position:absolute;
@@ -50,7 +81,7 @@ a.extern {
 	max-width:50%;
 }
 
-/*main menu*/
+/*main menu***
 #menu {
 	right:0px;
 	top:0px;
@@ -65,7 +96,7 @@ a.extern {
 	overflow:auto;
 }
 
-/*comic groups*/
+/*comic groups***
 	.group {
 		margin:10px;
 		background-color:#00000b;
@@ -86,10 +117,10 @@ a.extern {
 	}
 	
 	.group a  {
-		/*display: block;*/
+		/*display: block;***
 	}
 
-	/*comic names in groups*/
+	/*comic names in groups***
 	.broken {
 		text-decoration:line-through;
 	}
@@ -97,38 +128,38 @@ a.extern {
 	}
 
 
-/*frontpage*/
+/*frontpage***
 	div.frontpage {
 		text-align:center;
 	}
 
-	/*frontpage headline (comic name)*/
+	/*frontpage headline (comic name)***
 	h2 {
 	}
-	/*frontpage with 3 images*/
+	/*frontpage with 3 images***
 	div.frontpage img.front3 {
 		max-width:33%;
 		border:none;
 	}
-	/*frontpage with 2 images*/
+	/*frontpage with 2 images***
 	div.frontpage img.front2 {
 		max-width:49%;
 		border:none;
 	}
-	/*img to first*/
+	/*img to first***
 	div.frontpage #first {
 		float:left;
 	}
-	/*img to bookmark*/
+	/*img to bookmark***
 	div.frontpage #bookmark {
 	}
-	/*img to last*/
+	/*img to last***
 	div.frontpage #last {
 		float:right;
 	}
 
 	
-/*navigation placement for frontpage and comic pages*/
+/*navigation placement for frontpage and comic pages***
 .navigation {
 	text-align:center;
 	clear:both;
@@ -141,8 +172,8 @@ a.extern {
 	background-color:#00000b;
 }
 		
-/* comic pages */
-	div.content {
+/* comic pages ***
+	div.comic {
 		text-align:center;
 		height:100%;
 		padding: 0.2cm;
@@ -159,10 +190,10 @@ a.extern {
 		min-width: 50%;
 	}
 
-/*striplist*/
+/*striplist***
 	div.striplist {
 		/*text-align:right;
-		margin-bottom:2cm;*/
+		margin-bottom:2cm;***
 	}
 	.striplist img {
 		float:left;
@@ -172,7 +203,7 @@ a.extern {
 		clear:both;
 	}
 	
-/*favlist*/
+/*favlist***
 	div.favlist {
 		margin:4%;
 		background-color:#001000;
@@ -184,7 +215,7 @@ a.extern {
 		padding:5px 0;
 	}
 	
-/*pod / documentation*/
+/*pod / documentation***
 	div.pod {
 		margin:4%;
 		background-color:#001000;
@@ -192,7 +223,7 @@ a.extern {
 		padding:1cm;
 	}	
 	
-/*tools containter*/
+/*tools containter***
 	div.tools {
 		margin:4%;
 		background-color:#001000;
