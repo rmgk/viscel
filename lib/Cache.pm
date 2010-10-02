@@ -54,11 +54,15 @@ sub put {
 #retrieves the $blob for $sha
 sub get {
 	my ($sha1) = @_;
+	if (!$sha1 or length($sha1) != 40) {
+		$l->error('incorrect sha1 value');
+		return undef;
+	}
 	$l->trace('retrieve ' . $sha1);
 	substr($sha1,2,0) = '/';
 	my $fh;
 	unless (open $fh, '<', $DIR.$sha1) {
-		$l->error("could not open $DIR.$sha1 for write");
+		$l->error("could not open $DIR.$sha1 for read");
 		return undef;
 	}
 	binmode $fh;
