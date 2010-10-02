@@ -151,6 +151,11 @@ sub mount {
 	my $tree = HTML::TreeBuilder->new();
 	$tree->parse_content($page->content());
 	my $img = $tree->look_down(_tag => 'img', src => qr'/comics/.*\d{8}'i,width=>qr/\d+/,height=>qr/\d+/);
+	unless ($img) {
+		$l->error('could not get image');
+		$s->{fail} = 'could not get image';
+		return undef;
+	}
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width height);
 	$s->{src} = URI->new_abs($s->{src},$s->{state});
 	$s->{src} =~ s'^.*http://'http://'g; #hack to fix some broken urls
