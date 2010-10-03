@@ -184,10 +184,12 @@ sub config {
 	my ($c,$r,$core) = @_;
 	$l->trace('handling config request');
 	my $cfg = $core->config();
+	my $changed = '';
 	if ($r->method eq 'POST') {
 		$l->debug("changing config " . $r->content());
 		my $cgi = cgi($r->content());
 		$cfg = $core->config(map {$_,$cgi->param($_)} keys %$cfg);
+		$changed = ' success';
 	}
 	my $html = cgi->start_html(-title => $core,-style=>'/css');
 	$html .= cgi->start_div({-class=>'info'});
@@ -201,6 +203,7 @@ sub config {
 			} keys %$cfg;
 		$html .= cgi->br() . cgi->submit(-class=>'submit',-value=>'update');
 		$html .= cgi->end_form();
+		$html .= $changed;
 	$html .= cgi->end_div();
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_main();
