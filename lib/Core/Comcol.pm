@@ -12,6 +12,7 @@ use Log;
 use DBI;
 use Entity;
 use HTML::Entities;
+use UserPrefs;
 
 my $l = Log->new();
 my $DBH;
@@ -20,10 +21,10 @@ my $DIR;
 #initialises the database connection
 sub init {
 	$l->trace('initialising Core::Comcol');
-	$DIR = UserPrefs->block('folders')->get('Comcol') || '';
+	$DIR = UserPrefs->section('folders')->get('Comcol') || '';
 	unless (-e $DIR) {
 		$l->warn("Comcol directory dir ($DIR) does not exists correct preferences");
-		UserPrefs->block('folders')->set('Comcol','');
+		UserPrefs->section('folders')->set('Comcol','');
 		return undef;
 	}
 	$l->warn('database handle already initialised, reinitialising') if defined $DBH;

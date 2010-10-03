@@ -85,7 +85,7 @@ sub view {
 	$l->trace('handling collection');
 	if ($r->method eq 'POST') {
 		$l->debug("set bookmark of $id to $pos");
-		UserPrefs->block('bookmark')->set($id,$pos);
+		UserPrefs->section('bookmark')->set($id,$pos);
 	}
 	my $html = cgi->start_html(-title => $pos,-style=>'/css');
 	my $col = Collection->get($id);
@@ -141,7 +141,7 @@ sub front {
 	$html .= link_main();
 	$html .= ' - ';
 	$html .= link_view($id,1,'first');
-	my $bm = UserPrefs->block('bookmark');
+	my $bm = UserPrefs->section('bookmark');
 	$html .= ' ';
 	$html.= link_view($id,$bm->get($id),'Bookmark') if $bm->get($id); 
 	$html .= ' ';
