@@ -49,6 +49,7 @@ sub init {
 sub section {
 	my ($class,$sect) = @_;
 	$l->trace("userprefs handle for $sect"); 
+	$sect //= caller; #/ padre display bug
 	unless ($data{$sect}) {
 		$l->debug("create $sect");
 		$data{$sect} = {};
