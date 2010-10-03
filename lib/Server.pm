@@ -60,7 +60,7 @@ sub handle_connections {
 		#are made to allow the controller to do his work
 		$c->timeout(0.1);
 		#push (@hint, handle_connection($c));
-		return handle_connection($c)
+		return handle_connection($c,$addr_str)
 	}
 	#return \@hint;
 	return undef;
@@ -69,11 +69,11 @@ sub handle_connections {
 #$connection
 #handles requests on the $connection
 sub handle_connection {
-	my $c = shift;
+	my ($c,$addr) = @_;
 	$l->trace("handling connection");
 	my @hint;
 	while (my $r = $c->get_request) {
-		push(@hint,handle_request($c,$r));
+		push(@hint,handle_request($c,$r,$addr));
 	}
 	$l->debug("no more requests: " . $c->reason);
 	return \@hint;
@@ -82,9 +82,12 @@ sub handle_connection {
 #$connection, $request
 #dispatches the request to the request handler or sends a 404 error if no handler is registered
 sub handle_request {
-	my ($c,$r) = @_;
+	my ($c,$r,$addr) = @_;
 	$l->debug("handling request: " , $r->method(), ' ', $r->url->as_string());
-	#$l->trace($r->as_string());
+	if ($r->method() ne 'GET' and $addr ne '127.0.0.1') {
+		$l->warn('non get request from foreign address sending 403');
+		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'You are only allowed to make GET requests'));
+	}
 	if ($r->url->path eq '/') {
 		$c->send_redirect( "http://127.0.0.1/index",301);
 	}
