@@ -101,6 +101,16 @@ sub list {
 	return map {$_ , $comiclist{$_}->{name}} keys %comiclist;
 }
 
+#$query,$regex -> %list
+sub search {
+	my ($pgk,$query,$regex) = @_;
+	$l->debug('searching for ',$query);
+	return map {$_,$comiclist{$_}->{name}} grep {
+		$_ eq $query or 
+		$comiclist{$_}->{name} ~~ $regex
+		} keys %comiclist;
+}
+
 #$class,$id -> @info
 #returns a list (hash) of infos about the given id
 sub about {

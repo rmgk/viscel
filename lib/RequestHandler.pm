@@ -46,6 +46,15 @@ sub url_config {"/c/$_[0]"}
 sub link_action {my $name = shift; return cgi->a({-href=>url_config(@_)}, $name)}
 sub url_action {join('/','/a',@_)};
 
+sub form_search {
+	my $html .= cgi->start_form(-method=>'GET',-action=>url_search());
+	$html .= cgi->textfield(-name=>'search',-size=>20);
+	#$html .= cgi->submit(-class=>'submit', -value => 'initialise');
+	$html .= cgi->end_form();
+	return $html;
+}
+sub url_search {"/s"};
+
 sub handler {
 	$_[0] =~ m'^/([^/]+)'; return $1;
 }
@@ -60,6 +69,7 @@ sub init {
 	Server::req_handler(handler(url_front('')),\&front);
 	Server::req_handler(handler(url_config('')),\&config);
 	Server::req_handler(handler(url_action('')),\&action);
+	Server::req_handler(handler(url_search('')),\&search);
 	Server::req_handler('b',\&blob);
 	Server::req_handler('css',\&css);
 	$cgi = CGI->new() unless $cgi;
@@ -91,14 +101,16 @@ sub index {
 		$html .= cgi->br();
 	}
 	$html .= cgi->end_div();
-	
-	foreach my $core (Cores::initialised()) {
-		my %collections = $core->list();
-		$html .= cgi->start_div({-class=>'group'});
-		$html .= join '', map {link_front($_,$collections{$_}).cgi->br()
-			} sort {lc($collections{$a}) cmp lc($collections{$b})} keys %collections;
-		$html .= cgi->end_div();
-	}
+	$html .= cgi->start_div({-class=>'info'});
+		$html .= form_search();
+	$html .= cgi->end_div();
+	# foreach my $core (Cores::initialised()) {
+		# my %collections = $core->list();
+		# $html .= cgi->start_div({-class=>'group'});
+		# $html .= join '', map {link_front($_,$collections{$_}).cgi->br()
+			# } sort {lc($collections{$a}) cmp lc($collections{$b})} keys %collections;
+		# $html .= cgi->end_div();
+	# }
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return 'index';
@@ -247,6 +259,33 @@ sub action {
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return $ret;
+}
+
+#$connection, $request, @args
+#handles action requests
+sub search {
+	my ($c,$r,@args) = @_;
+	$l->trace('handling search request');
+	my %result;
+	my $cgi = cgi($r->url->query());
+	my $query = $cgi->param('search');
+	%result = Cores::search($query);
+	my $html = cgi->start_html(-title => 'search',-style=>'/css');
+	$html .= cgi->start_div({-class=>'info'});
+		$html .= "search for $query ".cgi->br() . (keys %result) . ' results';
+		$html .= cgi->br();
+		$html .= form_search();
+	$html .= cgi->end_div();
+	$html .= cgi->start_div({-class=>'navigation'});
+		$html .= link_main();
+	$html .= cgi->end_div();
+	$html .= cgi->start_div({-class=>'group'});
+		$html .= join '', map {link_front($_,$result{$_}).cgi->br()
+		} sort {lc($result{$a}) cmp lc($result{$b})} keys %result;
+	$html .= cgi->end_div();
+	$html .= cgi->end_html();
+	Server::send_response($c,$html);
+	return "search $query";
 }
 
 #$connection, $request

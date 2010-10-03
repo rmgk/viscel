@@ -52,6 +52,14 @@ sub list {
 	
 }
 
+#$query,$regex -> %list
+sub search {
+	my ($pkg,$query,$regex) = @_;
+	$l->debug('searching for ',$query);
+	my %cmcs = list();
+	return map {$_,$cmcs{$_}} grep {$_ eq $query or $cmcs{$_} ~~ $regex} keys %cmcs;
+}
+
 #%config -> \%config
 #given a hash
 sub config {

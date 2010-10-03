@@ -101,6 +101,19 @@ sub list {
 	return map {$_ , $mangalist{$_}->{name}} keys %mangalist;
 }
 
+#$query,$regex -> %list
+sub search {
+	my ($pkg,$query,$regex) = @_;
+	$l->debug('searching for ',$query);
+	return map {$_,$mangalist{$_}->{name}} grep {
+		$_ eq $query or 
+		$mangalist{$_}->{name} ~~ $regex or
+		$mangalist{$_}->{alias} ~~ $regex or
+		$mangalist{$_}->{tags} ~~ $regex or
+		$mangalist{$_}->{author} ~~ $regex
+		} keys %mangalist;
+}
+
 #$class,$id -> @info
 #returns a list (hash) of infos about the given id
 sub about {
