@@ -20,8 +20,10 @@ my %cores = (	'Core::AnyManga' => 0,
 
 #initialises all used cores
 sub init {
-	$l->trace('initialising cores');
-	$cores{$_} = $_->init() for grep { !$cores{$_}} keys %cores;
+	my @cores = @_;
+	@cores = keys %cores unless @cores;
+	$l->trace('initialising cores: ' . join(', ',@cores));
+	$cores{$_} = $_->init() for grep { !$cores{$_}} @cores;
 	return 1;
 }
 
