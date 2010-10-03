@@ -67,10 +67,10 @@ sub index {
 	$l->trace('handling index');
 	my $html = cgi->start_html(-title => 'index',-style=>'/css');
 	foreach my $core (Cores::list()) {
-		my $collections = $core->list();
+		my %collections = $core->list();
 		$html .= cgi->start_div({-class=>'group'});
-		$html .= join '', map {link_front($_,$collections->{$_}->{name}).cgi->br()
-			} sort {lc($collections->{$a}->{name}) cmp lc($collections->{$b}->{name})} keys %$collections;
+		$html .= join '', map {link_front($_,$collections{$_}).cgi->br()
+			} sort {lc($collections{$a}) cmp lc($collections{$b})} keys %collections;
 		$html .= cgi->end_div();
 	}
 	$html .= cgi->end_html();

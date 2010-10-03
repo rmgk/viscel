@@ -98,7 +98,7 @@ sub _create_list {
 #->\%collection_hash
 #returns a hash containing all the collection ids as keys and their names and urls as values
 sub list {
-	return \%comiclist;
+	return map {$_ , $comiclist{$_}->{name}} keys %comiclist;
 }
 
 #$class,$id -> \%self

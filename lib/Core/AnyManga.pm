@@ -84,7 +84,7 @@ sub _create_list {
 #->\%collection_hash
 #returns a hash containing all the collection ids as keys and their names and urls as values
 sub list {
-	return \%mangalist;
+	return map {$_ , $mangalist{$_}->{name}} keys %mangalist;
 }
 
 #$class,$id -> \%self

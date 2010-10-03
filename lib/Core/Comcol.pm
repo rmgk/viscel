@@ -47,8 +47,7 @@ sub list {
 		$l->error('could not get info from database');
 		return undef;
 	}
-	my %cmcs = map {'Comcol_' . $_ , {name => $_}} @$cmcs;
-	return \%cmcs
+	return map {'Comcol_' . $_ , $_} @$cmcs;
 	
 }
 
