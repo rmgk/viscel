@@ -57,6 +57,7 @@ sub handle_hint {
 		my $hint = pop(@hint); #more recent hints are more interesting
 		if (ref $hint eq 'CODE') { #this gives handlers great flexibility for hints
 			$l->trace('running code hint');
+			$hint->();
 		}
 		if (ref $hint eq 'ARRAY') {
 			given (shift @$hint) {

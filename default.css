@@ -61,10 +61,10 @@ a.extern {
 }
 
 /* pause form */
-.navigation  form {
+form {
 	display: inline;
 }
-.navigation form input {
+form input.submit {
 	border-style:none;
 	background:transparent;
 	color:#beac0a;

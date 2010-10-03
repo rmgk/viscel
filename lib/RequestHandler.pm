@@ -43,6 +43,9 @@ sub url_view {"/v/$_[0]/$_[1]"}
 sub link_config {		return cgi->a({-href=>url_config(@_)}, $_[1] // $_[0])} #/ padre dispaly bug
 sub url_config {"/c/$_[0]"}
 
+sub link_action {my $name = shift; return cgi->a({-href=>url_config(@_)}, $name)}
+sub url_action {join('/','/a',@_)};
+
 sub handler {
 	$_[0] =~ m'^/([^/]+)'; return $1;
 }
@@ -56,6 +59,7 @@ sub init {
 	Server::req_handler(handler(url_view('','')),\&view);
 	Server::req_handler(handler(url_front('')),\&front);
 	Server::req_handler(handler(url_config('')),\&config);
+	Server::req_handler(handler(url_action('')),\&action);
 	Server::req_handler('b',\&blob);
 	Server::req_handler('css',\&css);
 	$cgi = CGI->new() unless $cgi;
@@ -75,7 +79,17 @@ sub index {
 	my $html = cgi->start_html(-title => 'index',-style=>'/css');
 	
 	$html .= cgi->start_div({-class=>'info'});
-		$html .= link_config($_).(!Cores::initialised($_) ? ' (not initialised)':'' ).cgi->br() for Cores::list();
+	for (Cores::list()) {
+		$html .= link_config($_);
+		if (!Cores::initialised($_)) {
+			$html .= ' (not  ';
+			$html .= cgi->start_form(-method=>'POST',-action=>url_action('initialise',$_),-enctype=>&CGI::URL_ENCODED);
+			$html .= cgi->submit(-class=>'submit', -value => 'initialise');
+			$html .= cgi->end_form();
+			$html .= 'd)';
+		}
+		$html .= cgi->br();
+	}
 	$html .= cgi->end_div();
 	
 	foreach my $core (Cores::initialised()) {
@@ -124,7 +138,7 @@ sub view {
 		$html .= link_front($id,'front');
 		$html .= ' ';
 		$html .= cgi->start_form(-method=>'POST',-action=>url_view($id,$pos),-enctype=>&CGI::URL_ENCODED);
-		$html .= cgi->submit(-value => 'pause');
+		$html .= cgi->submit(-class=>'submit' -value => 'pause');
 		$html .= cgi->end_form();
 		$html .= ' ';
 		$html .= cgi->a({href=>$ent->page_url(),-class=>'extern'},'site');
@@ -185,7 +199,7 @@ sub config {
 				(defined $cfg->{$_}->{default} ? cgi->strong(' Default: '). $cfg->{$_}->{default} : '' ). 
 				(defined $cfg->{$_}->{expected} ? cgi->strong(' Expected: '). $cfg->{$_}->{expected} : '')
 			} keys %$cfg;
-		$html .= cgi->br() . cgi->submit();
+		$html .= cgi->br() . cgi->submit(-class=>'submit',-value=>'update');
 		$html .= cgi->end_form();
 	$html .= cgi->end_div();
 	$html .= cgi->start_div({-class=>'navigation'});
@@ -195,6 +209,41 @@ sub config {
 	Server::send_response($c,$html);
 	return "config $core";
 	#return ['config',$id];
+}
+
+#$connection, $request, @args
+#handles action requests
+sub action {
+	my ($c,$r,@args) = @_;
+	my $ret = 'action';
+	$l->trace('handling action request');
+	
+	my $html = cgi->start_html(-title => 'action',-style=>'/css');
+	$html .= cgi->start_div({-class=>'info'});
+	if ($r->method eq 'POST') {
+		$l->debug("calling action ". join ' ' , @args);
+		my $cgi = cgi($r->content());
+		$html .=  join '', map {$_ .': '.$cgi->param($_).cgi->br()} $cgi->param();
+		given($args[0]) {
+			when ('initialise') {
+				my $core = $args[1];
+				$l->debug("sending action to initialise $core");
+				$ret = sub {Cores::init($core)};
+				$html .= 'initialising a core may take a while';
+			}
+			default {
+				$l->warn('unknown action' . $_ ); 
+				$html .= 'unknown action'; 
+			}
+		}
+	}
+	$html .= cgi->end_div();
+	$html .= cgi->start_div({-class=>'navigation'});
+		$html .= link_main();
+	$html .= cgi->end_div();
+	$html .= cgi->end_html();
+	Server::send_response($c,$html);
+	return $ret;
 }
 
 #$connection, $request
