@@ -44,26 +44,24 @@ sub init {
 	return 1;
 }
 
-#$class, $block -> $self
-#returns the handle to a block
-sub block {
-	my ($class,$block) = @_;
-	$l->trace("creating preferences handle for $block"); 
-	unless ($data{$block}) {
-		$l->debug("create $block");
-		$data{$block} = {};
+#$class, $sect -> $self
+#returns the handle to a section
+sub section {
+	my ($class,$sect) = @_;
+	$l->trace("userprefs handle for $sect"); 
+	unless ($data{$sect}) {
+		$l->debug("create $sect");
+		$data{$sect} = {};
 	}
-	return bless \$block, $class;
+	return bless \$sect, $class;
 }
 
-#$self|$block,$key -> $value
+#$self|$section,$key -> $value
 #returns the stored value
 sub get {
-	my ($block,$key) = @_;
-	$block = $$block if ref $block;
-	my $value = $data{$block}->{$key};
-	#$l->trace("get block: $block, key: $key, value: $value");
-	
+	my ($sect,$key) = @_;
+	$sect = $$sect if ref $sect;
+	my $value = $data{$sect}->{$key};
 	return $value;
 }
 
@@ -89,12 +87,13 @@ sub save {
 
 #returns the %data as a string
 sub as_string {
-	my $block = shift;
-	if ($block) {
-		return "[$block]\n\t" . 
+	my $sect = shift;
+	$sect = $$sect if ref $sect;
+	if ($sect) {
+		return "[$sect]\n\t" . 
 			join "\n\t",
-				map { $_ . '=' .$data{$block}->{$_} }
-					sort keys %{$data{$block}};
+				map { $_ . '=' .$data{$sect}->{$_} }
+					sort keys %{$data{$sect}};
 	}
 	else {
 		return join "\n",
