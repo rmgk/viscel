@@ -65,6 +65,7 @@ sub get_from_id {
 #$qery -> %collections 
 sub search {
 	my ($query) = @_;
+	return () unless $query;
 	$l->debug('starting search for ', $query);
 	my $regex = qr/$query/i;
 	return map {$_->search($query,$regex)} initialised(); 
