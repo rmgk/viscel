@@ -111,6 +111,17 @@ sub search {
 		} keys %comiclist;
 }
 
+#pkg, %config -> \%config
+#given a hash
+sub config {
+	my $pkg = shift;
+	# my $cfg = UserPrefs->section();
+	# while (my ($k,$v) = splice(@_,0,2)) {
+		# $cfg->set($k,$v);
+	# }
+	return {};
+}
+
 #$class,$id -> @info
 #returns a list (hash) of infos about the given id
 sub about {

@@ -60,20 +60,13 @@ sub search {
 	return map {$_,$cmcs{$_}} grep {$_ eq $query or $cmcs{$_} ~~ $regex} keys %cmcs;
 }
 
-#%config -> \%config
+#pkg, %config -> \%config
 #given a hash
 sub config {
 	my $pkg = shift;
 	my $cfg = UserPrefs->section();
-	if (defined $_[0]) {
-		my $param;
-		if (ref $_[0] eq 'HASH') {
-			$param = $_[0];
-		}
-		else {
-			$param = {@_};
-		}
-		$cfg->set($_,$param->{$_}) for keys %$param;
+	while (my ($k,$v) = splice(@_,0,2)) {
+		$cfg->set($k,$v);
 	}
 	
 	return { dir => {	current => $cfg->get('dir'),

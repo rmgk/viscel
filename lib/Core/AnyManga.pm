@@ -108,10 +108,21 @@ sub search {
 	return map {$_,$mangalist{$_}->{name}} grep {
 		$_ eq $query or 
 		$mangalist{$_}->{name} ~~ $regex or
-		$mangalist{$_}->{alias} ~~ $regex or
-		$mangalist{$_}->{tags} ~~ $regex or
-		$mangalist{$_}->{author} ~~ $regex
+		(defined $mangalist{$_}->{alias} and $mangalist{$_}->{alias} ~~ $regex) or
+		(defined $mangalist{$_}->{tags} and $mangalist{$_}->{tags} ~~ $regex) or
+		(defined $mangalist{$_}->{author} and $mangalist{$_}->{author} ~~ $regex)
 		} keys %mangalist;
+}
+
+#pkg, %config -> \%config
+#given a hash
+sub config {
+	my $pkg = shift;
+	# my $cfg = UserPrefs->section();
+	# while (my ($k,$v) = splice(@_,0,2)) {
+		# $cfg->set($k,$v);
+	# }
+	return {};
 }
 
 #$class,$id -> @info
