@@ -12,7 +12,7 @@ use HTTP::Daemon;
 use CGI;
 
 use Cores;
-use Collection::Ordered;
+use Collection;
 use Cache;
 use UserPrefs;
 use URI;
@@ -88,7 +88,7 @@ sub view {
 		UserPrefs->block('bookmark')->set($id,$pos);
 	}
 	my $html = cgi->start_html(-title => $pos,-style=>'/css');
-	my $col = Collection::Ordered->get($id);
+	my $col = Collection->get($id);
 	my $ent = $col->fetch($pos);
 	unless ($ent) {
 		my $last = $col->last();

@@ -11,7 +11,7 @@ use Log;
 use Server;
 use Cores;
 use Cache;
-use Collection::Ordered;
+use Collection;
 use RequestHandler;
 use UserPrefs;
 
@@ -24,7 +24,7 @@ sub init {
 	if (
 		UserPrefs::init() &&
 		Cache::init() &&
-		Collection::Ordered::init() &&
+		Collection::init() &&
 		Server::init() &&
 		RequestHandler::init() &&
 		Cores::init()
@@ -73,7 +73,7 @@ sub handle_hint {
 sub hint_front {
 	my ($id) = @_;
 	$l->trace('handling front hint '.$id);
-	my $col = Collection::Ordered->get($id);
+	my $col = Collection->get($id);
 	return undef if $col->fetch(1);
 	$spot = $col->core->first($id);
 	if ($spot->mount()) {
@@ -89,7 +89,7 @@ sub hint_front {
 sub hint_view {
 	my ($id,$pos) = @_;
 	$l->trace("handling view hint $id $pos");
-	my $col = Collection::Ordered->get($id);
+	my $col = Collection->get($id);
 	return undef if $col->fetch($pos+1);
 	$l->debug("try to get $id $pos");
 	unless (defined $spot and $spot->id eq $id and $spot->position == $pos) {
