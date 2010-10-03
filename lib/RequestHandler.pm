@@ -109,7 +109,7 @@ sub view {
 	$html .= cgi->start_div({-class=>'navigation'});
 	$html .= link_view($id,($pos - 1),'prev') if ($pos - 1 > 0);
 	$html .= ' ';
-	$html .= link_main();
+	$html .= link_front($id,'front');
 	$html .= ' ';
 	$html .= cgi->start_form(-method=>'POST',-action=>url_view($id,$pos),-enctype=>&CGI::URL_ENCODED);
 	$html .= cgi->submit(-value => 'pause');
@@ -130,7 +130,16 @@ sub front {
 	my ($c,$r,$id) = @_;
 	$l->trace('handling front request');
 	my $html = cgi->start_html(-title => $id,-style=>'/css');
+	$html .= cgi->start_div({-class=>'info'});
+	my @info = Cores::about($id);
+	while (my ($k,$v) = (splice(@info,0,2))) {
+		$v //= ''; #/ padre display bug
+		$html .= "$k: $v" . cgi->br();
+	}
+	$html .= cgi->end_div();
 	$html .= cgi->start_div({-class=>'navigation'});
+	$html .= link_main();
+	$html .= ' - ';
 	$html .= link_view($id,1,'first');
 	my $bm = UserPrefs->block('bookmark');
 	$html .= ' ';

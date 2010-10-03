@@ -101,9 +101,7 @@ sub fetch {
 #returns the core of the given id
 sub core {
 	my ($s) = @_;
-	my $id = $s->{id};
-	$id =~ s/_.*$//;
-	return "Core::$id";
+	return Cores::get_from_id($s->{id});
 }
 
 #->$pos

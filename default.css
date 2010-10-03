@@ -1,6 +1,6 @@
 /*main layout*/
 body {
-	color : #00aa00;
+	color : #68e466;
 	background-color : black;
 	margin: 0px;
 }
@@ -27,6 +27,25 @@ a.extern {
 	border-width: 1px;
 }
 
+/* comic pages */
+.content {
+	padding: 0.2cm;
+}
+.content img {
+	display: block;
+	margin: 0 auto;
+}
+.info {
+	text-align:left;
+	margin: 2cm auto;
+	max-width: 600px;
+	background-color:#00000b;
+	border-style: solid;
+	border-color: #310000;
+	border-width: 1px;
+	padding: 1cm;
+}
+
 /*navigation placement for frontpage and comic pages*/
 .navigation {
 	text-align:center;
@@ -38,14 +57,8 @@ a.extern {
 	padding:0.2cm;
 	margin:0px 0px 0px 0px;
 	background-color:#00000b;
+	color: grey;
 }
-		
-/* comic pages */
-	div.content {
-		text-align:center;
-		height:100%;
-		padding: 0.2cm;
-	}
 
 /* pause form */
 .navigation  form {

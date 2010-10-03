@@ -62,8 +62,22 @@ sub _create_list {
 			$id =~ s/\W/_/g;
 			$id = 'AnyManga_' . $id;
 			$href = 'http://www.anymanga.com' . $href .'001/001/';
-			#$l->trace("found $id ($href) ($name)");
+			if ($mangalist{$id}) { #its an alias
+				if ($mangalist{$id}->{alias}) {
+					$mangalist{$id}->{alias} .= ', '.$name;
+				}
+				else {
+					$mangalist{$id}->{alias} = $name;
+				}
+				next;
+			}
 			$mangalist{$id} = {url_start => $href, name => $name};
+			$mangalist{$id}->{complete} = $item->look_down('_tag' => 'span', title => 'Manga Complete') ? 'true' : 'false' ;
+			$mangalist{$id}->{author} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->content_list();
+			$mangalist{$id}->{author} =~ s/^\s*by\s*//;
+			$mangalist{$id}->{tags} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/normal/)->content_list();
+			#my $alias = $item->look_down('_tag'=> 'div', 'class' => 'mangalistalias');
+			#$mangalist{$id}->{alias} = join '', grep {!ref($_)} $alias->content_list() if $alias;
 		}
 	}
 	$tree->delete();
@@ -85,6 +99,14 @@ sub _create_list {
 #returns a hash containing all the collection ids as keys and their names and urls as values
 sub list {
 	return map {$_ , $mangalist{$_}->{name}} keys %mangalist;
+}
+
+#$class,$id -> @info
+#returns a list (hash) of infos about the given id
+sub about {
+	my ($self,$id) = @_;
+	$id = $self->id() if (!defined $id and ref($self));
+	return %{$mangalist{$id}};
 }
 
 #$class,$id -> \%self

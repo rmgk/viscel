@@ -101,6 +101,14 @@ sub list {
 	return map {$_ , $comiclist{$_}->{name}} keys %comiclist;
 }
 
+#$class,$id -> @info
+#returns a list (hash) of infos about the given id
+sub about {
+	my ($self,$id) = @_;
+	$id = $self->id() if (!defined $id and ref($self));
+	return  %{$comiclist{$id}};
+}
+
 #$class,$id -> \%self
 #returns the first spot
 sub first {

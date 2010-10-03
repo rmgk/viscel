@@ -13,10 +13,17 @@ use Core::ComicGenesis;
 use Log;
 
 my $l = Log->new();
-my %cores = (	'Core::AnyManga' => 1,
-				'Core::Comcol' => 1,
-				'Core::ComicGenesis' => 1,
+my %cores = (	'Core::AnyManga' => 0,
+				'Core::Comcol' => 0,
+				'Core::ComicGenesis' => 0,
 				);
+
+#initialises all used cores
+sub init {
+	$l->trace('initialising cores');
+	$cores{$_} = $_->init() for keys %cores;
+	return 1;
+}
 
 #->@cores
 #returns the list of used cores
@@ -25,15 +32,26 @@ sub list {
 	return grep {$cores{$_} } keys %cores;
 }
 
-#initialises all used cores
-sub init {
-	$l->trace('initialising cores');
-	for (list()) {
-		unless ($_->init()) {
-			$cores{$_} = 0;
-		}
-	}
-	return 1;
+#$id -> @info
+#returns a list (hash) of infos about the given id
+sub about {
+	my ($id) = @_;
+	return get_from_id($id)->about($id);
 }
+
+#$id -> $core
+#returns the core for the given id
+sub get_from_id {
+	my  ($id) = @_;
+	$id =~ s/_.*$//;
+	my $core = "Core::$id";
+	unless ( $cores{$core} ) {
+		$l->error("$core is not initialised");
+		return undef;
+	}
+	return $core;
+}
+
+
 
 1;

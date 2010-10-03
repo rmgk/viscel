@@ -51,6 +51,21 @@ sub list {
 	
 }
 
+#$class,$id -> @info
+#returns a list (hash) of infos about the given id
+sub about {
+	my ($self,$comic) = @_;
+	$comic = $self->id() if (!defined $comic and ref($self));
+	$comic =~ s/^.*_//;
+	my $cmc;
+	unless ($cmc = $DBH->selectrow_hashref('SELECT * FROM comics WHERE comic = ?',undef, $comic)) {
+		$l->error('could not get info from database');
+		return undef;
+	}
+	return %$cmc;
+
+}
+
 #$class,$id -> \%self
 #returns the first spot
 sub first {
