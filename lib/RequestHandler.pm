@@ -75,7 +75,7 @@ sub index {
 	my $html = cgi->start_html(-title => 'index',-style=>'/css');
 	
 	$html .= cgi->start_div({-class=>'info'});
-		$html .= link_config($_).cgi->br() for Cores::list();
+		$html .= link_config($_).(!Cores::initialised($_) ? ' (not initialised)':'' ).cgi->br() for Cores::list();
 	$html .= cgi->end_div();
 	
 	foreach my $core (Cores::initialised()) {
