@@ -20,6 +20,9 @@ sub init {
 	my $port = shift // $main::PORT;
 	$l->info("launching server on port $port");
 	$d = HTTP::Daemon->new(LocalPort => $port);
+	#setting the daemon timeout makes $d->accept() return immediately if there is no connection waiting
+	#this timeout will also be the default timeout of the connection returned by $d->accept()
+	#but that connection will never timeout if it has a timeout value of 0
 	#$d->timeout(0);
 	unless($d){
 		$l->error("could not listen on port $port");
@@ -52,6 +55,9 @@ sub handle_connections {
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
 		$l->debug("connection accepted from ",$addr_str ,":",$port);
+		#the timout value should be big enough to let useragent sent multiple request on the same connection
+		#but it should be also small enough that it times out shortly after all request for a given page
+		#are made to allow the controller to do his work
 		$c->timeout(0.1);
 		#push (@hint, handle_connection($c));
 		return handle_connection($c)
