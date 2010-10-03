@@ -94,7 +94,7 @@ sub as_string {
 		return "[$sect]\n\t" . 
 			join "\n\t",
 				map { $_ . '=' . $data{$sect}->{$_} }
-					sort grep {defined $data{$sect}->{$_}} keys %{$data{$sect}};
+					sort grep {defined $data{$sect}->{$_} and $data{$sect}->{$_} ne ''} keys %{$data{$sect}};
 	}
 	else {
 		return join "\n",
