@@ -150,7 +150,7 @@ sub view {
 		$html .= link_front($id,'front');
 		$html .= ' ';
 		$html .= cgi->start_form(-method=>'POST',-action=>url_view($id,$pos),-enctype=>&CGI::URL_ENCODED);
-		$html .= cgi->submit(-class=>'submit' -value => 'pause');
+		$html .= cgi->submit(-class=>'submit', -value => 'pause');
 		$html .= cgi->end_form();
 		$html .= ' ';
 		$html .= cgi->a({href=>$ent->page_url(),-class=>'extern'},'site');
