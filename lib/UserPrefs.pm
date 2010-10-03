@@ -93,8 +93,8 @@ sub as_string {
 	if ($sect) {
 		return "[$sect]\n\t" . 
 			join "\n\t",
-				map { $_ . '=' .$data{$sect}->{$_} }
-					sort keys %{$data{$sect}};
+				map { $_ . '=' . $data{$sect}->{$_} }
+					sort grep {defined $data{$sect}->{$_}} keys %{$data{$sect}};
 	}
 	else {
 		return join "\n",
