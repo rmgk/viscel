@@ -174,8 +174,8 @@ sub mount {
 		$s->{next} = 'http://www.anymanga.com' . $a_next->attr('href');
 	}
 	$s->{src} = 'http://www.anymanga.com' . $s->{src};
-	$s->{title} =~ s/\n.*//;
-	$s->{alt} =~ s/\n.*//;
+	$s->{title} =~ s/\)\s*\[.*$/)/s;
+	$s->{alt} =~ s/\)\s*\[.*$/)/s;
 	$s->{fail} = undef;
 	$l->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next title alt)); #/padre display bug
 	$tree->delete();
