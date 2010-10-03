@@ -23,7 +23,7 @@ sub init {
 	$l->trace('initialising Core::Comcol');
 	$DIR = UserPrefs->section()->get('dir') || '';
 	unless (-e $DIR) {
-		$l->warn("Comcol directory dir ($DIR) does not exists correct preferences");
+		$l->warn("Comcol directory dir ($DIR) does not exists: correct preferences");
 		UserPrefs->section()->set('dir','');
 		return undef;
 	}
@@ -55,15 +55,18 @@ sub list {
 #%config -> \%config
 #given a hash
 sub config {
+	my $pkg = shift;
 	my $cfg = UserPrefs->section();
-	my $param;
-	if ($_[0] and ref $_[0] eq 'HASH') {
-		$param = $_[0];
+	if (defined $_[0]) {
+		my $param;
+		if (ref $_[0] eq 'HASH') {
+			$param = $_[0];
+		}
+		else {
+			$param = {@_};
+		}
+		$cfg->set($_,$param->{$_}) for keys %$param;
 	}
-	else {
-		$param = {@_};
-	}
-	$cfg->set($_) = $param->{$_} for keys %$param;
 	
 	return { dir => {	current => $cfg->get('dir'),
 						default => undef,

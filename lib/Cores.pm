@@ -21,14 +21,22 @@ my %cores = (	'Core::AnyManga' => 0,
 #initialises all used cores
 sub init {
 	$l->trace('initialising cores');
-	$cores{$_} = $_->init() for keys %cores;
+	$cores{$_} = $_->init() for grep { !$cores{$_}} keys %cores;
 	return 1;
 }
 
 #->@cores
-#returns the list of used cores
+#returns the list of available cores
 sub list {
 	$l->trace('core list requested');
+	return keys %cores;
+}
+
+#$core->@cores
+#returns the list of initialised cores or the state of one core
+sub initialised {
+	my $core = shift;
+	return $cores{$core} if defined $core;
 	return grep {$cores{$_} } keys %cores;
 }
 
@@ -51,7 +59,5 @@ sub get_from_id {
 	}
 	return $core;
 }
-
-
 
 1;

@@ -24,7 +24,7 @@ sub init {
 	my $block;
 	open (my $fh, '<', $main::DIRDATA.$FILE);
 	while (my $line = <$fh>) {
-		if ($line =~ /^\s*\[\s*(?<block>\w+)\s*\]\s*$/) {
+		if ($line =~ /^\s*\[\s*(?<block>[\w:]+)\s*\]\s*$/) {
 			$block = $+{block};
 			next;
 		}
@@ -48,8 +48,8 @@ sub init {
 #returns the handle to a section
 sub section {
 	my ($class,$sect) = @_;
-	$l->trace("userprefs handle for $sect"); 
 	$sect //= caller; #/ padre display bug
+	$l->trace("userprefs handle for $sect"); 
 	unless ($data{$sect}) {
 		$l->debug("create $sect");
 		$data{$sect} = {};
