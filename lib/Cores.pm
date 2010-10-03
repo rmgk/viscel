@@ -49,6 +49,14 @@ sub about {
 	return get_from_id($id)->about($id);
 }
 
+#$id -> $name;
+#returns the name of the given id
+sub name {
+	my ($id) = @_;
+	$l->trace("request name of $id");
+	return get_from_id($id)->name($id);
+}
+
 #$id -> $core
 #returns the core for the given id
 sub get_from_id {

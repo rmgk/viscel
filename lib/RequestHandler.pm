@@ -111,6 +111,12 @@ sub index {
 			# } sort {lc($collections{$a}) cmp lc($collections{$b})} keys %collections;
 		# $html .= cgi->end_div();
 	# }
+	my $bm = UserPrefs->section('bookmark');
+	my %collections  = map {$_ => Cores::name($_)} $bm->list(); 
+	$html .= cgi->start_div({-class=>'group'});
+		$html .= join '', map {link_front($_,$collections{$_}).cgi->br()
+		} sort {lc($collections{$a}) cmp lc($collections{$b})} keys %collections;
+	$html .= cgi->end_div();
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return 'index';

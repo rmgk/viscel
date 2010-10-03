@@ -133,6 +133,14 @@ sub about {
 	return %{$mangalist{$id}};
 }
 
+#$self,$id -> $name
+sub name {
+	my ($self,$id) = @_;
+	$id = $self->id() if (!defined $id and ref($self));
+	return  $mangalist{$id}->{name} if $mangalist{$id};
+	return undef;
+}
+
 #$class,$id -> \%self
 #returns the first spot
 sub first {

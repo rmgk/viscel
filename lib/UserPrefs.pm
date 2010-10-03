@@ -57,6 +57,13 @@ sub section {
 	return bless \$sect, $class;
 }
 
+#$self -> @keys
+#returns the list of keys in this section
+sub list {
+	my ($s) = @_;
+	return keys %{$data{$$s}};
+}
+
 #$self|$section,$key -> $value
 #returns the stored value
 sub get {

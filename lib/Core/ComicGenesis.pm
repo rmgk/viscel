@@ -130,6 +130,14 @@ sub about {
 	return  %{$comiclist{$id}};
 }
 
+#$self,$id -> $name
+sub name {
+	my ($self,$id) = @_;
+	$id = $self->id() if (!defined $id and ref($self));
+	return  $comiclist{$id}->{name} if $comiclist{$id};
+	return undef;
+}
+
 #$class,$id -> \%self
 #returns the first spot
 sub first {

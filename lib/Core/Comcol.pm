@@ -90,7 +90,14 @@ sub about {
 		return undef;
 	}
 	return %$cmc;
+}
 
+#$self,$id -> $name
+sub name {
+	my ($self,$id) = @_;
+	$id = $self->id() if (!defined $id and ref($self));
+	$id =~ s/^\w+_//; 
+	return $id;
 }
 
 #$class,$id -> \%self
