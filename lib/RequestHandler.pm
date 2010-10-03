@@ -47,8 +47,8 @@ sub link_action {my $name = shift; return cgi->a({-href=>url_config(@_)}, $name)
 sub url_action {join('/','/a',@_)};
 
 sub form_search {
-	my $html .= cgi->start_form(-method=>'GET',-action=>url_search());
-	$html .= cgi->textfield(-name=>'q',-size=>20,-value=>$_[0]);
+	my $html .= cgi->start_form(-class=>'search', -method=>'GET',-action=>url_search());
+	$html .= cgi->textfield(-name=>'q',-size=>35,-value=>$_[0]);
 	#$html .= cgi->submit(-class=>'submit', -value => 'initialise');
 	$html .= cgi->end_form();
 	return $html;
@@ -275,7 +275,7 @@ sub search {
 	my %result;
 	my $cgi = cgi($r->url->query());
 	my $query = $cgi->param('q');
-	%result = Cores::search($query);
+	%result = Cores::search(split /\s+/ , $query);
 	my $html = cgi->start_html(-title => 'search',-style=>'/css');
 	$html .= cgi->start_div({-class=>'info'});
 		$html .= "search for " . cgi->strong($query).cgi->br() . (keys %result) . ' results';

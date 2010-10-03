@@ -103,11 +103,14 @@ sub list {
 
 #$query,$regex -> %list
 sub search {
-	my ($pgk,$query,$regex) = @_;
-	$l->debug('searching for ',$query);
+	my ($pgk,@re) = @_;
+	$l->debug('searching');
 	return map {$_,$comiclist{$_}->{name}} grep {
-		$_ eq $query or 
-		$comiclist{$_}->{name} ~~ $regex
+		my $id = $_;
+		@re == grep {
+			substr($id,0,13) ~~ $_ or 
+			$comiclist{$id}->{name} ~~ $_
+			} @re
 		} keys %comiclist;
 }
 

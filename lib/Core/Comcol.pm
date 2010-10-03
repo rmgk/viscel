@@ -54,10 +54,10 @@ sub list {
 
 #$query,$regex -> %list
 sub search {
-	my ($pkg,$query,$regex) = @_;
-	$l->debug('searching for ',$query);
+	my ($pkg,@re) = @_;
+	$l->debug('searching');
 	my %cmcs = list();
-	return map {$_,$cmcs{$_}} grep {$_ eq $query or $cmcs{$_} ~~ $regex} keys %cmcs;
+	return map {$_,$cmcs{$_}} grep { my $id = $_; @re == grep {$cmcs{$id} ~~ $_} @re } keys %cmcs;
 }
 
 #pkg, %config -> \%config

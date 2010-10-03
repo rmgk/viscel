@@ -103,14 +103,17 @@ sub list {
 
 #$query,$regex -> %list
 sub search {
-	my ($pkg,$query,$regex) = @_;
-	$l->debug('searching for ',$query);
+	my ($pgk,@re) = @_;
+	$l->debug('searching');
 	return map {$_,$mangalist{$_}->{name}} grep {
-		$_ eq $query or 
-		$mangalist{$_}->{name} ~~ $regex or
-		(defined $mangalist{$_}->{alias} and $mangalist{$_}->{alias} ~~ $regex) or
-		(defined $mangalist{$_}->{tags} and $mangalist{$_}->{tags} ~~ $regex) or
-		(defined $mangalist{$_}->{author} and $mangalist{$_}->{author} ~~ $regex)
+		my $id = $_;
+		@re == grep {
+			substr($id,0,9) ~~ $_ or 
+			$mangalist{$id}->{name} ~~ $_ or
+			(defined $mangalist{$id}->{alias} and $mangalist{$id}->{alias} ~~ $_) or
+			(defined $mangalist{$id}->{tags} and $mangalist{$id}->{tags} ~~ $_) or
+			(defined $mangalist{$id}->{author} and $mangalist{$id}->{author} ~~ $_)
+			} @re
 		} keys %mangalist;
 }
 

@@ -70,13 +70,11 @@ sub get_from_id {
 	return $core;
 }
 
-#$qery -> %collections 
+#$query -> %collections 
 sub search {
-	my ($query) = @_;
-	return () unless $query;
-	$l->debug('starting search for ', $query);
-	my $regex = qr/$query/i;
-	return map {$_->search($query,$regex)} initialised(); 
+	$l->debug('searching for ',join ' ',@_);
+	my @re = map {qr/$_/i} @_;
+	return map {$_->search(@re)} initialised(); 
 }
 
 1;
