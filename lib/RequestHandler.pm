@@ -30,39 +30,103 @@ sub cgi {
 	return $cgi;
 }
 
-#link generating functions
-sub link_main {		return cgi->a({-href=>url_main(@_)}, $_[0] // 'index') } #/ padre dispaly bug
-sub url_main { return '/index' }
+#link and html generating helper functions
 
-sub link_front {	return cgi->a({-href=>url_front(@_)}, $_[1] // $_[0] ) } #/ padre display bug
+sub url_main { '/index' }
 sub url_front { return "/f/$_[0]" };
-
-sub link_view {		return cgi->a({-href=>url_view(@_)}, $_[2] // $_[1])} #/ padre dispaly bug
 sub url_view {"/v/$_[0]/$_[1]"}
-
-sub link_config {		return cgi->a({-href=>url_config(@_)}, $_[1] // $_[0])} #/ padre dispaly bug
 sub url_config {"/c/$_[0]"}
-
-sub link_action {my $name = shift; return cgi->a({-href=>url_config(@_)}, $name)}
 sub url_action {join('/','/a',@_)};
+sub url_search {"/s"};
 
-sub form_search {
-	my $html .= cgi->start_form(-class=>'search', -method=>'GET',-action=>url_search());
-	$html .= cgi->textfield(-name=>'q',-size=>35,-value=>$_[0]);
-	#$html .= cgi->submit(-class=>'submit', -value => 'initialise');
+sub link_main { cgi->a({-href=>url_main()}, $_[0] || 'index') }
+sub link_front { cgi->a({-href=>url_front($_[0])}, $_[1]) }
+sub link_view { cgi->a({-href=>url_view(@_)}, $_[2])}
+sub link_config { cgi->a({-href=>url_config(@_)}, $_[1] || $_[0])}
+
+sub handler { $_[0] =~ m'^/([^/]+)'; return $1; }
+sub absolute { URI->new_abs($_[0],$_[1] || 'http://127.0.0.1') }
+
+
+#$name,$url -> POST form
+sub form_action {
+	my $name = shift;
+	#if the argument looks like a url, take it. else create a new action url
+	my $url = ($_[0] =~ m'^/') ? $_[0] : url_action(@_);
+	my $html .= cgi->start_form(-method=>'POST',-action=>$url,-enctype=>&CGI::URL_ENCODED);
+	$html .= cgi->submit(-class=>'submit', -value => $name);
 	$html .= cgi->end_form();
 	return $html;
 }
-sub url_search {"/s"};
 
-sub handler {
-	$_[0] =~ m'^/([^/]+)'; return $1;
-}
-sub absolute {
-	return URI->new_abs($_[0],$_[1] || 'http://127.0.0.1');
+# -> search field
+sub form_search {
+	my $html .= cgi->start_form(-class=>'search', -method=>'GET',-action=>url_search());
+	$html .= cgi->textfield(-name=>'q',-size=>35,-value=>$_[0]);
+	$html .= cgi->end_form();
+	return $html;
 }
 
+# -> notification div
 sub html_notification { cgi->div({-class=>'notification'},$_[0]) }
+
+#$title,%link_rel -> common html header and body start
+sub html_header {
+	my ($title,%links) = @_; 
+	$links{'index'} ||= url_main();
+	my $html = cgi->start_html(	-style	=>	'/css',
+						-title => $title,
+						-head => [ map {cgi->Link({-rel=>$_,-href=>$links{$_}})} keys %links ]
+					);
+}
+
+# -> info div containing status (and config links) of the cores
+sub html_core_status {
+	my $html .= cgi->start_div({-class=>'info'});
+	for (Cores::list()) {
+		$html .= link_config($_);
+		if (!Cores::initialised($_)) {
+			$html .= ' (not  ' . form_action('initialise','initialise',$_) .'d)';
+		}
+		$html .= cgi->br();
+	}
+	$html .= cgi->end_div();
+	return $html;
+}
+
+#\%list_of_collections -> div containing the group ordered by name
+sub html_group {
+	my %collections = @_;
+	my $html .= cgi->start_div({-class=>'group'});
+	$html .= join '', map {link_front($_,$collections{$_}).cgi->br() } 
+					sort {lc($collections{$a}) cmp lc($collections{$b})} keys %collections;
+	$html .= cgi->end_div();
+}
+
+#@someinfo -> info div 
+sub html_info {
+	my $html .= cgi->start_div({-class=>'info'});
+	$html .= join cgi->br(), @_;
+	$html .= cgi->end_div();
+	return $html;
+}
+
+sub html_config {
+	my ($core,$cfg) = @_;
+	my $html .= cgi->start_div({-class=>'info'});
+		$html .= cgi->start_form(-method=>'POST',-action=>url_config($core),-enctype=>&CGI::URL_ENCODED);
+		$html .= join '', map {
+				$_. ': ' .
+				cgi->textfield(-name=>$_,-value=>$cfg->{$_}->{current},-size=>20) .
+				cgi->strong('Description: '). $cfg->{$_}->{description} .
+				(defined $cfg->{$_}->{default} ? cgi->strong(' Default: '). $cfg->{$_}->{default} : '' ). 
+				(defined $cfg->{$_}->{expected} ? cgi->strong(' Expected: '). $cfg->{$_}->{expected} : '')
+			} keys %$cfg;
+		$html .= cgi->br() . cgi->submit(-class=>'submit',-value=>'update');
+		$html .= cgi->end_form();
+	$html .= cgi->end_div();
+	return $html;
+}	
 
 #initialises the request handlers
 sub init {
@@ -88,37 +152,13 @@ sub css {
 sub index {
 	my ($c,$r) = @_;
 	$l->trace('handling index');
-	my $html = cgi->start_html(-title => 'index',-style=>'/css');
-	
+	my $html = html_header('index');
+	$html .= html_core_status();
 	$html .= cgi->start_div({-class=>'info'});
-	for (Cores::list()) {
-		$html .= link_config($_);
-		if (!Cores::initialised($_)) {
-			$html .= ' (not  ';
-			$html .= cgi->start_form(-method=>'POST',-action=>url_action('initialise',$_),-enctype=>&CGI::URL_ENCODED);
-			$html .= cgi->submit(-class=>'submit', -value => 'initialise');
-			$html .= cgi->end_form();
-			$html .= 'd)';
-		}
-		$html .= cgi->br();
-	}
+	$html .= form_search();
 	$html .= cgi->end_div();
-	$html .= cgi->start_div({-class=>'info'});
-		$html .= form_search();
-	$html .= cgi->end_div();
-	# foreach my $core (Cores::initialised()) {
-		# my %collections = $core->list();
-		# $html .= cgi->start_div({-class=>'group'});
-		# $html .= join '', map {link_front($_,$collections{$_}).cgi->br()
-			# } sort {lc($collections{$a}) cmp lc($collections{$b})} keys %collections;
-		# $html .= cgi->end_div();
-	# }
 	my $bm = UserPrefs->section('bookmark');
-	my %collections  = map {$_ => Cores::name($_)} $bm->list(); 
-	$html .= cgi->start_div({-class=>'group'});
-		$html .= join '', map {link_front($_,$collections{$_}).cgi->br()
-		} sort {lc($collections{$a}) cmp lc($collections{$b})} keys %collections;
-	$html .= cgi->end_div();
+	$html .= html_group( map {$_ => Cores::name($_)} $bm->list() );
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return 'index';
@@ -143,7 +183,8 @@ sub view {
 		}
 		return "view redirect";
 	} 
-	my $html = cgi->start_html(-title => $pos,-style=>'/css');
+	
+	my $html = html_header($pos);
 	if ($r->method eq 'POST') {
 		$l->debug("set bookmark of $id to $pos");
 		UserPrefs->section('bookmark')->set($id,$pos);
@@ -157,9 +198,7 @@ sub view {
 		$html .= ' ';
 		$html .= link_front($id,'front');
 		$html .= ' ';
-		$html .= cgi->start_form(-method=>'POST',-action=>url_view($id,$pos),-enctype=>&CGI::URL_ENCODED);
-		$html .= cgi->submit(-class=>'submit', -value => 'pause');
-		$html .= cgi->end_form();
+		$html .= form_action('pause',url_view($id,$pos));
 		$html .= ' ';
 		$html .= cgi->a({href=>$ent->page_url(),-class=>'extern'},'site');
 		$html .= ' ';
@@ -175,14 +214,8 @@ sub view {
 sub front {
 	my ($c,$r,$id) = @_;
 	$l->trace('handling front request');
-	my $html = cgi->start_html(-title => $id,-style=>'/css');
-	$html .= cgi->start_div({-class=>'info'});
-		my @info = Cores::about($id);
-		while (my ($k,$v) = (splice(@info,0,2))) {
-			$v //= ''; #/ padre display bug
-			$html .= "$k: $v" . cgi->br();
-		}
-	$html .= cgi->end_div();
+	my $html = html_header($id);
+	$html .= html_info(Cores::about($id));
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_main();
 		$html .= ' - ';
@@ -205,9 +238,9 @@ sub front {
 sub config {
 	my ($c,$r,$core) = @_;
 	$l->trace('handling config request');
-	my $is_core = $core =~ m/^Core::/i;
+	my $is_core = Cores::list($core);
 	my $cfg = $is_core ? $core->config() : UserPrefs::config($core);
-	my $html = cgi->start_html(-title => $core,-style=>'/css');
+	my $html = html_header("$core - config");
 	if ($r->method eq 'POST') {
 		$l->debug("changing config " . $r->content());
 		my $cgi = cgi($r->content());
@@ -219,18 +252,7 @@ sub config {
 		}
 		$html .= html_notification('update successful');
 	}
-	$html .= cgi->start_div({-class=>'info'});
-		$html .= cgi->start_form(-method=>'POST',-action=>url_config($core),-enctype=>&CGI::URL_ENCODED);
-		$html .= join '', map {
-				$_. ': ' .
-				cgi->textfield(-name=>$_,-value=>$cfg->{$_}->{current},-size=>20) .
-				cgi->strong('Description: '). $cfg->{$_}->{description} .
-				(defined $cfg->{$_}->{default} ? cgi->strong(' Default: '). $cfg->{$_}->{default} : '' ). 
-				(defined $cfg->{$_}->{expected} ? cgi->strong(' Expected: '). $cfg->{$_}->{expected} : '')
-			} keys %$cfg;
-		$html .= cgi->br() . cgi->submit(-class=>'submit',-value=>'update');
-		$html .= cgi->end_form();
-	$html .= cgi->end_div();
+	$html .= html_config($core,$cfg);
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_main();
 	$html .= cgi->end_div();
@@ -259,6 +281,11 @@ sub action {
 				$l->debug("sending action to initialise $core");
 				$ret = sub {Cores::init($core)};
 				$html .= 'initialising a core may take a while';
+			}
+			when ('halt') {
+				$l->debug("giving signal to exit");
+				$html .= "bye";
+				$ret = sub { exit(1) };
 			}
 			default {
 				$l->warn('unknown action' . $_ ); 
@@ -293,10 +320,7 @@ sub search {
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_main();
 	$html .= cgi->end_div();
-	$html .= cgi->start_div({-class=>'group'});
-		$html .= join '', map {link_front($_,$result{$_}).cgi->br()
-		} sort {lc($result{$a}) cmp lc($result{$b})} keys %result;
-	$html .= cgi->end_div();
+	$html .= html_group(%result);
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return "search $query";

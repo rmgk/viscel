@@ -133,7 +133,7 @@ sub config {
 sub about {
 	my ($self,$id) = @_;
 	$id = $self->id() if (!defined $id and ref($self));
-	return %{$mangalist{$id}};
+	return map {"$_: " . $mangalist{$id}->{$_}} keys %{$mangalist{$id}};
 }
 
 #$self,$id -> $name

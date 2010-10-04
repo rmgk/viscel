@@ -31,6 +31,7 @@ sub init {
 #returns the list of available cores
 sub list {
 	$l->trace('core list requested');
+	return exists $cores{$_[0]} if $_[0];
 	return keys %cores;
 }
 

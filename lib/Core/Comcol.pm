@@ -89,7 +89,7 @@ sub about {
 		$l->error('could not get info from database');
 		return undef;
 	}
-	return %$cmc;
+	return map {"$_: " . $cmc->{$_}} keys %$cmc;
 }
 
 #$self,$id -> $name
