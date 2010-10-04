@@ -8,10 +8,17 @@ body {
 a {
 	text-decoration:none;
 	color:#3654d9;
+	border-color: #3654d9;
 }
 
 a:visited {
 	color:#404c80;
+	border-color: #404c80;
+}
+
+a:hover {
+	border-style: none none dotted none;
+	border-width: 1px;
 }
 
 a.extern {
