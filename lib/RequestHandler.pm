@@ -62,6 +62,8 @@ sub absolute {
 	return URI->new_abs($_[0],$_[1] || 'http://127.0.0.1');
 }
 
+sub html_notification { cgi->div({-class=>'notification'},$_[0]) }
+
 #initialises the request handlers
 sub init {
 	Server::req_handler(handler(url_main()),\&index);
@@ -127,11 +129,6 @@ sub index {
 sub view {
 	my ($c,$r,$id,$pos) = @_;
 	$l->trace('handling collection');
-	if ($r->method eq 'POST') {
-		$l->debug("set bookmark of $id to $pos");
-		UserPrefs->section('bookmark')->set($id,$pos);
-	}
-	my $html = cgi->start_html(-title => $pos,-style=>'/css');
 	my $col = Collection->get($id);
 	my $ent = $col->fetch($pos);
 	unless ($ent) {
@@ -146,9 +143,14 @@ sub view {
 		}
 		return "view redirect";
 	} 
-	$l->trace('creating response content');
+	my $html = cgi->start_html(-title => $pos,-style=>'/css');
+	if ($r->method eq 'POST') {
+		$l->debug("set bookmark of $id to $pos");
+		UserPrefs->section('bookmark')->set($id,$pos);
+		$html .= html_notification('bookmark updated');
+	}
 	$html .= cgi->start_div({-class=>'content'});
-		$html .= $ent->html();
+	$html .= $ent->html();
 	$html .= cgi->end_div();
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_view($id,($pos - 1),'prev') if ($pos - 1 > 0);
@@ -190,6 +192,8 @@ sub front {
 		$html.= link_view($id,$bm->get($id),'Bookmark') if $bm->get($id); 
 		$html .= ' ';
 		$html .= link_view($id,-1,'last');
+		$html .= ' - ';
+		$html .= link_config($id,'config');
 	$html .= cgi->end_div();
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
@@ -201,15 +205,20 @@ sub front {
 sub config {
 	my ($c,$r,$core) = @_;
 	$l->trace('handling config request');
-	my $cfg = $core->config();
-	my $changed = '';
+	my $is_core = $core =~ m/^Core::/i;
+	my $cfg = $is_core ? $core->config() : UserPrefs::config($core);
+	my $html = cgi->start_html(-title => $core,-style=>'/css');
 	if ($r->method eq 'POST') {
 		$l->debug("changing config " . $r->content());
 		my $cgi = cgi($r->content());
-		$cfg = $core->config(map {$_,$cgi->param($_)} keys %$cfg);
-		$changed = ' success';
+		if ($is_core) {
+			$cfg = $core->config(map {$_,$cgi->param($_)} keys %$cfg);
+		}
+		else {
+			$cfg = UserPrefs::config($core,map {$_,$cgi->param($_)} keys %$cfg);
+		}
+		$html .= html_notification('update successful');
 	}
-	my $html = cgi->start_html(-title => $core,-style=>'/css');
 	$html .= cgi->start_div({-class=>'info'});
 		$html .= cgi->start_form(-method=>'POST',-action=>url_config($core),-enctype=>&CGI::URL_ENCODED);
 		$html .= join '', map {
@@ -221,7 +230,6 @@ sub config {
 			} keys %$cfg;
 		$html .= cgi->br() . cgi->submit(-class=>'submit',-value=>'update');
 		$html .= cgi->end_form();
-		$html .= $changed;
 	$html .= cgi->end_div();
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_main();

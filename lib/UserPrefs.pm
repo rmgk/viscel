@@ -77,7 +77,7 @@ sub get {
 #sets the value of key
 sub set {
 	my ($s,$key,$value) = @_;
-	$l->trace("set key: $key to value: $value");
+	$l->trace("set sect: ", $$s, " key: $key to value: ",$value);
 	$data{$$s}->{$key} = $value;
 	$changed = 1;
 	return $value;
@@ -108,6 +108,23 @@ sub as_string {
 			map { as_string($_) }
 				 sort grep {keys %{$data{$_}}} keys %data;
 	}
+}
+
+#id, %config -> \%config
+#given an id and hash configures the id and returns the string to create a configuration form
+sub config {
+	my $id = shift;
+	while (my ($k,$v) = splice(@_,0,2)) {
+		UserPrefs->section($k)->set($id,$v);
+	}
+	
+	return { bookmark => {	current => get('bookmark',$id),
+						default => undef,
+						expected => 'positive integer',
+						description => 'the position of the bookmarked entity' 
+					} 
+			}
+	
 }
 
 1;

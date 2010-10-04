@@ -60,6 +60,20 @@ a.extern {
 	color: grey;
 }
 
+.notification {
+	text-align:center;
+	clear:both;
+	position:static;
+	top:0;
+	left:0;
+	border-style: solid none solid none;
+	border-color: #310000;
+	border-width: 1px;
+	padding:0.2cm;
+	margin:0px 0px 0px 0px;
+	background-color:#00000b;
+}
+
 /* pause form */
 form {
 	display: inline;
