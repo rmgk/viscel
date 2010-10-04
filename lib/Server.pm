@@ -84,7 +84,7 @@ sub handle_connection {
 sub handle_request {
 	my ($c,$r,$addr) = @_;
 	$l->debug("handling request: " , $r->method(), ' ', $r->url->as_string());
-	if ($r->method() ne 'GET' and $addr ne '127.0.0.1') {
+	if ($r->method() ne 'GET' and $r->method() ne 'HEAD' and $addr ne '127.0.0.1') {
 		$l->warn('non get request from foreign address sending 403');
 		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'You are only allowed to make GET requests'));
 	}
