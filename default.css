@@ -64,7 +64,7 @@ a.extern {
 	padding:0.2cm;
 	margin:0px 0px 0px 0px;
 	background-color:#00000b;
-	color: grey;
+	color: #808080;
 }
 
 .notification {
@@ -90,7 +90,7 @@ form input.submit {
 	background:transparent;
 	color:#beac0a;
 	padding:0;
-	cursor:pointer;'
+	cursor:pointer;
 }
 
 .search{
