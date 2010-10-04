@@ -23,7 +23,7 @@ sub init {
 	my @cores = @_;
 	@cores = keys %cores unless @cores;
 	$l->trace('initialising cores: ' . join(', ',@cores));
-	$cores{$_} = $_->init() for grep { !$cores{$_}} @cores;
+	$cores{$_} = $_->init() for grep { exists $cores{$_} and !$cores{$_}} @cores;
 	return 1;
 }
 
