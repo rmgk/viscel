@@ -13,13 +13,14 @@ use Log;
 my $l = Log->new();
 my %attributes = ( 	position => 'INTEGER PRIMARY KEY', 
 					state => 'CHAR UNIQUE',
+					chapter => 'CHAR',
 					sha1 => 'CHAR',
 					type => 'CHAR',
 					filename => 'CHAR',
 					page_url => 'CHAR',
+					src => 'CHAR',
 					title => 'CHAR',
 					alt => 'CHAR',
-					src => 'CHAR',
 					width => 'INTEGER',
 					height => 'INTEGER'
 					);
@@ -52,10 +53,8 @@ sub new {
 #creates the Core at the position of the entity
 sub create_spot {
 	my ($s) = @_;
-	my $core = $s->cid;
-	$core =~ s/_.*//;
-	$core = "Core::$core";
-	return $core->create($s->cid,$s->position,$s->state);
+	my $core = Cores::new($s->cid);
+	return $core->create($s->position,$s->state);
 }
 
 #returns the string of columns
@@ -91,19 +90,18 @@ sub html {
 }
 
 #accessors:
-sub position { my $s = shift; return $s->{position}; }
-sub state { my $s = shift; return $s->{state}; }
-sub sha1 { my $s = shift; return $s->{sha1}; }
-sub type { my $s = shift; return $s->{type}; }
-sub filename { my $s = shift; return $s->{filename}; }
-sub page_url { my $s = shift; return $s->{page_url}; }
-sub cid { my $s = shift; return $s->{cid}; }
-sub title { my $s = shift; return $s->{title}; }
-sub alt { my $s = shift; return $s->{alt}; }
-sub src { my $s = shift; return $s->{src}; }
-sub width { my $s = shift; return $s->{width}; }
-sub height { my $s = shift; return $s->{height}; }
-
-
+sub position { $_[0]->{position}; }
+sub state { $_[0]->{state}; }
+sub chapter { $_[0]->{chapter}; }
+sub sha1 { $_[0]->{sha1}; }
+sub type { $_[0]->{type}; }
+sub filename { $_[0]->{filename}; }
+sub page_url { $_[0]->{page_url}; }
+sub cid { $_[0]->{cid}; }
+sub title { $_[0]->{title}; }
+sub alt { $_[0]->{alt}; }
+sub src { $_[0]->{src}; }
+sub width { $_[0]->{width}; }
+sub height { $_[0]->{height}; }
 
 1;

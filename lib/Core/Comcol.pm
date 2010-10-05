@@ -18,16 +18,18 @@ my $l = Log->new();
 my $DBH;
 my $DIR;
 
+#class method
 #initialises the database connection
 sub init {
-	$l->trace('initialising Core::Comcol');
-	my $cfg = Cores::get_config();
+	my $pkg = shift;
+	$l->trace('initialis Core::Comcol');
+	my $cfg = Cores::get_config($pkg);
 	$DIR = $cfg->{'dir'} || '';
 	unless (-e $DIR) {
 		$l->warn("Comcol directory dir ($DIR) does not exists: correct preferences");
 		return undef;
 	}
-	$l->warn('database handle already initialised, reinitialising') if defined $DBH;
+	$l->warn('database handle already initialised, reinitialise') if defined $DBH;
 	$DBH = DBI->connect("dbi:SQLite:dbname=".$DIR.'comics.db',"","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 	unless ($DBH) {
 		$l->warn('could not connect to database');
@@ -37,6 +39,7 @@ sub init {
 }
 
 #->\@id_list
+#class method
 #lists the known ids
 sub list {
 	unless ($DBH) {
@@ -53,14 +56,17 @@ sub list {
 }
 
 #$query,$regex -> %list
+#class method
+#searches for a collection
 sub search {
 	my ($pkg,@re) = @_;
-	$l->debug('searching');
+	$l->debug('search');
 	my %cmcs = list();
 	return map {$_,$cmcs{$_}} grep { my $id = $_; @re == grep {$cmcs{$id} ~~ $_} @re } keys %cmcs;
 }
 
 #pkg, \%config -> \%config
+#class method
 #given a current config returns the configuration hash
 sub config {
 	my ($pkg,$cfg) = @_;
@@ -72,24 +78,32 @@ sub config {
 			};
 }
 
+#$class,$id -> $self
+#creates a new core instance for a given collection
+sub new {
+	my ($class,$id) = @_;
+	$l->trace("create new core $id");
+	return bless {id => $id}, $class;
+}
+
 #$class,$id -> @info
 #returns a list (hash) of infos about the given id
 sub about {
-	my ($self,$comic) = @_;
-	$comic = $self->id() if (!defined $comic and ref($self));
+	my ($s) = @_;
+	my $comic = $s->{id};
 	$comic =~ s/^.*_//;
 	my $cmc;
 	unless ($cmc = $DBH->selectrow_hashref('SELECT * FROM comics WHERE comic = ?',undef, $comic)) {
 		$l->error('could not get info from database');
 		return undef;
 	}
-	return map {"$_: " . $cmc->{$_}} keys %$cmc;
+	return map {"$_: " . $cmc->{$_}} grep {defined $cmc->{$_}} keys %$cmc;
 }
 
 #$self,$id -> $name
 sub name {
-	my ($self,$id) = @_;
-	$id = $self->id() if (!defined $id and ref($self));
+	my ($s,$id) = @_;
+	$id = $s->{id};
 	$id =~ s/^\w+_//; 
 	return $id;
 }
@@ -97,27 +111,33 @@ sub name {
 #$class,$id -> \%self
 #returns the first spot
 sub first {
-	my ($class,$id) = @_;
-	$l->trace('creating first');
-	return $class->create($id,1,1);
+	my ($s) = @_;
+	my $id = $s->{id};
+	$l->trace('creat first spot of ', $id);
+	return $s->create(1);
 }
 
 #$class, $id, $pos -> \%self
 #creates a new spot of $id at position $pos
 sub create {
-	my ($class,$id,$pos) = @_;
-	my $self = {id => $id, position => $pos};
-	$l->debug('creating new core ' , $class, ' id: ', $id, ,' position: ', $pos);
-	$class->new($self);
-	if ($self->check()) {
-		return $self;
+	my ($s,$pos) = @_;
+	my $class = ref($s) . '::Spot';
+	my $spot = {id => $s->{id}, position => $pos};
+	$l->debug('creat new spot ' , $class, ' id: ', $s->{id}, ,' position: ', $pos);
+	$spot = $class->new($spot);
+	if ($spot->check()) {
+		return $spot;
 	}
 	$l->error('failed environment checks');
 	return undef;
 }
 
+
+
+package Core::Comcol::Spot;
+
 #$class, \%self -> \%self
-#creates a new collection instance of $id at position $pos
+#creates a new Spot
 sub new {
 	my ($class,$self) = @_;
 	$l->trace('new ',$class,' instance');
@@ -131,13 +151,13 @@ sub new {
 #checks if environment is set correctly
 sub check {
 	my ($s) = @_;
-	$l->trace('checking environment');
+	$l->trace('check environment ',$s->{id});
 	unless (defined $DBH) {
 		$l->error('$DBH undefined call init');
 		return undef;
 	}
 	my $comic = $s->{id};
-	$comic =~ s/^.*_//;
+	$comic =~ s/^[^_]*_//;
 	if (my $last = $DBH->selectrow_array('SELECT last FROM comics WHERE comic = ?', undef, $comic)) {
 		if ($last < $s->{position}) {
 			$l->error('invalid position, last was '.$last);
@@ -154,7 +174,7 @@ sub check {
 #makes preparations to find objects
 sub mount {
 	my ($s) = @_;
-	$l->trace('mounting ' . $s->{id} .' '. $s->{position});
+	$l->trace('mount ' . $s->{id} .' '. $s->{position});
 	my $comic = $s->{id};
 	$comic =~ s/^.*_//;
 	my $entry;
@@ -168,13 +188,12 @@ sub mount {
 	return 1;
 }
 
-#-> \%entity
-#returns the entity
+#-> \$blob
+#returns the blob and sets the sha1
 sub fetch {
 	my ($s) = @_;
 	return undef if $s->{fail};
-	$l->trace('fetching object');
-	my $object = {};
+	$l->trace('fetch object');
 	my $comic = $s->{id};
 	$comic =~ s/^.*_//;
 	my $fh;
@@ -184,18 +203,31 @@ sub fetch {
 	}
 	binmode $fh;
 	local $/ = undef;
-	$object->{blob} = <$fh>;
+	my $blob = <$fh>;
 	close $fh;
+	$s->{sha1} = $s->{_data}->{sha1};
+	return \$blob;
+}
+
+#-> \%entity
+#returns the entity
+sub entity {
+	my ($s) = @_;
+	return undef if $s->{fail};
+	$l->trace('compose entity');
+	my $object = {};
 	$object->{filename} = $s->{_data}->{file};
 	my ($ext) = $object->{filename} ~~ m/.*\.(\w{3,4})$/;
 	$ext = $ext eq 'jpg' ? 'jpeg' : $ext;
 	$object->{type} = "image/$ext"; #its a goood enough guess as the archives contain very little non image files
-	$object->{sha1} = $s->{_data}->{sha1};
+	#$object->{sha1} = $s->{_data}->{sha1}; 
+	$object->{sha1} = $s->{sha1}; 
 	$object->{src} = $s->{_data}->{surl};
 	$object->{page_url} = $s->{_data}->{purl};
 	$object->{cid} = $s->{id};
 	$object->{position} = $s->{position};
 	$object->{state} = $s->{position};
+	$object->{chapter} = '';
 	my %titles = get_title($s->{_data}->{title});
 	$object->{title} = $titles{it} ? decode_entities($titles{it}) : undef;
 	$object->{alt} = $titles{ia} ? decode_entities($titles{ia}) : undef;
@@ -206,9 +238,10 @@ sub fetch {
 #returns the next spot
 sub next {
 	my ($s) = @_;
-	$l->trace('creating next');
+	return undef if $s->{fail};
+	$l->trace('creat next');
 	my $next = {id => $s->{id}, position => $s->{position} + 1 };
-	$next = Core::Comcol->new($next);
+	$next = ref($s)->new($next);
 	return $next;
 }
 

@@ -237,7 +237,6 @@ sub fetch {
 	return $s->{entity};
 }
 
-
 #returns the next spot
 sub next {
 	my ($s) = @_;

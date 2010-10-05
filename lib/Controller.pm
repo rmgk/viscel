@@ -76,10 +76,11 @@ sub hint_front {
 	$l->trace('handling front hint '.$id);
 	my $col = Collection->get($id);
 	return undef if $col->fetch(1);
-	$spot = $col->core->first($id);
+	$spot = Cores::first($id);
 	if ($spot->mount()) {
-		my $ent = $spot->fetch();
-		$col->store($ent) if $ent;
+		my $blob = $spot->fetch();
+		my $ent = $spot->entity();
+		$col->store($ent,$blob) if $ent;
 	}
 	$col->clean();
 	return 1;
@@ -107,8 +108,9 @@ sub hint_view {
 	$spot = $spot->next();
 	return undef unless $spot;
 	if ($spot->mount()) {
-		my $ent = $spot->fetch();
-		$col->store($ent) if $ent;
+		my $blob = $spot->fetch();
+		my $ent = $spot->entity();
+		$col->store($ent,$blob) if $ent;
 	}
 	$col->clean();
 	return 1;

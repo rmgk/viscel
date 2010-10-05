@@ -63,7 +63,7 @@ sub new {
 #\%entity -> $bool
 #stores the given entity returns false if storing has failed
 sub store {
-	my ($s, $ent) = @_;
+	my ($s, $ent, $blob) = @_;
 	$l->trace('store '. $ent->cid);
 	if ($s->{id} ne $ent->cid) {
 		$l->error('can not store entity with mismatching id');
@@ -74,12 +74,10 @@ sub store {
 		$l->error('could not insert into table: ' . $s->{dbh}->errstr);
 		return undef;
 	}
-	my $blob = \$ent->{blob}; 
-	unless (defined $blob) {
-		$l->error('blob not defined');
-		return undef;
+	if (defined $blob) {
+		return Cache::put($ent->sha1,$blob);
 	}
-	return Cache::put($ent->sha1,$blob);
+	return 1;
 }
 
 #$pos -> \%entity

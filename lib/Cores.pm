@@ -14,10 +14,10 @@ use Core::Fakku;
 use Log;
 
 my $l = Log->new();
-my %cores = (	'Core::AnyManga' => 0,
+my %cores = (	#'Core::AnyManga' => 0,
 				'Core::Comcol' => 0,
-				'Core::ComicGenesis' => 0,
-				'Core::Fakku' => 0,
+				#'Core::ComicGenesis' => 0,
+				#'Core::Fakku' => 0,
 				);
 
 #initialises all used cores
@@ -49,7 +49,8 @@ sub initialised {
 #returns a list (hash) of infos about the given id
 sub about {
 	my ($id) = @_;
-	return get_from_id($id)->about($id);
+	$l->trace("about $id");
+	return new($id)->about();
 }
 
 #$id -> $name;
@@ -57,20 +58,29 @@ sub about {
 sub name {
 	my ($id) = @_;
 	$l->trace("request name of $id");
-	return get_from_id($id)->name($id);
+	return new($id)->name();
+}
+
+#$id -> \%self
+#returns the first spot of the given id
+sub first {
+	my ($id) = @_;
+	$l->trace("request first of $id");
+	return new($id)->first();
 }
 
 #$id -> $core
 #returns the core for the given id
-sub get_from_id {
+sub new {
 	my  ($id) = @_;
-	$id =~ s/_.*$//;
-	my $core = "Core::$id";
+	my $core = $id;
+	$core =~ s/_.*$//;
+	$core = "Core::$core";
 	unless ( $cores{$core} ) {
 		$l->error("$core is not initialised");
 		return undef;
 	}
-	return $core;
+	return $core->new($id);
 }
 
 #$query -> %collections 
@@ -83,7 +93,7 @@ sub search {
 #pkg -> \%config
 #given a package returns the configuration
 sub get_config {
-	return UserPrefs::parse_file('Cores')->{$_[0] || caller} || {};
+	return UserPrefs::parse_file('Cores')->{$_[0]} || {};
 }
 
 #pkg -> \%configuration
@@ -93,7 +103,8 @@ sub config {
 	unless (list($pkg)) {
 		$l->warn("cant config unknown core ", $pkg)
 	}
-	my $cfg = get_config($pkg); 
+	$l->trace("configure $pkg");
+	my $cfg = UserPrefs::parse_file('Cores');
 	$cfg->{$pkg} ||= {};
 	while (my ($k,$v) = splice(@_,0,2)) {
 		$cfg->{$pkg}->{$k} = $v;

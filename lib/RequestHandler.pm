@@ -111,6 +111,7 @@ sub html_info {
 	return $html;
 }
 
+#$core,$cfg -> html config list
 sub html_config {
 	my ($core,$cfg) = @_;
 	my $html .= cgi->start_div({-class=>'info'});
