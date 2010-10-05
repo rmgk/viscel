@@ -294,6 +294,9 @@ sub action {
 				$html .= "bye";
 				$ret = sub { exit(1) };
 			}
+			when ('getall') {
+				$ret = ['getall',$args[1]];
+			}
 			default {
 				$l->warn('unknown action' . $_ ); 
 				$html .= 'unknown action'; 
