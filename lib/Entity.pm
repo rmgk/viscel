@@ -28,7 +28,7 @@ my %attributes = ( 	position => 'INTEGER PRIMARY KEY',
 #$class, \%data -> \%data
 sub new {
 	my ($class,$self) = @_;
-	$l->trace('creating new entity');
+	$l->trace('create new entity');
 	foreach my $needed (qw(position state sha1 type cid)) {
 		unless (defined $self->{$needed}) {
 			$l->debug($needed . ' not defined');
@@ -42,7 +42,7 @@ sub new {
 	}
 	foreach my $has (keys %$self) {
 		unless (exists $attributes{$has} or $has ~~ m/^(blob|cid)$/i) {
-			$l->warn("unknown attribute $has deleting");
+			$l->warn("unknown attribute $has delete");
 			delete $self->{$has};
 		}
 	}

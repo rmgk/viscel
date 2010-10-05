@@ -47,7 +47,7 @@ sub _create_list {
 			$l->error($url);
 			return undef;
 		}
-		$l->trace('parsing HTML');
+		$l->trace('parse HTML');
 		my $tree = HTML::TreeBuilder->new();
 		$tree->parse_content($page->content());
 		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'content_row')) {
@@ -78,7 +78,7 @@ sub _create_list {
 		$tree->delete();
 	}
 	$l->debug('found ' . keys(%clist) . ' collections');
-	$l->debug('saving list to file');
+	$l->debug('save list to file');
 	return UserPrefs::save_file('FakkuData',\%clist);
 }
 
@@ -91,7 +91,7 @@ sub list {
 #$query,$regex -> %list
 sub search {
 	my ($pgk,@re) = @_;
-	$l->debug('searching');
+	$l->debug('search');
 	return map {$_,$clist{$_}->{name}} grep {
 		my $id = $_;
 		@re == grep {
@@ -134,7 +134,7 @@ sub name {
 #returns the first spot
 sub first {
 	my ($class,$id) = @_;
-	$l->trace('creating first');
+	$l->trace('create first');
 	unless($id ~~ %clist) {
 		$l->error("unknown id: ", $id);
 		return undef;
@@ -147,7 +147,7 @@ sub first {
 sub create {
 	my ($class,$id,$pos,$state) = @_;
 	my $self = {id => $id, position => $pos, state => $state};
-	$l->debug('creating new core ' , $class, ' id: ', $id, ,' position: ', $pos);
+	$l->debug('create new core ' , $class, ' id: ', $id, ,' position: ', $pos);
 	unless (exists $clist{$self->{id}}) {
 		$l->error('id unknown: ' . $self->{id});
 		return undef;
@@ -169,14 +169,14 @@ sub new {
 #makes preparations to find objects
 sub mount {
 	my ($s) = @_;
-	$l->trace('mounting ' . $s->{id} .' '. $s->{state});
+	$l->trace('mount ' . $s->{id} .' '. $s->{state});
 	my $page = DlUtil::get($s->{state});
 	if ($page->is_error()) {
-		$l->error('error getting ' . $s->{state});
+		$l->error('error get ' . $s->{state});
 		$s->{fail} = 'could not get page';
 		return undef;
 	}
-	$l->trace('parsing page');
+	$l->trace('parse page');
 	my $tree = HTML::TreeBuilder->new();
 	$tree->parse_content($page->content());
 	my $img = $tree->look_down(_tag => 'div', id=>'content')->look_down(_tag=>'img');
@@ -207,12 +207,12 @@ sub fetch {
 		$l->error('fail is set: ' . $s->{fail});
 		return undef;
 	}
-	$l->trace('fetching object');
+	$l->trace('fetch object');
 	my $object = {};
 
 	my $file = DlUtil::get($s->{src},$s->{state});
 	if ($file->is_error()) {
-		$l->error('error getting ' . $s->{src});
+		$l->error('error get ' . $s->{src});
 		return undef;
 	}
 	$object->{blob} = $file->content();
@@ -232,7 +232,7 @@ sub fetch {
 #returns the next spot
 sub next {
 	my ($s) = @_;
-	$l->trace('creating next');
+	$l->trace('create next');
 	if ($s->{fail}) {
 		$l->error('fail is set: ' . $s->{fail});
 		return undef;

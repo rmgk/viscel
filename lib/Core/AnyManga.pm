@@ -23,8 +23,8 @@ my %mangalist;
 
 #initialises the database connection
 sub init {
-	$l->trace('initialising Core::AnyManga');
-	$l->warn('list already initialised, reinitialising') if %mangalist;
+	$l->trace('initialise Core::AnyManga');
+	$l->warn('list already initialised, reinitialise') if %mangalist;
 	return _create_list();
 }
 
@@ -52,10 +52,10 @@ sub _create_list {
 	$l->trace('create list of known collections');
 	my $page = DlUtil::get('http://www.anymanga.com/directory/all/');
 	if ($page->is_error()) {
-		$l->error('error getting http://www.anymanga.com/directory/all/');
+		$l->error('error get http://www.anymanga.com/directory/all/');
 		return undef;
 	}
-	$l->trace('parsing HTML');
+	$l->trace('parse HTML');
 	my $tree = HTML::TreeBuilder->new();
 	$tree->parse_content($page->content());
 	foreach my $list ($tree->look_down('_tag' => 'ul', 'class' => 'mainmangalist')) {
@@ -88,7 +88,7 @@ sub _create_list {
 	$tree->delete();
 	$l->debug('found ' . keys(%mangalist) . ' collections');
 	
-	$l->debug('saving list to file');
+	$l->debug('save list to file');
 	return UserPrefs::save_file('AnyMangaData',\%mangalist);
 	# if (open (my $fh, '>', $main::DIRDATA.'AnyManga.txt')) {
 		# print $fh 'my ',Dumper(\%mangalist);
@@ -108,7 +108,7 @@ sub list {
 #$query,$regex -> %list
 sub search {
 	my ($pgk,@re) = @_;
-	$l->debug('searching');
+	$l->debug('search');
 	return map {$_,$mangalist{$_}->{name}} grep {
 		my $id = $_;
 		@re == grep {
@@ -148,7 +148,7 @@ sub name {
 #returns the first spot
 sub first {
 	my ($class,$id) = @_;
-	$l->trace('creating first');
+	$l->trace('creat first');
 	return $class->create($id,1,$mangalist{$id}->{url_start});
 }
 
@@ -157,7 +157,7 @@ sub first {
 sub create {
 	my ($class,$id,$pos,$state) = @_;
 	my $self = {id => $id, position => $pos, state => $state};
-	$l->debug('creating new core ' , $class, ' id: ', $id, ,' position: ', $pos);
+	$l->debug('creat new core ' , $class, ' id: ', $id, ,' position: ', $pos);
 	unless (exists $mangalist{$self->{id}}) {
 		$l->error('id unknown: ' . $self->{id});
 		return undef;
@@ -179,14 +179,14 @@ sub new {
 #makes preparations to find objects
 sub mount {
 	my ($s) = @_;
-	$l->trace('mounting ' . $s->{id} .' '. $s->{state});
+	$l->trace('mount ' . $s->{id} .' '. $s->{state});
 	my $page = DlUtil::get($s->{state});
 	if ($page->is_error()) {
-		$l->error('error getting ' . $s->{state});
+		$l->error('error get ' . $s->{state});
 		$s->{fail} = 'could not get page';
 		return undef;
 	}
-	$l->trace('parsing page');
+	$l->trace('parse page');
 	my $tree = HTML::TreeBuilder->new();
 	$tree->parse_content($page->content());
 	my $img = $tree->look_down(_tag => 'img', title => qr'Click to view next page or press next or back buttons'i);
@@ -212,12 +212,12 @@ sub fetch {
 		$l->error('fail is set: ' . $s->{fail});
 		return undef;
 	}
-	$l->trace('fetching object');
+	$l->trace('fetch object');
 	my $object = {};
 
 	my $file = DlUtil::get($s->{src},$s->{state});
 	if ($file->is_error()) {
-		$l->error('error getting ' . $s->{src});
+		$l->error('error get ' . $s->{src});
 		return undef;
 	}
 	$object->{blob} = $file->content();
@@ -240,7 +240,7 @@ sub fetch {
 #returns the next spot
 sub next {
 	my ($s) = @_;
-	$l->trace('creating next');
+	$l->trace('create next');
 	if ($s->{fail}) {
 		$l->error('fail is set: ' . $s->{fail});
 		return undef;

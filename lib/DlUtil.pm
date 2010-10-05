@@ -21,7 +21,7 @@ require Exporter;
 
 #initialises the user agent
 sub _init_ua {
-	$l->trace('initialising user agent');
+	$l->trace('initialise user agent');
 	require LWP;
 	require LWP::UserAgent;
 	require LWP::ConnCache;

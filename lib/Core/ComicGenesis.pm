@@ -27,8 +27,8 @@ $Data::Dumper::Indent = 0;
 
 #initialises the list of known comics
 sub init {
-	$l->trace('initialising');
-	$l->warn('list already initialised, reinitialising') if %comiclist;
+	$l->trace('initialise');
+	$l->warn('list already initialised, reinitialise') if %comiclist;
 	return _create_list();
 }
 
@@ -47,7 +47,7 @@ sub _create_list {
 			$l->error("http://guide.comicgenesis.com/Keenspace_$letter.html");
 			return undef;
 		}
-		$l->trace('parsing HTML');
+		$l->trace('parse HTML');
 		my $tree = HTML::TreeBuilder->new();
 		$tree->parse_content($page->content());
 		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'comicmain', sub { $_[0]->as_text =~ m/Number of Days: (\d+)/i; $1 > 20} )) {
@@ -74,7 +74,7 @@ sub _create_list {
 		$tree->delete();
 	}
 	$l->debug('found ' . keys(%comiclist) . ' collections');
-	$l->debug('saving list to file');
+	$l->debug('save list to file');
 	return UserPrefs::save_file('ComicGenesisData',\%comiclist);
 }
 
@@ -87,7 +87,7 @@ sub list {
 #$query,$regex -> %list
 sub search {
 	my ($pgk,@re) = @_;
-	$l->debug('searching');
+	$l->debug('search');
 	return map {$_,$comiclist{$_}->{name}} grep {
 		my $id = $_;
 		@re == grep {
@@ -124,7 +124,7 @@ sub name {
 #returns the first spot
 sub first {
 	my ($class,$id) = @_;
-	$l->trace('creating first');
+	$l->trace('create first');
 	unless($id ~~ %comiclist) {
 		$l->error("unknown id: ", $id);
 		return undef;
@@ -137,7 +137,7 @@ sub first {
 sub create {
 	my ($class,$id,$pos,$state) = @_;
 	my $self = {id => $id, position => $pos, state => $state};
-	$l->debug('creating new core ' , $class, ' id: ', $id, ,' position: ', $pos);
+	$l->debug('create new core ' , $class, ' id: ', $id, ,' position: ', $pos);
 	unless (exists $comiclist{$self->{id}}) {
 		$l->error('id unknown: ' . $self->{id});
 		return undef;
@@ -159,14 +159,14 @@ sub new {
 #makes preparations to find objects
 sub mount {
 	my ($s) = @_;
-	$l->trace('mounting ' . $s->{id} .' '. $s->{state});
+	$l->trace('mount ' . $s->{id} .' '. $s->{state});
 	my $page = DlUtil::get($s->{state});
 	if ($page->is_error()) {
-		$l->error('error getting ' . $s->{state});
+		$l->error('error get ' . $s->{state});
 		$s->{fail} = 'could not get page';
 		return undef;
 	}
-	$l->trace('parsing page');
+	$l->trace('parse page');
 	my $tree = HTML::TreeBuilder->new();
 	$tree->parse_content($page->content());
 	my $img = $tree->look_down(_tag => 'img', src => qr'/comics/.*\d{8}'i,width=>qr/\d+/,height=>qr/\d+/);
@@ -209,12 +209,12 @@ sub fetch {
 		$l->error('fail is set: ' . $s->{fail});
 		return undef;
 	}
-	$l->trace('fetching object');
+	$l->trace('fetch object');
 	my $object = {};
 
 	my $file = DlUtil::get($s->{src},$s->{state});
 	if ($file->is_error()) {
-		$l->error('error getting ' . $s->{src});
+		$l->error('error get ' . $s->{src});
 		return undef;
 	}
 	$object->{blob} = $file->content();
@@ -234,7 +234,7 @@ sub fetch {
 #returns the next spot
 sub next {
 	my ($s) = @_;
-	$l->trace('creating next');
+	$l->trace('create next');
 	if ($s->{fail}) {
 		$l->error('fail is set: ' . $s->{fail});
 		return undef;

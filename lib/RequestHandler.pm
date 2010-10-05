@@ -152,7 +152,7 @@ sub css {
 #handles index requests
 sub index {
 	my ($c,$r) = @_;
-	$l->trace('handling index');
+	$l->trace('handle index');
 	my $html = html_header('index');
 	$html .= html_core_status();
 	$html .= cgi->start_div({-class=>'info'});
@@ -169,17 +169,17 @@ sub index {
 #handles view requests
 sub view {
 	my ($c,$r,$id,$pos) = @_;
-	$l->trace('handling collection');
+	$l->trace('handle collection');
 	my $col = Collection->get($id);
 	my $ent = $col->fetch($pos);
 	unless ($ent) {
 		my $last = $col->last();
 		if ($last) {
-			$l->debug("$pos not found redirecting to last $last");
+			$l->debug("$pos not found redirect to last $last");
 			$c->send_redirect( absolute(url_view($id,$last)), 303 );
 		}
 		else {
-			$l->debug("$pos not found redirecting to front");
+			$l->debug("$pos not found redirect to front");
 			$c->send_redirect( absolute(url_front($id)), 303 );
 		}
 		return "view redirect";
@@ -214,7 +214,7 @@ sub view {
 #handles front requests
 sub front {
 	my ($c,$r,$id) = @_;
-	$l->trace('handling front request');
+	$l->trace('handle front request');
 	my $html = html_header($id);
 	$html .= html_info(Cores::about($id));
 	$html .= cgi->start_div({-class=>'navigation'});
@@ -238,12 +238,12 @@ sub front {
 #handles front requests
 sub config {
 	my ($c,$r,$core) = @_;
-	$l->trace('handling config request');
+	$l->trace('handle config request');
 	my $is_core = Cores::list($core);
 	my $cfg = $is_core ? Cores::config($core) : UserPrefs::config($core);
 	my $html = html_header("$core - config");
 	if ($r->method eq 'POST') {
-		$l->debug("changing config " . $r->content());
+		$l->debug("change config " . $r->content());
 		my $cgi = cgi($r->content());
 		if ($is_core) {
 			$cfg = Cores::config($core,map {$_,$cgi->param($_)} keys %$cfg);
@@ -268,23 +268,23 @@ sub config {
 sub action {
 	my ($c,$r,@args) = @_;
 	my $ret = 'action';
-	$l->trace('handling action request');
+	$l->trace('handle action request');
 	
 	my $html = cgi->start_html(-title => 'action',-style=>'/css');
 	$html .= cgi->start_div({-class=>'info'});
 	if ($r->method eq 'POST') {
-		$l->debug("calling action ". join ' ' , @args);
+		$l->debug("call action ". join ' ' , @args);
 		my $cgi = cgi($r->content());
 		$html .=  join '', map {$_ .': '.$cgi->param($_).cgi->br()} $cgi->param();
 		given($args[0]) {
 			when ('initialise') {
 				my $core = $args[1];
-				$l->debug("sending action to initialise $core");
+				$l->debug("send action to initialise $core");
 				$ret = sub {Cores::init($core)};
 				$html .= 'initialising a core may take a while';
 			}
 			when ('halt') {
-				$l->debug("giving signal to exit");
+				$l->debug("give signal to exit");
 				$html .= "bye";
 				$ret = sub { exit(1) };
 			}
@@ -307,7 +307,7 @@ sub action {
 #handles action requests
 sub search {
 	my ($c,$r,@args) = @_;
-	$l->trace('handling search request');
+	$l->trace('handle search request');
 	my %result;
 	my $cgi = cgi($r->url->query());
 	my $query = $cgi->param('q');
@@ -331,7 +331,7 @@ sub search {
 #handles blob requests
 sub blob {
 	my ($c,$r,$sha) = @_;
-	$l->trace('handling blob');
+	$l->trace('handle blob');
 	my $res = HTTP::Response->new( 200, 'OK');
 	my $blob = Cache::get($sha);
 	if ($blob) {

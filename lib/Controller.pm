@@ -20,7 +20,7 @@ my $spot; #caching the spot makes linear traversation faster
 
 #initialises the needed modules
 sub init {
-	$l->trace('initialising modules');
+	$l->trace('initialise modules');
 	if (
 		UserPrefs::init() &&
 		Cache::init() &&
@@ -38,7 +38,7 @@ sub init {
 
 #starts the program, never returns
 sub start {
-	$l->trace('running main loop');
+	$l->trace('run main loop');
 	while (1) {
 		my $hint = Server::handle_connections();
 		if ($hint) { #hint is undef if no connection was accepted
@@ -52,11 +52,11 @@ sub start {
 #handles hints from server
 sub handle_hint {
 	my @hint = @{$_[0]};
-	$l->trace("handling " . @hint . " hints");
+	$l->trace("handle " . @hint . " hints");
 	while(@hint) {
 		my $hint = pop(@hint); #more recent hints are more interesting
 		if (ref $hint eq 'CODE') { #this gives handlers great flexibility for hints
-			$l->trace('running code hint');
+			$l->trace('run code hint');
 			$hint->();
 		}
 		if (ref $hint eq 'ARRAY') {
@@ -73,7 +73,7 @@ sub handle_hint {
 #handles front hints
 sub hint_front {
 	my ($id) = @_;
-	$l->trace('handling front hint '.$id);
+	$l->trace('handle front hint '.$id);
 	my $col = Collection->get($id);
 	return undef if $col->fetch(1);
 	$spot = Cores::first($id);
@@ -90,7 +90,7 @@ sub hint_front {
 #handles viewer hints
 sub hint_view {
 	my ($id,$pos) = @_;
-	$l->trace("handling view hint $id $pos");
+	$l->trace("handle view hint $id $pos");
 	my $col = Collection->get($id);
 	return undef if $col->fetch($pos+1);
 	$l->debug("try to get $id $pos");

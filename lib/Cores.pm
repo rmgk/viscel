@@ -24,7 +24,7 @@ my %cores = (	#'Core::AnyManga' => 0,
 sub init {
 	my @cores = @_;
 	@cores = keys %cores unless @cores;
-	$l->trace('initialising cores: ' . join(', ',@cores));
+	$l->trace('initialise cores: ' . join(', ',@cores));
 	$cores{$_} = $_->init() for grep { exists $cores{$_} and !$cores{$_}} @cores;
 	return 1;
 }
@@ -85,7 +85,7 @@ sub new {
 
 #$query -> %collections 
 sub search {
-	$l->debug('searching for ',join ' ',@_);
+	$l->debug('search for ',join ' ',@_);
 	my @re = map {qr/$_/i} @_;
 	return map {$_->search(@re)} initialised(); 
 }

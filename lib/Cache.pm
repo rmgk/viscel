@@ -13,7 +13,7 @@ my $l = Log->new();
 
 #initialises the cache
 sub init {
-	$l->trace('initialising cache');
+	$l->trace('initialise cache');
 	unless (-e $main::DIRCACHE or mkdir $main::DIRCACHE) {
 		$l->error('could not create cache dir ' , $main::DIRCACHE);
 		return undef;

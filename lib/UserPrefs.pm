@@ -16,7 +16,7 @@ my $changed = 0;
 
 #initialises the preferences
 sub init {
-	$l->trace('initialising config');
+	$l->trace('initialise config');
 	unless (-e $main::DIRDATA or mkdir $main::DIRDATA) {
 		$l->error('could not create cache dir ' , $main::DIRDATA);
 		return undef;
@@ -29,10 +29,10 @@ sub init {
 sub parse_file {
 	my ($file) = @_;
 	$file =~ s/\W+/_/g;
-	$l->trace("parsing config file ",$file);
+	$l->trace("parse config file ",$file);
 	$file = $main::DIRDATA.$file.'.ini';
 	unless (-e $file) {
-		$l->trace("$file not found creating new config");
+		$l->trace("$file not found create new config");
 		return {};
 	}
 	my $block;
@@ -112,7 +112,7 @@ sub save {
 sub save_file {
 	my ($file,$cfg) = @_;
 	$file =~ s/\W+/_/g;
-	$l->trace('saving config to ', $file);
+	$l->trace('save config to ', $file);
 	$file = $main::DIRDATA.$file.'.ini';
 	if (open (my $fh, '>',$file)) {
 		print $fh as_string($cfg);

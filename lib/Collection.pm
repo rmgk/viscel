@@ -21,8 +21,8 @@ my $cache_id = '';
 #initialises the database
 sub init {
 	my $db_dir = $main::DIRDATA.'collections.db';
-	$l->trace('initialising database');
-	$l->warn('already initialised, reinitialising') if $DBH;
+	$l->trace('initialise database');
+	$l->warn('already initialised, reinitialise') if $DBH;
 	$DBH = DBI->connect("dbi:SQLite:dbname=$db_dir","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 	return 1 if $DBH;
 	$l->error('could not connect to database');

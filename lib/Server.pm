@@ -18,7 +18,7 @@ my %req_handler;
 #initialises the http server
 sub init {
 	my $port = shift // $main::PORT;
-	$l->info("launching server on port $port");
+	$l->info("launch server on port $port");
 	$d = HTTP::Daemon->new(LocalPort => $port);
 	#setting the daemon timeout makes $d->accept() return immediately if there is no connection waiting
 	#this timeout will also be the default timeout of the connection returned by $d->accept()
@@ -40,7 +40,7 @@ sub req_handler {
 		return undef;
 	}
 	if ($handler) {
-		$l->trace('adding request handler for ', $path); 
+		$l->trace('add request handler for ', $path); 
 		$req_handler{$path} = $handler ;
 	}
 	return $req_handler{$path};
@@ -50,7 +50,7 @@ sub req_handler {
 #returns 1 if an incoming connection was handled 0 if not
 sub handle_connections {
 	#my @hint;
-	$l->trace('accepting connections');
+	$l->trace('accept connections');
 	if (my ($c, $addr) = $d->accept) {
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
@@ -70,7 +70,7 @@ sub handle_connections {
 #handles requests on the $connection
 sub handle_connection {
 	my ($c,$addr) = @_;
-	$l->trace("handling connection");
+	$l->trace("handle connection");
 	my @hint;
 	while (my $r = $c->get_request) {
 		push(@hint,handle_request($c,$r,$addr));
@@ -83,9 +83,9 @@ sub handle_connection {
 #dispatches the request to the request handler or sends a 404 error if no handler is registered
 sub handle_request {
 	my ($c,$r,$addr) = @_;
-	$l->debug("handling request: " , $r->method(), ' ', $r->url->as_string());
+	$l->debug("handle request: " , $r->method(), ' ', $r->url->as_string());
 	if ($r->method() ne 'GET' and $r->method() ne 'HEAD' and $addr ne '127.0.0.1') {
-		$l->warn('non get request from foreign address sending 403');
+		$l->warn('non GET request from foreign address send 403');
 		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'You are only allowed to make GET requests'));
 	}
 	if ($r->url->path eq '/') {
@@ -114,7 +114,7 @@ sub handle_request {
 #sends a default html response
 sub send_response {
 	my ($c,$html) = @_;
-	$l->trace('sending response');
+	$l->trace('send response');
 	my $res = HTTP::Response->new( 200, 'OK', ['Content-Type','text/html']);
 	$res->content($html);
 	$c->send_response($res);
@@ -124,7 +124,7 @@ sub send_response {
 #sends a 404 file not found response
 sub send_404 {
 	my ($c) = @_;
-	$l->trace('sending 404');
+	$l->trace('send 404');
 	my $res = HTTP::Response->new( 404, 'File Not Found',undef,'file not found');
 	$c->send_response($res);
 }
