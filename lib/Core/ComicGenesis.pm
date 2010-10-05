@@ -8,37 +8,13 @@ use lib "..";
 
 our $VERSION = v1;
 
-use Log;
-use DBI;
-use Entity;
-use HTML::Entities;
-use DlUtil;
-use HTML::TreeBuilder;
-use Digest::SHA;
-use URI;
-use Data::Dumper;
+use parent qw(Core::Template);
 
 my $l = Log->new();
-my $SHA = Digest::SHA->new();
-my %comiclist;
-
-$Data::Dumper::Purity = 1; 
-$Data::Dumper::Indent = 0;
-
-#initialises the list of known comics
-sub init {
-	$l->trace('initialise');
-	$l->warn('list already initialised, reinitialise') if %comiclist;
-	return _create_list();
-}
 
 #creates the list of comic
 sub _create_list {
-	%comiclist = %{UserPrefs::parse_file('ComicGenesisData')};
-	if (keys %comiclist) {
-		$l->debug('loaded ' . keys(%comiclist) . ' collections');
-		return 1;
-	}
+	my %comiclist;
 	$l->trace('create list of known collections');
 	foreach my $letter('0','A'..'Z') {
 		$l->trace("get page for letter $letter");
@@ -61,7 +37,7 @@ sub _create_list {
 				$l->debug("could not parse $href");
 				next;
 			}
-			my $name = encode_entities($main->parent->look_down(_tag=>'div',class=>'comictitle')->look_down(_tag=>'a',href=>qr"http://$id\.comicgen(esis)?\.com")->as_trimmed_text(extra_chars => '\xA0'));
+			my $name = HTML::Entities::encode($main->parent->look_down(_tag=>'div',class=>'comictitle')->look_down(_tag=>'a',href=>qr"http://$id\.comicgen(esis)?\.com")->as_trimmed_text(extra_chars => '\xA0'));
 			unless ($name) {
 				$l->warn("could not get name for $id using id as name");
 				$name = $id;
@@ -73,78 +49,17 @@ sub _create_list {
 		}
 		$tree->delete();
 	}
-	$l->debug('found ' . keys(%comiclist) . ' collections');
-	$l->debug('save list to file');
-	return UserPrefs::save_file('ComicGenesisData',\%comiclist);
+	return \%comiclist;
 }
 
-#->\%collection_hash
-#returns a hash containing all the collection ids as keys and their names and urls as values
-sub list {
-	return map {$_ , $comiclist{$_}->{name}} keys %comiclist;
+#returns a list of keys to search for
+sub _searchkeys {
+	qw(name);
 }
 
-#$query,$regex -> %list
-sub search {
-	my ($pgk,@re) = @_;
-	$l->debug('search');
-	return map {$_,$comiclist{$_}->{name}} grep {
-		my $id = $_;
-		@re == grep {
-			substr($id,0,13) ~~ $_ or 
-			$comiclist{$id}->{name} ~~ $_
-			} @re
-		} keys %comiclist;
-}
+package Core::ComicGenesis::Spot;
 
-#pkg, \%config -> \%config
-#given a current config returns the configuration hash
-sub config {
-	my ($pkg,$cfg) = @_;
-	return {};
-}
-
-#$class,$id -> @info
-#returns a list (hash) of infos about the given id
-sub about {
-	my ($self,$id) = @_;
-	$id = $self->id() if (!defined $id and ref($self));
-	return map {"$_: " . $comiclist{$id}->{$_}} keys %{$comiclist{$id}};
-}
-
-#$self,$id -> $name
-sub name {
-	my ($self,$id) = @_;
-	$id = $self->id() if (!defined $id and ref($self));
-	return  $comiclist{$id}->{name} if $comiclist{$id};
-	return undef;
-}
-
-#$class,$id -> \%self
-#returns the first spot
-sub first {
-	my ($class,$id) = @_;
-	$l->trace('create first');
-	unless($id ~~ %comiclist) {
-		$l->error("unknown id: ", $id);
-		return undef;
-	}
-	return $class->create($id,1,$comiclist{$id}->{url_start});
-}
-
-#$class, $id, $state -> \%self
-#creates a new spot of $id at in state $state
-sub create {
-	my ($class,$id,$pos,$state) = @_;
-	my $self = {id => $id, position => $pos, state => $state};
-	$l->debug('create new core ' , $class, ' id: ', $id, ,' position: ', $pos);
-	unless (exists $comiclist{$self->{id}}) {
-		$l->error('id unknown: ' . $self->{id});
-		return undef;
-	}
-	$class->new($self);
-	return $self;
-}
+my $SHA = Digest::SHA->new();
 
 #$class, \%self -> \%self
 #creates a new collection instance of $id at position $pos
@@ -210,24 +125,35 @@ sub fetch {
 		return undef;
 	}
 	$l->trace('fetch object');
-	my $object = {};
 
 	my $file = DlUtil::get($s->{src},$s->{state});
 	if ($file->is_error()) {
 		$l->error('error get ' . $s->{src});
+		$s->{fail} = 'could not fetch object';
 		return undef;
 	}
-	$object->{blob} = $file->content();
+	my $blob = $file->content();
 
+	$s->{type} = $file->header('Content-Type');
+	$s->{sha1} = $SHA->add($blob)->hexdigest();
+	return \$blob;
+}
+
+#-> \%entity
+#returns the entity
+sub entity {
+	my ($s) = @_;
+	if ($s->{fail}) {
+		$l->error('fail is set: ' . $s->{fail});
+		return undef;
+	}
+	my $object = {};
 	($object->{filename}) = ($s->{src} =~ m'/([^/]+)$'i) ;
-	$object->{type} = $file->header('Content-Type');
-	$object->{sha1} = $SHA->add($object->{blob})->hexdigest();
 	$object->{src} = $s->{src};
 	$object->{page_url} = $s->{state};
 	$object->{cid} = $s->{id};
-	$object->{$_} = $s->{$_} for qw(position state title alt width height);
-	$s->{entity} = Entity->new($object);
-	return $s->{entity};
+	$object->{$_} = $s->{$_} for qw(position type sha1 state title alt width height);
+	return Entity->new($object)
 }
 
 

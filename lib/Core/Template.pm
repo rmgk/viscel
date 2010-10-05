@@ -116,6 +116,9 @@ sub about {
 	return map {"$_: " . $s->clist()->{$_}} keys %{$s->clist()};
 }
 
+#noop
+sub fetch_info {}
+
 #$self -> $name
 sub name {
 	return $_[0]->clist()->{name};
