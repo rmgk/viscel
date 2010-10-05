@@ -14,7 +14,7 @@ use Core::Fakku;
 use Log;
 
 my $l = Log->new();
-my %cores = (	#'Core::AnyManga' => 0,
+my %cores = (	'Core::AnyManga' => 0,
 				'Core::Comcol' => 0,
 				#'Core::ComicGenesis' => 0,
 				#'Core::Fakku' => 0,

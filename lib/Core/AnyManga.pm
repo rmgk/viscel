@@ -8,47 +8,13 @@ use lib "..";
 
 our $VERSION = v1;
 
-use Log;
-use DBI;
-use Entity;
-use HTML::Entities;
-use DlUtil;
-use HTML::TreeBuilder;
-use Digest::SHA;
-use Data::Dumper;
+use parent qw(Core::Template);
 
 my $l = Log->new();
-my $SHA = Digest::SHA->new();
-my %mangalist;
-
-#initialises the database connection
-sub init {
-	$l->trace('initialise Core::AnyManga');
-	$l->warn('list already initialised, reinitialise') if %mangalist;
-	return _create_list();
-}
 
 #creates the list of known manga
 sub _create_list {
-	%mangalist = %{UserPrefs::parse_file('AnyMangaData')};
-	# if (-e $main::DIRDATA.'AnyManga.txt') {
-		# $l->debug('loading anymanga manga from file');
-		# if (open (my $fh, '<', $main::DIRDATA.'AnyManga.txt')) {
-			# local $/;
-			# my $txt = <$fh>;
-			# close $fh;
-			# %mangalist = %{eval($txt)};
-			# $l->debug('loaded ' . keys(%mangalist) . ' collections');
-			# return 1;
-		# }
-		# else {
-			# $l->warn('failed to open filehandle');
-		# }
-	# }
-	if (keys %mangalist) {
-		$l->debug('loaded ' . keys(%mangalist) . ' collections');
-		return 1;
-	}
+	my %mangalist;
 	$l->trace('create list of known collections');
 	my $page = DlUtil::get('http://www.anymanga.com/directory/all/');
 	if ($page->is_error()) {
@@ -86,85 +52,19 @@ sub _create_list {
 		}
 	}
 	$tree->delete();
-	$l->debug('found ' . keys(%mangalist) . ' collections');
-	
-	$l->debug('save list to file');
-	return UserPrefs::save_file('AnyMangaData',\%mangalist);
-	# if (open (my $fh, '>', $main::DIRDATA.'AnyManga.txt')) {
-		# print $fh 'my ',Dumper(\%mangalist);
-		# close $fh;
-	# }
-	# else {
-		# $l->warn('failed to open filehandle');
-	# }
+	return \%mangalist;
 }
 
-#->\%collection_hash
-#returns a hash containing all the collection ids as keys and their names and urls as values
-sub list {
-	return map {$_ , $mangalist{$_}->{name}} keys %mangalist;
+
+#returns a list of keys to search for
+sub _searchkeys {
+	qw(name alias tags author);
 }
 
-#$query,$regex -> %list
-sub search {
-	my ($pgk,@re) = @_;
-	$l->debug('search');
-	return map {$_,$mangalist{$_}->{name}} grep {
-		my $id = $_;
-		@re == grep {
-			substr($id,0,9) ~~ $_ or 
-			$mangalist{$id}->{name} ~~ $_ or
-			(defined $mangalist{$id}->{alias} and $mangalist{$id}->{alias} ~~ $_) or
-			(defined $mangalist{$id}->{tags} and $mangalist{$id}->{tags} ~~ $_) or
-			(defined $mangalist{$id}->{author} and $mangalist{$id}->{author} ~~ $_)
-			} @re
-		} keys %mangalist;
-}
 
-#pkg, \%config -> \%config
-#given a current config returns the configuration hash
-sub config {
-	my ($pkg,$cfg) = @_;
-	return {};
-}
+package Core::AnyManga::Spot;
 
-#$class,$id -> @info
-#returns a list (hash) of infos about the given id
-sub about {
-	my ($self,$id) = @_;
-	$id = $self->id() if (!defined $id and ref($self));
-	return map {"$_: " . $mangalist{$id}->{$_}} keys %{$mangalist{$id}};
-}
-
-#$self,$id -> $name
-sub name {
-	my ($self,$id) = @_;
-	$id = $self->id() if (!defined $id and ref($self));
-	return  $mangalist{$id}->{name} if $mangalist{$id};
-	return undef;
-}
-
-#$class,$id -> \%self
-#returns the first spot
-sub first {
-	my ($class,$id) = @_;
-	$l->trace('creat first');
-	return $class->create($id,1,$mangalist{$id}->{url_start});
-}
-
-#$class, $id, $state -> \%self
-#creates a new spot of $id at in state $state
-sub create {
-	my ($class,$id,$pos,$state) = @_;
-	my $self = {id => $id, position => $pos, state => $state};
-	$l->debug('creat new core ' , $class, ' id: ', $id, ,' position: ', $pos);
-	unless (exists $mangalist{$self->{id}}) {
-		$l->error('id unknown: ' . $self->{id});
-		return undef;
-	}
-	$class->new($self);
-	return $self;
-}
+my $SHA = Digest::SHA->new();
 
 #$class, \%self -> \%self
 #creates a new collection instance of $id at position $pos
@@ -213,28 +113,36 @@ sub fetch {
 		return undef;
 	}
 	$l->trace('fetch object');
-	my $object = {};
 
 	my $file = DlUtil::get($s->{src},$s->{state});
 	if ($file->is_error()) {
 		$l->error('error get ' . $s->{src});
+		$s->{fail} = 'could not fetch object';
 		return undef;
 	}
-	$object->{blob} = $file->content();
+	my $blob = $file->content();
 
+	$s->{type} = $file->header('Content-Type');
+	$s->{sha1} = $SHA->add($blob)->hexdigest();
+
+	return \$blob;
+}
+
+#-> \%entity
+#returns the entity
+sub entity {
+	my ($s) = @_;
+	if ($s->{fail}) {
+		$l->error('fail is set: ' . $s->{fail});
+		return undef;
+	}
+	my $object = {};
 	($object->{filename}) = ($s->{src} =~ m'/manga/[^/]+/(.*+)'i) ;
 	$object->{filename} =~ s'/''g;
-	$object->{type} = $file->header('Content-Type');
-	$object->{sha1} = $SHA->add($object->{blob})->hexdigest();
-	$object->{src} = $s->{src};
 	$object->{page_url} = $s->{state};
 	$object->{cid} = $s->{id};
-	$object->{position} = $s->{position};
-	$object->{state} = $s->{state};
-	$object->{title} = $s->{title};
-	$object->{alt} = $s->{alt};
-	$s->{entity} = Entity->new($object);
-	return $s->{entity};
+	$object->{$_} = $s->{$_} for qw(type sha1 src position state title alt);
+	return Entity->new($object);
 }
 
 #returns the next spot

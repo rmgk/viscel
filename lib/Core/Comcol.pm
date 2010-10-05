@@ -86,8 +86,8 @@ sub new {
 	return bless {id => $id}, $class;
 }
 
-#$class,$id -> @info
-#returns a list (hash) of infos about the given id
+#-> @info
+#returns a list of infos
 sub about {
 	my ($s) = @_;
 	my $comic = $s->{id};
@@ -100,10 +100,10 @@ sub about {
 	return map {"$_: " . $cmc->{$_}} grep {defined $cmc->{$_}} keys %$cmc;
 }
 
-#$self,$id -> $name
+#$self -> $name
 sub name {
-	my ($s,$id) = @_;
-	$id = $s->{id};
+	my ($s) = @_;
+	my $id = $s->{id};
 	$id =~ s/^\w+_//; 
 	return $id;
 }
