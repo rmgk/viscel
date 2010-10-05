@@ -21,9 +21,6 @@ our $DIRDATA = './data/';
 
 my $l = Log->new();
 
-mkdir $main::DIRDATA unless (-e $DIRDATA);
-mkdir $main::DIRCACHE unless (-e $DIRCACHE);
-
 unless (Controller::init()) {
 	$l->fatal('could not initialise controller');
 	die;

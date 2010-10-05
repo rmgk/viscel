@@ -21,10 +21,10 @@ my $DIR;
 #initialises the database connection
 sub init {
 	$l->trace('initialising Core::Comcol');
-	$DIR = UserPrefs->section()->get('dir') || '';
+	my $cfg = Cores::get_config();
+	$DIR = $cfg->{'dir'} || '';
 	unless (-e $DIR) {
 		$l->warn("Comcol directory dir ($DIR) does not exists: correct preferences");
-		UserPrefs->section()->set('dir','');
 		return undef;
 	}
 	$l->warn('database handle already initialised, reinitialising') if defined $DBH;
@@ -60,22 +60,16 @@ sub search {
 	return map {$_,$cmcs{$_}} grep { my $id = $_; @re == grep {$cmcs{$id} ~~ $_} @re } keys %cmcs;
 }
 
-#pkg, %config -> \%config
-#given a hash
+#pkg, \%config -> \%config
+#given a current config returns the configuration hash
 sub config {
-	my $pkg = shift;
-	my $cfg = UserPrefs->section();
-	while (my ($k,$v) = splice(@_,0,2)) {
-		$cfg->set($k,$v);
-	}
-	
-	return { dir => {	current => $cfg->get('dir'),
+	my ($pkg,$cfg) = @_;
+	return { dir => {	current => $cfg->{dir},
 						default => undef,
-						expected => undef,
+						expected => 'path',
 						description => 'the directory containing the "comics.db"' 
 					} 
-			}
-	
+			};
 }
 
 #$class,$id -> @info

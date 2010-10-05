@@ -32,8 +32,8 @@ sub init {
 #->@cores
 #returns the list of available cores
 sub list {
-	$l->trace('core list requested');
 	return exists $cores{$_[0]} if $_[0];
+	$l->trace('core list requested');
 	return keys %cores;
 }
 
@@ -78,6 +78,28 @@ sub search {
 	$l->debug('searching for ',join ' ',@_);
 	my @re = map {qr/$_/i} @_;
 	return map {$_->search(@re)} initialised(); 
+}
+
+#pkg -> \%config
+#given a package returns the configuration
+sub get_config {
+	return UserPrefs::parse_file('Cores')->{$_[0] || caller} || {};
+}
+
+#pkg -> \%configuration
+#given a package returns the configuration hash
+sub config {
+	my $pkg = shift;
+	unless (list($pkg)) {
+		$l->warn("cant config unknown core ", $pkg)
+	}
+	my $cfg = get_config($pkg); 
+	$cfg->{$pkg} ||= {};
+	while (my ($k,$v) = splice(@_,0,2)) {
+		$cfg->{$pkg}->{$k} = $v;
+	}
+	UserPrefs::save_file('Cores',$cfg);
+	return $pkg->config($cfg->{$pkg});
 }
 
 1;

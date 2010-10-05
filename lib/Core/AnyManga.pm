@@ -30,19 +30,24 @@ sub init {
 
 #creates the list of known manga
 sub _create_list {
-	if (-e $main::DIRDATA.'AnyManga.txt') {
-		$l->debug('loading anymanga manga from file');
-		if (open (my $fh, '<', $main::DIRDATA.'AnyManga.txt')) {
-			local $/;
-			my $txt = <$fh>;
-			close $fh;
-			%mangalist = %{eval($txt)};
-			$l->debug('loaded ' . keys(%mangalist) . ' collections');
-			return 1;
-		}
-		else {
-			$l->warn('failed to open filehandle');
-		}
+	%mangalist = %{UserPrefs::parse_file('AnyMangaData')};
+	# if (-e $main::DIRDATA.'AnyManga.txt') {
+		# $l->debug('loading anymanga manga from file');
+		# if (open (my $fh, '<', $main::DIRDATA.'AnyManga.txt')) {
+			# local $/;
+			# my $txt = <$fh>;
+			# close $fh;
+			# %mangalist = %{eval($txt)};
+			# $l->debug('loaded ' . keys(%mangalist) . ' collections');
+			# return 1;
+		# }
+		# else {
+			# $l->warn('failed to open filehandle');
+		# }
+	# }
+	if (keys %mangalist) {
+		$l->debug('loaded ' . keys(%mangalist) . ' collections');
+		return 1;
 	}
 	$l->trace('create list of known collections');
 	my $page = DlUtil::get('http://www.anymanga.com/directory/all/');
@@ -57,7 +62,7 @@ sub _create_list {
 		foreach my $item ($list->look_down('_tag'=>'li')) {
 			my $a = $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->look_down('_tag'=>'a');
 			my $href = $a->attr('href');
-			my $name = $a->as_text();
+			my $name = $a->as_trimmed_text(extra_chars => '\xA0');
 			my ($id) = ($href =~ m'^/(.*)/$');
 			$id =~ s/\W/_/g;
 			$id = 'AnyManga_' . $id;
@@ -84,15 +89,14 @@ sub _create_list {
 	$l->debug('found ' . keys(%mangalist) . ' collections');
 	
 	$l->debug('saving list to file');
-	if (open (my $fh, '>', $main::DIRDATA.'AnyManga.txt')) {
-		print $fh 'my ',Dumper(\%mangalist);
-		close $fh;
-	}
-	else {
-		$l->warn('failed to open filehandle');
-	}
-	
-	return 1;
+	return UserPrefs::save_file('AnyMangaData',\%mangalist);
+	# if (open (my $fh, '>', $main::DIRDATA.'AnyManga.txt')) {
+		# print $fh 'my ',Dumper(\%mangalist);
+		# close $fh;
+	# }
+	# else {
+		# $l->warn('failed to open filehandle');
+	# }
 }
 
 #->\%collection_hash
@@ -117,14 +121,10 @@ sub search {
 		} keys %mangalist;
 }
 
-#pkg, %config -> \%config
-#given a hash
+#pkg, \%config -> \%config
+#given a current config returns the configuration hash
 sub config {
-	my $pkg = shift;
-	# my $cfg = UserPrefs->section();
-	# while (my ($k,$v) = splice(@_,0,2)) {
-		# $cfg->set($k,$v);
-	# }
+	my ($pkg,$cfg) = @_;
 	return {};
 }
 

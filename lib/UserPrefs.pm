@@ -10,20 +10,36 @@ our $VERSION = v1;
 use Log;
 
 my $l = Log->new();
-our $FILE = 'userprefs.ini';
 my %data;
+our $FILE = 'userprefs'; 
 my $changed = 0;
 
 #initialises the preferences
 sub init {
-	$l->trace('initialising userprefs');
-	unless (-e $main::DIRDATA.$FILE) {
-		%data = ();
-		return 1;
+	$l->trace('initialising config');
+	unless (-e $main::DIRDATA or mkdir $main::DIRDATA) {
+		$l->error('could not create cache dir ' , $main::DIRDATA);
+		return undef;
+	}
+	%data = %{parse_file($FILE)};
+	return 1;
+}
+
+#$file -> \%cfg;
+sub parse_file {
+	my ($file) = @_;
+	$file =~ s/\W+/_/g;
+	$l->trace("parsing config file ",$file);
+	$file = $main::DIRDATA.$file.'.ini';
+	unless (-e $file) {
+		$l->trace("$file not found creating new config");
+		return {};
 	}
 	my $block;
-	open (my $fh, '<', $main::DIRDATA.$FILE);
+	my %cfg;
+	open (my $fh, '<', $file);
 	while (my $line = <$fh>) {
+		chomp($line);
 		if ($line =~ /^\s*\[\s*(?<block>[\w:]+)\s*\]\s*$/) {
 			$block = $+{block};
 			next;
@@ -35,21 +51,22 @@ sub init {
 		my ($what,$is) = split(/=/, $line, 2);
 		$what =~ s/^\s*//g;
 		$what =~ s/\s*$//g;
-		$is =~ s/^\s*//g;
-		$is =~ s/\s*$//g;
+		#keeping value exactly as is, with whitespaces
+		#$is =~ s/^\s*//g;
+		#$is =~ s/\s*$//g;
 		
-		$data{$block}->{$what} = $is;
+		$cfg{$block}->{$what} = $is;
 	}
 	close ($fh);
-	return 1;
+	return \%cfg;
 }
 
 #$class, $sect -> $self
 #returns the handle to a section
 sub section {
 	my ($class,$sect) = @_;
-	$sect //= caller; #/ padre display bug
-	$l->trace("userprefs handle for $sect"); 
+	$sect ||= caller;
+	$l->trace("userprefs handle for ", $sect); 
 	unless ($data{$sect}) {
 		$l->debug("create $sect");
 		$data{$sect} = {};
@@ -86,27 +103,40 @@ sub set {
 #saves the config
 sub save {
 	return unless $changed;
-	$l->trace('saving');
-	open (my $fh, '>',$main::DIRDATA.$FILE);
-	print $fh as_string();
-	close $fh;
+	save_file($FILE,\%data);
 	$changed = 0;
+}
+
+#$file,$cfg 
+#saves $cfg to $file
+sub save_file {
+	my ($file,$cfg) = @_;
+	$file =~ s/\W+/_/g;
+	$l->trace('saving config to ', $file);
+	$file = $main::DIRDATA.$file.'.ini';
+	if (open (my $fh, '>',$file)) {
+		print $fh as_string($cfg);
+		close $fh;
+		return 1;
+	}
+	$l->warn('could not open ', $file);
+	return undef;
 }
 
 #returns the %data as a string
 sub as_string {
-	my $sect = shift;
+	my ($cfg,$sect) = @_;
 	$sect = $$sect if ref $sect;
 	if ($sect) {
 		return "[$sect]\n\t" . 
 			join "\n\t",
-				map { $_ . '=' . $data{$sect}->{$_} }
-					sort grep {defined $data{$sect}->{$_} and $data{$sect}->{$_} ne ''} keys %{$data{$sect}};
+				map { $_ . '=' . $cfg->{$sect}->{$_} }
+					sort grep {defined $cfg->{$sect}->{$_} and $cfg->{$sect}->{$_} ne ''} keys %{$cfg->{$sect}};
 	}
 	else {
 		return join "\n",
-			map { as_string($_) }
-				 sort grep {keys %{$data{$_}}} keys %data;
+			map { as_string($cfg,$_) }
+				 sort grep {keys %{$cfg->{$_}}} keys %$cfg;
 	}
 }
 

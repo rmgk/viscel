@@ -34,20 +34,10 @@ sub init {
 
 #creates the list of comic
 sub _create_list {
-	if (-e $main::DIRDATA.'Fakku.txt') {
-		$l->debug('loading fakku from file');
-		if (open (my $fh, '<', $main::DIRDATA.'Fakku.txt')) {
-			local $/;
-			#%clist
-			my $txt = <$fh>;
-			close $fh;
-			%clist = %{eval($txt)};
-			$l->debug('loaded ' . keys(%clist) . ' collections');
-			return 1;
-		}
-		else {
-			$l->warn('failed to open filehandle');
-		}
+	%clist = %{UserPrefs::parse_file('FakkuData')};
+	if (keys %clist) {
+		$l->debug('loaded ' . keys(%clist) . ' collections');
+		return 1;
 	}
 	$l->trace('create list of known collections');
 	my $url = 'http://www.fakku.net/manga.php?select=english';
@@ -72,13 +62,13 @@ sub _create_list {
 			$id =~ s/\W/_/g;
 			$id = 'Fakku_' . $id;
 			$clist{$id} = {url_start => $href, name => $name};
-			$clist{$id}->{Series} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'div',class => 'item2')->as_text();
+			$clist{$id}->{Series} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'div',class => 'item2')->as_trimmed_text(extra_chars => '\xA0');
 			my $trans_link = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'span',class => 'english')->look_down(_tag => 'a');
-			$clist{$id}->{Translator} = $trans_link->as_text() if $trans_link;
-			$clist{$id}->{Artist} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row3')->look_down('_tag' => 'div',class => 'item2')->as_text();
-			$clist{$id}->{stats} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row4')->look_down('_tag' => 'div',class => 'row4_left')->as_text();
-			$clist{$id}->{date} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row4')->look_down('_tag' => 'div',class => 'row4_right')->look_down(_tag=>'b')->as_text();
-			my $desc = $main->look_down('_tag'=> 'div', 'class' => 'tags')->as_text();
+			$clist{$id}->{Translator} = $trans_link->as_trimmed_text(extra_chars => '\xA0') if $trans_link;
+			$clist{$id}->{Artist} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row3')->look_down('_tag' => 'div',class => 'item2')->as_trimmed_text(extra_chars => '\xA0');
+			$clist{$id}->{stats} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row4')->look_down('_tag' => 'div',class => 'row4_left')->as_trimmed_text(extra_chars => '\xA0');
+			$clist{$id}->{date} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row4')->look_down('_tag' => 'div',class => 'row4_right')->look_down(_tag=>'b')->as_trimmed_text(extra_chars => '\xA0');
+			my $desc = $main->look_down('_tag'=> 'div', 'class' => 'tags')->as_trimmed_text(extra_chars => '\xA0');
 			$desc =~ s/^Description://i;
 			$clist{$id}->{Description} = $desc unless ($desc =~ m/No description has been written/i);
 			
@@ -89,14 +79,7 @@ sub _create_list {
 	}
 	$l->debug('found ' . keys(%clist) . ' collections');
 	$l->debug('saving list to file');
-	if (open (my $fh, '>', $main::DIRDATA.'Fakku.txt')) {
-		print $fh 'my ',Dumper(\%clist);
-		close $fh;
-	}
-	else {
-		$l->warn('failed to open filehandle');
-	}
-	return 1;
+	return UserPrefs::save_file('FakkuData',\%clist);
 }
 
 #->\%collection_hash
@@ -113,25 +96,21 @@ sub search {
 		my $id = $_;
 		@re == grep {
 			substr($id,0,13) ~~ $_ or 
-			$clist{$id}->{Series} ~~ $_ or 
-			$clist{$id}->{Translator} ~~ $_ or 
-			$clist{$id}->{Artist} ~~ $_ or 
-			$clist{$id}->{stats} ~~ $_ or 
-			$clist{$id}->{date} ~~ $_ or 
-			$clist{$id}->{Description} ~~ $_ or 
+			(defined $clist{$id}->{Series} and $clist{$id}->{Series} ~~ $_) or 
+			(defined $clist{$id}->{Translator} and $clist{$id}->{Translator} ~~ $_) or 
+			(defined $clist{$id}->{Artist} and $clist{$id}->{Artist} ~~ $_) or 
+			(defined $clist{$id}->{stats} and $clist{$id}->{stats} ~~ $_) or 
+			(defined $clist{$id}->{date} and $clist{$id}->{date} ~~ $_) or 
+			(defined $clist{$id}->{Description} and $clist{$id}->{Description} ~~ $_) or 
 			$clist{$id}->{name} ~~ $_
 			} @re
 		} keys %clist;
 }
 
-#pkg, %config -> \%config
-#given a hash
+#pkg, \%config -> \%config
+#given a current config returns the configuration hash
 sub config {
-	my $pkg = shift;
-	# my $cfg = UserPrefs->section();
-	# while (my ($k,$v) = splice(@_,0,2)) {
-		# $cfg->set($k,$v);
-	# }
+	my ($pkg,$cfg) = @_;
 	return {};
 }
 

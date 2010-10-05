@@ -239,13 +239,13 @@ sub config {
 	my ($c,$r,$core) = @_;
 	$l->trace('handling config request');
 	my $is_core = Cores::list($core);
-	my $cfg = $is_core ? $core->config() : UserPrefs::config($core);
+	my $cfg = $is_core ? Cores::config($core) : UserPrefs::config($core);
 	my $html = html_header("$core - config");
 	if ($r->method eq 'POST') {
 		$l->debug("changing config " . $r->content());
 		my $cgi = cgi($r->content());
 		if ($is_core) {
-			$cfg = $core->config(map {$_,$cgi->param($_)} keys %$cfg);
+			$cfg = Cores::config($core,map {$_,$cgi->param($_)} keys %$cfg);
 		}
 		else {
 			$cfg = UserPrefs::config($core,map {$_,$cgi->param($_)} keys %$cfg);

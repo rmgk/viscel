@@ -34,20 +34,10 @@ sub init {
 
 #creates the list of comic
 sub _create_list {
-	if (-e $main::DIRDATA.'ComicGenesis.txt') {
-		$l->debug('loading comicgenesis comics from file');
-		if (open (my $fh, '<', $main::DIRDATA.'ComicGenesis.txt')) {
-			local $/;
-			#%comiclist
-			my $txt = <$fh>;
-			close $fh;
-			%comiclist = %{eval($txt)};
-			$l->debug('loaded ' . keys(%comiclist) . ' collections');
-			return 1;
-		}
-		else {
-			$l->warn('failed to open filehandle');
-		}
+	%comiclist = %{UserPrefs::parse_file('ComicGenesisData')};
+	if (keys %comiclist) {
+		$l->debug('loaded ' . keys(%comiclist) . ' collections');
+		return 1;
 	}
 	$l->trace('create list of known collections');
 	foreach my $letter('0','A'..'Z') {
@@ -71,7 +61,7 @@ sub _create_list {
 				$l->debug("could not parse $href");
 				next;
 			}
-			my $name = encode_entities($main->parent->look_down(_tag=>'div',class=>'comictitle')->look_down(_tag=>'a',href=>qr"http://$id\.comicgen(esis)?\.com")->as_text());
+			my $name = encode_entities($main->parent->look_down(_tag=>'div',class=>'comictitle')->look_down(_tag=>'a',href=>qr"http://$id\.comicgen(esis)?\.com")->as_trimmed_text(extra_chars => '\xA0'));
 			unless ($name) {
 				$l->warn("could not get name for $id using id as name");
 				$name = $id;
@@ -85,14 +75,7 @@ sub _create_list {
 	}
 	$l->debug('found ' . keys(%comiclist) . ' collections');
 	$l->debug('saving list to file');
-	if (open (my $fh, '>', $main::DIRDATA.'ComicGenesis.txt')) {
-		print $fh 'my ',Dumper(\%comiclist);
-		close $fh;
-	}
-	else {
-		$l->warn('failed to open filehandle');
-	}
-	return 1;
+	return UserPrefs::save_file('ComicGenesisData',\%comiclist);
 }
 
 #->\%collection_hash
@@ -114,14 +97,10 @@ sub search {
 		} keys %comiclist;
 }
 
-#pkg, %config -> \%config
-#given a hash
+#pkg, \%config -> \%config
+#given a current config returns the configuration hash
 sub config {
-	my $pkg = shift;
-	# my $cfg = UserPrefs->section();
-	# while (my ($k,$v) = splice(@_,0,2)) {
-		# $cfg->set($k,$v);
-	# }
+	my ($pkg,$cfg) = @_;
 	return {};
 }
 
