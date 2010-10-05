@@ -90,12 +90,6 @@ sub search {
 	return map {$_->search(@re)} initialised(); 
 }
 
-#pkg -> \%config
-#given a package returns the configuration
-sub get_config {
-	return UserPrefs::parse_file('Cores')->{$_[0]} || {};
-}
-
 #pkg -> \%configuration
 #given a package returns the configuration hash
 sub config {

@@ -23,7 +23,7 @@ my $DIR;
 sub init {
 	my $pkg = shift;
 	$l->trace('initialis Core::Comcol');
-	my $cfg = Cores::get_config($pkg);
+	my $cfg = UserPrefs::parse_file('Cores')->{$pkg};
 	$DIR = $cfg->{'dir'} || '';
 	unless (-e $DIR) {
 		$l->warn("Comcol directory dir ($DIR) does not exists: correct preferences");
