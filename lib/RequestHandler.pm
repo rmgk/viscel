@@ -116,15 +116,21 @@ sub html_config {
 	my ($core,$cfg) = @_;
 	my $html .= cgi->start_div({-class=>'info'});
 		$html .= cgi->start_form(-method=>'POST',-action=>url_config($core),-enctype=>&CGI::URL_ENCODED);
-		$html .= join '', map {
+		$html .= join cgi->br(), map {
 				$_. ': ' .
 				cgi->textfield(-name=>$_,-value=>$cfg->{$_}->{current},-size=>20) .
 				cgi->strong('Description: '). $cfg->{$_}->{description} .
 				(defined $cfg->{$_}->{default} ? cgi->strong(' Default: '). $cfg->{$_}->{default} : '' ). 
 				(defined $cfg->{$_}->{expected} ? cgi->strong(' Expected: '). $cfg->{$_}->{expected} : '')
-			} keys %$cfg;
+			} grep {!$cfg->{$_}->{action}} keys %$cfg;
 		$html .= cgi->br() . cgi->submit(-class=>'submit',-value=>'update');
 		$html .= cgi->end_form();
+	$html .= cgi->end_div();
+	$html .= cgi->start_div({-class=>'info'});
+		$html .= join '', map {
+				form_action($cfg->{$_}->{name},$cfg->{$_}->{action},$core).
+				': '. $cfg->{$_}->{description}
+			} grep {$cfg->{$_}->{action}} keys %$cfg;
 	$html .= cgi->end_div();
 	return $html;
 }	

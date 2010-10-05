@@ -152,7 +152,11 @@ sub config {
 						default => undef,
 						expected => 'positive integer',
 						description => 'the position of the bookmarked entity' 
-					} 
+					} ,
+			 getall => { name => 'get all',
+						 action => 'getall',
+						 description => 'downloads until no next is found'
+						}
 			}
 	
 }
