@@ -119,6 +119,9 @@ sub mount {
 	if ($a_next) {
 		$s->{next} = 'http://www.anymanga.com' . $a_next->attr('href');
 	}
+	my $chap = $tree->look_down(_tag => 'title')->as_text();
+	$chap =~ m/Manga Online, Vol. (\d+) \((.*), \d+\)/;
+	$s->{chapter} = $1 .' '. $2;
 	$s->{src} = 'http://www.anymanga.com' . $s->{src};
 	$s->{title} =~ s/\)\s*\[.*$/)/s;
 	$s->{alt} =~ s/\)\s*\[.*$/)/s;
@@ -165,7 +168,7 @@ sub entity {
 	$object->{filename} =~ s'/''g;
 	$object->{page_url} = $s->{state};
 	$object->{cid} = $s->{id};
-	$object->{$_} = $s->{$_} for qw(type sha1 src position state title alt);
+	$object->{$_} = $s->{$_} for qw(type sha1 src position state title alt chapter);
 	return Entity->new($object);
 }
 
