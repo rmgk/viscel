@@ -63,6 +63,7 @@ sub handle_hint {
 			given (shift @$hint) {
 				when ('front') {hint_front(@$hint)}
 				when ('view') {hint_view(@$hint)}
+				when ('getall') {hint_getall(@$hint)}
 				default {$l->warn("unknown hint $_")}
 			}
 		}
@@ -112,6 +113,29 @@ sub hint_view {
 		my $ent = $spot->entity();
 		$col->store($ent,$blob) if $ent;
 	}
+	$col->clean();
+	return 1;
+}
+
+#$id
+#handles getall hints
+sub hint_getall {
+	my ($id) = @_;
+	$l->trace("handle getall hint $id");
+	my $col = Collection->get($id);
+	$l->debug("get last collected");
+	my $last = $col->last();
+	return undef unless ($last);
+	$spot = $col->fetch($last)->create_spot();
+	return undef unless $spot;
+	$spot->mount();
+	while ($spot = $spot->next()) {
+		if ($spot->mount()) {
+			my $blob = $spot->fetch();
+			my $ent = $spot->entity();
+			$col->store($ent,$blob) if $ent;
+		}
+	};
 	$col->clean();
 	return 1;
 }

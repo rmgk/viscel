@@ -296,6 +296,7 @@ sub action {
 			}
 			when ('getall') {
 				$ret = ['getall',$args[1]];
+				$html .= "this may take some time";
 			}
 			default {
 				$l->warn('unknown action' . $_ ); 
