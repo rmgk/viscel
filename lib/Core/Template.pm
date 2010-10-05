@@ -40,6 +40,15 @@ sub clist {
 	}
 }
 
+#saves the list
+sub save_clist {
+	my ($pkg) = @_;
+	$pkg = ref($pkg) || $pkg;
+	$l->trace("save clist ", $pkg);
+	no strict 'refs';
+	return UserPrefs::save_file($pkg,\%$pkg);
+}
+
 #initialises the database connection
 sub init {
 	my ($pkg) = @_;
@@ -53,8 +62,7 @@ sub init {
 	my $list = $pkg->_create_list();
 	$pkg->clist($list);
 	$l->debug('found ' .  scalar($pkg->clist()) . ' collections');
-	$l->debug('save list to file');
-	return UserPrefs::save_file($pkg,$list);
+	$pkg->save_clist();
 }
 
 #->%collection_hash

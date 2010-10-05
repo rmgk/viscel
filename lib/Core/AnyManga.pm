@@ -43,12 +43,10 @@ sub _create_list {
 				next;
 			}
 			$mangalist{$id} = {url_start => $href, name => $name};
-			$mangalist{$id}->{complete} = $item->look_down('_tag' => 'span', title => 'Manga Complete') ? 'true' : 'false' ;
+			$mangalist{$id}->{status} = $item->look_down('_tag' => 'span', title => 'Manga Complete') ? 'complete' : 'ongoing' ;
 			$mangalist{$id}->{author} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->content_list();
 			$mangalist{$id}->{author} =~ s/^\s*by\s*//;
 			$mangalist{$id}->{tags} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/normal/)->content_list();
-			#my $alias = $item->look_down('_tag'=> 'div', 'class' => 'mangalistalias');
-			#$mangalist{$id}->{alias} = join '', grep {!ref($_)} $alias->content_list() if $alias;
 		}
 	}
 	$tree->delete();
@@ -58,7 +56,33 @@ sub _create_list {
 
 #returns a list of keys to search for
 sub _searchkeys {
-	qw(name alias tags author);
+	qw(name alias tags author info scans update status);
+}
+
+#fetches more information about the comic
+sub fetch_info {
+	my ($s) = @_;
+	return undef if $s->clist()->{moreinfo};
+	$l->trace('fetching more info for ', $s->{id});
+	my $url = $s->clist()->{url_start};
+	$url =~ s'\d+/\d+/$'';
+	my $page = DlUtil::get($url);
+	if ($page->is_error()) {
+		$l->error($url);
+		return undef;
+	}
+	my $tree = HTML::TreeBuilder->new();
+	$tree->parse_content($page->content());
+	$s->clist()->{tags} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1];
+	$s->clist()->{info} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1];
+	$s->clist()->{scans} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Manga scans by:' })->parent()->content_list())[1];
+	#$s->clist()->{update} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Last Manga Update:' })->parent()->content_list())[1];
+	$s->clist()->{status} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Status:' })->parent()->content_list())[1];
+	$s->clist()->{review} = ($tree->look_down('_tag' => 'div', style => qr/font-weight: bolder;$/)->parent()->content_list())[1];
+	($s->clist()->{seealso}) = ($tree->look_down('_tag' => 'span', style => qr/font-weight: bolder;$/)->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$');
+	$s->clist()->{seealso} =~ s/\W/_/g;
+	$s->clist()->{moreinfo} = 1;
+	return $s->save_clist();
 }
 
 

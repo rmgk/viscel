@@ -100,6 +100,9 @@ sub about {
 	return map {"$_: " . $cmc->{$_}} grep {defined $cmc->{$_}} keys %$cmc;
 }
 
+#noop
+sub fetch_info {}
+
 #$self -> $name
 sub name {
 	my ($s) = @_;
