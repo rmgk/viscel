@@ -77,7 +77,7 @@ sub attribute_values_array {
 #returns html representation of the entity
 sub html {
 	my $s = shift;
-	if ($s->type ~~ m'^image/'i) {
+	#if ($s->type ~~ m'^image/'i) {
 		my $html .= img({	src	=>	"/b/". $s->sha1,#.'/'.$s->filename,
 							alt => $s->alt,
 							title => $s->title,
@@ -85,7 +85,7 @@ sub html {
 							height => $s->height
 						});
 		return $html;
-	}
+	#}
 	return undef;
 }
 

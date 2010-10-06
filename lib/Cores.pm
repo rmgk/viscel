@@ -11,6 +11,7 @@ use Core::AnyManga;
 use Core::Comcol;
 use Core::ComicGenesis;
 use Core::Fakku;
+use Core::Animea;
 use Log;
 
 my $l = Log->new();
@@ -18,6 +19,7 @@ my %cores = (	'Core::AnyManga' => 0,
 				'Core::Comcol' => 0,
 				'Core::ComicGenesis' => 0,
 				'Core::Fakku' => 0,
+				'Core::Animea' => 0,
 				);
 
 #initialises all used cores
