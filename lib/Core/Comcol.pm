@@ -232,8 +232,8 @@ sub entity {
 	$object->{state} = $s->{position};
 	$object->{chapter} = '';
 	my %titles = get_title($s->{_data}->{title});
-	$object->{title} = $titles{it} ? decode_entities($titles{it}) : undef;
-	$object->{alt} = $titles{ia} ? decode_entities($titles{ia}) : undef;
+	$object->{title} = $titles{it} ? HTML::Entities::decode($titles{it}) : undef;
+	$object->{alt} = $titles{ia} ? HTML::Entities::decode($titles{ia}) : undef;
 	$s->{entity} = Entity->new($object);
 	return $s->{entity};
 }

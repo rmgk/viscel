@@ -23,7 +23,7 @@ sub _create_list {
 	}
 	$l->trace('parse HTML');
 	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->content());
+	$tree->parse_content($page->decoded_content());
 	foreach my $list ($tree->look_down('_tag' => 'ul', 'class' => 'mainmangalist')) {
 		foreach my $item ($list->look_down('_tag'=>'li')) {
 			my $a = $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->look_down('_tag'=>'a');
@@ -72,7 +72,7 @@ sub fetch_info {
 		return undef;
 	}
 	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->content());
+	$tree->parse_content($page->decoded_content());
 	$s->clist()->{tags} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1];
 	$s->clist()->{info} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1];
 	$s->clist()->{scans} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Manga scans by:' })->parent()->content_list())[1];
@@ -112,7 +112,7 @@ sub mount {
 	}
 	$l->trace('parse page');
 	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->content());
+	$tree->parse_content($page->decoded_content());
 	my $img = $tree->look_down(_tag => 'img', title => qr'Click to view next page or press next or back buttons'i);
 	map {$s->{$_} = $img->attr($_)} qw( src title alt );
 	my $a_next = $img->look_up(_tag => 'a');

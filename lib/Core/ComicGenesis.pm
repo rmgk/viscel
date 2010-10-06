@@ -25,7 +25,7 @@ sub _create_list {
 		}
 		$l->trace('parse HTML');
 		my $tree = HTML::TreeBuilder->new();
-		$tree->parse_content($page->content());
+		$tree->parse_content($page->decoded_content());
 		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'comicmain', sub { $_[0]->as_text =~ m/Number of Days: (\d+)/i; $1 > 20} )) {
 			my $a = $main->look_down('_tag'=> 'a', 'target' => '_blank', sub {$_[0]->as_text =~ /^\d{8}$/});
 			next unless $a;
@@ -83,7 +83,7 @@ sub mount {
 	}
 	$l->trace('parse page');
 	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->content());
+	$tree->parse_content($page->decoded_content());
 	my $img = $tree->look_down(_tag => 'img', src => qr'/comics/.*\d{8}'i,width=>qr/\d+/,height=>qr/\d+/);
 	unless ($img) {
 		$l->error('could not get image');

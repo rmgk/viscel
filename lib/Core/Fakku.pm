@@ -26,7 +26,7 @@ sub _create_list {
 		}
 		$l->trace('parse HTML');
 		my $tree = HTML::TreeBuilder->new();
-		$tree->parse_content($page->content());
+		$tree->parse_content($page->decoded_content());
 		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'content_row')) {
 			my $name = HTML::Entities::encode($main->attr('title'));
 			my $href = $main->look_down('_tag'=> 'div', 'class' => 'manga_row1')->look_down('_tag' => 'a')->attr('href');
@@ -88,7 +88,7 @@ sub mount {
 	}
 	$l->trace('parse page');
 	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->content());
+	$tree->parse_content($page->decoded_content());
 	my $img = $tree->look_down(_tag => 'div', id=>'content')->look_down(_tag=>'img');
 	unless ($img) {
 		$l->error('could not get image');
