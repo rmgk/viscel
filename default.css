@@ -53,6 +53,24 @@ a.extern {
 	padding: 1cm;
 }
 
+#front .content {
+	text-align:left;
+	margin: 2cm 1cm;
+	padding: 0.5cm 0px;
+	background-color:#00000b;
+	border-style: solid;
+	border-color: #310000;
+	border-width: 1px;
+	text-align: center;
+}
+
+#front .content  img {
+	display:inline;
+	max-width: 32%;
+	margin: 0px 0.2%;
+	padding: 0px;
+}
+
 tbody{
 	 vertical-align:top;
 }

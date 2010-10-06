@@ -72,10 +72,11 @@ sub html_notification { cgi->div({-class=>'notification'},$_[0]) }
 
 #$title,%link_rel -> common html header and body start
 sub html_header {
-	my ($title,%links) = @_; 
+	my ($id,$title,%links) = @_; 
 	$links{'index'} ||= url_main();
 	my $html = cgi->start_html(	-style	=>	'/css',
 						-title => $title,
+						-id => $id,
 						-head => [ map {cgi->Link({-rel=>$_,-href=>$links{$_}})} keys %links ]
 					);
 }
@@ -161,7 +162,7 @@ sub css {
 sub index {
 	my ($c,$r) = @_;
 	$l->trace('handle index');
-	my $html = html_header('index');
+	my $html = html_header('index','index');
 	$html .= html_core_status();
 	$html .= cgi->start_div({-class=>'info'});
 	$html .= form_search();
@@ -193,7 +194,7 @@ sub view {
 		return "view redirect";
 	} 
 	
-	my $html = html_header($pos);
+	my $html = html_header('view',$pos);
 	if ($r->method eq 'POST') {
 		$l->debug("set bookmark of $id to $pos");
 		UserPrefs->section('bookmark')->set($id,$pos);
@@ -223,20 +224,32 @@ sub view {
 sub front {
 	my ($c,$r,$id) = @_;
 	$l->trace('handle front request');
-	my $html = html_header($id);
+	my $bm = UserPrefs->section('bookmark')->get($id);
+	my $html = html_header('front',$id);
 	$html .= html_info(Cores::about($id));
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_main();
 		$html .= ' - ';
 		$html .= link_view($id,1,'first');
-		my $bm = UserPrefs->section('bookmark');
 		$html .= ' ';
-		$html.= link_view($id,$bm->get($id),'Bookmark') if $bm->get($id); 
+		$html.= link_view($id,$bm,'Bookmark') if $bm; 
 		$html .= ' ';
 		$html .= link_view($id,-1,'last');
 		$html .= ' - ';
 		$html .= link_config($id,'config');
 	$html .= cgi->end_div();
+	my $col = Collection->get($id);
+	my $ent = $col->fetch($bm);
+	if ($bm and $ent) {
+		$html .= cgi->start_div({-class=>'content'});
+			my $p = $col->fetch($bm-2);
+			$html .= $p->html() if $p;
+			$p = $col->fetch($bm-1);
+			$html .= $p->html() if $p;
+			$html .= $ent->html();
+		$html .= cgi->end_div();
+	}
+	
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return ['front',$id];
@@ -249,7 +262,7 @@ sub config {
 	$l->trace('handle config request');
 	my $is_core = Cores::list($core);
 	my $cfg = $is_core ? Cores::config($core) : UserPrefs::config($core);
-	my $html = html_header("$core - config");
+	my $html = html_header('config',"$core - config");
 	if ($r->method eq 'POST') {
 		$l->debug("change config " . $r->content());
 		my $cgi = cgi($r->content());
@@ -278,7 +291,7 @@ sub action {
 	my $ret = 'action';
 	$l->trace('handle action request');
 	
-	my $html = cgi->start_html(-title => 'action',-style=>'/css');
+	my $html = html_header('action','action');
 	$html .= cgi->start_div({-class=>'info'});
 	if ($r->method eq 'POST') {
 		$l->debug("call action ". join ' ' , @args);
@@ -324,7 +337,7 @@ sub search {
 	my $cgi = cgi($r->url->query());
 	my $query = $cgi->param('q');
 	%result = Cores::search(split /\s+/ , $query);
-	my $html = cgi->start_html(-title => 'search',-style=>'/css');
+	my $html = html_header('search','search');
 	$html .= cgi->start_div({-class=>'info'});
 		$html .= "search for " . cgi->strong($query).cgi->br() . (keys %result) . ' results';
 		$html .= cgi->br();
@@ -344,14 +357,27 @@ sub search {
 sub blob {
 	my ($c,$r,$sha) = @_;
 	$l->trace('handle blob');
-	my $res = HTTP::Response->new( 200, 'OK');
-	my $blob = Cache::get($sha);
-	if ($blob) {
-		$res->content(${$blob});
-		$c->send_response($res);
+	my $mtime =  HTTP::Date::str2time($r->header('If-Modified-Since'));
+	my %stat = Cache::stat($sha);
+	if (!$stat{size}) {
+		Server::send_404($c);
+	}
+	elsif ($stat{modified} <= $mtime) {
+		$c->send_response(HTTP::Response->new( 304, 'Not Modified'));
 	}
 	else {
-		Server::send_404($c);
+		my $res = HTTP::Response->new( 200, 'OK');
+		my $blob = Cache::get($sha);
+		if ($blob) {
+			$res->content(${$blob});
+			$res->header('Content-Type'=>$stat{type});
+			$res->header('Content-Length'=>$stat{size});
+			$res->header('Last-Modified'=>HTTP::Date::time2str($stat{modified}));
+			$c->send_response($res);
+		}
+		else {
+			Server::send_404($c);
+		}
 	}
 	return 'blob';
 }
