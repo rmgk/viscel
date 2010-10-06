@@ -79,7 +79,7 @@ sub fetch_info {
 	#$s->clist()->{update} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Last Manga Update:' })->parent()->content_list())[1];
 	$s->clist()->{status} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Status:' })->parent()->content_list())[1];
 	$s->clist()->{review} = ($tree->look_down('_tag' => 'div', style => qr/font-weight: bolder;$/)->parent()->content_list())[1];
-	($s->clist()->{seealso}) = ($tree->look_down('_tag' => 'span', style => qr/font-weight: bolder;$/)->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$');
+	($s->clist()->{seealso}) = ($tree->look_down('_tag' => 'span', style => 'font-weight: bolder;')->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$');
 	$s->clist()->{seealso} =~ s/\W/_/g;
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();
