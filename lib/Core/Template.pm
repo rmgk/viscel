@@ -64,6 +64,21 @@ sub init {
 	$pkg->save_clist();
 }
 
+#$url -> $tree
+#fetches the url and returns the tree
+sub _get_tree {
+	my ($s,$url) = @_;
+	my $page = DlUtil::get($url);
+	if (!$page->is_success()) {
+		$l->error("error get: ", $url);
+		return undef;
+	}
+	$l->trace('parse HTML into tree');
+	my $tree = HTML::TreeBuilder->new();
+	$tree->parse_content($page->decoded_content());
+	return $tree;
+}
+
 #->%collection_hash
 #returns a hash containing all the collection ids as keys and their names as values
 sub list {
@@ -162,15 +177,8 @@ sub mount {
 	my ($s) = @_;
 	$s->{page_url} = $s->{state};
 	$l->trace('mount ' . $s->{id} .' '. $s->{page_url});
-	my $page = DlUtil::get($s->{page_url});
-	if ($page->is_error()) {
-		$l->error('error get ' . $s->{page_url});
-		$s->{fail} = 'could not get page';
-		return undef;
-	}
-	$l->trace('parse page');
-	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->decoded_content());
+	my $tree = $s->_get_tree($s->{page_url});
+	return undef unless $tree;
 	my $ret = $s->_mount_parse($tree);
 	$tree->delete();
 	$l->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next)); #/padre display bug	

@@ -14,18 +14,12 @@ my $l = Log->new();
 
 #creates the list of comic
 sub _create_list {
+	my ($pkg) = @_;
 	my %comiclist;
 	$l->trace('create list of known collections');
 	foreach my $letter('0','A'..'Z') {
-		$l->trace("get page for letter $letter");
-		my $page = DlUtil::get("http://guide.comicgenesis.com/Keenspace_$letter.html");
-		if ($page->is_error()) {
-			$l->error("http://guide.comicgenesis.com/Keenspace_$letter.html");
-			return undef;
-		}
-		$l->trace('parse HTML');
-		my $tree = HTML::TreeBuilder->new();
-		$tree->parse_content($page->decoded_content());
+		$l->trace("get tree for letter $letter");
+		my $tree = $pkg->_get_tree("http://guide.comicgenesis.com/Keenspace_$letter.html") or return undef; 
 		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'comicmain', sub { $_[0]->as_text =~ m/Number of Days: (\d+)/i; $1 > 20} )) {
 			my $a = $main->look_down('_tag'=> 'a', 'target' => '_blank', sub {$_[0]->as_text =~ /^\d{8}$/});
 			next unless $a;

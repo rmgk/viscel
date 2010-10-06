@@ -14,18 +14,12 @@ my $l = Log->new();
 
 #creates the list of comic
 sub _create_list {
-	my %clist,
+	my ($pkg) = @_;
+	my %clist;
 	$l->trace('create list of known collections');
 	my $url = 'http://www.fakku.net/manga.php?select=english';
 	while($url) {
-		my $page = DlUtil::get($url);
-		if ($page->is_error()) {
-			$l->error($url);
-			return undef;
-		}
-		$l->trace('parse HTML');
-		my $tree = HTML::TreeBuilder->new();
-		$tree->parse_content($page->decoded_content());
+		my $tree = $pkg->_get_tree($url) or return undef;
 		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'content_row')) {
 			my $a = $main->look_down('_tag'=> 'div', 'class' => 'manga_row1')->look_down('_tag' => 'a');
 			my $href = $a->attr('href');

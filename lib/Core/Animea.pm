@@ -14,18 +14,12 @@ my $l = Log->new();
 
 #creates the list of known manga
 sub _create_list {
+	my ($pkg) = @_;
 	my %clist;
 	$l->trace('create list of known collections');
 	my $url = 'http://manga.animea.net/browse.html?page=0';
 	while($url) {
-		my $page = DlUtil::get($url);
-		if (!$page->is_success()) {
-			$l->error($url);
-			return undef;
-		}
-		$l->trace('parse HTML');
-		my $tree = HTML::TreeBuilder->new();
-		$tree->parse_content($page->decoded_content());
+		my $tree = $pkg->_get_tree($url) or return undef;
 		foreach my $td ($tree->look_down('_tag' => 'td', 'class' => 'c')) {
 			my $tr = $td->parent();
 			my $a = $tr->look_down(_tag=>'a',class=>qr/manga$/);
@@ -65,13 +59,7 @@ sub fetch_info {
 	my $url = $s->clist()->{urlstart};
 	$url =~ s/-chapter-.*-page-1//;
 	$url .= '?skip=1';
-	my $page = DlUtil::get($url);
-	if (!$page->is_success()) {
-		$l->error($url);
-		return undef;
-	}
-	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->decoded_content());
+	my $tree = $s->_get_tree($url) or return undef;;
 	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $tree->look_down(_tag=>'a', href=>qr'/genre/'i);
 	my $p = $tree->look_down('_tag' => 'p', style => 'width:570px; padding:5px;');
 	$s->clist()->{Review} = HTML::Entities::encode($p->as_trimmed_text()) if ($p);

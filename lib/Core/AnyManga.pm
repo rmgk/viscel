@@ -14,16 +14,10 @@ my $l = Log->new();
 
 #creates the list of known manga
 sub _create_list {
+	my ($pkg) = @_;
 	my %mangalist;
 	$l->trace('create list of known collections');
-	my $page = DlUtil::get('http://www.anymanga.com/directory/all/');
-	if ($page->is_error()) {
-		$l->error('error get http://www.anymanga.com/directory/all/');
-		return undef;
-	}
-	$l->trace('parse HTML');
-	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->decoded_content());
+	my $tree = $pkg->_get_tree('http://www.anymanga.com/directory/all/') or return undef;
 	foreach my $list ($tree->look_down('_tag' => 'ul', 'class' => 'mainmangalist')) {
 		foreach my $item ($list->look_down('_tag'=>'li')) {
 			my $a = $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->look_down('_tag'=>'a');
@@ -66,13 +60,7 @@ sub fetch_info {
 	$l->trace('fetching more info for ', $s->{id});
 	my $url = $s->clist()->{urlstart};
 	$url =~ s'\d+/\d+/$'';
-	my $page = DlUtil::get($url);
-	if ($page->is_error()) {
-		$l->error($url);
-		return undef;
-	}
-	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->decoded_content());
+	my $tree = $s->_get_tree($url) or return undef;
 	$s->clist()->{Tags} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1];
 	$s->clist()->{Info} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1];
 	$s->clist()->{Scanlator} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Manga scans by:' })->parent()->content_list())[1];
