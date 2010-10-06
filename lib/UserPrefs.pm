@@ -37,7 +37,7 @@ sub parse_file {
 	}
 	my $block;
 	my %cfg;
-	open (my $fh, '<', $file);
+	open (my $fh, '<:encoding(UTF-8)', $file);
 	while (my $line = <$fh>) {
 		chomp($line);
 		if ($line =~ /^\s*\[\s*(?<block>[\w:]+)\s*\]\s*$/) {
@@ -114,7 +114,7 @@ sub save_file {
 	$file =~ s/\W+/_/g;
 	$l->trace('save config to ', $file);
 	$file = $main::DIRDATA.$file.'.ini';
-	if (open (my $fh, '>',$file)) {
+	if (open (my $fh, '>:encoding(UTF-8)',$file)) {
 		print $fh as_string($cfg);
 		close $fh;
 		return 1;

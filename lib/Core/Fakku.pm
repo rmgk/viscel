@@ -27,7 +27,7 @@ sub _create_list {
 		my $tree = HTML::TreeBuilder->new();
 		$tree->parse_content($page->decoded_content());
 		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'content_row')) {
-			my $name = HTML::Entities::encode($main->attr('title'));
+			my $name = HTML::Entities::encode($main->as_trimmed_text());
 			my $href = $main->look_down('_tag'=> 'div', 'class' => 'manga_row1')->look_down('_tag' => 'a')->attr('href');
 			my ($id) = ($href =~ m'id=(\d+)'i);
 			unless ($id) {
@@ -40,14 +40,14 @@ sub _create_list {
 			$clist{$id} = {urlstart => $href, name => $name};
 			$clist{$id}->{Series} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'div',class => 'item2')->as_trimmed_text(extra_chars => '\xA0');
 			my $trans_link = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'span',class => 'english')->look_down(_tag => 'a');
-			$clist{$id}->{Translator} = $trans_link->as_trimmed_text(extra_chars => '\xA0') if $trans_link;
+			$clist{$id}->{Scanlator} = $trans_link->as_trimmed_text(extra_chars => '\xA0') if $trans_link;
 			$clist{$id}->{Artist} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row3')->look_down('_tag' => 'div',class => 'item2')->as_trimmed_text(extra_chars => '\xA0');
 			$clist{$id}->{Stats} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row4')->look_down('_tag' => 'div',class => 'row4_left')->as_trimmed_text(extra_chars => '\xA0');
 			$clist{$id}->{Date} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row4')->look_down('_tag' => 'div',class => 'row4_right')->look_down(_tag=>'b')->as_trimmed_text(extra_chars => '\xA0');
 			my $desc = $main->look_down('_tag'=> 'div', 'class' => 'tags')->as_trimmed_text(extra_chars => '\xA0');
 			$desc =~ s/^Description://i;
 			$clist{$id}->{Detail} = $desc unless ($desc =~ m/No description has been written/i);
-			
+			$clist{$_} = HTML::Entities::encode $clist{$_} for grep {$clist{$_}} qw(Series Translator Artist Stats Date Detail);
 		}
 		my $next = $tree->look_down('_tag' => 'div', 'id' => 'pagination')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^\s*>\s*$/});
 		$url = $next ? URI->new_abs($next->attr('href'),$url) : undef;
