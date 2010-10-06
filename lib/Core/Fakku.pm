@@ -27,8 +27,9 @@ sub _create_list {
 		my $tree = HTML::TreeBuilder->new();
 		$tree->parse_content($page->decoded_content());
 		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'content_row')) {
-			my $name = HTML::Entities::encode($main->as_trimmed_text());
-			my $href = $main->look_down('_tag'=> 'div', 'class' => 'manga_row1')->look_down('_tag' => 'a')->attr('href');
+			my $a = $main->look_down('_tag'=> 'div', 'class' => 'manga_row1')->look_down('_tag' => 'a');
+			my $href = $a->attr('href');
+			my $name = HTML::Entities::encode($a->as_trimmed_text());
 			my ($id) = ($href =~ m'id=(\d+)'i);
 			unless ($id) {
 				$l->debug("could not parse $href");
