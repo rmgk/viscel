@@ -106,8 +106,10 @@ sub html_group {
 #@someinfo -> info div 
 sub html_info {
 	my $html .= cgi->start_div({-class=>'info'});
-	$html .= join cgi->br(), @_;
-	$html .= cgi->end_div();
+	$html .= cgi->start_table() . cgi->start_tbody();
+	$html .= join '', map {cgi->Tr(cgi->td($_))} @_;
+	$html .= cgi->end_table();
+	$html .= cgi->end_tbody(). cgi->end_div();
 	return $html;
 }
 

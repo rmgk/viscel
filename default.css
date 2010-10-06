@@ -53,6 +53,10 @@ a.extern {
 	padding: 1cm;
 }
 
+tbody{
+	 vertical-align:top;
+}
+
 /*navigation placement for frontpage and comic pages*/
 .navigation {
 	text-align:center;

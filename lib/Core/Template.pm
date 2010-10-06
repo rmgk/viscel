@@ -112,7 +112,8 @@ sub new {
 #returns a list of infos
 sub about {
 	my ($s) = @_;
-	return map {"$_: " . $s->clist()->{$_}} keys %{$s->clist()};
+	#all lowercased attributes are not intended for user
+	return ['Name',$s->clist->{name}], map {[$_, $s->clist()->{$_}]} grep {$_ eq ucfirst $_} keys %{$s->clist()};
 }
 
 #noop
@@ -128,7 +129,7 @@ sub name {
 sub first {
 	my ($s) = @_;
 	$l->trace('creat first ',$s->{id});
-	return $s->create(1,$s->clist()->{url_start});
+	return $s->create(1,$s->clist()->{urlstart});
 }
 
 #$class, $id, $state -> \%self

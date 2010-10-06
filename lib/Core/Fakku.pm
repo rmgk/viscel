@@ -37,16 +37,16 @@ sub _create_list {
 			$href = "http://www.fakku.net/viewonline.php?id=$id&page=1";
 			$id =~ s/\W/_/g;
 			$id = 'Fakku_' . $id;
-			$clist{$id} = {url_start => $href, name => $name};
-			$clist{$id}->{series} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'div',class => 'item2')->as_trimmed_text(extra_chars => '\xA0');
+			$clist{$id} = {urlstart => $href, name => $name};
+			$clist{$id}->{Series} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'div',class => 'item2')->as_trimmed_text(extra_chars => '\xA0');
 			my $trans_link = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'span',class => 'english')->look_down(_tag => 'a');
-			$clist{$id}->{translator} = $trans_link->as_trimmed_text(extra_chars => '\xA0') if $trans_link;
-			$clist{$id}->{artist} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row3')->look_down('_tag' => 'div',class => 'item2')->as_trimmed_text(extra_chars => '\xA0');
-			$clist{$id}->{stats} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row4')->look_down('_tag' => 'div',class => 'row4_left')->as_trimmed_text(extra_chars => '\xA0');
-			$clist{$id}->{date} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row4')->look_down('_tag' => 'div',class => 'row4_right')->look_down(_tag=>'b')->as_trimmed_text(extra_chars => '\xA0');
+			$clist{$id}->{Translator} = $trans_link->as_trimmed_text(extra_chars => '\xA0') if $trans_link;
+			$clist{$id}->{Artist} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row3')->look_down('_tag' => 'div',class => 'item2')->as_trimmed_text(extra_chars => '\xA0');
+			$clist{$id}->{Stats} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row4')->look_down('_tag' => 'div',class => 'row4_left')->as_trimmed_text(extra_chars => '\xA0');
+			$clist{$id}->{Date} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row4')->look_down('_tag' => 'div',class => 'row4_right')->look_down(_tag=>'b')->as_trimmed_text(extra_chars => '\xA0');
 			my $desc = $main->look_down('_tag'=> 'div', 'class' => 'tags')->as_trimmed_text(extra_chars => '\xA0');
 			$desc =~ s/^Description://i;
-			$clist{$id}->{description} = $desc unless ($desc =~ m/No description has been written/i);
+			$clist{$id}->{Detail} = $desc unless ($desc =~ m/No description has been written/i);
 			
 		}
 		my $next = $tree->look_down('_tag' => 'div', 'id' => 'pagination')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^\s*>\s*$/});
@@ -58,7 +58,7 @@ sub _create_list {
 
 #returns a list of keys to search for
 sub _searchkeys {
-	qw(name series translator artist stats date description);
+	qw(name Series Translator Artist Stats Date);
 }
 
 

@@ -39,9 +39,9 @@ sub _create_list {
 			$href = URI->new_abs("/$id-chapter-1-page-1.html",$url);
 			$id =~ s/\W/_/g;
 			$id = 'Animea_' . $id;
-			$clist{$id} = {url_start => $href, name => $name};
-			$clist{$id}->{status} = ($a->{class} eq 'complete_manga') ? 'complete' : 'ongoing';
-			$clist{$id}->{chapter} = $td->as_trimmed_text();
+			$clist{$id} = {urlstart => $href, name => $name};
+			$clist{$id}->{Status} = ($a->{class} eq 'complete_manga') ? 'complete' : 'ongoing';
+			$clist{$id}->{Chapter} = $td->as_trimmed_text();
 			
 		}
 		my $next = $tree->look_down('_tag' => 'ul', 'class' => 'paging')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^Next$/});
@@ -54,7 +54,7 @@ sub _create_list {
 
 #returns a list of keys to search for
 sub _searchkeys {
-	qw(name alias tags author info scans update status);
+	qw(name Status Chapter Tags);
 }
 
 #fetches more information about the comic
@@ -62,7 +62,7 @@ sub fetch_info {
 	my ($s) = @_;
 	return undef if $s->clist()->{moreinfo};
 	$l->trace('fetching more info for ', $s->{id});
-	my $url = $s->clist()->{url_start};
+	my $url = $s->clist()->{urlstart};
 	$url =~ s/-chapter-.*-page-1//;
 	$url .= '?skip=1';
 	my $page = DlUtil::get($url);
@@ -72,14 +72,14 @@ sub fetch_info {
 	}
 	my $tree = HTML::TreeBuilder->new();
 	$tree->parse_content($page->decoded_content());
-	$s->clist()->{tags} = join ', ' , map {$_->as_trimmed_text} $tree->look_down(_tag=>'a', href=>qr'/genre/'i);
+	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $tree->look_down(_tag=>'a', href=>qr'/genre/'i);
 	my $p = $tree->look_down('_tag' => 'p', style => 'width:570px; padding:5px;');
-	$s->clist()->{review} = HTML::Entities::encode($p->as_trimmed_text()) if ($p);
+	$s->clist()->{Review} = HTML::Entities::encode($p->as_trimmed_text()) if ($p);
 	my $ul = $tree->look_down('_tag' => 'ul', class => 'relatedmanga');
-	$s->clist()->{seealso} = join ', ' , map { $_->attr('href') =~ m'animea.net/([^/]*)\.html$'; my $r = $1; $r =~ s/\W/_/g; $r} $ul->look_down(_tag=>'a');
+	$s->clist()->{Seealso} = join ', ' , map { $_->attr('href') =~ m'animea.net/([^/]*)\.html$'; my $r = $1; $r =~ s/\W/_/g; $r} $ul->look_down(_tag=>'a');
 	my @table = $tree->look_down(_tag=>'table',id=>'chapterslist')->content_list();
-	$s->clist()->{url_start} = $table[-2]->look_down(_tag=>'a')->attr('href');
-	$s->clist()->{url_start} =~ s/\.html$/-page-1\.html/;
+	$s->clist()->{urlstart} = $table[-2]->look_down(_tag=>'a')->attr('href');
+	$s->clist()->{urlstart} =~ s/\.html$/-page-1\.html/;
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();
 }

@@ -45,7 +45,7 @@ sub _create_list {
 			}
 			$id =~ s/\W/_/g;
 			$id = 'ComicGenesis_' . $id;
-			$comiclist{$id} = {url_start => $href, name => $name};
+			$comiclist{$id} = {urlstart => $href, name => $name};
 		}
 		$tree->delete();
 	}

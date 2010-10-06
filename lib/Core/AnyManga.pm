@@ -34,19 +34,19 @@ sub _create_list {
 			$id = 'AnyManga_' . $id;
 			$href = 'http://www.anymanga.com' . $href .'001/001/';
 			if ($mangalist{$id}) { #its an alias
-				if ($mangalist{$id}->{alias}) {
-					$mangalist{$id}->{alias} .= ', '.$name;
+				if ($mangalist{$id}->{Alias}) {
+					$mangalist{$id}->{Alias} .= ', '.$name;
 				}
 				else {
-					$mangalist{$id}->{alias} = $name;
+					$mangalist{$id}->{Alias} = $name;
 				}
 				next;
 			}
-			$mangalist{$id} = {url_start => $href, name => $name};
-			$mangalist{$id}->{status} = $item->look_down('_tag' => 'span', title => 'Manga Complete') ? 'complete' : 'ongoing' ;
-			$mangalist{$id}->{author} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->content_list();
-			$mangalist{$id}->{author} =~ s/^\s*by\s*//;
-			$mangalist{$id}->{tags} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/normal/)->content_list();
+			$mangalist{$id} = {urlstart => $href, name => $name};
+			$mangalist{$id}->{Status} = $item->look_down('_tag' => 'span', title => 'Manga Complete') ? 'complete' : 'ongoing' ;
+			$mangalist{$id}->{Artist} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->content_list();
+			$mangalist{$id}->{Artist} =~ s/^\s*by\s*//;
+			$mangalist{$id}->{Tags} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/normal/)->content_list();
 		}
 	}
 	$tree->delete();
@@ -56,7 +56,7 @@ sub _create_list {
 
 #returns a list of keys to search for
 sub _searchkeys {
-	qw(name alias tags author info scans update status);
+	qw(name Alias Tags Artist Info Scans Status);
 }
 
 #fetches more information about the comic
@@ -64,7 +64,7 @@ sub fetch_info {
 	my ($s) = @_;
 	return undef if $s->clist()->{moreinfo};
 	$l->trace('fetching more info for ', $s->{id});
-	my $url = $s->clist()->{url_start};
+	my $url = $s->clist()->{urlstart};
 	$url =~ s'\d+/\d+/$'';
 	my $page = DlUtil::get($url);
 	if ($page->is_error()) {
@@ -73,14 +73,14 @@ sub fetch_info {
 	}
 	my $tree = HTML::TreeBuilder->new();
 	$tree->parse_content($page->decoded_content());
-	$s->clist()->{tags} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1];
-	$s->clist()->{info} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1];
-	$s->clist()->{scans} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Manga scans by:' })->parent()->content_list())[1];
+	$s->clist()->{Tags} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1];
+	$s->clist()->{Info} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1];
+	$s->clist()->{Scans} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Manga scans by:' })->parent()->content_list())[1];
 	#$s->clist()->{update} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Last Manga Update:' })->parent()->content_list())[1];
-	$s->clist()->{status} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Status:' })->parent()->content_list())[1];
-	$s->clist()->{review} = ($tree->look_down('_tag' => 'div', style => qr/font-weight: bolder;$/)->parent()->content_list())[1];
-	($s->clist()->{seealso}) = ($tree->look_down('_tag' => 'span', style => 'font-weight: bolder;')->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$');
-	$s->clist()->{seealso} =~ s/\W/_/g;
+	$s->clist()->{Status} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Status:' })->parent()->content_list())[1];
+	$s->clist()->{Review} = ($tree->look_down('_tag' => 'div', style => qr/font-weight: bolder;$/)->parent()->content_list())[1];
+	($s->clist()->{Seealso}) = ($tree->look_down('_tag' => 'span', style => 'font-weight: bolder;')->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$');
+	$s->clist()->{Seealso} =~ s/\W/_/g;
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();
 }
