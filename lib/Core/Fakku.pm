@@ -11,7 +11,6 @@ our $VERSION = v1;
 use parent qw(Core::Template);
 
 my $l = Log->new();
-my $SHA = Digest::SHA->new();
 
 #creates the list of comic
 sub _create_list {
@@ -66,29 +65,12 @@ sub _searchkeys {
 
 package Core::Fakku::Spot;
 
-#$class, \%self -> \%self
-#creates a new collection instance of $id at position $pos
-sub new {
-	my ($class,$self) = @_;
-	$l->trace('new ',$class,' instance');
-	$self->{fail} = 'not mounted';
-	bless $self, $class;
-	return $self;
-}
+use parent -norequire, 'Core::Template::Spot';
 
-#makes preparations to find objects
-sub mount {
-	my ($s) = @_;
-	$l->trace('mount ' . $s->{id} .' '. $s->{state});
-	my $page = DlUtil::get($s->{state});
-	if ($page->is_error()) {
-		$l->error('error get ' . $s->{state});
-		$s->{fail} = 'could not get page';
-		return undef;
-	}
-	$l->trace('parse page');
-	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->decoded_content());
+#$tree
+#parses the page to mount it
+sub _mount_parse {
+	my ($s,$tree) = @_;
 	my $img = $tree->look_down(_tag => 'div', id=>'content')->look_down(_tag=>'img');
 	unless ($img) {
 		$l->error('could not get image');
@@ -97,79 +79,13 @@ sub mount {
 	}
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width height);
 	$s->{src} = URI->new_abs($s->{src},$s->{state});
-	
 	my $a = $tree->look_down(_tag => 'div', class=>'next_right_nav')->look_down(_tag=>'a');
 	if ($a) {
 		$s->{next} = $a->attr('href');
 		$s->{next} = URI->new_abs($s->{next} ,$s->{state});
 	}
-	$s->{fail} = undef;
-	$l->trace("found: " . $s->{src});
-	$tree->delete();
+	($s->{filename}) = ($s->{src} =~ m'/([^/]+)$'i) ;
 	return 1;
 }
-
-#-> \%entity
-#returns the entity
-sub fetch {
-	my ($s) = @_;
-	if ($s->{fail}) {
-		$l->error('fail is set: ' . $s->{fail});
-		return undef;
-	}
-	$l->trace('fetch object');
-
-	my $file = DlUtil::get($s->{src},$s->{state});
-	if ($file->is_error()) {
-		$l->error('error get ' . $s->{src});
-		 $s->{fail} = 'could not get blob';
-		return undef;
-	}
-	my $blob = $file->content();
-
-	$s->{type} = $file->header('Content-Type');
-	$s->{sha1} = $SHA->add($blob)->hexdigest();
-	return \$blob;
-}
-
-#-> \%entity
-#returns the entity
-sub entity {
-	my ($s) = @_;
-	if ($s->{fail}) {
-		$l->error('fail is set: ' . $s->{fail});
-		return undef;
-	}
-
-	my $object = {};
-
-	($object->{filename}) = ($s->{src} =~ m'/([^/]+)$'i) ;
-	$object->{page_url} = $s->{state};
-	$object->{cid} = $s->{id};
-	$object->{$_} = $s->{$_} for qw(type src sha1 position state title alt width height);
-	return  Entity->new($object);
-}
-
-#returns the next spot
-sub next {
-	my ($s) = @_;
-	$l->trace('create next');
-	if ($s->{fail}) {
-		$l->error('fail is set: ' . $s->{fail});
-		return undef;
-	}
-	unless ($s->{next}) {
-		$l->error('can not get next');
-		return undef;
-	}
-	my $next = {id => $s->{id}, position => $s->{position} + 1, state => $s->{next} };
-	$next = ref($s)->new($next);
-	return $next;
-}
-
-#accessors:
-sub id { return $_[0]->{id} }
-sub position { return $_[0]->{position} }
-
 
 1;

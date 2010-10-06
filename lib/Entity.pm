@@ -67,6 +67,11 @@ sub attribute_list_string {
 	return join ',' , sort keys %attributes;
 }
 
+#returns ordered list of attributes
+sub attribute_list_array {
+	return sort keys %attributes;
+}
+
 #returns array of attribute values
 sub attribute_values_array {
 	my $s = shift;

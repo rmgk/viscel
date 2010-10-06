@@ -18,7 +18,6 @@ use Digest::SHA;
 use Data::Dumper;
 
 my $l = Log->new();
-my $SHA = Digest::SHA->new();
 
 #the somewhat shady container for all the collections data
 sub clist {
@@ -142,5 +141,107 @@ sub create {
 	$class->new($spot);
 	return $spot;
 }
+
+package Core::Template::Spot;
+
+my $SHA = Digest::SHA->new();
+
+#$class, \%self -> \%self
+#creates a new collection instance of $id at position $pos
+sub new {
+	my ($class,$self) = @_;
+	$l->trace('new ',$class,' instance');
+	$self->{fail} = 'not mounted';
+	bless $self, $class;
+	return $self;
+}
+
+#makes preparations to find objects
+sub mount {
+	my ($s) = @_;
+	$s->{page_url} = $s->{state};
+	$l->trace('mount ' . $s->{id} .' '. $s->{page_url});
+	my $page = DlUtil::get($s->{page_url});
+	if ($page->is_error()) {
+		$l->error('error get ' . $s->{page_url});
+		$s->{fail} = 'could not get page';
+		return undef;
+	}
+	$l->trace('parse page');
+	my $tree = HTML::TreeBuilder->new();
+	$tree->parse_content($page->decoded_content());
+	my $ret = $s->_mount_parse($tree);
+	$tree->delete();
+	$l->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next)); #/padre display bug	
+	$s->{fail} = undef if $ret;
+	return $ret;
+}
+
+#not implemented
+sub _mount_parse {
+	$l->fatal('mount parse not implemented');
+	die();
+}
+
+
+#-> \%entity
+#returns the entity
+sub fetch {
+	my ($s) = @_;
+	if ($s->{fail}) {
+		$l->error('fail is set: ' . $s->{fail});
+		return undef;
+	}
+	$l->trace('fetch object');
+
+	my $file = DlUtil::get($s->{src},$s->{page_url});
+	if ($file->is_error()) {
+		$l->error('error get ' . $s->{src});
+		$s->{fail} = 'could not fetch object';
+		return undef;
+	}
+	my $blob = $file->content();
+
+	$s->{type} = $file->header('Content-Type');
+	$s->{sha1} = $SHA->add($blob)->hexdigest();
+
+	return \$blob;
+}
+
+#-> \%entity
+#returns the entity
+sub entity {
+	my ($s) = @_;
+	if ($s->{fail}) {
+		$l->error('fail is set: ' . $s->{fail});
+		return undef;
+	}
+	my $object = {};
+	$object->{cid} = $s->{id};
+	$object->{$_} = $s->{$_} for Entity::attribute_list_array();
+	return Entity->new($object);
+}
+
+#returns the next spot
+sub next {
+	my ($s) = @_;
+	$l->trace('create next');
+	if ($s->{fail}) {
+		$l->error('fail is set: ' . $s->{fail});
+		return undef;
+	}
+	unless ($s->{next}) {
+		$l->error('no next was found');
+		return undef;
+	}
+	my $next = {id => $s->{id}, position => $s->{position} + 1, state => $s->{next} };
+	$next = ref($s)->new($next);
+	return $next;
+}
+
+#accessors:
+sub id { return $_[0]->{id} }
+sub position { return $_[0]->{position} }
+
 
 1;
