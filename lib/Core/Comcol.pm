@@ -59,8 +59,9 @@ sub list {
 #class method
 #searches for a collection
 sub search {
-	my ($pkg,@re) = @_;
+	my ($pkg,$filter,@re) = @_;
 	$l->debug('search');
+	return () if @$filter;
 	my %cmcs = list();
 	return map {$_,$cmcs{$_}} grep { my $id = $_; @re == grep {$cmcs{$id} ~~ $_} @re } keys %cmcs;
 }

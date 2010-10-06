@@ -73,7 +73,7 @@ sub list {
 
 #$query,@regex -> %list
 sub search {
-	my ($p,@re) = @_;
+	my ($p,$filter,@re) = @_;
 	$l->debug('search ', $p );
 	return map {$_,$p->clist($_)->{name}} grep {
 		my $id = $_;
@@ -83,7 +83,7 @@ sub search {
 			my $re = $_;
 			$id ~~ $re or grep {
 				(defined $l->{$_} and $l->{$_} ~~ $re);
-			} $p->_searchkeys();
+			} @$filter ? @$filter : $p->_searchkeys();
 		} @re;
 	} $p->clist();
 }

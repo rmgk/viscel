@@ -88,8 +88,20 @@ sub new {
 #$query -> %collections 
 sub search {
 	$l->debug('search for ',join ' ',@_);
+	my @cores;
+	my @filter;
+	while (defined $_[0] and $_[0] =~ m/^(.*):$/) {
+		my $f = $1;
+		if ($f =~ m/^Core::\w+$/) {
+			push(@cores,$f);
+		}
+		else {
+			push(@filter,$f);
+		}
+		shift;
+	}
 	my @re = map {qr/$_/i} @_;
-	return map {$_->search(@re)} initialised(); 
+	return map {$_->search(\@filter, @re)} @cores ? grep {initialised($_)} @cores : initialised(); 
 }
 
 #pkg -> \%configuration
