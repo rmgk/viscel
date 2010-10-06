@@ -177,7 +177,7 @@ sub mount {
 	my ($s) = @_;
 	$s->{page_url} = $s->{state};
 	$l->trace('mount ' . $s->{id} .' '. $s->{page_url});
-	my $tree = $s->_get_tree($s->{page_url});
+	my $tree = Core::Template->_get_tree($s->{page_url});
 	return undef unless $tree;
 	my $ret = $s->_mount_parse($tree);
 	$tree->delete();
@@ -227,7 +227,7 @@ sub entity {
 	}
 	my $object = {};
 	$object->{cid} = $s->{id};
-	$object->{$_} = $s->{$_} for Entity::attribute_list_array();
+	$object->{$_} = $s->{$_} for grep {defined $s->{$_}} Entity::attribute_list_array();
 	return Entity->new($object);
 }
 

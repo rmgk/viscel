@@ -239,7 +239,7 @@ sub front {
 		$html .= link_config($id,'config');
 	$html .= cgi->end_div();
 	my $col = Collection->get($id);
-	my $ent = $col->fetch($bm);
+	my $ent = $col->fetch($bm) if $bm;
 	if ($bm and $ent) {
 		$html .= cgi->start_div({-class=>'content'});
 			my $p = $col->fetch($bm-2);
