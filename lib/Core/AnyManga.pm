@@ -95,7 +95,6 @@ sub _mount_parse {
 	$s->{src} = 'http://www.anymanga.com' . $s->{src};
 	$s->{title} =~ s/\)\s*\[.*$/)/s;
 	$s->{alt} =~ s/\)\s*\[.*$/)/s;
-	$s->{page_url} = $s->{state};
 	($s->{filename}) = ($s->{src} =~ m'/manga/[^/]+/(.*+)'i) ;
 	$s->{filename} =~ s'/''g;
 	return 1;
