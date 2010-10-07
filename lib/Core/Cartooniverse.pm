@@ -40,7 +40,7 @@ sub _create_list {
 
 #returns a list of keys to search for
 sub _searchkeys {
-	qw(name);
+	qw(name Author Artist Scanlator Tags);
 }
 
 #fetches more information about the comic
