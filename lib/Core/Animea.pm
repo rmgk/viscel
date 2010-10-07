@@ -66,8 +66,15 @@ sub fetch_info {
 	my $ul = $tree->look_down('_tag' => 'ul', class => 'relatedmanga');
 	$s->clist()->{Seealso} = join ', ' , map { $_->attr('href') =~ m'animea.net/([^/]*)\.html$'; my $r = $1; $r =~ s/\W/_/g; $r} $ul->look_down(_tag=>'a');
 	my @table = $tree->look_down(_tag=>'table',id=>'chapterslist')->content_list();
-	$s->clist()->{urlstart} = $table[-2]->look_down(_tag=>'a')->attr('href');
-	$s->clist()->{urlstart} =~ s/\.html$/-page-1\.html/;
+	my $a = $table[-2]->look_down(_tag=>'a');
+	if ($a) {
+		$s->clist()->{urlstart} = $a->attr('href');
+		$s->clist()->{urlstart} =~ s/\.html$/-page-1\.html/;
+	}
+	else {
+		$l->warn("animea no longer makes this collection available");
+		$s->clist()->{Status} = 'Down';
+	}
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();
 }

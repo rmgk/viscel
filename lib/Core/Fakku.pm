@@ -42,7 +42,7 @@ sub _create_list {
 			my $desc = $main->look_down('_tag'=> 'div', 'class' => 'tags')->as_trimmed_text(extra_chars => '\xA0');
 			$desc =~ s/^Description://i;
 			$clist{$id}->{Detail} = $desc unless ($desc =~ m/No description has been written/i);
-			$clist{$_} = HTML::Entities::encode $clist{$_} for grep {$clist{$_}} qw(Series Translator Artist Stats Date Detail);
+			$clist{$_} = HTML::Entities::encode $clist{$_} for grep {$clist{$_}} qw(Series Scanlator Artist Stats Date Detail);
 		}
 		my $next = $tree->look_down('_tag' => 'div', 'id' => 'pagination')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^\s*>\s*$/});
 		$url = $next ? URI->new_abs($next->attr('href'),$url) : undef;
@@ -53,7 +53,7 @@ sub _create_list {
 
 #returns a list of keys to search for
 sub _searchkeys {
-	qw(name Series Translator Artist Stats Date);
+	qw(name Series Scanlator Artist Stats Date);
 }
 
 
