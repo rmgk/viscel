@@ -362,7 +362,7 @@ sub blob {
 	if (!$stat{size}) {
 		Server::send_404($c);
 	}
-	elsif ($stat{modified} <= $mtime) {
+	elsif ($mtime and $stat{modified} <= $mtime) {
 		$c->send_response(HTTP::Response->new( 304, 'Not Modified'));
 	}
 	else {
