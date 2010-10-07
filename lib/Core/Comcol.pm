@@ -35,6 +35,7 @@ sub init {
 		$l->warn('could not connect to database');
 		return undef;
 	}
+	$l->debug('has ' .  scalar($pkg->list()) . ' collections');
 	return 1;
 }
 

@@ -48,7 +48,7 @@ sub save_clist {
 	return UserPrefs::save_file($pkg,\%$pkg);
 }
 
-#initialises the database connection
+#initialises collection list
 sub init {
 	my ($pkg) = @_;
 	$l->trace('initialise ',$pkg);
