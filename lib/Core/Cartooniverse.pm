@@ -30,7 +30,7 @@ sub _create_list {
 			}
 			$id =~ s/\W/_/g;
 			$id = 'Cartooniverse_' . $id;
-			$clist{$id} = {urlstart => $href. '1/0/', name => $name, urlinfo=>$href};
+			$clist{$id} = {url_start => $href. '1/0/', name => $name, urlinfo=>$href};
 		}
 	}
 	$tree->delete();

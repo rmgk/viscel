@@ -39,7 +39,7 @@ sub _create_list {
 			}
 			$id =~ s/\W/_/g;
 			$id = 'ComicGenesis_' . $id;
-			$comiclist{$id} = {urlstart => $href, name => $name};
+			$comiclist{$id} = {url_start => $href, name => $name};
 		}
 		$tree->delete();
 	}
@@ -66,7 +66,7 @@ sub _mount_parse {
 		return undef;
 	}
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width height);
-	$s->{src} = URI->new_abs($s->{src},$s->{state});
+	$s->{src} = URI->new_abs($s->{src},$s->{state})->as_string;
 	$s->{src} =~ s'^.*http://'http://'g; #hack to fix some broken urls
 	$s->{src} =~ s'\.comicgen\.com'.comicgenesis.com'gi; #hack to fix more broken urls
 	my $a = $tree->look_down(_tag => 'a', sub {$_[0]->as_text =~ m/^Next comic$/});
@@ -81,7 +81,7 @@ sub _mount_parse {
 	}
 	if ($a) {
 		$s->{next} = $a->attr('href');
-		$s->{next} = URI->new_abs($s->{next} ,$s->{state});
+		$s->{next} = URI->new_abs($s->{next} ,$s->{state})->as_string;
 		$s->{next} =~ s'^.*http://'http://'g; #hack to fix some broken urls
 		$s->{next} =~ s'\.comicgen\.com'.comicgenesis.com'gi; #hack to fix more broken urls
 	}

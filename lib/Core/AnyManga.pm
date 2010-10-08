@@ -36,7 +36,7 @@ sub _create_list {
 				}
 				next;
 			}
-			$mangalist{$id} = {urlstart => $href, name => $name};
+			$mangalist{$id} = {url_start => $href, name => $name};
 			$mangalist{$id}->{Status} = $item->look_down('_tag' => 'span', title => 'Manga Complete') ? 'complete' : 'ongoing' ;
 			$mangalist{$id}->{Artist} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->content_list();
 			$mangalist{$id}->{Artist} =~ s/^\s*by\s*//;
@@ -58,7 +58,7 @@ sub fetch_info {
 	my ($s) = @_;
 	return undef if $s->clist()->{moreinfo};
 	$l->trace('fetching more info for ', $s->{id});
-	my $url = $s->clist()->{urlstart};
+	my $url = $s->clist()->{url_start};
 	$url =~ s'\d+/\d+/$'';
 	my $tree = $s->_get_tree($url) or return undef;
 	$s->clist()->{Tags} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1];

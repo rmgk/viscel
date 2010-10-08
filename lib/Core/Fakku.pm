@@ -32,7 +32,7 @@ sub _create_list {
 			$href = "http://www.fakku.net/viewonline.php?id=$id&page=1";
 			$id =~ s/\W/_/g;
 			$id = 'Fakku_' . $id;
-			$clist{$id} = {urlstart => $href, name => $name};
+			$clist{$id} = {url_start => $href, name => $name};
 			$clist{$id}->{Series} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'div',class => 'item2')->as_trimmed_text(extra_chars => '\xA0');
 			my $trans_link = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'span',class => 'english')->look_down(_tag => 'a');
 			$clist{$id}->{Scanlator} = $trans_link->as_trimmed_text(extra_chars => '\xA0') if $trans_link;
@@ -45,7 +45,7 @@ sub _create_list {
 			$clist{$_} = HTML::Entities::encode $clist{$_} for grep {$clist{$_}} qw(Series Scanlator Artist Stats Date Detail);
 		}
 		my $next = $tree->look_down('_tag' => 'div', 'id' => 'pagination')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^\s*>\s*$/});
-		$url = $next ? URI->new_abs($next->attr('href'),$url) : undef;
+		$url = $next ? URI->new_abs($next->attr('href'),$url)->as_string : undef;
 		$tree->delete();
 	}
 	return \%clist;
@@ -73,11 +73,11 @@ sub _mount_parse {
 		return undef;
 	}
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width height);
-	$s->{src} = URI->new_abs($s->{src},$s->{state});
+	$s->{src} = URI->new_abs($s->{src},$s->{state})->as_string;
 	my $a = $tree->look_down(_tag => 'div', class=>'next_right_nav')->look_down(_tag=>'a');
 	if ($a) {
 		$s->{next} = $a->attr('href');
-		$s->{next} = URI->new_abs($s->{next} ,$s->{state});
+		$s->{next} = URI->new_abs($s->{next} ,$s->{state})->as_string;
 	}
 	($s->{filename}) = ($s->{src} =~ m'/([^/]+)$'i) ;
 	return 1;
