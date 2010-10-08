@@ -75,7 +75,6 @@ sub _mount_parse {
 	my @tag;
 	my $criteria = Core::Universal->clist($s->id)->{criteria};
 	if ($criteria) {
-		say "criteria";
 		@tag = $tree->look_down(@{$criteria});
 	}
 	else {
@@ -86,8 +85,9 @@ sub _mount_parse {
 	$l->warn('more than one image found') if @img > 1;
 	my $img = $img[0];
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width heigth );
+	
 	my $a = $tree->look_down(_tag=>'a', rel => qr/next/)
-		 || $tree->look_down(_tag=>'a', sub {($_[0]->as_text =~ m/next|newer/i) or $_[0]->look_down(_tag=>'img',src=> qr/next/i)});
+		 || $tree->look_down(_tag=>'a', sub {($_[0]->as_html =~ m/next/i)});
 	$s->{next} = $a->attr('href');
 	$s->{$_} = URI->new_abs($s->{$_},$s->{page_url})->as_string() for qw(src next);
 	return 1;
