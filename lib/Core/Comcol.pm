@@ -61,10 +61,11 @@ sub list {
 #searches for a collection
 sub search {
 	my ($pkg,$filter,@re) = @_;
-	$l->debug('search');
+	$l->debug('search ', ref($pkg));
 	return () if @$filter;
 	my %cmcs = list();
-	return map {$_,$cmcs{$_}} grep { my $id = $_; @re == grep {$cmcs{$id} ~~ $_} @re } keys %cmcs;
+	my %cap;
+	return map {[$_,$cmcs{$_},$cap{$_}]} grep { my $id = $_; @re == grep {$cmcs{$id} ~~ $_ and defined($cap{$id} = $1 // $cmcs{$id})} @re } keys %cmcs; #/ padre display bug
 }
 
 #pkg, \%config -> \%config

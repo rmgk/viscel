@@ -16,6 +16,7 @@ use DlUtil;
 use HTML::TreeBuilder;
 use Digest::SHA;
 use Data::Dumper;
+use Time::HiRes qw(tv_interval gettimeofday);
 
 my $l = Log->new();
 
@@ -90,17 +91,44 @@ sub list {
 sub search {
 	my ($p,$filter,@re) = @_;
 	$l->debug('search ', $p );
-	return map {$_,$p->clist($_)->{name}} grep {
-		my $id = $_;
+	my %cap;
+	my @return;
+	my $time = [gettimeofday];
+	col: for my $id ($p->clist()) {
 		my $l = $p->clist($id);
-		$id =~ s/^[^_]*+_//;
-		@re == grep {
-			my $re = $_;
-			$id ~~ $re or grep {
-				(defined $l->{$_} and $l->{$_} ~~ $re);
-			} @$filter ? @$filter : $p->_searchkeys();
-		} @re;
-	} $p->clist();
+		my $sid = $id;
+		$sid =~ s/^[^_]*+_//;
+		reg: for my $re (@re) {
+			if ($sid ~~ $re) {
+				$cap{$id} = $1;
+				next reg;
+			}
+			for my $k (@$filter ? @$filter : $p->_searchkeys()) {
+				next unless defined $l->{$k};
+				if ($l->{$k} ~~ $re) {
+					$cap{$id} = $1;
+					next reg;
+				} 
+			}
+			#not all regexes matched, checking next collection
+			next col;
+		}
+		#we have a matched
+		push @return, [$id,$l->{name},$cap{$id}//$l->{name}]; #/ padre display bug
+	}
+	$l->trace('took ', tv_interval($time), ' seconds');
+	return @return;
+	# return map {[$_,$p->clist($_)->{name},$cap{$_}]} grep {
+		# my $id = $_;
+		# my $l = $p->clist($id);
+		# $id =~ s/^[^_]*+_//;
+		# @re == grep {
+			# my $re = $_;
+			# ($id ~~ $re and defined( $cap{$id} = $1 // '' )) or grep { #/ padre display bug
+				# (defined $l->{$_} and $l->{$_} ~~ $re ) and defined( $cap{$id} = $1 // '' ); #/ padre display bug
+			# } @$filter ? @$filter : $p->_searchkeys()
+		# } @re;
+	# } $p->clist();
 }
 
 #pkg, \%config -> \%config

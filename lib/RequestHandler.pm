@@ -16,6 +16,7 @@ use Collection;
 use Cache;
 use UserPrefs;
 use URI;
+use Time::HiRes qw(tv_interval gettimeofday);
 
 my $l = Log->new();
 my $cgi;
@@ -97,10 +98,10 @@ sub html_core_status {
 
 #\%list_of_collections -> div containing the group ordered by name
 sub html_group {
-	my %collections = @_;
+	my @collections = @_;
 	my $html .= cgi->start_div({-class=>'group'});
-	$html .= join '', map {link_front($_,$collections{$_}).cgi->br() } 
-					sort {lc($collections{$a}) cmp lc($collections{$b})} keys %collections;
+	$html .= join '', map {link_front($_->[0],$_->[1]).cgi->br() } 
+					sort {(($a->[2].$b->[2]) ~~ /^\d+$/)?  $a->[2] <=> $b->[2] : lc($a->[2]) cmp lc($b->[2])} @collections;
 	$html .= cgi->end_div();
 }
 
@@ -168,7 +169,7 @@ sub index {
 	$html .= form_search();
 	$html .= cgi->end_div();
 	my $bm = UserPrefs->section('bookmark');
-	$html .= html_group( map {$_ => Cores::name($_)} $bm->list() );
+	$html .= html_group( map {[$_ , (Cores::name($_)) x 2]} $bm->list() );
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return 'index';
@@ -333,20 +334,20 @@ sub action {
 sub search {
 	my ($c,$r,@args) = @_;
 	$l->trace('handle search request');
-	my %result;
 	my $cgi = cgi($r->url->query());
 	my $query = $cgi->param('q');
-	%result = Cores::search(split /\s+/ , $query);
+	my $time = [gettimeofday];
+	my @result = Cores::search(split /\s+/ , $query);
 	my $html = html_header('search','search');
 	$html .= cgi->start_div({-class=>'info'});
-		$html .= "search for " . cgi->strong($query).cgi->br() . (keys %result) . ' results';
-		$html .= cgi->br();
+		$html .= "search for " . cgi->strong($query).cgi->br() . @result . ' results';
+		$html .= cgi->br() . tv_interval($time) . ' seconds' . cgi->br();
 		$html .= form_search($query);
 	$html .= cgi->end_div();
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_main();
 	$html .= cgi->end_div();
-	$html .= html_group(%result);
+	$html .= html_group(@result);
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return "search $query";
