@@ -113,4 +113,8 @@ Building => [
 	'http://www.building12.net/issue1/cover.htm',
 	[src => qr'issue\d+/'],
 ],
-
+Strays => [
+	'Strays',
+	'http://www.straysonline.com/comic/01.htm',
+	[src => qr/\d\d+/],
+]
