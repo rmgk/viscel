@@ -42,6 +42,10 @@ a.extern {
 	display: block;
 	margin: 0 auto;
 }
+.content embed {
+	display: block;
+	margin: 0 auto;
+}
 .info {
 	text-align:left;
 	margin: 2cm auto;
@@ -65,6 +69,13 @@ a.extern {
 }
 
 #front .content  img {
+	display:inline;
+	max-width: 32%;
+	margin: 0px 0.2%;
+	padding: 0px;
+}
+
+#front .content  embed{
 	display:inline;
 	max-width: 32%;
 	margin: 0px 0.2%;

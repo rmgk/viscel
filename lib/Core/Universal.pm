@@ -64,9 +64,10 @@ sub _mount_parse {
 		return undef;
 	}
 	my @img = grep {defined} map {$_->look_down(_tag=>'img')} @$tags;
+	@img = grep {defined} map {$_->look_down(_tag=>'embed')} @$tags unless @img;
 	$l->warn('more than one image found') if @img > 1;
 	my $img = $img[0];
-	map {$s->{$_} = $img->attr($_)} qw( src title alt width heigth );
+	map {$s->{$_} = $img->attr($_)} qw( src title alt width height );
 	
 	my $a = $tree->look_down(_tag=>'a', rel => qr/next/)
 		 || $tree->look_down(_tag=>'a', sub {($_[0]->as_HTML =~ m/next/i)});

@@ -7,7 +7,7 @@ use warnings;
 
 our $VERSION = v1;
 
-use CGI qw(img);
+use CGI qw(img embed);
 use Log;
 
 my $l = Log->new();
@@ -82,15 +82,26 @@ sub attribute_values_array {
 #returns html representation of the entity
 sub html {
 	my $s = shift;
-	#if ($s->type ~~ m'^image/'i) {
-		my $html .= img({	src	=>	"/b/". $s->sha1,#.'/'.$s->filename,
-							alt => $s->alt,
-							title => $s->title,
-							width => $s->width,
-							height => $s->height
-						});
-		return $html;
-	#}
+	given ($s->type) {
+		when ('application/x-shockwave-flash') {
+			my $html .= embed({	src	=>	"/b/". $s->sha1,#.'/'.$s->filename,
+								alt => $s->alt,
+								title => $s->title,
+								width => $s->width,
+								height => $s->height
+							});
+			return $html;
+		}
+		default {
+			my $html .= img({	src	=>	"/b/". $s->sha1,#.'/'.$s->filename,
+								alt => $s->alt,
+								title => $s->title,
+								width => $s->width,
+								height => $s->height
+							});
+			return $html;
+		}
+	}
 	return undef;
 }
 
