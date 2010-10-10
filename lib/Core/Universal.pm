@@ -12,8 +12,8 @@ use parent qw(Core::Template);
 
 my $l = Log->new();
 
-#initialises collection list
-sub init {
+#loads and saves the collection list
+sub _load_list {
 	my ($pkg) = @_;
 	$l->trace('initialise ',$pkg);
 	$l->warn('list already initialised, reinitialise') if $pkg->clist();
@@ -24,33 +24,18 @@ sub init {
 #creates the list of known manga
 sub _create_list {
 	my ($pkg) = @_;
-	return {Universal_Zona => { name => 'The challenges of Zona',
-								url_start => 'http://www.soulgeek.com/comics/zona/2005/08/01/page-01/'},
-			Universal_Unstuffed => { name =>'The Unstuffed',
-									url_start => 'http://www.plushandblood.com/Comic.php?strip_id=0'},
-			Universal_PennyAndAggie => { name => 'Penny And Aggie',
-										url_start => 'http://www.pennyandaggie.com/index.php?p=1'},
-			Universal_Kukubiri => { name => 'Kukubiri',
-									url_start => 'http://www.kukuburi.com/v2/2007/08/09/one/' },
-			Universal_KhaosKomic => { name => 'Khaos Komik',
-									url_start => 'http://www.khaoskomix.com/cgi-bin/comic.cgi?chp=1',
-									criteria => [id => 'currentcomic'] },
-			Universal_Catalyst => { name => 'Catalyst',
-									url_start => 'http://catalyst.spiderforest.com/comic.php?comic_id=0',
-									criteria => [src => qr/comics/] },
-			Universal_EmergencyExit => { name => 'Emergency Exit',
-									url_start => 'http://www.eecomics.net/?strip_id=0',
-									criteria => [src => qr'comics/\d{6}\.']},
-			Universal_Drowtales => { name => 'Drowtales',
-									 url_start => 'http://www.drowtales.com/mainarchive.php?order=chapters&id=0&overview=1&chibi=1&cover=1&extra=1&page=1&check=1',
-									 criteria => [src => qr'mainarchive//']},
-			Universal_HilarityComics => { name => 'Hilarity Comics', 
-											url_start => 'http://www.eegra.com/show/sub/do/browse/cat/comics/id/4',
-											criteria => [src => qr'comics/\d{4}/']},
-			Universal_PBF => { name => 'The Perry Bible Fellowship',
-								url_start => 'http://www.pbfcomics.com/?cid=PBF001-Stiff_Breeze.gif',
-								criteria => [id => 'topimg'] },
-								};
+	my %raw_list = do ('uclist.txt');
+	if ($@) {
+		chomp $@;
+		$l->error('could not load list: ' , $@);
+		return undef;
+	}
+	my %list = map {
+		'Universal_'.$_ => {name => shift @{$raw_list{$_}},
+							url_start => shift @{$raw_list{$_}},
+							criteria => $raw_list{$_}
+		}} keys %raw_list; 
+	return \%list;
 }
 
 
@@ -72,25 +57,41 @@ use parent -norequire, 'Core::Template::Spot';
 #parses the page to mount it
 sub _mount_parse {
 	my ($s,$tree) = @_;
-	my @tag;
-	my $criteria = Core::Universal->clist($s->id)->{criteria};
-	if ($criteria) {
-		@tag = $tree->look_down(@{$criteria});
+	my @criteria = @{Core::Universal->clist($s->id)->{criteria}};
+	my $tags = _find([$tree],@criteria);
+	unless (@$tags) {
+		$l->error("could not find image");
+		return undef;
 	}
-	else {
-		@tag = $tree->look_down(id=>qr/comic/i);
-		@tag = $tree->look_down(class=>qr/comic/i) unless @tag;
-	}
-	my @img = grep {defined} map {$_->look_down(_tag=>'img')} @tag;
+	my @img = grep {defined} map {$_->look_down(_tag=>'img')} @$tags;
 	$l->warn('more than one image found') if @img > 1;
 	my $img = $img[0];
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width heigth );
 	
 	my $a = $tree->look_down(_tag=>'a', rel => qr/next/)
-		 || $tree->look_down(_tag=>'a', sub {($_[0]->as_html =~ m/next/i)});
+		 || $tree->look_down(_tag=>'a', sub {($_[0]->as_HTML =~ m/next/i)});
+	unless ($a) {
+		$l->warn("could not find next");
+		return undef;
+	}
 	$s->{next} = $a->attr('href');
 	$s->{$_} = URI->new_abs($s->{$_},$s->{page_url})->as_string() for qw(src next);
 	return 1;
+}
+
+#\@tags,@criteria -> $tag
+#recursive find tags
+sub _find {
+	my $tags = shift;
+	my $c = shift;
+	unless ($c and ref $c) {
+		return $tags;
+	}
+	for my $tag (@$tags) {
+		my $t = _find([$tag->look_down(@{$c})],@_);
+		return $t if @$t;
+	}
+	return [];
 }
 
 1;

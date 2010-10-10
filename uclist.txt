@@ -1,0 +1,112 @@
+Zona => [
+	'The challenges of Zona',
+	'http://www.soulgeek.com/comics/zona/2005/08/01/page-01/',
+	[_tag => 'div', id => 'comic']
+],
+Unstuffed => [
+	'The Unstuffed',
+	'http://www.plushandblood.com/Comic.php?strip_id=0',
+	[_tag => 'div', id => 'ComicLayer']
+],
+PennyAndAggie => [
+	'Penny And Aggie',
+	'http://www.pennyandaggie.com/index.php?p=1',
+	[class => 'comicImage']
+],
+Kukubiri => [
+	'Kukubiri',
+	'http://www.kukuburi.com/v2/2007/08/09/one/',
+	[id => 'comic']	
+],
+KhaosKomic => [
+	'Khaos Komik',
+	'http://www.khaoskomix.com/cgi-bin/comic.cgi?chp=1',
+	[id => 'currentcomic'] 
+],
+Catalyst => [
+	'Catalyst',
+	'http://catalyst.spiderforest.com/comic.php?comic_id=0',
+	[src => qr/comics/]
+],
+EmergencyExit => [
+	'Emergency Exit',
+	'http://www.eecomics.net/?strip_id=0',
+	[src => qr'comics/\d{6}\.']
+],
+Drowtales => [
+	'Drowtales',
+	'http://www.drowtales.com/mainarchive.php?order=chapters&id=0&overview=1&chibi=1&cover=1&extra=1&page=1&check=1',
+	[src => qr'mainarchive//']
+],
+HilarityComics => [
+	'Hilarity Comics', 
+	'http://www.eegra.com/show/sub/do/browse/cat/comics/id/4',
+	[src => qr'comics/\d{4}/']
+],
+Pronquest => [
+	'Pronquest',
+	'http://www.pronquest.com/1/hello-world/hentai',
+	[id => 'comic']
+],
+PrincessPlanet => [
+	'The Princess Planet',
+	'http://www.theprincessplanet.com/?p=10',
+	[id => 'comic']
+],
+GeekFetish => [
+	'GeekFetish',
+	'http://akrobotics.com/comics/2007/02/07/bandit-the-wonder-dog',
+	[id => comicPlate]
+],
+EverAfter => [
+	'Ever After',
+	'http://ea.snafu-comics.com/?comic_id=0',
+	[src => qr'comics/\d{6}']
+],
+FunnyFarm => [
+	'Funny Farm',
+	'http://www.accurseddragon.com/site/index.php/archive/20090126b-4/',
+	[class => 'object'], [class => qr/webcomic-object-full/],
+],
+AccursedDragon => [
+	'Accursed Dragon!',
+	'http://www.accurseddragon.com/site/index.php/archive/0001aza/',
+	[class => 'object'], [class => qr/webcomic-object-full/],
+],
+LaptopFerret => [
+	'Laptop and Ferret',
+	'http://www.accurseddragon.com/site/index.php/archive/0001-2/',
+	[class => 'object'], [class => qr/webcomic-object-full/],
+],
+Banished => [
+	'Banished!',
+	'http://www.accurseddragon.com/site/index.php/archive/20100830a-2/',
+	[class => 'object'], [class => qr/webcomic-object-full/],
+],
+BeaverAndSteve => [
+	'Beaver and Steve',
+	'http://www.beaverandsteve.com/index.php?comic=1',
+	[src => qr'comics/']
+],
+MuseAcademy => [
+	'The Muse Academy',
+	'http://www.themuseacademy.com/Archive/01Enrolment/01Enr_FC.html',
+	[src => qr'images/Pages']
+],
+Marilith => [
+	'Marilith',
+	'http://www.marilith.com/archive.php?date=20041215',
+	[src => qr'comics/\d{8}'],
+],
+GoodbyChains => [
+	'Goodby Chains',
+	'http://www.goodbyechains.com/index.php?page=1',
+	[src => qr'files/pages/'],
+],
+OotS => [
+	'The Order of the Stick',
+	'http://www.giantitp.com/comics/oots0001.html',
+	[src => qr'/comics/images/']
+],
+
+

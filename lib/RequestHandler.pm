@@ -195,7 +195,7 @@ sub view {
 		return "view redirect";
 	} 
 	
-	my $html = html_header('view',$pos .' - '. $ent->chapter);
+	my $html = html_header('view',$pos);
 	if ($r->method eq 'POST') {
 		$l->debug("set bookmark of $id to $pos");
 		UserPrefs->section('bookmark')->set($id,$pos);

@@ -49,11 +49,18 @@ sub save_clist {
 	return UserPrefs::save_file($pkg,\%$pkg);
 }
 
-#initialises collection list
+#initialises the core and loads collection list
 sub init {
 	my ($pkg) = @_;
 	$l->trace('initialise ',$pkg);
 	$l->warn('list already initialised, reinitialise') if $pkg->clist();
+	$pkg->_load_list();
+	$pkg->save_clist();
+}
+
+#loads and saves the collection list
+sub _load_list {
+	my ($pkg) = @_;
 	$pkg->clist(UserPrefs::parse_file($pkg));
 	if ($pkg->clist()) {
 		$l->debug('loaded ' . scalar($pkg->clist()) . ' collections');
@@ -62,7 +69,6 @@ sub init {
 	my $list = $pkg->_create_list();
 	$pkg->clist($list);
 	$l->debug('found ' .  scalar($pkg->clist()) . ' collections');
-	$pkg->save_clist();
 }
 
 #$url -> $tree
