@@ -174,6 +174,8 @@ sub index {
 	$html .= cgi->end_div();
 	my $bm = UserPrefs->section('bookmark');
 	$html .= html_group( map {[$_ , (Cores::name($_)) x 2]} grep {$bm->get($_)} $bm->list() );
+	my $kc = UserPrefs->section('keep_current');
+	$html .= html_group( map {[$_ , (Cores::name($_)) x 2]} grep {$kc->get($_)} $kc->list() );
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return 'index';
@@ -277,6 +279,7 @@ sub config {
 			}
 		}
 		$cfg = Cores::config($core,%c);
+		UserPrefs::save(); 
 		$html .= html_notification('update successful');
 	}
 	$html .= html_config($core,$cfg);

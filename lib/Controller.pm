@@ -16,7 +16,8 @@ use RequestHandler;
 use UserPrefs;
 
 my $l = Log->new();
-my $spot; #caching the spot makes linear traversation faster
+my $HS; #hint state, chaches the current read spot for efficency
+my $MS = {}; #maintanance state
 
 #initialises the needed modules
 sub init {
@@ -44,8 +45,68 @@ sub start {
 		if ($hint) { #hint is undef if no connection was accepted
 			handle_hint($hint);
 		}
-		UserPrefs::save(); 
+		else {
+			$l->info('doing maintanance');
+			do_maintanance();
+		}
 	}
+}
+
+#does some maintanance work
+sub do_maintanance {
+	my $spot = $MS->{spot};
+	if ($MS->{all_done}) {
+		$l->trace('all done');
+		return;
+	}
+	my $c = UserPrefs->section('keep_current');
+	unless ($spot and ($c->get($spot->id()))) {
+		my @to_update;
+		if ($MS->{to_update} and @{$MS->{to_update}}) {
+			@to_update = @{$MS->{to_update}};
+		}
+		else {
+			if ($MS->{got_list}) {
+				$MS->{all_done} = 1;
+				return;
+			}
+			@to_update = grep {$c->get($_)} $c->list();
+			$MS->{got_list} = 1;
+		}
+		my $next_update = shift @to_update;
+		return unless $next_update;
+		$MS->{to_update} = \@to_update;
+		Cores::new($next_update)->fetch_info();
+		my $col = Collection->get($next_update);
+		my $last = $col->last();
+		if ($last) {
+			$spot = $col->fetch($last)->create_spot();
+		}
+		else {
+			$spot = Cores::first($next_update);
+		}
+		$spot->mount();
+	}
+	
+	$spot = $spot->next();
+	unless ($spot) {
+		$MS->{spot} = undef;
+		return;
+	}
+	my $col = Collection->get($spot->id);
+	if ($spot->mount()) {
+		my $blob = $spot->fetch();
+		my $ent = $spot->entity();
+		$col->store($ent,$blob) if $ent;
+	}
+	else {
+		$MS->{spot} = undef;
+		return;
+	}
+	$col->clean();
+	$MS->{spot} = $spot;
+	return;
+	
 }
 
 #\@hint
@@ -79,13 +140,14 @@ sub hint_front {
 	$core->fetch_info();
 	my $col = Collection->get($id);
 	return undef if $col->fetch(1);
-	$spot = Cores::first($id);
+	my $spot = Cores::first($id);
 	if ($spot->mount()) {
 		my $blob = $spot->fetch();
 		my $ent = $spot->entity();
 		$col->store($ent,$blob) if $ent;
 	}
 	$col->clean();
+	$HS = $spot;
 	return 1;
 }
 
@@ -97,6 +159,7 @@ sub hint_view {
 	my $col = Collection->get($id);
 	return undef if $col->fetch($pos+1);
 	$l->debug("try to get $id $pos");
+	my $spot = $HS;
 	unless (defined $spot and $spot->id eq $id and $spot->position == $pos) {
 		my $ent = $col->fetch($pos);
 		if ($ent) { 
@@ -116,6 +179,7 @@ sub hint_view {
 		$col->store($ent,$blob) if $ent;
 	}
 	$col->clean();
+	$HS = $spot;
 	return 1;
 }
 
@@ -128,7 +192,7 @@ sub hint_getall {
 	$l->debug("get last collected");
 	my $last = $col->last();
 	return undef unless ($last);
-	$spot = $col->fetch($last)->create_spot();
+	my $spot = $col->fetch($last)->create_spot();
 	return undef unless $spot;
 	$spot->mount();
 	while ($spot = $spot->next()) {
@@ -139,6 +203,7 @@ sub hint_getall {
 		}
 	};
 	$col->clean();
+	$HS = $spot;
 	return 1;
 }
 

@@ -23,7 +23,7 @@ sub init {
 	#setting the daemon timeout makes $d->accept() return immediately if there is no connection waiting
 	#this timeout will also be the default timeout of the connection returned by $d->accept()
 	#but that connection will never timeout if it has a timeout value of 0
-	#$d->timeout(0);
+	$d->timeout($main::IDLE);
 	unless($d){
 		$l->error("could not listen on port $port");
 		return undef;
@@ -49,20 +49,19 @@ sub req_handler {
 #-> $bool
 #returns 1 if an incoming connection was handled 0 if not
 sub handle_connections {
-	#my @hint;
 	$l->trace('accept connections');
 	if (my ($c, $addr) = $d->accept) {
+		$d->timeout($main::IDLE); # new connection -> no longer idle
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
 		$l->debug("connection accepted from ",$addr_str ,":",$port);
 		#the timout value should be big enough to let useragent sent multiple request on the same connection
 		#but it should be also small enough that it times out shortly after all request for a given page
 		#are made to allow the controller to do his work
-		$c->timeout(0.1);
-		#push (@hint, handle_connection($c));
+		$c->timeout(0.1);		
 		return handle_connection($c,$addr_str)
 	}
-	#return \@hint;
+	$d->timeout(0); #we enter idle mode if we timout once, so we can do other stuff while still checking back for connections
 	return undef;
 }
 
