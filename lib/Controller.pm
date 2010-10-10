@@ -50,7 +50,7 @@ sub start {
 		else {
 			$l->info('doing maintanance');
 			if (do_maintanance()) {
-				$timeout = 100000; #reactivating timeout
+				$timeout = $main::IDLE; #reactivating timeout
 			}
 			else {
 				$timeout = 0; #instant timeout to get some work done
@@ -75,7 +75,7 @@ sub do_maintanance {
 		else {
 			if ($MS->{got_list}) {
 				$MS->{all_done} = 1;
-				return;
+				return 1;
 			}
 			@to_update = grep {$c->get($_)} $c->list();
 			$MS->{got_list} = 1;
