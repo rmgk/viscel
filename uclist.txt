@@ -108,5 +108,9 @@ OotS => [
 	'http://www.giantitp.com/comics/oots0001.html',
 	[src => qr'/comics/images/']
 ],
-
+Building => [
+	'Building 12',
+	'http://www.building12.net/issue1/cover.htm',
+	[src => qr'issue\d+/'],
+],
 
