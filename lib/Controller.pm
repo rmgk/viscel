@@ -40,14 +40,21 @@ sub init {
 #starts the program, never returns
 sub start {
 	$l->trace('run main loop');
+	my $timeout = $main::IDLE;
 	while (1) {
-		my $hint = Server::handle_connections();
+		my $hint = Server::handle_connections($timeout);
 		if ($hint) { #hint is undef if no connection was accepted
 			handle_hint($hint);
+			$timeout = $main::IDLE; #reactivating timeout
 		}
 		else {
 			$l->info('doing maintanance');
-			do_maintanance();
+			if (do_maintanance()) {
+				$timeout = $main::IDLE; #reactivating timeout
+			}
+			else {
+				$timeout = 0; #deactivating timout to get more work done
+			}
 		}
 	}
 }
@@ -57,7 +64,7 @@ sub do_maintanance {
 	my $spot = $MS->{spot};
 	if ($MS->{all_done}) {
 		$l->trace('all done');
-		return;
+		return 1;
 	}
 	my $c = UserPrefs->section('keep_current');
 	unless ($spot and ($c->get($spot->id()))) {

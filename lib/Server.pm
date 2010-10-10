@@ -23,7 +23,7 @@ sub init {
 	#setting the daemon timeout makes $d->accept() return immediately if there is no connection waiting
 	#this timeout will also be the default timeout of the connection returned by $d->accept()
 	#but that connection will never timeout if it has a timeout value of 0
-	$d->timeout($main::IDLE);
+	#$d->timeout(0);
 	unless($d){
 		$l->error("could not listen on port $port");
 		return undef;
@@ -49,7 +49,9 @@ sub req_handler {
 #-> $bool
 #returns 1 if an incoming connection was handled 0 if not
 sub handle_connections {
-	$l->trace('accept connections');
+	my ($timeout) = @_;
+	$l->trace('accept connections (timout ', $timeout , ' )');
+	$d->timeout($timeout); #we enter idle mode if we timout once, so we can do other stuff while still checking back for connections
 	if (my ($c, $addr) = $d->accept) {
 		$d->timeout($main::IDLE); # new connection -> no longer idle
 		my ($port, $iaddr) = sockaddr_in($addr);
@@ -61,7 +63,7 @@ sub handle_connections {
 		$c->timeout(0.1);		
 		return handle_connection($c,$addr_str)
 	}
-	$d->timeout(0); #we enter idle mode if we timout once, so we can do other stuff while still checking back for connections
+	
 	return undef;
 }
 
