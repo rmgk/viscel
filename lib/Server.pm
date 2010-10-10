@@ -50,7 +50,7 @@ sub req_handler {
 #returns 1 if an incoming connection was handled 0 if not
 sub handle_connections {
 	my ($timeout) = @_;
-	$l->trace('accept connections (timout ', $timeout , ')');
+	$l->trace('accept connections (timeout ', $timeout , ')');
 	$d->timeout($timeout); #we enter idle mode if we timout once, so we can do other stuff while still checking back for connections
 	if (my ($c, $addr) = $d->accept) {
 		$d->timeout($main::IDLE); # new connection -> no longer idle

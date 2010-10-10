@@ -50,7 +50,7 @@ sub start {
 		else {
 			$l->info('doing maintanance');
 			if (do_maintanance()) {
-				$timeout = $main::IDLE; #reactivating timeout
+				$timeout = $main::IDLE = 1000000; #deactivating timeout
 			}
 			else {
 				$timeout = 0; #instant timeout to get some work done
