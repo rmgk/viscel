@@ -140,25 +140,4 @@ sub as_string {
 	}
 }
 
-#id, %config -> \%config
-#given an id and hash configures the id and returns the string to create a configuration form
-sub config {
-	my $id = shift;
-	while (my ($k,$v) = splice(@_,0,2)) {
-		UserPrefs->section($k)->set($id,$v);
-	}
-	
-	return { bookmark => {	current => get('bookmark',$id),
-						default => undef,
-						expected => 'positive integer',
-						description => 'the position of the bookmarked entity' 
-					} ,
-			 getall => { name => 'get all',
-						 action => 'getall',
-						 description => 'downloads until no next is found'
-						}
-			}
-	
-}
-
 1;

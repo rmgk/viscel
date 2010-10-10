@@ -75,7 +75,7 @@ sub config {
 	my ($pkg,$cfg) = @_;
 	return { dir => {	current => $cfg->{dir},
 						default => undef,
-						expected => 'path',
+						expected => qr//,
 						description => 'the directory containing the "comics.db"' 
 					} 
 			};

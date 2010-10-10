@@ -110,8 +110,8 @@ sub html_info {
 	my $html .= cgi->start_div({-class=>'info'});
 	$html .= cgi->start_table() . cgi->start_tbody();
 	$html .= join '', map {cgi->Tr(cgi->td($_))} @_;
-	$html .= cgi->end_table();
-	$html .= cgi->end_tbody(). cgi->end_div();
+	$html .= cgi->end_tbody(). cgi->end_table();
+	$html .= cgi->end_div();
 	return $html;
 }
 
@@ -120,14 +120,18 @@ sub html_config {
 	my ($core,$cfg) = @_;
 	my $html .= cgi->start_div({-class=>'info'});
 		$html .= cgi->start_form(-method=>'POST',-action=>url_config($core),-enctype=>&CGI::URL_ENCODED);
-		$html .= join cgi->br(), map {
-				$_. ': ' .
-				cgi->textfield(-name=>$_,-value=>$cfg->{$_}->{current},-size=>20) .
-				cgi->strong('Description: '). $cfg->{$_}->{description} .
-				(defined $cfg->{$_}->{default} ? cgi->strong(' Default: '). $cfg->{$_}->{default} : '' ). 
-				(defined $cfg->{$_}->{expected} ? cgi->strong(' Expected: '). $cfg->{$_}->{expected} : '')
+		$html .= cgi->start_table();
+		$html .= cgi->thead(cgi->Tr(cgi->td([undef,undef,cgi->strong('Description'),cgi->strong(' Default'),cgi->strong(' Expected')])));
+		$html .= cgi->start_tbody();
+		$html .= join cgi->br(), map { 
+				cgi->Tr(cgi->td([ $_. ': ',
+				cgi->textfield(-name=>$_,-value=>($cfg->{$_}->{current} // $cfg->{$_}->{default}),-size=>20), #/ padre display bug
+				 $cfg->{$_}->{description} ,
+				(defined $cfg->{$_}->{default} ? $cfg->{$_}->{default} : '' ) , 
+				(defined $cfg->{$_}->{expected} ? $cfg->{$_}->{expected} : '') ]))
 			} grep {!$cfg->{$_}->{action}} keys %$cfg;
-		$html .= cgi->br() . cgi->submit(-class=>'submit',-value=>'update');
+		$html .= cgi->end_tbody(). cgi->end_table();
+		$html .= cgi->submit(-class=>'submit',-value=>'update');
 		$html .= cgi->end_form();
 	$html .= cgi->end_div();
 	$html .= cgi->start_div({-class=>'info'});
@@ -169,7 +173,7 @@ sub index {
 	$html .= form_search();
 	$html .= cgi->end_div();
 	my $bm = UserPrefs->section('bookmark');
-	$html .= html_group( map {[$_ , (Cores::name($_)) x 2]} $bm->list() );
+	$html .= html_group( map {[$_ , (Cores::name($_)) x 2]} grep {$bm->get($_)} $bm->list() );
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return 'index';
@@ -261,18 +265,18 @@ sub front {
 sub config {
 	my ($c,$r,$core) = @_;
 	$l->trace('handle config request');
-	my $is_core = Cores::list($core);
-	my $cfg = $is_core ? Cores::config($core) : UserPrefs::config($core);
+	my $cfg = Cores::config($core);
 	my $html = html_header('config',"$core - config");
 	if ($r->method eq 'POST') {
 		$l->debug("change config " . $r->content());
 		my $cgi = cgi($r->content());
-		if ($is_core) {
-			$cfg = Cores::config($core,map {$_,$cgi->param($_)} keys %$cfg);
+		my %c;
+		for (keys %$cfg) {
+			if (ref $cfg->{$_}->{expected} and $cgi->param($_) ~~ $cfg->{$_}->{expected} ) {
+				$c{$_} = $cgi->param($_)
+			}
 		}
-		else {
-			$cfg = UserPrefs::config($core,map {$_,$cgi->param($_)} keys %$cfg);
-		}
+		$cfg = Cores::config($core,%c);
 		$html .= html_notification('update successful');
 	}
 	$html .= html_config($core,$cfg);

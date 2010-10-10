@@ -112,10 +112,10 @@ sub search {
 #given a package returns the configuration hash
 sub config {
 	my $pkg = shift;
-	unless (list($pkg)) {
-		$l->warn("cant config unknown core ", $pkg)
-	}
 	$l->trace("configure $pkg");
+	unless (list($pkg)) {
+		return _config_collection($pkg,@_);
+	}
 	my $cfg = UserPrefs::parse_file('Cores');
 	$cfg->{$pkg} ||= {};
 	while (my ($k,$v) = splice(@_,0,2)) {
@@ -123,6 +123,33 @@ sub config {
 	}
 	UserPrefs::save_file('Cores',$cfg);
 	return $pkg->config($cfg->{$pkg});
+}
+
+#id, %config -> \%config
+#given an id and hash configures the id and returns the string to create a configuration form
+sub _config_collection {
+	my $id = shift;
+	while (my ($k,$v) = splice(@_,0,2)) {
+		UserPrefs->section($k)->set($id,$v);
+	}
+	
+	return { bookmark => {	current => UserPrefs::get('bookmark',$id),
+						default => 0,
+						expected => qr/^\d+$/,
+						description => 'the position of the bookmarked entity' 
+					} ,
+			 keep_current => { current => UserPrefs::get('keep_current',$id),
+						default => 0,
+						expected => qr/^0|1$/,
+						description => 'if true updates the collection when idle'
+						
+					},
+			 getall => { name => 'get all',
+						 action => 'getall',
+						 description => 'downloads until no next is found'
+						}
+			}
+	
 }
 
 1;

@@ -55,7 +55,6 @@ sub init {
 	$l->trace('initialise ',$pkg);
 	$l->warn('list already initialised, reinitialise') if $pkg->clist();
 	$pkg->_load_list();
-	$pkg->save_clist();
 }
 
 #loads and saves the collection list
@@ -69,6 +68,7 @@ sub _load_list {
 	my $list = $pkg->_create_list();
 	$pkg->clist($list);
 	$l->debug('found ' .  scalar($pkg->clist()) . ' collections');
+	$pkg->save_clist();
 }
 
 #$url -> $tree
