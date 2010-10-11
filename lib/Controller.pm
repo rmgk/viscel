@@ -18,7 +18,8 @@ use Maintenance;
 
 my $l = Log->new();
 my $HS; #hint state, chaches the current read spot for efficency
-my $MS = {}; #maintanance state
+my $maintainer;
+my $default_timeout;
 
 #initialises the needed modules
 sub init {
@@ -41,13 +42,13 @@ sub init {
 #starts the program, never returns
 sub start {
 	$l->trace('run main loop');
-	my $timeout = $main::IDLE;
-	my $maintainer = Maintenance->new();
+	my $timeout = $default_timeout = $main::IDLE;
+	$maintainer = Maintenance->new();
 	while (1) {
 		my $hint = Server::handle_connections($timeout);
 		if ($hint) { #hint is undef if no connection was accepted
 			handle_hint($hint);
-			$timeout = $main::IDLE; #reactivating timeout
+			$timeout = $default_timeout; #resetting timeout
 			$maintainer->reset();
 		}
 		else {
@@ -55,7 +56,7 @@ sub start {
 				$timeout = 0; #instant timeout to get some work done
 			}
 			else {
-				$timeout = $main::IDLE = 1000000; #deactivating timeout
+				$default_timeout = $timeout = 1000000; #deactivating timeout
 			}
 		}
 	}
@@ -77,6 +78,7 @@ sub handle_hint {
 				when ('front') {hint_front(@$hint)}
 				when ('view') {hint_view(@$hint)}
 				when ('getall') {hint_getall(@$hint)}
+				when ('config') {$maintainer = Maintenance->new(); $default_timeout = $main::IDLE} #config changed, maintain anew
 				default {$l->warn("unknown hint $_")}
 			}
 		}

@@ -272,6 +272,7 @@ sub config {
 	$l->trace('handle config request');
 	my $cfg = Cores::config($core);
 	my $html = html_header('config',"$core - config");
+	my $ret = "config";
 	if ($r->method eq 'POST') {
 		$l->debug("change config " . $r->content());
 		my $cgi = cgi($r->content());
@@ -284,6 +285,7 @@ sub config {
 		$cfg = Cores::config($core,%c);
 		UserPrefs::save(); 
 		$html .= html_notification('update successful');
+		$ret = ["config",$core];
 	}
 	$html .= html_config($core,$cfg);
 	$html .= cgi->start_div({-class=>'navigation'});
@@ -292,8 +294,7 @@ sub config {
 	$html .= cgi->end_div();
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
-	return "config $core";
-	#return ['config',$id];
+	return $ret;
 }
 
 #$connection, $request, @args
