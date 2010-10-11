@@ -5,30 +5,22 @@ package DlUtil;
 use 5.012;
 use warnings;
 
-our $VERSION = v14;
+our $VERSION = v15;
 
 use Log;
+use LWP;
+use LWP::UserAgent;
+use LWP::ConnCache;
+
+our $ua;
 
 my $l = Log->new();
-
-our($ua,@EXPORT,@EXPORT_OK);
-
-require Exporter;
-
-@EXPORT = qw();
-@EXPORT_OK = qw($ua);
-
 
 #initialises the user agent
 sub _init_ua {
 	$l->trace('initialise user agent');
-	require LWP;
-	require LWP::UserAgent;
-	require LWP::ConnCache;
-	#require HTTP::Status;
-	#require HTTP::Date;
 	$ua = new LWP::UserAgent;  # we create a global UserAgent object
-	$ua->agent("vdlu/$VERSION");
+	$ua->agent("vdlu/".version->parse($VERSION)->normal());
 	$ua->timeout(15);
 	$ua->env_proxy;
 	$ua->conn_cache(LWP::ConnCache->new());
@@ -43,14 +35,26 @@ sub get {
 	_init_ua() unless $ua;
 	$l->debug("get $url" .( $referer ? " (referer $referer)" : ''));
 	my $request = HTTP::Request->new(GET => $url);
+	#$request->header(
+		#Host: unixmanga.com
+		#'Accept' => 'text/html;q=0.9, image/png, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1',
+		#'Accept-Language' => 'en;q=0.9',
+		#'Accept-Charset' => 'iso-8859-1, utf-8, *;q=0.1'
+		#Accept-Encoding: deflate, gzip, x-gzip, identity, *;q=0
+		#Cache-Control => 'no-cache',
+		#Connection: Keep-Alive, TE
+		#TE: deflate, gzip, chunked, identity, trailers
+	#	);
 	$request->referer($referer);
 	$request->accept_decodable();
 	my $res = $ua->request($request);
+	#$l->debug($res->request->as_string());
 	#if ($res->header("Content-Encoding") and ($res->header("Content-Encoding") =~ m/none/i)) { #none eq identity - but HTTP::Message doesnt know!
 	#	$res->header("Content-Encoding" => 'identity'); 
 	#}
 	$l->trace('response code: '. $res->code);
 	return $res;
+
 }
 
 #$url,$referer -> $response
