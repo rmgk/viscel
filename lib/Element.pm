@@ -92,6 +92,9 @@ sub differs {
 #returns html representation of the element
 sub html {
 	my $s = shift;
+	if (!$s->sha1) {
+		return 'placeholder';
+	}
 	given ($s->type) {
 		when ('application/x-shockwave-flash') {
 			my $html .= embed({	src	=>	"/b/". $s->sha1,#.'/'.$s->filename,

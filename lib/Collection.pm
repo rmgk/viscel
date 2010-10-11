@@ -35,16 +35,6 @@ sub list {
 	return @{$DBH->selectcol_arrayref("SELECT name FROM sqlite_master WHERE type='table'")};
 }
 
-#$id 
-#removes $id from the database
-sub purge {
-	my ($s,$id) = @_;
-	$id = $s->{id} if ref $s and ! defined $id;
-	$l->warn('drop table ', $id);
-	$DBH->do("DROP TABLE $id");
-	$DBH->commit();
-}
-
 #$class,$id->$self
 sub get {
 	my ($class,$id) = @_;
@@ -74,6 +64,22 @@ sub new {
 	}
 	bless $self, $class;
 	return $self;
+}
+
+#removes the collection
+sub purge {
+	my ($s) = @_;
+	$l->warn('drop table ', $s->{id});
+	$DBH->do("DROP TABLE ".$s->{id});
+	$DBH->commit();
+}
+
+#$position
+sub delete {
+	my ($s,$pos) = @_;
+	$l->warn("delete $pos form " , $s->{id});
+	$DBH->do("DELETE FROM ". $s->{id} ." WHERE position = ?",undef,$pos);
+	$DBH->commit();
 }
 
 #\%element -> $bool

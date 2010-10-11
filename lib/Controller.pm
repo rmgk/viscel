@@ -104,7 +104,7 @@ sub check_collections {
 	my $r_first_ent = $r_first->element();
 	if (my $attr = $first_ent->differs($r_first_ent)) {
 		$l->error('attribute ', $attr, ' of first is inconsistent ', $next_check);
-		Collection->purge($next_check);
+		$col->purge();
 		return;
 	}
 	return;
@@ -193,11 +193,7 @@ sub hint_front {
 	my $col = Collection->get($id);
 	return undef if $col->fetch(1);
 	my $spot = Cores::first($id);
-	if ($spot->mount()) {
-		my $blob = $spot->fetch();
-		my $ent = $spot->element();
-		$col->store($ent,$blob) if $ent;
-	}
+	_store($col,$spot);
 	$col->clean();
 	$HS = $spot;
 	return 1;
@@ -209,7 +205,25 @@ sub hint_view {
 	my ($id,$pos) = @_;
 	$l->trace("handle view hint $id $pos");
 	my $col = Collection->get($id);
-	return undef if $col->fetch($pos+1);
+	if (my $elem = $col->fetch($pos)) {
+		unless ($elem->sha1) {
+			my $spot = $elem->create_spot();
+			$col->delete($elem->position()); # remove the old element to store the new
+			unless (_store($col,$spot)) {
+				$col->store($elem); #get the old element badck if the new cant be stored
+			}
+		}
+		if ($elem = $col->fetch($pos+1)) {
+			unless ($elem->sha1) {
+				my $spot = $elem->create_spot();
+				$col->delete($elem->position()); # remove the old element to store the new
+				unless (_store($col,$spot)) {
+					$col->store($elem); #get the old element badck if the new cant be stored
+				}
+			}
+			return undef;
+		}
+	}
 	$l->debug("try to get $id $pos");
 	my $spot = $HS;
 	unless (defined $spot and $spot->id eq $id and $spot->position == $pos) {
@@ -225,11 +239,7 @@ sub hint_view {
 	}
 	$spot = $spot->next();
 	return undef unless $spot;
-	if ($spot->mount()) {
-		my $blob = $spot->fetch();
-		my $ent = $spot->element();
-		$col->store($ent,$blob) if $ent;
-	}
+	_store($col,$spot);
 	$col->clean();
 	$HS = $spot;
 	return 1;
@@ -248,17 +258,26 @@ sub hint_getall {
 	return undef unless $spot;
 	$spot->mount();
 	while ($spot = $spot->next()) {
-		if ($spot->mount()) {
-			my $blob = $spot->fetch();
-			my $ent = $spot->element();
-			$col->store($ent,$blob) if $ent;
-		}
+		_store($col,$spot);
 	};
 	$col->clean();
 	$HS = $spot;
 	return 1;
 }
 
+#$col,$spot
+#stores the element of the spot into the collection
+sub _store {
+	my ($col,$spot) = @_;
+	return undef unless $spot and $spot->mount();
+	my $blob = $spot->fetch();
+	my $elem = $spot->element();
+	if ($elem) {
+		$col->store($elem,$blob) if $elem;
+		return 1;
+	}
+	return undef;
+}
 
 
 1;
