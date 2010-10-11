@@ -52,14 +52,15 @@ sub fetch_info {
 	my $tree = $s->_get_tree($url) or return undef;;
 	my $td = $tree->look_down('_tag' => 'div', class=>'postcontent')->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td
 	my @p = $td->look_down(_tag=>'p');
-	$s->clist()->{Author} = HTML::Entities::encode(($p[1]->content_list())[1]);
-	$s->clist()->{Author} =~  s/^\s*:\s*//;
+	my $author = HTML::Entities::encode(($p[1]->content_list())[1]);
+	$author =~  s/^\s*:\s*//;
 	$s->clist()->{Artist} = HTML::Entities::encode(($p[2]->content_list())[1]);
 	$s->clist()->{Artist} =~  s/^\s*:\s*+//;
+	$s->clist()->{Artist} .= ' ' . $author;
 	$s->clist()->{Scanlator} = HTML::Entities::encode(($p[3]->content_list())[1]);
 	$s->clist()->{Scanlator} =~  s/^\s*:\s*+//;
 	$s->clist()->{Tags} = join ", ", map {$_->as_trimmed_text()} $p[4]->look_down(class => 'series-info');
-	$s->clist()->{Details} = HTML::Entities::encode(($p[6]->content_list())[2]);
+	$s->clist()->{Detail} = HTML::Entities::encode(($p[6]->content_list())[2]);
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();
 }

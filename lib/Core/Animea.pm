@@ -59,10 +59,10 @@ sub fetch_info {
 	my $url = $s->clist()->{url_start};
 	$url =~ s/-chapter-.*-page-1//;
 	$url .= '?skip=1';
-	my $tree = $s->_get_tree($url) or return undef;;
+	my $tree = $s->_get_tree($url) or return undef;
 	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $tree->look_down(_tag=>'a', href=>qr'/genre/'i);
 	my $p = $tree->look_down('_tag' => 'p', style => 'width:570px; padding:5px;');
-	$s->clist()->{Review} = HTML::Entities::encode($p->as_trimmed_text()) if ($p);
+	$s->clist()->{Detail} = HTML::Entities::encode($p->as_trimmed_text()) if ($p);
 	my $ul = $tree->look_down('_tag' => 'ul', class => 'relatedmanga');
 	$s->clist()->{Seealso} = join ', ' , map { $_->attr('href') =~ m'animea.net/([^/]*)\.html$'; my $r = $1; $r =~ s/\W/_/g; $r} $ul->look_down(_tag=>'a');
 	my @table = $tree->look_down(_tag=>'table',id=>'chapterslist')->content_list();
@@ -73,7 +73,7 @@ sub fetch_info {
 	}
 	else {
 		$l->warn("animea no longer makes this collection available");
-		$s->clist()->{Status} = 'Down';
+		$s->clist()->{Status} = 'down';
 	}
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();

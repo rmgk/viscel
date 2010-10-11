@@ -85,7 +85,6 @@ sub _mount_parse {
 		$s->{next} =~ s'^.*http://'http://'g; #hack to fix some broken urls
 		$s->{next} =~ s'\.comicgen\.com'.comicgenesis.com'gi; #hack to fix more broken urls
 	}
-	($s->{filename}) = ($s->{src} =~ m'/([^/]+)$'i) ;
 	return 1;
 }
 

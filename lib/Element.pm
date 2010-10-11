@@ -16,7 +16,7 @@ my %attributes = ( 	position => 'INTEGER PRIMARY KEY',
 					#chapter => 'CHAR',
 					sha1 => 'CHAR',
 					type => 'CHAR',
-					filename => 'CHAR',
+					#filename => 'CHAR',
 					page_url => 'CHAR',
 					src => 'CHAR',
 					title => 'CHAR',
@@ -97,7 +97,7 @@ sub html {
 	}
 	given ($s->type) {
 		when ('application/x-shockwave-flash') {
-			my $html .= embed({	src	=>	"/b/". $s->sha1,#.'/'.$s->filename,
+			my $html .= embed({	src	=>	"/b/". $s->sha1,
 								alt => $s->alt,
 								title => $s->title,
 								width => $s->width,
@@ -106,7 +106,7 @@ sub html {
 			return $html;
 		}
 		default {
-			my $html .= img({	src	=>	"/b/". $s->sha1,#.'/'.$s->filename,
+			my $html .= img({	src	=>	"/b/". $s->sha1,
 								alt => $s->alt,
 								title => $s->title,
 								width => $s->width,
@@ -124,7 +124,7 @@ sub state { $_[0]->{state}; }
 #sub chapter { $_[0]->{chapter}; }
 sub sha1 { $_[0]->{sha1}; }
 sub type { $_[0]->{type}; }
-sub filename { $_[0]->{filename}; }
+#sub filename { $_[0]->{filename}; }
 sub page_url { $_[0]->{page_url}; }
 sub cid { $_[0]->{cid}; }
 sub title { $_[0]->{title}; }

@@ -223,18 +223,15 @@ sub element {
 	return undef if $s->{fail};
 	$l->trace('compose element');
 	my $object = {};
-	$object->{filename} = $s->{_data}->{file};
-	my ($ext) = $object->{filename} ~~ m/.*\.(\w{3,4})$/;
+	my ($ext) = $s->{_data}->{file} ~~ m/.*\.(\w{3,4})$/;
 	$ext = $ext eq 'jpg' ? 'jpeg' : $ext;
 	$object->{type} = "image/$ext"; #its a goood enough guess as the archives contain very little non image files
-	#$object->{sha1} = $s->{_data}->{sha1}; 
 	$object->{sha1} = $s->{sha1}; 
 	$object->{src} = $s->{_data}->{surl};
 	$object->{page_url} = $s->{_data}->{purl};
 	$object->{cid} = $s->{id};
 	$object->{position} = $s->{position};
 	$object->{state} = $s->{position};
-	$object->{chapter} = '';
 	my %titles = get_title($s->{_data}->{title});
 	$object->{title} = $titles{it} ? HTML::Entities::decode($titles{it}) : undef;
 	$object->{alt} = $titles{ia} ? HTML::Entities::decode($titles{ia}) : undef;

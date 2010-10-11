@@ -50,7 +50,7 @@ sub _create_list {
 
 #returns a list of keys to search for
 sub _searchkeys {
-	qw(name Alias Tags Artist Info Scans Status);
+	qw(name Alias Tags Artist Chapter Scanlator Status);
 }
 
 #fetches more information about the comic
@@ -62,7 +62,7 @@ sub fetch_info {
 	$url =~ s'\d+/\d+/$'';
 	my $tree = $s->_get_tree($url) or return undef;
 	$s->clist()->{Tags} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1];
-	$s->clist()->{Info} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1];
+	$s->clist()->{Chapter} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1];
 	$s->clist()->{Scanlator} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Manga scans by:' })->parent()->content_list())[1];
 	#$s->clist()->{update} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Last Manga Update:' })->parent()->content_list())[1];
 	$s->clist()->{Status} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Status:' })->parent()->content_list())[1];
@@ -95,8 +95,6 @@ sub _mount_parse {
 	$s->{src} = 'http://www.anymanga.com' . $s->{src};
 	$s->{title} =~ s/\)\s*\[.*$/)/s;
 	$s->{alt} =~ s/\)\s*\[.*$/)/s;
-	($s->{filename}) = ($s->{src} =~ m'/manga/[^/]+/(.*+)'i) ;
-	$s->{filename} =~ s'/''g;
 	return 1;
 }
 
