@@ -79,10 +79,10 @@ sub _mount_parse {
 	if ($js =~ m#javascript:window.location='(.*)';$#) {
 		$s->{next} = $1;
 	}
-	my $title = $tree->look_down(_tag=>'title')->as_trimmed_text();
-	if ($title =~ m/Chapter (\d+) page \d+ : Cartooniverse.co.uk/) { 
-		$s->{chapter} = $1;
-	}
+	#my $title = $tree->look_down(_tag=>'title')->as_trimmed_text();
+	#if ($title =~ m/Chapter (\d+) page \d+ : Cartooniverse.co.uk/) { 
+	#	$s->{chapter} = $1;
+	#}
 	($s->{filename}) = ($s->{src} =~ m'/([^/]+)$');
 	return 1;
 }

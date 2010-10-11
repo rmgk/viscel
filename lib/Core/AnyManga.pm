@@ -89,9 +89,9 @@ sub _mount_parse {
 	if ($a_next) {
 		$s->{next} = 'http://www.anymanga.com' . $a_next->attr('href');
 	}
-	my $chap = $tree->look_down(_tag => 'title')->as_text();
-	$chap =~ m/Manga Online, Vol. (\d+.* \(.*), .*\)/;
-	$s->{chapter} = $1 .')';
+	#my $chap = $tree->look_down(_tag => 'title')->as_text();
+	#$chap =~ m/Manga Online, Vol. (\d+.* \(.*), .*\)/;
+	#$s->{chapter} = $1 .')';
 	$s->{src} = 'http://www.anymanga.com' . $s->{src};
 	$s->{title} =~ s/\)\s*\[.*$/)/s;
 	$s->{alt} =~ s/\)\s*\[.*$/)/s;

@@ -98,8 +98,8 @@ sub _mount_parse {
 	if ($a_next) {
 		$s->{next} = $a_next->attr('href');
 	}
-	$s->{next} =~ /-chapter-(\d+)-page-/;
-	$s->{chapter} = $1;
+	#$s->{next} =~ /-chapter-(\d+)-page-/;
+	#$s->{chapter} = $1;
 	($s->{filename}) = ($s->{src} =~ m'/([^/]+)$');
 	return 1;
 }

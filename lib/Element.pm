@@ -13,7 +13,7 @@ use Log;
 my $l = Log->new();
 my %attributes = ( 	position => 'INTEGER PRIMARY KEY', 
 					state => 'CHAR UNIQUE',
-					chapter => 'CHAR',
+					#chapter => 'CHAR',
 					sha1 => 'CHAR',
 					type => 'CHAR',
 					filename => 'CHAR',
@@ -121,7 +121,7 @@ sub html {
 #accessors:
 sub position { $_[0]->{position}; }
 sub state { $_[0]->{state}; }
-sub chapter { $_[0]->{chapter}; }
+#sub chapter { $_[0]->{chapter}; }
 sub sha1 { $_[0]->{sha1}; }
 sub type { $_[0]->{type}; }
 sub filename { $_[0]->{filename}; }
