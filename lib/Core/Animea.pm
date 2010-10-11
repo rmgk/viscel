@@ -89,6 +89,10 @@ use parent -norequire, 'Core::Template::Spot';
 sub _mount_parse {
 	my ($s,$tree) = @_;
 	my $img = $tree->look_down(_tag => 'img', class=>'chapter_img');
+	unless ($img) {
+		$l->error('could not parse page');
+		return undef;
+	}
 	map {$s->{$_} = $img->attr($_)} qw( src width height);
 	my $a_next = $img->look_up(_tag => 'a');
 	if ($a_next) {

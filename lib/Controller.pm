@@ -61,11 +61,58 @@ sub start {
 
 #does some maintanance work
 sub do_maintanance {
-	my $spot = $MS->{spot};
 	if ($MS->{all_done}) {
 		$l->trace('all done');
 		return 1;
 	}
+	if (!$MS->{keep_current_done}) {
+		$l->trace('keep current');
+		$MS->{keep_current_done} = 1 if  keep_current();
+		return;
+	}
+	if (!$MS->{check_collections_done}) {
+		$l->trace('check collections');
+		if (check_collections()) {
+			$MS->{all_done} = 1;
+			return 1;
+		}
+		return;
+	}
+}
+
+sub check_collections {
+	my @to_update;
+	if ($MS->{to_check} and @{$MS->{to_check}}) {
+		@to_update = @{$MS->{to_check}};
+	}
+	else {
+		return 1 if $MS->{got_check_list};
+		@to_update = Collection->list();
+		$l->trace(@to_update);
+		$MS->{got_check_list} = 1;
+	}
+	my $next_check = shift @to_update;
+	return unless $next_check;
+	$MS->{to_check} = \@to_update;
+	$l->trace('check first of ' , $next_check);
+	my $col = Collection->get($next_check);
+	my $first_ent = $col->fetch(1);
+	return unless $first_ent;
+	my $r_first = Cores::first($next_check);
+	return unless $r_first;
+	return unless $r_first->mount();
+	my $r_first_ent = $r_first->entity();
+	if (my $attr = $first_ent->differs($r_first_ent)) {
+		$l->error('attribute ', $attr, ' of first is inconsistent ', $next_check);
+		Collection->purge($next_check);
+		return;
+	}
+	return;
+}
+
+#fetching new content
+sub keep_current {
+	my $spot = $MS->{spot};
 	my $c = UserPrefs->section('keep_current');
 	unless ($spot and ($c->get($spot->id()))) {
 		my @to_update;
@@ -74,7 +121,6 @@ sub do_maintanance {
 		}
 		else {
 			if ($MS->{got_list}) {
-				$MS->{all_done} = 1;
 				return 1;
 			}
 			@to_update = grep {$c->get($_)} $c->list();
@@ -113,7 +159,6 @@ sub do_maintanance {
 	$col->clean();
 	$MS->{spot} = $spot;
 	return;
-	
 }
 
 #\@hint

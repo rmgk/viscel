@@ -29,6 +29,22 @@ sub init {
 	return undef;
 }
 
+#-> @collections
+#returns a list of all stored collections
+sub list {
+	return @{$DBH->selectcol_arrayref("SELECT name FROM sqlite_master WHERE type='table'")};
+}
+
+#$id 
+#removes $id from the database
+sub purge {
+	my ($s,$id) = @_;
+	$id = $s->{id} if ref $s and ! defined $id;
+	$l->warn('drop table ', $id);
+	$DBH->do("DROP TABLE $id");
+	$DBH->commit();
+}
+
 #$class,$id->$self
 sub get {
 	my ($class,$id) = @_;
@@ -71,7 +87,7 @@ sub store {
 	}
 	my @values = $ent->attribute_values_array();
 	unless($DBH->do('INSERT OR FAIL INTO '. $s->{id} . ' ('.Entity::attribute_list_string().') VALUES ('.(join ',',map {'?'} @values).')',undef,@values)) {
-		$l->error('could not insert into table: ' . $s->{dbh}->errstr);
+		$l->error('could not insert into table: ' . $DBH->errstr);
 		return undef;
 	}
 	if (defined $blob) {

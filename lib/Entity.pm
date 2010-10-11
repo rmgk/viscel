@@ -29,7 +29,7 @@ my %attributes = ( 	position => 'INTEGER PRIMARY KEY',
 sub new {
 	my ($class,$self) = @_;
 	$l->trace('create new entity');
-	foreach my $needed (qw(position state sha1 type cid)) {
+	foreach my $needed (qw(position state cid)) {
 		unless (defined $self->{$needed}) {
 			$l->debug($needed . ' not defined');
 			return undef;
@@ -76,6 +76,16 @@ sub attribute_list_array {
 sub attribute_values_array {
 	my $s = shift;
 	return @$s{sort keys %attributes};
+}
+
+#$entity -> bool
+sub differs {
+	my ($s,$other) = @_;
+	for my $a (attribute_list_array()) {
+		next if $a eq 'sha1' or $a eq 'type'; #type and sha1 are not required so may also be not equal 
+		return $a unless $s->{$a} ~~ $other->{$a};
+	}
+	return undef;
 }
 
 #-> $html

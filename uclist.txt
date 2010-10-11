@@ -116,5 +116,5 @@ Building => [
 Strays => [
 	'Strays',
 	'http://www.straysonline.com/comic/01.htm',
-	[src => qr/\d\d+/],
+	[src => qr/^\d\d+/],
 ]

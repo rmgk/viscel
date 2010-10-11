@@ -56,7 +56,9 @@ sub initialised {
 sub about {
 	my ($id) = @_;
 	$l->trace("about $id");
-	return new($id)->about();
+	my $c = new($id);
+	return undef unless $c;
+	$c->about();
 }
 
 #$id -> $name;
@@ -64,7 +66,9 @@ sub about {
 sub name {
 	my ($id) = @_;
 	$l->trace("request name of $id");
-	return new($id)->name();
+	my $c = new($id);
+	return undef unless $c;
+	return $c->name();
 }
 
 #$id -> \%self
@@ -72,7 +76,9 @@ sub name {
 sub first {
 	my ($id) = @_;
 	$l->trace("request first of $id");
-	return new($id)->first();
+	my $c = new($id);
+	return undef unless $c;
+	return $c->first();
 }
 
 #$id -> $core
