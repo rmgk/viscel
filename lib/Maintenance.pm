@@ -14,7 +14,7 @@ my $l = Log->new();
 #constructor
 sub new {
 	my ($class,$self) = @_;
-	$self = {state => 'keep_current'};
+	$self = {state => 'update_cores'};
 	bless $self, $class;
 	$self->{cfg} = UserPrefs::parse_file(__PACKAGE__);
 	return $self;
@@ -24,9 +24,9 @@ sub new {
 sub tick {
 	my ($s) = @_;
 	given ($s->{state}) {
-		when ('keep_current') { $s->keep_current() or $s->{state} = 'check_collections' }
-		when ('check_collections') { $s->check_collections() or $s->{state} = 'update_cores' }
-		when ('update_cores') { $s->update_cores_lists() or $s->{state} = 'done' }
+		when ('update_cores') { $s->update_cores_lists() or $s->{state} = 'check_collections' }
+		when ('check_collections') { $s->check_collections() or $s->{state} = 'keep_current' }
+		when ('keep_current') { $s->keep_current() or $s->{state} = 'done' }
 		when ('done') { return undef }
 		default { return undef }
 	}
@@ -75,6 +75,19 @@ sub check_collections {
 	return 1 unless $next_check;
 	$l->trace('check first of ' , $next_check);
 	my $col = Collection->get($next_check);
+
+	if ((my $last_pos = $col->last()) > 1) {
+		my $last_elem = $col->fetch($last_pos);
+		my $r_last = $last_elem->create_spot();
+		return 1 unless $r_last->mount();
+		my $r_last_elem = $r_last->element();
+		if (my $attr = $last_elem->differs($r_last_elem)) {
+			$l->error('attribute ', $attr, ' of last is inconsistent ', $next_check);
+			$col->delete($last_pos);
+			return;
+		}
+	}
+	#checking first
 	my $first_ent = $col->fetch(1);
 	return 1 unless $first_ent;
 	my $r_first = Cores::first($next_check);
