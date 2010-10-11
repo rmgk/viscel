@@ -326,6 +326,11 @@ sub action {
 				$ret = ['getall',$args[1]];
 				$html .= "this may take some time";
 			}
+			when ('updatelist') {
+				my $core = $args[1];
+				$ret = sub {$core->update_list()};
+				$html .= "this may take some time";
+			}
 			default {
 				$l->warn('unknown action' . $_ ); 
 				$html .= 'unknown action'; 

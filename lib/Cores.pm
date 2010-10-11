@@ -131,7 +131,11 @@ sub config {
 		$cfg->{$pkg}->{$k} = $v;
 	}
 	UserPrefs::save_file('Cores',$cfg);
-	return $pkg->config($cfg->{$pkg});
+	my $ret = $pkg->config($cfg->{$pkg});
+	$ret->{updatelist} ||= { name => 'update list',
+							action =>'updatelist',
+							description => 'updates the list of known collections'};
+	return $ret;
 }
 
 #id, %config -> \%config
