@@ -14,6 +14,7 @@ use Cache;
 use Collection;
 use RequestHandler;
 use UserPrefs;
+use Maintenance;
 
 my $l = Log->new();
 my $HS; #hint state, chaches the current read spot for efficency
@@ -41,124 +42,23 @@ sub init {
 sub start {
 	$l->trace('run main loop');
 	my $timeout = $main::IDLE;
+	my $maintainer = Maintenance->new();
 	while (1) {
 		my $hint = Server::handle_connections($timeout);
 		if ($hint) { #hint is undef if no connection was accepted
 			handle_hint($hint);
 			$timeout = $main::IDLE; #reactivating timeout
+			$maintainer->reset();
 		}
 		else {
-			$l->info('doing maintanance');
-			if (do_maintanance()) {
-				$timeout = $main::IDLE = 1000000; #deactivating timeout
-			}
-			else {
+			if ($maintainer->tick()) {
 				$timeout = 0; #instant timeout to get some work done
 			}
-		}
-	}
-}
-
-#does some maintanance work
-sub do_maintanance {
-	if ($MS->{all_done}) {
-		$l->trace('all done');
-		return 1;
-	}
-	if (!$MS->{keep_current_done}) {
-		$l->trace('keep current');
-		$MS->{keep_current_done} = 1 if  keep_current();
-		return;
-	}
-	if (!$MS->{check_collections_done}) {
-		$l->trace('check collections');
-		if (check_collections()) {
-			$MS->{all_done} = 1;
-			return 1;
-		}
-		return;
-	}
-}
-
-sub check_collections {
-	my @to_update;
-	if ($MS->{to_check} and @{$MS->{to_check}}) {
-		@to_update = @{$MS->{to_check}};
-	}
-	else {
-		return 1 if $MS->{got_check_list};
-		@to_update = Collection->list();
-		$l->trace(@to_update);
-		$MS->{got_check_list} = 1;
-	}
-	my $next_check = shift @to_update;
-	return unless $next_check;
-	$MS->{to_check} = \@to_update;
-	$l->trace('check first of ' , $next_check);
-	my $col = Collection->get($next_check);
-	my $first_ent = $col->fetch(1);
-	return unless $first_ent;
-	my $r_first = Cores::first($next_check);
-	return unless $r_first;
-	return unless $r_first->mount();
-	my $r_first_ent = $r_first->element();
-	if (my $attr = $first_ent->differs($r_first_ent)) {
-		$l->error('attribute ', $attr, ' of first is inconsistent ', $next_check);
-		$col->purge();
-		return;
-	}
-	return;
-}
-
-#fetching new content
-sub keep_current {
-	my $spot = $MS->{spot};
-	my $c = UserPrefs->section('keep_current');
-	unless ($spot and ($c->get($spot->id()))) {
-		my @to_update;
-		if ($MS->{to_update} and @{$MS->{to_update}}) {
-			@to_update = @{$MS->{to_update}};
-		}
-		else {
-			if ($MS->{got_list}) {
-				return 1;
+			else {
+				$timeout = $main::IDLE = 1000000; #deactivating timeout
 			}
-			@to_update = grep {$c->get($_)} $c->list();
-			$MS->{got_list} = 1;
 		}
-		my $next_update = shift @to_update;
-		return unless $next_update;
-		$MS->{to_update} = \@to_update;
-		Cores::new($next_update)->fetch_info();
-		my $col = Collection->get($next_update);
-		my $last = $col->last();
-		if ($last) {
-			$spot = $col->fetch($last)->create_spot();
-		}
-		else {
-			$spot = Cores::first($next_update);
-		}
-		$spot->mount();
 	}
-	
-	$spot = $spot->next();
-	unless ($spot) {
-		$MS->{spot} = undef;
-		return;
-	}
-	my $col = Collection->get($spot->id);
-	if ($spot->mount()) {
-		my $blob = $spot->fetch();
-		my $ent = $spot->element();
-		$col->store($ent,$blob) if $ent;
-	}
-	else {
-		$MS->{spot} = undef;
-		return;
-	}
-	$col->clean();
-	$MS->{spot} = $spot;
-	return;
 }
 
 #\@hint

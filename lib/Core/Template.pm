@@ -5,8 +5,8 @@ package Core::Template;
 use 5.012;
 use warnings;
 use lib "..";
-our $VERSION = v1;
 
+our $VERSION = v1;
 
 use Log;
 use DBI;
@@ -54,10 +54,10 @@ sub init {
 	my ($pkg) = @_;
 	$l->trace('initialise ',$pkg);
 	$l->warn('list already initialised, reinitialise') if $pkg->clist();
-	$pkg->_load_list();
+	return $pkg->_load_list();
 }
 
-#loads and saves the collection list
+#tries to load the collection list from file, creates it if it cant be found
 sub _load_list {
 	my ($pkg) = @_;
 	$pkg->clist(UserPrefs::parse_file($pkg));
@@ -65,10 +65,16 @@ sub _load_list {
 		$l->debug('loaded ' . scalar($pkg->clist()) . ' collections');
 		return 1;
 	}
+	return $pkg->update_list();
+}
+
+#updates and saves the collection list
+sub update_list {
+	my ($pkg) = @_;
 	my $list = $pkg->_create_list();
 	$pkg->clist($list);
 	$l->debug('found ' .  scalar($pkg->clist()) . ' collections');
-	$pkg->save_clist();
+	return $pkg->save_clist();
 }
 
 #$url -> $tree
@@ -165,8 +171,19 @@ sub about {
 	return ['Name',$s->clist->{name}], map {[$_, $s->clist()->{$_}]} grep {$_ eq ucfirst $_} keys %{$s->clist()};
 }
 
+#$force
+#fetches more information about the comic, force overwrites existing info
+sub fetch_info {
+	my ($s,$force) = @_;
+	return undef if $s->clist()->{moreinfo} and !$force;
+	$l->trace('fetching more info for ', $s->{id});
+	$s->_fetch_info();
+	$s->clist()->{moreinfo} = 1;
+	return $s->save_clist();
+}
+
 #noop
-sub fetch_info {}
+sub _fetch_info {}
 
 #$self -> $name
 sub name {

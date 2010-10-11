@@ -52,10 +52,8 @@ sub _searchkeys {
 }
 
 #fetches more information about the comic
-sub fetch_info {
+sub _fetch_info {
 	my ($s) = @_;
-	return undef if $s->clist()->{moreinfo};
-	$l->trace('fetching more info for ', $s->{id});
 	my $url = $s->clist()->{url_info};
 	#$url =~ s/-chapter-.*-page-1//;
 	$url .= '?skip=1';
@@ -75,8 +73,6 @@ sub fetch_info {
 		$l->warn("animea no longer makes this collection available");
 		$s->clist()->{Status} = 'down';
 	}
-	$s->clist()->{moreinfo} = 1;
-	return $s->save_clist();
 }
 
 

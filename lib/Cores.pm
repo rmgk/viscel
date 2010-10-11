@@ -80,6 +80,7 @@ sub first {
 	$l->trace("request first of $id");
 	my $c = new($id);
 	return undef unless $c;
+	$c->fetch_info();
 	return $c->first();
 }
 

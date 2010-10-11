@@ -44,11 +44,9 @@ sub _searchkeys {
 	qw(name Date);
 }
 
-#fetches more information about the comic
-sub fetch_info {
+#fetches comic info
+sub _fetch_info {
 	my ($s) = @_;
-	return undef if $s->clist()->{moreinfo};
-	$l->trace('fetching more info for ', $s->{id});
 	my $url = $s->clist()->{url_info};
 	while ($url) {
 		my $tree = $s->_get_tree($url) or return undef;
@@ -61,7 +59,6 @@ sub fetch_info {
 		}
 		else {
 			my @chlist = $tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
-			say @chlist;
 			my $ch = $chlist[-1];
 			my $a = $ch->look_down(_tag=>'a');
 			$url = $a->attr('href');
@@ -69,8 +66,6 @@ sub fetch_info {
 		}
 		$tree->delete();
 	}
-	$s->clist()->{moreinfo} = 1;
-	return $s->save_clist();
 }
 
 

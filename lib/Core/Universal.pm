@@ -12,13 +12,13 @@ use parent qw(Core::Template);
 
 my $l = Log->new();
 
-#loads and saves the collection list
+#universal does not want to save its list
+sub save_clist { return 1}
+
+#tries to load the collection list from file, creates it if it cant be found
 sub _load_list {
 	my ($pkg) = @_;
-	$l->trace('initialise ',$pkg);
-	$l->warn('list already initialised, reinitialise') if $pkg->clist();
-	$pkg->clist($pkg->_create_list());
-	$l->debug('has ' .  scalar($pkg->clist()) . ' collections');
+	$pkg->update_list();
 }
 
 #creates the list of known manga
@@ -43,9 +43,6 @@ sub _create_list {
 sub _searchkeys {
 	qw(name);
 }
-
-#fetches more information about the comic
-sub fetch_info {}
 
 
 
@@ -73,10 +70,12 @@ sub _mount_parse {
 		 || $tree->look_down(_tag=>'a', sub {($_[0]->as_HTML =~ m/next/i)});
 	unless ($a) {
 		$l->warn("could not find next");
-		return undef;
 	}
-	$s->{next} = $a->attr('href');
-	$s->{$_} = URI->new_abs($s->{$_},$s->{page_url})->as_string() for qw(src next);
+	else {
+		$s->{next} = $a->attr('href');
+		$s->{next} = URI->new_abs($s->{next},$s->{page_url})->as_string();
+	}
+	$s->{src} = URI->new_abs($s->{src},$s->{page_url})->as_string();
 	return 1;
 }
 

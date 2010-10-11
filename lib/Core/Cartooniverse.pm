@@ -44,10 +44,8 @@ sub _searchkeys {
 }
 
 #fetches more information about the comic
-sub fetch_info {
+sub _fetch_info {
 	my ($s) = @_;
-	return undef if $s->clist()->{moreinfo};
-	$l->trace('fetching more info for ', $s->{id});
 	my $url = $s->clist()->{url_info};
 	my $tree = $s->_get_tree($url) or return undef;;
 	my $td = $tree->look_down('_tag' => 'div', class=>'postcontent')->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td
@@ -63,7 +61,6 @@ sub fetch_info {
 	$s->clist()->{Detail} = HTML::Entities::encode(($p[6]->content_list())[2]);
 	$s->clist()->{moreinfo} = 1;
 	$tree->delete();
-	return $s->save_clist();
 }
 
 

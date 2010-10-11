@@ -40,6 +40,11 @@ sub init {
 	return 1;
 }
 
+#noop
+sub update_list {
+	$l->trace('comcol update list noop');
+}
+
 #->\@id_list
 #class method
 #lists the known ids

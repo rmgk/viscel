@@ -286,6 +286,7 @@ sub config {
 	}
 	$html .= html_config($core,$cfg);
 	$html .= cgi->start_div({-class=>'navigation'});
+		$html .= link_front($core,'front').' ' if $core !~ /:/;
 		$html .= link_main();
 	$html .= cgi->end_div();
 	$html .= cgi->end_html();
