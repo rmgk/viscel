@@ -101,7 +101,7 @@ sub check_collections {
 	my $r_first = Cores::first($next_check);
 	return unless $r_first;
 	return unless $r_first->mount();
-	my $r_first_ent = $r_first->entity();
+	my $r_first_ent = $r_first->element();
 	if (my $attr = $first_ent->differs($r_first_ent)) {
 		$l->error('attribute ', $attr, ' of first is inconsistent ', $next_check);
 		Collection->purge($next_check);
@@ -149,7 +149,7 @@ sub keep_current {
 	my $col = Collection->get($spot->id);
 	if ($spot->mount()) {
 		my $blob = $spot->fetch();
-		my $ent = $spot->entity();
+		my $ent = $spot->element();
 		$col->store($ent,$blob) if $ent;
 	}
 	else {
@@ -195,7 +195,7 @@ sub hint_front {
 	my $spot = Cores::first($id);
 	if ($spot->mount()) {
 		my $blob = $spot->fetch();
-		my $ent = $spot->entity();
+		my $ent = $spot->element();
 		$col->store($ent,$blob) if $ent;
 	}
 	$col->clean();
@@ -227,7 +227,7 @@ sub hint_view {
 	return undef unless $spot;
 	if ($spot->mount()) {
 		my $blob = $spot->fetch();
-		my $ent = $spot->entity();
+		my $ent = $spot->element();
 		$col->store($ent,$blob) if $ent;
 	}
 	$col->clean();
@@ -250,7 +250,7 @@ sub hint_getall {
 	while ($spot = $spot->next()) {
 		if ($spot->mount()) {
 			my $blob = $spot->fetch();
-			my $ent = $spot->entity();
+			my $ent = $spot->element();
 			$col->store($ent,$blob) if $ent;
 		}
 	};

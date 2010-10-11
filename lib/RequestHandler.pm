@@ -44,6 +44,7 @@ sub link_main { cgi->a({-href=>url_main()}, $_[0] || 'index') }
 sub link_front { cgi->a({-href=>url_front($_[0])}, $_[1]) }
 sub link_view { cgi->a({-href=>url_view(@_)}, $_[2])}
 sub link_config { cgi->a({-href=>url_config(@_)}, $_[1] || $_[0])}
+sub link_search { cgi->a({-href=>url_search().'?q='.$_[1]},$_[0]) }
 
 sub handler { $_[0] =~ m'^/([^/]+)'; return $1; }
 sub absolute { URI->new_abs($_[0],$_[1] || 'http://127.0.0.1') }
@@ -86,7 +87,8 @@ sub html_header {
 sub html_core_status {
 	my $html .= cgi->start_div({-class=>'info'});
 	for (Cores::list()) {
-		$html .= link_config($_);
+		$html .= link_search($_,$_.':');
+		$html .= link_config($_,' (config) ');
 		if (!Cores::initialised($_)) {
 			$html .= ' (not  ' . form_action('initialise','initialise',$_) .'d)';
 		}

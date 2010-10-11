@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Entity;
+package Element;
 
 use 5.012;
 use warnings;
@@ -28,7 +28,7 @@ my %attributes = ( 	position => 'INTEGER PRIMARY KEY',
 #$class, \%data -> \%data
 sub new {
 	my ($class,$self) = @_;
-	$l->trace('create new entity');
+	$l->trace('create new element');
 	foreach my $needed (qw(position state cid)) {
 		unless (defined $self->{$needed}) {
 			$l->debug($needed . ' not defined');
@@ -50,7 +50,7 @@ sub new {
 	return $self;
 }
 
-#creates the Core at the position of the entity
+#creates the Core at the position of the element
 sub create_spot {
 	my ($s) = @_;
 	my $core = Cores::new($s->cid);
@@ -78,7 +78,7 @@ sub attribute_values_array {
 	return @$s{sort keys %attributes};
 }
 
-#$entity -> bool
+#$element -> bool
 sub differs {
 	my ($s,$other) = @_;
 	for my $a (attribute_list_array()) {
@@ -89,7 +89,7 @@ sub differs {
 }
 
 #-> $html
-#returns html representation of the entity
+#returns html representation of the element
 sub html {
 	my $s = shift;
 	given ($s->type) {

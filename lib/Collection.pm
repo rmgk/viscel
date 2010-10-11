@@ -10,7 +10,7 @@ our $VERSION = v1;
 
 use Log;
 use DBI;
-use Entity;
+use Element;
 use Cache;
 
 my $l = Log->new();
@@ -66,7 +66,7 @@ sub new {
 	}
 	$l->trace('new ordered collection: ' . $self->{id});
 	unless ($DBH->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name=?",undef,$self->{id})) {
-		unless($DBH->do('CREATE TABLE ' . $self->{id} . ' (' .Entity::create_table_column_string(). ')')) {
+		unless($DBH->do('CREATE TABLE ' . $self->{id} . ' (' .Element::create_table_column_string(). ')')) {
 			$l->error('could not create table '. $self->{id});
 			return undef;
 		}
@@ -76,17 +76,17 @@ sub new {
 	return $self;
 }
 
-#\%entity -> $bool
-#stores the given entity returns false if storing has failed
+#\%element -> $bool
+#stores the given element returns false if storing has failed
 sub store {
 	my ($s, $ent, $blob) = @_;
 	$l->trace('store '. $ent->cid);
 	if ($s->{id} ne $ent->cid) {
-		$l->error('can not store entity with mismatching id');
+		$l->error('can not store element with mismatching id');
 		return undef;
 	}
 	my @values = $ent->attribute_values_array();
-	unless($DBH->do('INSERT OR FAIL INTO '. $s->{id} . ' ('.Entity::attribute_list_string().') VALUES ('.(join ',',map {'?'} @values).')',undef,@values)) {
+	unless($DBH->do('INSERT OR FAIL INTO '. $s->{id} . ' ('.Element::attribute_list_string().') VALUES ('.(join ',',map {'?'} @values).')',undef,@values)) {
 		$l->error('could not insert into table: ' . $DBH->errstr);
 		return undef;
 	}
@@ -97,18 +97,18 @@ sub store {
 	return 1;
 }
 
-#$pos -> \%entity
-#retrieves the entity at position pos
+#$pos -> \%element
+#retrieves the element at position pos
 sub fetch {
 	my ($s, $pos) = @_;
 	$l->trace('fetch '. $s->{id} .' '. $pos);
 	my $ret;
-	unless (defined ($ret = $DBH->selectrow_hashref('SELECT '.Entity::attribute_list_string().' FROM ' . $s->{id} . ' WHERE position = ?',undef, $pos))) {
-		$l->warn('could not retrieve entity '.$DBH->errstr) if $DBH->err;
+	unless (defined ($ret = $DBH->selectrow_hashref('SELECT '.Element::attribute_list_string().' FROM ' . $s->{id} . ' WHERE position = ?',undef, $pos))) {
+		$l->warn('could not retrieve element '.$DBH->errstr) if $DBH->err;
 		return undef;
 	}
 	$ret->{cid} = $s->{id};
-	$ret = Entity->new($ret);
+	$ret = Element->new($ret);
 	return $ret;
 }
 

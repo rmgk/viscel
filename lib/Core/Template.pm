@@ -10,7 +10,7 @@ our $VERSION = v1;
 
 use Log;
 use DBI;
-use Entity;
+use Element;
 use HTML::Entities;
 use DlUtil;
 use HTML::TreeBuilder;
@@ -227,8 +227,8 @@ sub _mount_parse {
 }
 
 
-#-> \%entity
-#returns the entity
+#-> \%element
+#returns the element
 sub fetch {
 	my ($s) = @_;
 	if ($s->{fail}) {
@@ -243,7 +243,7 @@ sub fetch {
 		$s->{fail} = 'could not fetch object';
 		return undef;
 	}
-	my $blob = $file->content();
+	my $blob = $file->decoded_content();
 
 	$s->{type} = $file->header('Content-Type');
 	$s->{sha1} = $SHA->add($blob)->hexdigest();
@@ -251,9 +251,9 @@ sub fetch {
 	return \$blob;
 }
 
-#-> \%entity
-#returns the entity
-sub entity {
+#-> \%element
+#returns the element
+sub element {
 	my ($s) = @_;
 	if ($s->{fail}) {
 		$l->error('fail is set: ' . $s->{fail});
@@ -261,8 +261,8 @@ sub entity {
 	}
 	my $object = {};
 	$object->{cid} = $s->{id};
-	$object->{$_} = $s->{$_} for grep {defined $s->{$_}} Entity::attribute_list_array();
-	return Entity->new($object);
+	$object->{$_} = $s->{$_} for grep {defined $s->{$_}} Element::attribute_list_array();
+	return Element->new($object);
 }
 
 #returns the next spot

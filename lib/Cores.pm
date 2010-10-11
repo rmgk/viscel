@@ -142,7 +142,7 @@ sub _config_collection {
 	return { bookmark => {	current => UserPrefs::get('bookmark',$id),
 						default => 0,
 						expected => qr/^\d+$/,
-						description => 'the position of the bookmarked entity' 
+						description => 'the position of the bookmarked element' 
 					} ,
 			 keep_current => { current => UserPrefs::get('keep_current',$id),
 						default => 0,

@@ -1,4 +1,5 @@
 #!perl
+#!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
 package Core::Comcol;
 
@@ -10,7 +11,7 @@ our $VERSION = v1;
 
 use Log;
 use DBI;
-use Entity;
+use Element;
 use HTML::Entities;
 use UserPrefs;
 
@@ -65,7 +66,7 @@ sub search {
 	return () if @$filter;
 	my %cmcs = list();
 	my %cap;
-	return map {[$_,$cmcs{$_},$cap{$_}]} grep { my $id = $_; @re == grep {$cmcs{$id} ~~ $_ and defined($cap{$id} = $1 // $cmcs{$id})} @re } keys %cmcs; #/ padre display bug
+	return map {[$_,$cmcs{$_},$cap{$_}//$cmcs{$_}]} grep { my $id = $_; @re == grep {$cmcs{$id} ~~ $_ and defined($cap{$id} = $1) } @re } keys %cmcs; #/ padre display bug
 }
 
 #pkg, \%config -> \%config
@@ -215,12 +216,12 @@ sub fetch {
 	return \$blob;
 }
 
-#-> \%entity
-#returns the entity
-sub entity {
+#-> \%element
+#returns the element
+sub element {
 	my ($s) = @_;
 	return undef if $s->{fail};
-	$l->trace('compose entity');
+	$l->trace('compose element');
 	my $object = {};
 	$object->{filename} = $s->{_data}->{file};
 	my ($ext) = $object->{filename} ~~ m/.*\.(\w{3,4})$/;
@@ -237,8 +238,8 @@ sub entity {
 	my %titles = get_title($s->{_data}->{title});
 	$object->{title} = $titles{it} ? HTML::Entities::decode($titles{it}) : undef;
 	$object->{alt} = $titles{ia} ? HTML::Entities::decode($titles{ia}) : undef;
-	$s->{entity} = Entity->new($object);
-	return $s->{entity};
+	$s->{element} = Element->new($object);
+	return $s->{element};
 }
 
 #returns the next spot

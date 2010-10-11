@@ -44,7 +44,7 @@ sub get {
 	$l->debug("get $url" .( $referer ? " (referer $referer)" : ''));
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
-	#$request->accept_decodable();
+	$request->accept_decodable();
 	my $res = $ua->request($request);
 	#if ($res->header("Content-Encoding") and ($res->header("Content-Encoding") =~ m/none/i)) { #none eq identity - but HTTP::Message doesnt know!
 	#	$res->header("Content-Encoding" => 'identity'); 
