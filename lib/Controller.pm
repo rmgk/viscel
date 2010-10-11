@@ -166,8 +166,8 @@ sub hint_getall {
 	$spot->mount();
 	while ($spot = $spot->next()) {
 		_store($col,$spot);
+		$col->clean();
 	};
-	$col->clean();
 	$HS = $spot;
 	return 1;
 }
