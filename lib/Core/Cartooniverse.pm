@@ -30,7 +30,7 @@ sub _create_list {
 			}
 			$id =~ s/\W/_/g;
 			$id = 'Cartooniverse_' . $id;
-			$clist{$id} = {url_start => $href. '1/0/', name => $name, urlinfo=>$href};
+			$clist{$id} = {url_start => $href. '1/0/', name => $name, url_info=>$href};
 		}
 	}
 	$tree->delete();
@@ -48,7 +48,7 @@ sub fetch_info {
 	my ($s) = @_;
 	return undef if $s->clist()->{moreinfo};
 	$l->trace('fetching more info for ', $s->{id});
-	my $url = $s->clist()->{urlinfo};
+	my $url = $s->clist()->{url_info};
 	my $tree = $s->_get_tree($url) or return undef;;
 	my $td = $tree->look_down('_tag' => 'div', class=>'postcontent')->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td
 	my @p = $td->look_down(_tag=>'p');
@@ -62,6 +62,7 @@ sub fetch_info {
 	$s->clist()->{Tags} = join ", ", map {$_->as_trimmed_text()} $p[4]->look_down(class => 'series-info');
 	$s->clist()->{Detail} = HTML::Entities::encode(($p[6]->content_list())[2]);
 	$s->clist()->{moreinfo} = 1;
+	$tree->delete();
 	return $s->save_clist();
 }
 

@@ -30,10 +30,10 @@ sub _create_list {
 				$l->debug("could not parse $href");
 				next;
 			}
-			$href = URI->new_abs("/$id-chapter-1-page-1.html",$url)->as_string;
+			#$href = URI->new_abs("/$id-chapter-1-page-1.html",$url)->as_string;
 			$id =~ s/\W/_/g;
 			$id = 'Animea_' . $id;
-			$clist{$id} = {url_start => $href, name => $name};
+			$clist{$id} = {url_info => $href, name => $name};
 			$clist{$id}->{Status} = ($a->{class} eq 'complete_manga') ? 'complete' : 'ongoing';
 			$clist{$id}->{Chapter} = $td->as_trimmed_text();
 			
@@ -56,8 +56,8 @@ sub fetch_info {
 	my ($s) = @_;
 	return undef if $s->clist()->{moreinfo};
 	$l->trace('fetching more info for ', $s->{id});
-	my $url = $s->clist()->{url_start};
-	$url =~ s/-chapter-.*-page-1//;
+	my $url = $s->clist()->{url_info};
+	#$url =~ s/-chapter-.*-page-1//;
 	$url .= '?skip=1';
 	my $tree = $s->_get_tree($url) or return undef;
 	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $tree->look_down(_tag=>'a', href=>qr'/genre/'i);
@@ -98,9 +98,6 @@ sub _mount_parse {
 	if ($a_next) {
 		$s->{next} = $a_next->attr('href');
 	}
-	#$s->{next} =~ /-chapter-(\d+)-page-/;
-	#$s->{chapter} = $1;
-	($s->{filename}) = ($s->{src} =~ m'/([^/]+)$');
 	return 1;
 }
 

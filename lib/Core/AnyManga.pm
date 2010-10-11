@@ -26,7 +26,7 @@ sub _create_list {
 			my ($id) = ($href =~ m'^/(.*)/$');
 			$id =~ s/\W/_/g;
 			$id = 'AnyManga_' . $id;
-			$href = 'http://www.anymanga.com' . $href .'001/001/';
+			$href = 'http://www.anymanga.com' . $href;
 			if ($mangalist{$id}) { #its an alias
 				if ($mangalist{$id}->{Alias}) {
 					$mangalist{$id}->{Alias} .= ', '.$name;
@@ -36,7 +36,7 @@ sub _create_list {
 				}
 				next;
 			}
-			$mangalist{$id} = {url_start => $href, name => $name};
+			$mangalist{$id} = {url_start => $href . '001/001/', url_info => $href, name => $name};
 			$mangalist{$id}->{Status} = $item->look_down('_tag' => 'span', title => 'Manga Complete') ? 'complete' : 'ongoing' ;
 			$mangalist{$id}->{Artist} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->content_list();
 			$mangalist{$id}->{Artist} =~ s/^\s*by\s*//;
@@ -58,8 +58,7 @@ sub fetch_info {
 	my ($s) = @_;
 	return undef if $s->clist()->{moreinfo};
 	$l->trace('fetching more info for ', $s->{id});
-	my $url = $s->clist()->{url_start};
-	$url =~ s'\d+/\d+/$'';
+	my $url = $s->clist()->{url_info};
 	my $tree = $s->_get_tree($url) or return undef;
 	$s->clist()->{Tags} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1];
 	$s->clist()->{Chapter} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1];
@@ -70,6 +69,7 @@ sub fetch_info {
 	($s->clist()->{Seealso}) = ($tree->look_down('_tag' => 'span', style => 'font-weight: bolder;')->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$');
 	$s->clist()->{Seealso} =~ s/\W/_/g;
 	$s->clist()->{moreinfo} = 1;
+	$tree->delete();
 	return $s->save_clist();
 }
 
@@ -89,9 +89,6 @@ sub _mount_parse {
 	if ($a_next) {
 		$s->{next} = 'http://www.anymanga.com' . $a_next->attr('href');
 	}
-	#my $chap = $tree->look_down(_tag => 'title')->as_text();
-	#$chap =~ m/Manga Online, Vol. (\d+.* \(.*), .*\)/;
-	#$s->{chapter} = $1 .')';
 	$s->{src} = 'http://www.anymanga.com' . $s->{src};
 	$s->{title} =~ s/\)\s*\[.*$/)/s;
 	$s->{alt} =~ s/\)\s*\[.*$/)/s;

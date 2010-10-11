@@ -14,6 +14,7 @@ use Core::Fakku;
 use Core::Animea;
 use Core::Universal;
 use Core::Cartooniverse;
+use Core::Homeunix;
 use Log;
 
 my $l = Log->new();
@@ -24,6 +25,7 @@ my %cores = (	'Core::AnyManga' => 0,
 				'Core::Animea' => 0,
 				'Core::Universal' => 0,
 				'Core::Cartooniverse' => 0,
+				'Core::Homeunix' => 0,
 				);
 
 #initialises all used cores

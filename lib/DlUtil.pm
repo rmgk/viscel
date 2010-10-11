@@ -52,7 +52,7 @@ sub get {
 	#if ($res->header("Content-Encoding") and ($res->header("Content-Encoding") =~ m/none/i)) { #none eq identity - but HTTP::Message doesnt know!
 	#	$res->header("Content-Encoding" => 'identity'); 
 	#}
-	$l->trace('response code: '. $res->code);
+	$l->trace('response code: '. $res->code() .' ' . $res->message());
 	return $res;
 
 }
