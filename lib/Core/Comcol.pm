@@ -110,7 +110,9 @@ sub about {
 }
 
 #noop
-sub fetch_info {}
+sub fetch_info {
+	$l->trace('comcol update list noop');
+}
 
 #$self -> $name
 sub name {

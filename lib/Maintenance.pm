@@ -93,10 +93,10 @@ sub check_collections {
 sub keep_current {
 	my ($s) = @_; 
 	my $spot = $s->{istate};
-	
+	my $up = UserPrefs->section('keep_current');
 	my $c = $s->cfg('keep_current');
 	unless ($spot) {
-		my @to_update = grep {$c->{$_} and (time - $c->{$_}) > 36000} keys %$c;
+		my @to_update = grep {$up->get($_) and (!$c->{$_} or (time - $c->{$_}) > 36000)} $up->list();
 		unless (@to_update) {
 			$l->debug('selected collections kept current');
 			$s->{istate} = undef;

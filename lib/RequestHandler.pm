@@ -207,6 +207,7 @@ sub view {
 	if ($r->method eq 'POST') {
 		$l->debug("set bookmark of $id to $pos");
 		UserPrefs->section('bookmark')->set($id,$pos);
+		UserPrefs::save();
 		$html .= html_notification('bookmark updated');
 	}
 	$html .= cgi->start_div({-class=>'content'});
