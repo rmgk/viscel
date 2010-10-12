@@ -72,6 +72,8 @@ sub purge {
 	$l->warn('drop table ', $s->{id});
 	$DBH->do("DROP TABLE ".$s->{id});
 	$DBH->commit();
+	$cache = undef;
+	$cache_id = undef;
 }
 
 #$position
