@@ -78,9 +78,11 @@ sub _mount_parse {
 		}
 	}
 	else {
-		$a = $img->look_up(_tag => 'a') 
-			|| $tree->look_down(_tag=>'a', rel => qr/next/)
+		$a = $img->look_up(_tag => 'a');
+		if (!$a or $a->attr('href') =~ m/\.(jpe?g|gif|png|bmp)(\W|$)/i) {
+			$a = $tree->look_down(_tag=>'a', rel => qr/next/)
 			|| $tree->look_down(_tag=>'a', sub {($_[0]->as_HTML =~ m/next/i)});
+		}
 	}
 	unless ($a) {
 		$l->warn("could not find next");
