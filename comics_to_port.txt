@@ -5,73 +5,53 @@ Elftor		http://elftor.com/elftor.php?number=1
 SonicPals		http://www.sonicandpals.com/2004/january/testingstrips1.htm
 ToyDivision(has flash)		http://toydivision.transplantcomics.com/daily.php?date=050410
 DnDorks(bad request)		http://dndorks.com/comics/10%2f15%2f2001.aspx
+Framed(keenspot)		http://www.damonk.com/prime/d/20001003.html
+SvenAndYon(spiderforest)		http://svenandyon.spiderspawn.com/?comic_id=0
+MonicaFurious(not really a webcomic but still nice)		http://leadsalad.com/viewcomic.php?id=1
+plusEV(keenspot)		http://www.plusev.net/d/20060811.html
+OurHomePlanet(navigation map)		http://www.ourhomeplanet.net/01.html
+GodMode(keenspot)		http://godmodeonline.com/d/20050915.html
+TheFloor(spiderforest)		http://thefloor.spiderspawn.com/?comic_id=0
+StickyFloors(snafu)		http://sf.snafu-comics.com/?comic_id=0
+Meta(bad next name)	http://www.studio7manga.com/werks/meta/The_Everyday_Adventures_of_Meta_Ep_001_Technology_is_a_knife.html
+Altermeta(bad next name)		http://altermeta.net/archive.php?comic=0&view=showfiller
+TheCoffeeAchievers(down)		http://www.coffeeachievers.net/index.php?pageNum_Recordset2=0&totalRows_Recordset2=137
+TheBrokenMirror(down)		http://www.the-broken-mirror.net/files/story/comic.php?id=2
 
 
-Framed		http://www.damonk.com/prime/d/20001003.html
-Cheer		http://www.cheercomic.com/?date=2005-08-09
-DevilBear		http://www.thedevilbear.com/?p=1
-SvenAndYon		http://svenandyon.spiderspawn.com/?comic_id=0
-MonicaFurious		http://leadsalad.com/viewcomic.php?id=1
-plusEV		http://www.plusev.net/d/20060811.html
-BoxjamsDoodle		http://boxjamsdoodle.com/d/19990422.html
-Yosh		http://www.yoshsaga.com/latest.php?i=040321
-Ice		http://www.faitherinhicks.com/ice/page1.html
-KissingChaos		http://kissingchaos.com/tx/?p=4
-DragonHeroes		http://dragonheroes.fanyart.com/comix-en.php?page=1#nahoru
-OurHomePlanet		http://www.ourhomeplanet.net/01.html
-GodMode		http://godmodeonline.com/d/20050915.html
-NamirDeiter		http://www.namirdeiter.com/comics/index.php?date=19991128
-RealLife		http://reallifecomics.com/archive/991115.html
-PrepareToDie		http://onyxsparrow.com/prepare_to_die/archive.cfm?issue=1&face=front
-AbstruseGoose		http://abstrusegoose.com/1
-TheFloor		http://thefloor.spiderspawn.com/?comic_id=0
-StickyFloors		http://sf.snafu-comics.com/?comic_id=0
-PhoenixRequiem		http://requiem.seraph-inn.com/viewcomic.php?page=1
-Pixel		http://pixelcomic.net/000.shtml
-lackadaisycats		http://lackadaisycats.com/comic.php?comicid=1
-ThisVagabondLife		http://studio7manga.com/index.php?option=com_content&task=view&id=26&Itemid=6
-Altermeta		http://altermeta.net/archive.php?comic=0&view=showfiller
-TalesOfPylea		http://talesofpylea.com/1/
-DireDestiny		http://www.diredestiny.com/index.php?option=com_rsgallery2&Itemid=0&page=inline&catid=1&id=454&limit=1&limitstart=0
-CapesNBabes		http://www.capesnbabes.com/2007/06/28/this-is-only-a-test/
-TheCoffeeAchievers		http://www.coffeeachievers.net/index.php?pageNum_Recordset2=0&totalRows_Recordset2=137
-TheBrokenMirror		http://www.the-broken-mirror.net/files/story/comic.php?id=2
-TheSecretOfMonkeyIsland		http://www.worldofmi.com/features/comics/viewpage.php?id=1&comic_id=3
-GeistPanik		http://www.hookiedookiepanic.com/geist/comic.php?ID=1
-ReasonsWhyWeRule		http://www.rwwr.com/view.php?comic=1
-PixelBSC		http://pixel.bombsheltercomics.com/index.php?strip_ID=1
-Diablito		http://www.diablitodelring.com/?id=1
-SophiaAwakening		http://parasitepublishing.com/wordpress/?p=179
-DoctorVoluptua		http://doctorvoluptua.com/go/1
-SarahZero		http://www.sarahzero.com/sz_intro.html
-LostAndFound		http://www.lostandfoundcomic.com/d/20000103.html
-SosSaga		http://sossagav2.smackjeeves.com/comics/465667/001-title-chapter/
-Roza		http://www.junglestudio.com/roza/index.php?date=2007-05-01
-BearNuts		http://www.bearnutscomic.com/2008/08/17/01-bear-nuts/
-HeroesOfLesserEarth		http://www.heroesoflesserearth.com/2005/12/pilot/
-OriginalLife		http://www.jaynaylor.com/originallife/archives/2009/06/001.html
-WanderingOnes		http://wanderingones.com/D/20000408.html
-Goats		http://www.goats.com/archive/970401.html
-FurWillFly		http://www.jadephoenix.org/fwf/comics/index.php?date=fur_fly1.jpg
-TryEverythingOnce		http://teo.spiderspawn.com/?comic_id=0
-SexPercussions		http://sexpercussions.spiderforest.com/?comic_id=0
-goKC		http://www.gokc.tv/archived_pages/2003/20030616.htm
-SurvivingTheWorld		http://survivingtheworld.net/Lesson1.html
-ZorphbertAndFred		http://www.zfcomics.com/comics/01082007/
-EternalVenture		http://www.beaglespace.com/pulledpunches/venture/?p=3
-EndTime		http://etime.spiderforest.com/?comic_id=0
-Afterstrife		http://www.afterstrife.com/index.php?date=2006-12-01
-Galaxion		http://galaxioncomics.com/?p=243
-AjanWarriors		http://ladystar.net/ajanwarriors/2008/10/22/beyond-this-door-is-a-magical-and-mysterious-adventure-like-nothing-youve-seen-before/#comic
-CartoonTomb2		http://www.cartoontomb.de/deutsch/tod2.php?bild=00_01_01.jpg
-Snafu		http://www.snafu-comics.com/comics.php?comic_id=0
-EagleAndDove		http://crowfeathers.net/index.php?blog=5
-Untitled		http://www.viruscomix.com/page199.html
-UnicornJelly		http://unicornjelly.com/uni001.html
-Earthsong		http://www.earthsongsaga.com/comic-redux/redux1.html
-ToddAndPenguin		http://www.toddandpenguin.com/d/20010403.html
-Heard		http://heard.smackjeeves.com/comics/163950/heard-1/
-OhMyGods		http://ohmygods.co.uk/strips/2002-03-07
+
+
+ReasonsWhyWeRule(down)		http://www.rwwr.com/view.php?comic=1
+PixelBSC(blocked)		http://pixel.bombsheltercomics.com/index.php?strip_ID=1
+
+
+SarahZero(bad next)		http://www.sarahzero.com/sz_intro.html
+LostAndFound(keenspot)		http://www.lostandfoundcomic.com/d/20000103.html
+SosSaga(smackjeeves)		http://sossagav2.smackjeeves.com/comics/465667/001-title-chapter/
+Roza(bad next)		http://www.junglestudio.com/roza/index.php?date=2007-05-01
+
+
+
+
+TryEverythingOnce(spiderforest)		http://teo.spiderspawn.com/?comic_id=0
+SexPercussions(spiderforest)			http://sexpercussions.spiderforest.com/?comic_id=0
+
+
+
+
+EndTime(spiderforest)		http://etime.spiderforest.com/?comic_id=0
+Afterstrife(strange next found)		http://www.afterstrife.com/index.php?date=2006-12-01
+
+AjanWarriors(ladystar)		http://ladystar.net/ajanwarriors/2008/10/22/beyond-this-door-is-a-magical-and-mysterious-adventure-like-nothing-youve-seen-before/#comic
+CartoonTomb2(bad next)		http://www.cartoontomb.de/deutsch/tod2.php?bild=00_01_01.jpg
+Snafu(snafu)		http://www.snafu-comics.com/comics.php?comic_id=0
+EagleAndDove(bbad next)		http://crowfeathers.net/index.php?blog=5
+Untitled(bad next)		http://www.viruscomix.com/page199.html
+
+Earthsong(bad next)		http://www.earthsongsaga.com/vol1/vol1cover.html
+
+Heard(smackjeeves)			http://heard.smackjeeves.com/comics/163950/heard-1/
+
 RodAndBarry		http://www.rodandbarrycomic.com/?p=10
 Anatta		http://epidigm.net/anatta/?p=3
 MyStupidLife		http://www.mitchclem.com/mystupidlife/1/
@@ -340,7 +320,6 @@ GreaterGood		http://www.neorice.com/aptgg_1
 WingsOfWishes		http://chrisschrossed.xepher.net/manga/v2pages/ch0/p1.html
 FlakyPastry		http://flakypastry.runningwithpencils.com/comic.php?strip_id=0
 BlueSkunk		http://blueskunk.spiderforest.com/?comic_id=0
-TwoKinds		http://twokindscomic.com/archive/?p=1
 TheWayToYourHeart		http://emi-art.com/twtyh/twtyh_cover01site.html
 BoredAndEvil		http://www.boredandevil.com/?date=2004-06-07
 InkTank		http://www.inktank.com/2008/04/01/a-new-day/
