@@ -73,9 +73,10 @@ sub check_collections {
 	my $next_check = shift @to_update;
 	$c->{$next_check} = time;
 	return 1 unless $next_check;
-	$l->trace('check first of ' , $next_check);
+	$l->trace('check ' , $next_check);
 	my $col = Collection->get($next_check);
-
+	return 1 unless (Cores::new($next_check)); # dont bother checking unknown collections, just keep them around
+	
 	if ((my $last_pos = $col->last()) > 1) {
 		my $last_elem = $col->fetch($last_pos);
 		my $r_last = $last_elem->create_spot();
