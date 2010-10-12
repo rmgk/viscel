@@ -203,7 +203,7 @@ TalesOfPylea => [
 	'http://top.talesofpylea.com/1/',
 	[src => qr'istrip_files/strips/\d{8}']
 ],
-DireDesteny => [
+DireDestiny => [
 	'Dire Destiny',
 	'http://www.diredestiny.com/index.php?option=com_rsgallery2&Itemid=0&page=inline&catid=1&id=454&limit=1&limitstart=0',
 	[id => 'thumb1'],
