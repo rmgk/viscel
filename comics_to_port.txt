@@ -73,9 +73,9 @@ MyLady(down)		http://hikaruhoshi.com/tkawaii/comic/mylady/index.php?p=1
 
 
 Elvenbaath(webcomicsnation)		http://www.webcomicsnation.com/tdotodot2k/elvenbaath/series.php?view=single&ID=6500
-Cucuc		http://cucuc.oghme.com/post/000-Foreword...
-InnerGeek		http://wayofthegeek.org/IG/IG.php?strip_ID=1
-Masago		http://masago.org/archive_page.php?comicID=1
+
+InnerGeek(content pages have 404 response)		http://wayofthegeek.org/IG/IG.php?strip_ID=1
+
 Of2Minds		http://www.studioantithesis.com/of2minds/?strip_id=0
 ZombieHunters		http://thezombiehunters.com/tzh/index.php?strip_id=1
 PennyArcade		http://www.penny-arcade.com/comic/1998/11/18

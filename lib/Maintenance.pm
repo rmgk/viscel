@@ -75,8 +75,10 @@ sub check_collections {
 	return 1 unless $next_check;
 	$l->trace('check ' , $next_check);
 	my $col = Collection->get($next_check);
-	return 1 unless (Cores::new($next_check)); # dont bother checking unknown collections, just keep them around
-	
+	unless (Cores::new($next_check)) { # unknown collections get purged
+		$col->purge();
+		return 1;
+	}
 	if ((my $last_pos = $col->last()) > 1) {
 		my $last_elem = $col->fetch($last_pos);
 		my $r_last = $last_elem->create_spot();
