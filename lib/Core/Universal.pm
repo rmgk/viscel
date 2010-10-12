@@ -33,7 +33,9 @@ sub _create_list {
 	my %list = map {
 		'Universal_'.$_ => {name => shift @{$raw_list{$_}},
 							url_start => shift @{$raw_list{$_}},
-							criteria => $raw_list{$_}
+							(ref($raw_list{$_}->[0]) eq 'ARRAY') ? (criteria => $raw_list{$_}) : 
+								%{$raw_list{$_}->[0]}
+								
 		}} keys %raw_list; 
 	return \%list;
 }
@@ -65,9 +67,21 @@ sub _mount_parse {
 	$l->warn('more than one image found') if @img > 1;
 	my $img = $img[0];
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width height );
-	
-	my $a = $tree->look_down(_tag=>'a', rel => qr/next/)
-		 || $tree->look_down(_tag=>'a', sub {($_[0]->as_HTML =~ m/next/i)});
+	my $a;
+	my $next_crit = Core::Universal->clist($s->id)->{next};
+	if ($next_crit and @$next_crit) {
+		my $tags = _find([$tree],@$next_crit);
+		if (@$tags) {
+			my @a = grep {defined} map {$_->look_down(_tag=>'a')} @$tags;
+			   @a = grep {defined} map {$_->look_up(_tag=>'a')} @$tags unless @a;
+			$a = $a[0];
+		}
+	}
+	else {
+		$a = $img->look_up(_tag => 'a') 
+			|| $tree->look_down(_tag=>'a', rel => qr/next/)
+			|| $tree->look_down(_tag=>'a', sub {($_[0]->as_HTML =~ m/next/i)});
+	}
 	unless ($a) {
 		$l->warn("could not find next");
 	}
