@@ -48,10 +48,11 @@ sub get {
 	$request->referer($referer);
 	$request->accept_decodable();
 	my $res = $ua->request($request);
-	#$l->debug($res->request->as_string());
-	#if ($res->header("Content-Encoding") and ($res->header("Content-Encoding") =~ m/none/i)) { #none eq identity - but HTTP::Message doesnt know!
-	#	$res->header("Content-Encoding" => 'identity'); 
-	#}
+	given ($res->header("Content-Encoding")) { #do some encoding translations
+		when (undef) {};
+		when (/none/i) { $res->header("Content-Encoding" => 'identity'); }
+		when (/bzip2/i) { $res->header("Content-Encoding" => 'x-bzip2'); }
+	}
 	$l->trace('response code: '. $res->code() .' ' . $res->message());
 	return $res;
 
