@@ -313,6 +313,164 @@ OhMyGods => [
 	'http://ohmygods.co.uk/strips/2002-03-07',
 	[class => 'omgs-strip']
 ],
-
-
-
+PBF => [
+	'The Perry Bible Fellowship',
+	'http://www.pbfcomics.com/?cid=PBF001-Stiff_Breeze.gif',
+	[id => 'topimg'],
+	next => [sub {$_[0]->as_text eq 'Newer'}],
+],
+ToyDivision => [
+	'Toy Division',
+	'http://toydivision.transplantcomics.com/daily.php?date=050410',
+	[src => qr'images/comics']
+],
+DnDorks => [
+	'Dungeons and Dorks',
+	'http://dndorks.com/comics/10%2f15%2f2001.aspx',
+	[src => qr'/images/comics/'],
+],
+OurHomeplanet => [
+	'Our Home Planet',
+	'http://www.ourhomeplanet.net/01.html',
+	[src => qr'pages/comic'],
+	next => [coords => '96,18,141,65']
+],
+Meta => [ #has missing strip pages
+	'The Everyday Adventures of Meta',
+	'http://www.studio7manga.com/werks/meta/The_Everyday_Adventures_of_Meta_Ep_001_Technology_is_a_knife.html',
+	[hspace => 60, vspace => 3],
+	next => [src => qr'images/NAVIGATOR_05.png']
+],
+Altermeta => [
+	'Altermeta',
+	'http://altermeta.net/archive.php?comic=0&view=showfiller',
+	[src => qr'comics/'],
+	next => [src => qr'/forward.png'],
+],
+SarahZero => [
+	'SarahZero',
+	'http://sarahzero.com/sz_intro.html',
+	[src => qr'^z_spreads'],
+	next => [id => 'sz_07_nav']
+],
+Roza => [
+	'Roza and the Horse Prince',
+	'http://www.junglestudio.com/roza/?date=2007-05-01',
+	[src=> qr'pages/'],
+],
+Afterstrife => [
+	'Afterstrife',
+	'http://afterstrife.com/?p=1',
+	[id => 'comic'],
+],
+TodUndMaedchen => [
+	'Der Tod und das Mädchen',
+	'http://www.cartoontomb.de/deutsch/tod2.php?bild=00_01_01.jpg',
+	[src => qr'images/tod/teil2/'],
+	next => [sub { $_[0]->as_text() eq 'weiter' }],
+],
+Crowfeathers => [
+	'Crowfeathers',
+	'http://www.crowfeathers.net/crowfeatherscomic/index.php?p=1',
+	[class => 'comicImage'],
+	next => [alt => 'forward'],
+],
+Untitled => [
+	'(Untitled)',
+	'http://www.viruscomix.com/page199.html',
+	[_tag => 'img']
+],
+Earthsong => [
+	'Earthsong Saga',
+	'http://www.earthsongsaga.com/vol1/vol1cover.html',
+	[colspan => 3],
+	next => [_tag => 'td', width => 71],
+],
+RodBarry => [
+	'Rod & Barry',
+	'http://www.rodandbarrycomic.com/2008/03/06/episode-4-superiority-complex/',
+	[id => 'comic'],
+],
+Anatta => [
+	'Anatta',
+	'http://epidigm.net/anatta/?p=3',
+	[id => 'comic'],
+],
+MyStupidLife => [
+	'My Stupid Life',
+	'http://www.mitchclem.com/mystupidlife/1/',
+	[class => 'centeredImage']
+],
+Cherry => [
+	'Magical Transvestite Cherry',
+	'http://www.footloosecomic.com/cherry/cherry_main.php?page=1',
+	[src => qr'/cherry/\d+']
+],
+MSFHigh => [
+	'MSF High',
+	'http://www.msfhigh.com/?date=2005-09-02',
+	[class => 'comic2']
+],
+FurtiaHigh => [
+	'Furtia High',
+	'http://furthiahigh.concessioncomic.com/index.php?pid=20080128',
+	[alt => 'Comic goes here.'],
+],
+Precocious => [
+	'Precocious',
+	'http://www.precociouscomic.com/comic.php?page=1',
+	[src => qr'archive/strips/']
+],
+ByMoonAlone => [
+	'By Moon Alone',
+	'http://www.bymoonalone.com/comic.php?date=2008-01-01',
+	[src => qr'comic/pages'],
+	next => [src=> qr'forward01'],
+],
+CaptainStupendous => [
+	'Captain Stupendous',
+	'http://www.captainexcelsior.com/?id=1',
+	[id => 'comic']
+],
+Keychain => [
+	'Keychain of Creation',
+	'http://keychain.patternspider.net/archive/koc0001.html',
+	[id => 'Layer1'],
+	next => [alt => 'forward'],
+],
+BuckGodot => [
+	'Buck Godot',
+	'http://www.airshipentertainment.com/buckcomic.php?date=20070111',
+	[src => qr'buckcomic/strips/']
+],
+Sloan => [
+	'Sloan - The Batttle of the Bands!',
+	'http://www.viruscomix.com/sloan.html',
+	[_tag => 'img'],
+],
+LoveInBlood => [
+	'Love is in the Blood',
+	'http://www.loveisintheblood.com/2008/04/29/welcome-to-love-is-in-the-blood/',
+	[class => 'object']
+],
+UnlikeMinerva => [
+	'Unlike Minverva',
+	'http://www.unlikeminerva.com/comics/index.php?date=20010101',
+	[src => qr'/comics/']
+],
+OneNineSevenSeven => [
+	'1977 the comic',
+	'http://www.1977thecomic.com/2008/01/02/01022008/',
+	[id => 'comic-1'],
+],
+Cucuc => [
+	'Cú cuC',
+	'http://www.oghme.com/cucuc/post/001-Balor-doesn-t-like-Snails',
+	[class=>'zestrip']
+],
+Masago => [
+	'Masago',
+	'http://masago.org/archive_page.php?comicID=1',
+	[src => qr'episodes/\d{8}'],
+],
+	

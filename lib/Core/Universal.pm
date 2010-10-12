@@ -30,13 +30,20 @@ sub _create_list {
 		$l->error('could not load list: ' , $@);
 		return undef;
 	}
-	my %list = map {
-		'Universal_'.$_ => {name => shift @{$raw_list{$_}},
-							url_start => shift @{$raw_list{$_}},
-							(ref($raw_list{$_}->[0]) eq 'ARRAY') ? (criteria => $raw_list{$_}) : 
-								%{$raw_list{$_}->[0]}
-								
-		}} keys %raw_list; 
+	my %list;
+	for my $id (keys %raw_list) {
+		my @l = @{$raw_list{$id}};
+		$list{'Universal_'.$id} = {name => shift @l,
+								url_start => shift @l };
+		my @criteria;
+		push(@criteria,shift @l) while ref $l[0];
+		$list{'Universal_'.$id}->{criteria} = \@criteria;
+		if ($l[0] and shift @l eq 'next') {
+			my @next;
+			push(@next,shift @l) while ref $l[0];
+			$list{'Universal_'.$id}->{next} = \@next;
+		}
+	}
 	return \%list;
 }
 
@@ -56,16 +63,20 @@ use parent -norequire, 'Core::Template::Spot';
 #parses the page to mount it
 sub _mount_parse {
 	my ($s,$tree) = @_;
-	my @criteria = @{Core::Universal->clist($s->id)->{criteria}};
-	my $tags = _find([$tree],@criteria);
+	my $criteria = Core::Universal->clist($s->id)->{criteria};
+	my $tags = _find([$tree],@$criteria);
 	unless (@$tags) {
-		$l->error("could not find image");
+		$l->error("could not find tag");
 		return undef;
 	}
 	my @img = grep {defined} map {$_->look_down(_tag=>'img')} @$tags;
 	@img = grep {defined} map {$_->look_down(_tag=>'embed')} @$tags unless @img;
 	$l->warn('more than one image found') if @img > 1;
 	my $img = $img[0];
+	unless ($img) {
+		$l->error('no object found');
+		return undef;
+	}
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width height );
 	my $a;
 	my $next_crit = Core::Universal->clist($s->id)->{next};
@@ -74,6 +85,7 @@ sub _mount_parse {
 		if (@$tags) {
 			my @a = grep {defined} map {$_->look_down(_tag=>'a')} @$tags;
 			   @a = grep {defined} map {$_->look_up(_tag=>'a')} @$tags unless @a;
+			   @a = grep {defined} map {$_->look_down(_tag=>'area')} @$tags unless @a;
 			$a = $a[0];
 		}
 	}

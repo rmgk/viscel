@@ -1,20 +1,19 @@
-RuneMaster		http://www.rmtoads.com/rm/comic.php?page=1
-'The Perry Bible Fellowship', 'http://www.pbfcomics.com/?cid=PBF001-Stiff_Breeze.gif',
+RuneMaster(spiderforest)		http://www.rmtoads.com/rm/comic.php?page=1
+
 Bhag(down)	http://bhag.sackofjustice.com/daily.php?date=040801
-Elftor		http://elftor.com/elftor.php?number=1
-SonicPals		http://www.sonicandpals.com/2004/january/testingstrips1.htm
-ToyDivision(has flash)		http://toydivision.transplantcomics.com/daily.php?date=050410
-DnDorks(bad request)		http://dndorks.com/comics/10%2f15%2f2001.aspx
+Elftor(multiple strips per page)		http://elftor.com/elftor.php?number=1
+SonicPals(multiple strips per page)		http://www.sonicandpals.com/2004/january/testingstrips1.htm
+
 Framed(keenspot)		http://www.damonk.com/prime/d/20001003.html
 SvenAndYon(spiderforest)		http://svenandyon.spiderspawn.com/?comic_id=0
 MonicaFurious(not really a webcomic but still nice)		http://leadsalad.com/viewcomic.php?id=1
 plusEV(keenspot)		http://www.plusev.net/d/20060811.html
-OurHomePlanet(navigation map)		http://www.ourhomeplanet.net/01.html
+
 GodMode(keenspot)		http://godmodeonline.com/d/20050915.html
 TheFloor(spiderforest)		http://thefloor.spiderspawn.com/?comic_id=0
 StickyFloors(snafu)		http://sf.snafu-comics.com/?comic_id=0
-Meta(bad next name)	http://www.studio7manga.com/werks/meta/The_Everyday_Adventures_of_Meta_Ep_001_Technology_is_a_knife.html
-Altermeta(bad next name)		http://altermeta.net/archive.php?comic=0&view=showfiller
+
+
 TheCoffeeAchievers(down)		http://www.coffeeachievers.net/index.php?pageNum_Recordset2=0&totalRows_Recordset2=137
 TheBrokenMirror(down)		http://www.the-broken-mirror.net/files/story/comic.php?id=2
 
@@ -25,10 +24,10 @@ ReasonsWhyWeRule(down)		http://www.rwwr.com/view.php?comic=1
 PixelBSC(blocked)		http://pixel.bombsheltercomics.com/index.php?strip_ID=1
 
 
-SarahZero(bad next)		http://www.sarahzero.com/sz_intro.html
+
 LostAndFound(keenspot)		http://www.lostandfoundcomic.com/d/20000103.html
 SosSaga(smackjeeves)		http://sossagav2.smackjeeves.com/comics/465667/001-title-chapter/
-Roza(bad next)		http://www.junglestudio.com/roza/index.php?date=2007-05-01
+
 
 
 
@@ -40,40 +39,40 @@ SexPercussions(spiderforest)			http://sexpercussions.spiderforest.com/?comic_id=
 
 
 EndTime(spiderforest)		http://etime.spiderforest.com/?comic_id=0
-Afterstrife(strange next found)		http://www.afterstrife.com/index.php?date=2006-12-01
+
 
 AjanWarriors(ladystar)		http://ladystar.net/ajanwarriors/2008/10/22/beyond-this-door-is-a-magical-and-mysterious-adventure-like-nothing-youve-seen-before/#comic
-CartoonTomb2(bad next)		http://www.cartoontomb.de/deutsch/tod2.php?bild=00_01_01.jpg
-Snafu(snafu)		http://www.snafu-comics.com/comics.php?comic_id=0
-EagleAndDove(bbad next)		http://crowfeathers.net/index.php?blog=5
-Untitled(bad next)		http://www.viruscomix.com/page199.html
 
-Earthsong(bad next)		http://www.earthsongsaga.com/vol1/vol1cover.html
+Snafu(snafu)		http://www.snafu-comics.com/comics.php?comic_id=0
+
+
+
+
 
 Heard(smackjeeves)			http://heard.smackjeeves.com/comics/163950/heard-1/
 
-RodAndBarry		http://www.rodandbarrycomic.com/?p=10
-Anatta		http://epidigm.net/anatta/?p=3
-MyStupidLife		http://www.mitchclem.com/mystupidlife/1/
-Cherry		http://www.footloosecomic.com/cherry/cherry_main.php?page=1
-PS238		http://nodwick.humor.gamespy.com/ps238/comics/index.php?date=2001-11-29
-MSFHigh		http://www.msfhigh.com/?date=2005-09-02
-AbsurdNotions		http://www.absurdnotions.org/page1.html
-FurthiaHigh		http://furthiahigh.concessioncomic.com/index.php?pid=20080128
-AsWeWere		http://www.sorcery101.net/2009/aswewere/20090120-2/
-RPGworld		http://rpgworldcomic.com/d/20000827.html
-Precocious		http://www.precociouscomic.com/comic.php?page=1
-ByMoonAlone		http://bymoonalone.com/comic.php?date=2008-01-01
-CaptainExcelsior		http://www.captainexcelsior.com/?id=1
-LawnDarts		http://crowfeathers.net/index.php?blog=11
-KeychainOfCreation		http://keychain.patternspider.net/archive/koc0001.html
-BuckGodot		http://www.airshipentertainment.com/buckcomic.php?date=20070111
-Sloan		http://www.viruscomix.com/sloan.html
-Abandon		http://www.abandoncomic.com/?p=33
-MyLady		http://hikaruhoshi.com/tkawaii/comic/mylady/index.php?p=1
-UnlikeMinerva		http://www.unlikeminerva.com/comics/index.php?date=20010101
-1977		http://www.1977thecomic.com/2008/01/02/01022008/
-Elvenbaath		http://www.webcomicsnation.com/tdotodot2k/elvenbaath/series.php?view=single&ID=6500
+
+
+
+
+PS238(nodwick humor gamespy)		http://nodwick.humor.gamespy.com/ps238/comics/index.php?date=2001-11-29
+
+AbsurdNotions(multiple strips per page)		http://www.absurdnotions.org/page1.html
+
+AsWeWere(sorcery101)		http://www.sorcery101.net/2009/aswewere/20090120-2/
+RPGworld(keenspot)		http://rpgworldcomic.com/d/20000827.html
+
+
+
+LawnDarts(missing?)		http://crowfeathers.net/index.php?blog=11
+
+
+
+
+MyLady(down)		http://hikaruhoshi.com/tkawaii/comic/mylady/index.php?p=1
+
+
+Elvenbaath(webcomicsnation)		http://www.webcomicsnation.com/tdotodot2k/elvenbaath/series.php?view=single&ID=6500
 Cucuc		http://cucuc.oghme.com/post/000-Foreword...
 InnerGeek		http://wayofthegeek.org/IG/IG.php?strip_ID=1
 Masago		http://masago.org/archive_page.php?comicID=1
