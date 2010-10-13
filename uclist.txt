@@ -1,0 +1,476 @@
+Zona => [
+	'The challenges of Zona',
+	'http://www.soulgeek.com/comics/zona/2005/08/01/page-01/',
+	[_tag => 'div', id => 'comic']
+],
+Unstuffed => [
+	'The Unstuffed',
+	'http://www.plushandblood.com/Comic.php?strip_id=0',
+	[_tag => 'div', id => 'ComicLayer']
+],
+PennyAndAggie => [
+	'Penny And Aggie',
+	'http://www.pennyandaggie.com/index.php?p=1',
+	[class => 'comicImage']
+],
+Kukubiri => [
+	'Kukubiri',
+	'http://www.kukuburi.com/v2/2007/08/09/one/',
+	[id => 'comic']	
+],
+KhaosKomic => [
+	'Khaos Komik',
+	'http://www.khaoskomix.com/cgi-bin/comic.cgi?chp=1',
+	[id => 'currentcomic'] 
+],
+Catalyst => [
+	'Catalyst',
+	'http://catalyst.spiderforest.com/comic.php?comic_id=0',
+	[src => qr/comics/]
+],
+EmergencyExit => [
+	'Emergency Exit',
+	'http://www.eecomics.net/?strip_id=0',
+	[src => qr'comics/\d{6}\.']
+],
+Drowtales => [
+	'Drowtales',
+	'http://www.drowtales.com/mainarchive.php?order=chapters&id=0&overview=1&chibi=1&cover=1&extra=1&page=1&check=1',
+	[src => qr'mainarchive//']
+],
+HilarityComics => [
+	'Hilarity Comics', 
+	'http://www.eegra.com/show/sub/do/browse/cat/comics/id/4',
+	[src => qr'comics/\d{4}/']
+],
+Pronquest => [
+	'Pronquest',
+	'http://www.pronquest.com/1/hello-world/hentai',
+	[id => 'comic']
+],
+PrincessPlanet => [
+	'The Princess Planet',
+	'http://www.theprincessplanet.com/?p=10',
+	[id => 'comic']
+],
+GeekFetish => [
+	'GeekFetish',
+	'http://akrobotics.com/comics/2007/02/07/bandit-the-wonder-dog',
+	[id => comicPlate]
+],
+EverAfter => [
+	'Ever After',
+	'http://ea.snafu-comics.com/?comic_id=0',
+	[src => qr'comics/\d{6}']
+],
+FunnyFarm => [
+	'Funny Farm',
+	'http://www.accurseddragon.com/site/index.php/archive/20090126b-4/',
+	[class => 'object'], [class => qr/webcomic-object-full/],
+],
+AccursedDragon => [
+	'Accursed Dragon!',
+	'http://www.accurseddragon.com/site/index.php/archive/0001aza/',
+	[class => 'object'], [class => qr/webcomic-object-full/],
+],
+LaptopFerret => [
+	'Laptop and Ferret',
+	'http://www.accurseddragon.com/site/index.php/archive/0001-2/',
+	[class => 'object'], [class => qr/webcomic-object-full/],
+],
+Banished => [
+	'Banished!',
+	'http://www.accurseddragon.com/site/index.php/archive/20100830a-2/',
+	[class => 'object'], [class => qr/webcomic-object-full/],
+],
+BeaverAndSteve => [
+	'Beaver and Steve',
+	'http://www.beaverandsteve.com/index.php?comic=1',
+	[src => qr'comics/']
+],
+MuseAcademy => [
+	'The Muse Academy',
+	'http://www.themuseacademy.com/Archive/01Enrolment/01Enr_FC.html',
+	[src => qr'images/Pages']
+],
+Marilith => [
+	'Marilith',
+	'http://www.marilith.com/archive.php?date=20041215',
+	[src => qr'comics/\d{8}'],
+],
+GoodbyChains => [
+	'Goodby Chains',
+	'http://www.goodbyechains.com/index.php?page=1',
+	[src => qr'files/pages/'],
+],
+OotS => [
+	'The Order of the Stick',
+	'http://www.giantitp.com/comics/oots0001.html',
+	[src => qr'/comics/images/']
+],
+Building => [
+	'Building 12',
+	'http://www.building12.net/issue1/cover.htm',
+	[src => qr'issue\d+/'],
+],
+Strays => [
+	'Strays',
+	'http://www.straysonline.com/comic/01.htm',
+	[src => qr/^\d\d+/],
+],
+Twokinds => [
+	'Twokinds',
+	'http://twokindscomic.com/archive/?p=1',
+	[id=>'cg_img']
+],
+Cheer => [
+	'The Wotch: Cheer!',
+	'http://www.cheercomic.com/?date=2005-08-09',
+	[class=> 'comic2']
+],
+DevilBear => [
+	'Devil Bear',
+	'http://www.thedevilbear.com/?p=1',
+	[id=>'cg_img'],
+],
+BoxjamsDoodle => [
+	"Boxjam's Doodle",
+	'http://boxjamsdoodle.com/d/19990422.html',
+	[src => qr'/comics/bj\d{8}']
+],
+Yosh => [
+	'Yosh!',
+	'http://www.yoshcomic.com/latest.php?i=040321',
+	[src => qr'strips/\d{6}'],
+],
+Ice => [
+	'Ice',
+	'http://www.faitherinhicks.com/ice/page1.html',
+	[naturalsizeflag => 3],
+],
+KissingChaos => [
+	"Kissing Chaos 'Til I Die", 
+	'http://kissingchaos.com/tx/?p=4',
+	[id => 'comic'],
+],
+DragonHeroes => [
+	'Dragon Heroes',
+	'http://dragonheroes.fanyart.com/comix-en.php?page=1',
+	[id => 'pages']
+],
+NamirDeiter => [
+	'Namir Deiter',
+	'http://www.namirdeiter.com/comics/index.php?date=19991128',
+	[src => qr'comics/\d{8}']
+],
+RealLife => [
+	'Real Life',
+	'http://reallifecomics.com/archive/991115.html',
+	[class=>'comic_image']
+],
+PrepareToDie => [
+	'Prepare To Die',
+	'http://www.onyxsparrow.com/prepare_to_die/archive.cfm?issue=1&face=front',
+	[src => qr'archive/Comic'],
+],
+AbstruseGoose => [
+	'Abstruse Goose',
+	'http://abstrusegoose.com/1',
+	[_tag => 'img', class => 'aligncenter']
+],
+PhoenixRequiem => [
+	'The Phoenix Requiem',
+	'http://requiem.seraph-inn.com/viewcomic.php?page=1',
+	[alt=> 'Page'],
+],
+Pixel => [
+	'Pixel',
+	'http://pixelcomic.net/000.shtml',
+	[face => 'VERDANA']
+],
+Lackadaisy => [
+	'Lackadaisy Cats',
+	'http://lackadaisycats.com/comic.php?comicid=1',
+	[id => 'content'],
+],
+VagabondLife => [
+	'This Vagabond Life',
+	'http://studio7manga.com/werks/tvl/webcomic/this-vagabond-life-chapter1-page1.html',
+	[id=>'MainMid']
+],
+TalesOfPylea => [
+	'Tales of Pylea',
+	'http://top.talesofpylea.com/1/',
+	[src => qr'istrip_files/strips/\d{8}']
+],
+DireDestiny => [
+	'Dire Destiny',
+	'http://www.diredestiny.com/index.php?option=com_rsgallery2&Itemid=0&page=inline&catid=1&id=454&limit=1&limitstart=0',
+	[id => 'thumb1'],
+],
+CapesBabes => [
+	'Capes & Babes',
+	'http://www.capesnbabes.com/blog/the-debut-is-finally-here/',
+	[id => 'comic']
+],
+MonkeyIsland => [
+	'The Secret of Monkey Island',
+	'http://www.worldofmi.com/features/comics/viewpage.php?id=1&comic_id=3',
+	[src => qr'images/comics/']
+],
+GeistPanik => [
+	'Geist Panik',
+	'http://www.hookiedookiepanic.com/geist/comic.php?ID=1',
+	[src => qr'^pics/'],
+],
+Diablito => [
+	'Diablito del Ring',
+	'http://www.diablitodelring.com/?id=1',
+	[id => 'comicimg']
+],
+SophiaAwakening => [
+	'Sophia Awakening',
+	'http://parasitepublishing.com/wordpress/?p=179',
+	[class=>'object'],
+],
+DoctorVoluptua => [
+	'Doctor Voluptua',
+	'http://doctorvoluptua.com/go/1',
+	[class => 'comicpage']
+],
+BearNuts => [
+	'Bear Nuts',
+	'http://www.bearnutscomic.com/2008/08/17/01-bear-nuts/',
+	[id => 'comic']
+],
+HeroesOfLesserEarth => [
+	'Heroes of Lesser Earth',
+	'http://www.heroesoflesserearth.com/2005/12/pilot/',
+	[class => 'alignnone size-full'],
+],
+OriginalLife => [
+	'Original Life',
+	'http://www.jaynaylor.com/originallife/archives/2009/06/001.html',
+	[id => 'comicentry'],
+],
+WanderingOnes => [
+	'The Wandering Ones',
+	'http://wanderingones.com/story/1/1/',
+	[alt => 'comic strip']
+],
+Goats => [
+	'Goats',
+	'http://www.goats.com/archive/970401.html',
+	[id => 'stripcontainer'],
+],
+ScenesFromMultiverse => [
+	'Scenes From A Multiverse',
+	'http://amultiverse.com/2010/06/14/parenthood/',
+	[id => 'comic-1']
+],
+FurWillFly => [
+	'Fur Will Fly',
+	'http://www.jadephoenix.org/fwf/comics/index.php?date=fur_fly1.jpg',
+	[face => 'Arial,Helvetica']
+],
+goKC => [
+	'goKC!',
+	'http://www.gokc.tv/archived_pages/2003/20030616.htm',
+	[src => qr'days/Strips/\d{4}/\d{8}']
+],
+SurvivingTheWorld => [
+	'Surviving the World',
+	'http://survivingtheworld.net/Lesson1.html',
+	[src => qr/^Lesson\d/]
+],
+ZorphbertFred => [
+	'Zorphbert & Fred',
+	'http://www.zfcomics.com/comics/01082007/',
+	[id => 'comic-1']
+],
+EternalVenture => [
+	'Eternal Venture',
+	'http://www.beaglespace.com/pulledpunches/venture/?p=3',
+	[id => 'comic']
+],
+Galaxion => [
+	'Galaxion',
+	'http://galaxioncomics.com/1-comic/book-1/galaxion-volume-1-the-jump-cover/',
+	[id => 'comic-1']
+],
+UnicornJelly => [
+	'Unicorn Jelly',
+	'http://unicornjelly.com/uni001.html',
+	[hspace => 0, border => 0]
+],
+ToddAndPenguin => [
+	'Todd and Penguin',
+	'http://www.toddandpenguin.com/d/20010403.html',
+	[alt => 'comic']
+],
+OhMyGods => [
+	'Oh My Gods!',
+	'http://ohmygods.co.uk/strips/2002-03-07',
+	[class => 'omgs-strip']
+],
+PBF => [
+	'The Perry Bible Fellowship',
+	'http://www.pbfcomics.com/?cid=PBF001-Stiff_Breeze.gif',
+	[id => 'topimg'],
+	next => [sub {$_[0]->as_text eq 'Newer'}],
+],
+ToyDivision => [
+	'Toy Division',
+	'http://toydivision.transplantcomics.com/daily.php?date=050410',
+	[src => qr'images/comics']
+],
+DnDorks => [
+	'Dungeons and Dorks',
+	'http://dndorks.com/comics/10%2f15%2f2001.aspx',
+	[src => qr'/images/comics/'],
+],
+OurHomeplanet => [
+	'Our Home Planet',
+	'http://www.ourhomeplanet.net/01.html',
+	[src => qr'pages/comic'],
+	next => [coords => '96,18,141,65']
+],
+Meta => [ #has missing strip pages
+	'The Everyday Adventures of Meta',
+	'http://www.studio7manga.com/werks/meta/The_Everyday_Adventures_of_Meta_Ep_001_Technology_is_a_knife.html',
+	[hspace => 60, vspace => 3],
+	next => [src => qr'images/NAVIGATOR_05.png']
+],
+Altermeta => [
+	'Altermeta',
+	'http://altermeta.net/archive.php?comic=0&view=showfiller',
+	[src => qr'comics/'],
+	next => [src => qr'/forward.png'],
+],
+SarahZero => [
+	'SarahZero',
+	'http://sarahzero.com/sz_intro.html',
+	[src => qr'^z_spreads'],
+	next => [id => 'sz_07_nav']
+],
+Roza => [
+	'Roza and the Horse Prince',
+	'http://www.junglestudio.com/roza/?date=2007-05-01',
+	[src=> qr'pages/'],
+],
+Afterstrife => [
+	'Afterstrife',
+	'http://afterstrife.com/?p=1',
+	[id => 'comic'],
+],
+TodUndMaedchen => [
+	'Der Tod und das Mädchen',
+	'http://www.cartoontomb.de/deutsch/tod2.php?bild=00_01_01.jpg',
+	[src => qr'images/tod/teil2/'],
+	next => [sub { $_[0]->as_text() eq 'weiter' }],
+],
+Crowfeathers => [
+	'Crowfeathers',
+	'http://www.crowfeathers.net/crowfeatherscomic/index.php?p=1',
+	[class => 'comicImage'],
+	next => [alt => 'forward'],
+],
+Untitled => [
+	'(Untitled)',
+	'http://www.viruscomix.com/page199.html',
+	[_tag => 'img']
+],
+Earthsong => [
+	'Earthsong Saga',
+	'http://www.earthsongsaga.com/vol1/vol1cover.html',
+	[colspan => 3],
+	next => [_tag => 'td', width => 71],
+],
+RodBarry => [
+	'Rod & Barry',
+	'http://www.rodandbarrycomic.com/2008/03/06/episode-4-superiority-complex/',
+	[id => 'comic'],
+],
+Anatta => [
+	'Anatta',
+	'http://epidigm.net/anatta/?p=3',
+	[id => 'comic'],
+],
+MyStupidLife => [
+	'My Stupid Life',
+	'http://www.mitchclem.com/mystupidlife/1/',
+	[class => 'centeredImage']
+],
+Cherry => [
+	'Magical Transvestite Cherry',
+	'http://www.footloosecomic.com/cherry/cherry_main.php?page=1',
+	[src => qr'/cherry/\d+']
+],
+MSFHigh => [
+	'MSF High',
+	'http://www.msfhigh.com/?date=2005-09-02',
+	[class => 'comic2']
+],
+FurtiaHigh => [
+	'Furtia High',
+	'http://furthiahigh.concessioncomic.com/index.php?pid=20080128',
+	[alt => 'Comic goes here.'],
+],
+Precocious => [
+	'Precocious',
+	'http://www.precociouscomic.com/comic.php?page=1',
+	[src => qr'archive/strips/']
+],
+ByMoonAlone => [
+	'By Moon Alone',
+	'http://www.bymoonalone.com/comic.php?date=2008-01-01',
+	[src => qr'comic/pages'],
+	next => [src=> qr'forward01'],
+],
+CaptainStupendous => [
+	'Captain Stupendous',
+	'http://www.captainexcelsior.com/?id=1',
+	[id => 'comic']
+],
+Keychain => [
+	'Keychain of Creation',
+	'http://keychain.patternspider.net/archive/koc0001.html',
+	[id => 'Layer1'],
+	next => [alt => 'forward'],
+],
+BuckGodot => [
+	'Buck Godot',
+	'http://www.airshipentertainment.com/buckcomic.php?date=20070111',
+	[src => qr'buckcomic/strips/']
+],
+Sloan => [
+	'Sloan - The Batttle of the Bands!',
+	'http://www.viruscomix.com/sloan.html',
+	[_tag => 'img'],
+],
+LoveInBlood => [
+	'Love is in the Blood',
+	'http://www.loveisintheblood.com/2008/04/29/welcome-to-love-is-in-the-blood/',
+	[class => 'object']
+],
+UnlikeMinerva => [
+	'Unlike Minverva',
+	'http://www.unlikeminerva.com/comics/index.php?date=20010101',
+	[src => qr'/comics/']
+],
+OneNineSevenSeven => [
+	'1977 the comic',
+	'http://www.1977thecomic.com/2008/01/02/01022008/',
+	[id => 'comic-1'],
+],
+Cucuc => [
+	'Cú cuC',
+	'http://www.oghme.com/cucuc/post/001-Balor-doesn-t-like-Snails',
+	[class=>'zestrip']
+],
+Masago => [
+	'Masago',
+	'http://masago.org/archive_page.php?comicID=1',
+	[src => qr'episodes/\d{8}'],
+],
+	

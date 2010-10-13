@@ -18,12 +18,12 @@ mkdir 'build' or die("$!\n") unless -e 'build';
 
 dircopy(abs_path('../lib/'),abs_path('dist/lib/')) or die("$!\n");
 
-copy(abs_path('../comic3.pl'),abs_path('dist/')) or die("$!\n");
-copy(abs_path('../httpserver.pl'),abs_path('dist/')) or die("$!\n");
-copy(abs_path('../comic.ini'),abs_path('dist/')) or die("$!\n");
-copy(abs_path('../default.css'),abs_path('dist/')) or die("$!\n");
+copy(abs_path('../viscel.pl'),abs_path('dist/')) or die("$!\n");
+# copy(abs_path('../httpserver.pl'),abs_path('dist/')) or die("$!\n");
+# copy(abs_path('../comic.ini'),abs_path('dist/')) or die("$!\n");
+# copy(abs_path('../default.css'),abs_path('dist/')) or die("$!\n");
 
 
 $ENV{'PAR_GLOBAL_TEMP'} = abs_path('./build/');
-$ENV{'PP_OPTS'} = '-o '.abs_path('./dist/') .'/c3.exe '. abs_path('../') .'/comic3.pl';
+$ENV{'PP_OPTS'} = '-o '.abs_path('./dist/') .'/viscel.exe '. abs_path('../') .'/viscel.pl';
 pp->go();

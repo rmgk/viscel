@@ -1,26 +1,142 @@
 /*main layout*/
 body {
-	color : #00aa00;
+	color : #68e466;
 	background-color : black;
 	margin: 0px;
 }
 
 a {
 	text-decoration:none;
-	color:#0050cc;
+	color:#3654d9;
+	border-color: #3654d9;
 }
 
 a:visited {
-	color:#007080;
+	color:#404c80;
+	border-color: #404c80;
 }
 
-a[href^=http] {
-	color:red;
+a:hover {
+	border-style: none none dotted none;
+	border-width: 1px;
 }
 
+a.extern {
+	color:#7a1818;
+}
+/*collection groups*/
+.group {
+	margin: 2cm 10px;
+	padding: 10px;
+	background-color:#00000b;
+	border-style: solid;
+	border-color: #310000;
+	border-width: 1px;
+}
 
+/* comic pages */
+.content {
+	padding: 0.2cm;
+}
+.content img {
+	display: block;
+	margin: 0 auto;
+}
+.content embed {
+	display: block;
+	margin: 0 auto;
+}
+.info {
+	text-align:left;
+	margin: 2cm auto;
+	max-width: 600px;
+	background-color:#00000b;
+	border-style: solid;
+	border-color: #310000;
+	border-width: 1px;
+	padding: 1cm;
+}
 
-/*preview box*/
+#front .content {
+	text-align:left;
+	margin: 2cm 1cm;
+	padding: 0.5cm 0px;
+	background-color:#00000b;
+	border-style: solid;
+	border-color: #310000;
+	border-width: 1px;
+	text-align: center;
+}
+
+#front .content  img {
+	display:inline;
+	max-width: 32%;
+	margin: 0px 0.2%;
+	padding: 0px;
+}
+
+#front .content  embed{
+	display:inline;
+	max-width: 32%;
+	margin: 0px 0.2%;
+	padding: 0px;
+}
+
+#config .info {
+	max-width: 80%;
+}
+
+tbody{
+	 vertical-align:top;
+}
+
+/*navigation placement for frontpage and comic pages*/
+.navigation {
+	text-align:center;
+	clear:both;
+	position:static;
+	border-style: solid none solid none;
+	border-color: #310000;
+	border-width: 1px;
+	padding:0.2cm;
+	margin:0px 0px 0px 0px;
+	background-color:#00000b;
+	color: #808080;
+}
+
+.notification {
+	text-align:center;
+	clear:both;
+	position:static;
+	top:0;
+	left:0;
+	border-style: solid none solid none;
+	border-color: #310000;
+	border-width: 1px;
+	padding:0.2cm;
+	margin:0px 0px 0px 0px;
+	background-color:#00000b;
+}
+
+/* pause form */
+form {
+	display: inline;
+}
+form input.submit {
+	border-style:none;
+	background:transparent;
+	color:#beac0a;
+	padding:0;
+	cursor:pointer;
+}
+
+.search{
+
+}
+
+/*legacy stylesheet for reference***
+
+/*preview box***
 #prevbox {
 	visibility:hidden;
 	position:absolute;
@@ -40,7 +156,7 @@ a[href^=http] {
 	max-width:50%;
 }
 
-/*main menu*/
+/*main menu***
 #menu {
 	right:0px;
 	top:0px;
@@ -55,10 +171,9 @@ a[href^=http] {
 	overflow:auto;
 }
 
-/*comic groups*/
+/*comic groups***
 	.group {
 		margin:10px;
-		display:inline-block;
 		background-color:#00000b;
 		border-style: solid;
 		border-color: #003100;
@@ -77,10 +192,10 @@ a[href^=http] {
 	}
 	
 	.group a  {
-		display: block;
+		/*display: block;***
 	}
 
-	/*comic names in groups*/
+	/*comic names in groups***
 	.broken {
 		text-decoration:line-through;
 	}
@@ -88,38 +203,38 @@ a[href^=http] {
 	}
 
 
-/*frontpage*/
+/*frontpage***
 	div.frontpage {
 		text-align:center;
 	}
 
-	/*frontpage headline (comic name)*/
+	/*frontpage headline (comic name)***
 	h2 {
 	}
-	/*frontpage with 3 images*/
+	/*frontpage with 3 images***
 	div.frontpage img.front3 {
 		max-width:33%;
 		border:none;
 	}
-	/*frontpage with 2 images*/
+	/*frontpage with 2 images***
 	div.frontpage img.front2 {
 		max-width:49%;
 		border:none;
 	}
-	/*img to first*/
+	/*img to first***
 	div.frontpage #first {
 		float:left;
 	}
-	/*img to bookmark*/
+	/*img to bookmark***
 	div.frontpage #bookmark {
 	}
-	/*img to last*/
+	/*img to last***
 	div.frontpage #last {
 		float:right;
 	}
 
 	
-/*navigation placement for frontpage and comic pages*/
+/*navigation placement for frontpage and comic pages***
 .navigation {
 	text-align:center;
 	clear:both;
@@ -128,14 +243,15 @@ a[href^=http] {
 	border-color: #310000;
 	border-width: 1px;
 	padding:0.2cm;
-	margin:0.7cm 0px 0px 0px;
+	margin:0.0cm 0px 0px 0px;
 	background-color:#00000b;
 }
 		
-/* comic pages */
+/* comic pages ***
 	div.comic {
 		text-align:center;
 		height:100%;
+		padding: 0.2cm;
 	}
 	div.comic h3 {
 		display:none;
@@ -149,10 +265,10 @@ a[href^=http] {
 		min-width: 50%;
 	}
 
-/*striplist*/
+/*striplist***
 	div.striplist {
 		/*text-align:right;
-		margin-bottom:2cm;*/
+		margin-bottom:2cm;***
 	}
 	.striplist img {
 		float:left;
@@ -162,7 +278,7 @@ a[href^=http] {
 		clear:both;
 	}
 	
-/*favlist*/
+/*favlist***
 	div.favlist {
 		margin:4%;
 		background-color:#001000;
@@ -174,7 +290,7 @@ a[href^=http] {
 		padding:5px 0;
 	}
 	
-/*pod / documentation*/
+/*pod / documentation***
 	div.pod {
 		margin:4%;
 		background-color:#001000;
@@ -182,7 +298,7 @@ a[href^=http] {
 		padding:1cm;
 	}	
 	
-/*tools containter*/
+/*tools containter***
 	div.tools {
 		margin:4%;
 		background-color:#001000;
