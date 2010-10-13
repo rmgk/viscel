@@ -155,8 +155,17 @@ sub _config_collection {
 						default => 0,
 						expected => 'bool',
 						description => 'if true updates the collection when idle'
-						
 					},
+			 recommend => { current => UserPrefs::get('recommend',$id),
+							default => 0,
+							expected => 'bool',
+							description => 'recommend this collection'
+						},
+			 recommended => { current => UserPrefs::get('recommended',$id),
+							default => 0,
+							expected => 'bool',
+							description => 'this collection is recommended'
+						},
 			 getall => { name => 'get all',
 						 action => 'getall',
 						 description => 'downloads until no next is found'

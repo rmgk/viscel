@@ -181,10 +181,13 @@ sub index {
 	$html .= form_search();
 	$html .= cgi->end_fieldset();
 	my $bm = UserPrefs->section('bookmark');
-	$html .= html_group('New Pages' ,map {[$_ , (Cores::name($_)) x 2]} grep {$bm->get($_) and $bm->get($_) < Collection->get($_)->last()} $bm->list() );
-	$html .= html_group('Bookmarks' ,map {[$_ , (Cores::name($_)) x 2]} grep {$bm->get($_)} $bm->list() );
-	my $kc = UserPrefs->section('keep_current');
-	$html .= html_group('Keep Current' , map {[$_ , (Cores::name($_)) x 2]} grep {$kc->get($_)} $kc->list() );
+	#do some name mapping for performance or peace of mind at least
+	my %bmd = map {$_ =>  Cores::name($_)} grep {$bm->get($_)} $bm->list();
+	my %new = map {$_ => 1} grep {$bm->get($_) < Collection->get($_)->last()} keys %bmd;
+	$html .= html_group('New Pages' ,map {[$_ , ($bmd{$_}) x 2]} keys %new);
+	$html .= html_group('Bookmarks' ,map {[$_ , ($bmd{$_}) x 2]} grep {!$new{$_}} keys %bmd);
+	my $kc = UserPrefs->section('recommended');
+	$html .= html_group('Recommended' , map {[$_ , (Cores::name($_)) x 2]} grep {$kc->get($_) and !$bm->get($_)} $kc->list() );
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return 'index';
