@@ -179,9 +179,14 @@ sub hint_getall {
 sub hint_getrec {
 	my ($addr) = @_;
 	$l->debug('getting recommendations');
+	return unless $addr;
 	my $res = DlUtil::get(URI->new_abs('/rec',$addr));
+	if (!$res->is_success()) {
+		return undef;
+	}
 	my $list = $res->decoded_content();
 	my @rec = grep {Cores::new($_)} split ("\n",$list);
+	$l->debug('adding ' . @rec . ' collections to recommended list');
 	my $r = UserPrefs->section('recommended');
 	$r->set($_,1) for @rec;
 }

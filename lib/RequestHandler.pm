@@ -40,6 +40,7 @@ sub url_config {"/c/$_[0]"}
 sub url_action {join('/','/a',@_)};
 sub url_search {"/s"};
 sub url_recommendations {"/rec"};
+sub url_tools {"/tools"};
 
 sub link_main { cgi->a({-href=>url_main()}, $_[0] || 'index') }
 sub link_front { cgi->a({-href=>url_front($_[0])}, $_[1]) }
@@ -58,6 +59,15 @@ sub form_action {
 	my $url = ($_[0] =~ m'^/') ? $_[0] : url_action(@_);
 	my $html .= cgi->start_form(-method=>'POST',-action=>$url,-enctype=>&CGI::URL_ENCODED);
 	$html .= cgi->submit(-class=>'submit', -value => $name);
+	$html .= cgi->end_form();
+	return $html;
+}
+
+#$name,@actionparam -> POST form
+sub form_action_input {
+	my $name = shift;
+	my $html .= cgi->start_form(-class=>'search', -method=>'POST',-action=>url_action(@_),-enctype=>&CGI::URL_ENCODED);
+	$html .= cgi->textfield(-name=>$name,-size=>35);
 	$html .= cgi->end_form();
 	return $html;
 }
@@ -160,6 +170,7 @@ sub init {
 	Server::req_handler(handler(url_action('')),\&action);
 	Server::req_handler(handler(url_search('')),\&search);
 	Server::req_handler(handler(url_recommendations()),\&recommendations);
+	Server::req_handler(handler(url_tools()),\&tools);
 	Server::req_handler('b',\&blob);
 	Server::req_handler('css',\&css);
 	$cgi = CGI->new() unless $cgi;
@@ -181,6 +192,7 @@ sub index {
 	$html .= cgi->start_fieldset({-class=>'info'});
 	$html .= cgi->legend('Search');
 	$html .= form_search();
+	$html .= form_action_input('addr','getrec');
 	$html .= cgi->end_fieldset();
 	my $bm = UserPrefs->section('bookmark');
 	#do some name mapping for performance or peace of mind at least
@@ -347,7 +359,7 @@ sub action {
 				$html .= "this may take some time";
 			}
 			when ('getrec') {
-				$ret = ['getrec',$args[1]];
+				$ret = ['getrec',$cgi->param('addr')];
 				$html .= "it takes 15 seconds to timeout if the remote can not be found";
 			}
 			when ('export') {
@@ -404,6 +416,25 @@ sub recommendations {
 	$res->content(join("\n",$rec->list(),$recd->list()));
 	$c->send_response($res);
 	return 'recommend';
+}
+
+#$connection, $request
+#handles tool requests
+sub tools {
+	my ($c,$r) = @_;
+	$l->trace('handle tools');
+	my $html = html_header('index','index');
+	$html .= cgi->start_fieldset({-class=>'info'});
+	$html .= cgi->legend('Tools');
+	$html .= 'get recommendations:' . form_action_input('addr','getrec') . cgi->br();
+	$html .= form_action('halt','halt');
+	$html .= cgi->end_fieldset();
+	$html .= cgi->start_div({-class=>'navigation'});
+		$html .= link_main();
+	$html .= cgi->end_div();
+	$html .= cgi->end_html();
+	Server::send_response($c,$html);
+	return 'tools';
 }
 
 #$connection, $request
