@@ -27,11 +27,21 @@ a.extern {
 /*collection groups*/
 .group {
 	margin: 2cm 10px;
-	padding: 10px;
+	padding: 5px 10px 10px 10px;
 	background-color:#00000b;
 	border-style: solid;
 	border-color: #310000;
 	border-width: 1px;
+}	
+legend {
+	margin: 0px;
+	padding: 0px;
+	background-color:#00000b;
+	border-style: none;
+	border-color: #310000;
+	border-width: 1px;
+	display:inline;
+	font-size:large;
 }
 
 /* comic pages */
@@ -54,7 +64,11 @@ a.extern {
 	border-style: solid;
 	border-color: #310000;
 	border-width: 1px;
-	padding: 1cm;
+	padding: 2em 3em;
+}
+
+fieldset.info {
+	padding: 1.2em 3em 2em 3em;
 }
 
 #front .content {

@@ -153,7 +153,7 @@ sub _config_collection {
 					} ,
 			 keep_current => { current => UserPrefs::get('keep_current',$id),
 						default => 0,
-						expected => qr/^0|1$/,
+						expected => 'bool',
 						description => 'if true updates the collection when idle'
 						
 					},

@@ -85,7 +85,8 @@ sub html_header {
 
 # -> info div containing status (and config links) of the cores
 sub html_core_status {
-	my $html .= cgi->start_div({-class=>'info'});
+	my $html .= cgi->start_fieldset({-class=>'info'});
+	$html .= cgi->legend('Core Status');
 	for (Cores::list()) {
 		$html .= link_search($_,$_.':');
 		$html .= link_config($_,' (config) ');
@@ -94,17 +95,18 @@ sub html_core_status {
 		}
 		$html .= cgi->br();
 	}
-	$html .= cgi->end_div();
+	$html .= cgi->end_fieldset();
 	return $html;
 }
 
 #\%list_of_collections -> div containing the group ordered by name
 sub html_group {
-	my @collections = @_;
-	my $html .= cgi->start_div({-class=>'group'});
+	my ($name,@collections) = @_;
+	my $html .= cgi->start_fieldset({-class=>'group'});
+	$html .= cgi->legend($name);
 	$html .= join '', map {link_front($_->[0],$_->[1]).cgi->br() } 
 					sort {(($a->[2].$b->[2]) ~~ /^\d+$/)?  $a->[2] <=> $b->[2] : lc($a->[2]) cmp lc($b->[2])} @collections;
-	$html .= cgi->end_div();
+	$html .= cgi->end_fieldset();
 }
 
 #@someinfo -> info div 
@@ -120,28 +122,31 @@ sub html_info {
 #$core,$cfg -> html config list
 sub html_config {
 	my ($core,$cfg) = @_;
-	my $html .= cgi->start_div({-class=>'info'});
+	my $html .= cgi->start_fieldset({-class=>'info'});
+		$html .= cgi->legend('Settings');
 		$html .= cgi->start_form(-method=>'POST',-action=>url_config($core),-enctype=>&CGI::URL_ENCODED);
 		$html .= cgi->start_table();
-		$html .= cgi->thead(cgi->Tr(cgi->td([undef,undef,cgi->strong('Description'),cgi->strong(' Default'),cgi->strong(' Expected')])));
+		$html .= cgi->thead(cgi->Tr(cgi->td([undef,undef,cgi->strong(' Default'),cgi->strong('Description')])));
 		$html .= cgi->start_tbody();
 		$html .= join cgi->br(), map { 
 				cgi->Tr(cgi->td([ $_. ': ',
-				cgi->textfield(-name=>$_,-value=>($cfg->{$_}->{current} // $cfg->{$_}->{default}),-size=>20), #/ padre display bug
-				 $cfg->{$_}->{description} ,
+					$cfg->{$_}->{expected} eq 'bool' ? 
+					cgi->checkbox($_,($cfg->{$_}->{current} // $cfg->{$_}->{default}),1,'') : #/ padre display bug
+					cgi->textfield(-name=>$_,-value=>($cfg->{$_}->{current} // $cfg->{$_}->{default}),-size=>20), #/ padre display bug
 				(defined $cfg->{$_}->{default} ? $cfg->{$_}->{default} : '' ) , 
-				(defined $cfg->{$_}->{expected} ? $cfg->{$_}->{expected} : '') ]))
+				$cfg->{$_}->{description} ]))
 			} grep {!$cfg->{$_}->{action}} keys %$cfg;
 		$html .= cgi->end_tbody(). cgi->end_table();
 		$html .= cgi->submit(-class=>'submit',-value=>'update');
 		$html .= cgi->end_form();
-	$html .= cgi->end_div();
-	$html .= cgi->start_div({-class=>'info'});
+	$html .= cgi->end_fieldset();
+	$html .= cgi->start_fieldset({-class=>'info'});
+		$html .= cgi->legend('Actions');
 		$html .= join '', map {
 				form_action($cfg->{$_}->{name},$cfg->{$_}->{action},$core).
 				': '. $cfg->{$_}->{description}
 			} grep {$cfg->{$_}->{action}} keys %$cfg;
-	$html .= cgi->end_div();
+	$html .= cgi->end_fieldset();
 	return $html;
 }	
 
@@ -171,13 +176,15 @@ sub index {
 	$l->trace('handle index');
 	my $html = html_header('index','index');
 	$html .= html_core_status();
-	$html .= cgi->start_div({-class=>'info'});
+	$html .= cgi->start_fieldset({-class=>'info'});
+	$html .= cgi->legend('Search');
 	$html .= form_search();
-	$html .= cgi->end_div();
+	$html .= cgi->end_fieldset();
 	my $bm = UserPrefs->section('bookmark');
-	$html .= html_group( map {[$_ , (Cores::name($_)) x 2]} grep {$bm->get($_)} $bm->list() );
+	$html .= html_group('New Pages' ,map {[$_ , (Cores::name($_)) x 2]} grep {$bm->get($_) and $bm->get($_) < Collection->get($_)->last()} $bm->list() );
+	$html .= html_group('Bookmarks' ,map {[$_ , (Cores::name($_)) x 2]} grep {$bm->get($_)} $bm->list() );
 	my $kc = UserPrefs->section('keep_current');
-	$html .= html_group( map {[$_ , (Cores::name($_)) x 2]} grep {$kc->get($_)} $kc->list() );
+	$html .= html_group('Keep Current' , map {[$_ , (Cores::name($_)) x 2]} grep {$kc->get($_)} $kc->list() );
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return 'index';
@@ -279,7 +286,10 @@ sub config {
 		my %c;
 		for (keys %$cfg) {
 			if (ref $cfg->{$_}->{expected} and $cgi->param($_) ~~ $cfg->{$_}->{expected} ) {
-				$c{$_} = $cgi->param($_)
+				$c{$_} = $cgi->param($_);
+			}
+			elsif ($cfg->{$_}->{expected} eq 'bool') {
+				$c{$_} = $cgi->param($_);
 			}
 		}
 		$cfg = Cores::config($core,%c);
@@ -364,7 +374,7 @@ sub search {
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_main();
 	$html .= cgi->end_div();
-	$html .= html_group(@result);
+	$html .= html_group($query,@result);
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return "search $query";
