@@ -39,6 +39,7 @@ sub url_view {"/v/$_[0]/$_[1]"}
 sub url_config {"/c/$_[0]"}
 sub url_action {join('/','/a',@_)};
 sub url_search {"/s"};
+sub url_recommendations {"/rec"};
 
 sub link_main { cgi->a({-href=>url_main()}, $_[0] || 'index') }
 sub link_front { cgi->a({-href=>url_front($_[0])}, $_[1]) }
@@ -158,6 +159,7 @@ sub init {
 	Server::req_handler(handler(url_config('')),\&config);
 	Server::req_handler(handler(url_action('')),\&action);
 	Server::req_handler(handler(url_search('')),\&search);
+	Server::req_handler(handler(url_recommendations()),\&recommendations);
 	Server::req_handler('b',\&blob);
 	Server::req_handler('css',\&css);
 	$cgi = CGI->new() unless $cgi;
@@ -344,6 +346,10 @@ sub action {
 				$ret = sub {$core->update_list()};
 				$html .= "this may take some time";
 			}
+			when ('getrec') {
+				$ret = ['getrec',$args[1]];
+				$html .= "it takes 15 seconds to timeout if the remote can not be found";
+			}
 			default {
 				$l->warn('unknown action' . $_ ); 
 				$html .= 'unknown action'; 
@@ -381,6 +387,19 @@ sub search {
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return "search $query";
+}
+
+#$connection, $request 
+sub recommendations {
+	my ($c,$r) = @_;
+	$l->trace('sending recommendations');
+	my $rec = UserPrefs->section('recommend');
+	my $recd = UserPrefs->section('recommended');
+	my $res = HTTP::Response->new( 200, 'OK');
+	$res->header('Content-Type' => 'text/plain');
+	$res->content(join("\n",$rec->list(),$recd->list()));
+	$c->send_response($res);
+	return 'recommend';
 }
 
 #$connection, $request

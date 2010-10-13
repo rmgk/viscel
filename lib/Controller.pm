@@ -79,6 +79,7 @@ sub handle_hint {
 				when ('view') {hint_view(@$hint)}
 				when ('getall') {hint_getall(@$hint)}
 				when ('config') {$maintainer = Maintenance->new(); $default_timeout = $main::IDLE} #config changed, maintain anew
+				when ('getrec') {hint_getrec(@$hint)}
 				default {$l->warn("unknown hint $_")}
 			}
 		}
@@ -170,6 +171,18 @@ sub hint_getall {
 	};
 	$HS = $spot;
 	return 1;
+}
+
+#$addr
+#requests the recommendations list from $addr and adds the collections to recommended
+sub hint_getrec {
+	my ($addr) = @_;
+	$l->debug('getting recommendations');
+	my $res = DlUtil::get(URI->new_abs('/rec',$addr));
+	my $list = $res->decoded_content();
+	my @rec = grep {Cores::new($_)} split ("\n",$list);
+	my $r = UserPrefs->section('recommended');
+	$r->set($_,1) for @rec;
 }
 
 #$col,$spot
