@@ -145,7 +145,7 @@ sub html_config {
 		$html .= cgi->legend('Actions');
 		$html .= join '', map {
 				form_action($cfg->{$_}->{name},$cfg->{$_}->{action},$core).
-				': '. $cfg->{$_}->{description}
+				': '. $cfg->{$_}->{description} . cgi->br()
 			} grep {$cfg->{$_}->{action}} keys %$cfg;
 	$html .= cgi->end_fieldset();
 	return $html;
@@ -298,7 +298,7 @@ sub config {
 			}
 		}
 		$cfg = Cores::config($core,%c);
-		UserPrefs::save(); 
+		UserPrefs::save();
 		$html .= html_notification('update successful');
 		$ret = ["config",$core];
 	}
@@ -349,6 +349,10 @@ sub action {
 			when ('getrec') {
 				$ret = ['getrec',$args[1]];
 				$html .= "it takes 15 seconds to timeout if the remote can not be found";
+			}
+			when ('export') {
+				$ret = ['export',$args[1]];
+				$html .= "please wait a moment";
 			}
 			default {
 				$l->warn('unknown action' . $_ ); 

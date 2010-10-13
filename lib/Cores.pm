@@ -169,6 +169,10 @@ sub _config_collection {
 			 getall => { name => 'get all',
 						 action => 'getall',
 						 description => 'downloads until no next is found'
+						},
+			 export => { name => 'export',
+						 action => 'export',
+						 description => 'export all files of this collection to directory'
 						}
 			}
 	

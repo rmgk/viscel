@@ -17,6 +17,7 @@ our $PORT = 80;
 our $DIRCACHE = './cache/';
 our $DIRDATA = './data/';
 our $IDLE = 60; #time until idle mode
+our $EXPORT = './export/';
 
 # ------------------------------------
 

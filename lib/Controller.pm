@@ -80,6 +80,7 @@ sub handle_hint {
 				when ('getall') {hint_getall(@$hint)}
 				when ('config') {$maintainer = Maintenance->new(); $default_timeout = $main::IDLE} #config changed, maintain anew
 				when ('getrec') {hint_getrec(@$hint)}
+				when ('export') {hint_export(@$hint)}
 				default {$l->warn("unknown hint $_")}
 			}
 		}
@@ -183,6 +184,41 @@ sub hint_getrec {
 	my @rec = grep {Cores::new($_)} split ("\n",$list);
 	my $r = UserPrefs->section('recommended');
 	$r->set($_,1) for @rec;
+}
+
+#$collection
+#export collection to file
+sub hint_export {
+	my ($id) = @_;
+	$l->debug('exporting ', $id);
+	my $col = Collection->get($id);
+	my $last = $col->last();
+	my $dir = $main::EXPORT . $id . '/';
+	if ($last) {
+		mkdir ($main::EXPORT) unless -e $main::EXPORT ;
+		mkdir ($dir) unless -e $dir;
+		open (my $lfh, '>:encoding(UTF-8)', $dir . 'urls.txt');
+		for (1..$last) {
+			my $elem = $col->fetch($_);
+			next unless $elem and $elem->sha1;
+			print $lfh "$_=" .$elem->src() . "\n";
+			my $blob = Cache::get($elem->sha1);
+			my $ft;
+			given ($elem->type) {
+				when (/bmp/i) {$ft = '.bmp'}
+				when (/jpe?g/i) {$ft = '.jpg'}
+				when (/gif/i) {$ft = '.gif'}
+				when (/png/i) {$ft = '.png'}
+				when (/shockwave/i) {$ft = '.swf'}
+				default {$ft = $_; $ft =~ s'^.*/''}
+			}
+			open (my $FH, '>', $dir . $_ . $ft);
+			binmode $FH;
+			print $FH $$blob;
+			close $FH;
+		}
+		close $lfh;
+	}
 }
 
 #$col,$spot
