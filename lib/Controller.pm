@@ -206,7 +206,7 @@ sub hint_export {
 		for (1..$last) {
 			my $elem = $col->fetch($_);
 			next unless $elem and $elem->sha1;
-			print $lfh "$_=" .$elem->src() . "\n";
+			print $lfh "$_=" .$elem->page_url() . "\n";
 			my $blob = Cache::get($elem->sha1);
 			my $ft;
 			given ($elem->type) {

@@ -79,7 +79,13 @@ sub check_collections {
 		$col->purge();
 		return 1;
 	}
-	if ((my $last_pos = $col->last()) > 1) {
+	my $last_pos = $col->last();
+	unless ($last_pos) {
+		$l->error('has no elements', $next_check);
+		$col->purge();
+		return 1;
+	}
+	if ($last_pos > 1) {
 		my $last_elem = $col->fetch($last_pos);
 		my $r_last = $last_elem->create_spot();
 		return 1 unless $r_last->mount();
