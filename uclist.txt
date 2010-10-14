@@ -68,7 +68,7 @@ FunnyFarm => [
 	'http://www.accurseddragon.com/site/index.php/archive/20090126b-4/',
 	[class => 'object'], [class => qr/webcomic-object-full/],
 ],
-AccursedDragon => [
+AccursedDragon => [ #dead pages (161)
 	'Accursed Dragon!',
 	'http://www.accurseddragon.com/site/index.php/archive/0001aza/',
 	[class => 'object'], [class => qr/webcomic-object-full/],
@@ -317,7 +317,7 @@ PBF => [
 	'The Perry Bible Fellowship',
 	'http://www.pbfcomics.com/?cid=PBF001-Stiff_Breeze.gif',
 	[id => 'topimg'],
-	next => [sub {$_[0]->as_text eq 'Newer'}],
+	next => [_tag => 'a', sub {$_[0]->as_text eq 'Newer'}],
 ],
 ToyDivision => [
 	'Toy Division',
@@ -335,7 +335,7 @@ OurHomeplanet => [
 	[src => qr'pages/comic'],
 	next => [coords => '96,18,141,65']
 ],
-Meta => [ #has missing strip pages
+Meta => [ #dead pages
 	'The Everyday Adventures of Meta',
 	'http://www.studio7manga.com/werks/meta/The_Everyday_Adventures_of_Meta_Ep_001_Technology_is_a_knife.html',
 	[hspace => 60, vspace => 3],
@@ -367,7 +367,7 @@ TodUndMaedchen => [
 	'Der Tod und das Mädchen',
 	'http://www.cartoontomb.de/deutsch/tod2.php?bild=00_01_01.jpg',
 	[src => qr'images/tod/teil2/'],
-	next => [sub { $_[0]->as_text() eq 'weiter' }],
+	next => [_tag => 'a', sub { $_[0]->as_text() eq 'weiter' }],
 ],
 Crowfeathers => [
 	'Crowfeathers',
@@ -473,4 +473,274 @@ Masago => [
 	'http://masago.org/archive_page.php?comicID=1',
 	[src => qr'episodes/\d{8}'],
 ],
-	
+OfTwoMinds => [
+	'Of 2 Minds',
+	'http://www.studioantithesis.com/of2minds/?strip_id=0',
+	[src => qr'pages/'],
+],
+ZombieHunters => [
+	'The Zombie Hunters',
+	'http://thezombiehunters.com/tzh/index.php?strip_id=1',
+	[id => 'comicdiv'],
+],
+PennyArcade => [ #dead pages
+	'Penny Arcade',
+	'http://www.penny-arcade.com/comic/1998/11/18',
+	[class => 'body'],
+],
+DesperateAngels => [
+	'Desperate Angels',
+	'http://www.desperateangels.com/?p=6',
+	[id => 'comic'],
+],
+AlaskaRobotics => [
+	'Alaska Robotics',
+	'http://akrobotics.com/comics/2007/01/29/launch-party',
+	[id => comicPlate],
+],
+Carzorthade => [
+	'Carzorthade',
+	'http://www.carzorthade.com/a/20021002.html',
+	[src => qr'../jc/'],
+],
+GPF => [
+	'General Protection Fault',
+	'http://www.gpf-comics.com/d/19981102.html',
+	[src => qr'/comics/gpf\d{8}'],
+],
+Blip => [
+	'Blip',
+	'http://blipcomic.com/1/',
+	[class => 'stripborder'],
+],
+ChasingTheSunset => [
+	'Chasing the Sunset',
+	'http://www.fantasycomic.com/index.php?p=c1',
+	[id => 'comic-img'],
+	next => [id => 'comic-nav-right'],
+],
+SoapOnRope => [
+	'Soap on a Rope',
+	'http://www.soaprope.com/d/19970303.html',
+	[alt => 'comic'],
+],
+InheritTheEarth => [
+	'Inherit the Earth',
+	'http://www.inherittheearth.net/comic.shtml?0001',
+	[src => qr'/strips/\d{4}'],
+],
+MiracleOfScience => [
+	'A Miracle of Science',
+	'http://www.project-apollo.net/mos/mos000.html',
+	[src => qr'manga/mos']
+],
+ClanOfCats => [
+	'Clan of the Cats',
+	'http://clanofthecats.com/cotc/cotc-cominghome/',
+	[id => 'comic'],
+],
+SPQRBlues => [
+	'SPQR Blues',
+	'http://spqrblues.com/d/20051120.html',
+	[alt => 'comic']
+],
+Nukees => [
+	'Nukees',
+	'http://www.nukees.com/d/19970121.html',
+	[alt => 'comic'],
+],
+WapsiSquare => [
+	'Wapsi Square',
+	'http://wapsisquare.com/comic/09092001/',
+	[id => 'comic-1'],
+],
+NeoEarthNENW => [
+	'Neo-Earth N.E.N.W.',
+	'http://www.neo-earth.com/NENW/index.php?date=2008-05-07',
+	[src => qr'strips/\d{4}-\d\d-\d\d'],
+],
+Awakened => [
+	'The Awakened',
+	'http://www.mousekaroos.com/theawakened/firstpage.html',
+	[src => qr'page'],
+],
+HaruSari => [
+	'Haru-Sari',
+	'http://haru-sari.com/by8w45/story/01/00.php',
+	[id => 'content'],
+],
+EscapeFromTerra => [
+	'EscapeFromTerrra',
+	'http://www.bigheadpress.com/eft?page=1',
+	[src => qr'/simages/eft/EFT\d\d-\d+'],
+],
+WiguAdventures => [
+	'Wigu Adventures',
+	'http://www.wigucomics.com/adventures/index.php?comic=1',
+	[src => qr'adventures/comics/'],
+],
+WiguFun => [
+	"Wigu Havin' Fun",
+	'http://www.wigucomics.com/fun/index.php?comic=1',
+	[src => qr'fun/comics/'],
+],
+DelusionaryState => [
+	'Delusionary State',
+	'http://delusionarystate.com/index.php?date=2009-05-25',
+	[src => qr'strips/\d{4}-\d\d-\d\d'],
+],
+Reiko => [
+	'Reiko',
+	'http://www.taintedink.com/reikogalleryclassic4.htm',
+	[src => qr'/Reiko.*Gallery/'],
+	next => [src => 'pointleft.jpg'],
+],
+DirectionsOfDestiny => [
+	'Directions of Destiny',
+	'http://directionsofdestiny.com/archive/010/cover.htm',
+	[id => 'pagebox'],
+],
+StarCrossedDesitiny => [
+	'Star Crossed Destiny',
+	'http://www.starcrossd.net/archives/00000001.html',
+	[id => 'comic']
+],
+Whiteboard => [
+	'The Whiteboeard',
+	'http://www.the-whiteboard.com/autowb001.html',
+	[src => qr'auto'],
+],
+Becky => [
+	'Becky and the Masters of Gaming',
+	'http://ray2kproduxions.com/comix/becky_comix/becky_comix_08-09/becky_page_0001.html',
+	[class => 'comix_container']
+],
+TrueNuff => [
+	'True Nuff',
+	'http://comic.truenuff.com/comic.php?day=20010228',
+	[src => qr'comics/truenuff\d{8}'],
+],
+GuiltyPleasures => [
+	'Guilty Pleasures',
+	'http://akrobotics.com/comics/2007/03/02/resolutions',
+	[id => 'comicPlate'],
+],
+TwoGamerz => [
+	'2Gamerz',
+	'http://2gamerz.com/?p=47',
+	[class => qr'comic-item'],
+],
+Jinxville => [
+	'Welcome to Jinxville',
+	'http://www.jinxville.com/welcome/2008/11/15/waddle-i-do/',
+	[class => qr'comic-item'],
+],
+Gunnerkrigg => [
+	'Gunnerkrigg Court',
+	'http://www.gunnerkrigg.com/archive_page.php?comicID=1',
+	[class => 'rss-id'],
+],
+Wondermark => [
+	'Wondermark',
+	'http://wondermark.com/001/',
+	[id => 'comic'],
+],
+MNTG => [
+	'Mutant Ninja Turtles Gaiden',
+	'http://www.mntgaiden.com/en/?id=1',
+	[id => 'comicimg'],
+],
+SandraAndWoo => [
+	'Sandra and Woo',
+	'http://www.sandraandwoo.com/2008/10/19/a-sly-raccoon/',
+	[id => 'comic'],
+],
+SubCulture => [
+	'Sub Culture',
+	'http://subculturecomic.com/wp/?p=13',
+	[id => 'comic'],
+],
+StarshipMoonhawk => [
+	'Starship Moonhawk',
+	'http://www.starshipmoonhawk.com/?p=177',
+	[id => 'comic'],
+],
+LonelyPair => [
+	'Lonely Pair',
+	'http://www.coolfirebirdcomics.com/lpchapter1.htm',
+	[border => 0, src => qr/^LP/],
+	next => [src => 'arrowbackb2.png'],
+],
+DarkLegacy => [
+	'Dark Legacy',
+	'http://www.darklegacycomics.com/first.html',
+	[_tag => 'td', rowspan => 2],
+	next => [src => '6.gif'],
+],
+Bellen => [
+	'Bellen',
+	'http://boxbrown.com/?p=440',
+	[id => 'comic'],
+],
+PunchAndPie => [
+	"Punch an' Pie",
+	'http://www.punchanpie.net/cgi-bin/autokeenlite.cgi?date=20070222',
+	[src => qr'comics/pnp\d{8}'],
+],
+Comet => [
+	'Comet 7',
+	'http://www.comet7.com/archive_page.php?id=1',
+	[src => qr'strips/\d{8}'],
+],
+TryingHuman => [
+	'Trying Human',
+	'http://www.introducing-emy.com/th/pro_01.html',
+	[src => qr'comic/'],
+	next => [src => 'arrow_forward.jpg'],
+],
+Kristy => [
+	'Kristy versus the Zombie Army',
+	'http://kristyvsthezombiearmy.com/strip_display.php?comicID=1',
+	[src => qr'comics/\d{8}'],
+],
+FantasyRealms => [
+	'Fantasy Realms',
+	'http://www.fantasyrealmsonline.com/manga/001.php',
+	[src => qr'^\d+\.'],
+],
+SpudComics => [
+	'Spud Comics',
+	'http://spudcomics.com/2008/11/19/cookie-monster/',
+	[id => 'comic'],
+],
+RockPaperCynic => [
+	'Rock Paper Cynic',
+	'http://rockpapercynic.com/index.php?date=2008-10-31',
+	[class => 'rss-content']
+],
+Buttersafe => [
+	'Buttersafe',
+	'http://buttersafe.com/2007/04/03/breakfast-sad-turtle/',
+	[id => 'comic'],
+],
+DeathPiglet => [
+	'Death Piglet',
+	'http://chibi.nekrozin.com/index.php?strip_id=1',
+	[src => qr'istrip_files/strips/\d{8}']
+],
+DarkReflections => [
+	'Exiern: Dark Reflections',
+	'http://darkreflections.exiern.com/index.php?strip_id=1',
+	[src => qr'istrip_files/strips/\d{8}']
+],
+BladeBunny => [
+	'Blade Bunny',
+	'http://www.bladebunny.com/?p=20',
+	[id => 'comic']
+],
+Sector => [
+	'Sector 41',
+	'http://www.viruscomix.com/page89.html',
+	[_tag => 'img']
+],
+
