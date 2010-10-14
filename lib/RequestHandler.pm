@@ -192,7 +192,6 @@ sub index {
 	$html .= cgi->start_fieldset({-class=>'info'});
 	$html .= cgi->legend('Search');
 	$html .= form_search();
-	$html .= form_action_input('addr','getrec');
 	$html .= cgi->end_fieldset();
 	my $bm = UserPrefs->section('bookmark');
 	#do some name mapping for performance or peace of mind at least
