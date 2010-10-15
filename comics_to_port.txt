@@ -175,31 +175,31 @@ AntiHeroForHire(keenspot)		http://antiheroforhire.com/d/20030611.html
 
 Zortic(multi strip page)		http://zortic.com/d/20000327.html
 
-KnowledgeIsPower		http://www.kip-comics.com/?strip_id=1
-EGSFiller		http://www.egscomics.com/Filler/d/20020701.html
-NickTriggerAceDick		http://www.supafine.com/comics/ntd.php?comicID=1
-SomethingPositive1937		http://www.classicallypositive.net/sp09071937.shtml
-IndoorHeroes		http://www.indoorheroes.com/index.php?s=1
-2ndShift		http://2ndshiftcomic.com/index.php?action=comics&cid=2
-LovesRaymond		http://geekz.co.uk/lovesraymond/archive/slashdotted
-ArcaneQuarry		http://aq.mewzstudios.com/2005/07/31/and-were-off/
-HardGraft		http://hard-graft.net/?p=33
-GeekHero		http://www.geekherocomic.com/2008/03/03/03032008/
-Krakow		http://www.krakowstudios.com/krakow/archive.php?date=20001005
-CustomersSuck		http://www.customerssuck.com/strip/index.php?date=2006-04-16
-LifesAWitch		http://www.witchytech.com/lifesawitch/2006/08/07/2006-08-07/
-SanAntonioRockCity		http://www.mitchclem.com/rockcity/index.php?comic=1
-TheaterHopper		http://www.theaterhopper.com/2002/08/05/rich-little-he-aint/
-BrunoTheBandit		http://brunothebandit.com/d/19980720.html
-Ayane		http://ayane.tsunami-art.com/view.aspx?Rec=1
-SuburbanTribe		http://www.suburbantribe.net/?p=6
-HH		http://www.jastusa.com/webcomic/index.php?page=1&lang=
-Copper		http://www.boltcity.com/copper/copper_001_rocketpackfantasy.htm
-GamingGuardians		http://gamingguardians.com/d/20000507.html
-CollegeRoomiesFromHell		http://www.crfh.net/d/19990101.html
-StraysOnline		http://straysonline.com/comic/01.htm
-GirlAndFed		http://agirlandherfed.com/comic/?0
-MildlyHotPeppers		http://www.mildlyhotpeppers.com/comics/1/
+KnowledgeIsPower(gone)		http://www.kip-comics.com/?strip_id=1
+
+
+
+IndoorHeroes(gone)		http://www.indoorheroes.com/index.php?s=1
+
+
+ArcaneQuarry(missing)		http://aq.mewzstudios.com/2005/07/31/and-were-off/
+
+
+
+
+LifesAWitch(spiderforest)		http://www.witchytech.com/lifesawitch/2006/08/07/2006-08-07/
+
+
+BrunoTheBandit(keenspot)		http://brunothebandit.com/d/19980720.html
+
+
+
+
+
+
+
+
+
 YAFGC		http://yafgc.shipsinker.com/index.php?strip_id=1
 LucidTV		http://www.lucid-tv.com/008.html
 Luz		http://www.transmission-x.com/luz/2007/10/26/hello-world/

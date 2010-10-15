@@ -856,6 +856,109 @@ HiddenDisguises => [
 	'http://www.hiddendisguises.com/strip1/',
 	[class => 'object'],
 ],
+EGSFiller => [
+	'El Goonish Shive Filler',
+	'http://www.egscomics.com/sketchbook/?date=2002-07-01',
+	[class => 'comic2'],
+],
+NickTriggerAceDick => [
+	'Nick Trigger Ace Dick',
+	'http://www.supafine.com/comics/ntd.php?comicID=1',
+	[src => qr'comics/ntd/\d{8}'],
+],
+SomethingPositiveOld => [
+	'Something Positive 1937',
+	'http://www.classicallypositive.net/sp09071937.shtml',
+	[src => qr'arch/sp'],
+],
+SecondShift=> [
+	'2nd Shift',
+	'http://2ndshiftcomic.com/index.php?action=comics&cid=2',
+	[alt => '2nd Shift'],
+],
+LovesRaymond => [
+	'Everybody loves Eric Raymond',
+	'http://geekz.co.uk/lovesraymond/archive/slashdotted',
+	[class => 'entry'],
+	next => [_tag => 'div', class => 'alignright', sub { $_[0]->as_text =~ /»/ } ]
+],
+HardGraft => [
+	'Hard Graft',
+	'http://hard-graft.net/?p=33',
+	[id => 'comic-1'],
+],
+GeekHero => [
+	'Geek Hero',
+	'http://www.geekherocomic.com/2008/03/03/03032008/',
+	[src => qr'comics/\d{4}-\d\d-\d\d'],
+],
+Krakow => [
+	'Krakow',
+	'http://www.krakowstudios.com/krakow/archive.php?date=20001005',
+	[src => qr'comics/\d{8}'],
+],
+CustomersSuck => [
+	'Customers Suck',
+	'http://www.customerssuck.com/strip/index.php?date=2006-04-16',
+	[src => qr'strips/'],
+],
+SanAntonioRockCity => [
+	'San Antonio Rock City',
+	'http://www.mitchclem.com/rockcity/index.php?comic=1',
+	[alt => 'comic'],
+	next => [alt => 'right_arrow'],
+],
+TheaterHopper => [
+	'Theater Hopper',
+	'http://www.theaterhopper.com/2002/08/05/rich-little-he-aint/',
+	[id => 'comic-1'],
+],
+Ayane => [
+	'Ayane',
+	'http://ayane.tsunami-art.com/view.aspx?Rec=1',
+	[id => 'ComicImage']
+],
+SuburbanTribe => [
+	'Suburban Tribe',
+	'http://www.pixelwhip.com/?p=83',
+	[id => 'comic'],
+],
+HH => [
+	'H.H.',
+	'http://www.jastusa.com/webcomic/index.php?page=1&lang=',
+	[src => qr'/webcomic/']
+],
+Copper => [
+	'Copper',
+	'http://www.boltcity.com/copper/copper_001_rocketpackfantasy.htm',
+	[src=> qr'copperstrips/copper'],
+],
+GamingGuardians => [
+	'Gaming Guardians',
+	'http://gamingguardians.com/2000/05/07/05072000/',
+	[id => 'comic-1'],
+],
+CRFH => [
+	'College Roomies from Hell',
+	'http://www.crfh.net/d/19990101.html',
+	[alt => 'click for next comic'],
+],
+GirlAndFed => [
+	'A Girl and Her Fed',
+	'http://agirlandherfed.com/comic/?0',
+	[src => qr'/images/comics/'],
+],
+MildlyHotPeppers => [
+	'Mildly Hot Peppers',
+	'http://www.mildlyhotpeppers.com/comics/1/',
+	[class => 'comic'],
+],
+YAFGC => [
+	'Yet Another Fantasy Gamer Comic',
+	'http://yafgc.net/?id=1',
+	[id => 'comicimg'],
+],
+
 
 
 
