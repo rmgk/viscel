@@ -1,6 +1,11 @@
-use 5.010;
-use strict;
+#!perl
+#This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
+
+use 5.012;
 use warnings;
+
+our $VERSION = v1;
+
 use lib '../lib';
 use File::Copy;
 use File::Copy::Recursive qw(dircopy);
@@ -20,8 +25,8 @@ dircopy(abs_path('../lib/'),abs_path('dist/lib/')) or die("$!\n");
 
 copy(abs_path('../viscel.pl'),abs_path('dist/')) or die("$!\n");
 # copy(abs_path('../httpserver.pl'),abs_path('dist/')) or die("$!\n");
-# copy(abs_path('../comic.ini'),abs_path('dist/')) or die("$!\n");
-# copy(abs_path('../default.css'),abs_path('dist/')) or die("$!\n");
+copy(abs_path('../uclist.txt'),abs_path('dist/')) or die("$!\n");
+copy(abs_path('../default.css'),abs_path('dist/')) or die("$!\n");
 
 
 $ENV{'PAR_GLOBAL_TEMP'} = abs_path('./build/');
