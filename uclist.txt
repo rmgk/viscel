@@ -743,4 +743,82 @@ Sector => [
 	'http://www.viruscomix.com/page89.html',
 	[_tag => 'img']
 ],
+NewGoldDreams => [
+	'New Gold Dreams',
+	'http://www.newgolddreams.com/ngd1.shtml',
+	[src => qr'arch/ngd']
+],
+TwoLumps => [
+	'Two Lumps',
+	'http://www.twolumps.net/d/20040316.html',
+	[src => qr'/comics/']
+],
+Shortpacked => [
+	'Shortpacked',
+	'http://shortpacked.com/comic/book-1-brings-back-the-80s/01-just-a-toy-store/just-a-toy-store/',
+	[id => 'comic-1'],
+],
+SuperEffective => [ #dead pages
+	'Super Effective',
+	'http://www.vgcats.com/super/?strip_id=0',
+	[src => qr'^images/\d{6}'],
+	next => [src => 'next.gif'],
+],
+AdventureLog => [
+	'Adventure Log',
+	'http://www.vgcats.com/ffxi/?strip_id=0',
+	[src => qr'^images/\d{6}'],
+	next => [src => 'next.gif'],
+],
+CollarSix => [
+	'Collar Six',
+	'http://collar6.com/2009/choices-1',
+	[src => qr'/comics/\d{4}-\d\d-\d\d'],
+],
+Cartridge => [
+	'Cartridge',
+	'http://www.cartridgecomics.com/archive_page.php?comicID=1',
+	[src => qr'comikaze/comics/\d{8}']
+],
+AlienDice => [
+	'Alien Dice',
+	'http://aliendice.com/blog/2001/05/16/05162001/',
+	[id => 'comic-1'],
+],
+Misteam => [
+	'Misteam',
+	'http://mste.illinois.edu/projects/misteam/index.php?id=1',
+	[src => qr'images/misteam\d{4}']
+],
+Amazoness => [
+	'Amazoness',
+	'http://amazoness.co.uk/1.htm',
+	[src => qr'^comics/'],
+	next => [src => 'advance.gif']
+],
+NotAlone => [
+	'Not Alone',
+	'http://warofwinds.com/not-alone/?comic_id=0',
+	[src => qr'comics/\d{6}'],
+],
+ChocolateMilkmaid => [
+	'Chocolate Milkmaid',
+	'http://www.wlpcomics.com/adult/cm/001.html',
+	[alt => 'Archived Comic']
+],
+DieselSweeties => [
+	'Diesel Sweeties',
+	'http://www.dieselsweeties.com/archive/1',
+	[src=> qr'/hstrips/']
+],
+DMFA => [
+	"Dan and Mab's Furry Adventures",
+	'http://www.missmab.com/Comics/Vol_001.php',
+	[src => qr'Vol\d+'],
+],
+
+	
+
+
+
 

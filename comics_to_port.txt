@@ -148,21 +148,21 @@ UnspeakableVault(bad html)		http://www.macguff.fr/goomi/unspeakable/vault00-cast
 
 Nahast(spiderforest)		http://nahast.spiderforest.com/archive.php?comic_id=0
 
-NewGoldDreams		http://www.newgolddreams.com/ngd1.shtml
-TwoLumps		http://www.twolumps.net/d/20040316.html
-shortpacked		http://shortpacked.com/comic/book-1-brings-back-the-80s/01-just-a-toy-store/just-a-toy-store/
-SuperEffective		http://www.vgcats.com/super/?strip_id=0
-CollarSix		http://collar6.com/2009/choices-1
-Cartridge		http://www.cartridgecomics.com/archive_page.php?comicID=1
-AlienDice		http://aliendice.com/comics/05162001/
-Misteam		http://mste.illinois.edu/projects/misteam/index.php?id=1
-Amazoness		http://amazoness.co.uk/1.htm
-AprilAndMay		http://manga.clone-army.org/anm.php?lang=%3C?php%20print%20?%3E&page=1&lang=
-NotAlone		http://warofwinds.com/not-alone/?comic_id=0
-ChocolateMilkmaid		http://www.wlpcomics.com/adult/cm/001.html
-DieselSweeties		http://www.dieselsweeties.com/archive/1
-dmfa		http://www.missmab.com/Comics/Vol_001.php
-laslindas		http://katbox.net/laslindas/index.php?strip_id=1
+
+
+
+
+
+
+
+
+
+AprilAndMay(clonemanga)		http://manga.clone-army.org/anm.php?lang=%3C?php%20print%20?%3E&page=1&lang=
+NotAlone(spiderforest)		http://warofwinds.com/not-alone/?comic_id=0
+
+
+
+laslindas(katbox)		http://katbox.net/laslindas/index.php?strip_id=1
 PerkiGoth		http://mutt.purrsia.com/main.php?date=03/24/2001
 CrimsonDark		http://www.davidcsimon.com/crimsondark/index.php?view=comic&strip_id=1
 SugarStars		http://sugarstars.net/manga/vol1.html
