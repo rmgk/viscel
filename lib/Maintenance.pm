@@ -72,12 +72,21 @@ sub check_collections {
 	$c->{$next_check} = time;
 	return 1 unless $next_check;
 	$l->trace('check ' , $next_check);
+	return check_collection($next_check);
+
+}
+
+#$collections
+#checks the given collection
+sub check_collection {
+	my ($next_check) = @_;
 	my $col = Collection->get($next_check);
 	unless (Cores::new($next_check)) { # unknown collections get purged
 		$col->purge();
 		return 1;
 	}
 	my $last_pos = $col->last();
+	$l->trace("checking last ($last_pos) of $next_check");
 	unless ($last_pos) {
 		$l->error('has no elements', $next_check);
 		$col->purge();

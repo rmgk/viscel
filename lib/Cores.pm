@@ -171,6 +171,10 @@ sub _config_collection {
 			 export => { name => 'export',
 						 action => 'export',
 						 description => 'export all files of this collection to directory'
+						},
+			 check => { name => 'check',
+						 action => 'check',
+						 description => 'checks the local collection for inconsisties with the remote files'
 						}
 			}
 	

@@ -77,7 +77,7 @@ sub purge {
 #$position
 sub delete {
 	my ($s,$pos) = @_;
-	$l->warn("delete $pos form " , $s->{id});
+	$l->warn("delete $pos from " , $s->{id});
 	$DBH->do("DELETE FROM ". $s->{id} ." WHERE position = ?",undef,$pos);
 	$DBH->commit();
 }

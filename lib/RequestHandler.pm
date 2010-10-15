@@ -351,6 +351,10 @@ sub action {
 				$ret = ['getall',$args[1]];
 				$html .= "this may take some time";
 			}
+			when ('check') {
+				$ret = ['check',$args[1]];
+				$html .= "checking collection for inconsistencies";
+			}
 			when ('updatelist') {
 				my $core = $args[1];
 				$ret = sub {$core->update_list()};

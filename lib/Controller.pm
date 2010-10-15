@@ -79,6 +79,7 @@ sub handle_hint {
 				when ('config') {$maintainer = Maintenance->new(); $default_timeout = $main::IDLE} #config changed, maintain anew
 				when ('getrec') {hint_getrec(@$hint)}
 				when ('export') {hint_export(@$hint)}
+				when ('check') { until (Maintenance::check_collection(@$hint)) {} }
 				default {$l->warn("unknown hint $_")}
 			}
 		}
