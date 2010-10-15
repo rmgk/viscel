@@ -1,12 +1,10 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Animea;
+package Core::Animea v1.0.0;
 
 use 5.012;
 use warnings;
 use lib "..";
-
-our $VERSION = v1;
 
 use parent qw(Core::Template);
 

@@ -3,7 +3,8 @@
 
 use 5.012;
 use warnings;
-use lib "./lib";
+use FindBin;
+use lib $FindBin::Bin."/lib";
 
 our $VERSION = v4.0.0;
 

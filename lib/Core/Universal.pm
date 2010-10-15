@@ -1,14 +1,13 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Universal;
+package Core::Universal v1.0.0;
 
 use 5.012;
 use warnings;
 use lib "..";
 
-our $VERSION = v1;
-
 use parent qw(Core::Template);
+use FindBin;
 
 my $l = Log->new();
 
@@ -24,7 +23,7 @@ sub _load_list {
 #creates the list of known manga
 sub _create_list {
 	my ($pkg) = @_;
-	my %raw_list = do ('uclist.txt');
+	my %raw_list = do ($FindBin::Bin.'/uclist.txt');
 	if ($@) {
 		chomp $@;
 		$l->error('could not load list: ' , $@);

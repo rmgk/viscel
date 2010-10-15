@@ -1,11 +1,9 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package RequestHandler;
+package RequestHandler v1.0.0;
 
 use 5.012;
 use warnings;
-
-our $VERSION = v1;
 
 use Log;
 use HTTP::Daemon;
@@ -17,6 +15,7 @@ use Cache;
 use UserPrefs;
 use URI;
 use Time::HiRes qw(tv_interval gettimeofday);
+use FindBin;
 
 my $l = Log->new();
 my $cgi;
@@ -179,7 +178,7 @@ sub init {
 #sends the default css file
 sub css {
 	my ($c,$r) = @_;
-	$c->send_file_response('default.css');
+	$c->send_file_response($FindBin::Bin.'/style.css');
 }
 
 #$connection, $request

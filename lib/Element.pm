@@ -1,11 +1,9 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Element;
+package Element v1.0.0;
 
 use 5.012;
 use warnings;
-
-our $VERSION = v1;
 
 use CGI qw(img embed);
 use Log;

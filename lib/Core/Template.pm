@@ -1,12 +1,10 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Template;
+package Core::Template v1.0.0;
 
 use 5.012;
 use warnings;
 use lib "..";
-
-our $VERSION = v1;
 
 use Log;
 use DBI;

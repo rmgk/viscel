@@ -1,11 +1,9 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Cache;
+package Cache v1.0.0;
 
 use 5.012;
 use warnings;
-
-our $VERSION = v1;
 
 use Log;
 
