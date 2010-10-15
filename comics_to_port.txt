@@ -162,19 +162,19 @@ NotAlone(spiderforest)		http://warofwinds.com/not-alone/?comic_id=0
 
 
 
-laslindas(katbox)		http://katbox.net/laslindas/index.php?strip_id=1
-PerkiGoth		http://mutt.purrsia.com/main.php?date=03/24/2001
-CrimsonDark		http://www.davidcsimon.com/crimsondark/index.php?view=comic&strip_id=1
-SugarStars		http://sugarstars.net/manga/vol1.html
-Juathuur1		http://oneway.juathuur.com/1/?strip_id=1
-CounterRose		http://www.counter-rose.com/page.php?p=1
-Arcana		http://mysteriesofthearcana.com/index.php?action=comics&cid=1
-AntiHeroForHire		http://antiheroforhire.com/d/20030611.html
-Estar		http://www.viruscomix.com/estarone.html
-KevinAndKell		http://www.kevinandkell.com/1995/kk0904.html
-DaisyOwl		http://www.daisyowl.com/comic/2008-07-03
-Zortic		http://zortic.com/d/20000327.html
-HiddenDisguise		http://www.hiddendisguises.com/archive/strip1.html
+
+
+
+
+
+CounterRose(bad html)		http://www.counter-rose.com/page.php?p=1
+Arcana(spiderforest)		http://mysteriesofthearcana.com/index.php?action=comics&cid=1
+AntiHeroForHire(keenspot)		http://antiheroforhire.com/d/20030611.html
+
+
+
+Zortic(multi strip page)		http://zortic.com/d/20000327.html
+
 KnowledgeIsPower		http://www.kip-comics.com/?strip_id=1
 EGSFiller		http://www.egscomics.com/Filler/d/20020701.html
 NickTriggerAceDick		http://www.supafine.com/comics/ntd.php?comicID=1

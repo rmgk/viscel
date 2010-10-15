@@ -816,9 +816,47 @@ DMFA => [
 	'http://www.missmab.com/Comics/Vol_001.php',
 	[src => qr'Vol\d+'],
 ],
+PerkiGoth => [
+	'Perki Goth Candi Raver',
+	'http://mutt.purrsia.com/main.php?date=03/24/2001',
+	[src => qr'comics/\d{8}']
+],
+CrimsonDark => [
+	'Crimson Dark',
+	'http://www.davidcsimon.com/crimsondark/index.php?view=comic&strip_id=1',
+	[src => qr'istrip_files']
+],
+SugarStars => [
+	'Sugar Stars',
+	'http://sugarstars.net/manga/view.php?p=1',
+	[id => 'cg_img'],
+],
+JuathuurOne => [
+	'Juathuur: One Way or Another',
+	'http://www.oneway.juathuur.com/?id=1',
+	[id => 'comicimg'],
+],
+Estar => [
+	'Estar',
+	'http://www.viruscomix.com/estarone.html',
+	[_tag => 'img'],
+],
+KevinAndKell => [
+	'Kevin and Kell',
+	'http://www.kevinandkell.com/1995/kk0904.html',
+	[id => 'comic'],
+],
+DaisyOwl => [
+	'Daisy Owl',
+	'http://www.daisyowl.com/comic/2008-07-03',
+	[src => qr'/comic_images/'],
+],
+HiddenDisguises => [
+	'Hidden Disguises',
+	'http://www.hiddendisguises.com/strip1/',
+	[class => 'object'],
+],
 
-
-	
 
 
 
