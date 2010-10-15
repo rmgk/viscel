@@ -28,7 +28,7 @@ sub _create_list {
 				$l->debug("could not parse $href");
 				next;
 			}
-			#$href = URI->new_abs("/$id-chapter-1-page-1.html",$url)->as_string;
+			$href = URI->new_abs($href,$url)->as_string;
 			$id =~ s/\W/_/g;
 			$id = 'Animea_' . $id;
 			$clist{$id} = {url_info => $href, name => $name};
@@ -53,7 +53,6 @@ sub _searchkeys {
 sub _fetch_info {
 	my ($s) = @_;
 	my $url = $s->clist()->{url_info};
-	#$url =~ s/-chapter-.*-page-1//;
 	$url .= '?skip=1';
 	my $tree = $s->_get_tree($url) or return undef;
 	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $tree->look_down(_tag=>'a', href=>qr'/genre/'i);

@@ -64,7 +64,7 @@ use parent -norequire, 'Core::Template::Spot';
 #parses the page to mount it
 sub _mount_parse {
 	my ($s,$tree) = @_;
-	my $img = $tree->look_down(_tag => 'div', id=>'content')->look_down(_tag=>'img');
+	my $img = $tree->look_down(_tag => 'div', id=>'content')->look_down(_tag=>'img',src => qr'fakku.net');
 	unless ($img) {
 		$l->error('could not get image');
 		$s->{fail} = 'could not get image';
