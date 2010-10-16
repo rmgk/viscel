@@ -92,6 +92,10 @@ sub hint_front {
 	my ($id) = @_;
 	$l->trace('handle front hint '.$id);
 	my $core = Cores::new($id);
+	unless ($core) {
+		$l->trace('unknown collection ', $id);
+		return undef;
+	}
 	$core->fetch_info();
 	my $col = Collection->get($id);
 	return undef if $col->fetch(1);
