@@ -958,6 +958,264 @@ YAFGC => [
 	'http://yafgc.net/?id=1',
 	[id => 'comicimg'],
 ],
+Fantasticness => [
+	'Fantasticness',
+	'http://www.supafine.com/comics/fant.php?comicID=1',
+	[src => qr'/comics/fant/\d{8}'],
+],
+Crap => [
+	'Crap I Drew On My Lunch Break',
+	'http://crap.jinwicked.com/2003/07/30/jin-and-josh-decide-to-move/',
+	[id => 'comic'],
+],
+Oriyan => [
+	'Oriyan',
+	'http://jadephoenix.org/oriyan/strip/cover1.html',
+	[src => qr'oriyan/images/'],
+],
+Cemedity => [
+	'Comedity',
+	'http://www.comedity.com/index.php?strip_id=1',
+	[name => 'comic'],
+	next => [alt => 'Ensuing Strip'],
+],
+HolyBible => [
+	'Holy Bible',
+	'http://holybibble.net/latest.php?id=1',
+	[src => qr'images/strips/'],
+],
+FungusGrotto => [
+	'Fungus Grotto',
+	'http://www.destiny-makers.net/fg/fg_cov.html',
+	[src => qr'/fg/pages/']
+],
+Fera => [
+	'Fera',
+	'http://angelk.at/fera/chronicles/fera-title/',
+	[id => 'comic']
+],
+StealThisComic => [
+	'Steal This Comic',
+	'http://www.stealthiscomic.com/2008/03/10/welcome-to-the-show/',
+	[id => 'comic'],
+],
+Nodwick => [
+	'Nodwick',
+	'http://nodwick.humor.gamespy.com/gamespyarchive/index.php?date=2001-03-27',
+	[src => qr'strips/\d{4}-\d\d-\d\d'],
+	next => [src => 'forward.jpg'],
+],
+PursuitMandy => [
+	'The Pursuit of Mandy',
+	'http://thepursuitofmandy.com/?p=23',
+	[id => 'comic']
+],
+GirlGenius => [
+	'Girl Genius',
+	'http://www.girlgeniusonline.com/comic.php?date=20021104',
+	[alt => 'Comic'],
+],
+TheWotch => [
+	'The Wotch',
+	'http://www.thewotch.com/?epDate=2002-11-21',
+	[title => qr'^Comic for'],
+],
+EnkersTale => [
+	'Enkers Tale',
+	'http://www.coloringdragons.com/enker/page001.htm',
+	[src => qr'^images/Page'i]
+],
+Saturnalia => [
+	'Saturnalia',
+	'http://spacecoyote.com/comics/sat/comic.php?page=0101',
+	[src => qr'/comics/sat/\d\d/\d{4}']
+],
+Jack => [
+	'Jack',
+	'http://www.pholph.com/strip.php?id=5&sid=363',
+	[src => qr'^\./artwork/../.+/Jack\d{8}']
+],
+NerfNow => [
+	'Nerf Now',
+	'http://nerfnow.com/comic/4',
+	[id => 'comic'],
+	next => [id => 'nav_next'],
+],
+GottGaussDe => [
+	'Gott Gauss (Deutsch)',
+	'http://gottgauss.viviane.ch/gg-manga/de/',
+	[src => qr'seiten/'],
+],
+GottGaussEn => [
+	'Gott Gauss (English)',
+	'http://gottgauss.viviane.ch/gg-manga/en/',
+	[src => qr'seiten/'],
+],
+EinStueckWahnsinn => [
+	'Ein Stück Wahnsinn',
+	'http://wahnsinn.viviane.ch/wahnmanga/wahnmanga01.htm',
+	[src => qr'manga/wahn'],
+	next => [name => 'pfeil3']
+],
+Cubetoons => [
+	'Cubetoons',
+	'http://www.cubetoons.com/index.php?option=com_content&view=article&id=51%3Alevel-1',
+	[src => qr'/images/stories/cubetoons/']
+],
+CaptainSNES => [
+	'Captain SNES',
+	'http://www.captainsnes.com/2001/07/10/the-mistake/',
+	[src => qr'/comics/\d{4}-\d\d-\d\d']
+],
+Zap => [
+	'Zap',
+	'http://www.zapcomic.com/2003/07/20030713/',
+	[class => qr'^comic-item'],
+],
+Yamara => [
+	'Yamara',
+	'http://www.yamara.com/yamaraclassic/index.php?date=2005-05-23',
+	[src => qr'strips/\d{4}-\d\d-\d\d'],
+],
+TodayNothingHappened => [
+	'Dear Diary, Today Nothing Happened',
+	'http://www.shazzbaa.com/index.php?c=1',
+	[id => 'comic'],
+],
+FamilyMan => [
+	'Family Man',
+	'http://www.lutherlevy.com/?p=3',
+	[id => 'comic'],
+],
+PartiallyClips => [
+	'Partially Clips',
+	'http://www.partiallyclips.com/index.php?id=1054',
+	[id => 'comic']
+],
+Thistledown => [
+	'Tales of Thistledown',
+	'http://talesofthistledown.com/?p=19',
+	[id => 'comic'],
+],
+Aikida => [
+	'Aikida',
+	'http://www.aikida.net/2008/05/26/the-return-strip/',
+	[id => 'comic'],
+],
+LukeSurl => [
+	'Luke Surl',
+	'http://www.lukesurl.com/archives/66',
+	[id => 'comic']
+],
+DungeonCrawlInc => [
+	'Dungeon Crawl Inc.',
+	'http://www.dungeoncrawlinc.com/comic1.html',
+	[src => qr'DCI_'],
+],
+ProjectAusserdem => [
+	'Project Außerdem',
+	'http://rono64.com/?p=12',
+	[id => 'comic-1'],
+],
+KrakowTwo => [
+	'Krakow 2.0',
+	'http://www.krakowstudios.com/krakow20/archive.php?date=20080121',
+	[src => qr'comics/\d{8}'],
+],
+EmeraldWinter => [
+	'Emerald Winter',
+	'http://www.emeraldwinter.net/ew/cover001.php',
+	[src => qr'pages/'],
+],
+VanHunter => [
+	'Van von Hunter',
+	'http://www.vanvonhunter.com/vvh1.html',
+	[src => qr'/strips/vvh_'],
+	next => [alt => 'Next Comic'],
+],
+IrregularWebcomic => [
+	'Irregular Webcomic',
+	'http://www.irregularwebcomic.net/1.html',
+	[src => qr'/comics/irreg\d{4}'],
+	next => [_tag => 'a', sub { $_[0]->as_text() eq '>' }],	
+],
+OctopusPie => [
+	'Octopus Pie',
+	'http://www.octopuspie.com/index.php?date=2007-05-14',
+	[src => qr'/strippy/\d{4}-\d\d-\d\d'],
+],
+George => [
+	'George',
+	'http://www.george-comics.com/2005/01/31/its-probably-a-water-buffalo/',
+	[id => 'comic'],
+],
+BrawlInTheFamily => [
+	'Brawl in the Family',
+	'http://www.brawlinthefamily.com/comic001.html',
+	[src => qr'Images/\d\d'],
+],
+Stubble => [
+	'Stubble',
+	'http://www.stubblecomics.com/d/001.html',
+	[src => qr'/comics/\d{3}'],
+	next => [src => qr'^/fowardarrow.gif']
+],
+HarkVagrant => [
+	'Hark! a Vagrant',
+	'http://www.harkavagrant.com/index.php?id=1',
+	[class => 'rss-content'],
+],
+DarkWings => [
+	'Dark Wings',
+	'http://www.flowerlarkstudios.com/dark-wings/archive.php?day=20080531',
+	[class => 'comicPic_avail'],
+],
+ThreePanelSoul => [
+	'Three Panel Soul',
+	'http://www.threepanelsoul.com/view.php?date=2006-11-05',
+	[class => 'rss-content'],
+],
+Concerned => [
+	'Concerned',
+	'http://www.hlcomic.com/index.php?date=2005-05-01',
+	[src => qr'comics/concerned'],
+],
+Omegamanor => [
+	'Omega Manor',
+	'http://www.omegamanor.wildtwilight.com/0000.html',
+	[src => qr'^maid \d{4}']
+],
+Doghouse => [
+	'The Dog House Diaries',
+	'http://www.thedoghousediaries.com/?p=34',
+	[class => 'object'],
+	next => [ class => 'next-comic-link' ],
+],
+LiliDeacon => [
+	'The Legend of Lili Deacon',
+	'http://www.cartoonfrolics.com/08/07/2008/page-thirty-six-know-when-yer-licked/',
+	[id => 'comic-1'],
+],
+OutAtFive => [
+	'Out at Five',
+	'http://www.outatfive.com/?p=84',
+	[id => 'comic'],
+],
+ParallelDementia => [
+	'Parallel Dementia',
+	'http://pd.milkinthepantry.com/?strip_id=0',
+	[src => qr'comics/\d{6}'],
+	next => [alt => 'Next'],
+],
+DresdenCodak => [
+	'Dresden Codak',
+	'http://dresdencodak.com/2005/06/08/the-tomorrow-man/',
+	[id => 'comic'],
+],
+
+
+
+
 
 
 

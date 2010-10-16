@@ -200,80 +200,79 @@ BrunoTheBandit(keenspot)		http://brunothebandit.com/d/19980720.html
 
 
 
-YAFGC		http://yafgc.shipsinker.com/index.php?strip_id=1
-LucidTV		http://www.lucid-tv.com/008.html
-Luz		http://www.transmission-x.com/luz/2007/10/26/hello-world/
-VenomLegion		http://ladystar.net/venomlegion/2008/02/14/hello-world/
-ClemmysDoodles		http://www.clementinebeauvais.com/?p=53
-Fantasticness		http://www.supafine.com/comics/fant.php?comicID=1
-Crap		http://crap.jinwicked.com/2003/07/30/jin-and-josh-decide-to-move/
-Superosity		http://superosity.com/d/19990301.html
-Oriyan		http://jadephoenix.org/oriyan/strip/cover1.html
-Comedity		http://www.comedity.com/index.php?strip_id=1
-ElfOnlyInn		http://www.elfonlyinn.net/d/20020523.html
-Gunbaby		http://www.gunbaby.com/comic.php?comicID=1
-RedMoon		http://www.redmoonrising.org/2009/01/chapter-1-cover/
-SinTitulo		http://www.sintitulocomic.com/2007/06/17/page-01/
-AnimeNewsNinja		http://www.animenewsnetwork.com/anime-news-nina/2007-10-24
-GrimTales		http://grim.snafu-comics.com/?comic_id=0
-HolyBible		http://holybibble.net/latest.php?id=1
-ShapeQuest		http://www.shapequest.net/?id=1
-FungusGrotto		http://www.destiny-makers.net/fg/fg_cov.html
-Fera		http://angelk.at/fera/chronicles/fera-title/
-Fuzznuts		http://fuzznuts.spiderspawn.com/?p=10
-StealThisComic		http://www.stealthiscomic.com/2008/03/10/welcome-to-the-show/
-Nodwick		http://nodwick.humor.gamespy.com/gamespyarchive/index.php?date=2001-03-27
-thepursuitofmandy		http://thepursuitofmandy.com/?p=23
-GirlGenius		http://www.girlgeniusonline.com/comic.php?date=20021104
-megatokyo		http://www.megatokyo.com/strip/1
-OutThere		http://outtherecomic.com/d/20060612.html
-TheWotch		http://www.thewotch.com/?epDate=2002-11-21
-EnkersTale		http://www.coloringdragons.com/enker/page001.htm
-saturnalia		http://spacecoyote.com/comics/sat/comic.php?page=0101
-Jack		http://www.pholph.com/strip.php?id=5&sid=363
-NerfNow		http://nerfnow.com/comic/4
-BratHalla		http://www.graphicsmash.com/comics/brathalla.php?view=single&ID=11950
-GottGauss		http://gottgauss.viviane.ch/gg-manga/de/gg-000.htm
-Cubetoons		http://www.cubetoons.com/index.php?option=com_content&view=article&id=51%3Alevel-1
-CaptainSNES		http://www.captainsnes.com/2001/07/10/the-mistake/
-Zap		http://zapinspace.com/d/20030713.html
-Yamara		http://www.yamara.com/yamaraclassic/index.php?date=2005-05-23
-TodayNothingHappened		http://www.shazzbaa.com/index.php?c=1
-FamilyMan		http://www.lutherlevy.com/?p=3
-PartiallyClips		http://www.partiallyclips.com/index.php?id=1054
-TalesOfThistledown		http://talesofthistledown.com/?p=19
-Aikida		http://www.aikida.net/2008/05/26/the-return-strip/
-LukeSurl		http://www.lukesurl.com/archives/66
-DMOfTheRings		http://www.shamusyoung.com/twentysidedtale/?p=612
-DungeonCrawlInc		http://www.dungeoncrawlinc.com/comic1.html
-ProjectAusserdem		http://rono64.com/?p=240
-CaribbeanBlue		http://katbox.net/cblueen/index.php?strip_id=1
-Krakow20		http://www.krakowstudios.com/krakow20/archive.php?date=20080121
-PowerpuffGirls		http://ppg.snafu-comics.com/?comic_id=0
-EmeraldWinter		http://www.emeraldwinter.net/ew/cover001.php
-VanVonHunter		http://www.vanvonhunter.com/vvh1.html
-IrregularWebcomic		http://www.irregularwebcomic.net/1.html
-OctopusPie		http://www.octopuspie.com/index.php?date=2007-05-14
-TheBMovieComic		http://www.bmoviecomic.com/index.php?cid=8
-George		http://www.george-comics.com/2005/01/31/its-probably-a-water-buffalo/
-BrawlInTheFamily		http://www.brawlinthefamily.com/comic001.html
-Stubble		http://www.stubblecomics.com/d/001.html
-PaperEleven		http://manga.clone-army.org/pxi.php?lang=%3C?php%20print%20?%3E&page=1&lang=
-SuchRubbish		http://www.suchrubbish.com/000.html
-DividedSky		http://www.divided-sky.net/oldcomic/oldcomics.php?1
-DrowLove		http://drowlove.com/archives/9
-NorthernEdge		http://ne.tsunami-art.com/view.aspx?Rec=2
-HarkAVagrant		http://www.harkavagrant.com/index.php?id=1
-DarkWings		http://www.flowerlarkstudios.com/dark-wings/archive.php?day=20080531
-ThreePanelSoul		http://www.threepanelsoul.com/view.php?date=2006-11-05
-striptease		http://www.stripteasecomic.com/d/20000930.html
-Concerned		http://www.hlcomic.com/index.php?date=2005-05-01
-KickinRad		http://petitesymphony.com/comic/kickin-rad/hell-no
-OmegaManor		http://www.omegamanor.wildtwilight.com/0000.html
-Doghouse		http://www.thedoghousediaries.com/?p=34
-LiliDeacon		http://www.cartoonfrolics.com/?p=1
-OutAtFive		http://www.outatfive.com/?p=84
-ParallelDementia		http://pd.milkinthepantry.com/?strip_id=0
+
+LucidTV(???)		http://www.lucid-tv.com/008.html
+Luz(TX)		http://www.transmission-x.com/luz/2007/10/26/hello-world/
+VenomLegion(ladystar)		http://ladystar.net/venomlegion/2008/02/14/hello-world/
+ClemmysDoodles(french)		http://www.clementinebeauvais.com/?p=53
+
+
+Superosity(keenspot)		http://superosity.com/d/19990301.html
+
+
+ElfOnlyInn(keenspot)		http://www.elfonlyinn.net/d/20020523.html
+Gunbaby(gone)		http://www.gunbaby.com/comic.php?comicID=1
+RedMoon(sage-comics)		http://www.redmoonrising.org/2009/01/chapter-1-cover/
+SinTitulo(TX)		http://www.sintitulocomic.com/2007/06/17/page-01/
+AnimeNewsNinja(bigger image available)		http://www.animenewsnetwork.com/anime-news-nina/2007-10-24
+GrimTales(snafu)		http://grim.snafu-comics.com/?comic_id=0
+
+ShapeQuest(gone)		http://www.shapequest.net/?id=1
+
+
+Fuzznuts(spiderforest)		http://fuzznuts.spiderspawn.com/?p=10
+
+
+
+
+megatokyo(bad html)		http://www.megatokyo.com/strip/1
+OutThere(keenspot)		http://outtherecomic.com/d/20060612.html
+
+
+
+
+
+BratHalla(graphicsmash)		http://www.graphicsmash.com/comics/brathalla.php?view=single&ID=11950
+
+
+
+
+
+
+
+
+
+
+
+DMOfTheRings(multi strip page)		http://www.shamusyoung.com/twentysidedtale/?p=612
+
+
+
+
+PowerpuffGirls(snafu)		http://ppg.snafu-comics.com/?comic_id=0
+
+
+
+
+TheBMovieComic(sage-comics)		http://www.bmoviecomic.com/index.php?cid=8
+
+
+
+PaperEleven(clonemanga)		http://manga.clone-army.org/pxi.php?lang=%3C?php%20print%20?%3E&page=1&lang=
+SuchRubbish(gone)		http://www.suchrubbish.com/000.html
+DividedSky(gone)		http://www.divided-sky.net/oldcomic/oldcomics.php?1
+DrowLove(down)		http://drowlove.com/archives/9
+NorthernEdge(down)		http://ne.tsunami-art.com/view.aspx?Rec=2
+
+
+
+striptease(keenspot)		http://www.stripteasecomic.com/d/20000930.html
+
+KickinRad(petit symphony)		http://petitesymphony.com/comic/kickin-rad/hell-no
+
+
+
+
 dresdencodak		http://dresdencodak.com/2005/06/08/the-tomorrow-man/
 AcademyVale		http://imagerie.com/vale/avarch.cgi?001
 Banished		http://www.banishedonline.com/d/20060116.html
@@ -327,7 +326,7 @@ BizarreUprising		http://www.bizarreuprising.com/view.php?id=1
 TheEndOfThings		http://endofthingscomic.com/?p=254
 AbleAndBaker		http://jimburgessdesign.com/comics/index.php?comic=1
 EGSNewspaper		http://www.egscomics.com/egsnp/d/20040224.html
-Ragni		http://www.transmission-x.com/_ragni/?p=10
+Ragni(TX)		http://www.transmission-x.com/_ragni/?p=10
 ColinTheBrick		http://colinthebrick.com/?strip_id=0
 TwilightLady		http://www.twilightlady.com/2008/03/16/the-secret-of-cass-corridor-2/
 Helpdesk		http://ubersoft.net/comic/hd/1996/03/alex-loss-words
