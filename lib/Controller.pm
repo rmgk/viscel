@@ -188,6 +188,7 @@ sub hint_getrec {
 	$l->debug('adding ' . @rec . ' collections to recommended list');
 	my $r = UserPrefs->section('recommended');
 	$r->set($_,1) for @rec;
+	UserPrefs::save();
 }
 
 #$collection
