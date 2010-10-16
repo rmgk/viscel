@@ -138,7 +138,7 @@ sub html_config {
 		$html .= cgi->start_table();
 		$html .= cgi->thead(cgi->Tr(cgi->td([undef,undef,cgi->strong(' Default'),cgi->strong('Description')])));
 		$html .= cgi->start_tbody();
-		$html .= join cgi->br(), map { 
+		$html .= join '', map { 
 				cgi->Tr(cgi->td([ $_. ': ',
 					$cfg->{$_}->{expected} eq 'bool' ? 
 					cgi->checkbox($_,($cfg->{$_}->{current} // $cfg->{$_}->{default}),1,'') : #/ padre display bug
@@ -146,10 +146,12 @@ sub html_config {
 				(defined $cfg->{$_}->{default} ? $cfg->{$_}->{default} : '' ) , 
 				$cfg->{$_}->{description} ]))
 			} grep {!$cfg->{$_}->{action}} keys %$cfg;
-		$html .= cgi->end_tbody(). cgi->end_table();
-		$html .= cgi->submit(-class=>'submit',-value=>'update');
+		$html .= cgi->end_tbody();
+		$html .= cgi->tfoot(cgi->Tr(cgi->td(cgi->submit(-class=>'submit',-value=>'update'))));
+		$html .= cgi->end_table();
 		$html .= cgi->end_form();
 	$html .= cgi->end_fieldset();
+
 	$html .= cgi->start_fieldset({-class=>'info'});
 		$html .= cgi->legend('Actions');
 		$html .= join '', map {
