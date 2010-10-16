@@ -108,7 +108,7 @@ sub search {
 		my $l = $p->clist($id);
 		my $sid = $id;
 		$sid =~ s/^[^_]*+_//;
-		reg: for my $re (@re) {
+		reg: for my $re (@re) { #all regexes should match
 			if ($sid ~~ $re) {
 				$cap{$id} = $1;
 				next reg;
@@ -128,17 +128,6 @@ sub search {
 	}
 	$l->trace('took ', tv_interval($time), ' seconds');
 	return @return;
-	# return map {[$_,$p->clist($_)->{name},$cap{$_}]} grep {
-		# my $id = $_;
-		# my $l = $p->clist($id);
-		# $id =~ s/^[^_]*+_//;
-		# @re == grep {
-			# my $re = $_;
-			# ($id ~~ $re and defined( $cap{$id} = $1 // '' )) or grep { #/ padre display bug
-				# (defined $l->{$_} and $l->{$_} ~~ $re ) and defined( $cap{$id} = $1 // '' ); #/ padre display bug
-			# } @$filter ? @$filter : $p->_searchkeys()
-		# } @re;
-	# } $p->clist();
 }
 
 #pkg, \%config -> \%config
