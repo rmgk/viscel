@@ -233,7 +233,7 @@ sub view {
 		$html .= html_notification('bookmark updated');
 	}
 	$html .= cgi->start_div({-class=>'content'});
-	$html .= $ent->html();
+	$html .= link_view($id,($pos + 1),$ent->html());
 	$html .= cgi->end_div();
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_view($id,($pos - 1),'prev') if ($pos - 1 > 0);
@@ -275,10 +275,10 @@ sub front {
 	if ($bm and $ent) {
 		$html .= cgi->start_div({-class=>'content'});
 			my $p = $col->fetch($bm-2);
-			$html .= $p->html() if $p;
+			$html .= link_view($id,$bm-2,$p->html()) if $p;
 			$p = $col->fetch($bm-1);
-			$html .= $p->html() if $p;
-			$html .= $ent->html();
+			$html .= link_view($id,$bm-1,$p->html()) if $p;
+			$html .= link_view($id,$bm,$ent->html());
 		$html .= cgi->end_div();
 	}
 	
