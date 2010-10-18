@@ -72,7 +72,7 @@ sub _mount_parse {
 	}
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width height);
 	$s->{src} = URI->new_abs($s->{src},$s->{state})->as_string;
-	my $a = $tree->look_down(_tag => 'div', class=>'next_right_nav')->look_down(_tag=>'a');
+	my $a = $img->look_up(_tag=>'a');
 	if ($a) {
 		$s->{next} = $a->attr('href');
 		$s->{next} = URI->new_abs($s->{next} ,$s->{state})->as_string;
