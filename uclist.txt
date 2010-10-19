@@ -1,4 +1,4 @@
-﻿Zona => [
+Zona => [
 	'The challenges of Zona',
 	'http://www.soulgeek.com/comics/zona/2005/08/01/page-01/',
 	[_tag => 'div', id => 'comic']
