@@ -1,4 +1,4 @@
-#!perl
+﻿#!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
 package Log v1.0.0;
 
