@@ -114,7 +114,7 @@ sub handle_request {
 sub send_response {
 	my ($c,$html) = @_;
 	$l->trace('send response');
-	my $res = HTTP::Response->new( 200, 'OK', ['Content-Type','text/html']);
+	my $res = HTTP::Response->new( 200, 'OK', ['Content-Type','text/html; charset=UTF-8']);
 	$res->content($html);
 	$c->send_response($res);
 }

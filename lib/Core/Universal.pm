@@ -83,7 +83,7 @@ sub _mount_parse {
 		$l->error('no object found');
 		return undef;
 	}
-	map {$s->{$_} = $img->attr($_)} qw( src title alt width height );
+	$s->{$_} = $img->attr($_) for qw( src title alt width height );
 	my $a;
 	my $next_crit = Core::Universal->clist($s->id)->{next};
 	if ($next_crit and @$next_crit) {
