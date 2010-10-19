@@ -147,7 +147,7 @@ sub html_config {
 				$cfg->{$_}->{description} ]))
 			} grep {!$cfg->{$_}->{action}} keys %$cfg;
 		$html .= cgi->end_tbody();
-		$html .= cgi->tfoot(cgi->Tr(cgi->td(cgi->submit(-class=>'submit',-value=>'update'))));
+		$html .= cgi->tfoot(cgi->Tr(cgi->td(cgi->submit(-name=>'submit',-class=>'submit',-value=>'update'))));
 		$html .= cgi->end_table();
 		$html .= cgi->end_form();
 	$html .= cgi->end_fieldset();
@@ -228,12 +228,6 @@ sub view {
 	} 
 	
 	my $html = html_header('view',$pos);
-	if ($r->method eq 'POST') {
-		$l->debug("set bookmark of $id to $pos");
-		UserPrefs->section('bookmark')->set($id,$pos);
-		UserPrefs::save();
-		$html .= html_notification('bookmark updated');
-	}
 	$html .= cgi->start_div({-class=>'content'});
 	$html .= link_view($id,($pos + 1),$ent->html());
 	$html .= cgi->end_div();
@@ -242,7 +236,10 @@ sub view {
 		$html .= ' ';
 		$html .= link_front($id,'front');
 		$html .= ' ';
-		$html .= form_action('pause',url_view($id,$pos));
+			$html .= cgi->start_form(-method=>'POST',-action=>url_config($id),-enctype=>&CGI::URL_ENCODED);
+			$html .= cgi->hidden('bookmark',$pos);
+			$html .= cgi->submit(-name=>'submit',-class=>'submit', -value => 'pause');
+			$html .= cgi->end_form();
 		$html .= ' ';
 		$html .= cgi->a({href=>$ent->page_url(),-class=>'extern'},'site');
 		$html .= ' ';
@@ -302,6 +299,8 @@ sub config {
 		my $cgi = cgi($r->content());
 		my %c;
 		for (keys %$cfg) {
+			next unless $cfg->{$_}->{expected};
+			next unless $cgi->param('submit') eq 'update' or defined $cgi->param($_);
 			if (ref $cfg->{$_}->{expected} and $cgi->param($_) ~~ $cfg->{$_}->{expected} ) {
 				$c{$_} = $cgi->param($_);
 			}
