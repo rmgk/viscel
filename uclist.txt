@@ -364,7 +364,7 @@ Afterstrife => [
 	[id => 'comic'],
 ],
 TodUndMaedchen => [
-	'Der Tod und das Mädchen',
+	'Der Tod und das MÃ¤dchen',
 	'http://www.cartoontomb.de/deutsch/tod2.php?bild=00_01_01.jpg',
 	[src => qr'images/tod/teil2/'],
 	next => [_tag => 'a', sub { $_[0]->as_text() eq 'weiter' }],
@@ -464,7 +464,7 @@ OneNineSevenSeven => [
 	[id => 'comic-1'],
 ],
 Cucuc => [
-	'Cú cuC',
+	'CÃº cuC',
 	'http://www.oghme.com/cucuc/post/001-Balor-doesn-t-like-Snails',
 	[class=>'zestrip']
 ],
@@ -880,7 +880,7 @@ LovesRaymond => [
 	'Everybody loves Eric Raymond',
 	'http://geekz.co.uk/lovesraymond/archive/slashdotted',
 	[class => 'entry'],
-	next => [_tag => 'div', class => 'alignright', sub { $_[0]->as_text =~ /»/ } ]
+	next => [_tag => 'div', class => 'navigation'] ,[_tag => 'div', class => 'alignright']
 ],
 HardGraft => [
 	'Hard Graft',
@@ -1052,7 +1052,7 @@ GottGaussEn => [
 	[src => qr'seiten/'],
 ],
 EinStueckWahnsinn => [
-	'Ein Stück Wahnsinn',
+	'Ein StÃ¼ck Wahnsinn',
 	'http://wahnsinn.viviane.ch/wahnmanga/wahnmanga01.htm',
 	[src => qr'manga/wahn'],
 	next => [name => 'pfeil3']
@@ -1113,7 +1113,7 @@ DungeonCrawlInc => [
 	[src => qr'DCI_'],
 ],
 ProjectAusserdem => [
-	'Project Außerdem',
+	'Project AuÃŸerdem',
 	'http://rono64.com/?p=12',
 	[id => 'comic-1'],
 ],
