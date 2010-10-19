@@ -19,6 +19,12 @@ a:visited {
 a:hover {
 	text-decoration:underline;
 }
+.bookmark{
+	color:#367ad9;
+}
+a.bookmark:visited {
+	color:#405b80;
+}
 
 a.extern {
 	color:#7a1818;

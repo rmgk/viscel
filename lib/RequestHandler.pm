@@ -42,7 +42,7 @@ sub url_recommendations {"/rec"};
 sub url_tools {"/tools"};
 
 sub link_main { cgi->a({-href=>url_main()}, $_[0] || 'index') }
-sub link_front { cgi->a({-href=>url_front($_[0])}, $_[1]) }
+sub link_front { cgi->a({-href=>url_front($_[0]),UserPrefs::get('bookmark',$_[0])?(-class=>'bookmark'):()}, $_[1]) }
 sub link_view { cgi->a({-href=>url_view(@_)}, $_[2])}
 sub link_config { cgi->a({-href=>url_config(@_)}, $_[1] || $_[0])}
 sub link_search { cgi->a({-href=>url_search().'?q='.$_[1]},$_[0]) }
