@@ -1212,10 +1212,12 @@ DresdenCodak => [
 	'http://dresdencodak.com/2005/06/08/the-tomorrow-man/',
 	[id => 'comic'],
 ],
-
-
-
-
+Megatokyo => [
+	'Megatokyo',
+	'http://megatokyo.com/strip/1',
+	[id => 'strip-bl'],
+	url_hack => sub { $_[0] =~ s'/strip/'/'; $_[0] }
+],
 
 
 

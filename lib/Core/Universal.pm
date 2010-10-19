@@ -37,10 +37,17 @@ sub _create_list {
 		my @criteria;
 		push(@criteria,shift @l) while ref $l[0];
 		$list{'Universal_'.$id}->{criteria} = \@criteria;
-		if ($l[0] and shift @l eq 'next') {
-			my @next;
-			push(@next,shift @l) while ref $l[0];
-			$list{'Universal_'.$id}->{next} = \@next;
+		while ($l[0]) {
+			given (shift @l) { 
+				when ('next') {
+					my @next;
+					push(@next,shift @l) while ref $l[0];
+					$list{'Universal_'.$id}->{next} = \@next;
+				}
+				when ('url_hack') {
+					$list{'Universal_'.$id}->{url_hack} = shift @l;
+				}
+			}
 		}
 	}
 	return \%list;
@@ -103,6 +110,11 @@ sub _mount_parse {
 		$s->{next} = URI->new_abs($s->{next},$s->{page_url})->as_string();
 	}
 	$s->{src} = URI->new_abs($s->{src},$s->{page_url})->as_string();
+	my $url_hack = Core::Universal->clist($s->id)->{url_hack};
+	if ($url_hack) {
+		$l->trace('url hack');
+		$s->{$_} =  $url_hack ->($s->{$_}) for qw(src next);
+	}
 	return 1;
 }
 
