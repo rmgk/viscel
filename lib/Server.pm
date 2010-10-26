@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Server v1.0.0;
+package Server v1.0.1;
 
 use 5.012;
 use warnings;
@@ -49,8 +49,9 @@ sub req_handler {
 sub handle_connections {
 	my ($timeout) = @_;
 	$l->trace('accept connections (timeout ', $timeout , ')');
+	my @hint;
 	$d->timeout($timeout); #we enter idle mode if we timout once, so we can do other stuff while still checking back for connections
-	if (my ($c, $addr) = $d->accept) {
+	while (my ($c, $addr) = $d->accept) {
 		$d->timeout($main::IDLE); # new connection -> no longer idle
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
@@ -58,10 +59,11 @@ sub handle_connections {
 		#the timout value should be big enough to let useragent sent multiple request on the same connection
 		#but it should be also small enough that it times out shortly after all request for a given page
 		#are made to allow the controller to do his work
-		$c->timeout(0.1);		
-		return handle_connection($c,$addr_str)
+		$c->timeout(0.1);
+		push @hint, handle_connection($c,$addr_str);
+		$d->timeout(0);
 	}
-	
+	return \@hint if @hint;
 	return undef;
 }
 
@@ -74,8 +76,8 @@ sub handle_connection {
 	while (my $r = $c->get_request) {
 		push(@hint,handle_request($c,$r,$addr));
 	}
-	$l->debug("no more requests: " . $c->reason);
-	return \@hint;
+	$l->trace("no more requests: " . $c->reason);
+	return @hint;
 }
 
 #$connection, $request

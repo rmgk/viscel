@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Element v1.0.0;
+package Element v1.1.0;
 
 use 5.012;
 use warnings;
@@ -99,7 +99,8 @@ sub html {
 								alt => $s->alt,
 								title => $s->title,
 								width => $s->width,
-								height => $s->height
+								height => $s->height,
+								class => 'element'
 							});
 			return $html;
 		}
@@ -108,7 +109,8 @@ sub html {
 								alt => $s->alt,
 								title => $s->title,
 								width => $s->width,
-								height => $s->height
+								height => $s->height,
+								class => 'element'
 							});
 			return $html;
 		}

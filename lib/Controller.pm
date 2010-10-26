@@ -109,51 +109,31 @@ sub hint_front {
 #$id,$pos
 #handles viewer hints
 sub hint_view {
-	my ($id,$pos) = @_;
-	$l->trace("handle view hint $id $pos");
+	my ($id,@pos) = @_;
+	$l->trace("handle view hint $id ", join(' ',@pos) );
 	my $col = Collection->get($id);
-	#this code allows to detect missing blobs and download them
-	#but as this feature seems to involve too much trouble its 
-	#use should currently not be supported, so this code is 
-	#commented out. (KISS)
-	# if (my $elem = $col->fetch($pos)) {
-		# unless ($elem->sha1) {
-			# my $spot = $elem->create_spot();
-			# $col->delete($elem->position()); # remove the old element to store the new
-			# unless (_store($col,$spot)) {
-				# $col->store($elem); #get the old element badck if the new cant be stored
-			# }
-		# }
-		# if ($elem = $col->fetch($pos+1)) {
-			# unless ($elem->sha1) {
-				# my $spot = $elem->create_spot();
-				# $col->delete($elem->position()); # remove the old element to store the new
-				# unless (_store($col,$spot)) {
-					# $col->store($elem); #get the old element badck if the new cant be stored
-				# }
-			# }
-			# return undef;
-		# }
-	# }
-	return undef if $col->fetch($pos+1);
-	$l->debug("try to get $id $pos");
-	my $spot = $HS;
-	unless (defined $spot and $spot->id eq $id and $spot->position == $pos) {
-		my $ent = $col->fetch($pos);
-		if ($ent) { 
-			$spot = $ent->create_spot();
-			$spot->mount();
+	@pos = sort @pos;
+	for my $pos ($pos[0]..($pos[-1] + $#pos)) {
+		return next if $col->fetch($pos + 1);
+		$l->debug("try to get $id $pos");
+		my $spot = $HS;
+		unless (defined $spot and $spot->id eq $id and $spot->position == $pos) {
+			my $ent = $col->fetch($pos);
+			if ($ent) { 
+				$spot = $ent->create_spot();
+				$spot->mount();
+			}
+			else {
+				$l->debug('could not get spot');
+				return undef;
+			}
 		}
-		else {
-			$l->debug('could not get spot');
-			return undef;
-		}
+		$spot = $spot->next();
+		return undef unless $spot;
+		_store($col,$spot);
+		$col->clean();
+		$HS = $spot;
 	}
-	$spot = $spot->next();
-	return undef unless $spot;
-	_store($col,$spot);
-	$col->clean();
-	$HS = $spot;
 	return 1;
 }
 

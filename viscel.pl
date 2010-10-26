@@ -6,7 +6,7 @@ use warnings;
 use FindBin;
 use lib $FindBin::Bin."/lib";
 
-our $VERSION = v4.0.0;
+our $VERSION = v4.1.0;
 
 use Log;
 use Controller;
