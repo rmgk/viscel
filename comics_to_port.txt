@@ -273,31 +273,31 @@ KickinRad(petit symphony)		http://petitesymphony.com/comic/kickin-rad/hell-no
 
 
 
-dresdencodak		http://dresdencodak.com/2005/06/08/the-tomorrow-man/
-AcademyVale		http://imagerie.com/vale/avarch.cgi?001
-Banished		http://www.banishedonline.com/d/20060116.html
-RegisteredWeapon		http://registered-weapon.com/2009/01/12/the-beginning/
-Heliothaumic		http://thaumic.net/2007/08/1-at-the-academy/
-WantToBuyDignity		http://www.hawkvspigeon.com/index.php/2008/10/24/0001/
-Knave		http://www.coloringdragons.com/knave/page0.htm
-PastelDefender		http://www.pasteldefender.com/to%20save%20her%20000.html
-CulricsChronicles		http://www.culricschronicles.com/webcomic/comicpage1.html
-SlightlyDamned		http://raizap.com/sdamned/pages.php?comicID=1
-EdgeTheDevilhunter		http://www.edgethedevilhunter.com/comics/chapter-1-genesis-remix
-DailyDinosaurComics		http://www.qwantz.com/archive/000001.html
-2214		http://www.nitrocosm.com/go/2214_classic/1/
-Tomoyo42sRoom		http://manga.clone-army.org/t42r.php?page=1&lang=
-Requiem		http://requiem.spiderforest.com/?p=4
-Cooties		http://cooties.spiderforest.com/2006/06/23/06232006/
-AntsOnline		http://antsonline.co.nz/?p=6
-RTComics		http://roosterteeth.com/comics/strip.php?id=188
-SlowWave		http://www.slowwave.com/index.php?date=04-01-01
-Dreamer		http://thedreamercomic.com/?page_id=79&px=%2Fissue_1%2F00_Cover_Issue_1.jpg
-Catena		http://www.catenamanor.com/?comic=1
-Handrooster		http://handrooster.com/2007/03/30/milk/
-Kaspall		http://kaspall.xepher.net/archive/pg1.html
-OneSheepOneMission		http://jump42.net/?p=3
-Draconia		http://www.2wconline.net/draconia_001.html
+
+AcademyVale(down)		http://imagerie.com/vale/avarch.cgi?001
+
+
+
+
+Knave(gone?)		http://www.coloringdragons.com/knave/page0.htm
+
+
+
+
+
+
+Tomoyo42sRoom(clone manga)		http://manga.clone-army.org/t42r.php?page=1&lang=
+Requiem(spiderforest)		http://requiem.spiderforest.com/?p=4
+Cooties(spiderforest)		http://cooties.spiderforest.com/2006/06/23/06232006/
+
+
+
+
+
+Handrooster(gone)		http://handrooster.com/2007/03/30/milk/
+Kaspall(sage-comics)		http://kaspall.xepher.net/archive/pg1.html
+
+
 ALessonIsLearned		http://www.alessonislearned.com/index.php?comic=1
 RiceBoy		http://riceboy.jho-tan.com/see/001.html
 TwoRooks		http://two-rooks.com/volume-i/

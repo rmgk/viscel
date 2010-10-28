@@ -1219,6 +1219,100 @@ Megatokyo => [
 	[id => 'strip-bl'],
 	url_hack => sub { $_[0] =~ s'/strip/'/'; $_[0] }
 ],
+DresdenCodak => [
+	'Dresden Codak',
+	'http://dresdencodak.com/2005/06/08/the-tomorrow-man/',
+	[id => 'comic'],
+],
+RegisteredWeapon => [
+	'Registered Weapon',
+	'http://registered-weapon.com/2009/01/12/the-beginning/',
+	[id => 'comic'],
+],
+Heliothaumatic => [
+	'Heliothaumatic',
+	'http://thaumic.net/2007/08/1-at-the-academy/',
+	[id => 'comic'],
+],
+WTBDignity => [
+	'Want To Buy Dignity',
+	'http://www.hawkvspigeon.com/index.php/2008/10/24/0001/',
+	[id => 'comic-1'],
+],
+ToSaveHer => [
+	'To Save Her',
+	'http://www.pasteldefender.com/to%20save%20her%20000.html',
+	[src => qr'images/tsh'],
+	next => [_tag => 'font', color => 'DARKSLATEGRAY', sub { $_[0]->as_text =~ qr'forward'i } ],
+],
+CulricsChronicles => [
+	"Culric's Chronicles",
+	'http://www.culricschronicles.com/webcomic/comicpage1.html',
+	[class => 'comicborder'],
+],
+SlightlyDamned => [
+	'Slightly Damned',
+	'http://www.sdamned.com/2004/03/03142004/',
+	[id => 'comic'],
+],
+EdgeTheDevilhunter => [
+	'Edge the Devilhunter',
+	'http://www.edgethedevilhunter.com/comics/chapter-1-genesis-remix',
+	[id => 'comic'],
+],
+DailyDinosaurComics => [
+	'Daily Dinosaur Comics',
+	'http://www.qwantz.com/archive/000001.html',
+	[id => 'comic'],
+],
+twotwoonefour => [
+	'2214',
+	'http://www.nitrocosm.com/go/2214_classic/1/',
+	[class => 'gallery_display'],
+],
+AntsOnline => [
+	'Ants Online',
+	'http://antsonline.co.nz/?p=6',
+	[id => 'comic-1'],
+],
+RoosterTeethComics => [
+	'Rooster Teeth Comics',
+	'http://roosterteeth.com/comics/strip.php?id=188',
+	[style => qr'max-width:575px;'],
+	next => [src => 'http://images.roosterteeth.com/assets/style/images/comicbar/arrowRight.png'],
+],
+SlowWave => [
+	'Slow Wave',
+	'http://www.slowwave.com/index.php?date=04-01-01',
+	[src => qr'^/Img/s\d']
+],
+Dreamer => [
+	'The Dreamer',
+	'http://thedreamercomic.com/comic.php?id=1',
+	[src => qr'issues/issue_']
+],
+Catena => [
+	'Catena',
+	'http://catenamanor.com/2003/06/06/20030617/',
+	[class => 'object'],
+],
+JumpfourtwoDE => [
+	'Jump 42 (deutsch)',
+	'http://jump42.de/?p=13',
+	[id => 'comic'],
+],
+JumpfourtwoEN => [
+	'Jump 42',
+	'http://jump42.net/?p=3',
+	[id => 'comic'],
+],
+DraconiaChronicles => [
+	'The Draconia Cronicles',
+	'http://www.2wconline.net/draconia_001.html',
+	[src => qr'/draconia\d+'],
+],
+
+
 
 
 
