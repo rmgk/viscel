@@ -52,7 +52,6 @@ sub handle_connections {
 	my @hint;
 	$d->timeout($timeout); #we enter idle mode if we timout once, so we can do other stuff while still checking back for connections
 	while (my ($c, $addr) = $d->accept) {
-		$d->timeout($main::IDLE); # new connection -> no longer idle
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
 		$l->debug("connection accepted from ",$addr_str ,":",$port);
