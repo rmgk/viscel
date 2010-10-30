@@ -39,6 +39,7 @@ sub _create_list {
 			$mangalist{$id}->{Artist} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->content_list();
 			$mangalist{$id}->{Artist} =~ s/^\s*by\s*//;
 			$mangalist{$id}->{Tags} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/normal/)->content_list();
+			$mangalist{$id}->{$_} = HTML::Entities::encode($mangalist{$id}->{$_}) for qw(Artist Tags); 
 		}
 	}
 	$tree->delete();
