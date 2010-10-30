@@ -86,12 +86,12 @@ sub check_collection {
 		return 1;
 	}
 	my $last_pos = $col->last();
-	$l->trace("checking last ($last_pos) of $next_check");
 	unless ($last_pos) {
 		$l->error('has no elements', $next_check);
 		$col->purge();
 		return 1;
 	}
+	$l->trace("checking last ($last_pos) of $next_check");
 	if ($last_pos > 1) {
 		my $last_elem = $col->fetch($last_pos);
 		my $r_last = $last_elem->create_spot();
