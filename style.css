@@ -155,7 +155,4 @@ form input.submit {
 	padding:0;
 	cursor:pointer;
 }
-form:hover {
-	text-decoration: underline;
-}
 
