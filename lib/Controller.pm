@@ -53,6 +53,7 @@ sub start {
 			$maintainer->reset();
 		}
 		else {
+			Stats::add('maintenance','start');
 			if ($maintainer->tick()) {
 				$timeout = 0; #instant timeout to get some work done
 			}
