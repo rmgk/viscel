@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Server v1.0.1;
+package Server v1.1.0;
 
 use 5.012;
 use warnings;
@@ -51,9 +51,11 @@ sub handle_connections {
 	$l->trace('accept connections (timeout ', $timeout , ')');
 	my @hint;
 	$d->timeout($timeout); #we enter idle mode if we timout once, so we can do other stuff while still checking back for connections
-	while (my ($c, $addr) = $d->accept) {
+	Stats::add('connection','listen');
+	while ((my ($c, $addr) = $d->accept)) {
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
+		Stats::add('connection',$addr_str ,":",$port);
 		$l->debug("connection accepted from ",$addr_str ,":",$port);
 		#the timout value should be big enough to let useragent sent multiple request on the same connection
 		#but it should be also small enough that it times out shortly after all request for a given page
@@ -61,6 +63,7 @@ sub handle_connections {
 		$c->timeout(0.1);
 		push @hint, handle_connection($c,$addr_str);
 		$d->timeout(0);
+		Stats::add('connection','listen');
 	}
 	return \@hint if @hint;
 	return undef;
@@ -72,8 +75,10 @@ sub handle_connection {
 	my ($c,$addr) = @_;
 	$l->trace("handle connection");
 	my @hint;
+	Stats::add('request','listen');
 	while (my $r = $c->get_request) {
 		push(@hint,handle_request($c,$r,$addr));
+		Stats::add('request','listen');
 	}
 	$l->trace("no more requests: " . $c->reason);
 	return @hint;
@@ -84,6 +89,7 @@ sub handle_connection {
 sub handle_request {
 	my ($c,$r,$addr) = @_;
 	$l->debug("handle request: " , $r->method(), ' ', $r->url->as_string());
+	Stats::add('request',$r->url->as_string());
 	if ($r->method() ne 'GET' and $r->method() ne 'HEAD' and $addr ne '127.0.0.1') {
 		$l->warn('non GET request from foreign address send 403');
 		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'You are only allowed to make GET requests'));

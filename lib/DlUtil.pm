@@ -32,6 +32,7 @@ sub get {
 	my($url, $referer) = @_;
 	_init_ua() unless $ua;
 	$l->debug("get $url" .( $referer ? " (referer $referer)" : ''));
+	Stats::add('get',$url);
 	my $request = HTTP::Request->new(GET => $url);
 	#$request->header(
 		#Host: unixmanga.com
@@ -50,7 +51,9 @@ sub get {
 		when (undef) {};
 		when (/none/i) { $res->header("Content-Encoding" => 'identity'); }
 		when (/bzip2/i) { $res->header("Content-Encoding" => 'x-bzip2'); }
-	}
+	}	
+	Stats::add('got',($res->header('Content-Length') or length$res->content ));
+	Stats::add('code',$res->code());
 	$l->trace('response code: '. $res->code() .' ' . $res->message());
 	return $res;
 

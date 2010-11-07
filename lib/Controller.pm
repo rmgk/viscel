@@ -1,11 +1,12 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Controller v1.0.0;
+package Controller v1.1.0;
 
 use 5.012;
 use warnings;
 
 use Log;
+use Stats;
 use Server;
 use Cores;
 use Cache;
@@ -23,6 +24,7 @@ my $default_timeout;
 sub init {
 	$l->trace('initialise modules');
 	if (
+		Stats::init() &&
 		UserPrefs::init() &&
 		Cache::init() &&
 		Collection::init() &&
@@ -39,6 +41,7 @@ sub init {
 
 #starts the program, never returns
 sub start {
+	Stats::add('launch',version->parse($main::VERSION)->normal());
 	$l->trace('run main loop');
 	my $timeout = $default_timeout = $main::IDLE;
 	$maintainer = Maintenance->new();
