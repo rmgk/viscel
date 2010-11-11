@@ -6,7 +6,6 @@ use 5.012;
 use warnings;
 
 use Log;
-use Stats;
 
 # ----- global default variables -----
 
