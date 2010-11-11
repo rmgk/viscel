@@ -36,7 +36,6 @@ sub index {
 	my ($c,$r) = @_;
 	$l->trace('handle index');
 	my $html = html_header('index','index');
-	$html .= html_core_status();
 	$html .= cgi->start_fieldset({-class=>'info'});
 	$html .= cgi->legend('Search');
 	$html .= form_search();
@@ -47,6 +46,7 @@ sub index {
 	my %new = map {$_ => 1} grep {$bm->get($_) < Collection->get($_)->last()} keys %bmd;
 	$html .= html_group('New Pages' ,map {[$_ , ($bmd{$_}) x 2]} keys %new);
 	$html .= html_group('Bookmarks' ,map {[$_ , ($bmd{$_}) x 2]} grep {!$new{$_}} keys %bmd);
+	$html .= html_core_status();
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return 'index';
