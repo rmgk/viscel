@@ -159,7 +159,7 @@ sub hint_getall {
 	return undef unless $spot;
 	$spot->mount();
 	while ($spot = $spot->next()) {
-		_store($col,$spot);
+		return unless _store($col,$spot);
 		$col->clean();
 	};
 	$HS = $spot;
@@ -209,7 +209,7 @@ sub _store {
 	my $blob = $spot->fetch();
 	my $elem = $spot->element();
 	if ($elem) {
-		$col->store($elem,$blob) if $elem;
+		return $col->store($elem,$blob) if $elem;
 		return 1;
 	}
 	return undef;
