@@ -13,13 +13,13 @@ use Cache;
 use Collection;
 use Handler;
 use Handler::Misc;
-use Handler::Config;
 use UserPrefs;
 use Maintenance;
 
 my $l = Log->new();
 my $HS; #hint state, chaches the current read spot for efficency
 my $maintainer;
+my @hint;
 
 #initialises the needed modules
 sub init {
@@ -32,7 +32,6 @@ sub init {
 		Server::init() &&
 		Handler::init() &&
 		Handler::Misc::init() &&
-		Handler::Config::init() &&
 		Cores::init()
 	) {
 		return 1;
@@ -51,7 +50,7 @@ sub start {
 	while (1) {
 		
 		if (Server::accept($timeout,0.5)) { #some connection was accepted
-			#handle_hint($hint);
+			handle_hints();
 			$timeout = 60; #resetting timeout
 			$maintainer->reset();
 		}
@@ -67,11 +66,15 @@ sub start {
 	}
 }
 
+#@hints
+#adds hints to be handled
+sub add_hint {
+	push(@hint,@_);
+}
+
 #\@hint
 #handles hints from server
-sub handle_hint {
-	my @hint = @{$_[0]};
-	$l->trace("handle " . @hint . " hints");
+sub handle_hints {
 	while(@hint) {
 		my $hint = pop(@hint); #more recent hints are more interesting
 		if (ref $hint eq 'CODE') { #this gives handlers great flexibility for hints

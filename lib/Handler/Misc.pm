@@ -95,7 +95,7 @@ sub view {
 	$html .= cgi->end_div();
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
-	return ['view',$id,@pos];
+	Controller::add_hint(['view',$id,@pos]);
 }
 
 #$connection, $request, $id
@@ -112,6 +112,7 @@ sub front {
 		}
 		UserPrefs::save();
 		$html .= html_notification('updated');
+		Controller::add_hint(['config']);
 	}
 	my $bm = UserPrefs->section('bookmark')->get($id);
 	$html .= html_info(Cores::about($id));
@@ -138,7 +139,7 @@ sub front {
 	
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
-	return ['front',$id];
+	Controller::add_hint(['front',$id]);
 }
 
 #$connection, $request, @args
