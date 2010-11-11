@@ -8,21 +8,10 @@ use warnings;
 use Time::HiRes;
 use Globals;
 
-my $DBH;
-my $STH_put;
+my $FH;
 
-#initialises the cache
 sub init {
-	$DBH = DBI->connect("dbi:SQLite:dbname=".Globals::datadir().'stats.db',"","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
-	return undef unless $DBH;
-	unless ($DBH->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name=?",undef,"statistics")) {
-		unless($DBH->do('CREATE TABLE statistics (time REAL, event CHAR, value)')) {
-			#$l->error('could not create table statistics');
-			return undef;
-		}
-		$DBH->commit();
-	}
-	$STH_put = $DBH->prepare('INSERT OR REPLACE INTO statistics (time,event,value) VALUES (?,?,?)');
+	open($FH,'>>',Globals::datadir() . 'stats.txt');
 	return 1;
 }
 
@@ -31,8 +20,7 @@ sub init {
 sub add {
 	my ($event,$value) = @_;
 	my $time = Time::HiRes::time();
-	$STH_put->execute($time,$event,$value);
-	$DBH->commit();
+	print $FH "$time\t$event\t$value\n";
 	return 1;
 }
 
