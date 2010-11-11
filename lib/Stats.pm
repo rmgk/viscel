@@ -11,7 +11,10 @@ use Globals;
 my $FH;
 
 sub init {
-	open($FH,'>>',Globals::datadir() . 'stats.txt');
+	open($FH,'>>',Globals::datadir() . 'stats.txt') or die('could not open stats.txt');
+	my $last_sel = select($FH);
+	$|++;
+	select $last_sel;
 	return 1;
 }
 
