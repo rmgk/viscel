@@ -87,7 +87,9 @@ sub view {
 			$html .= cgi->start_form(-method=>'POST',-action=>url_front($id),-enctype=>&CGI::URL_ENCODED);
 			$html .= cgi->hidden('bookmark',$pos[0]);
 			$html .= cgi->submit(-name=>'submit',-class=>'submit', -value => 'pause');
-			$html .= cgi->end_form();
+			$html .= cgi->end_form();		
+		$html .= ' ';
+		$html .= @pos == 1 ? link_view($id,$pos[0] . ',' . $next_pos,'dualpage') : link_view($id, join(',',reverse @pos),'flip');
 		$html .= ' ';
 		$html .= cgi->a({href=>$ent[0]->page_url(),-class=>'extern'},'site');
 		$html .= ' ';
