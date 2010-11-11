@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Comcol v1.0.0;
+package Core::Comcol v1.1.0;
 
 use 5.012;
 use warnings;
@@ -10,19 +10,16 @@ use Log;
 use DBI;
 use Element;
 use HTML::Entities;
-use UserPrefs;
 
 my $l = Log->new();
 my $DBH;
-my $DIR;
+my $DIR = 'somedir';
 
 #class method
 #initialises the database connection
 sub init {
 	my $pkg = shift;
 	$l->trace('initialis Core::Comcol');
-	my $cfg = UserPrefs::parse_file('Cores')->{$pkg};
-	$DIR = $cfg->{'dir'} || '';
 	unless (-e $DIR) {
 		$l->warn("Comcol directory dir ($DIR) does not exists: correct preferences");
 		return undef;
@@ -69,19 +66,6 @@ sub search {
 	my %cmcs = list();
 	my %cap;
 	return map {[$_,$cmcs{$_},$cap{$_}//$cmcs{$_}]} grep { my $id = $_; @re == grep {$cmcs{$id} ~~ $_ and defined($cap{$id} = $1) } @re } keys %cmcs; #/ padre display bug
-}
-
-#pkg, \%config -> \%config
-#class method
-#given a current config returns the configuration hash
-sub config {
-	my ($pkg,$cfg) = @_;
-	return { dir => {	current => $cfg->{dir},
-						default => undef,
-						expected => qr/.*/,
-						description => 'the directory containing the "comics.db"' 
-					} 
-			};
 }
 
 #$class,$id -> $self

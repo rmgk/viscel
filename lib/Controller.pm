@@ -11,7 +11,9 @@ use Server;
 use Cores;
 use Cache;
 use Collection;
-use RequestHandler;
+use Handler;
+use Handler::Misc;
+use Handler::Config;
 use UserPrefs;
 use Maintenance;
 
@@ -28,7 +30,9 @@ sub init {
 		Cache::init() &&
 		Collection::init() &&
 		Server::init() &&
-		RequestHandler::init() &&
+		Handler::init() &&
+		Handler::Misc::init() &&
+		Handler::Config::init() &&
 		Cores::init()
 	) {
 		return 1;

@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Cores v1.0.0;
+package Cores v1.1.0;
 
 use 5.012;
 use warnings;
@@ -18,7 +18,7 @@ use Log;
 
 my $l = Log->new();
 my %cores = (	'Core::AnyManga' => 0,
-				'Core::Comcol' => 0,
+				#'Core::Comcol' => 0,
 				'Core::ComicGenesis' => 0,
 				'Core::Fakku' => 0,
 				'Core::Animea' => 0,
@@ -115,61 +115,6 @@ sub search {
 	}
 	my @re = map {qr/$_/i} @_;
 	return map {$_->search(\@filter, @re)} @cores ? grep {initialised($_)} @cores : initialised(); 
-}
-
-#pkg -> \%configuration
-#given a package returns the configuration hash
-sub config {
-	my $pkg = shift;
-	$l->trace("configure $pkg");
-	unless (list($pkg)) {
-		return _config_collection($pkg,@_);
-	}
-	my $cfg = UserPrefs::parse_file('Cores');
-	$cfg->{$pkg} ||= {};
-	while (my ($k,$v) = splice(@_,0,2)) {
-		$cfg->{$pkg}->{$k} = $v;
-	}
-	UserPrefs::save_file('Cores',$cfg);
-	my $ret = $pkg->config($cfg->{$pkg});
-	$ret->{updatelist} ||= { name => 'update list',
-							action =>'updatelist',
-							description => 'updates the list of known collections'};
-	return $ret;
-}
-
-#id, %config -> \%config
-#given an id and hash configures the id and returns the string to create a configuration form
-sub _config_collection {
-	my $id = shift;
-	while (my ($k,$v) = splice(@_,0,2)) {
-		UserPrefs->section($k)->set($id,$v);
-	}
-	
-	return { bookmark => {	current => UserPrefs::get('bookmark',$id),
-						default => 0,
-						expected => qr/^\d+$/,
-						description => 'the position of the bookmarked element' 
-					} ,
-			 keep_current => { current => UserPrefs::get('keep_current',$id),
-						default => 0,
-						expected => 'bool',
-						description => 'if true updates the collection when idle'
-					},
-			 getall => { name => 'get all',
-						 action => 'getall',
-						 description => 'downloads until no next is found'
-						},
-			 export => { name => 'export',
-						 action => 'export',
-						 description => 'export all files of this collection to directory'
-						},
-			 check => { name => 'check',
-						 action => 'check',
-						 description => 'checks the local collection for inconsisties with the remote files'
-						}
-			}
-	
 }
 
 1;
