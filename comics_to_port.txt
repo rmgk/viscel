@@ -298,13 +298,13 @@ Handrooster(gone)		http://handrooster.com/2007/03/30/milk/
 Kaspall(sage-comics)		http://kaspall.xepher.net/archive/pg1.html
 
 
-ALessonIsLearned		http://www.alessonislearned.com/index.php?comic=1
-RiceBoy		http://riceboy.jho-tan.com/see/001.html
-TwoRooks		http://two-rooks.com/volume-i/
-BadassMuthas		http://badassmuthas.com/pages/comic.php?1
-Kagerou		http://www.electric-manga.com/01/kageroumenu.html
-Vreakerz		http://vreakerz.angrykitten.nl/comic.php?comicNr=1
-SuburbanJungle		http://suburbanjungle.com/d/19990201.html
+
+RiceBoy(rice boy)		http://riceboy.jho-tan.com/see/001.html
+
+
+
+
+
 SeriousEmotionalDisturbance		http://sediverse.com/?p=83
 WoodpeckerCrossing		http://crowfeathers.net/index.php?blog=8
 HerdThinners		http://www.herdthinners.com/index.phtml?current=19950903

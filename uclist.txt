@@ -1311,6 +1311,38 @@ DraconiaChronicles => [
 	'http://www.2wconline.net/draconia_001.html',
 	[src => qr'/draconia\d+'],
 ],
+LessonIsLearned => [
+	'A Lesson Is Learned But The Damage Is Irreversible',
+	'http://www.alessonislearned.com/index.php?comic=1',
+	[src => qr'^cmx/lesson'],
+],
+TwoRooks => [
+	'Two Rooks',
+	'http://two-rooks.com/volume-i/',
+	[id => 'comic'],
+],
+BadassMuthas => [
+	'Badass Muthas',
+	'http://badassmuthas.com/pages/comic.php?1',
+	[src => qr'^/images/comicsissue'],
+],
+Kagerou => [
+	'Kagerou',
+	'http://www.electric-manga.com/01/kageroumenu.html',
+	[_tag => 'img'],
+	next =>[_tag => 'a', sub { $_[0]->as_text ~~ qr'\w+' or $_[0]->look_down(_tag=>'img')} ],
+],
+Vreakerz => [
+	'Vreakerz',
+	'http://vreakerz.angrykitten.nl/comic.php?comicNr=1',
+	[src => qr'pages/vz_\d{8}'],
+],
+SuburbanJungleClassic => [
+	'The Suburban Jungle',
+	'http://suburbanjungleclassic.com/?p=10',
+	[id => 'comic'],
+],
+
 
 
 
