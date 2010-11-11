@@ -81,7 +81,6 @@ sub handle_hint {
 				when ('view') {hint_view(@$hint)}
 				when ('getall') {hint_getall(@$hint)}
 				when ('config') {$maintainer = Maintenance->new(); $default_timeout = $main::IDLE} #config changed, maintain anew
-				when ('getrec') {hint_getrec(@$hint)}
 				when ('export') {hint_export(@$hint)}
 				when ('check') { until (Maintenance::check_collection(@$hint)) {} }
 				default {$l->warn("unknown hint $_")}
@@ -159,24 +158,6 @@ sub hint_getall {
 	};
 	$HS = $spot;
 	return 1;
-}
-
-#$addr
-#requests the recommendations list from $addr and adds the collections to recommended
-sub hint_getrec {
-	my ($addr) = @_;
-	$l->debug('getting recommendations');
-	return unless $addr;
-	my $res = DlUtil::get(URI->new_abs('/rec',$addr));
-	if (!$res->is_success()) {
-		return undef;
-	}
-	my $list = $res->decoded_content();
-	my @rec = grep {Cores::new($_)} split ("\n",$list);
-	$l->debug('adding ' . @rec . ' collections to recommended list');
-	my $r = UserPrefs->section('recommended');
-	$r->set($_,1) for @rec;
-	UserPrefs::save();
 }
 
 #$collection

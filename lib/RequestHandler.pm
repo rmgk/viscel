@@ -38,7 +38,6 @@ sub url_view {"/v/$_[0]/$_[1]"}
 sub url_config {"/c/$_[0]"}
 sub url_action {join('/','/a',@_)};
 sub url_search {"/s"};
-sub url_recommendations {"/rec"};
 sub url_tools {"/tools"};
 
 sub link_main { cgi->a({-href=>url_main()}, $_[0] || 'index') }
@@ -170,7 +169,6 @@ sub init {
 	Server::req_handler(handler(url_config('')),\&config);
 	Server::req_handler(handler(url_action('')),\&action);
 	Server::req_handler(handler(url_search('')),\&search);
-	Server::req_handler(handler(url_recommendations()),\&recommendations);
 	Server::req_handler(handler(url_tools()),\&tools);
 	Server::req_handler('b',\&blob);
 	Server::req_handler('css',\&css);
@@ -200,8 +198,6 @@ sub index {
 	my %new = map {$_ => 1} grep {$bm->get($_) < Collection->get($_)->last()} keys %bmd;
 	$html .= html_group('New Pages' ,map {[$_ , ($bmd{$_}) x 2]} keys %new);
 	$html .= html_group('Bookmarks' ,map {[$_ , ($bmd{$_}) x 2]} grep {!$new{$_}} keys %bmd);
-	my $kc = UserPrefs->section('recommended');
-	$html .= html_group('Recommended' , map {[$_ , (Cores::name($_)) x 2]} grep {$kc->get($_) and !$bm->get($_)} $kc->list() );
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	return 'index';
@@ -364,10 +360,6 @@ sub action {
 				$ret = sub {$core->update_list()};
 				$html .= "this may take some time";
 			}
-			when ('getrec') {
-				$ret = ['getrec',$cgi->param('addr')];
-				$html .= "it takes 15 seconds to timeout if the remote can not be found";
-			}
 			when ('export') {
 				$ret = ['export',$args[1]];
 				$html .= "please wait a moment";
@@ -411,19 +403,6 @@ sub search {
 	return "search $query";
 }
 
-#$connection, $request 
-sub recommendations {
-	my ($c,$r) = @_;
-	$l->trace('sending recommendations');
-	my $rec = UserPrefs->section('recommend');
-	my $recd = UserPrefs->section('recommended');
-	my $res = HTTP::Response->new( 200, 'OK');
-	$res->header('Content-Type' => 'text/plain');
-	$res->content(join("\n",$rec->list(),$recd->list()));
-	$c->send_response($res);
-	return 'recommend';
-}
-
 #$connection, $request
 #handles tool requests
 sub tools {
@@ -432,7 +411,6 @@ sub tools {
 	my $html = html_header('index','index');
 	$html .= cgi->start_fieldset({-class=>'info'});
 	$html .= cgi->legend('Tools');
-	$html .= 'get recommendations:' . form_action_input('addr','getrec') . cgi->br();
 	$html .= form_action('halt','halt');
 	$html .= cgi->end_fieldset();
 	$html .= cgi->start_div({-class=>'navigation'});
