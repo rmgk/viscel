@@ -6,6 +6,8 @@ use 5.012;
 use warnings;
 
 use Log;
+use Stats;
+use Config;
 use HTTP::Daemon;
 
 my $d;
@@ -15,7 +17,7 @@ my %req_handler;
 #$port -> $daemon
 #initialises the http server
 sub init {
-	my $port = shift // $main::PORT;
+	my $port = Globals::port();
 	$l->info("launch server on port $port");
 	$d = HTTP::Daemon->new(LocalPort => $port);
 	#setting the daemon timeout makes $d->accept() return immediately if there is no connection waiting
@@ -31,7 +33,7 @@ sub init {
 
 #$path, \&request_handler -> \&request_handler
 #sets the request handler for $path and returns it
-sub req_handler {
+sub register_handler {
 	my ($path,$handler) = @_;
 	unless ($path) {
 		$l->error('path not specified');
@@ -39,63 +41,71 @@ sub req_handler {
 	}
 	if ($handler) {
 		$l->trace('add request handler for ', $path); 
-		$req_handler{$path} = $handler ;
+		$req_handler{$path} = $handler;
+		return 1;
 	}
-	return $req_handler{$path};
 }
 
-#-> $bool
-#returns 1 if an incoming connection was handled 0 if not
-sub handle_connections {
-	my ($timeout) = @_;
+#$timeout , $timespan
+#waits $timeout seconds for a connections
+#and handles all connections for $timespan seconds
+sub accept {
+	my ($timeout,$timespan) = @_;
 	$l->trace('accept connections (timeout ', $timeout , ')');
-	my @hint;
-	$d->timeout($timeout); #we enter idle mode if we timout once, so we can do other stuff while still checking back for connections
+	my $t = Time::HiRes::time;
+	_accept_connection($timeout,0.1) while Time::HiRes::time - $t < $timespan;
+}
+
+#$timeout, $timespan
+#$accepts connections for at most $timeout seconds, 
+#and listens on them for $timespan $seconds
+sub _accept_connection {
+	my ($timeout,$timespan) = @_;
+	$d->timeout($timeout);
 	Stats::add('connection','listen');
-	while ((my ($c, $addr) = $d->accept)) {
+	if ((my ($c, $addr) = $d->accept)) {
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
 		Stats::add('connection',$addr_str ,":",$port);
-		$l->debug("connection accepted from ",$addr_str ,":",$port);
+		$l->debug("connection from ",$addr_str ,":",$port);
 		#the timout value should be big enough to let useragent sent multiple request on the same connection
 		#but it should be also small enough that it times out shortly after all request for a given page
 		#are made to allow the controller to do his work
-		$c->timeout(0.1);
-		push @hint, handle_connection($c,$addr_str);
-		$d->timeout(0);
-		Stats::add('connection','listen');
-	}
-	return \@hint if @hint;
-	return undef;
+		$c->timeout($timespan);
+		_accept_requests($c,$addr_str);
+	}	
 }
 
 #$connection
 #handles requests on the $connection
-sub handle_connection {
+sub _accept_requests {
 	my ($c,$addr) = @_;
-	$l->trace("handle connection");
-	my @hint;
 	Stats::add('request','listen');
 	while (my $r = $c->get_request) {
-		push(@hint,handle_request($c,$r,$addr));
+		_handle_request($c,$r,$addr);
 		Stats::add('request','listen');
 	}
 	$l->trace("no more requests: " . $c->reason);
-	return @hint;
 }
 
 #$connection, $request
 #dispatches the request to the request handler or sends a 404 error if no handler is registered
-sub handle_request {
+sub _handle_request {
 	my ($c,$r,$addr) = @_;
-	$l->debug("handle request: " , $r->method(), ' ', $r->url->as_string());
+	$l->debug("request: " , $r->method(), ' ', $r->url->as_string());
 	Stats::add('request',$r->url->as_string());
 	if ($r->method() ne 'GET' and $r->method() ne 'HEAD' and $addr ne '127.0.0.1') {
 		$l->warn('non GET request from foreign address send 403');
 		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'You are only allowed to make GET requests'));
 	}
 	if ($r->url->path eq '/') {
-		$c->send_redirect( "http://127.0.0.1/index",301);
+		if ($req_handler{'index'}) {
+			return $req_handler{'index'}($c,$r);
+		}
+		else {
+			send_404($c);
+			return undef;
+		}
 	}
 	elsif ($r->url->path =~ m#^/(?<path>[^/]+)/?(?<args>.*?)/?$#i) {
 		my $path = $+{path};
@@ -115,8 +125,9 @@ sub handle_request {
 	}
 }
 
+# ---- utility functions
 
-#$c
+#$c, $html
 #sends a default html response
 sub send_response {
 	my ($c,$html) = @_;

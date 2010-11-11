@@ -18,7 +18,6 @@ use Maintenance;
 my $l = Log->new();
 my $HS; #hint state, chaches the current read spot for efficency
 my $maintainer;
-my $default_timeout;
 
 #initialises the needed modules
 sub init {
@@ -41,15 +40,15 @@ sub init {
 
 #starts the program, never returns
 sub start {
-	Stats::add('launch',version->parse($main::VERSION)->normal());
+	Stats::add('launch',$Viscel::VERSION->normal());
 	$l->trace('run main loop');
-	my $timeout = $default_timeout = $main::IDLE;
+	my $timeout = 60;
 	$maintainer = Maintenance->new();
 	while (1) {
-		my $hint = Server::handle_connections($timeout);
+		my $hint = Server::accept($timeout,0.5);
 		if ($hint) { #hint is undef if no connection was accepted
 			handle_hint($hint);
-			$timeout = $default_timeout; #resetting timeout
+			$timeout = 60; #resetting timeout
 			$maintainer->reset();
 		}
 		else {
@@ -58,7 +57,7 @@ sub start {
 				$timeout = 0; #instant timeout to get some work done
 			}
 			else {
-				$default_timeout = $timeout = 1000000; #deactivating timeout
+				$timeout = 1000000; #deactivating timeout
 			}
 		}
 	}
@@ -80,7 +79,7 @@ sub handle_hint {
 				when ('front') {hint_front(@$hint)}
 				when ('view') {hint_view(@$hint)}
 				when ('getall') {hint_getall(@$hint)}
-				when ('config') {$maintainer = Maintenance->new(); $default_timeout = $main::IDLE} #config changed, maintain anew
+				when ('config') {$maintainer = Maintenance->new()} #config changed, maintain anew
 				when ('export') {hint_export(@$hint)}
 				when ('check') { until (Maintenance::check_collection(@$hint)) {} }
 				default {$l->warn("unknown hint $_")}

@@ -1,25 +1,29 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package UserPrefs v1.0.0;
+package UserPrefs v1.1.0;
 
 use 5.012;
 use warnings;
 
 use Log;
+use Globals;
 
 my $l = Log->new();
 my %data;
-our $FILE = 'userprefs'; 
 my $changed = 0;
+my $dir;
+my $default_file;
 
 #initialises the preferences
 sub init {
 	$l->trace('initialise config');
-	unless (-e $main::DIRDATA or mkdir $main::DIRDATA) {
-		$l->error('could not create cache dir ' , $main::DIRDATA);
+	$dir = Globals::datadir();
+	$default_file = Globals::userprefsfile();
+	unless (-e $dir or mkdir $dir) {
+		$l->error('could not create cache dir ' , $dir);
 		return undef;
 	}
-	%data = %{parse_file($FILE)};
+	%data = %{parse_file($default_file)};
 	return 1;
 }
 
@@ -28,7 +32,7 @@ sub parse_file {
 	my ($file) = @_;
 	$file =~ s/\W+/_/g;
 	$l->trace("parse config file ",$file);
-	$file = $main::DIRDATA.$file.'.ini';
+	$file = $dir.$file.'.ini';
 	unless (-e $file) {
 		$l->trace("$file not found create new config");
 		return {};
@@ -101,7 +105,7 @@ sub set {
 #saves the config
 sub save {
 	return unless $changed;
-	save_file($FILE,\%data);
+	save_file($default_file,\%data);
 	$changed = 0;
 }
 
@@ -111,7 +115,7 @@ sub save_file {
 	my ($file,$cfg) = @_;
 	$file =~ s/\W+/_/g;
 	$l->trace('save config to ', $file);
-	$file = $main::DIRDATA.$file.'.ini';
+	$file = $dir.$file.'.ini';
 	if (open (my $fh, '>:encoding(UTF-8)',$file)) {
 		print $fh as_string($cfg);
 		close $fh;

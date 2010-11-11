@@ -163,15 +163,15 @@ sub html_config {
 
 #initialises the request handlers
 sub init {
-	Server::req_handler(handler(url_main()),\&index);
-	Server::req_handler(handler(url_view('','')),\&view);
-	Server::req_handler(handler(url_front('')),\&front);
-	Server::req_handler(handler(url_config('')),\&config);
-	Server::req_handler(handler(url_action('')),\&action);
-	Server::req_handler(handler(url_search('')),\&search);
-	Server::req_handler(handler(url_tools()),\&tools);
-	Server::req_handler('b',\&blob);
-	Server::req_handler('css',\&css);
+	Server::register_handler(handler(url_main()),\&index);
+	Server::register_handler(handler(url_view('','')),\&view);
+	Server::register_handler(handler(url_front('')),\&front);
+	Server::register_handler(handler(url_config('')),\&config);
+	Server::register_handler(handler(url_action('')),\&action);
+	Server::register_handler(handler(url_search('')),\&search);
+	Server::register_handler(handler(url_tools()),\&tools);
+	Server::register_handler('b',\&blob);
+	Server::register_handler('css',\&css);
 	$cgi = CGI->new() unless $cgi;
 }
 

@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Collection v1.0.0;
+package Collection v1.1.0;
 
 use 5.012;
 use warnings;
@@ -18,7 +18,7 @@ my $cache_id = '';
 
 #initialises the database
 sub init {
-	my $db_dir = $main::DIRDATA.'collections.db';
+	my $db_dir = Globals::datadir() . 'collections.db';
 	$l->trace('initialise database');
 	$l->warn('already initialised, reinitialise') if $DBH;
 	$DBH = DBI->connect("dbi:SQLite:dbname=$db_dir","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });

@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Cache v1.0.0;
+package Cache v1.1.0;
 
 use 5.012;
 use warnings;
@@ -11,24 +11,27 @@ my $l = Log->new();
 my $DBH;
 my $STH_get;
 my $STH_put;
+my $cachedir;
 
 #initialises the cache
 sub init {
 	$l->trace('initialise cache');
-	unless (-e $main::DIRCACHE or mkdir $main::DIRCACHE) {
-		$l->error('could not create cache dir ' , $main::DIRCACHE);
+	$cachedir = Globals::cachedir();
+	
+	unless (-e $cachedir or mkdir $$cachedir) {
+		$l->error('could not create cache dir ' , $cachedir);
 		return undef;
 	}
 	
 	for my $a ('0'..'9','a'..'f') { for my $b ('0'..'9','a'..'f') { 
-		my $dir = $main::DIRCACHE.$a.$b.'/';
+		my $dir = $cachedir.$a.$b.'/';
 		unless (-e $dir or mkdir $dir) {
 			$l->error('could not create storage dir ' .$dir);
 			return undef;
 		}
 	}}
 	
-	$DBH = DBI->connect("dbi:SQLite:dbname=".$main::DIRCACHE.'stats.db',"","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
+	$DBH = DBI->connect("dbi:SQLite:dbname=".$cachedir.'stats.db',"","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 	return undef unless $DBH;
 	unless ($DBH->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name=?",undef,"type")) {
 		unless($DBH->do('CREATE TABLE type (sha1 CHAR UNIQUE, value)')) {
@@ -51,7 +54,7 @@ sub put {
 	$l->trace('store ' . $sha1);
 	substr($sha1,2,0) = '/';
 	my $fh;
-	unless (open $fh, '>', $main::DIRCACHE.$sha1) {
+	unless (open $fh, '>', $cachedir.$sha1) {
 		$l->error("could not open $main::DIRCACHE$sha1 for write");
 		return undef;
 	}
@@ -72,7 +75,7 @@ sub get {
 	$l->trace('retrieve ' , $sha1);
 	substr($sha1,2,0) = '/';
 	my $fh;
-	unless (open $fh, '<', $main::DIRCACHE.$sha1) {
+	unless (open $fh, '<', $cachedir.$sha1) {
 		$l->error("could not open $main::DIRCACHE$sha1 for read");
 		return undef;
 	}
@@ -95,7 +98,7 @@ sub stat {
 		$STH_get->execute($sha1);
 		my $type = $STH_get->fetchrow_array();
 		substr($sha1,2,0) = '/';
-		my($size,$mtime) = (stat $main::DIRCACHE.$sha1)[7,9];
+		my($size,$mtime) = (stat $cachedir.$sha1)[7,9];
 		return ('modified'=>$mtime,'size'=>$size,'type'=>$type);
 	}
 }
