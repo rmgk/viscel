@@ -130,13 +130,6 @@ sub search {
 	return @return;
 }
 
-#pkg, \%config -> \%config
-#given a current config returns the configuration hash
-sub config {
-	my ($pkg,$cfg) = @_;
-	return {};
-}
-
 #$class,$id -> $self
 #creates a new core instance for a given collection
 sub new {
