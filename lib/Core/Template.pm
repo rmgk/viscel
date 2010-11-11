@@ -235,7 +235,7 @@ sub fetch {
 	$l->trace('fetch object');
 
 	my $file = DlUtil::get($s->{src},$s->{page_url});
-	if ($file->is_error()) {
+	if (!$file->is_success() or !$file->header('Content-Length')) {
 		$l->error('error get ' . $s->{src});
 		$s->{fail} = 'could not fetch object';
 		return undef;
