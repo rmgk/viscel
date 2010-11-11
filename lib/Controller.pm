@@ -49,9 +49,9 @@ sub start {
 	my $timeout = 60;
 	$maintainer = Maintenance->new();
 	while (1) {
-		my $hint = Server::accept($timeout,0.5);
-		if ($hint) { #hint is undef if no connection was accepted
-			handle_hint($hint);
+		
+		if (Server::accept($timeout,0.5)) { #some connection was accepted
+			#handle_hint($hint);
 			$timeout = 60; #resetting timeout
 			$maintainer->reset();
 		}

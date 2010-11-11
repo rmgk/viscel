@@ -46,14 +46,19 @@ sub register_handler {
 	}
 }
 
-#$timeout , $timespan
+#$timeout , $timespan -> $was_accepted
 #waits $timeout seconds for a connections
 #and handles all connections for $timespan seconds
+#returns tue if at least one connection was accepted
 sub accept {
 	my ($timeout,$timespan) = @_;
 	$l->trace('accept connections (timeout ', $timeout , ')');
+	return undef unless _accept_connection($timeout,0.1); #connection timed out
 	my $t = Time::HiRes::time;
-	_accept_connection($timeout,0.1) while Time::HiRes::time - $t < $timespan;
+	while (Time::HiRes::time - $t < $timespan) {
+		_accept_connection($timespan - Time::HiRes::time + $t,0.1) 
+	}
+	return 1;
 }
 
 #$timeout, $timespan
@@ -73,7 +78,9 @@ sub _accept_connection {
 		#are made to allow the controller to do his work
 		$c->timeout($timespan);
 		_accept_requests($c,$addr_str);
-	}	
+		return 1;
+	}
+	return undef;
 }
 
 #$connection
