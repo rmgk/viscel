@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Universal v1.0.0;
+package Core::Universal v1.1.0;
 
 use 5.012;
 use warnings;
@@ -18,6 +18,7 @@ sub save_clist { return 1}
 sub _load_list {
 	my ($pkg) = @_;
 	$pkg->update_list();
+	return 1;
 }
 
 #creates the list of known manga

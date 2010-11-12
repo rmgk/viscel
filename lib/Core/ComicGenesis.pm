@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::ComicGenesis v1.0.0;
+package Core::ComicGenesis v1.1.0;
 
 use 5.012;
 use warnings;
@@ -12,36 +12,39 @@ my $l = Log->new();
 
 #creates the list of comic
 sub _create_list {
-	my ($pkg) = @_;
+	my ($pkg,$state) = @_;
 	my %comiclist;
 	$l->trace('create list of known collections');
-	foreach my $letter('0','A'..'Z') {
-		$l->trace("get tree for letter $letter");
-		my $tree = $pkg->_get_tree("http://guide.comicgenesis.com/Keenspace_$letter.html") or return undef; 
-		foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'comicmain', sub { $_[0]->as_text =~ m/Number of Days: (\d+)/i; $1 > 20} )) {
-			my $a = $main->look_down('_tag'=> 'a', 'target' => '_blank', sub {$_[0]->as_text =~ /^\d{8}$/});
-			next unless $a;
-			my $href = URI->new($a->attr('href'))->as_string();
-			$href =~ s'^.*http://'http://'g; #hack to fix some broken urls
-			$href =~ s'\.comicgen\.com'.comicgenesis.com'gi; #hack to fix more broken urls
-			my ($id) = ($href =~ m'^http://(.*?)\.comicgenesis?\.com/'i);
-			unless ($id) {
-				$l->debug("could not parse $href");
-				next;
-			}
-			my $name = HTML::Entities::encode($main->parent->look_down(_tag=>'div',class=>'comictitle')->look_down(_tag=>'a',href=>qr"http://$id\.comicgen(esis)?\.com")->as_trimmed_text(extra_chars => '\xA0'));
-			unless ($name) {
-				$l->warn("could not get name for $id using id as name");
-				$name = $id;
-				
-			}
-			$id =~ s/\W/_/g;
-			$id = 'ComicGenesis_' . $id;
-			$comiclist{$id} = {url_start => $href, name => $name};
+	my @letters = ('0','A'..'Z');
+	my $index = ref $state ? $state->[0] : 0;
+	my $letter =  $letters[$index];
+	$l->trace("get tree for letter $letter");
+	my $tree = $pkg->_get_tree("http://guide.comicgenesis.com/Keenspace_$letter.html") or return undef; 
+	foreach my $main ($tree->look_down('_tag' => 'div', 'class' => 'comicmain', sub { $_[0]->as_text =~ m/Number of Days: (\d+)/i; $1 > 20} )) {
+		my $a = $main->look_down('_tag'=> 'a', 'target' => '_blank', sub {$_[0]->as_text =~ /^\d{8}$/});
+		next unless $a;
+		my $href = URI->new($a->attr('href'))->as_string();
+		$href =~ s'^.*http://'http://'g; #hack to fix some broken urls
+		$href =~ s'\.comicgen\.com'.comicgenesis.com'gi; #hack to fix more broken urls
+		my ($id) = ($href =~ m'^http://(.*?)\.comicgenesis?\.com/'i);
+		unless ($id) {
+			$l->debug("could not parse $href");
+			next;
 		}
-		$tree->delete();
+		my $name = HTML::Entities::encode($main->parent->look_down(_tag=>'div',class=>'comictitle')->look_down(_tag=>'a',href=>qr"http://$id\.comicgen(esis)?\.com")->as_trimmed_text(extra_chars => '\xA0'));
+		unless ($name) {
+			$l->warn("could not get name for $id using id as name");
+			$name = $id;
+			
+		}
+		$id =~ s/\W/_/g;
+		$id = 'ComicGenesis_' . $id;
+		$comiclist{$id} = {url_start => $href, name => $name};
 	}
-	return \%comiclist;
+	$tree->delete();
+	
+	$index = $index < 26 ? [$index + 1] : undef;
+	return (\%comiclist,$index);
 }
 
 #returns a list of keys to search for

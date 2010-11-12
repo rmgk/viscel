@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Maintenance v1.0.0;
+package Maintenance v1.1.0;
 
 use 5.012;
 use warnings;
@@ -48,14 +48,20 @@ sub reset {
 sub update_cores_lists {
 	my ($s) = @_;
 	my $c = $s->cfg('update_core_list');
-	my @cores_to_check = grep {time - ($c->{$_}||0) > 360000} Cores::list();
-	unless (@cores_to_check) {
-		$l->debug('all core lists up to date');
-		return undef;
+	my $core = $s->{ucore};
+	unless ($core) {
+		my @cores_to_check = grep {time - ($c->{$_}||0) > 360000} Cores::list();
+		unless (@cores_to_check) {
+			$l->debug('all core lists up to date');
+			return undef;
+		}
+		$core = shift @cores_to_check;
+		$s->{ucore} = $core;
 	}
-	my $core = shift @cores_to_check;
 	$c->{$core} = time;
-	$core->update_list();
+	unless ($s->{cstate} = $core->update_list($s->{cstate})) {
+			$s->{ucore} = undef;
+	}
 	return 1;
 }
 

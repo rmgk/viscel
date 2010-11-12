@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Animea v1.0.0;
+package Core::Animea v1.1.0;
 
 use 5.012;
 use warnings;
@@ -12,35 +12,35 @@ my $l = Log->new();
 
 #creates the list of known manga
 sub _create_list {
-	my ($pkg) = @_;
+	my ($pkg,$state) = @_;
 	my %clist;
 	$l->trace('create list of known collections');
-	my $url = 'http://manga.animea.net/browse.html?page=0';
-	while($url) {
-		my $tree = $pkg->_get_tree($url) or return undef;
-		foreach my $td ($tree->look_down('_tag' => 'td', 'class' => 'c')) {
-			my $tr = $td->parent();
-			my $a = $tr->look_down(_tag=>'a',class=>qr/manga$/);
-			my $name = HTML::Entities::encode($a->as_trimmed_text(extra_chars => '\xA0'));
-			my $href = $a->attr('href');
-			my ($id) = ($href =~ m'^/(.*)\.html$'i);
-			unless ($id) {
-				$l->debug("could not parse $href");
-				next;
-			}
-			$href = URI->new_abs($href,$url)->as_string;
-			$id =~ s/\W/_/g;
-			$id = 'Animea_' . $id;
-			$clist{$id} = {url_info => $href, name => $name};
-			$clist{$id}->{Status} = ($a->{class} eq 'complete_manga') ? 'complete' : 'ongoing';
-			$clist{$id}->{Chapter} = $td->as_trimmed_text();
-			
+	my $url = ref $state ? $state->[0] : 'http://manga.animea.net/browse.html?page=0';
+
+	my $tree = $pkg->_get_tree($url) or return undef;
+	foreach my $td ($tree->look_down('_tag' => 'td', 'class' => 'c')) {
+		my $tr = $td->parent();
+		my $a = $tr->look_down(_tag=>'a',class=>qr/manga$/);
+		my $name = HTML::Entities::encode($a->as_trimmed_text(extra_chars => '\xA0'));
+		my $href = $a->attr('href');
+		my ($id) = ($href =~ m'^/(.*)\.html$'i);
+		unless ($id) {
+			$l->debug("could not parse $href");
+			next;
 		}
-		my $next = $tree->look_down('_tag' => 'ul', 'class' => 'paging')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^Next$/});
-		$url = $next ? URI->new_abs($next->attr('href'),$url)->as_string : undef;
-		$tree->delete();
+		$href = URI->new_abs($href,$url)->as_string;
+		$id =~ s/\W/_/g;
+		$id = 'Animea_' . $id;
+		$clist{$id} = {url_info => $href, name => $name};
+		$clist{$id}->{Status} = ($a->{class} eq 'complete_manga') ? 'complete' : 'ongoing';
+		$clist{$id}->{Chapter} = $td->as_trimmed_text();
+		
 	}
-	return \%clist;
+	my $next = $tree->look_down('_tag' => 'ul', 'class' => 'paging')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^Next$/});
+	$url = $next ? [URI->new_abs($next->attr('href'),$url)->as_string] : undef;
+	$tree->delete();
+	
+	return (\%clist,$url);
 }
 
 

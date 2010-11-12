@@ -45,13 +45,13 @@ sub init {
 sub start {
 	Stats::add('launch',$Viscel::VERSION->normal());
 	$l->trace('run main loop');
-	my $timeout = 60;
+	my $timeout = 0;
 	$maintainer = Maintenance->new();
 	while (1) {
 		
 		if (Server::accept($timeout,0.5)) { #some connection was accepted
 			handle_hints();
-			$timeout = 60; #resetting timeout
+			$timeout = 0; #resetting timeout
 			$maintainer->reset();
 		}
 		else {
@@ -60,7 +60,7 @@ sub start {
 				$timeout = 0; #instant timeout to get some work done
 			}
 			else {
-				$timeout = 1000000; #deactivating timeout
+				$timeout = 3600; #one hour timeout
 			}
 		}
 	}

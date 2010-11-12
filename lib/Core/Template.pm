@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Template v1.0.0;
+package Core::Template v1.1.0;
 
 use 5.012;
 use warnings;
@@ -27,7 +27,7 @@ sub clist {
 		$pkg = ref $pkg;	
 	} 
 	if (ref $id) {
-		%$pkg = %$id; 
+		$$pkg{$_} = $$id{$_} for keys %$id; 
 	}
 	elsif (defined $id) {
 		#return the reference to the collection
@@ -63,16 +63,22 @@ sub _load_list {
 		$l->debug('loaded ' . scalar($pkg->clist()) . ' collections');
 		return 1;
 	}
-	return $pkg->update_list();
+	return 1;
+	#return $pkg->update_list();
 }
 
+#$state -> $next_state
 #updates and saves the collection list
+#as loading lists can take a long time
+#this method returns a next state to split list generating
 sub update_list {
-	my ($pkg) = @_;
-	my $list = $pkg->_create_list();
+	my ($pkg,$state) = @_;
+	my $list;
+	($list,$state) = $pkg->_create_list($state);
 	$pkg->clist($list);
-	$l->debug('found ' .  scalar($pkg->clist()) . ' collections');
-	return $pkg->save_clist();
+	$l->debug('now has ' .  scalar($pkg->clist()) . ' collections');
+	return undef unless $pkg->save_clist();
+	return $state;
 }
 
 #$url -> $tree

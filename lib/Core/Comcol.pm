@@ -37,6 +37,7 @@ sub init {
 #noop
 sub update_list {
 	$l->trace('comcol update list noop');
+	return undef; #undef means finished updating
 }
 
 #->\@id_list
