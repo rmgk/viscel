@@ -103,6 +103,14 @@ sub list {
 	return map {$_ , $p->clist($_)->{name}} $p->clist();
 }
 
+#->@collection_id_list
+#returns a list containing all the ids of collections that need updating
+sub list_need_info {
+	my ($p) = @_;
+	return () unless $p->can('_fetch_info');
+	return grep {!$p->clist($_)->{moreinfo}} $p->clist();
+}
+
 #$query,@regex -> %list
 sub search {
 	my ($p,$filter,@re) = @_;
@@ -161,15 +169,15 @@ sub about {
 #fetches more information about the comic, force overwrites existing info
 sub fetch_info {
 	my ($s,$force) = @_;
-	return undef if $s->clist()->{moreinfo} and !$force;
+	return 1 if $s->clist()->{moreinfo} and !$force;
 	$l->trace('fetching more info for ', $s->{id});
-	$s->_fetch_info();
+	$s->_fetch_info() or return undef;
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();
 }
 
 #noop
-sub _fetch_info {}
+sub _fetch_info {1}
 
 #$self -> $name
 sub name {

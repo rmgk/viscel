@@ -24,7 +24,8 @@ sub tick {
 	given ($s->{state}) {
 		when ('update_cores') { $s->update_cores_lists() or $s->{state} = 'check_collections' }
 		when ('check_collections') { $s->check_collections() or $s->{state} = 'keep_current' }
-		when ('keep_current') { $s->keep_current() or $s->{state} = 'done' }
+		when ('keep_current') { $s->keep_current() or $s->{state} = 'fetch_info' }
+		when ('fetch_info') { $s->fetch_info() or $s->{state} = 'done' }
 		when ('done') { return undef }
 		default { return undef }
 	}
@@ -50,7 +51,7 @@ sub update_cores_lists {
 	my $c = $s->cfg('update_core_list');
 	my $core = $s->{ucore};
 	unless ($core) {
-		my @cores_to_check = grep {time - ($c->{$_}||0) > 360000} Cores::list();
+		my @cores_to_check = grep {time - ($c->{$_}||0) > 360000} Cores::initialised();
 		unless (@cores_to_check) {
 			$l->debug('all core lists up to date');
 			return undef;
@@ -78,8 +79,8 @@ sub check_collections {
 	$c->{$next_check} = time;
 	return 1 unless $next_check;
 	$l->trace('check ' , $next_check);
-	return check_collection($next_check);
-
+	check_collection($next_check);
+	return 1;
 }
 
 #$collections
@@ -106,7 +107,7 @@ sub check_collection {
 		if (my $attr = $last_elem->differs($r_last_elem)) {
 			$l->error('attribute ', $attr, ' of last is inconsistent ', $next_check);
 			$col->delete($last_pos);
-			return;
+			return 1;
 		}
 	}
 	#checking first
@@ -138,7 +139,7 @@ sub keep_current {
 			return undef;
 		}
 		my $next_update = shift @to_update;
-		Cores::new($next_update)->fetch_info();
+		Cores::new($next_update)->fetch_info() or return 1;
 		my $col = Collection->get($next_update);
 		my $last = $col->last();
 		if ($last) {
@@ -159,6 +160,23 @@ sub keep_current {
 	}
 	$col->clean();
 	$s->{istate} = $spot;
+	return 1;
+}
+
+#fetches more info for collections
+sub fetch_info {
+	my ($s) = @_;
+	unless ($s->{fetch_info_list}) {
+		$s->{fetch_info_list} = [];
+		my @cores = Cores::initialised();
+		for my $core (@cores) {
+			push(@{$s->{fetch_info_list}}, $core->list_need_info());
+		}
+	}
+	my $icore_id = shift @{$s->{fetch_info_list}};
+	return 0 unless $icore_id;
+	my $icore = Cores::new($icore_id);
+	$icore->fetch_info();
 	return 1;
 }
 

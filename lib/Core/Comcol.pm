@@ -57,6 +57,12 @@ sub list {
 	
 }
 
+#->@collection_id_list
+#returns a list containing all the ids of collections that need updating
+sub list_need_info {
+	return (); #this core does not need updating
+}
+
 #$query,$regex -> %list
 #class method
 #searches for a collection
@@ -94,6 +100,7 @@ sub about {
 #noop
 sub fetch_info {
 	$l->trace('comcol update list noop');
+	return 1;
 }
 
 #$self -> $name

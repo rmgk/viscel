@@ -59,6 +59,7 @@ sub _fetch_info {
 	$s->clist()->{Detail} = HTML::Entities::encode(($p[6]->content_list())[2]);
 	$s->clist()->{moreinfo} = 1;
 	$tree->delete();
+	return 1;
 }
 
 

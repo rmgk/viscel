@@ -64,6 +64,7 @@ sub _fetch_info {
 		}
 		$tree->delete();
 	}
+	return 1;
 }
 
 

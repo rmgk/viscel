@@ -70,6 +70,7 @@ sub _fetch_info {
 		$l->warn("animea no longer makes this collection available");
 		$s->clist()->{Status} = 'down';
 	}
+	return 1;
 }
 
 

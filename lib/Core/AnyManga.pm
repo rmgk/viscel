@@ -63,9 +63,10 @@ sub _fetch_info {
 	#$s->clist()->{update} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Last Manga Update:' })->parent()->content_list())[1];
 	$s->clist()->{Status} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Status:' })->parent()->content_list())[1];
 	$s->clist()->{Detail} = ($tree->look_down('_tag' => 'div', style => qr/font-weight: bolder;$/)->parent()->content_list())[1];
-	($s->clist()->{Seealso}) = ($tree->look_down('_tag' => 'span', style => 'font-weight: bolder;')->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$');
-	$s->clist()->{Seealso} =~ s/\W/_/g;
+	my @seealso = $tree->look_down('_tag' => 'span', style => 'font-weight: bolder;');
+	$s->clist()->{Seealso} = join(', ', map {$_->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$'; my $id = $1; $id =~ s/\W/_/g; $id;} @seealso);
 	$tree->delete();
+	return 1;
 }
 
 

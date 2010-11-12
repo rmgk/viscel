@@ -21,6 +21,12 @@ my $HS; #hint state, chaches the current read spot for efficency
 my $maintainer;
 my @hint;
 
+our $TERM = 0;
+$SIG{'INT'} = sub { 
+	print "\nTerminating\n\n" ;
+	$TERM = 1;
+};
+
 #initialises the needed modules
 sub init {
 	$l->trace('initialise modules');
@@ -47,7 +53,7 @@ sub start {
 	$l->trace('run main loop');
 	my $timeout = 0;
 	$maintainer = Maintenance->new();
-	while (1) {
+	while (!$TERM) {
 		
 		if (Server::accept($timeout,0.5)) { #some connection was accepted
 			handle_hints();
@@ -105,7 +111,7 @@ sub hint_front {
 		$l->trace('unknown collection ', $id);
 		return undef;
 	}
-	$core->fetch_info();
+	$core->fetch_info() or return undef;
 	my $col = Collection->get($id);
 	return undef if $col->fetch(1);
 	my $spot = Cores::first($id);
