@@ -103,7 +103,27 @@ sub _mount_parse {
 			my $ch = $chlist[$i];
 			if ($ch->look_down(_tag=>'a', href => $chapter)) {
 				my $a = $chlist[$i-1]->look_down(_tag=>'a');
-				$href = $a->attr('href');
+				my $url = $a->attr('href');
+				my %urls;
+				while ($url) {
+					return undef if $urls{$url}; #abort recursion
+					$urls{$url} = 1; 
+					my $tree = Core::Homeunix->_get_tree($url) or return undef;
+					my $fs = $tree->look_down(_tag => 'fieldset', class=>qr'td2');
+					if ($fs) {
+						#we are at the last page and can finally find the first page
+						my $a = $fs->look_down(_tag=>'a');
+						$href = $a->attr('href');
+						$url = undef;
+					}
+					else {
+						my @chlist = $tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
+						my $ch = $chlist[-1];
+						my $a = $ch->look_down(_tag=>'a');
+						$url = $a->attr('href');
+					}
+					$tree->delete();
+				}
 				last;
 			}
 		}
