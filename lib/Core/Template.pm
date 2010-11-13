@@ -86,13 +86,13 @@ sub update_list {
 sub _get_tree {
 	my ($s,$url) = @_;
 	my $page = DlUtil::get($url);
-	if (!$page->is_success()) {
+	if (!$page->is_success() or !$page->header('Content-Length')) {
 		$l->error("error get: ", $url);
 		return undef;
 	}
 	$l->trace('parse HTML into tree');
 	my $tree = HTML::TreeBuilder->new();
-	$tree->parse_content($page->decoded_content());
+	return undef unless $tree->parse_content($page->decoded_content());
 	return $tree;
 }
 

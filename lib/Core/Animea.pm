@@ -55,6 +55,11 @@ sub _fetch_info {
 	my $url = $s->clist()->{url_info};
 	$url .= '?skip=1';
 	my $tree = $s->_get_tree($url) or return undef;
+	my $chapterslist = $tree->look_down(_tag=>'table',id=>'chapterslist');
+	unless ($chapterslist) { # if chapterslist could not be found, its most likely that something is wrong with the page download
+		$l->warn('could not parse page ' , $url);
+		return undef; 
+	}
 	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $tree->look_down(_tag=>'a', href=>qr'/genre/'i);
 	my $p = $tree->look_down('_tag' => 'p', style => 'width:570px; padding:5px;');
 	$s->clist()->{Detail} = HTML::Entities::encode($p->as_trimmed_text()) if ($p);
@@ -62,7 +67,7 @@ sub _fetch_info {
 	if ($ul) {
 		$s->clist()->{Seealso} = join ', ' , map { $_->attr('href') =~ m'animea.net/([^/]*)\.html$'; my $r = $1; $r =~ s/\W/_/g; $r} $ul->look_down(_tag=>'a');
 	}
-	my @table = $tree->look_down(_tag=>'table',id=>'chapterslist')->content_list();
+	my @table = $chapterslist->content_list();
 	my $a = $table[-2]->look_down(_tag=>'a');
 	if ($a) {
 		$s->clist()->{url_start} = $a->attr('href');
