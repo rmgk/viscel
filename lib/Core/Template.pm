@@ -171,13 +171,10 @@ sub fetch_info {
 	my ($s,$force) = @_;
 	return 1 if $s->clist()->{moreinfo} and !$force;
 	$l->trace('fetching more info for ', $s->{id});
-	$s->_fetch_info() or return undef;
+	$s->_fetch_info() or return undef if $s->can('_fetch_info');
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();
 }
-
-#noop
-sub _fetch_info {1}
 
 #$self -> $name
 sub name {
