@@ -45,7 +45,15 @@ sub _searchkeys {
 sub _fetch_info {
 	my ($s) = @_;
 	my $url = $s->clist()->{url_info};
-	my $tree = $s->_get_tree($url) or return undef;;
+	my ($tree,$page) = $s->_get_tree($url);
+	unless($tree) {
+		if ($page->code() == 404) { #404 is a permanent error and means the collection is broken
+			$l->warn('collection is not available');
+			$s->clist()->{Status} = 'down'; 
+			return 1;
+		}
+		return undef;
+	}
 	my $td = $tree->look_down('_tag' => 'div', class=>'postcontent')->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td
 	my @p = $td->look_down(_tag=>'p');
 	if ($p[6]) {
@@ -59,7 +67,6 @@ sub _fetch_info {
 		$s->clist()->{Tags} = join ", ", map {$_->as_trimmed_text()} $p[4]->look_down(class => 'series-info');
 		$s->clist()->{Detail} = HTML::Entities::encode(($p[6]->content_list())[2]);
 	}
-	$s->clist()->{moreinfo} = 1;
 	$tree->delete();
 	return 1;
 }

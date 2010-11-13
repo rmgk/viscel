@@ -88,12 +88,12 @@ sub _get_tree {
 	my $page = DlUtil::get($url);
 	if (!$page->is_success() or !$page->header('Content-Length')) {
 		$l->error("error get: ", $url);
-		return undef;
+		return wantarray ? (undef, $page): undef;
 	}
 	$l->trace('parse HTML into tree');
 	my $tree = HTML::TreeBuilder->new();
 	return undef unless $tree->parse_content($page->decoded_content());
-	return $tree;
+	return wantarray ? ($tree, $page): $tree;
 }
 
 #->%collection_hash
