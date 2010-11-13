@@ -59,7 +59,9 @@ sub _fetch_info {
 	my $p = $tree->look_down('_tag' => 'p', style => 'width:570px; padding:5px;');
 	$s->clist()->{Detail} = HTML::Entities::encode($p->as_trimmed_text()) if ($p);
 	my $ul = $tree->look_down('_tag' => 'ul', class => 'relatedmanga');
-	$s->clist()->{Seealso} = join ', ' , map { $_->attr('href') =~ m'animea.net/([^/]*)\.html$'; my $r = $1; $r =~ s/\W/_/g; $r} $ul->look_down(_tag=>'a');
+	if ($ul) {
+		$s->clist()->{Seealso} = join ', ' , map { $_->attr('href') =~ m'animea.net/([^/]*)\.html$'; my $r = $1; $r =~ s/\W/_/g; $r} $ul->look_down(_tag=>'a');
+	}
 	my @table = $tree->look_down(_tag=>'table',id=>'chapterslist')->content_list();
 	my $a = $table[-2]->look_down(_tag=>'a');
 	if ($a) {
