@@ -66,6 +66,7 @@ sub start {
 				$timeout = 0; #instant timeout to get some work done
 			}
 			else {
+				$maintainer = Maintenance->new();
 				$timeout = 3600; #one hour timeout
 			}
 		}
