@@ -54,14 +54,12 @@ sub start {
 	my $timeout = 0;
 	$maintainer = Maintenance->new();
 	while (!$TERM) {
-		
 		if (Server::accept($timeout,0.5)) { #some connection was accepted
 			handle_hints();
 			$timeout = 0; #resetting timeout
 			$maintainer->reset();
 		}
 		else {
-			Stats::add('maintenance','start');
 			if ($maintainer->tick()) {
 				$timeout = 0; #instant timeout to get some work done
 			}

@@ -67,11 +67,12 @@ sub accept {
 sub _accept_connection {
 	my ($timeout,$timespan) = @_;
 	$d->timeout($timeout);
-	Stats::add('connection','listen');
+	my $ls_time = Time::HiRes::time;
 	if ((my ($c, $addr) = $d->accept)) {
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
-		Stats::add('connection',$addr_str ,":",$port);
+		Stats::add('connection',Time::HiRes::time - $ls_time);
+		Stats::add('connection',$addr_str);
 		$l->debug("connection from ",$addr_str ,":",$port);
 		#the timout value should be big enough to let useragent sent multiple request on the same connection
 		#but it should be also small enough that it times out shortly after all request for a given page
