@@ -53,8 +53,7 @@ sub get {
 		when (/bzip2/i) { $res->header("Content-Encoding" => 'x-bzip2'); }
 	}
 	defined($res->header('Content-Length')) or $res->header('Content-Length',length $res->content);
-	Stats::add('got',$res->header('Content-Length'));
-	Stats::add('code',$res->code());
+	Stats::add('got',$res->code(),$res->header('Content-Length'));
 	$l->trace('response code: '. $res->code() .' ' . $res->message());
 	return $res;
 

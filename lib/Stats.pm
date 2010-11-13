@@ -21,9 +21,9 @@ sub init {
 #$event, $value
 #saves statistics for $event with $value
 sub add {
-	my ($event,$value) = @_;
+	my (@value) = @_;
 	my $time = Time::HiRes::time();
-	print $FH "$time\t$event\t$value\n";
+	print $FH join("\t", $time, @value) , "\n";
 	return 1;
 }
 
