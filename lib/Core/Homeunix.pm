@@ -90,7 +90,7 @@ sub _mount_parse {
 		return undef;
 	}
 	unless ($href) {
-		$page =~ m'<a href ="([^"]+)"><b>[RETURN]</b></a>';
+		$page =~ m'<a href ="([^"]+)"><b>\[RETURN\]</b></a>';
 		my $chapter = HTML::Entities::encode($1);
 		my $tree = Core::Homeunix->_get_tree($chapter) or return undef;
 		my $ch = $tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
@@ -99,7 +99,7 @@ sub _mount_parse {
 		$tree->delete();
 		$tree = Core::Homeunix->_get_tree($overview) or return undef;
 		my @chlist = $tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
-		for my $i (scalar(@chlist) .. 1) {
+		for my $i ( reverse(1 .. $#chlist) ) {
 			my $ch = $chlist[$i];
 			if ($ch->look_down(_tag=>'a', href => $chapter)) {
 				my $a = $chlist[$i-1]->look_down(_tag=>'a');
