@@ -58,6 +58,7 @@ sub _fetch_info {
 	my $chapterslist = $tree->look_down(_tag=>'table',id=>'chapterslist');
 	unless ($chapterslist) { # if chapterslist could not be found, its most likely that something is wrong with the page download
 		$l->warn('could not parse page ' , $url);
+		$tree->delete();
 		return undef; 
 	}
 	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $tree->look_down(_tag=>'a', href=>qr'/genre/'i);
@@ -77,6 +78,7 @@ sub _fetch_info {
 		$l->warn("animea no longer makes this collection available");
 		$s->clist()->{Status} = 'down';
 	}
+	$tree->delete();
 	return 1;
 }
 
