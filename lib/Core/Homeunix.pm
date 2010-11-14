@@ -48,7 +48,10 @@ sub _fetch_info {
 	my $url = $s->clist()->{url_info};
 	my %urls;
 	while ($url) {
-		return undef if $urls{$url}; #abort recursion
+		if ($urls{$url}) { #abort recursion
+			$s->clist()->{Status} = 'Down';
+			return 1;
+		}
 		$urls{$url} = 1; 
 		my $tree = $s->_get_tree($url) or return undef;
 		my $fs = $tree->look_down(_tag => 'fieldset', class=>qr'td2');
