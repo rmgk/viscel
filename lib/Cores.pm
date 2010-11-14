@@ -14,6 +14,7 @@ use Core::Universal;
 use Core::Cartooniverse;
 use Core::Homeunix;
 use Core::KatBox;
+use Core::Mangafox;
 use Log;
 
 my $l = Log->new();
@@ -26,6 +27,7 @@ my %cores = (	'Core::AnyManga' => 0,
 				'Core::Cartooniverse' => 0,
 				'Core::Homeunix' => 0,
 				'Core::KatBox' => 0,
+				'Core::Mangafox' => 0,
 				);
 
 #initialises all used cores
