@@ -32,7 +32,7 @@ sub _create_list {
 		$id =~ s/\W/_/g;
 		$id = 'Animea_' . $id;
 		$clist{$id} = {url_info => $href, name => $name};
-		$clist{$id}->{Status} = ($a->{class} eq 'complete_manga') ? 'complete' : 'ongoing';
+		$clist{$id}->{Status} = ($a->attr('class') eq 'complete_manga') ? 'complete' : 'ongoing';
 		$clist{$id}->{Chapter} = $td->as_trimmed_text();
 		
 	}
