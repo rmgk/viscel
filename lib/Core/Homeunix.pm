@@ -107,6 +107,7 @@ sub _mount_parse {
 			if ($ch->look_down(_tag=>'a', href => $chapter)) {
 				my $a = $chlist[$i-1]->look_down(_tag=>'a');
 				my $url = $a->attr('href');
+				$tree->delete();
 				my %urls;
 				while ($url) {
 					return undef if $urls{$url}; #abort recursion
@@ -130,6 +131,7 @@ sub _mount_parse {
 				last;
 			}
 		}
+		$tree->delete();
 	}
 	$s->{src} = $src;
 	$s->{next} = URI->new_abs($href,$s->{page_url})->as_string();;

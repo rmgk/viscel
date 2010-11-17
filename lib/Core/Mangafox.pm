@@ -116,6 +116,7 @@ sub _mount_parse {
 	
 	my $next = $img->parent()->attr('href');
 	if ($next eq 'javascript:void(0);') {
+		$next = undef;
 		my $url_info = $s->{page_url};
 		$url_info =~ s'/[^/]+/[^/]+/[^/]+$'/';
 		my $tree = Core::Mangafox->_get_tree($url_info) or return undef;
@@ -125,12 +126,12 @@ sub _mount_parse {
 			my $href = $chapter[$_]->attr('href');
 			if ($url =~ m/\Q$href\E/i) {
 				$next = $chapter[$_+1]->attr('href');
-				$s->{next} = URI->new_abs($next,$url)->as_string();
-				return 1;
+				last;
 			}
 		}
-		return undef;
+		$tree->delete();
 	}
+	return undef unless $next;
 	$s->{next} = URI->new_abs($next,$s->{page_url})->as_string();
 	return 1;
 }
