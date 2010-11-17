@@ -22,10 +22,13 @@ my $maintainer;
 my @hint;
 
 our $TERM = 0;
-$SIG{'INT'} = sub { 
+our $INTS = sub { 
 	print "\nTerminating\n\n" ;
 	$TERM = 1;
 };
+our $INTF = $SIG{'INT'};
+$SIG{'INT'} = $INTS; 
+
 
 #initialises the needed modules
 sub init {
@@ -54,12 +57,15 @@ sub start {
 	my $timeout = 0;
 	$maintainer = Maintenance->new();
 	while (!$TERM) {
+		$SIG{'INT'} = $INTF;
 		if (Server::accept($timeout,0.5)) { #some connection was accepted
+			$SIG{'INT'} = $INTS;
 			handle_hints();
-			$timeout = 0; #resetting timeout
+			$timeout = 60; #resetting timeout
 			$maintainer->reset();
 		}
 		else {
+			$SIG{'INT'} = $INTS;
 			if ($maintainer->tick()) {
 				$timeout = 0; #instant timeout to get some work done
 			}
