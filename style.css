@@ -60,6 +60,9 @@ legend {
 	padding: 0;
 	border: none; /*firefox displays a border if a link is on the image */
 }
+.element {
+	background-color: white;
+}
 
 
 
