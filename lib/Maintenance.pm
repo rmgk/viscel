@@ -175,8 +175,8 @@ sub fetch_info {
 	}
 	my $icore_id = shift @{$s->{fetch_info_list}};
 	return 0 unless $icore_id;
-	my $icore = Cores::new($icore_id);
-	$icore->fetch_info();
+	my $remote = Cores::new($icore_id);
+	$remote->fetch_info();
 	return 1;
 }
 

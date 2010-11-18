@@ -144,11 +144,11 @@ sub search {
 	return @return;
 }
 
-#$class,$id -> $self
-#creates a new core instance for a given collection
+#$class,$id -> $remote
+#creates a new remote for a given id
 sub new {
 	my ($class,$id) = @_;
-	$l->trace("create new core $id");
+	$l->trace("create new remote $id");
 	my $self = bless {id => $id}, $class;
 	unless (keys %{$self->clist()}) {
 		$l->error("unknown id ", $id);
@@ -189,13 +189,13 @@ sub first {
 	return $s->create(1,$s->clist()->{url_start});
 }
 
-#$class, $id, $state -> \%self
+#$class, $position, $state -> \%self
 #creates a new spot of $id at in state $state
 sub create {
 	my ($s,$pos,$state) = @_;
 	my $class = ref($s) . '::Spot';
 	my $spot = {id => $s->{id}, position => $pos, state => $state};
-	$l->debug('creat new core ' , $class, ' id: ', $s->{id}, ,' position: ', $pos);
+	$l->debug('creat new spot ' , $class, ' id: ', $s->{id}, ,' position: ', $pos);
 	$class->new($spot);
 	return $spot;
 }

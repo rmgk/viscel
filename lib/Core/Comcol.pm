@@ -75,11 +75,11 @@ sub search {
 	return map {[$_,$cmcs{$_},$cap{$_}//$cmcs{$_}]} grep { my $id = $_; @re == grep {$cmcs{$id} ~~ $_ and defined($cap{$id} = $1) } @re } keys %cmcs; #/ padre display bug
 }
 
-#$class,$id -> $self
-#creates a new core instance for a given collection
+#$class,$id -> $remote
+#creates a new remote for a given id
 sub new {
 	my ($class,$id) = @_;
-	$l->trace("create new core $id");
+	$l->trace("create new remote $id");
 	return bless {id => $id}, $class;
 }
 

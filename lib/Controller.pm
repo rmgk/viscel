@@ -111,12 +111,12 @@ sub handle_hints {
 sub hint_front {
 	my ($id) = @_;
 	$l->trace('handle front hint '.$id);
-	my $core = Cores::new($id);
-	unless ($core) {
+	my $remote = Cores::new($id);
+	unless ($remote) {
 		$l->trace('unknown collection ', $id);
 		return undef;
 	}
-	$core->fetch_info() or return undef;
+	$remote->fetch_info() or return undef;
 	my $col = Collection->get($id);
 	return undef if $col->fetch(1);
 	my $spot = Cores::first($id);

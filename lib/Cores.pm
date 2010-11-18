@@ -60,9 +60,9 @@ sub initialised {
 sub about {
 	my ($id) = @_;
 	$l->trace("about $id");
-	my $c = new($id);
-	return undef unless $c;
-	$c->about();
+	my $remote = new($id);
+	return undef unless $remote;
+	$remote->about();
 }
 
 #$id -> $name;
@@ -70,24 +70,24 @@ sub about {
 sub name {
 	my ($id) = @_;
 	$l->trace("request name of $id");
-	my $c = new($id);
-	return undef unless $c;
-	return $c->name();
+	my $remote = new($id);
+	return undef unless $remote;
+	return $remote->name();
 }
 
-#$id -> \%self
+#$id -> \%spot
 #returns the first spot of the given id
 sub first {
 	my ($id) = @_;
 	$l->trace("request first of $id");
-	my $c = new($id);
-	return undef unless $c;
-	$c->fetch_info() or return undef;
-	return $c->first();
+	my $remote = new($id);
+	return undef unless $remote;
+	$remote->fetch_info() or return undef;
+	return $remote->first();
 }
 
-#$id -> $core
-#returns the core for the given id
+#$id -> $remote
+#returns the remote for the given id
 sub new {
 	my  ($id) = @_;
 	my $core = $id;

@@ -48,11 +48,11 @@ sub new {
 	return $self;
 }
 
-#creates the Core at the position of the element
+#creates the spot at the position of the element
 sub create_spot {
 	my ($s) = @_;
-	my $core = Cores::new($s->cid);
-	return $core->create($s->position,$s->state);
+	my $remote = Cores::new($s->cid);
+	return $remote->create($s->position,$s->state);
 }
 
 #returns the string of columns
