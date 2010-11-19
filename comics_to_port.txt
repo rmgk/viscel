@@ -305,56 +305,56 @@ RiceBoy(rice boy)		http://riceboy.jho-tan.com/see/001.html
 
 
 
-SeriousEmotionalDisturbance		http://sediverse.com/?p=83
-WoodpeckerCrossing		http://crowfeathers.net/index.php?blog=8
-HerdThinners		http://www.herdthinners.com/index.phtml?current=19950903
-Templar		http://www.webcomicsnation.com/spike/Templar/series.php?view=single&ID=422
-BeyondRapture		http://beyondrapture.godspack.com/archives/page-1
-ButtercupFestival		http://www.buttercupfestival.com/2-1.htm
-KittyHawk		http://kittyhawkcomic.com/2008/07/29/kittyhawkcover/
-ChugworthAcademy		http://chugworth.com/archive/?strip_id=0
-DuelingAnalogs		http://www.duelinganalogs.com/?date=2005-11-17
-GreaterGood		http://www.neorice.com/aptgg_1
-WingsOfWishes		http://chrisschrossed.xepher.net/manga/v2pages/ch0/p1.html
-FlakyPastry		http://flakypastry.runningwithpencils.com/comic.php?strip_id=0
-BlueSkunk		http://blueskunk.spiderforest.com/?comic_id=0
-TheWayToYourHeart		http://emi-art.com/twtyh/twtyh_cover01site.html
-BoredAndEvil		http://www.boredandevil.com/?date=2004-06-07
-InkTank		http://www.inktank.com/2008/04/01/a-new-day/
-Xylia		http://xyliatales.com/10032007/
-BizarreUprising		http://www.bizarreuprising.com/view.php?id=1
-TheEndOfThings		http://endofthingscomic.com/?p=254
-AbleAndBaker		http://jimburgessdesign.com/comics/index.php?comic=1
-EGSNewspaper		http://www.egscomics.com/egsnp/d/20040224.html
+
+WoodpeckerCrossing(gone?)		http://crowfeathers.net/index.php?blog=8
+HerdThinners(gone?)		http://www.herdthinners.com/index.phtml?current=19950903
+
+BeyondRapture(gone?)		http://beyondrapture.godspack.com/archives/page-1
+
+
+
+
+
+
+FlakyPastry(sage-comics)		http://flakypastry.runningwithpencils.com/comic.php?strip_id=0
+BlueSkunk(spiderforest)		http://blueskunk.spiderforest.com/?comic_id=0
+
+BoredAndEvil(HyenaComics)		http://www.boredandevil.com/?date=2004-06-07
+InkTank(down?)		http://www.inktank.com/2008/04/01/a-new-day/
+Xylia(spiderforest)		http://xyliatales.com/10032007/
+
+TheEndOfThings(down)		http://endofthingscomic.com/?p=254
+
+
 Ragni(TX)		http://www.transmission-x.com/_ragni/?p=10
-ColinTheBrick		http://colinthebrick.com/?strip_id=0
-TwilightLady		http://www.twilightlady.com/2008/03/16/the-secret-of-cass-corridor-2/
-Helpdesk		http://ubersoft.net/comic/hd/1996/03/alex-loss-words
-NotIncluded		http://not-included.net/comics.php?id=1&PHPSESSID=
-TheLandscaper		http://landscaper.visual-assault.net/2008/08/13/issue1-cover/
-GirlVsPig		http://www.girlvspig.com/archives/her1.html
-Inverloch		http://inverloch.seraph-inn.com/viewcomic.php?page=1
-smbc		http://www.smbc-comics.com/index.php?db=comics&id=1
-SpaghettiStrapWestern		http://www.sswestern.com/page-0/
-Sailorsun		http://www.sailorsun.org/browse.php?comicID=2
-Gigaville		http://www.gigaville.com/comic.php?id=1
-JoyceAndWalky		http://www.joyceandwalky.com/d/19970908.html
-EerieCuties		http://www.eeriecuties.com/d/20090601.html
-SidAndLasker		http://sidandlasker.spiderspawn.com/?comic_id=0
-BalladMaker		http://balladmaker.spiderforest.com/?strip_id=0
-NanasEverydayLife		http://manga.clone-army.org/nana.php?page=1&lang=
-Freefall		http://freefall.purrsia.com/ff100/fv00001.htm
-RoadWaffles		http://roadwaffles.com/index.php?c=1999-11-8
-LegendOfBill		http://www.legendofbill.com/2008/05/27/the-legend-begins/
-kanami		http://manga.clone-army.org/kanami.php?lang=%3C?php%20print%20?%3E&page=1&lang=
-DogEatDoug		http://dogeatdoug.com/2005/11/27/ded-back-online/
-Ding		http://www.crispygamer.com/comics/ding/page0001.aspx
-catlegend		http://www.cat-legend.com/?comic_id=0
-Butternutsquash		http://www.butternutsquash.net/2003/04/16/meet-da-punks/
-Valiant		http://valiant.spiderforest.com/?comic_id=0
-SunsetGrill		http://sunsetgrillcomic.com/index.php?comic=20080804-august-4,-2008
-HaikuComics		http://haikucomics.com/2009/01/14/haikuone/
-InniesAndOutties		http://www.webcomicsnation.com/lcachola/innies4/series.php?view=single&ID=61033
+ColinTheBrick(gone)		http://colinthebrick.com/?strip_id=0
+
+
+
+
+GirlVsPig(multipage)		http://www.girlvspig.com/archives/her1.html
+
+
+
+
+
+
+
+SidAndLasker(spiderforest)		http://sidandlasker.spiderspawn.com/?comic_id=0
+BalladMaker(spiderforest)			http://balladmaker.spiderforest.com/?strip_id=0
+NanasEverydayLife(clonemanga)			http://manga.clone-army.org/nana.php?page=1&lang=
+Freefall(belfrycomics)		http://freefall.purrsia.com/ff100/fv00001.htm
+
+
+kanami(clonemanga)		http://manga.clone-army.org/kanami.php?lang=%3C?php%20print%20?%3E&page=1&lang=
+
+
+
+Butternutsquash(TX)		http://www.butternutsquash.net/2003/04/16/meet-da-punks/
+Valiant(spiderforest)		http://valiant.spiderforest.com/?comic_id=0
+SunsetGrill(spiderforest)		http://sunsetgrillcomic.com/index.php?comic=20080804-august-4,-2008
+
+InniesAndOutties(webcomicsnation)		http://www.webcomicsnation.com/lcachola/innies4/series.php?view=single&ID=61033
 
 ASofterWorld		http://www.asofterworld.com/index.php?id=1
 DesertRocks		http://dr.ungroup.net/chapter1/pages/page_1.php
@@ -577,7 +577,7 @@ FailedObjective		http://failedobjective.com/?p=9
 WiglafAndMordred		http://liliy.net/wam/2005/10/04/whos-the-other-guy/
 ComicCritics		http://comiccritics.com/2008/06/18/meet-josh/
 BeyondTheTree		http://beyondthetree.wordpress.com/2008/03/20/all-adventures-start-somewhere/
-Candi		http://www.candicomics.com/d/20040625.html
+
 AntiHeroes		http://antiheroescomic.com/comic/1
 WallyAndOsborne		http://wallyandosborne.com/2005/06/27/welcome-to-antarctica/
 Reila		http://www.reila.pigtailstudio.com/0pg001_cover.html
@@ -621,7 +621,7 @@ Garanos		http://www.garanos.com/pages/page-1/
 Taiki		http://www.taikiwebcomic.com/Chapter1/Ch1.html
 WireHead		http://www.wire-heads.com/istrip/index.php?strip_id=1
 DungeonsAndDenizens		http://www.dungeond.com/d/20060402.html
-Chugworth		http://chugworth.com/?p=12
+
 ThePeons		http://shanime.com/?m=20070101
 TakingTheBiPass		http://www.cartoonme.net/index.php?date=20030401
 GenesJournal		http://www.genesjournalcomic.com/?p=33

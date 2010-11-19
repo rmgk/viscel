@@ -857,7 +857,7 @@ HiddenDisguises => [
 	[class => 'object'],
 ],
 EGSFiller => [
-	'El Goonish Shive Filler',
+	'El Goonish Shive: Filler',
 	'http://www.egscomics.com/sketchbook/?date=2002-07-01',
 	[class => 'comic2'],
 ],
@@ -1342,6 +1342,214 @@ SuburbanJungleClassic => [
 	'http://suburbanjungleclassic.com/?p=10',
 	[id => 'comic'],
 ],
+SED => [
+	'Serious Emotional Distrurbance',
+	'http://sediverse.com/2008/02/02182008/',
+	[id => 'comic'],
+],
+Templaraz => [
+	'Templar, Arizona',
+	'http://templaraz.com/?p=879',
+	[id => 'comic']
+],
+ButtercupFestival => [
+	'Buttercup Festival',
+	'http://www.buttercupfestival.com/2-1.htm',
+	[src => qr'\d+-\d+\.png'i],
+],
+KittyHawk => [
+	'Kitty Hawk',
+	'http://kittyhawkcomic.com/2008/07/29/kittyhawkcover/',
+	[id => 'comic']
+],
+ChugworthAcademy => [
+	'Chugworth Academy',
+	'http://chugworth.com/archive/?strip_id=0',
+	[src => qr'comics/\d{6}'],
+],
+Chugworth => [
+	'Chugworth',
+	'http://chugworth.com/?p=12',
+	[id => 'comic'],
+],
+DuelingAnalogs => [
+	'Dueling Analogs',
+	'http://www.duelinganalogs.com/comic/2005/11/17/luigis-anal-adventure/',
+	[id => 'comic'],
+],
+OmakeTheater => [
+	'Omake Theater',
+	'http://omaketheater.com/comic/1/',
+	[id => 'comic'],
+],
+GreaterGood => [
+	'A Path To Greater Good',
+	'http://www.neorice.com/aptgg_1',
+	[id => 'comic'],
+],
+WingsOfWishes => [
+	'Wings of Wishes',
+	'http://chrisschrossed.xepher.net/manga/v2pages/ch0/p1.html',
+	[_tag => 'img']
+],
+WayToYourHeart => [
+	'The Way To Your Heart',
+	'http://emi-art.com/twtyh/1_cover.html',
+	[_tag => 'img'],
+],
+BizarreUprising => [
+	'Bizarre Uprising',
+	'http://www.bizarreuprising.com/view/1/awakening-splash',
+	[class => 'v_comiccontent'],
+	url_hack => sub { $_[0] =~ s'/view/\d*/'/'; $_[0] }
+],
+AbleAndBaker => [
+	'Able & Baker',
+	'http://jimburgessdesign.com/comics/index.php?comic=1',
+	[class => 'comic_content'],
+],
+EGSNewspaper => [
+	'El Goonish Shive: Newspaper',
+	'http://www.egscomics.com/egsnp/?date=2004-02-24',
+	[class => 'comic2'],
+],
+TwilightLady => [
+	'Twilight Lady',
+	'http://www.twilightlady.com/2008/03/16/the-secret-of-cass-corridor-2/',
+	[id => 'comic'],
+],
+Helpdesk => [
+	'Helpdesk',
+	'http://ubersoft.net/comic/hd/1996/03/alex-loss-words',
+	[class => qr'imagefield-field_comic_image'],
+],
+NotIncluded => [
+	'Not Included',
+	'http://not-included.net/comics.php?id=1',
+	[id => 'content'],
+],
+Landscraper => [
+	'The Landscraper',
+	'http://landscaper.visual-assault.net/2008/08/13/issue1-cover/',
+	[id => 'comic'],
+],
+Inverloch => [
+	'Inverloch',
+	'http://inverloch.seraph-inn.com/viewcomic.php?page=1',
+	[id => 'main'],
+],
+SMBC => [
+	'Saturday Morning Breakfast Cereal',
+	'http://www.smbc-comics.com/index.php?db=comics&id=1',
+	[src => qr'/comics/\d{8}'],
+	next => [_tag => 'area', coords => "351,21,425,87"],
+],
+SSWestern => [
+	'Forgiven Sins A Spaghetti Strap Western',
+	'http://www.sswestern.com/page-0/',
+	[id => 'comic'],
+],
+RobTheBot => [
+	'Rob The Bot',
+	'http://robthebot.com/mocha/',
+	[id => 'comic'],
+],
+UnconsciousInk => [
+	'Unconscious Ink',
+	'http://artisticdoom.com/ui/bun-bun/',
+	[id => 'comic-1'],
+],
+ZombieHunters => [
+	'The Zombie Hunters',
+	'http://www.thezombiehunters.com/index.php?strip_id=1',
+	[id => 'comicdiv'],
+],
+AnhedoniaBlue => [
+	'Anhedonia Blue',
+	'http://abluecomic.com/chapter-1-kindled-eye-pg-1/',
+	[id => 'comic-1'],
+],
+LAWLS => [
+	'Large Air Whales Like Silence',
+	'http://lawlscomic.com/whales-are-assholes/',
+	[id => 'comic-1'],
+],
+NerfThis => [
+	'Nerf This',
+	'http://nerf-this.com/03232009/',
+	[id => 'comic-1'],
+],
+ScoutCrossing => [
+	'Scout Crossing',
+	'http://scoutcrossing.net/000-scoutcrossing/',
+	[id => 'comic-1'],
+],
+MotoKool => [
+	'Motokool',
+	'http://www.motokool.net/000/',
+	[id => 'comic-1'],
+],
+SailorSin => [
+	'Sailor Sun',
+	'http://sailorsun.org/?p=21',
+	[id => 'comic'],
+],
+Gigaville => [
+	'Gigaville',
+	'http://www.gigaville.com/comic.php?id=1',
+	[src => qr'images/'],
+],
+JoyceAndWalky => [
+	'Joyce and Walkie!',
+	'http://www.joyceandwalky.com/d/19970908.html',
+	[src => qr'/comics/\d{8}']
+],
+Candi => [
+	'Candi',
+	'http://www.candicomics.com/d/20040625.html',
+	[src => qr'/comics/\d{8}'],
+],
+EerieCuties => [
+	'Eerie Cuties',
+	'http://www.eeriecuties.com/d/20090601.html',
+	[id => 'comic'],
+	next => [_tag => 'img' , name => 'next_day'],
+],
+RoadWaffles => [
+	'Road Waffles',
+	'http://roadwaffles.com/index.php?c=1999-11-8',
+	[src => qr'comics/rw\d{8}'],
+],
+LegendOfBill => [
+	'Legend of Bill',
+	'http://www.legendofbill.com/2008/05/27/the-legend-begins/',
+	[id => 'comic'],
+],
+DogEatDoug => [
+	'Dog Eat Doug',
+	'http://dogeatdoug.com/2005/11/27/ded-back-online/',
+	[id => 'comic'],
+],
+Ding => [
+	'Ding!',
+	'http://www.crispygamer.com/comics/ding/ding-2008-01-01.aspx',
+	[src => qr'comics/ding/ding'],
+	next => [class => 'comics-next'],
+],
+Catlegend => [
+	'Catlegend',
+	'http://www.cat-legend.com/?comic_id=0',
+	[src => qr'comics/\d{6}'],
+],
+HaikuComics => [
+	'Haiku Comics',
+	'http://haikucomics.com/2009/01/14/haikuone/',
+	[id => 'comic-1'],
+],
+
+
+
+
 
 
 
