@@ -662,7 +662,7 @@ SubCulture => [
 ],
 StarshipMoonhawk => [
 	'Starship Moonhawk',
-	'http://www.starshipmoonhawk.com/?p=177',
+	'http://www.starshipmoonhawk.com/?p=383',
 	[id => 'comic'],
 ],
 LonelyPair => [
@@ -1546,7 +1546,72 @@ HaikuComics => [
 	'http://haikucomics.com/2009/01/14/haikuone/',
 	[id => 'comic-1'],
 ],
-
+SofterWorld => [
+	'A Softer World',
+	'http://www.asofterworld.com/index.php?id=1',
+	[src => qr'clean/'],
+],
+DesertRocks => [
+	'Desert Rocks',
+	'http://dr.ungroup.net/chapter1/pages/page_1.php',
+	[_tag => 'img', src => qr'^\.\./images/\d+\.'],
+],
+SchlockMercenary => [
+	'Schlock Mercenary',
+	'http://www.schlockmercenary.com/2000-06-12',
+	[id => 'comic'],
+],
+GWS => [
+	'Girls With Slingshots',
+	'http://www.daniellecorsetto.com/GWS001.html',
+	[id => 'gwsblog'],
+],
+Schism => [
+	'Schism',
+	'http://schism.lost-soleil.com/comic.php?ID=1',
+	[id => 'page'],
+],
+BCK => [
+	'Blue Crash Kit',
+	'http://www.robhamm.com/bluecrashkit/comics/blue-crash-kit/2005-01-03',
+	[class => qr'imagefield-field_comic_field'],
+],
+SluggyFreelance => [
+	'Sluggy Freelance',
+	'http://www.sluggy.com/daily.php?date=970825',
+	[class => 'comic_content'],
+],
+FindersKeepers => [
+	'Finders Keepers',
+	'http://www.finderskeepers.gcgstudios.com/?p=comic&chap=0&cid=0',
+	[id => 'FKsp'],
+	next => [alt => qr'^Next', href => qr'^[^#]+$'],
+],	
+UpUpDownDown => [
+	'Up Up Down Down',
+	'http://upup-downdown.com/comics/2010/09/01/darkstrigers/',
+	[id => 'comic-1'],
+],
+ProjectROL => [
+	'Project ROL: Ratification of Lambs',
+	'http://www.projectrol.com/1',
+	[src => qr'comic/\d+'],
+],
+WereGeek => [
+	'Were Geek',
+	'http://www.weregeek.com/2006/11/27/',
+	[id => 'comic'],
+],
+WhatsNew => [
+	"What's New?",
+	'http://www.airshipentertainment.com/growfcomic.php?date=20070107',
+	[alt => 'Comic'],
+],
+Meek => [
+	'The Meek',
+	'http://www.meekcomic.com/2008/12/27/chapter-1-cover/',
+	[id => 'comic'],
+],
 
 
 

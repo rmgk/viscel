@@ -356,29 +356,29 @@ SunsetGrill(spiderforest)		http://sunsetgrillcomic.com/index.php?comic=20080804-
 
 InniesAndOutties(webcomicsnation)		http://www.webcomicsnation.com/lcachola/innies4/series.php?view=single&ID=61033
 
-ASofterWorld		http://www.asofterworld.com/index.php?id=1
-DesertRocks		http://dr.ungroup.net/chapter1/pages/page_1.php
-SchlockMercenary		http://www.schlockmercenary.com/d/20000612.html
-GirlsWithSlingshots		http://www.daniellecorsetto.com/GWS001.html
-sorethumbs		http://www.sorethumbsonline.com/d/20040308.html
-TitanSphere		http://titan.snafu-comics.com/?comic_id=0
-Adventurers		http://adventurers-comic.com/d/0001.html
-Schism		http://schism.lost-soleil.com/comic.php?ID=1
-bluecrashkit		http://www.robhamm.com/comics/blue-crash-kit/2005-01-03
-Hellsing		http://read.homeunix.com/onlinereading/?image=Hellsing/hellsing%20c%20Extra%20001/hellsing03.xtr_01.jpg&server=nas.html
-SimulatedComicProduct		http://simulatedcomicproduct.com/2005/02/17/new-car/
-Sluggy		http://www.sluggy.com/daily.php?date=970825
-WickedPowered		http://www.wickedpowered.com/d/20061211.html
-FindersKeepers		http://www.finderskeepers.gcgstudios.com/?p=comic&chap=0&cid=0
-Ponzi		http://www.ponzi.pigtailstudio.com/comic/01pg000.html
-UnionOfHeroes		http://www.unionofheroes.com/comic/1-prolog-titel.html?no_cache=1
-CosmicFeline		http://milea.starshipmoonhawk.com/?p=3
-ProjectROL		http://www.projectrol.com/1
-Weregeek		http://www.weregeek.com/2006/11/27/
-WhatsNew		http://www.airshipentertainment.com/growfcomic.php?date=20070107
-DumnestorsHeroes		http://www.moderntales.com//comics/dumnestor.php?view=archive&chapter=13877
-Flatwood		http://www.flatwoodcomic.com/comic.php?strip_id=1
-TheMeek		http://www.meekcomic.com/2008/12/27/chapter-1-cover/
+
+
+
+
+
+TitanSphere(snafu)		http://titan.snafu-comics.com/?comic_id=0
+
+
+
+
+SimulatedComicProduct(cant find first)		http://simulatedcomicproduct.com/2005/02/17/new-car/
+
+
+
+Ponzi(pigtailstudio)		http://www.ponzi.pigtailstudio.com/comic/01pg000.html
+UnionOfHeroes(javascript/flash)		http://www.unionofheroes.com/comic/1-prolog-titel.html?no_cache=1
+CosmicFeline(gone?)		http://milea.starshipmoonhawk.com/?p=3
+
+
+
+
+Flatwood(gone?)		http://www.flatwoodcomic.com/comic.php?strip_id=1
+
 MoonTown		http://moon-town.com/comic/episode-one/
 Darken		http://www.darkencomic.com/d/20031216.html
 Stellar		http://www.wlpcomics.com/adult/stellar/000.html
