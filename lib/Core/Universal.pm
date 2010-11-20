@@ -109,8 +109,10 @@ sub _mount_parse {
 	else {
 		$s->{next} = $a->attr('href');
 		$s->{next} = URI->new_abs($s->{next},$s->{page_url})->as_string();
+		$s->{next} =~ s/^([^#]*)#.*$/$1/; #trim url after '#'
 	}
 	$s->{src} = URI->new_abs($s->{src},$s->{page_url})->as_string();
+	$s->{src} =~ s/^([^#]*)#.*$/$1/; #trim url after '#'
 	my $url_hack = Core::Universal->clist($s->id)->{url_hack};
 	if ($url_hack) {
 		$l->trace('url hack');
