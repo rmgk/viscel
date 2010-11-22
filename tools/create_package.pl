@@ -4,12 +4,11 @@
 use 5.012;
 use warnings;
 
-our $VERSION = v1;
+our $VERSION = v1.1.0;
 
 use File::Path qw (remove_tree);
 use File::Find;
 use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
-use pp;
 
 system(qw(git clone git://comcol.git.sourceforge.net/gitroot/comcol/comcol temp));
 remove_tree('temp/.git', {
