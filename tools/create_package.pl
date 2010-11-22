@@ -19,7 +19,7 @@ find( sub { say "unlink $File::Find::name" and unlink($_) if $_ =~ /^\../} , "te
 my $version;
 open(COMCOL, "<temp/viscel.pl");
 while(<COMCOL>) {
-	if ($_ =~ /^our \$VERSION = (\S+);/i) {
+	if ($_ =~ /^\s*package\s*Viscel\s*(\S+);/i) {
 		$version = $1;
 	}
 }
