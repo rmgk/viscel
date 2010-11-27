@@ -1612,6 +1612,11 @@ Meek => [
 	'http://www.meekcomic.com/2008/12/27/chapter-1-cover/',
 	[id => 'comic'],
 ],
+QuestionableContent => [
+	'Questionable Content',
+	'http://www.questionablecontent.net/view.php?comic=1',
+	[id => 'strip'],
+],
 
 
 
