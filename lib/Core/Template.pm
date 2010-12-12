@@ -92,7 +92,9 @@ sub _get_tree {
 	}
 	$l->trace('parse HTML into tree');
 	my $tree = HTML::TreeBuilder->new();
-	return undef unless $tree->parse_content($page->decoded_content());
+	my $content = $page->decoded_content();
+	return undef unless $content;
+	return undef unless $tree->parse_content($content);
 	return wantarray ? ($tree, $page): $tree;
 }
 
