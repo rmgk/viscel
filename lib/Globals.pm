@@ -9,7 +9,7 @@ use Log;
 
 # ----- global default variables -----
 
-our $LOGLVL = $Log::TRACE;
+our $LOGLVL = $Log::DEBUG;
 our $PORT = 80; 
 our $CACHEDIR = './cache/';
 our $DATADIR = './data/';
