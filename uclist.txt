@@ -572,7 +572,7 @@ HaruSari => [
 EscapeFromTerra => [
 	'EscapeFromTerrra',
 	'http://www.bigheadpress.com/eft?page=1',
-	[src => qr'/simages/eft/EFT\d\d-\d+'],
+	[src => qr'/simages/eft/EFT\d\d-'],
 ],
 WiguAdventures => [
 	'Wigu Adventures',
