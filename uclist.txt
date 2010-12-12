@@ -1075,7 +1075,8 @@ Zap => [
 Yamara => [
 	'Yamara',
 	'http://www.yamara.com/yamaraclassic/index.php?date=2005-05-23',
-	[src => qr'strips/\d{4}-\d\d-\d\d'],
+	[src => qr'(strips|war)/\d{4}-\d\d-\d\d'],
+	next => [title => qr'Next|On to The Working Title War!'],
 ],
 TodayNothingHappened => [
 	'Dear Diary, Today Nothing Happened',
@@ -1617,7 +1618,27 @@ QuestionableContent => [
 	'http://www.questionablecontent.net/view.php?comic=1',
 	[id => 'strip'],
 ],
-
+DreamkeepersPrelude => [
+	'Dreamkeepers Prelude',
+	'http://www.dreamkeeperscomic.com/Prelude.php?pg=1',
+	[src => qr'images/PreludeNew/P\d+'],
+	next => [src => qr'parrow_right.jpg'],
+],
+ICQ => [
+	'Impala, Cat & Quagga',
+	'http://www.icq-comic.com/archive.php?page=1',
+	[alt => 'Comic Page'],
+],
+ErosInc => [
+	'Eros Inc.',
+	'http://www.commonnamefilms.com/erosinc/2008/07/01/the-nosy-mrs-spiegl/',
+	[src => qr'erosinc/comics'],
+],
+Fantasty => [
+	'Fantasty',
+	'http://www.omgfantasty.com/01-01/',
+	[src => qr'Episode'],
+]
 
 
 

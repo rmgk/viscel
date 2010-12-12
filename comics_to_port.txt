@@ -1,5 +1,5 @@
 RuneMaster(spiderforest)		http://www.rmtoads.com/rm/comic.php?page=1
-
+BigHeadPress		http://www.bigheadpress.com/
 Bhag(down)	http://bhag.sackofjustice.com/daily.php?date=040801
 Elftor(multiple strips per page)		http://elftor.com/elftor.php?number=1
 SonicPals(multiple strips per page)		http://www.sonicandpals.com/2004/january/testingstrips1.htm
