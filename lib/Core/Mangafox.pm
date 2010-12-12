@@ -72,7 +72,7 @@ sub _fetch_info {
 		$s->clist()->{url_start} = URI->new_abs($url_start,$url)->as_string;
 	}
 	else {
-		$l->warn('mangafox no longer makes this collection available');
+		$l->warn($s->{id} . ' is no longer available');
 		$s->clist()->{url_start} = undef;
 		$s->clist()->{Status} = 'down';
 	}
