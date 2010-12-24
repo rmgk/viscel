@@ -379,16 +379,16 @@ CosmicFeline(gone?)		http://milea.starshipmoonhawk.com/?p=3
 
 Flatwood(gone?)		http://www.flatwoodcomic.com/comic.php?strip_id=1
 
-MoonTown		http://moon-town.com/comic/episode-one/
-Darken		http://www.darkencomic.com/d/20031216.html
-Stellar		http://www.wlpcomics.com/adult/stellar/000.html
-Lint		http://www.purnicellin.com/lint/2004/01/10/01102004/
-BetterDays		http://www.jaynaylor.com/betterdays/archives/2003/04/post-2.html
-ImagineThis		http://imaginethiscomic.com/?p=5
-Fallen		http://fallencomic.com/pages/part%201/cover-p1.htm
-QueenOfWands		http://www.queenofwands.net/d/20020722.html
-SorryWereOpen		http://www.inktank.com/category/comics/sorry-were-open/
-MysticRevolution		http://www.mysticrev.com/index.php?cid=1
+
+
+Stellar(wlp)		http://www.wlpcomics.com/adult/stellar/000.html
+
+
+
+
+
+SorryWereOpen(ninjas?! (gone))		http://www.inktank.com/category/comics/sorry-were-open/
+
 PostNuke		http://www.postnukecomic.com/comic_page.php?issue=1&page=0
 Optipess		http://www.optipess.com/2008/12/01/jason-friend-of-the-butterflies/
 FriendlyHostility		http://www.friendlyhostility.com/d/20040108.html

@@ -1638,7 +1638,49 @@ Fantasty => [
 	'Fantasty',
 	'http://www.omgfantasty.com/01-01/',
 	[src => qr'Episode'],
-]
+],
+MoonTown => [
+	'Moon Town',
+	'http://moon-town.com/comic/episode-one/',
+	[id => 'comic-1'],
+],
+Darken => [
+	'Darken',
+	'http://darkencomic.com/?webcomic_post=20031217',
+	[class => qr'webcomic-object-full'],
+],
+Lint => [
+	'Lint',
+	'http://www.purnicellin.com/lint/2004/01/10/01102004/',
+	[id => 'comic'],
+],
+BetterDays => [
+	'Better Days',
+	'http://www.jaynaylor.com/betterdays/archives/2003/04/post-2.html',
+	[id => 'comicentry'],
+],
+ImagineThis => [
+	'Imagine This',
+	'http://imaginethiscomic.com/?p=5',
+	[id => 'comic'],
+],
+Fallen => [
+	'Fallen',
+	'http://fallencomic.com/pages/part%201/cover-p1.htm',
+	[src => qr'page/'],
+],
+QueenOfWands => [
+	'Queen Of Wands',
+	'http://www.queenofwands.net/d/20020722.html',
+	[src => qr'/comics/\d{8}'],
+],
+MysticRevolution => [
+	'Mystic Revolution',
+	'http://www.mysticrev.com/index.php?cid=1',
+	[id => 'comic'],
+],
+
+
 
 
 
