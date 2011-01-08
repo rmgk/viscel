@@ -1679,7 +1679,12 @@ MysticRevolution => [
 	'http://www.mysticrev.com/index.php?cid=1',
 	[id => 'comic'],
 ],
-
+Oglaf => [
+	'Oglaf',
+	'http://oglaf.com/cumsprite/',
+	[id => 'strip'],
+	next => [id => 'nx'], 
+],
 
 
 
