@@ -1770,3 +1770,8 @@ Universal_Annyseed => [
 	'http://www.colourofivy.com/annyseed_webcomic.htm',
 	[_tag => 'body'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'img']
 ],
+Universal_PepperminntSaga => [
+	'Pepperminnt Saga',
+	'http://www.pepsaga.com/comics/10202007/',
+	[_tag => 'body'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'a'], [_tag => 'img']
+],
