@@ -1725,16 +1725,8 @@ Oglaf => [
 	[id => 'strip'],
 	next => [id => 'nx'], 
 ],
-
-
-
-
-
-
-
-
-
-
-
-
-
+Universal_Annyseed => [
+	'Annyseed',
+	'http://www.colourofivy.com/annyseed_webcomic.htm',
+	[_tag => 'body'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'img']
+],

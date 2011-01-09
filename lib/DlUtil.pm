@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package DlUtil v1.15.0;
+package DlUtil v1.16.0;
 
 use 5.012;
 use warnings;
@@ -9,6 +9,7 @@ use Log;
 use LWP;
 use LWP::UserAgent;
 use LWP::ConnCache;
+use HTML::TreeBuilder;
 
 our $ua;
 
@@ -57,6 +58,23 @@ sub get {
 	$l->trace('response code: '. $res->code() .' ' . $res->message());
 	return $res;
 
+}
+
+#$url -> $tree
+#fetches the url and returns the tree
+sub get_tree {
+	my ($url) = @_;
+	my $page = get($url);
+	if (!$page->is_success() or !$page->header('Content-Length')) {
+		$l->error("error get: ", $url);
+		return wantarray ? (undef, $page): undef;
+	}
+	$l->trace('parse HTML into tree');
+	my $tree = HTML::TreeBuilder->new();
+	my $content = $page->decoded_content();
+	return undef unless $content;
+	return undef unless $tree->parse_content($content);
+	return wantarray ? ($tree, $page): $tree;
 }
 
 #$url,$referer -> $response

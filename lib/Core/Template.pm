@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Template v1.1.0;
+package Core::Template v1.2.0;
 
 use 5.012;
 use warnings;
@@ -85,17 +85,7 @@ sub update_list {
 #fetches the url and returns the tree
 sub _get_tree {
 	my ($s,$url) = @_;
-	my $page = DlUtil::get($url);
-	if (!$page->is_success() or !$page->header('Content-Length')) {
-		$l->error("error get: ", $url);
-		return wantarray ? (undef, $page): undef;
-	}
-	$l->trace('parse HTML into tree');
-	my $tree = HTML::TreeBuilder->new();
-	my $content = $page->decoded_content();
-	return undef unless $content;
-	return undef unless $tree->parse_content($content);
-	return wantarray ? ($tree, $page): $tree;
+	return DlUtil::get_tree($url);
 }
 
 #->%collection_hash
