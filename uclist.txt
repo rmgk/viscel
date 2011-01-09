@@ -1719,6 +1719,22 @@ ShipInABottle => [
 	'http://shipinbottle.pepsaga.com/comic/shiphrah-test/',
 	[id => 'comic-1'],
 ],
+Oglaf => [
+	'Oglaf',
+	'http://oglaf.com/cumsprite/',
+	[id => 'strip'],
+	next => [id => 'nx'], 
+],
+
+
+
+
+
+
+
+
+
+
 
 
 
