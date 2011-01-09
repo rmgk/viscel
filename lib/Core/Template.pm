@@ -197,7 +197,7 @@ sub create {
 	my ($s,$pos,$state) = @_;
 	my $class = ref($s) . '::Spot';
 	my $spot = {id => $s->{id}, position => $pos, state => $state};
-	$l->debug('creat new spot ' , $class, ' id: ', $s->{id}, ,' position: ', $pos);
+	$l->debug('create new spot ' , $class, ' id: ', $s->{id}, ,' position: ', $pos);
 	$class->new($spot);
 	return $spot;
 }
