@@ -49,8 +49,10 @@ sub start {
 my @images;
 my $name;
 my $url;
+my $id;
 my $tree;
 my $image;
+my @tags;
 
 sub add { 
 	my ($c,$r) = @_;
@@ -58,42 +60,61 @@ sub add {
 	my $html = html_header('add','add');
 	my $cgi = cgi($r->content());
 	if ($r->method eq 'POST') {
-		$name //= $cgi->param('name');
-		$url //= $cgi->param('url');
-		if ($cgi->param('submit') eq 'step2') {
+		if ($cgi->param('submit') eq 'step3') {
+			open(my $FH,'>>','uclist.txt') or die('could not open uclist.txt');
+			print $FH "$id => [\n\t'$name',\n\t'$url',\n\t" .
+			(join ', ', map {my %t = %$_ ; "[" . (join ', ', map {$t{$_}? "$_ => '" . $t{$_} ."'" : ''} keys %t) .']'} @tags) . 
+			"\n],\n";
+			close $FH;
+			die "complete";
+		}
+		elsif ($cgi->param('submit') eq 'step2') {
 			$image = $images[$cgi->param('image')];
-			my @tags;
 			my $e = $image;
 			while ($e->parent) {
-				unshift @tags , $e->tag();
+				unshift @tags , {_tag => $e->tag(), id => $e->attr('id'), class => $e->attr('class')};
 				$e = $e->parent();
 			}
 			
-			my $id = $name;
+			$id = $name;
 			$id =~ s/[^a-zA-Z]//g;
-			$id = 'Universal_' . $id;
+			my $id = 'Universal_' . $id;
 			my $clist = {$id => { name => $name,
 								  url_start => $url,
-								  criteria => [map(['_tag' , $_],@tags)]
+								  criteria => [map {[%$_]} @tags]
 				}};
-			say join " ", @tags;
 			die "id already used" if keys %{Core::Universal->clist($id)};
 			Core::Universal->clist($clist);
 			my $remote = Core::Universal->new($id);
 			my $spot = $remote->first();
-			say $spot->mount();
-			$spot = $spot->next();
-			if ($spot->mount()) {
-				open(my $FH,'>>','uclist.txt') or die('could not open uclist.txt');
-				print $FH "$id => [\n\t'$name',\n\t'$url',\n\t" .
-					(join ', ', map {"[_tag => '" . $_ . "']"} @tags) .
-					"\n],\n";
-				close $FH;
-				$html .= link_main('complete');
-				$html .= cgi->br() . cgi->a({-href=>'/die'}, 'exit');
+			unless ($spot->mount() and ($spot->{src} eq $image->attr('src'))) {
+				die "does not match: " . $spot->{src} . "  " . $image->attr('src') ;
 			}
+			my $tree2 = DlUtil::get_tree($spot->{next});
+			my @images2 = $tree2->look_down(_tag => 'img');
+			$_->attr('src',URI->new_abs($_->attr('src'),$url)->as_string()) for @images2;
+			
+			my @notsame = @images;
+			for my $i (@images2) {
+				@notsame = grep {$_->attr('src') ne $i->attr('src')} @notsame;
+			}
+			$l->info(join "\n", map {$_->attr('src') } @notsame);
+			
+			$spot = $spot->next();
+			if ($spot->mount() and $spot->{src}) {
+				$html .= cgi->start_form(-class=>'add', -method=>'POST',-action=>url_main(),-enctype=>&CGI::URL_ENCODED);
+					$html .= "is this the second image?";
+					$html .= $cgi->img(src => $spot->{src});
+					$html .= cgi->br();
+					$html .= cgi->submit(-name=>'submit', -value => 'step3');
+					
+				$html .= cgi->end_form();
+			}
+			die "could not find second page";
 		}
 		else {
+			$name = $cgi->param('name');
+			$url = $cgi->param('url');
 			$tree = DlUtil::get_tree($url);
 			
 			@images = $tree->look_down(_tag => 'img');

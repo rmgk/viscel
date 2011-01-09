@@ -1765,13 +1765,18 @@ Oglaf => [
 	[id => 'strip'],
 	next => [id => 'nx'], 
 ],
-Universal_Annyseed => [
+Annyseed => [
 	'Annyseed',
 	'http://www.colourofivy.com/annyseed_webcomic.htm',
 	[_tag => 'body'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'img']
 ],
-Universal_PepperminntSaga => [
+PepperminntSaga => [
 	'Pepperminnt Saga',
 	'http://www.pepsaga.com/comics/10202007/',
 	[_tag => 'body'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'a'], [_tag => 'img']
+],
+RadioactivePanda => [
+	'Radioactive Panda',
+	'http://www.radioactivepanda.com/comic/1',
+	[_tag => 'body', , ], [_tag => 'table', id => 'container', ], [_tag => 'tr', , ], [_tag => 'td', id => 'content', ], [_tag => 'div', id => 'comic', ], [_tag => 'div', , ], [_tag => 'div', , class => 'border'], [_tag => 'img', id => 'comicimg', ]
 ],
