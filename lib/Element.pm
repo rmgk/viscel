@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Element v1.1.0;
+package Element v1.2.0;
 
 use 5.012;
 use warnings;
@@ -35,7 +35,7 @@ sub new {
 	}
 	foreach my $want (keys %attributes) {
 		unless (exists $self->{$want}) {
-			$l->warn($want . ' does not exist');
+			$l->trace($want . ' does not exist');
 		} 
 	}
 	foreach my $has (keys %$self) {
