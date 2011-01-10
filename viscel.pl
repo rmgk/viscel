@@ -20,6 +20,7 @@ Globals::loglevel($loglevel);
 
 if ($add) {
 	use Adder;
+	Globals::port(8080);
 	
 	unless (Adder::init()) {
 		$l->fatal('could not initialise controller');

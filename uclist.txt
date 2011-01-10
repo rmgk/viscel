@@ -1780,3 +1780,8 @@ RadioactivePanda => [
 	'http://www.radioactivepanda.com/comic/1',
 	[_tag => 'body', , ], [_tag => 'table', id => 'container', ], [_tag => 'tr', , ], [_tag => 'td', id => 'content', ], [_tag => 'div', id => 'comic', ], [_tag => 'div', , ], [_tag => 'div', , class => 'border'], [_tag => 'img', id => 'comicimg', ]
 ],
+GhastlysGhastlyComic => [
+	q{Ghastly's Ghastly Comic},
+	q{http://www.ghastlycomic.com/d/20010509.html},
+	[q{link},q{#b25c00},q{alink},q{#ff9c0f},q{vlink},q{#8c2b00},q{bgcolor},q{#ffe8cf},q{text},q{#000000},q{background},q{/images/bg2.gif},q{_tag},q{body}], [q{face},q{arial},q{_tag},q{font}], [q{_tag},q{center}], [q{_tag},q{font},q{size},q{5}], [q{_tag},q{font},q{size},q{3}], [q{_tag},q{p}], [q{cellspacing},q{4},q{_tag},q{table},q{cellpadding},q{4}], [q{_tag},q{tr}], [q{_tag},q{td}], [q{_tag},q{center}], [q{width},q{510},q{alt},q{Comic},q{_tag},q{img},q{height},q{1325},q{border},q{0}]
+],

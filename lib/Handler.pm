@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Handler v1.1.0;
+package Handler v1.2.0;
 
 use 5.012;
 use warnings;
@@ -37,7 +37,7 @@ sub init {
 
 #link and html generating helper functions
 
-sub url_main { '/index' }
+sub url_main { '/main' }
 sub url_front { return "/f/$_[0]" }
 sub url_view {"/v/$_[0]/$_[1]"}
 sub url_config {"/c/$_[0]"}

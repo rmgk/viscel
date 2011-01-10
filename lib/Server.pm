@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Server v1.1.0;
+package Server v1.2.0;
 
 use 5.012;
 use warnings;
@@ -106,8 +106,8 @@ sub _handle_request {
 		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'You are only allowed to make GET requests'));
 	}
 	if ($r->url->path eq '/') {
-		if ($req_handler{'index'}) {
-			return $req_handler{'index'}($c,$r);
+		if ($req_handler{'main'}) {
+			return $req_handler{'main'}($c,$r);
 		}
 		else {
 			send_404($c);

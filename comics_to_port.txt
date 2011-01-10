@@ -706,7 +706,7 @@ JohnnySaturn		http://johnnysaturn.com/2006/01/18/book-one-page-01/
 LifeOfConvenience		http://comic.idle-me.com/?strip_id=0
 PsychicSoldierKai		http://www.webcomicsnation.com/measley/psychicsoldierkai/series.php?view=archive&chapter=27679
 OtenbaFiles		http://www.otenba-files.com/1.0.html
-Ghastly		http://www.ghastlycomic.com/d/20010509.html
+
 Daqueran		http://gurukitty.com/daquerancover.php
 Cuchulainn		http://cuchulainn.oghme.com/post/p.000
 TechnicalExplinationsOfScience		http://www.fusun.ch/tes/index.php?showimage=1
