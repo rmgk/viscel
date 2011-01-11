@@ -1785,3 +1785,81 @@ GhastlysGhastlyComic => [
 	q{http://www.ghastlycomic.com/d/20010509.html},
 	[q{link},q{#b25c00},q{alink},q{#ff9c0f},q{vlink},q{#8c2b00},q{bgcolor},q{#ffe8cf},q{text},q{#000000},q{background},q{/images/bg2.gif},q{_tag},q{body}], [q{face},q{arial},q{_tag},q{font}], [q{_tag},q{center}], [q{_tag},q{font},q{size},q{5}], [q{_tag},q{font},q{size},q{3}], [q{_tag},q{p}], [q{cellspacing},q{4},q{_tag},q{table},q{cellpadding},q{4}], [q{_tag},q{tr}], [q{_tag},q{td}], [q{_tag},q{center}], [q{width},q{510},q{alt},q{Comic},q{_tag},q{img},q{height},q{1325},q{border},q{0}]
 ],
+PostNuke => [
+	'Post Nuke',
+	'http://www.postnukecomic.com/comic_page.php?issue=1&page=0',
+	[src => qr'/images/pn'],
+	url_hack => sub { $_[0] =~ s'\.\./''; $_[0] }
+],
+Optipress => [
+	'Optipress',
+	'http://www.optipess.com/2008/12/01/jason-friend-of-the-butterflies/',
+	[id => 'comic'],
+],
+FriendlyHostility => [
+	'Friendly Hostility',
+	'http://www.friendlyhostility.com/d/20040108.html',
+	[id => 'comic'],
+	next => [alt => 'Next'],
+],
+StrawberryDeathCake => [
+	'Strawberry Death Cake',
+	'http://rainchildstudios.com/strawberry/?p=19',
+	[id => 'comic'],
+],
+Uncubed => [
+	'Uncubed',
+	'http://www.uncubedthecomic.com/2007/08/25/first-comic/',
+	[id => 'comic'],
+],
+Chisuji => [
+	'Chisuji',
+	'http://www.chisuji.com/2009/05/02/chisujiposter01/',
+	[id => 'comic'],
+],
+FalconTwin => [
+	'Falcon Twin',
+	'http://www.falcontwin.com/index.html?strip=0',
+	[id => 'strip'],
+],
+NeoEarth => [
+	'Neo Earth',
+	'http://www.neo-earth.com/NE/index.php?date=2007-03-23',
+	[src => qr'strips/'],
+],
+KernelPanic => [
+	'Kernel Panic',
+	'http://www.ubersoft.net/comic/kp/2002/09/alan-work',
+	[class => 'imagefield imagefield-field_comic_image'],
+],
+UnderPower => [
+	'Under Power',
+	'http://underpower.non-essential.com/index.php?comic=20010822',
+	[src => qr'comics/'],
+],
+Misfile => [
+	'Misfile',
+	'http://www.misfile.com/?page=1',
+	[src => qr'pageCalled'],
+],
+Millennium => [
+	'Millenium',
+	'http://millennium.senshuu.com/pages/01cover.html',
+	[class => qr'comic-item'],
+],
+Blastwave => [
+	'Gone With The Blastwave',
+	'http://www.blastwave-comic.com/index.php?p=comic&nro=1',
+	[src => qr'/comics/'],
+],
+GreystoneInn => [
+	'Greystone Inn',
+	'http://greystoneinn.net/d/20000214.html',
+	[src => qr'/comics/'],
+],
+Bunny => [
+	'Bunny',
+	'http://www.bunny-comic.com/?id=1',
+	[src => qr'strips/'],
+	next => [src => 'resource/nav_next.png'],
+],

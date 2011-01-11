@@ -389,33 +389,33 @@ Stellar(wlp)		http://www.wlpcomics.com/adult/stellar/000.html
 
 SorryWereOpen(ninjas?! (gone))		http://www.inktank.com/category/comics/sorry-were-open/
 
-PostNuke		http://www.postnukecomic.com/comic_page.php?issue=1&page=0
-Optipess		http://www.optipess.com/2008/12/01/jason-friend-of-the-butterflies/
-FriendlyHostility		http://www.friendlyhostility.com/d/20040108.html
-StrawberryDeathCake		http://rainchildstudios.com/strawberry/?p=19
-Uncubed		http://www.uncubedthecomic.com/2007/08/25/first-comic/
-Chisuji		http://www.chisuji.com/2009/05/02/chisujiposter01/
-FalconTwin		http://www.falcontwin.com/index.html?strip=0
-LancasterTheGhostDetective		http://lancaster.spiderspawn.com/?comic_id=0
-NeoEarth		http://www.neo-earth.com/NE/index.php?date=2007-03-23
-KernelPanic		http://www.ubersoft.net/comic/kp/2002/09/alan-work
+
+
+
+
+
+
+
+LancasterTheGhostDetective(spiderforest)		http://lancaster.spiderspawn.com/?comic_id=0
+
+
 
 Fatebreaker(gone)		http://www.od.spiteshow.com/?p=55
-UnderPower		http://underpower.non-essential.com/index.php?comic=20010822
-Spamusement		http://spamusement.com/index.php/comics/view/1
-LavenderLegend		http://emeraldwinter.net/lavender/?id=1
-TheEye		http://katbox.net/theeye/index.php?strip_id=1
-Misfile		http://www.misfile.com/?page=1
 
-Newshounds		http://www.newshounds.com/d/20070601.html
-Prefeathers		http://crowfeathers.net/index.php?blog=7
-CountYourSheep		http://www.countyoursheep.com/d/20030611.html
-milennium		http://millennium.senshuu.com/pages/01cover.html
-Blastwave		http://www.blastwave-comic.com/index.php?p=comic&nro=1
-GreystoneInn		http://greystoneinn.net/d/20000214.html
-NormAndCory		http://normandcory.spiderforest.com/?comic_id=0
-NoCrap		http://no-crap.net/2004-11-20/
-Bunny		http://www.bunny-comic.com/?id=1
+Spamusement(hard)		http://spamusement.com/index.php/comics/view/1
+LavenderLegend(gone)		http://emeraldwinter.net/lavender/?id=1
+
+
+
+Newshounds(keenspot)		http://www.newshounds.com/d/20070601.html
+Prefeathers(crowfeathers)		http://crowfeathers.net/index.php?blog=7
+CountYourSheep(keenspot)		http://www.countyoursheep.com/d/20030611.html
+
+
+
+NormAndCory(spiderforest)		http://normandcory.spiderforest.com/?comic_id=0
+NoCrap(sage comics)		http://no-crap.net/2004-11-20/
+
 TriangleDude		http://www.tdcomics.com/viewcomic.php?id=1
 PhineusMagicianForHire		http://www.phinmagic.com/comic/new-page/
 Ray		http://ray2kproduxions.com/comix/ricky_comix/ricky_comix_hs/rr_episode_0031.html
