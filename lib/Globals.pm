@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Globals v1.1.0;
+package Globals v1.2.0;
 
 use 5.012;
 use warnings;
@@ -15,6 +15,7 @@ our $CACHEDIR = './cache/';
 our $DATADIR = './data/';
 our $EXPORTDIR = './export/';
 our $USERPREFSFILE = 'userprefs'; 
+our $UPDATEUNIVERSAL = undef; 
 
 # ----- accessors --------------------
 
@@ -42,6 +43,10 @@ sub exportdir {
 sub userprefsfile { 
 	$USERPREFSFILE = shift if @_;
 	return $USERPREFSFILE;
+}
+sub updateuniversal { 
+	$UPDATEUNIVERSAL = shift if @_;
+	return $UPDATEUNIVERSAL;
 }
 
 loglevel($LOGLVL);

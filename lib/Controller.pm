@@ -57,6 +57,7 @@ sub start {
 	my $timeout = 0;
 	$maintainer = Maintenance->new();
 	while (!$TERM) {
+		Core::Universal->update_list() if Globals::updateuniversal();
 		$SIG{'INT'} = $INTF;
 		if (Server::accept($timeout,0.5)) { #some connection was accepted
 			$SIG{'INT'} = $INTS;

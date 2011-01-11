@@ -15,8 +15,10 @@ my $l = Log->new();
 
 my $add;
 my $loglevel = Globals::loglevel();
-my $result = GetOptions ("add" => \$add, "loglevel:i" => \$loglevel);
+my $updateuniversal = undef;
+my $result = GetOptions ("add" => \$add, "loglevel:i" => \$loglevel, "updateuniversallist" => \$updateuniversal);
 Globals::loglevel($loglevel);
+Globals::updateuniversal($updateuniversal);
 
 if ($add) {
 	use Adder;
