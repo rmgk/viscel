@@ -85,7 +85,8 @@ sub update_list {
 #fetches the url and returns the tree
 sub _get_tree {
 	my ($s,$url) = @_;
-	return DlUtil::get_tree($url);
+	@ret = DlUtil::get_tree($url);
+	return wantarray ? @ret : $ret[0];
 }
 
 #->%collection_hash
