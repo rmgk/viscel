@@ -7,7 +7,7 @@ use warnings;
 
 our ($TRACE, $DEBUG, $INFO, $WARN, $ERROR, $FATAL, $SILENT) = 0..6;
 
-my $LVL = $TRACE;
+$Globals::LOGLVL //= $DEBUG; #/
 
 #$class, \%settings -> \%self
 #constructor
@@ -16,12 +16,6 @@ sub new {
 	$self //= {}; #/ padre display bug
 	bless $self, $class;
 	return $self;
-}
-
-#$level
-#sets the log level to level
-sub setlevel {
-	$LVL = shift;
 }
 
 #$level, $msg
@@ -46,42 +40,42 @@ sub log {
 #$msg
 sub trace { 
 	my ($s) = shift;
-	return if ($TRACE < $LVL);
+	return if ($TRACE < $Globals::LOGLVL);
 	print 'TRACE ';
 	$s->log(@_);
 }
 #$msg
 sub debug { 
 	my ($s) = shift;
-	return if ($DEBUG < $LVL);
+	return if ($DEBUG < $Globals::LOGLVL);
 	print 'DEBUG ';
 	$s->log(@_);
 }
 #$msg
 sub info { 
 	my ($s) = shift;
-	return if ($INFO < $LVL);
+	return if ($INFO < $Globals::LOGLVL);
 	print 'INFO  ';
 	$s->log(@_);
 }
 #$msg
 sub warn { 
 	my ($s) = shift;
-	return if ($WARN < $LVL);
+	return if ($WARN < $Globals::LOGLVL);
 	print 'WARN  ';
 	$s->log(@_);
 }
 #$msg
 sub error { 
 	my ($s) = shift;
-	return if ($ERROR < $LVL);
+	return if ($ERROR < $Globals::LOGLVL);
 	print 'ERROR ';
 	$s->log(@_);
 }
 #$msg
 sub fatal { 
 	my ($s) = shift;
-	return if ($FATAL < $LVL);
+	return if ($FATAL < $Globals::LOGLVL);
 	print 'FATAL ';
 	$s->log(@_);
 }

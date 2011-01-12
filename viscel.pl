@@ -14,11 +14,7 @@ use Globals;
 my $l = Log->new();
 
 my $add;
-my $loglevel = Globals::loglevel();
-my $updateuniversal = undef;
-my $result = GetOptions ("add" => \$add, "loglevel:i" => \$loglevel, "updateuniversallist" => \$updateuniversal);
-Globals::loglevel($loglevel);
-Globals::updateuniversal($updateuniversal);
+my $result = GetOptions (Globals::getoptarray(),"add" => \$add);
 
 if ($add) {
 	use Adder;

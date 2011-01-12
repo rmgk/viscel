@@ -5,11 +5,9 @@ package Globals v1.2.0;
 use 5.012;
 use warnings;
 
-use Log;
-
 # ----- global default variables -----
 
-our $LOGLVL = $Log::DEBUG;
+our $LOGLVL; #loglevel is set in log.pm
 our $PORT = 80; 
 our $CACHEDIR = './cache/';
 our $DATADIR = './data/';
@@ -21,7 +19,6 @@ our $UPDATEUNIVERSAL = undef;
 
 sub loglevel { 
 	$LOGLVL = shift if @_;
-	Log::setlevel($LOGLVL);
 	return $LOGLVL;
 }
 sub port { 
@@ -49,7 +46,18 @@ sub updateuniversal {
 	return $UPDATEUNIVERSAL;
 }
 
-loglevel($LOGLVL);
+# config array for getopt long
+sub getoptarray {
+	return (
+		"LOGLVL=i" => \$LOGLVL,
+		"PORT=i" => \$PORT,
+		"CACHEDIR=s" => \$CACHEDIR,
+		"DATADIR=s" => \$DATADIR,
+		"EXPORTDIR=s" => \$EXPORTDIR,
+		"USERPREFSFILE=s" => \$USERPREFSFILE,
+		"UPDATEUNIVERSAL" => \$UPDATEUNIVERSAL,
+	);
+}
 
 
 1;
