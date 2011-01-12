@@ -205,7 +205,7 @@ sub mount {
 	$s->{page_url} = $s->{state};
 	$l->trace('mount ' . $s->{id} .' '. $s->{page_url});
 	my $tree = DlUtil::get_tree($s->{page_url});
-	return undef unless $$tree;
+	return undef unless $tree;
 	my $ret = eval { $s->_mount_parse($$tree) };
 	return undef unless $ret;
 	#$tree->delete();

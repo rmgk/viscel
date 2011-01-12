@@ -100,7 +100,7 @@ sub new {
 }
 sub DESTROY {
 	my $self = shift;
-	$self->delete(); 
+	$$self->delete(); 
 }
 
 
