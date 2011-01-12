@@ -104,6 +104,16 @@ sub html {
 							});
 			return $html;
 		}
+		when ('application/x-director') {
+			my $html .= embed({	src	=>	"/b/". $s->sha1,
+								alt => $s->alt,
+								title => $s->title,
+								width => $s->width,
+								height => $s->height,
+								class => 'element'
+							});
+			return $html;
+		}
 		default {
 			my $html .= img({	src	=>	"/b/". $s->sha1,
 								alt => $s->alt,

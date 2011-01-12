@@ -1863,3 +1863,33 @@ Bunny => [
 	[src => qr'strips/'],
 	next => [src => 'resource/nav_next.png'],
 ],
+TriangleDude => [
+	'Triangle Dude',
+	'http://www.tdcomics.com/viewcomic.php?id=1',
+	[src => qr'Image/Comic/'],
+],
+RickyRay => [
+	'The Ricky Ray Show',
+	'http://ray2kproduxions.com/comix/ricky_comix/ricky_comix_hs/rr_episode_0031.html',
+	[class => 'comix_container'],
+],
+Decorum => [
+	'Decorum',
+	'http://www.decorumcomics.com/comic.php?id=3',
+	[class => 'comicimage'],
+],
+Angels => [
+	'Angels 2200',
+	'http://www.janahoffmann.com/angels/2005/11/11/part-1-title-comic/',
+	[id => 'comic'],
+],
+Loserz => [
+	'Loserz',
+	'http://bukucomics.com/loserz/go/1',
+	[class => 'comicpage'],
+],
+PlatinumGrid => [
+	'Platinum Grid',
+	'http://www.platinumgrit.com/issue01.htm',
+	[src => qr'issue\d\d\.dcr'],
+],

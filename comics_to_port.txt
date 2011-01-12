@@ -416,13 +416,13 @@ CountYourSheep(keenspot)		http://www.countyoursheep.com/d/20030611.html
 NormAndCory(spiderforest)		http://normandcory.spiderforest.com/?comic_id=0
 NoCrap(sage comics)		http://no-crap.net/2004-11-20/
 
-TriangleDude		http://www.tdcomics.com/viewcomic.php?id=1
-PhineusMagicianForHire		http://www.phinmagic.com/comic/new-page/
-Ray		http://ray2kproduxions.com/comix/ricky_comix/ricky_comix_hs/rr_episode_0031.html
-Decorum		http://www.decorumcomics.com/comic.php?id=3
-Angels2200		http://www.janahoffmann.com/angels/2005/11/11/part-1-title-comic/
-Loserz		http://bukucomics.com/loserz/go/1
-PlatinumGrit		http://www.platinumgrit.com/issue01.htm
+
+PhineusMagicianForHire(wevolt)		http://www.phinmagic.com/comic/new-page/
+
+
+
+
+
 8BitTheater		http://www.nuklearpower.com/2001/03/02/episode-001-were-going-where/
 BrokenPlotDevice		http://www.brokenplotdevice.com/2008/06/05/first-comic/
 YouSayItFirst		http://www.yousayitfirst.com/comics/index.php?date=20040220
