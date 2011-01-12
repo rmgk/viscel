@@ -81,14 +81,6 @@ sub update_list {
 	return $state;
 }
 
-#$url -> $tree
-#fetches the url and returns the tree
-sub _get_tree {
-	my ($s,$url) = @_;
-	my @ret = DlUtil::get_tree($url);
-	return wantarray ? @ret : $ret[0];
-}
-
 #->%collection_hash
 #returns a hash containing all the collection ids as keys and their names as values
 sub list {
@@ -164,7 +156,7 @@ sub fetch_info {
 	my ($s,$force) = @_;
 	return 1 if $s->clist()->{moreinfo} and !$force;
 	$l->trace('fetching more info for ', $s->{id});
-	$s->_fetch_info() or return undef if $s->can('_fetch_info');
+	eval { $s->_fetch_info() } or return undef if $s->can('_fetch_info');
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();
 }
@@ -212,10 +204,11 @@ sub mount {
 	my ($s) = @_;
 	$s->{page_url} = $s->{state};
 	$l->trace('mount ' . $s->{id} .' '. $s->{page_url});
-	my $tree = Core::Template->_get_tree($s->{page_url});
-	return undef unless $tree;
-	my $ret = $s->_mount_parse($tree);
-	$tree->delete();
+	my $tree = DlUtil::get_tree($s->{page_url});
+	return undef unless $$tree;
+	my $ret = eval { $s->_mount_parse($$tree) };
+	return undef unless $ret;
+	#$tree->delete();
 	$l->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next)); #/padre display bug	
 	$s->{fail} = undef if $ret;
 	return $ret;

@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::KatBox v1.0.0;
+package Core::KatBox v1.2.0;
 
 use 5.012;
 use warnings;
@@ -18,8 +18,8 @@ sub _create_list {
 	my %clist;
 	$l->trace('create list of known collections');
 
-	my $tree = $pkg->_get_tree('http://www.katbox.net/') or return undef;
-	foreach my $area ($tree->look_down('_tag' => 'area', 'shape' => 'poly')) {
+	my $tree = DlUtil::get_tree('http://www.katbox.net/') or return undef;
+	foreach my $area ($$tree->look_down('_tag' => 'area', 'shape' => 'poly')) {
 		my $name = HTML::Entities::encode($area->attr('alt'));
 		my $href = $area->attr('href');
 		my ($id) = ($href =~ m'^http://(\w+)\.'i);
@@ -32,7 +32,7 @@ sub _create_list {
 		$clist{$id} = {url_start => $href.'index.php?strip_id=1', name => $name};
 		
 	}
-	$tree->delete();
+	#$tree->delete();
 
 	return \%clist;
 }

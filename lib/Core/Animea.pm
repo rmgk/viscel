@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Animea v1.1.0;
+package Core::Animea v1.2.0;
 
 use 5.012;
 use warnings;
@@ -17,8 +17,8 @@ sub _create_list {
 	$l->trace('create list of known collections');
 	my $url = ref $state ? $state->[0] : 'http://manga.animea.net/browse.html?page=0';
 
-	my $tree = $pkg->_get_tree($url) or return undef;
-	foreach my $td ($tree->look_down('_tag' => 'td', 'class' => 'c')) {
+	my $tree = DlUtil::get_tree($url) or return undef;
+	foreach my $td ($$tree->look_down('_tag' => 'td', 'class' => 'c')) {
 		my $tr = $td->parent();
 		my $a = $tr->look_down(_tag=>'a',class=>qr/manga$/);
 		my $name = HTML::Entities::encode($a->as_trimmed_text(extra_chars => '\xA0'));
@@ -36,9 +36,9 @@ sub _create_list {
 		$clist{$id}->{Chapter} = $td->as_trimmed_text();
 		
 	}
-	my $next = $tree->look_down('_tag' => 'ul', 'class' => 'paging')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^Next$/});
+	my $next = $$tree->look_down('_tag' => 'ul', 'class' => 'paging')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^Next$/});
 	$url = $next ? [URI->new_abs($next->attr('href'),$url)->as_string] : undef;
-	$tree->delete();
+	#$tree->delete();
 	
 	return (\%clist,$url);
 }
@@ -54,17 +54,17 @@ sub _fetch_info {
 	my ($s) = @_;
 	my $url = $s->clist()->{url_info};
 	$url .= '?skip=1';
-	my $tree = $s->_get_tree($url) or return undef;
-	my $chapterslist = $tree->look_down(_tag=>'table',id=>'chapterslist');
+	my $tree = DlUtil::get_tree($url) or return undef;
+	my $chapterslist = $$tree->look_down(_tag=>'table',id=>'chapterslist');
 	unless ($chapterslist) { # if chapterslist could not be found, its most likely that something is wrong with the page download
 		$l->warn('could not parse page ' , $url);
-		$tree->delete();
+		#$tree->delete();
 		return undef; 
 	}
-	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $tree->look_down(_tag=>'a', href=>qr'/genre/'i);
-	my $p = $tree->look_down('_tag' => 'p', style => 'width:570px; padding:5px;');
+	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $$tree->look_down(_tag=>'a', href=>qr'/genre/'i);
+	my $p = $$tree->look_down('_tag' => 'p', style => 'width:570px; padding:5px;');
 	$s->clist()->{Detail} = HTML::Entities::encode($p->as_trimmed_text()) if ($p);
-	my $ul = $tree->look_down('_tag' => 'ul', class => 'relatedmanga');
+	my $ul = $$tree->look_down('_tag' => 'ul', class => 'relatedmanga');
 	if ($ul) {
 		$s->clist()->{Seealso} = join ', ' , map { $_->attr('href') =~ m'animea.net/([^/]*)\.html$'; my $r = $1; $r =~ s/\W/_/g; $r} $ul->look_down(_tag=>'a');
 	}
@@ -78,7 +78,7 @@ sub _fetch_info {
 		$l->warn("animea no longer makes this collection available");
 		$s->clist()->{Status} = 'down';
 	}
-	$tree->delete();
+	#$tree->delete();
 	return 1;
 }
 

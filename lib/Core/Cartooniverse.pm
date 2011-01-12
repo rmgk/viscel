@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Cartooniverse v1.1.0;
+package Core::Cartooniverse v1.2.0;
 
 use 5.012;
 use warnings;
@@ -15,8 +15,8 @@ sub _create_list {
 	my ($pkg) = @_;
 	my %clist;
 	$l->trace('create list of known collections');
-	my $tree = $pkg->_get_tree('http://www.cartooniverse.co.uk/beta/list.php') or return undef;
-	foreach my $content ($tree->look_down('_tag' => 'div', 'class' => 'postcontent')) {
+	my $tree = DlUtil::get_tree('http://www.cartooniverse.co.uk/beta/list.php') or return undef;
+	foreach my $content ($$tree->look_down('_tag' => 'div', 'class' => 'postcontent')) {
 		foreach my $td ($content->look_down('_tag' => 'td')) {
 			my $a = $td->look_down(_tag=>'a');
 			my $name = HTML::Entities::encode($a->as_trimmed_text(extra_chars => '\xA0'));
@@ -31,7 +31,7 @@ sub _create_list {
 			$clist{$id} = {url_start => $href. '1/0/', name => $name, url_info=>$href};
 		}
 	}
-	$tree->delete();
+	#$tree->delete();
 	return \%clist;
 }
 
@@ -45,8 +45,8 @@ sub _searchkeys {
 sub _fetch_info {
 	my ($s) = @_;
 	my $url = $s->clist()->{url_info};
-	my ($tree,$page) = $s->_get_tree($url);
-	unless($tree) {
+	my ($tree,$page) = DlUtil::get_tree($url);
+	unless($$tree) {
 		if ($page->code() == 404) { #404 is a permanent error and means the collection is broken
 			$l->warn('collection is not available');
 			$s->clist()->{Status} = 'down'; 
@@ -54,7 +54,7 @@ sub _fetch_info {
 		}
 		return undef;
 	}
-	my $td = $tree->look_down('_tag' => 'div', class=>'postcontent')->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td
+	my $td = $$tree->look_down('_tag' => 'div', class=>'postcontent')->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td
 	my @p = $td->look_down(_tag=>'p');
 	if ($p[6]) {
 		my $author = HTML::Entities::encode(($p[1]->content_list())[1]);
@@ -67,7 +67,7 @@ sub _fetch_info {
 		$s->clist()->{Tags} = join ", ", map {$_->as_trimmed_text()} $p[4]->look_down(class => 'series-info');
 		$s->clist()->{Detail} = HTML::Entities::encode(($p[6]->content_list())[2]);
 	}
-	$tree->delete();
+	#$tree->delete();
 	return 1;
 }
 

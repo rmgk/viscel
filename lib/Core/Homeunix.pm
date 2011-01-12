@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Homeunix v1.1.0;
+package Core::Homeunix v1.2.0;
 
 use 5.012;
 use warnings;
@@ -15,8 +15,8 @@ sub _create_list {
 	my ($pkg) = @_;
 	my %clist;
 	$l->trace('create list of known collections');
-	my $tree = $pkg->_get_tree('http://unixmanga.com/onlinereading/manga-lists.html') or return undef;
-	foreach my $tr ($tree->look_down('_tag' => 'tr', 'class' => qr/^snF sn(Even|Odd)$/)) {
+	my $tree = DlUtil::get_tree('http://unixmanga.com/onlinereading/manga-lists.html') or return undef;
+	foreach my $tr ($$tree->look_down('_tag' => 'tr', 'class' => qr/^snF sn(Even|Odd)$/)) {
 		my $a = $tr->look_down(_tag=>'a');
 		my $name = HTML::Entities::encode($a->as_trimmed_text(extra_chars => '\xA0'));
 		$name =~ s/\s*complete\s*$//i;
@@ -32,7 +32,7 @@ sub _create_list {
 		$clist{$id}->{Status} = $complete ? 'complete' : 'ongoing';
 		$clist{$id}->{Date} = $tr->look_down(align => 'center')->as_trimmed_text();
 	}
-	$tree->delete();
+	#$tree->delete();
 	return \%clist;
 }
 
@@ -53,8 +53,8 @@ sub _fetch_info {
 			return 1;
 		}
 		$urls{$url} = 1; 
-		my $tree = $s->_get_tree($url) or return undef;
-		my $fs = $tree->look_down(_tag => 'fieldset', class=>qr'td2');
+		my $tree = DlUtil::get_tree($url) or return undef;
+		my $fs = $$tree->look_down(_tag => 'fieldset', class=>qr'td2');
 		if ($fs) {
 			#we are at the last page and can finally find the first page
 			my $a = $fs->look_down(_tag=>'a');
@@ -62,12 +62,12 @@ sub _fetch_info {
 			$url = undef;
 		}
 		else {
-			my @chlist = $tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
+			my @chlist = $$tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
 			my $ch = $chlist[-1];
 			my $a = $ch->look_down(_tag=>'a');
 			$url = $a->attr('href');
 		}
-		$tree->delete();
+		#$tree->delete();
 	}
 	return 1;
 }
@@ -95,25 +95,25 @@ sub _mount_parse {
 	unless ($href) {
 		$page =~ m'<a href ="([^"]+)"><b>\[RETURN\]</b></a>';
 		my $chapter = HTML::Entities::encode($1);
-		my $tree = Core::Homeunix->_get_tree($chapter) or return undef;
-		my $ch = $tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
+		my $tree = DlUtil::get_tree($chapter) or return undef;
+		my $ch = $$tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
 		my $a = $ch->look_down(_tag=>'a');
 		my $overview = $a->attr('href');
-		$tree->delete();
-		$tree = Core::Homeunix->_get_tree($overview) or return undef;
-		my @chlist = $tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
+		#$tree->delete();
+		$tree = DlUtil::get_tree($overview) or return undef;
+		my @chlist = $$tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
 		for my $i ( reverse(1 .. $#chlist) ) {
 			my $ch = $chlist[$i];
 			if ($ch->look_down(_tag=>'a', href => $chapter)) {
 				my $a = $chlist[$i-1]->look_down(_tag=>'a');
 				my $url = $a->attr('href');
-				$tree->delete();
+				#$tree->delete();
 				my %urls;
 				while ($url) {
 					return undef if $urls{$url}; #abort recursion
 					$urls{$url} = 1; 
-					my $tree = Core::Homeunix->_get_tree($url) or return undef;
-					my $fs = $tree->look_down(_tag => 'fieldset', class=>qr'td2');
+					my $tree = DlUtil::get_tree($url) or return undef;
+					my $fs = $$tree->look_down(_tag => 'fieldset', class=>qr'td2');
 					if ($fs) {
 						#we are at the last page and can finally find the first page
 						my $a = $fs->look_down(_tag=>'a');
@@ -121,17 +121,17 @@ sub _mount_parse {
 						$url = undef;
 					}
 					else {
-						my @chlist = $tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
+						my @chlist = $$tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
 						my $ch = $chlist[-1];
 						my $a = $ch->look_down(_tag=>'a');
 						$url = $a->attr('href');
 					}
-					$tree->delete();
+					#$tree->delete();
 				}
 				last;
 			}
 		}
-		$tree->delete();
+		#$tree->delete();
 	}
 	$s->{src} = $src;
 	$s->{next} = URI->new_abs($href,$s->{page_url})->as_string();;

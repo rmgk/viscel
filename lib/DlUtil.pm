@@ -74,7 +74,7 @@ sub get_tree {
 	my $content = $page->decoded_content();
 	return undef unless $content;
 	return undef unless $tree->parse_content($content);
-	return wantarray ? ($tree, $page): $tree;
+	return wantarray ? (TreeKeeper->new($tree), $page): TreeKeeper->new($tree);
 }
 
 #$url,$referer -> $response
@@ -89,5 +89,19 @@ sub gethead {
 	$l->trace('response code: '. $res->code);
 	return $res;
 }
+
+
+#this autodeletes the tree when going out of scope
+package TreeKeeper v1.0.0;
+
+sub new {
+	my ($pkg,$tree) = @_;
+	return bless \$tree, $pkg;  
+}
+sub DESTROY {
+	my $self = shift;
+	$self->delete(); 
+}
+
 
 1;
