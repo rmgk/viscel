@@ -1888,8 +1888,8 @@ Loserz => [
 	'http://bukucomics.com/loserz/go/1',
 	[class => 'comicpage'],
 ],
-PlatinumGrid => [
-	'Platinum Grid',
+PlatinumGrit => [
+	'Platinum Grit',
 	'http://www.platinumgrit.com/issue01.htm',
 	[src => qr'issue\d\d\.dcr'],
 ],
