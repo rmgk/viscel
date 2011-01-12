@@ -1893,3 +1893,23 @@ PlatinumGrit => [
 	'http://www.platinumgrit.com/issue01.htm',
 	[src => qr'issue\d\d\.dcr'],
 ],
+BitTheater => [
+	'8 Bit Theater',
+	'http://www.nuklearpower.com/2001/03/02/episode-001-were-going-where/',
+	[id => 'comic'],
+],
+BrokenPlotDevice => [
+	'Broken Plot Device',
+	'http://www.brokenplotdevice.com/2008/06/05/first-comic/',
+	[id => 'comic'],
+],
+YouSayItFirst => [
+	'You Say it First',
+	'http://www.yousayitfirst.com/comics/index.php?date=20040220',
+	[src => qr'/comics/'],
+],
+TinyKittenTeeth => [
+	'Tiny Kitten Teeth',
+	'http://www.tinykittenteeth.com/2009/01/26/gene-kelly/',
+	[id => 'comic'],
+],

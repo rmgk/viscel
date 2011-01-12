@@ -423,10 +423,10 @@ PhineusMagicianForHire(wevolt)		http://www.phinmagic.com/comic/new-page/
 
 
 
-8BitTheater		http://www.nuklearpower.com/2001/03/02/episode-001-were-going-where/
-BrokenPlotDevice		http://www.brokenplotdevice.com/2008/06/05/first-comic/
-YouSayItFirst		http://www.yousayitfirst.com/comics/index.php?date=20040220
-CombustibleOrange		http://www.combustibleorange.com/index.php?current=1
+
+
+
+CombustibleOrange(morphed?!)		http://www.combustibleorange.com/index.php?current=1
 CaseyAndAndy		http://galactanet.com/comic/view.php?strip=1
 PetProfessional		http://www.petprofessional.net/d/20050209.html
 UFO		http://mangowow.zamomo.com/index.php?strip_id=1
