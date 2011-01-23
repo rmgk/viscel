@@ -100,8 +100,12 @@ sub _mount_parse {
 	
 	#say $content;
 
-	if ($content =~ /"section":"(\w+)".*?"folder":"(\w+)".*?(\d\d\d)\.thumb\.\w{3,4}"\]\}\;/m) {
-		return $3,$1,$2
+	if ($content =~ /"section":"(\w+)".*?"folder":"(\w+)".*?"thumbs":\[(.*?)\]\}\;/m) {
+		my $section = $1;
+		my $folder = $2;
+		my $thumbs = $3;
+		$thumbs = ($thumbs =~ tr/,//)+1;
+		return $thumbs,$section,$folder;
 	}
 	return undef;
 }
