@@ -51,7 +51,7 @@ sub update_cores_lists {
 	my $c = $s->cfg('update_core_list');
 	my $core = $s->{ucore};
 	unless ($core) {
-		my @cores_to_check = grep {time - ($c->{$_}||0) > 360000} Cores::initialised();
+		my @cores_to_check = grep {time - ($c->{$_}||0) > 1209600} Cores::initialised();
 		unless (@cores_to_check) {
 			$l->debug('all core lists up to date');
 			return undef;
@@ -70,7 +70,7 @@ sub update_cores_lists {
 sub check_collections {
 	my ($s) = @_;
 	my $c = $s->cfg('consistency_check');
-	my @to_update = grep {(time - ($c->{$_}||0)) > 36000} Collection->list();
+	my @to_update = grep {(time - ($c->{$_}||0)) > 1209600} Collection->list();
 	unless (@to_update) {
 		$l->debug('consistency check complete');
 		return undef;
@@ -132,7 +132,7 @@ sub keep_current {
 	my $up = UserPrefs->section('keep_current');
 	my $c = $s->cfg('keep_current');
 	unless ($spot) {
-		my @to_update = grep {$up->get($_) and (!$c->{$_} or (time - $c->{$_}) > 36000)} $up->list();
+		my @to_update = grep {$up->get($_) and (!$c->{$_} or (time - $c->{$_}) > 86400)} $up->list();
 		unless (@to_update) {
 			$l->debug('selected collections kept current');
 			$s->{istate} = undef;
