@@ -21,7 +21,7 @@ sub _create_list {
 			my $a = $td->look_down(_tag=>'a');
 			my $name = HTML::Entities::encode($a->as_trimmed_text(extra_chars => '\xA0'));
 			my $href = $a->attr('href');
-			my ($id) = ($href =~ m'/([^/]*)/$'i);
+			my ($id) = ($href =~ m'/([^/]*)\.html$'i);
 			unless ($id) {
 				$l->debug("could not parse $href");
 				next;
@@ -54,7 +54,8 @@ sub _fetch_info {
 		}
 		return undef;
 	}
-	my $td = $$tree->look_down('_tag' => 'div', class=>'postcontent')->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td
+	my @postcontent = $$tree->look_down('_tag' => 'div', class=>'postcontent');
+	my $td = $postcontent[0]->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td
 	my @p = $td->look_down(_tag=>'p');
 	if ($p[6]) {
 		my $author = HTML::Entities::encode(($p[1]->content_list())[1]);
@@ -67,6 +68,9 @@ sub _fetch_info {
 		$s->clist()->{Tags} = join ", ", map {$_->as_trimmed_text()} $p[4]->look_down(class => 'series-info');
 		$s->clist()->{Detail} = HTML::Entities::encode(($p[6]->content_list())[2]);
 	}
+	
+	my @chaplist = $postcontent[-1]->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'tr');
+	$s->clist()->{url_start} = $chaplist[-1]->look_down(_tag=>'td')->look_down(_tag=>'a')->attr('href');
 	#$tree->delete();
 	return 1;
 }
