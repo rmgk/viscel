@@ -1913,3 +1913,69 @@ TinyKittenTeeth => [
 	'http://www.tinykittenteeth.com/2009/01/26/gene-kelly/',
 	[id => 'comic'],
 ],
+OccasionalComics => [
+	'Occasional Comics Disorder',
+	'http://occasionalcomics.com/79/latest-comic-2/',
+	[id => 'comic'],
+],
+LetTheGameBegin => [
+	'Let The Game Begin',
+	'http://2gamerz.com/?webcomic_post=let-the-game-begin-chapter-1-cover',
+	[src => qr'/webcomic/let-the-game-begin/'],
+],
+xkcd => [
+	'xkcd',
+	'http://xkcd.com/1/',
+	[src => qr'/comics/'],
+],
+LeastICouldDo => [
+	'Least I Could Do',
+	'http://leasticoulddo.com/comic/20030210',
+	[id => comic],
+],
+Nichtlustig => [
+	'Nichtlustig',
+	'http://nichtlustig.de/toondb/000930.html',
+	[src => qr'/comics/full/'],
+	next => [src => qr'pfeil_rechts'],
+],
+AOIHouse => [
+	'AOI House',
+	'http://www.gomanga.com/webmanga/index.php?series=aoi&page=1',
+	[id => page],
+],
+Sinfest => [
+	'Sinfest',
+	'http://sinfest.net/archive_page.php?comicID=1',
+	[src => qr'/comikaze/comics'],
+],
+LookingForGroup => [
+	'Looking For Group',
+	'http://www.lfgcomic.com/page/1',
+	[id => comic],
+],
+ForTheWicked => [
+	'No Rest For The Wicked',
+	'http://www.forthewicked.net/archive/01-01.html',
+	[src => qr'pages/'],
+],
+MenageA3 => [
+	'Menage A 3',
+	'http://www.menagea3.net/d/20080517.html',
+	[src => qr'/comics/'],
+],
+QuestionableContent => [
+	'Questionable Content',
+	'http://www.questionablecontent.net/view.php?comic=1',
+	[id => strip],
+],
+Flipside => [
+	'Flipside',
+	'http://www.flipsidecomics.com/comic.php?i=1',
+	[src => qr'comic/'],
+],
+Flipside0 => [
+	'Flipside 0',
+	'http://www.flipsidecomics.com/comic/book0/fs01pg01.html',
+	[src => qr'gif'],
+],
