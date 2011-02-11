@@ -1927,11 +1927,13 @@ xkcd => [
 	'xkcd',
 	'http://xkcd.com/1/',
 	[src => qr'/comics/'],
+	next => [accesskey => 'n'],
 ],
 LeastICouldDo => [
 	'Least I Could Do',
 	'http://leasticoulddo.com/comic/20030210',
 	[id => comic],
+	next => [id => 'nav-next'],
 ],
 Nichtlustig => [
 	'Nichtlustig',
@@ -1977,5 +1979,5 @@ Flipside => [
 Flipside0 => [
 	'Flipside 0',
 	'http://www.flipsidecomics.com/comic/book0/fs01pg01.html',
-	[src => qr'gif'],
+	[src => qr'fs\d+'],
 ],
