@@ -1564,7 +1564,7 @@ SchlockMercenary => [
 ],
 GWS => [
 	'Girls With Slingshots',
-	'http://www.daniellecorsetto.com/GWS001.html',
+	'http://www.girlswithslingshots.com/comic/gws1/',
 	[src => qr'GWS\d+'],
 ],
 Schism => [
