@@ -1565,7 +1565,7 @@ SchlockMercenary => [
 GWS => [
 	'Girls With Slingshots',
 	'http://www.girlswithslingshots.com/comic/gws1/',
-	[src => qr'GWS\d+'],
+	[src => qr'\d{4}-\d\d-\d\d'],
 ],
 Schism => [
 	'Schism',
