@@ -1981,3 +1981,73 @@ Flipside0 => [
 	'http://www.flipsidecomics.com/comic/book0/fs01pg01.html',
 	[src => qr'fs\d+'],
 ],
+CaseyAndy => [
+	'Casey & Andy',
+	'http://galactanet.com/comic/view.php?strip=1',
+	[src => qr'^Strip'],
+],
+PetProfessional => [
+	'Pet Professional',
+	'http://www.petprofessional.net/d/20050209.html',
+	[src => qr'^/comics/pp\d{8}'],
+],
+UFO => [
+	'u.f.o.',
+	'http://mangowow.zamomo.com/index.php?strip_id=1',
+	[src => qr'istrip_files/strips/\d{8}'],
+],
+WillowsGroove => [
+	"Willow's Groove",
+	'http://www.willowsgrove.com/wordpress/?p=17',
+	[id => 'comic'],
+],
+Filibuster => [
+	'Filibuster',
+	'http://www.filibustercartoons.com/index.php/2001/06/28/poor-jean/',
+	[id => 'comic'], [src => qr'/comics/\d{8}'],
+],
+ihooky => [
+	'ihooky',
+	'http://www.ihooky.com/comic.php?id=1',
+	[class => 'comic'],[src => qr'comics/'],
+],
+IndustrialRevolutionary => [
+	'Industrial Revolutionary',
+	'http://irevolutionary.biz/index.php?p=3',
+	[class => 'comicImage'],
+],
+Key => [
+	'Key',
+	'http://key.shadilyn.com/firstpage.html',
+	[_tag => 'span', class => 'style4'],[src => qr'images/'],
+],
+EnchantedDreams => [
+	'Enchanted Dreams',
+	'http://www.enchanted-dreams.net/2008/01/26/volume1-cover-page/',
+	[id => 'comic'],
+],
+Exiern => [
+	'Exiern',
+	'http://www.exiern.com/?p=7',
+	[id => 'comic'],
+],
+CAD => [
+	'CTRL+ALT+DEL',
+	'http://www.cad-comic.com/cad/20021023',
+	[id => content], [src => qr'comics/'],
+],
+Kawaiinot => [
+	'Kawaii Not',
+	'http://www.kawaiinot.com/?p=1',
+	[id => 'cg_img'],
+],
+Multiplex => [
+	'Multiplex',
+	'http://www.multiplexcomic.com/strip/1',
+	[id => 'strip-code'],
+],
+CrookedGremlins => [
+	'Crooked Gremlin',
+	'http://www.crookedgremlins.com/04/01/2008/indiana-jones-and-the-spirit-crushing-sequel/',
+	[id => 'comic'],
+],

@@ -427,27 +427,27 @@ PhineusMagicianForHire(wevolt)		http://www.phinmagic.com/comic/new-page/
 
 
 CombustibleOrange(morphed?!)		http://www.combustibleorange.com/index.php?current=1
-CaseyAndAndy		http://galactanet.com/comic/view.php?strip=1
-PetProfessional		http://www.petprofessional.net/d/20050209.html
-UFO		http://mangowow.zamomo.com/index.php?strip_id=1
-Pixelheaven		http://www.pixelheaven.net/ph_001.php
-WillowsGrove		http://www.willowsgrove.com/wordpress/?p=17
-FilibusterCartoons		http://www.filibustercartoons.com/index.php/2001/06/28/poor-jean/
-Ihooky		http://www.ihooky.com/comic.php?id=1
-MacHall		http://www.machall.com/view.php?date=2000-11-07
-HeyMike		http://heymike.spiderspawn.com/?comic_id=0
 
-IndustrialRevolution		http://irevolutionary.biz/index.php?p=1
-Key		http://key.shadilyn.com/firstpage.html
-EnchantedDreams		http://www.enchanted-dreams.net/2008/01/26/volume1-cover-page/
-Bobbin		http://www.bobbin-comic.com/wordpress/?p=484
-ExperiencePoints		http://www.crispygamer.com/comics/experiencepoints/ExperiencePoints-2008-10-20.aspx
-Exiern		http://www.exiern.com/comic/begining/so-far/
-CAD		http://www.cad-comic.com/cad/20021023
 
-KawaiiNot		http://www.kawaiinot.com/?p=1
-Multiplex		http://www.multiplexcomic.com/archive.php?name=1
-CrookedGremlins		http://www.crookedgremlins.com/04/01/2008/indiana-jones-and-the-spirit-crushing-sequel/
+
+Pixelheaven	(gone)	http://www.pixelheaven.net/ph_001.php
+
+
+
+MacHall(down?)		http://www.machall.com/view.php?date=2000-11-07
+HeyMike(spiderfores)		http://heymike.spiderspawn.com/?comic_id=0
+
+
+
+
+Bobbin(gone)		http://www.bobbin-comic.com/wordpress/?p=484
+ExperiencePoints(crispygamer)		http://www.crispygamer.com/comics/experiencepoints/ExperiencePoints-2008-10-20.aspx
+
+
+
+
+
+
 
 ShadowDragonExecutiveForce		http://www.sdxf.net/d/20060926.html
 Rain		http://www.whoisrain.com/?p=163
