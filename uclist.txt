@@ -2051,3 +2051,78 @@ CrookedGremlins => [
 	'http://www.crookedgremlins.com/04/01/2008/indiana-jones-and-the-spirit-crushing-sequel/',
 	[id => 'comic'],
 ],
+ShadowDragonExecutiveForce => [
+	'Shadow Dragen Executive Force',
+	'http://www.sdxf.net/d/20060926.html',
+	[alt => 'comic'],
+],
+Rain => [
+	'Rain',
+	'http://www.whoisrain.com/?p=163',
+	[id => 'comic'],
+],
+CourtingDisaster => [
+	'Courting Disaster',
+	'http://www.courting-disaster.com/archive/20050112.html',
+	[src => qr'/comics/cd'],
+],
+DragonTails => [
+	'Dragon Tails',
+	'http://www.dragon-tails.com/comics/archive.php?date=990311',
+	[src => qr'\d{6}'],
+],
+Tozo => [
+	'The Public Servant Tozo',
+	'http://tozocomic.com/2007/01/28/chapter-1/',
+	[id => 'comic'],
+],
+Wayrift => [
+	'Wayrift',
+	'http://www.wayrift.com/introduction-pt-1-pg-1/',
+	[id => 'comic'],
+],
+MyPrivateLittleHell => [
+	'My Private Little Hell',
+	'http://mutt.purrsia.com/mplh/?date=09/08/2004',
+	[src => qr'comics/\d{8}'],
+],
+LittleDee => [
+	'Little Dee',
+	'http://www.littledee.net/?p=23',
+	[id => 'comic-1'],
+],
+AppleGeeksLite => [
+	'Apple Geeks Lite',
+	'http://www.applegeeks.com/lite/index.php?aglitecomic=2006-04-19',
+	[id => 'strip'],
+],
+Cealdian => [
+	'Cealdian',
+	'http://www.cealdiancomic.com/1/',
+	[src => qr'istrip_files/strips'],
+],
+Sheldon => [
+	'Sheldon',
+	'http://www.sheldoncomics.com/archive/011130.html',
+	[id => 'strip'],
+],
+ChickenWings => [
+	'Chicken Wings',
+	'http://www.chickenwingscomics.com/archives/archives.php?strip_id=1',
+	[src => qr'content/strips/\d{8}'],
+],
+BookOfBiff => [
+	'The Book of Biff',
+	'http://www.thebookofbiff.com/2006/01/02/4/',
+	[id => 'comic'],
+],
+CoolCadStudio => [
+	'Cool Cat Studio',
+	'http://www.coolcatstudio.com/d/20000313.html',
+	[alt => 'comic'],
+],
+FissionChicken => [
+	'Fission Chicken',
+	'http://www.fissionchicken.com/?webcomic_post=sock-suckers_2006-04-19',
+	[class => qr'webcomic-object-full'],
+],

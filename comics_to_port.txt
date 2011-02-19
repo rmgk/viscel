@@ -449,30 +449,30 @@ ExperiencePoints(crispygamer)		http://www.crispygamer.com/comics/experiencepoint
 
 
 
-ShadowDragonExecutiveForce		http://www.sdxf.net/d/20060926.html
-Rain		http://www.whoisrain.com/?p=163
-Ravenwood		http://ravenwood.spiderforest.com/?comic_id=0
-TruckBearingKibble		http://truckbearingkibble.com/comic/2006/12/29/platypus/
-GalacticDivine		http://hikaruhoshi.com/tkawaii/comic/gd/index.php?p=1
-CourtingDisaster		http://www.courting-disaster.com/archive/20050112.html
-DragonTails		http://www.dragon-tails.com/comics/archive.php?date=990311
-StarkReality		http://starkreality.smackjeeves.com/Sale/
-BackwardCompatible		http://www.crispygamer.com/comics/backward/2008-01-02.aspx
-Tozo		http://tozocomic.com/2007/01/28/chapter-1/
-RedString		http://www.redstring.strawberrycomics.com/?p=1138
-Wayrift		http://www.wayrift.com/introduction-pt-1-pg-1
-MyPrivateLittleHell		http://mutt.purrsia.com/mplh/?date=09/08/2004
-SchoolBites		http://schoolbites.net/d/20090817.html
-LittleDee		http://www.littledee.net/archive/20040607.html
-AppleGeeksLite		http://www.applegeeks.com/lite/index.php?aglitecomic=2006-04-19
-Cealdian		http://www.cealdiancomic.com/1/
-TheWarOfWinds		http://warofwinds.com/comic.php?comic_id=0
-Sheldon		http://www.sheldoncomics.com/archive/011130.html
-ChickenWings		http://www.chickenwingscomics.com/archives/archives.php?strip_id=1
-TheBookOfBiff		http://www.thebookofbiff.com/2006/01/02/4/
-CoolCatStudio		http://www.coolcatstudio.com/d/20000313.html
-AskDrEldritch		http://www.askdreldritch.com/comic001.html
-FissionChicken		http://www.fissionchicken.com/2006/04/19/2006-04-19/
+
+
+Ravenwood	(spiderforest)	http://ravenwood.spiderforest.com/?comic_id=0
+TruckBearingKibble(gone?)		http://truckbearingkibble.com/comic/2006/12/29/platypus/
+GalacticDivine(gone?)		http://hikaruhoshi.com/tkawaii/comic/gd/index.php?p=1
+
+
+StarkReality(smackjeeves)		http://starkreality.smackjeeves.com/Sale/
+BackwardCompatible(crispygamer)			http://www.crispygamer.com/comics/backward/2008-01-02.aspx
+
+RedString(strawberrycomics)		http://www.redstring.strawberrycomics.com/?p=1138
+
+
+SchoolBites(dualimage)		http://schoolbites.net/d/20090817.html
+
+
+
+TheWarOfWinds(spiderforest)		http://warofwinds.com/comic.php?comic_id=0
+
+
+
+
+AskDrEldritch(gone?)		http://www.askdreldritch.com/comic001.html
+
 Marooned		http://www.maroonedcomic.com/comic-for-3242008/
 ElsieHooper		http://www.elsiehooper.com/comics/comic000.shtml
 MidnightMacabre		http://www.midnightmacabre.com/mm05231981.shtml
