@@ -364,7 +364,7 @@ Afterstrife => [
 	[id => 'comic'],
 ],
 TodUndMaedchen => [
-	'Der Tod und das Mädchen',
+	'Der Tod und das Mädchen 2',
 	'http://www.cartoontomb.de/deutsch/tod2.php?bild=00_01_01.jpg',
 	[src => qr'images/tod/teil2/'],
 	next => [_tag => 'a', sub { $_[0]->as_text() eq 'weiter' }],
@@ -2125,4 +2125,162 @@ FissionChicken => [
 	'Fission Chicken',
 	'http://www.fissionchicken.com/?webcomic_post=sock-suckers_2006-04-19',
 	[class => qr'webcomic-object-full'],
+],
+Marooned => [
+	'Marooned',
+	'http://www.maroonedcomic.com/comic-strip/comic-for-3242008/',
+	[id => 'comic-1'],
+], 
+ElsieHooper => [
+	'Elsie Hooper',
+	'http://www.elsiehooper.com/comics/comic000.shtml',
+	[src => qr'^http://www.elsiehooper.com/images/|/comics/'],
+],
+MidnightMacabre => [
+	'Midnight Macabre',
+	'http://www.midnightmacabre.com/mm05231981.shtml',
+	[src => qr'arch/mm\d{8}'],
+],
+SparePants => [
+	'Spare Pants',
+	'http://www.sparepartscomics.com/comics/index.php?date=20031022',
+	[src => qr'comics/\d{8}'],
+],
+Undertow => [
+	'Undertow',
+	'http://undertow.dreamshards.org/0/u0_0.html',
+	[src => qr'^u\d+_'],
+	next => [src => qr'saepoint'],
+],
+CyanideHappiness => [
+	'Cyanide & Happiness',
+	'http://www.explosm.net/comics/15/',
+	[alt => 'Cyanide and Happiness, a daily webcomic'],
+],
+TodUndMaedchen1 => [
+	'Der Tod und das Mädchen 1',
+	'http://tod.cartoontomb.de/deutsch/k01/tod01_01.html',
+	[src => qr'images/tod/teil1/'],
+	next => [_tag => 'a', sub { $_[0]->as_text() eq 'weiter' }],
+],
+DeathAndMaiden => [
+	'Death and the Maiden 1',
+	'http://deathandmaiden.com/2008/12/03/prologue-1/',
+	[id => 'comic'],
+],
+DeathAndMaiden2 => [
+	'Death and the Maiden 2',
+	'http://two.deathandmaiden.com/2007/03/09/prologue-1/',
+	[id => 'comic'],
+],
+DominicDeegan => [
+	'Dominic Deegan, Oracle for Hire',
+	'http://dominic-deegan.com/view.php?date=2002-05-21',
+	[class => 'comic'],
+],
+ConScrew => [
+	'ConScrew',
+	'http://www.conscrew.com/index.php?strip_id=0',
+	[src => qr'comics/\d{6}'],
+],
+DeadWinter => [
+	'Dead Winter',
+	'http://www.deadwinter.cc/page/001.htm',
+	[id => 'comic'],
+],
+SilentKimbly => [
+	'Silent Kimbly',
+	'http://www.silentkimbly.com/2006/02/05/love-handles/',
+	[id => 'comic'],
+],
+SamAndFuzzy => [
+	'Sam & Fuzzy',
+	'http://www.samandfuzzy.com/archive.php?comicID=1',
+	[src => qr'comics/\d{8}'],
+],
+CyBoar => [
+	'Cy-Boar',
+	'http://cy-boar.com/index.php?date=2005-02-25',
+	[src => qr'/images/\d{4}-\d\d-\d\d'],
+],
+BearVsZombie => [
+	'Bear vs Zombies',
+	'http://bearvszombies.com/?p=4',
+	[id => 'comic'],
+],
+RobAndElliot => [
+	'Rob & Elliot',
+	'http://www.robandelliot.cycomics.com/archive.php?id=17',
+	[id => 'contentcomic'],
+],
+OkashinaOkashi => [
+	'Okashina Okashi, Strange Candy',
+	'http://www.strangecandy.net/d/20010116.html',
+	[id => 'comic'],
+],
+WastedTalent => [
+	'Wasted Talent',
+	'http://www.wastedtalent.ca/comic/anime-crack',
+	[class => 'comic_content'],
+],
+ShadowGirls => [
+	'Shadow Girls',
+	'http://www.shadowgirlscomic.com/comics/book-1/chapter-1-broken-dreams/welcome/',
+	[id => 'comic'],
+],
+OneQuestion => [
+	'One Question',
+	'http://www.onequestioncomic.com/comics/1/',
+	[src => qr'istrip_files/strips/'],
+],
+AbominaleCharlesChristopher => [
+	'The Abominable Charles Christopher',
+	'http://www.abominable.cc/2007/06/20/episode-1/',
+	[id => 'comic'],
+],
+VGCats => [
+	'VG Cats',
+	'http://www.vgcats.com/comics/?strip_id=0',
+	[src => qr'images/\d{6}'],
+],
+WayfarersMoon => [
+	'Wayfarer’s Moon',
+	'http://www.wayfarersmoon.com/index.php?page=0',
+	[class => 'comic'],
+	next => [alt => 'forward button'],
+],
+HellHotel => [
+	'Hell Hotel',
+	'http://www.hell-hotel.com/2008/10/08/introduction/',
+	[src => qr'comics/\d{4}/\d\d/'],
+],
+ExploitationNow => [
+	'Exploitation Now',
+	'http://www.exploitationnow.com/2000-07-07/9',
+	[id => 'comic-1'],
+],
+Melonpool => [
+	'The Adventures of Mayberry Melonpool',
+	'http://www.melonpool.com/?p=41',
+	[id => 'comic'],
+],
+ParadoxLost => [
+	'Paradox Lost',
+	'http://paradox-lost.com/?strip_id=0',
+	[src => qr'comics/'],
+],
+NewWorld => [
+	'New World',
+	'http://www.tfsnewworld.com/2003/01/30/115/',
+	[id => 'comic'],
+],
+SpiderWebs => [
+	'Spider Webs',
+	'http://www.tfsnewworld.com/2007/09/03/31/',
+	[id => 'comic'],
+],
+ChainsawSuit => [
+	'chainsawsuit',
+	'http://chainsawsuit.com/2008/03/12/strip-338/',
+	[id => 'comic'],
 ],

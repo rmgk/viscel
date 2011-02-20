@@ -473,48 +473,48 @@ TheWarOfWinds(spiderforest)		http://warofwinds.com/comic.php?comic_id=0
 
 AskDrEldritch(gone?)		http://www.askdreldritch.com/comic001.html
 
-Marooned		http://www.maroonedcomic.com/comic-for-3242008/
-ElsieHooper		http://www.elsiehooper.com/comics/comic000.shtml
-MidnightMacabre		http://www.midnightmacabre.com/mm05231981.shtml
-SpareParts		http://www.sparepartscomics.com/comics/index.php?date=20031022
-Undertow		http://undertow.dreamshards.org/0/u0_0.html
-CyanideANDHappiness		http://www.explosm.net/comics/15/
-CartoonTomb		http://tod.cartoontomb.de/deutsch/k01/tod01_01.html
-NoPinkPonies		http://nopinkponies.com/d/20060207.html
-DominicDeegan		http://dominic-deegan.com/view.php?date=2002-05-21
-Grootlore		http://www.grootlore.com/comics/index.php?date=20010101
 
-ConScrew		http://www.conscrew.com/index.php?strip_id=0
-Nymph		http://fern.junglestudio.com/comics/nymph/index.html
-DeadWinter		http://www.deadwinter.cc/page/001.htm
-WeltonColbert		http://www.ryanestrada.com/2004/10/01/welton-colbert/welton-colbert-vs-sam-and-fuzzy/
-SilentKimbly		http://www.silentkimbly.com/2006/02/05/love-handles/
-SamAndFuzzy		http://www.samandfuzzy.com/archive.php?comicID=1
 
-Cascadia		http://www.cascadiacomic.com/comic/prologue/0.htm
-CyBoar		http://cy-boar.com/index.php?date=2005-02-25
-BrainDead		http://braindead.snafu-comics.com/index.php?comic_id=0
-BearVsZombie		http://bearvszombies.com/?p=4
-RobAndElliot		http://www.robandelliot.cycomics.com/archive.php?id=17
-OkashinaOkashi		http://www.strangecandy.net/d/20010116.html
-WastedTalent		http://www.wastedtalent.ca/comic/anime-crack
-Shadowgirls		http://www.shadowgirlscomic.com/comics/welcome/
-Estancia		http://www.webcomicsnation.com/hammock/estancia/series.php?view=archive&chapter=6545
-OneQuestion		http://www.onequestioncomic.com/comics/1/
 
-Leftville		http://www.leftville.com/index.php?date=2005-10-17
-TheAbominableCharlesChristopher		http://www.abominable.cc/2007/06/20/episode-1/
-VGcats		http://www.vgcats.com/comics/?strip_id=0
 
-Slackerz		http://www.theslackerz.com/index.php?nav=Comic&Page=1
-Wayfarer		http://www.wayfarersmoon.com/index.php?page=0
-HellHotel		http://www.hell-hotel.com/2008/10/08/introduction/
-ExploitationNow		http://www.exploitationnow.com/comic.php?date=2000-07-05
-Melonpool		http://www.melonpool.com/?p=41
-Paradox		http://paradox-lost.com/?strip_id=0
-DelusionDiary		http://h-manga.info/manga/index.php/Delusion%20Diary/Mousou_Diary_c04_076e.jpg?action=big&size=original
-NewWorld		http://www.tfsnewworld.com/index.php?date=20030130
-ChainsawSuit		http://www.chainsawsuit.com/20080312.shtml
+
+
+
+NoPinkPonies(keenspot)		http://nopinkponies.com/d/20060207.html
+
+Grootlore(broken)		http://www.grootlore.com/comics/index.php?date=20010101
+
+
+Nymph(junglestudio)		http://fern.junglestudio.com/comics/nymph/index.html
+
+WeltonColbert(ryanestrada)		http://www.ryanestrada.com/2004/10/01/welton-colbert/welton-colbert-vs-sam-and-fuzzy/
+
+
+
+Cascadia(down?)		http://www.cascadiacomic.com/comic/prologue/0.htm
+
+BrainDead(snafu)		http://braindead.snafu-comics.com/index.php?comic_id=0
+
+
+
+
+
+Estancia(webcomicsnation)		http://www.webcomicsnation.com/hammock/estancia/series.php?view=archive&chapter=6545
+
+
+Leftville(gone)		http://www.leftville.com/index.php?date=2005-10-17
+
+
+
+Slackerz(javascript)		http://www.theslackerz.com/index.php?nav=Comic&Page=1
+
+
+
+
+
+DelusionDiary(h-manga)		http://h-manga.info/manga/index.php/Delusion%20Diary/Mousou_Diary_c04_076e.jpg?action=big&size=original
+
+
 
 MathsForLaughs		http://mathsforlaughs.co.uk/?c=1
 Aardehn		http://www.aardehn.com/2008/02/01/page-one/
