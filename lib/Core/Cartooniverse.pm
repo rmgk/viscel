@@ -15,7 +15,7 @@ sub _create_list {
 	my ($pkg) = @_;
 	my %clist;
 	$l->trace('create list of known collections');
-	my $tree = DlUtil::get_tree('http://www.cartooniverse.co.uk/beta/list.php') or return undef;
+	my $tree = DlUtil::get_tree('http://www.cartooniverse.co.uk/beta/list.php') or return;
 	foreach my $content ($$tree->look_down('_tag' => 'div', 'class' => 'postcontent')) {
 		foreach my $td ($content->look_down('_tag' => 'td')) {
 			my $a = $td->look_down(_tag=>'a');
@@ -52,7 +52,7 @@ sub _fetch_info {
 			$s->clist()->{Status} = 'down'; 
 			return 1;
 		}
-		return undef;
+		return;
 	}
 	my @postcontent = $$tree->look_down('_tag' => 'div', class=>'postcontent');
 	my $td = $postcontent[0]->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td

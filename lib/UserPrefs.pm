@@ -21,7 +21,7 @@ sub init {
 	$default_file = Globals::userprefsfile();
 	unless (-e $dir or mkdir $dir) {
 		$l->error('could not create cache dir ' , $dir);
-		return undef;
+		return;
 	}
 	%data = %{parse_file($default_file)};
 	return 1;
@@ -122,7 +122,7 @@ sub save_file {
 		return 1;
 	}
 	$l->warn('could not open ', $file);
-	return undef;
+	return;
 }
 
 #returns the %data as a string

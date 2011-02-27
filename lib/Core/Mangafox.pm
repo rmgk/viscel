@@ -16,7 +16,7 @@ sub _create_list {
 	my %clist;
 	$l->trace('create list of known collections');
 	my $url = ref $state ? $state->[0] : 'http://www.mangafox.com/directory/all/1.htm';
-	my $tree = DlUtil::get_tree($url) or return undef;
+	my $tree = DlUtil::get_tree($url) or return;
 	my $table = $$tree->look_down(_tag => 'table', id => 'listing');
 	foreach my $tr ($table->look_down('_tag' => 'tr')) {
 		my @td = $tr->look_down(_tag => 'td');
@@ -65,7 +65,7 @@ sub _fetch_info {
 	my ($s) = @_;
 	my $url = $s->clist()->{url_info};
 	$url .= '?no_warning=1';
-	my $tree = DlUtil::get_tree($url) or return undef;
+	my $tree = DlUtil::get_tree($url) or return;
 	my @chapter = $$tree->look_down(_tag=>'a',class=>'chico');
 	if (@chapter) {
 		my $url_start = $chapter[-1]->attr('href');
@@ -110,7 +110,7 @@ sub _mount_parse {
 	my $img = $tree->look_down(_tag => 'img', id => 'image');
 	unless ($img) {
 		$l->error('could not parse page');
-		return undef;
+		return;
 	}
 	map {$s->{$_} = $img->attr($_)} qw( src alt);
 	
@@ -119,7 +119,7 @@ sub _mount_parse {
 		$next = undef;
 		my $url_info = $s->{page_url};
 		$url_info =~ s'/[^/]+/[^/]+/[^/]+$'/';
-		my $tree = Core::Mangafox->_get_tree($url_info) or return undef;
+		my $tree = Core::Mangafox->_get_tree($url_info) or return;
 		my $url = $s->{page_url};
 		my @chapter = reverse $tree->look_down(_tag=>'a',class=>'chico');
 		for (0..($#chapter - 1)) {
@@ -131,7 +131,7 @@ sub _mount_parse {
 		}
 		$tree->delete();
 	}
-	return undef unless $next;
+	return unless $next;
 	$s->{next} = URI->new_abs($next,$s->{page_url})->as_string();
 	return 1;
 }

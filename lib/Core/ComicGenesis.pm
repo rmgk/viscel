@@ -19,7 +19,7 @@ sub _create_list {
 	my $index = ref $state ? $state->[0] : 0;
 	my $letter =  $letters[$index];
 	$l->trace("get tree for letter $letter");
-	my $tree = DlUtil::get_tree("http://guide.comicgenesis.com/Keenspace_$letter.html") or return undef; 
+	my $tree = DlUtil::get_tree("http://guide.comicgenesis.com/Keenspace_$letter.html") or return; 
 	foreach my $main ($$tree->look_down('_tag' => 'div', 'class' => 'comicmain', sub { $_[0]->as_text =~ m/Number of Days: (\d+)/i; $1 > 20} )) {
 		my $a = $main->look_down('_tag'=> 'a', 'target' => '_blank', sub {$_[0]->as_text =~ /^\d{8}$/});
 		next unless $a;
@@ -64,7 +64,7 @@ sub _mount_parse {
 	unless ($img) {
 		$l->error('could not get image');
 		$s->{fail} = 'could not get image';
-		return undef;
+		return;
 	}
 	map {$s->{$_} = $img->attr($_)} qw( src title alt width height);
 	$s->{src} = URI->new_abs($s->{src},$s->{state})->as_string;

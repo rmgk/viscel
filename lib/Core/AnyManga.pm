@@ -15,7 +15,7 @@ sub _create_list {
 	my ($pkg) = @_;
 	my %mangalist;
 	$l->trace('create list of known collections');
-	my $tree = DlUtil::get_tree('http://www.anymanga.com/directory/all/') or return undef;
+	my $tree = DlUtil::get_tree('http://www.anymanga.com/directory/all/') or return;
 	foreach my $list ($$tree->look_down('_tag' => 'ul', 'class' => 'mainmangalist')) {
 		foreach my $item ($list->look_down('_tag'=>'li')) {
 			my $a = $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->look_down('_tag'=>'a');
@@ -56,7 +56,7 @@ sub _searchkeys {
 sub _fetch_info {
 	my ($s) = @_;
 	my $url = $s->clist()->{url_info};
-	my $tree = DlUtil::get_tree($url) or return undef;
+	my $tree = DlUtil::get_tree($url) or return;
 	$s->clist()->{Tags} = ($$tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1];
 	$s->clist()->{Chapter} = ($$tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1];
 	$s->clist()->{Scanlator} = ($$tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Manga scans by:' })->parent()->content_list())[1];

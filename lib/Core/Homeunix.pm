@@ -15,7 +15,7 @@ sub _create_list {
 	my ($pkg) = @_;
 	my %clist;
 	$l->trace('create list of known collections');
-	my $tree = DlUtil::get_tree('http://unixmanga.com/onlinereading/manga-lists.html') or return undef;
+	my $tree = DlUtil::get_tree('http://unixmanga.com/onlinereading/manga-lists.html') or return;
 	foreach my $tr ($$tree->look_down('_tag' => 'tr', 'class' => qr/^snF sn(Even|Odd)$/)) {
 		my $a = $tr->look_down(_tag=>'a');
 		my $name = HTML::Entities::encode($a->as_trimmed_text(extra_chars => '\xA0'));
@@ -53,7 +53,7 @@ sub _fetch_info {
 			return 1;
 		}
 		$urls{$url} = 1; 
-		my $tree = DlUtil::get_tree($url) or return undef;
+		my $tree = DlUtil::get_tree($url) or return;
 		my $fs = $$tree->look_down(_tag => 'fieldset', class=>qr'td2');
 		if ($fs) {
 			#we are at the last page and can finally find the first page
@@ -90,17 +90,17 @@ sub _mount_parse {
 	my $src = HTML::Entities::encode($1);
 	unless ($src) {
 		$l->error('could not parse page');
-		return undef;
+		return;
 	}
 	unless ($href) {
 		$page =~ m'<a href ="([^"]+)"><b>\[RETURN\]</b></a>';
 		my $chapter = HTML::Entities::encode($1);
-		my $tree = DlUtil::get_tree($chapter) or return undef;
+		my $tree = DlUtil::get_tree($chapter) or return;
 		my $ch = $$tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
 		my $a = $ch->look_down(_tag=>'a');
 		my $overview = $a->attr('href');
 		#$tree->delete();
-		$tree = DlUtil::get_tree($overview) or return undef;
+		$tree = DlUtil::get_tree($overview) or return;
 		my @chlist = $$tree->look_down(_tag=>'tr',class => qr/^snF sn(Even|Odd)$/);
 		for my $i ( reverse(1 .. $#chlist) ) {
 			my $ch = $chlist[$i];
@@ -110,9 +110,9 @@ sub _mount_parse {
 				#$tree->delete();
 				my %urls;
 				while ($url) {
-					return undef if $urls{$url}; #abort recursion
+					return if $urls{$url}; #abort recursion
 					$urls{$url} = 1; 
-					my $tree = DlUtil::get_tree($url) or return undef;
+					my $tree = DlUtil::get_tree($url) or return;
 					my $fs = $$tree->look_down(_tag => 'fieldset', class=>qr'td2');
 					if ($fs) {
 						#we are at the last page and can finally find the first page

@@ -18,7 +18,7 @@ sub _create_list {
 	my %clist;
 	$l->trace('create list of known collections');
 
-	my $tree = DlUtil::get_tree('http://www.katbox.net/') or return undef;
+	my $tree = DlUtil::get_tree('http://www.katbox.net/') or return;
 	foreach my $area ($$tree->look_down('_tag' => 'area', 'shape' => 'poly')) {
 		my $name = HTML::Entities::encode($area->attr('alt'));
 		my $href = $area->attr('href');

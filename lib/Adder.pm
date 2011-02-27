@@ -37,7 +37,7 @@ sub init {
 		return 1;
 	}
 	$l->error('failed to initialise modules');
-	return undef;
+	return;
 }
 
 sub url_add { '/add' }

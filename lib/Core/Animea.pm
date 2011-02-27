@@ -17,7 +17,7 @@ sub _create_list {
 	$l->trace('create list of known collections');
 	my $url = ref $state ? $state->[0] : 'http://manga.animea.net/browse.html?page=0';
 
-	my $tree = DlUtil::get_tree($url) or return undef;
+	my $tree = DlUtil::get_tree($url) or return;
 	foreach my $td ($$tree->look_down('_tag' => 'td', 'class' => 'c')) {
 		my $tr = $td->parent();
 		my $a = $tr->look_down(_tag=>'a',class=>qr/manga$/);
@@ -54,12 +54,12 @@ sub _fetch_info {
 	my ($s) = @_;
 	my $url = $s->clist()->{url_info};
 	$url .= '?skip=1';
-	my $tree = DlUtil::get_tree($url) or return undef;
+	my $tree = DlUtil::get_tree($url) or return;
 	my $chapterslist = $$tree->look_down(_tag=>'table',id=>'chapterslist');
 	unless ($chapterslist) { # if chapterslist could not be found, its most likely that something is wrong with the page download
 		$l->warn('could not parse page ' , $url);
 		#$tree->delete();
-		return undef; 
+		return; 
 	}
 	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $$tree->look_down(_tag=>'a', href=>qr'/genre/'i);
 	my $p = $$tree->look_down('_tag' => 'p', style => 'width:570px; padding:5px;');
@@ -94,7 +94,7 @@ sub _mount_parse {
 	my $img = $tree->look_down(_tag => 'img', class=>'chapter_img');
 	unless ($img) {
 		$l->error('could not parse page');
-		return undef;
+		return;
 	}
 	map {$s->{$_} = $img->attr($_)} qw( src width height);
 	my $a_next = $img->look_up(_tag => 'a');

@@ -20,23 +20,23 @@ sub init {
 	
 	unless (-e $cachedir or mkdir $$cachedir) {
 		$l->error('could not create cache dir ' , $cachedir);
-		return undef;
+		return;
 	}
 	
 	for my $a ('0'..'9','a'..'f') { for my $b ('0'..'9','a'..'f') { 
 		my $dir = $cachedir.$a.$b.'/';
 		unless (-e $dir or mkdir $dir) {
 			$l->error('could not create storage dir ' .$dir);
-			return undef;
+			return;
 		}
 	}}
 	
 	$DBH = DBI->connect("dbi:SQLite:dbname=".$cachedir.'stats.db',"","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
-	return undef unless $DBH;
+	return unless $DBH;
 	unless ($DBH->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name=?",undef,"type")) {
 		unless($DBH->do('CREATE TABLE type (sha1 CHAR UNIQUE, value)')) {
 			$l->error('could not create table type');
-			return undef;
+			return;
 		}
 		$DBH->commit();
 	}
@@ -56,7 +56,7 @@ sub put {
 	my $fh;
 	unless (open $fh, '>', $cachedir.$sha1) {
 		$l->error("could not open $main::DIRCACHE$sha1 for write");
-		return undef;
+		return;
 	}
 	binmode $fh;
 	print $fh $$blob;
@@ -70,14 +70,14 @@ sub get {
 	my ($sha1) = @_;
 	if (!$sha1 or length($sha1) != 40) {
 		$l->error('incorrect sha1 value');
-		return undef;
+		return;
 	}
 	$l->trace('retrieve ' , $sha1);
 	substr($sha1,2,0) = '/';
 	my $fh;
 	unless (open $fh, '<', $cachedir.$sha1) {
 		$l->error("could not open $main::DIRCACHE$sha1 for read");
-		return undef;
+		return;
 	}
 	binmode $fh;
 	local $/;

@@ -28,7 +28,7 @@ sub _create_list {
 	if ($@) {
 		chomp $@;
 		$l->error('could not load list: ' , $@);
-		return undef;
+		return;
 	}
 	my %list;
 	for my $id (keys %raw_list) {
@@ -74,7 +74,7 @@ sub _mount_parse {
 	my $tags = _find([$tree],@$criteria);
 	unless (@$tags) {
 		$l->error("could not find tag");
-		return undef;
+		return;
 	}
 	my @img = grep {defined} map {$_->look_down(_tag=>'img')} @$tags;
 	@img = grep {defined} map {$_->look_down(_tag=>'embed')} @$tags unless @img;
@@ -82,7 +82,7 @@ sub _mount_parse {
 	my $img = $img[0];
 	unless ($img) {
 		$l->error('no object found');
-		return undef;
+		return;
 	}
 	$s->{$_} = $img->attr($_) for qw( src title alt width height );
 	my $a;

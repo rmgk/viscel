@@ -17,7 +17,7 @@ sub _create_list {
 	$l->trace('create list of known collections');
 	my $url = ref $state ? $state->[0] : 'http://www.fakku.net/manga.php?select=english';
 	
-	my $tree = DlUtil::get_tree($url) or return undef;
+	my $tree = DlUtil::get_tree($url) or return;
 	foreach my $main ($$tree->look_down('_tag' => 'div', 'class' => 'content_row')) {
 		my $a = $main->look_down('_tag'=> 'div', 'class' => 'manga_row1')->look_down('_tag' => 'a');
 		my $href = $a->attr('href');
@@ -68,12 +68,12 @@ sub mount {
 		unless ($max) {
 			$l->warn('could not parse page');
 			$s->{fail} = 'could not parse page';
-			return undef;
+			return;
 		}
 	}
 	if ($pos > $max) {
 		$s->{fail} = 'last page';
-		return undef;
+		return;
 	}
 	$s->{page_url} = 'http://www.fakku.net/viewonline.php?id='.$id . '#page='.$pos;
 	$s->{src} = 'http://c.fakku.net/manga/' . $section . '/' . $folder . '/images/'. $pos . '.jpg';
@@ -94,7 +94,7 @@ sub _mount_parse {
 	my $page = DlUtil::get($url);
 	if (!$page->is_success() or !$page->header('Content-Length')) {
 		$l->error("error get: ", $url);
-		return undef;
+		return;
 	}
 	my $content = $page->decoded_content();
 	
@@ -107,7 +107,7 @@ sub _mount_parse {
 		$thumbs = ($thumbs =~ tr/,//)+1;
 		return $thumbs,$section,$folder;
 	}
-	return undef;
+	return;
 }
 
 1;

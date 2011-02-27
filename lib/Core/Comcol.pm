@@ -22,13 +22,13 @@ sub init {
 	$l->trace('initialis Core::Comcol');
 	unless (-e $DIR) {
 		$l->warn("Comcol directory dir ($DIR) does not exists: correct preferences");
-		return undef;
+		return;
 	}
 	$l->warn('database handle already initialised, reinitialise') if defined $DBH;
 	$DBH = DBI->connect("dbi:SQLite:dbname=".$DIR.'comics.db',"","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 	unless ($DBH) {
 		$l->warn('could not connect to database');
-		return undef;
+		return;
 	}
 	$l->debug('has ' .  scalar($pkg->list()) . ' collections');
 	return 1;
@@ -37,7 +37,7 @@ sub init {
 #noop
 sub update_list {
 	$l->trace('comcol update list noop');
-	return undef; #undef means finished updating
+	return; #undef means finished updating
 }
 
 #->\@id_list
@@ -46,12 +46,12 @@ sub update_list {
 sub list {
 	unless ($DBH) {
 		$l->error('$DBH undefined call init');
-		return undef;
+		return;
 	}
 	my $cmcs;
 	unless ($cmcs = $DBH->selectcol_arrayref('SELECT comic FROM comics')) {
 		$l->error('could not get info from database');
-		return undef;
+		return;
 	}
 	return map {'Comcol_' . $_ , $_} @$cmcs;
 	
@@ -92,7 +92,7 @@ sub about {
 	my $cmc;
 	unless ($cmc = $DBH->selectrow_hashref('SELECT * FROM comics WHERE comic = ?',undef, $comic)) {
 		$l->error('could not get info from database');
-		return undef;
+		return;
 	}
 	return map {"$_: " . $cmc->{$_}} grep {defined $cmc->{$_}} keys %$cmc;
 }
@@ -132,7 +132,7 @@ sub create {
 		return $spot;
 	}
 	$l->error('failed environment checks');
-	return undef;
+	return;
 }
 
 
@@ -157,19 +157,19 @@ sub check {
 	$l->trace('check environment ',$s->{id});
 	unless (defined $DBH) {
 		$l->error('$DBH undefined call init');
-		return undef;
+		return;
 	}
 	my $comic = $s->{id};
 	$comic =~ s/^[^_]*_//;
 	if (my $last = $DBH->selectrow_array('SELECT last FROM comics WHERE comic = ?', undef, $comic)) {
 		if ($last < $s->{position}) {
 			$l->error('invalid position, last was '.$last);
-			return undef;
+			return;
 		}
 	}
 	else {
 		$l->error('invalid id');
-		return undef;
+		return;
 	}
 	return 1;
 }
@@ -184,7 +184,7 @@ sub mount {
 	unless ( $entry = $DBH->selectrow_hashref('SELECT file,surl,purl,sha1,title FROM _'.$comic.' WHERE number = ?', undef, $s->{position})) {
 		$l->error('could not get file information');
 		$s->{fail} = 'no db entry found';
-		return undef;
+		return;
 	}
 	$s->{_data} = $entry;
 	$s->{fail} = undef;
@@ -195,14 +195,14 @@ sub mount {
 #returns the blob and sets the sha1
 sub fetch {
 	my ($s) = @_;
-	return undef if $s->{fail};
+	return if $s->{fail};
 	$l->trace('fetch object');
 	my $comic = $s->{id};
 	$comic =~ s/^.*_//;
 	my $fh;
 	unless(open ($fh, '<', $DIR."strips/$comic/".$s->{_data}->{file})) {
 		$l->error('failed to open: ' . $s->{_data}->{file});
-		return undef;
+		return;
 	}
 	binmode $fh;
 	local $/ = undef;
@@ -216,7 +216,7 @@ sub fetch {
 #returns the element
 sub element {
 	my ($s) = @_;
-	return undef if $s->{fail};
+	return if $s->{fail};
 	$l->trace('compose element');
 	my $object = {};
 	my ($ext) = $s->{_data}->{file} ~~ m/.*\.(\w{3,4})$/;
@@ -238,7 +238,7 @@ sub element {
 #returns the next spot
 sub next {
 	my ($s) = @_;
-	return undef if $s->{fail};
+	return if $s->{fail};
 	$l->trace('creat next');
 	my $next = {id => $s->{id}, position => $s->{position} + 1 };
 	$next = ref($s)->new($next);
@@ -248,7 +248,7 @@ sub next {
 #gets strip titles
 sub get_title {
 	my ($title) = @_;
-	return undef unless $title;
+	return unless $title;
 	my %titles = ();
 	if ($title =~ /^\{.*\}$/) {
 		while($title =~ m#(?<id>\w+)=>q\((?<text>.*?)\)[,}]#g) {

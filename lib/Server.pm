@@ -26,7 +26,7 @@ sub init {
 	#$d->timeout(0);
 	unless($d){
 		$l->error("could not listen on port $port");
-		return undef;
+		return;
 	}
 	return 1;
 }
@@ -37,7 +37,7 @@ sub register_handler {
 	my ($path,$handler) = @_;
 	unless ($path) {
 		$l->error('path not specified');
-		return undef;
+		return;
 	}
 	if ($handler) {
 		$l->trace('add request handler for ', $path); 
@@ -53,7 +53,7 @@ sub register_handler {
 sub accept {
 	my ($timeout,$timespan) = @_;
 	$l->trace('accept connections (timeout ', $timeout , ')');
-	return undef unless _accept_connection($timeout,0.1); #connection timed out
+	return unless _accept_connection($timeout,0.1); #connection timed out
 	my $t = Time::HiRes::time;
 	while (Time::HiRes::time - $t < $timespan) {
 		_accept_connection($timespan - Time::HiRes::time + $t,0.1) 
@@ -80,7 +80,7 @@ sub _accept_connection {
 		_accept_requests($c,$addr_str);
 		return 1;
 	}
-	return undef;
+	return;
 }
 
 #$connection
@@ -111,7 +111,7 @@ sub _handle_request {
 		}
 		else {
 			send_404($c);
-			return undef;
+			return;
 		}
 	}
 	elsif ($r->url->path =~ m#^/(?<path>[^/]+)/?(?<args>.*?)/?$#i) {
@@ -122,13 +122,13 @@ sub _handle_request {
 		}
 		else {
 			send_404($c);
-			return undef;
+			return;
 		}
 	}
 	else {
 		$l->warn('unexpected url path: ', $r->url->path);
 		send_404($c);
-		return undef;
+		return;
 	}
 }
 

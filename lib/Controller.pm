@@ -46,7 +46,7 @@ sub init {
 		return 1;
 	}
 	$l->error('failed to initialise modules');
-	return undef;
+	return;
 }
 
 
@@ -115,11 +115,11 @@ sub hint_front {
 	my $remote = Cores::new($id);
 	unless ($remote) {
 		$l->trace('unknown collection ', $id);
-		return undef;
+		return;
 	}
-	$remote->fetch_info() or return undef;
+	$remote->fetch_info() or return;
 	my $col = Collection->get($id);
-	return undef if $col->fetch(1);
+	return if $col->fetch(1);
 	my $spot = Cores::first($id);
 	_store($col,$spot);
 	$col->clean();
@@ -146,11 +146,11 @@ sub hint_view {
 			}
 			else {
 				$l->debug('could not get spot');
-				return undef;
+				return;
 			}
 		}
 		$spot = $spot->next();
-		return undef unless $spot;
+		return unless $spot;
 		_store($col,$spot);
 		$col->clean();
 		$HS = $spot;
@@ -166,9 +166,9 @@ sub hint_getall {
 	my $col = Collection->get($id);
 	$l->debug("get last collected");
 	my $last = $col->last();
-	return undef unless ($last);
+	return unless ($last);
 	my $spot = $col->fetch($last)->create_spot();
-	return undef unless $spot;
+	return unless $spot;
 	$spot->mount();
 	while ($spot = $spot->next()) {
 		return unless _store($col,$spot);
@@ -217,14 +217,14 @@ sub hint_export {
 #stores the element of the spot into the collection
 sub _store {
 	my ($col,$spot) = @_;
-	return undef unless $spot and $spot->mount();
+	return unless $spot and $spot->mount();
 	my $blob = $spot->fetch();
 	my $elem = $spot->element();
 	if ($elem) {
 		return $col->store($elem,$blob) if $elem;
 		return 1;
 	}
-	return undef;
+	return;
 }
 
 

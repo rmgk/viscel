@@ -61,7 +61,7 @@ sub about {
 	my ($id) = @_;
 	$l->trace("about $id");
 	my $remote = new($id);
-	return undef unless $remote;
+	return unless $remote;
 	$remote->about();
 }
 
@@ -71,7 +71,7 @@ sub name {
 	my ($id) = @_;
 	$l->trace("request name of $id");
 	my $remote = new($id);
-	return undef unless $remote;
+	return unless $remote;
 	return $remote->name();
 }
 
@@ -81,8 +81,8 @@ sub first {
 	my ($id) = @_;
 	$l->trace("request first of $id");
 	my $remote = new($id);
-	return undef unless $remote;
-	$remote->fetch_info() or return undef;
+	return unless $remote;
+	$remote->fetch_info() or return;
 	return $remote->first();
 }
 
@@ -95,7 +95,7 @@ sub new {
 	$core = "Core::$core";
 	unless ( $cores{$core} ) {
 		$l->error("$core is not initialised");
-		return undef;
+		return;
 	}
 	return $core->new($id);
 }

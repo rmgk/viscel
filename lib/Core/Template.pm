@@ -77,7 +77,7 @@ sub update_list {
 	($list,$state) = $pkg->_create_list($state);
 	$pkg->clist($list);
 	$l->debug('now has ' .  scalar($pkg->clist()) . ' collections');
-	return undef unless $pkg->save_clist();
+	return unless $pkg->save_clist();
 	return $state;
 }
 
@@ -137,7 +137,7 @@ sub new {
 	my $self = bless {id => $id}, $class;
 	unless (keys %{$self->clist()}) {
 		$l->error("unknown id ", $id);
-		return undef;
+		return;
 	}
 	return $self;
 }
@@ -156,7 +156,7 @@ sub fetch_info {
 	my ($s,$force) = @_;
 	return 1 if $s->clist()->{moreinfo} and !$force;
 	$l->trace('fetching more info for ', $s->{id});
-	eval { $s->_fetch_info() } or return undef if $s->can('_fetch_info');
+	eval { $s->_fetch_info() } or return if $s->can('_fetch_info');
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();
 }
@@ -205,9 +205,9 @@ sub mount {
 	$s->{page_url} = $s->{state};
 	$l->trace('mount ' . $s->{id} .' '. $s->{page_url});
 	my $tree = DlUtil::get_tree($s->{page_url});
-	return undef unless $tree;
+	return unless $tree;
 	my $ret = eval { $s->_mount_parse($$tree) };
-	return undef unless $ret;
+	return unless $ret;
 	#$tree->delete();
 	$l->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next)); #/padre display bug	
 	$s->{fail} = undef if $ret;
@@ -227,7 +227,7 @@ sub fetch {
 	my ($s) = @_;
 	if ($s->{fail}) {
 		$l->error('fail is set: ' . $s->{fail});
-		return undef;
+		return;
 	}
 	$l->trace('fetch object');
 
@@ -235,7 +235,7 @@ sub fetch {
 	if (!$file->is_success() or !$file->header('Content-Length')) {
 		$l->error('error get ' . $s->{src});
 		$s->{fail} = 'could not fetch object';
-		return undef;
+		return;
 	}
 	my $blob = $file->decoded_content();
 
@@ -251,7 +251,7 @@ sub element {
 	my ($s) = @_;
 	if ($s->{fail}) {
 		$l->error('fail is set: ' . $s->{fail});
-		return undef;
+		return;
 	}
 	my $object = {};
 	$object->{cid} = $s->{id};
@@ -265,11 +265,11 @@ sub next {
 	$l->trace('create next');
 	if ($s->{fail}) {
 		$l->error('fail is set: ' . $s->{fail});
-		return undef;
+		return;
 	}
 	unless ($s->{next}) {
 		$l->error('no next was found');
-		return undef;
+		return;
 	}
 	my $next = {id => $s->{id}, position => $s->{position} + 1, state => $s->{next} };
 	$next = ref($s)->new($next);

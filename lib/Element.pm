@@ -30,7 +30,7 @@ sub new {
 	foreach my $needed (qw(position state cid)) {
 		unless (defined $self->{$needed}) {
 			$l->debug($needed . ' not defined');
-			return undef;
+			return;
 		} 
 	}
 	foreach my $want (keys %attributes) {
@@ -83,7 +83,7 @@ sub differs {
 		next if $a eq 'sha1' or $a eq 'type'; #type and sha1 are not required so may also be not equal 
 		return $a unless $s->{$a} ~~ $other->{$a};
 	}
-	return undef;
+	return;
 }
 
 #-> $html
@@ -125,7 +125,7 @@ sub html {
 			return $html;
 		}
 	}
-	return undef;
+	return;
 }
 
 #accessors:

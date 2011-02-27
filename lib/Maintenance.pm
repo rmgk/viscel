@@ -26,8 +26,8 @@ sub tick {
 		when ('check_collections') { $s->check_collections() or $s->{state} = 'keep_current' }
 		when ('keep_current') { $s->keep_current() or $s->{state} = 'fetch_info' }
 		when ('fetch_info') { $s->fetch_info() or $s->{state} = 'done' }
-		when ('done') { return undef }
-		default { return undef }
+		when ('done') { return }
+		default { return }
 	}
 	UserPrefs::save_file(__PACKAGE__,$s->{cfg});
 	return 1;
@@ -54,7 +54,7 @@ sub update_cores_lists {
 		my @cores_to_check = grep {time - ($c->{$_}||0) > 1209600} Cores::initialised();
 		unless (@cores_to_check) {
 			$l->debug('all core lists up to date');
-			return undef;
+			return;
 		}
 		$core = shift @cores_to_check;
 		$s->{ucore} = $core;
@@ -73,7 +73,7 @@ sub check_collections {
 	my @to_update = grep {(time - ($c->{$_}||0)) > 1209600} Collection->list();
 	unless (@to_update) {
 		$l->debug('consistency check complete');
-		return undef;
+		return;
 	}
 	my $next_check = shift @to_update;
 	$c->{$next_check} = time;
@@ -136,7 +136,7 @@ sub keep_current {
 		unless (@to_update) {
 			$l->debug('selected collections kept current');
 			$s->{istate} = undef;
-			return undef;
+			return;
 		}
 		my $next_update = shift @to_update;
 		Cores::new($next_update)->fetch_info() or return 1;
