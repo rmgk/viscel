@@ -7,7 +7,7 @@ use warnings;
 
 use Time::HiRes;
 use Globals;
-use FileHandle;
+use IO::File;
 
 my $FH;
 
