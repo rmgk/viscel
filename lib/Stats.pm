@@ -7,14 +7,13 @@ use warnings;
 
 use Time::HiRes;
 use Globals;
+use FileHandle;
 
 my $FH;
 
 sub init {
 	open($FH,'>>',Globals::datadir() . 'stats.txt') or die('could not open stats.txt');
-	my $last_sel = select($FH);
-	$|++;
-	select $last_sel;
+	$FH->autoflush(1);
 	return 1;
 }
 
