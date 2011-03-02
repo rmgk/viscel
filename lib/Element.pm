@@ -67,7 +67,7 @@ sub attribute_list_string {
 
 #returns ordered list of attributes
 sub attribute_list_array {
-	return sort keys %attributes;
+	return (sort keys %attributes);
 }
 
 #returns array of attribute values

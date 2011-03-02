@@ -128,7 +128,7 @@ sub front {
 		$html .= link_view($id,'*','last');
 	$html .= cgi->end_div();
 	my $col = Collection->get($id);
-	my $ent = $col->fetch($bm) if $bm;
+	my $ent = $bm ? $col->fetch($bm) : undef;
 	if ($bm and $ent) {
 		$html .= cgi->start_div({-class=>'content'});
 			my $p = $col->fetch($bm-2);
