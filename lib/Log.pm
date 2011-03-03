@@ -1,9 +1,11 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Log v1.1.0;
+package Log v1.2.0;
 
 use 5.012;
 use warnings;
+
+use Globals;
 
 our ($TRACE, $DEBUG, $INFO, $WARN, $ERROR, $FATAL, $SILENT) = 0..6;
 
@@ -18,8 +20,8 @@ sub new {
 	return $self;
 }
 
-#$level, $msg
-#logs $msg if $level is high enough
+#$msg
+#logs $msg 
 sub log {
 	my ($s) = shift;
 	my @call = caller 1;
@@ -30,7 +32,7 @@ sub log {
 	my $d = 1;
 	while(caller(++$d)){}; 
 	say $line,
-		' ' x (3-length($line)), #number of spaces depends on line numer length
+		' ' x (3-length($line)), #number of spaces depends on line number length
 		'-' x ($d-2) , '>', #add call depth indicator
 		$module, 
 		' ' x ((24-$d-length($module))), #uhm well it works for now
