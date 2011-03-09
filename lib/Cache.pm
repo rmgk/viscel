@@ -48,7 +48,7 @@ sub init {
 }
 
 #$sha1,\$blob -> $bool
-#stores the blob true if successful false if not
+#stores the blob; true if successful false if not
 sub put {
 	my ($sha1,$blob) = @_;
 	$l->trace('store ' . $sha1);
