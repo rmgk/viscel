@@ -1,3 +1,7 @@
+sub text_match {
+	my $to_match = shift;
+	return sub {$_[0]->as_text ~~ $to_match};
+};
 Zona => [
 	'The challenges of Zona',
 	'http://www.soulgeek.com/comics/zona/2005/08/01/page-01/',
@@ -317,7 +321,7 @@ PBF => [
 	'The Perry Bible Fellowship',
 	'http://www.pbfcomics.com/?cid=PBF001-Stiff_Breeze.gif',
 	[id => 'topimg'],
-	next => [_tag => 'a', sub {$_[0]->as_text eq 'Newer'}],
+	next => [_tag => 'a', text_match('Newer')],
 ],
 ToyDivision => [
 	'Toy Division',
@@ -367,7 +371,7 @@ TodUndMaedchen => [
 	'Der Tod und das Mädchen 2',
 	'http://www.cartoontomb.de/deutsch/tod2.php?bild=00_01_01.jpg',
 	[src => qr'images/tod/teil2/'],
-	next => [_tag => 'a', sub { $_[0]->as_text() eq 'weiter' }],
+	next => [_tag => 'a', text_match('weiter')],
 ],
 Crowfeathers => [
 	'Crowfeathers',
@@ -1138,7 +1142,7 @@ IrregularWebcomic => [
 	'Irregular Webcomic',
 	'http://www.irregularwebcomic.net/1.html',
 	[src => qr'/comics/irreg\d{4}'],
-	next => [_tag => 'a', sub { $_[0]->as_text() eq '>' }],	
+	next => [_tag => 'a', text_match('>') ],
 ],
 OctopusPie => [
 	'Octopus Pie',
@@ -1244,7 +1248,7 @@ ToSaveHer => [
 	'To Save Her',
 	'http://www.pasteldefender.com/to%20save%20her%20000.html',
 	[src => qr'images/tsh'],
-	next => [_tag => 'font', color => 'DARKSLATEGRAY', sub { $_[0]->as_text =~ qr'forward'i } ],
+	next => [_tag => 'font', color => 'DARKSLATEGRAY', text_match(qr'forward'i) ],
 ],
 CulricsChronicles => [
 	"Culric's Chronicles",
@@ -2161,7 +2165,7 @@ TodUndMaedchen1 => [
 	'Der Tod und das Mädchen 1',
 	'http://tod.cartoontomb.de/deutsch/k01/tod01_01.html',
 	[src => qr'images/tod/teil1/'],
-	next => [_tag => 'a', sub { $_[0]->as_text() eq 'weiter' }],
+	next => [_tag => 'a', text_match('weiter') ],
 ],
 DeathAndMaiden => [
 	'Death and the Maiden 1',
@@ -2314,7 +2318,7 @@ SexyLosers => [
 	'Sexy Losers',
 	'http://sexylosers.com/001.html',
 	[src => qr'comics/'],
-	next => [_tag => 'tr',sub {$_[0]->as_text ~~ qr'^\|<...<<All SL Strips>>...>\|$'}],[_tag => 'font', sub {$_[0]->as_text eq '>>'}],
+	next => [_tag => 'tr',text_match(qr'^\|<...<<All SL Strips>>...>\|$')],[_tag => 'font', text_match('>>')],
 ],
 BlankIt => [
 	'Blank It',
@@ -2460,7 +2464,7 @@ CowbirdsInLove => [
 	'Cowbirds in Love',
 	'http://cowbirdsinlove.com/1',
 	[id => 'comic'],
-	next => [_tag => 'a',sub {$_[0]->as_text ~~ qr'^fresher' }],
+	next => [_tag => 'a',text_match(qr'^fresher') ],
 ],
 WiglafAndMordred => [
 	'Wiglaf & Mordred',
@@ -2609,7 +2613,7 @@ ThePeons => [
 	'The Peons',
 	'http://shanime.com/?m=20070101',
 	[src => qr'peons\d+'],
-	next => [_tag => 'a',sub {$_[0]->as_text ~~ qr'Peons #002 >>|Next' }],
+	next => [_tag => 'a', text_match(qr'Peons #002 >>|Next') ],
 ],
 TakingTheBypass => [
 	'Taking the Bypass',
@@ -2671,7 +2675,7 @@ EvilDiva => [
 	'Evil Diva',
 	'http://www.evildivacomics.com/cover.html',
 	[_tag => 'img'],
-	next => [_tag => 'a',sub {$_[0]->as_text ~~ qr'forward' }],
+	next => [_tag => 'a',text_match(qr'forward') ],
 ],
 OtakuNoYen => [
 	'Otaku no Yen',
@@ -2692,7 +2696,7 @@ SpikysWorld => [
 	'Spiky’s World',
 	'http://www.shd-wk.com/sw/index.php?strip_id=1',
 	[class => 'comic'],
-	next => [_tag => 'a',sub {$_[0]->as_text eq '>' }],
+	next => [_tag => 'a', text_match('>') ],
 ],
 StandardDeviation => [
 	'Standard Deviation',
@@ -2828,7 +2832,7 @@ RhymesWithWitch => [
 	'Rhymes with Witch',
 	'http://www.rhymes-with-witch.com/rww03292004.shtml',
 	[src => qr'images/rww\d+'],
-	next => [href => qr'rww\d{6,8}.shtml', sub { $_[0]->as_text ~~ qr'Next' }],
+	next => [href => qr'rww\d{6,8}.shtml', text_match(qr'Next') ],
 ],
 Subnormality => [
 	'Subnormality',
