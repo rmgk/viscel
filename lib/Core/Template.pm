@@ -156,7 +156,13 @@ sub fetch_info {
 	my ($s,$force) = @_;
 	return 1 if $s->clist()->{moreinfo} and !$force;
 	$l->trace('fetching more info for ', $s->{id});
-	eval { $s->_fetch_info() } or return if $s->can('_fetch_info');
+	if ($s->can('_fetch_info')) {
+		local $@;
+		unless (eval { $s->_fetch_info() }) {
+			$l->error("crash on parse info: " . $@);
+			return;
+		}
+	}
 	$s->clist()->{moreinfo} = 1;
 	return $s->save_clist();
 }
@@ -206,8 +212,12 @@ sub mount {
 	$l->trace('mount ' . $s->{id} .' '. $s->{page_url});
 	my $tree = DlUtil::get_tree($s->{page_url});
 	return unless $tree;
+	local $@;
 	my $ret = eval { $s->_mount_parse($$tree) };
-	return unless $ret;
+	unless ($ret) {
+		$l->error("crash on mount page: " , $@);
+		return;
+	}
 	#$tree->delete();
 	$l->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next)); #/padre display bug	
 	$s->{fail} = undef if $ret;
