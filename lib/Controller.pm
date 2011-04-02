@@ -6,7 +6,6 @@ use 5.012;
 use warnings;
 
 use Log;
-use Stats;
 use Server;
 use Cores;
 use Cache;
@@ -34,7 +33,6 @@ $SIG{'INT'} = $INTS;
 sub init {
 	$l->trace('initialise modules');
 	if (
-		Stats::init() &&
 		UserPrefs::init() &&
 		Cache::init() &&
 		Collection::init(Globals::datadir() . 'collections.db') &&
@@ -52,7 +50,6 @@ sub init {
 
 #starts the program, never returns
 sub start {
-	Stats::add('launch',$Viscel::VERSION->normal());
 	$l->trace('run main loop');
 	my $timeout = 0;
 	$maintainer = Maintenance->new();

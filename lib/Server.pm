@@ -6,7 +6,6 @@ use 5.012;
 use warnings;
 
 use Log;
-use Stats;
 use Config;
 use HTTP::Daemon;
 
@@ -71,8 +70,7 @@ sub _accept_connection {
 	if ((my ($c, $addr) = $d->accept)) {
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
-		Stats::add('connection',$addr_str,$port,Time::HiRes::time - $ls_time);
-		$l->debug("connection from ",$addr_str ,":",$port);
+		$l->debug("connection from ",$addr_str ,":",$port, " after ", Time::HiRes::time - $ls_time);
 		#the timout value should be big enough to let useragent sent multiple request on the same connection
 		#but it should be also small enough that it times out shortly after all request for a given page
 		#are made to allow the controller to do his work
@@ -87,10 +85,8 @@ sub _accept_connection {
 #handles requests on the $connection
 sub _accept_requests {
 	my ($c,$addr) = @_;
-	Stats::add('request','listen');
 	while (my $r = $c->get_request) {
 		_handle_request($c,$r,$addr);
-		Stats::add('request','listen');
 	}
 	$l->trace("no more requests: " . $c->reason);
 }
@@ -100,7 +96,6 @@ sub _accept_requests {
 sub _handle_request {
 	my ($c,$r,$addr) = @_;
 	$l->debug("request: " , $r->method(), ' ', $r->url->as_string());
-	Stats::add('request',$r->url->as_string());
 	if ($r->method() ne 'GET' and $r->method() ne 'HEAD' and $addr ne '127.0.0.1') {
 		$l->warn('non GET request from foreign address send 403');
 		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'You are only allowed to make GET requests'));
