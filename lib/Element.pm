@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Element v1.2.0;
+package Element v1.3.0;
 
 use 5.012;
 use warnings;
@@ -11,10 +11,8 @@ use Log;
 my $l = Log->new();
 my %attributes = ( 	position => 'INTEGER PRIMARY KEY', 
 					state => 'CHAR UNIQUE',
-					#chapter => 'CHAR',
 					sha1 => 'CHAR',
 					type => 'CHAR',
-					#filename => 'CHAR',
 					page_url => 'CHAR',
 					src => 'CHAR',
 					title => 'CHAR',
@@ -29,13 +27,8 @@ sub new {
 	$l->trace('create new element');
 	foreach my $needed (qw(position state cid)) {
 		unless (defined $self->{$needed}) {
-			$l->debug($needed . ' not defined');
+			$l->error($needed . ' not defined');
 			return;
-		} 
-	}
-	foreach my $want (keys %attributes) {
-		unless (exists $self->{$want}) {
-			$l->trace($want . ' does not exist');
 		} 
 	}
 	foreach my $has (keys %$self) {
@@ -80,7 +73,8 @@ sub attribute_values_array {
 sub differs {
 	my ($s,$other) = @_;
 	for my $a (attribute_list_array()) {
-		next if $a eq 'sha1' or $a eq 'type'; #type and sha1 are not required so may also be not equal 
+		next if ($a eq 'sha1' or $a eq 'type')
+				and (!defined $s->{$a} or !defined $other->{$a}); #type and sha1 are not required so may also be not equal 
 		return $a unless $s->{$a} ~~ $other->{$a};
 	}
 	return;
@@ -122,10 +116,8 @@ sub html {
 #accessors:
 sub position { $_[0]->{position}; }
 sub state { $_[0]->{state}; }
-#sub chapter { $_[0]->{chapter}; }
 sub sha1 { $_[0]->{sha1}; }
 sub type { $_[0]->{type}; }
-#sub filename { $_[0]->{filename}; }
 sub page_url { $_[0]->{page_url}; }
 sub cid { $_[0]->{cid}; }
 sub title { $_[0]->{title}; }
