@@ -16,7 +16,7 @@ my $cachedir;
 #initialises the cache
 sub init {
 	$l->trace('initialise cache');
-	$cachedir = Globals::cachedir();
+	$cachedir = shift // Globals::cachedir();
 	
 	unless (-e $cachedir or mkdir $$cachedir) {
 		$l->error('could not create cache dir ' , $cachedir);
