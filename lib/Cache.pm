@@ -1,13 +1,12 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Cache v1.1.0;
+package Cache v1.3.0;
 
 use 5.012;
 use warnings;
 
 use Log;
 
-my $l = Log->new();
 my $DBH;
 my $STH_get;
 my $STH_put;
@@ -15,18 +14,18 @@ my $cachedir;
 
 #initialises the cache
 sub init {
-	$l->trace('initialise cache');
+	Log->trace('initialise cache');
 	$cachedir = shift // Globals::cachedir();
 	
 	unless (-e $cachedir or mkdir $$cachedir) {
-		$l->error('could not create cache dir ' , $cachedir);
+		Log->error('could not create cache dir ' , $cachedir);
 		return;
 	}
 	
 	for my $a ('0'..'9','a'..'f') { for my $b ('0'..'9','a'..'f') { 
 		my $dir = $cachedir.$a.$b.'/';
 		unless (-e $dir or mkdir $dir) {
-			$l->error('could not create storage dir ' .$dir);
+			Log->error('could not create storage dir ' .$dir);
 			return;
 		}
 	}}
@@ -35,7 +34,7 @@ sub init {
 	return unless $DBH;
 	unless ($DBH->selectrow_array("SELECT name FROM sqlite_master WHERE type='table' AND name=?",undef,"type")) {
 		unless($DBH->do('CREATE TABLE type (sha1 CHAR UNIQUE, value)')) {
-			$l->error('could not create table type');
+			Log->error('could not create table type');
 			return;
 		}
 		$DBH->commit();
@@ -51,11 +50,11 @@ sub init {
 #stores the blob; true if successful false if not
 sub put {
 	my ($sha1,$blob) = @_;
-	$l->trace('store ' . $sha1);
+	Log->trace('store ' . $sha1);
 	substr($sha1,2,0) = '/';
 	my $fh;
 	unless (open $fh, '>', $cachedir.$sha1) {
-		$l->error("could not open $main::DIRCACHE$sha1 for write");
+		Log->error("could not open $main::DIRCACHE$sha1 for write");
 		return;
 	}
 	binmode $fh;
@@ -68,15 +67,15 @@ sub put {
 #retrieves the $blob for $sha
 sub get {
 	my ($sha1) = @_;
-	if (!$sha1 or length($sha1) != 40) {
-		$l->error('incorrect sha1 value');
+	if (!defined $sha1 or $sha1 !~ m/^[\da-f]{40}$/) {
+		Log->error('incorrect sha1 value');
 		return;
 	}
-	$l->trace('retrieve ' , $sha1);
+	Log->trace('retrieve ' , $sha1);
 	substr($sha1,2,0) = '/';
 	my $fh;
 	unless (open $fh, '<', $cachedir.$sha1) {
-		$l->error("could not open $main::DIRCACHE$sha1 for read");
+		Log->error("could not open $main::DIRCACHE$sha1 for read");
 		return;
 	}
 	binmode $fh;
@@ -89,7 +88,7 @@ sub get {
 #$sha1 -> %stats
 sub stat {
 	my ($sha1,$type) = @_;
-	$l->trace('stats ' , $sha1);
+	Log->trace('stats ' , $sha1);
 	if ($type) {
 		$STH_put->execute($sha1,$type);
 		$DBH->commit();
