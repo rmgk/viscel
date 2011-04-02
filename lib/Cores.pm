@@ -1,12 +1,11 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Cores v1.1.0;
+package Cores v1.3.0;
 
 use 5.012;
 use warnings;
 
 use Core::AnyManga;
-use Core::Comcol;
 use Core::ComicGenesis;
 use Core::Fakku;
 use Core::Animea;
@@ -17,9 +16,8 @@ use Core::KatBox;
 use Core::Mangafox;
 use Log;
 
-my $l = Log->new();
+
 my %cores = (	'Core::AnyManga' => 0,
-				#'Core::Comcol' => 0,
 				'Core::ComicGenesis' => 0,
 				'Core::Fakku' => 0,
 				'Core::Animea' => 0,
@@ -34,7 +32,7 @@ my %cores = (	'Core::AnyManga' => 0,
 sub init {
 	my @cores = @_;
 	@cores = keys %cores unless @cores;
-	$l->trace('initialise cores: ' . join(', ',@cores));
+	Log->trace('initialise cores: ' . join(', ',@cores));
 	$cores{$_} = $_->init() for grep { exists $cores{$_} and !$cores{$_}} @cores;
 	return 1;
 }
@@ -43,7 +41,7 @@ sub init {
 #returns the list of available cores
 sub list {
 	return exists $cores{$_[0]} if $_[0];
-	$l->trace('core list requested');
+	Log->trace('core list requested');
 	return keys %cores;
 }
 
@@ -59,7 +57,7 @@ sub initialised {
 #returns a list (hash) of infos about the given id
 sub about {
 	my ($id) = @_;
-	$l->trace("about $id");
+	Log->trace("about $id");
 	my $remote = new($id);
 	return unless $remote;
 	$remote->about();
@@ -69,7 +67,7 @@ sub about {
 #returns the name of the given id
 sub name {
 	my ($id) = @_;
-	$l->trace("request name of $id");
+	Log->trace("request name of $id");
 	my $remote = new($id);
 	return unless $remote;
 	return $remote->name();
@@ -79,7 +77,7 @@ sub name {
 #returns the first spot of the given id
 sub first {
 	my ($id) = @_;
-	$l->trace("request first of $id");
+	Log->trace("request first of $id");
 	my $remote = new($id);
 	return unless $remote;
 	$remote->fetch_info() or return;
@@ -94,7 +92,7 @@ sub new {
 	$core =~ s/_.*$//;
 	$core = "Core::$core";
 	unless ( $cores{$core} ) {
-		$l->error("$core is not initialised");
+		Log->error("$core is not initialised");
 		return;
 	}
 	return $core->new($id);
@@ -102,7 +100,7 @@ sub new {
 
 #$query -> %collections 
 sub search {
-	$l->debug('search for ',join ' ',@_);
+	Log->debug('search for ',join ' ',@_);
 	my @cores;
 	my @filter;
 	while (defined $_[0] and $_[0] =~ m/^(.*):$/) {
