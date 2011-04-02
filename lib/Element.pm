@@ -87,26 +87,22 @@ sub html {
 	if (!$s->sha1) {
 		return 'placeholder';
 	}
-	given ($s->type) {
-		when ('application/x-shockwave-flash') {
-			my $html .= embed({	src	=>	"/b/". $s->sha1,
+	my $paramhash = {	src	=>	"/b/". $s->sha1 . "/?type=" . $s->type,
 							    class => 'element',
 								map { $_ => $s->{$_} } grep { defined $s->{$_} } qw<alt title width height>
-							});
+							};
+	
+	given ($s->type) {
+		when ('application/x-shockwave-flash') {
+			my $html .= embed($paramhash);
 			return $html;
 		}
 		when ('application/x-director') {
-			my $html .= embed({	src	=>	"/b/". $s->sha1,
-							    class => 'element',
-								map { $_ => $s->{$_} } grep { defined $s->{$_} } qw<alt title width height>
-							});
+			my $html .= embed($paramhash);
 			return $html;
 		}
 		default {
-			my $html .= img({	src	=>	"/b/". $s->sha1,
-							    class => 'element',
-								map { $_ => $s->{$_} } grep { defined $s->{$_} } qw<alt title width height>
-							});
+			my $html .= img($paramhash);
 			return $html;
 		}
 	}

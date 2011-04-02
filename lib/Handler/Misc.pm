@@ -204,7 +204,8 @@ sub blob {
 		my $blob = Cache::get($sha);
 		if ($blob) {
 			$res->content(${$blob});
-			$res->header('Content-Type'=>$stat{type});
+			my $type = cgi($r->url->query())->param('type');
+			$res->header('Content-Type'=>$type);
 			$res->header('Content-Length'=>$stat{size});
 			$res->header('Last-Modified'=>HTTP::Date::time2str($stat{modified}));
 			$c->send_response($res);
