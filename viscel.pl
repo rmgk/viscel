@@ -17,9 +17,9 @@ my $test;
 my $result = GetOptions (Globals::getoptarray(),"test" => \$test);
 
 if ($test) {
-	my $dirname = $FindBin::Bin . '/t';
+	my $dirname = $FindBin::Bin . '/t/';
 	opendir(my $testdir, $dirname);
-	runtests map { $dirname .'/'. $_ } grep /\.t$/i , readdir $testdir;
+	runtests map { $dirname . $_ } grep /\.t$/i , readdir $testdir;
 
 }
 else {
