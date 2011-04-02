@@ -100,7 +100,6 @@ sub store {
 		return;
 	}
 	if (defined $blob) {
-		Cache::stat($ent->sha1,$ent->type);
 		return Cache::put($ent->sha1,$blob);
 	}
 	return 1;
