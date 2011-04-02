@@ -2680,7 +2680,7 @@ EvilDiva => [
 OtakuNoYen => [
 	'Otaku no Yen',
 	'http://www.otakunoyen.com/ony/view.php?date=2005-03-01',
-	[src => qr'comics/\d+'],
+	[src => qr'^comics/'],
 ],
 ErrantStory => [
 	'Errant Story',
