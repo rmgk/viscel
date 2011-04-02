@@ -8,6 +8,7 @@ use warnings;
 use Log;
 use Config;
 use HTTP::Daemon;
+use Time::HiRes;
 
 my $d;
 my $l = Log->new();
@@ -55,7 +56,7 @@ sub accept {
 	return unless _accept_connection($timeout,0.1); #connection timed out
 	my $t = Time::HiRes::time;
 	while (Time::HiRes::time - $t < $timespan) {
-		_accept_connection($timespan - Time::HiRes::time + $t,0.1) 
+		_accept_connection($timespan - Time::HiRes::time + $t,0.1);
 	}
 	return 1;
 }
