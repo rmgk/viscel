@@ -37,7 +37,7 @@ sub init {
 		Stats::init() &&
 		UserPrefs::init() &&
 		Cache::init() &&
-		Collection::init() &&
+		Collection::init(Globals::datadir() . 'collections.db') &&
 		Server::init() &&
 		Handler::init() &&
 		Handler::Misc::init() &&
