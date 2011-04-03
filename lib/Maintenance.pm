@@ -14,7 +14,7 @@ sub new {
 	my ($class,$self) = @_;
 	$self = {state => 'update_cores'};
 	bless $self, $class;
-	$self->{cfg} = UserPrefs::parse_file(__PACKAGE__);
+	$self->{cfg} = ConfigINI::parse_file(Globals::datadir,$class);
 	return $self;
 }
 
@@ -29,7 +29,7 @@ sub tick {
 		when ('done') { return }
 		default { return }
 	}
-	UserPrefs::save_file(__PACKAGE__,$s->{cfg});
+	ConfigINI::save_file(Globals::datadir,ref($s),$s->{cfg});
 	return 1;
 }
 
