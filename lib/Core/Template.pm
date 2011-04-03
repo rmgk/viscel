@@ -14,6 +14,7 @@ use HTML::TreeBuilder;
 use Digest::SHA;
 use Data::Dumper;
 use Time::HiRes qw(tv_interval gettimeofday);
+use Spot::Template;
 
 #the somewhat shady container for all the collections data
 sub clist {
@@ -188,7 +189,8 @@ sub first {
 #creates a new spot of $id at in state $state
 sub create {
 	my ($s,$pos,$state) = @_;
-	my $class = ref($s) . '::Spot';
+	my $class = ref($s);
+	$class =~ s/Core/Spot/;
 	my $spot = {id => $s->{id}, position => $pos, state => $state};
 	Log->debug('create new spot ' , $class, ' id: ', $s->{id}, ,' position: ', $pos);
 	$class->new($spot);
