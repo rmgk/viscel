@@ -60,18 +60,21 @@ sub _load_list {
 	return 1;
 }
 
-#$state -> $next_state
-#updates and saves the collection list
-#as loading lists can take a long time
-#this method returns a next state to split list generating
-sub update_list {
-	my ($pkg,$state) = @_;
-	my $list;
-	($list,$state) = $pkg->_create_list($state);
-	$pkg->clist($list);
-	Log->debug($pkg . ' now has ' .  scalar($pkg->clist()) . ' collections');
-	return unless $pkg->save_clist();
-	return $state;
+#$accumulator -> (-> $list)
+#returns a function returns undef until it has accumulated
+#the whole list of remotes in $accumulator
+#this function dies if something goes wrong with the
+#parsing or the network
+sub fetch_list {
+	my ($pkg, $accumulator) = @_;
+	$accumulator //= {};
+	my $state;
+	return sub {
+		my $list;
+		($list,$state) = $pkg->_create_list($state);
+		$accumulator->{$_} = $list->{$_} for keys %$list;
+		return $state ? () : $accumulator;
+	};
 }
 
 #->%collection_hash
