@@ -15,6 +15,7 @@ use Handler::Misc;
 use UserPrefs;
 use Maintenance;
 use Data::Dumper;
+use Try::Tiny;
 
 my $HS; #hint state, chaches the current read spot
 my $maintainer;
@@ -114,11 +115,13 @@ sub hint_front {
 		Log->trace('unknown collection ', $id);
 		return;
 	}
-	if ($remote->want_info) {
+	if ($remote->want_info()) {
 		try {
-			$remote->clist($remote->fetch_info());
-		}
-		catch {
+			my $list = $remote->fetch_info();
+			say $list;
+			$remote->clist($list);
+			1;
+		} catch {
 			die "there was an unhandled error, please fix!\n" . Dumper $_;
 		};
 	}
@@ -223,8 +226,15 @@ sub hint_export {
 sub _store {
 	my ($col,$spot) = @_;
 	return unless $spot and $spot->mount();
-	my $blob = $spot->fetch();
-	my $elem = $spot->element();
+	my $blob;
+	my $elem;
+	try {
+		$blob = $spot->fetch();
+		$elem = $spot->element();
+	} catch {
+		die "there was an unhandled error, please fix!\n" . Dumper $_;
+	};
+	
 	if ($elem) {
 		return $col->store($elem,$blob) if $elem;
 		return 1;
