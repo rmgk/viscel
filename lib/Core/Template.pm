@@ -21,7 +21,7 @@ sub clist {
 		$pkg = ref $pkg;	
 	} 
 	if (ref $id) {
-		$$pkg{$_} = $$id{$_} for keys %$id; 
+		%$pkg = %$id;
 	}
 	elsif (defined $id) {
 		#return the reference to the collection
