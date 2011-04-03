@@ -53,13 +53,13 @@ sub get_tree {
 	my $page = get($url);
 	if (!$page->is_success() or !$page->header('Content-Length')) {
 		Log->error("error get: ", $url);
-		return wantarray ? (undef, $page): undef;
+		die ['get page', $page->code(), $page];
 	}
 	Log->trace('parse HTML into tree');
 	my $tree = HTML::TreeBuilder->new();
 	my $content = $page->decoded_content();
-	return unless $content;
-	return unless $tree->parse_content($content);
+	die ['decode page', $page] unless $content;
+	die ['generate tree', $page] unless $tree->parse_content($content);
 	return wantarray ? (TreeKeeper->new($tree), $page): TreeKeeper->new($tree);
 }
 
