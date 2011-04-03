@@ -74,7 +74,7 @@ sub update_list {
 	my $list;
 	($list,$state) = $pkg->_create_list($state);
 	$pkg->clist($list);
-	Log->debug('now has ' .  scalar($pkg->clist()) . ' collections');
+	Log->debug($pkg . ' now has ' .  scalar($pkg->clist()) . ' collections');
 	return unless $pkg->save_clist();
 	return $state;
 }
@@ -160,8 +160,8 @@ sub about {
 sub fetch_info {
 	my ($s,$force) = @_;
 	return 1 if $s->clist()->{moreinfo} and !$force;
-	Log->trace('fetching more info for ', $s->{id});
 	if ($s->can('_fetch_info')) {
+		Log->trace('fetching more info for ', $s->{id});
 		local $@;
 		unless (eval { $s->_fetch_info() }) {
 			Log->error("crash on parse info: " . $@);

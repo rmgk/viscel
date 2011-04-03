@@ -76,3 +76,5 @@ sub _find {
 	}
 	return [];
 }
+
+1;
