@@ -1936,7 +1936,7 @@ xkcd => [
 LeastICouldDo => [
 	'Least I Could Do',
 	'http://leasticoulddo.com/comic/20030210',
-	[id => comic],
+	[id => 'comic'],
 	next => [id => 'nav-next'],
 ],
 Nichtlustig => [
@@ -1948,7 +1948,7 @@ Nichtlustig => [
 AOIHouse => [
 	'AOI House',
 	'http://www.gomanga.com/webmanga/index.php?series=aoi&page=1',
-	[id => page],
+	[id => 'page'],
 ],
 Sinfest => [
 	'Sinfest',
@@ -1958,7 +1958,7 @@ Sinfest => [
 LookingForGroup => [
 	'Looking For Group',
 	'http://www.lfgcomic.com/page/1',
-	[id => comic],
+	[id => 'comic'],
 ],
 ForTheWicked => [
 	'No Rest For The Wicked',
@@ -1973,7 +1973,7 @@ MenageA3 => [
 QuestionableContent => [
 	'Questionable Content',
 	'http://www.questionablecontent.net/view.php?comic=1',
-	[id => strip],
+	[id => 'strip'],
 ],
 Flipside => [
 	'Flipside',
@@ -2038,7 +2038,7 @@ Exiern => [
 CAD => [
 	'CTRL+ALT+DEL',
 	'http://www.cad-comic.com/cad/20021023',
-	[id => content], [src => qr'comics/'],
+	[id => 'content'], [src => qr'comics/'],
 ],
 Kawaiinot => [
 	'Kawaii Not',
