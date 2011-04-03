@@ -80,7 +80,7 @@ sub first {
 	Log->trace("request first of $id");
 	my $remote = new($id);
 	return unless $remote;
-	$remote->fetch_info() or return;
+	$remote->fetch_info() if $remote->want_info();
 	return $remote->first();
 }
 
