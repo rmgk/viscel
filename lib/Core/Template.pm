@@ -14,9 +14,10 @@ use Spot::Template;
 
 #the somewhat shady container for all the collections data
 sub clist {
-	my ($pkg,$id) = @_;
+	my ($pkg,$id,$replace) = @_;
 	no strict 'refs';
 	if (ref $pkg) {
+		$replace = $id;
 		$id = $pkg->{id};
 		$pkg = ref $pkg;	
 	} 
@@ -24,6 +25,9 @@ sub clist {
 		%$pkg = %$id;
 	}
 	elsif (defined $id) {
+		if (ref $replace) {
+			$$pkg{$id} = $replace;
+		}
 		#return the reference to the collection
 		return $$pkg{$id} ||= {};
 	}
@@ -154,7 +158,7 @@ sub about {
 	return ['Name',$s->clist->{name}], map {[$_, $s->clist()->{$_}]} grep {$_ eq ucfirst $_} keys %{$s->clist()};
 }
 
-sub want_more_info {
+sub want_info {
 	my ($s) = @_;
 	return (!$s->clist()->{moreinfo}) and $s->can('_fetch_info')
 }
@@ -166,7 +170,8 @@ sub fetch_info {
 	Log->trace('fetching more info for ', $s->{id});
 	if ($s->can('_fetch_info')) {
 		my $info = $s->_fetch_info({%{$s->clist()}});
-		return $info->{moreinfo} = 1;
+		$info->{moreinfo} = 1;
+		return $info;
 	}
 }
 

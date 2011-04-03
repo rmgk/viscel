@@ -14,6 +14,7 @@ use Handler;
 use Handler::Misc;
 use UserPrefs;
 use Maintenance;
+use Data::Dumper;
 
 my $HS; #hint state, chaches the current read spot
 my $maintainer;
@@ -53,7 +54,7 @@ sub start {
 	my $timeout = 0;
 	$maintainer = Maintenance->new();
 	while (!$TERM) {
-		Core::Universal->update_list() if Globals::updateuniversal();
+		Core::Universal->_load_list() if Globals::updateuniversal();
 		$SIG{'INT'} = $INTF;
 		if (Server::accept($timeout,0.5)) { #some connection was accepted
 			$SIG{'INT'} = $INTS;
@@ -61,16 +62,16 @@ sub start {
 			$timeout = 60; #resetting timeout
 			$maintainer->reset();
 		}
-		else {
-			$SIG{'INT'} = $INTS;
-			if ($maintainer->tick()) {
-				$timeout = 0; #instant timeout to get some work done
-			}
-			else {
-				$maintainer = Maintenance->new();
-				$timeout = 3600; #one hour timeout
-			}
-		}
+		#else {
+		#	$SIG{'INT'} = $INTS;
+		#	if ($maintainer->tick()) {
+		#		$timeout = 0; #instant timeout to get some work done
+		#	}
+		#	else {
+		#		$maintainer = Maintenance->new();
+		#		$timeout = 3600; #one hour timeout
+		#	}
+		#}
 	}
 }
 
@@ -93,10 +94,10 @@ sub handle_hints {
 			given (shift @$hint) {
 				when ('front') {hint_front(@$hint)}
 				when ('view') {hint_view(@$hint)}
-				when ('getall') {hint_getall(@$hint)}
+				#when ('getall') {hint_getall(@$hint)}
 				when ('config') {$maintainer = Maintenance->new()} #config changed, maintain anew
-				when ('export') {hint_export(@$hint)}
-				when ('check') { until (Maintenance::check_collection(@$hint)) {} }
+				#when ('export') {hint_export(@$hint)}
+				#when ('check') { until (Maintenance::check_collection(@$hint)) {} }
 				default {Log->warn("unknown hint $_")}
 			}
 		}
@@ -113,7 +114,14 @@ sub hint_front {
 		Log->trace('unknown collection ', $id);
 		return;
 	}
-	$remote->fetch_info() or return;
+	if ($remote->want_info) {
+		try {
+			$remote->clist($remote->fetch_info());
+		}
+		catch {
+			die "there was an unhandled error, please fix!\n" . Dumper $_;
+		};
+	}
 	my $col = Collection->get($id);
 	return if $col->fetch(1);
 	my $spot = Cores::first($id);
