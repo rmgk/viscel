@@ -131,7 +131,7 @@ sub search {
 			next col;
 		}
 		#we have a matched
-		push @return, [$id,$l->{name},$cap{$id}//$l->{name}]; #/ padre display bug
+		push @return, [$id,$l->{name},$cap{$id}//$l->{name}];
 	}
 	Log->trace('took ', tv_interval($time), ' seconds');
 	return @return;
