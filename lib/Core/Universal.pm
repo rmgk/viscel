@@ -16,7 +16,7 @@ sub save_clist { return 1}
 sub _load_list {
 	my ($pkg) = @_;
 	$pkg->clist($pkg->fetch_list()->());
-	Log->debug($pkg . ' loaded ' . scalar($pkg->clist()) . ' collections');
+	Log->info($pkg . ' loaded ' . scalar($pkg->clist()) . ' collections');
 	return 1;
 }
 
