@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Controller v1.1.0;
+package Controller v1.3.0;
 
 use 5.012;
 use warnings;
@@ -15,8 +15,7 @@ use Handler::Misc;
 use UserPrefs;
 use Maintenance;
 
-my $l = Log->new();
-my $HS; #hint state, chaches the current read spot for efficency
+my $HS; #hint state, chaches the current read spot
 my $maintainer;
 my @hint;
 
@@ -31,7 +30,7 @@ $SIG{'INT'} = $INTS;
 
 #initialises the needed modules
 sub init {
-	$l->trace('initialise modules');
+	Log->trace('initialise modules');
 	if (
 		UserPrefs::init(Globals::userdir(),'user') &&
 		Cache::init(Globals::cachedir()) &&
@@ -43,14 +42,14 @@ sub init {
 	) {
 		return 1;
 	}
-	$l->error('failed to initialise modules');
+	Log->error('failed to initialise modules');
 	return;
 }
 
 
 #starts the program, never returns
 sub start {
-	$l->trace('run main loop');
+	Log->trace('run main loop');
 	my $timeout = 0;
 	$maintainer = Maintenance->new();
 	while (!$TERM) {
@@ -87,7 +86,7 @@ sub handle_hints {
 	while(@hint) {
 		my $hint = pop(@hint); #more recent hints are more interesting
 		if (ref $hint eq 'CODE') { #this gives handlers great flexibility for hints
-			$l->trace('run code hint');
+			Log->trace('run code hint');
 			$hint->();
 		}
 		if (ref $hint eq 'ARRAY') {
@@ -98,7 +97,7 @@ sub handle_hints {
 				when ('config') {$maintainer = Maintenance->new()} #config changed, maintain anew
 				when ('export') {hint_export(@$hint)}
 				when ('check') { until (Maintenance::check_collection(@$hint)) {} }
-				default {$l->warn("unknown hint $_")}
+				default {Log->warn("unknown hint $_")}
 			}
 		}
 	}
@@ -108,10 +107,10 @@ sub handle_hints {
 #handles front hints
 sub hint_front {
 	my ($id) = @_;
-	$l->trace('handle front hint '.$id);
+	Log->trace('handle front hint '.$id);
 	my $remote = Cores::new($id);
 	unless ($remote) {
-		$l->trace('unknown collection ', $id);
+		Log->trace('unknown collection ', $id);
 		return;
 	}
 	$remote->fetch_info() or return;
@@ -129,12 +128,12 @@ sub hint_front {
 sub hint_view {
 	my ($id,@pos) = @_;
 	return unless Cores::known($id);
-	$l->trace("handle view hint $id ", join(' ',@pos) );
+	Log->trace("handle view hint $id ", join(' ',@pos) );
 	my $col = Collection->get($id);
 	@pos = sort @pos;
 	for my $pos ($pos[0]..($pos[-1] + $#pos)) {
 		return next if $col->fetch($pos + 1);
-		$l->debug("try to get $id $pos");
+		Log->debug("try to get $id $pos");
 		my $spot = $HS;
 		unless (defined $spot and $spot->id eq $id and $spot->position == $pos) {
 			my $ent = $col->fetch($pos);
@@ -143,7 +142,7 @@ sub hint_view {
 				$spot->mount();
 			}
 			else {
-				$l->debug('could not get spot');
+				Log->debug('could not get spot');
 				return;
 			}
 		}
@@ -160,9 +159,9 @@ sub hint_view {
 #handles getall hints
 sub hint_getall {
 	my ($id) = @_;
-	$l->trace("handle getall hint $id");
+	Log->trace("handle getall hint $id");
 	my $col = Collection->get($id);
-	$l->debug("get last collected");
+	Log->debug("get last collected");
 	my $last = $col->last();
 	return unless ($last);
 	my $spot = $col->fetch($last)->create_spot();
@@ -180,7 +179,7 @@ sub hint_getall {
 #export collection to file
 sub hint_export {
 	my ($id) = @_;
-	$l->debug('exporting ', $id);
+	Log->debug('exporting ', $id);
 	my $col = Collection->get($id);
 	my $last = $col->last();
 	my $dir = $main::EXPORT . $id . '/';
