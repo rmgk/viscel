@@ -70,6 +70,28 @@ sub get {
 	return \$blob;
 }
 
+#$sha1 -> $bool
+#removes $sha1 returns success
+sub remove {
+	my ($sha1) = @_;
+	Log->warn('remove ', $sha1);
+	substr($sha1,2,0) = '/';
+	return unlink $cachedir.$sha1;
+}
+
+#->@all_shas
+#returns a list of all sha1 hashes 
+sub list {
+	my @hashes;
+	for my $a ('0'..'9','a'..'f') { for my $b ('0'..'9','a'..'f') { 
+		my $dir = $cachedir.$a.$b.'/';
+		opendir(my $dh, $dir);
+		push @hashes, map { $a.$b.$_ } grep /^[\da-f]{38}$/, readdir $dh;
+		close $dh;
+	}}
+	return @hashes;
+}
+
 #$sha1 -> %stats
 sub stat {
 	my ($sha1,$type) = @_;
