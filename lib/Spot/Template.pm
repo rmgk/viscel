@@ -35,8 +35,7 @@ sub mount {
 		Log->error("crash on mount page: " , $@);
 		return;
 	}
-	#$tree->delete();
-	Log->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next)); #/padre display bug	
+	Log->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next));
 	$s->{fail} = undef if $ret;
 	return $ret;
 }
@@ -44,7 +43,7 @@ sub mount {
 #not implemented
 sub _mount_parse {
 	Log->fatal('mount parse not implemented');
-	die();
+	die['mount parse not implemented'];
 }
 
 

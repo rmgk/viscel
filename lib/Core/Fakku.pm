@@ -26,7 +26,7 @@ sub _create_list {
 			next;
 		}
 		my $id = 'Fakku_' . $num;
-		$clist{$id} = {url_start => "001:$num" , name => $name}; #url start is start state
+		$clist{$id} = {start => "001:$num" , name => $name}; #url start is start state
 		$clist{$id}->{Series} = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'div',class => 'item2')->as_trimmed_text(extra_chars => '\xA0');
 		my $trans_link = $main->look_down('_tag'=> 'div', 'class' => 'manga_row2')->look_down('_tag' => 'span',class => 'english')->look_down(_tag => 'a');
 		$clist{$id}->{Scanlator} = $trans_link->as_trimmed_text(extra_chars => '\xA0') if $trans_link;

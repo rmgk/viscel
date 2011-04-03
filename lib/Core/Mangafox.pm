@@ -34,7 +34,7 @@ sub _create_list {
 		$href = URI->new_abs($href,$url)->as_string;
 		$id =~ s/\W/_/g;
 		$id = 'Mangafox_' . $id;
-		$clist{$id} = {url_info => $href, name => $name }; #url_start => $href . 'v01/c001/'};
+		$clist{$id} = {url_info => $href, name => $name }; #start => $href . 'v01/c001/'};
 		$clist{$id}->{Status} = ($status eq 'manga_close') ? 'complete' : 'ongoing';
 		$clist{$id}->{Chapter} = $chapters;
 		$clist{$id}->{Rating} = $rating;
@@ -66,12 +66,12 @@ sub _fetch_info {
 	my $tree = DlUtil::get_tree($url) or return;
 	my @chapter = $$tree->look_down(_tag=>'a',class=>'chico');
 	if (@chapter) {
-		my $url_start = $chapter[-1]->attr('href');
-		$s->clist()->{url_start} = URI->new_abs($url_start,$url)->as_string;
+		my $start = $chapter[-1]->attr('href');
+		$s->clist()->{start} = URI->new_abs($start,$url)->as_string;
 	}
 	else {
 		Log->warn($s->{id} . ' is no longer available');
-		$s->clist()->{url_start} = undef;
+		$s->clist()->{start} = undef;
 		$s->clist()->{Status} = 'down';
 	}
 	

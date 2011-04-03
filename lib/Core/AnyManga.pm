@@ -32,7 +32,7 @@ sub _create_list {
 				}
 				next;
 			}
-			$mangalist{$id} = {url_start => $href . '001/001/', url_info => $href, name => $name};
+			$mangalist{$id} = {start => $href . '001/001/', url_info => $href, name => $name};
 			$mangalist{$id}->{Status} = $item->look_down('_tag' => 'span', title => 'Manga Complete') ? 'complete' : 'ongoing' ;
 			$mangalist{$id}->{Artist} = join '', grep {!ref($_)} $item->look_down('_tag'=> 'span', 'style' => qr/bolder/)->content_list();
 			$mangalist{$id}->{Artist} =~ s/^\s*by\s*//;

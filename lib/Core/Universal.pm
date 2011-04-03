@@ -32,7 +32,7 @@ sub _create_list {
 	for my $id (keys %raw_list) {
 		my @l = @{$raw_list{$id}};
 		$list{'Universal_'.$id} = {name => shift @l,
-								url_start => shift @l };
+								start => shift @l };
 		my @criteria;
 		push(@criteria,shift @l) while ref $l[0];
 		$list{'Universal_'.$id}->{criteria} = \@criteria;

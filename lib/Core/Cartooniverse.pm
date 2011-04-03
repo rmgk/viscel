@@ -26,7 +26,7 @@ sub _create_list {
 			}
 			$id =~ s/\W/_/g;
 			$id = 'Cartooniverse_' . $id;
-			$clist{$id} = {url_start => $href. '1/0/', name => $name, url_info=>$href};
+			$clist{$id} = {start => $href. '1/0/', name => $name, url_info=>$href};
 		}
 	}
 	#$tree->delete();
@@ -68,7 +68,7 @@ sub _fetch_info {
 	}
 	
 	my @chaplist = $postcontent[-1]->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'tr');
-	$s->clist()->{url_start} = $chaplist[-1]->look_down(_tag=>'td')->look_down(_tag=>'a')->attr('href');
+	$s->clist()->{start} = $chaplist[-1]->look_down(_tag=>'td')->look_down(_tag=>'a')->attr('href');
 	#$tree->delete();
 	return 1;
 }

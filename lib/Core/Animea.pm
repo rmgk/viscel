@@ -69,8 +69,8 @@ sub _fetch_info {
 	my @table = $chapterslist->content_list();
 	my $a = $table[-2]->look_down(_tag=>'a');
 	if ($a) {
-		$s->clist()->{url_start} = $a->attr('href');
-		$s->clist()->{url_start} =~ s/\.html$/-page-1\.html/;
+		$s->clist()->{start} = $a->attr('href');
+		$s->clist()->{start} =~ s/\.html$/-page-1\.html/;
 	}
 	else {
 		Log->warn("animea no longer makes this collection available");

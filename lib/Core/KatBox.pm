@@ -25,7 +25,7 @@ sub _create_list {
 		}
 		$id =~ s/\W/_/g;
 		$id = 'KatBox_' . $id;
-		$clist{$id} = {url_start => $href.'index.php?strip_id=1', name => $name};
+		$clist{$id} = {start => $href.'index.php?strip_id=1', name => $name};
 		
 	}
 	#$tree->delete();

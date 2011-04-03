@@ -41,7 +41,7 @@ sub save_clist {
 	return ConfigINI::save_file(Globals::datadir,$pkg,\%$pkg);
 }
 
-#initialises the core and loads collection list
+#initialises the core and loads the collection list
 sub init {
 	my ($pkg) = @_;
 	Log->trace('initialise ',$pkg);
@@ -58,7 +58,6 @@ sub _load_list {
 		return 1;
 	}
 	return 1;
-	#return $pkg->update_list();
 }
 
 #$state -> $next_state
@@ -178,7 +177,7 @@ sub name {
 sub first {
 	my ($s) = @_;
 	Log->trace('creat first ',$s->{id});
-	return $s->create(1,$s->clist()->{url_start});
+	return $s->create(1,$s->clist()->{start});
 }
 
 #$class, $position, $state -> \%self

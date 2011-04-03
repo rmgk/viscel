@@ -56,7 +56,7 @@ sub _fetch_info {
 		if ($fs) {
 			#we are at the last page and can finally find the first page
 			my $a = $fs->look_down(_tag=>'a');
-			$s->clist()->{url_start} = $a->attr('href');
+			$s->clist()->{start} = $a->attr('href');
 			$url = undef;
 		}
 		else {
