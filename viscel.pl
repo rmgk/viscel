@@ -14,16 +14,33 @@ use Globals;
 use Controller;
 
 my $test;
-my $result = GetOptions (Globals::getoptarray(),"test" => \$test);
+my $purge;
+my $result = GetOptions (Globals::getoptarray(),"test" => \$test, 'purge=s' => \$purge);
 
-if ($test) {
+if ($purge) {
+	if (Controller::init()) {
+		given($purge) {
+			when('collections') {
+				Controller::trim_collections();
+			}
+			when('cache') {
+				Controller::trim_cache();
+			}
+			default {
+				Controller::trim_collections(1);
+				Controller::trim_cache(1);
+				Log->info('this was a dry run');
+			}
+		}
+	}
+}
+elsif ($test) {
 	my $dirname = $FindBin::Bin . '/t/';
 	opendir(my $testdir, $dirname);
 	runtests map { $dirname . $_ } grep /\.t$/i , readdir $testdir;
 
 }
 else {
-	
 	unless (Controller::init()) {
 		Log->fatal('could not initialise controller');
 		die;
