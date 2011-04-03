@@ -44,7 +44,7 @@ sub save_clist {
 	$pkg = ref($pkg) || $pkg;
 	$l->trace("save clist ", $pkg);
 	no strict 'refs';
-	return UserPrefs::save_file($pkg,\%$pkg);
+	return ConfigINI::save_file(Globals::cachedir,$pkg,\%$pkg);
 }
 
 #initialises the core and loads collection list
@@ -58,7 +58,7 @@ sub init {
 #tries to load the collection list from file, creates it if it cant be found
 sub _load_list {
 	my ($pkg) = @_;
-	$pkg->clist(UserPrefs::parse_file($pkg));
+	$pkg->clist(ConfigINI::parse_file(Globals::cachedir,$pkg));
 	if ($pkg->clist()) {
 		$l->debug('loaded ' . scalar($pkg->clist()) . ' collections');
 		return 1;
