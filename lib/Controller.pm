@@ -224,5 +224,48 @@ sub _store {
 	return;
 }
 
+#trims the collections
+sub trim_collections {
+	my $dry = shift;
+	my %bm;
+	$bm{$_} = 1 for UserPrefs->section('bookmark')->list();
+	Log->info('has ', 0+keys %bm , ' bookmarks');
+	my @collections = Collection->list();
+	Log->info('has ' . (0+@collections) . ' collections');
+	my @to_purge = grep {! exists $bm{$_} } @collections;
+	Log->info('purge ' , 0+@to_purge , ' collections');
+	unless ($dry) {
+		Collection->get($_)->purge() for @to_purge;
+	}
+}
+
+#trims the cache
+sub trim_cache {
+	my $dry = shift;
+	my @collections = Collection->list();
+	Log->info('has ' . (0+@collections) . ' collections');
+	my %hashes;
+	foreach my $id (@collections) {
+		my $col = Collection->get($id);
+		my $last = $col->last();
+		Log->info($id , ' has ', $last, ' elements');
+		for my $i (1..$last) {
+			my $elem = $col->fetch($i);
+			unless ($elem) {
+				Log->warn($id, ' is missing position ', $i);
+				next;
+			}
+			$hashes{$elem->sha1} = 1;
+		}
+	}
+	Log->info('found ' , 0+keys %hashes, ' hashes');
+	my @inCache = Cache::list();
+	Log->info('Cache has ' , 0+@inCache, ' elemenst');
+	my @toRemove = grep { ! exists $hashes{$_} } @inCache;
+	Log->info('remove ' , 0+@toRemove , ' elements');
+	if(!$dry) {
+		Cache::remove($_) for @toRemove;
+	}
+}
 
 1;
