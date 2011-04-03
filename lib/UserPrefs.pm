@@ -17,8 +17,8 @@ my $default_file;
 #initialises the preferences
 sub init {
 	$l->trace('initialise config');
-	$dir = Globals::datadir();
-	$default_file = Globals::userprefsfile();
+	$dir = shift // Globals::userdir();
+	$default_file = shift // 'user';
 	unless (-e $dir or mkdir $dir) {
 		$l->error('could not create cache dir ' , $dir);
 		return;

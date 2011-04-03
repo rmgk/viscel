@@ -33,8 +33,8 @@ $SIG{'INT'} = $INTS;
 sub init {
 	$l->trace('initialise modules');
 	if (
-		UserPrefs::init() &&
-		Cache::init() &&
+		UserPrefs::init(Globals::userdir(),'user') &&
+		Cache::init(Globals::cachedir()) &&
 		Collection::init(Globals::datadir() . 'collections.db') &&
 		Server::init() &&
 		Handler::init() &&
@@ -128,6 +128,7 @@ sub hint_front {
 #handles viewer hints
 sub hint_view {
 	my ($id,@pos) = @_;
+	return unless Cores::known($id);
 	$l->trace("handle view hint $id ", join(' ',@pos) );
 	my $col = Collection->get($id);
 	@pos = sort @pos;

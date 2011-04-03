@@ -128,7 +128,7 @@ sub last {
 	if (my $pos = $DBH->selectrow_array('SELECT MAX(position) FROM ' . $s->{id})) {
 		return $pos;
 	}
-	Log->warn('could not retrieve position ' , $DBH->errstr);
+	Log->warn('could not retrieve last position of ' . $s->{id} , $DBH->errstr);
 	return;
 }
 

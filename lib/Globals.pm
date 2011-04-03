@@ -12,7 +12,7 @@ our $PORT = 80;
 our $CACHEDIR = './cache/';
 our $DATADIR = './data/';
 our $EXPORTDIR = './export/';
-our $USERPREFSFILE = 'userprefs'; 
+our $USERDIR = './user/';
 our $UPDATEUNIVERSAL = undef; 
 
 # ----- accessors --------------------
@@ -37,9 +37,9 @@ sub exportdir {
 	$EXPORTDIR = shift if @_;
 	return $EXPORTDIR;
 }
-sub userprefsfile { 
-	$USERPREFSFILE = shift if @_;
-	return $USERPREFSFILE;
+sub userdir { 
+	$USERDIR = shift if @_;
+	return $USERDIR;
 }
 sub updateuniversal { 
 	$UPDATEUNIVERSAL = shift if @_;
@@ -54,7 +54,7 @@ sub getoptarray {
 		"CACHEDIR=s" => \$CACHEDIR,
 		"DATADIR=s" => \$DATADIR,
 		"EXPORTDIR=s" => \$EXPORTDIR,
-		"USERPREFSFILE=s" => \$USERPREFSFILE,
+		"USERDIR=s" => \$USERDIR,
 		"UPDATEUNIVERSAL" => \$UPDATEUNIVERSAL,
 	);
 }

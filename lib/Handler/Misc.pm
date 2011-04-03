@@ -42,7 +42,7 @@ sub index {
 	$html .= cgi->end_fieldset();
 	my $bm = UserPrefs->section('bookmark');
 	#do some name mapping for performance or peace of mind at least
-	my %bmd = map {$_ =>  Cores::name($_)} grep {$bm->get($_)} $bm->list();
+	my %bmd = map {$_ =>  Cores::name($_) // $_} grep {$bm->get($_)} $bm->list();
 	my %new = map {$_ => 1} grep {$bm->get($_) < Collection->get($_)->last()} keys %bmd;
 	$html .= html_group('New Pages' ,map {[$_ , ($bmd{$_}) x 2]} keys %new);
 	$html .= html_group('Bookmarks' ,map {[$_ , ($bmd{$_}) x 2]} grep {!$new{$_}} keys %bmd);

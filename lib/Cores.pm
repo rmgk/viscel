@@ -88,15 +88,34 @@ sub first {
 #returns the remote for the given id
 sub new {
 	my  ($id) = @_;
-	my $core = $id;
-	$core =~ s/_.*$//;
-	$core = "Core::$core";
-	unless ( $cores{$core} ) {
+	my $core = _core_from_id($id);
+	if (!$core) {
 		Log->error("$core is not initialised");
 		return;
 	}
 	return $core->new($id);
 }
+
+#$id -> $is_known
+#returns true if the given id matches a known remote
+sub known {
+	my ($id) = @_;
+	my $core = _core_from_id($id);
+	return unless $core;
+	return $core->known($id);
+}
+	
+
+#$id -> $core
+#returns the name of the core of the given id
+sub _core_from_id {
+	my ($core) = @_;
+	$core =~ s/_.*$//;
+	$core = "Core::$core";
+	return unless ( $cores{$core} );
+	return $core;
+}
+	
 
 #$query -> %collections 
 sub search {

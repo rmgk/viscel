@@ -96,6 +96,13 @@ sub list_need_info {
 	return grep {!$p->clist($_)->{moreinfo}} $p->clist();
 }
 
+#$id -> $is_known
+#returns true if the $id is a known remote
+sub known {
+	my ($pkg,$id) = @_;
+	return 0 + keys( %{$pkg->clist($id)});
+}
+
 #$query,@regex -> %list
 sub search {
 	my ($p,$filter,@re) = @_;
