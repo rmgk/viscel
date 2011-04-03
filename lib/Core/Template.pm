@@ -67,6 +67,7 @@ sub _load_list {
 #parsing or the network
 sub fetch_list {
 	my ($pkg, $accumulator) = @_;
+	Log->trace('start fetch list for ' , $pkg);
 	$accumulator //= {};
 	my $state;
 	return sub {
@@ -153,21 +154,20 @@ sub about {
 	return ['Name',$s->clist->{name}], map {[$_, $s->clist()->{$_}]} grep {$_ eq ucfirst $_} keys %{$s->clist()};
 }
 
-#$force
-#fetches more information about the comic, force overwrites existing info
+sub want_more_info {
+	my ($s) = @_;
+	return (!$s->clist()->{moreinfo}) and $s->can('_fetch_info')
+}
+
+#->\%info
+#fetches more information about the comic
 sub fetch_info {
-	my ($s,$force) = @_;
-	return 1 if $s->clist()->{moreinfo} and !$force;
+	my ($s) = @_;
+	Log->trace('fetching more info for ', $s->{id});
 	if ($s->can('_fetch_info')) {
-		Log->trace('fetching more info for ', $s->{id});
-		local $@;
-		unless (eval { $s->_fetch_info() }) {
-			Log->error("crash on parse info: " . $@);
-			return;
-		}
+		my $info = $s->_fetch_info({%{$s->clist()}});
+		return $info->{moreinfo} = 1;
 	}
-	$s->clist()->{moreinfo} = 1;
-	return $s->save_clist();
 }
 
 #$self -> $name

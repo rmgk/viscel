@@ -7,6 +7,7 @@ use warnings;
 
 use parent qw(Core::Template);
 use Spot::Cartooniverse;
+use Try::Tiny;
 
 #creates the list of known manga
 sub _create_list {
@@ -41,36 +42,41 @@ sub _searchkeys {
 
 #fetches more information about the comic
 sub _fetch_info {
-	my ($s) = @_;
-	my $url = $s->clist()->{url_info};
-	my ($tree,$page) = DlUtil::get_tree($url);
-	unless($$tree) {
-		if ($page->code() == 404) { #404 is a permanent error and means the collection is broken
-			Log->warn('collection is not available');
-			$s->clist()->{Status} = 'down'; 
-			return 1;
-		}
-		return;
+	my ($s,$cfg) = @_;
+	my $url = $cfg->{url_info};
+	my $tree;
+	try {
+		$tree = DlUtil::get_tree($url);
 	}
+	catch {
+		if (ref($_) eq 'ARRAY' and $_->[0] eq 'get page') {
+			if ($_->[1] == 404) { #404 is a permanent error and means the collection is broken
+				Log->warn('collection is not available');
+				$cfg->{Status} = 'down'; 
+				return $cfg;
+			}
+		}
+		die $_;
+	};
+
 	my @postcontent = $$tree->look_down('_tag' => 'div', class=>'postcontent');
 	my $td = $postcontent[0]->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td
 	my @p = $td->look_down(_tag=>'p');
 	if ($p[6]) {
 		my $author = HTML::Entities::encode(($p[1]->content_list())[1]);
 		$author =~  s/^\s*:\s*//;
-		$s->clist()->{Artist} = HTML::Entities::encode(($p[2]->content_list())[1]);
-		$s->clist()->{Artist} =~  s/^\s*:\s*+//;
-		$s->clist()->{Artist} .= ' ' . $author;
-		$s->clist()->{Scanlator} = HTML::Entities::encode(($p[3]->content_list())[1]);
-		$s->clist()->{Scanlator} =~  s/^\s*:\s*+//;
-		$s->clist()->{Tags} = join ", ", map {$_->as_trimmed_text()} $p[4]->look_down(class => 'series-info');
-		$s->clist()->{Detail} = HTML::Entities::encode(($p[6]->content_list())[2]);
+		$cfg->{Artist} = HTML::Entities::encode(($p[2]->content_list())[1]);
+		$cfg->{Artist} =~  s/^\s*:\s*+//;
+		$cfg->{Artist} .= ' ' . $author;
+		$cfg->{Scanlator} = HTML::Entities::encode(($p[3]->content_list())[1]);
+		$cfg->{Scanlator} =~  s/^\s*:\s*+//;
+		$cfg->{Tags} = join ", ", map {$_->as_trimmed_text()} $p[4]->look_down(class => 'series-info');
+		$cfg->{Detail} = HTML::Entities::encode(($p[6]->content_list())[2]);
 	}
 	
 	my @chaplist = $postcontent[-1]->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'tr');
-	$s->clist()->{start} = $chaplist[-1]->look_down(_tag=>'td')->look_down(_tag=>'a')->attr('href');
-	#$tree->delete();
-	return 1;
+	$cfg->{start} = $chaplist[-1]->look_down(_tag=>'td')->look_down(_tag=>'a')->attr('href');
+	return $cfg;
 }
 
 1;

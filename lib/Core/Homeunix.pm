@@ -42,21 +42,21 @@ sub _searchkeys {
 
 #fetches comic info
 sub _fetch_info {
-	my ($s) = @_;
-	my $url = $s->clist()->{url_info};
+	my ($s,$cfg) = @_;
+	my $url = $cfg->{url_info};
 	my %urls;
 	while ($url) {
 		if ($urls{$url}) { #abort recursion
-			$s->clist()->{Status} = 'Down';
-			return 1;
+			$cfg->{Status} = 'Down';
+			return $cfg;
 		}
 		$urls{$url} = 1; 
-		my $tree = DlUtil::get_tree($url) or return;
+		my $tree = DlUtil::get_tree($url);
 		my $fs = $$tree->look_down(_tag => 'fieldset', class=>qr'td2');
 		if ($fs) {
 			#we are at the last page and can finally find the first page
 			my $a = $fs->look_down(_tag=>'a');
-			$s->clist()->{start} = $a->attr('href');
+			$cfg->{start} = $a->attr('href');
 			$url = undef;
 		}
 		else {
@@ -65,9 +65,8 @@ sub _fetch_info {
 			my $a = $ch->look_down(_tag=>'a');
 			$url = $a->attr('href');
 		}
-		#$tree->delete();
 	}
-	return 1;
+	return $cfg;
 }
 
 1;

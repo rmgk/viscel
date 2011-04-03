@@ -36,7 +36,6 @@ sub _create_list {
 	}
 	my $next = $$tree->look_down('_tag' => 'ul', 'class' => 'paging')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^Next$/});
 	$url = $next ? [URI->new_abs($next->attr('href'),$url)->as_string] : undef;
-	#$tree->delete();
 	
 	return (\%clist,$url);
 }
@@ -49,35 +48,33 @@ sub _searchkeys {
 
 #fetches more information about the comic
 sub _fetch_info {
-	my ($s) = @_;
-	my $url = $s->clist()->{url_info};
+	my ($s,$cfg) = @_;
+	my $url = $cfg->{url_info};
 	$url .= '?skip=1';
-	my $tree = DlUtil::get_tree($url) or return;
+	my $tree = DlUtil::get_tree($url);
 	my $chapterslist = $$tree->look_down(_tag=>'table',id=>'chapterslist');
 	unless ($chapterslist) { # if chapterslist could not be found, its most likely that something is wrong with the page download
 		Log->warn('could not parse page ' , $url);
-		#$tree->delete();
-		return; 
+		die 'parse page ' . $url;
 	}
-	$s->clist()->{Tags} = join ', ' , map {$_->as_trimmed_text} $$tree->look_down(_tag=>'a', href=>qr'/genre/'i);
+	$cfg->{Tags} = join ', ' , map {$_->as_trimmed_text} $$tree->look_down(_tag=>'a', href=>qr'/genre/'i);
 	my $p = $$tree->look_down('_tag' => 'p', style => 'width:570px; padding:5px;');
-	$s->clist()->{Detail} = HTML::Entities::encode($p->as_trimmed_text()) if ($p);
+	$cfg->{Detail} = HTML::Entities::encode($p->as_trimmed_text()) if ($p);
 	my $ul = $$tree->look_down('_tag' => 'ul', class => 'relatedmanga');
 	if ($ul) {
-		$s->clist()->{Seealso} = join ', ' , map { $_->attr('href') =~ m'animea.net/([^/]*)\.html$'; my $r = $1; $r =~ s/\W/_/g; $r} $ul->look_down(_tag=>'a');
+		$cfg->{Seealso} = join ', ' , map { $_->attr('href') =~ m'animea.net/([^/]*)\.html$'; my $r = $1; $r =~ s/\W/_/g; $r} $ul->look_down(_tag=>'a');
 	}
 	my @table = $chapterslist->content_list();
 	my $a = $table[-2]->look_down(_tag=>'a');
 	if ($a) {
-		$s->clist()->{start} = $a->attr('href');
-		$s->clist()->{start} =~ s/\.html$/-page-1\.html/;
+		$cfg->{start} = $a->attr('href');
+		$cfg->{start} =~ s/\.html$/-page-1\.html/;
 	}
 	else {
 		Log->warn("animea no longer makes this collection available");
-		$s->clist()->{Status} = 'down';
+		$cfg->{Status} = 'down';
 	}
-	#$tree->delete();
-	return 1;
+	return $cfg;
 }
 
 1;

@@ -40,7 +40,6 @@ sub _create_list {
 			$mangalist{$id}->{$_} = HTML::Entities::encode($mangalist{$id}->{$_}) for qw(Artist Tags); 
 		}
 	}
-	#$tree->delete();
 	return \%mangalist;
 }
 
@@ -52,19 +51,18 @@ sub _searchkeys {
 
 #fetches more information about the comic
 sub _fetch_info {
-	my ($s) = @_;
-	my $url = $s->clist()->{url_info};
-	my $tree = DlUtil::get_tree($url) or return;
-	$s->clist()->{Tags} = ($$tree->look_down('_tag' => 'th', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1]->as_text();
-	$s->clist()->{Chapter} = ($$tree->look_down('_tag' => 'th', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1]->as_text();
-	$s->clist()->{Scanlator} = ($$tree->look_down('_tag' => 'th', sub { $_[0]->as_text eq 'Manga scans by:' })->parent()->content_list())[1]->as_text();
-	#$s->clist()->{update} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Last Manga Update:' })->parent()->content_list())[1];
-	$s->clist()->{Status} = ($$tree->look_down('_tag' => 'th', sub { $_[0]->as_text eq 'Status:' })->parent()->content_list())[1]->as_text();
-	$s->clist()->{Detail} = ($$tree->look_down('_tag' => 'div', style => qr/font-weight: bolder;$/)->parent()->content_list())[3]->as_text();
+	my ($s,$cfg) = @_;
+	my $url = $cfg->{url_info};
+	my $tree = DlUtil::get_tree($url);
+	$cfg->{Tags} = ($$tree->look_down('_tag' => 'th', sub { $_[0]->as_text eq 'Categories:' })->parent()->content_list())[1]->as_text();
+	$cfg->{Chapter} = ($$tree->look_down('_tag' => 'th', sub { $_[0]->as_text eq 'Info:' })->parent()->content_list())[1]->as_text();
+	$cfg->{Scanlator} = ($$tree->look_down('_tag' => 'th', sub { $_[0]->as_text eq 'Manga scans by:' })->parent()->content_list())[1]->as_text();
+	#$cfg->{update} = ($tree->look_down('_tag' => 'strong', sub { $_[0]->as_text eq 'Last Manga Update:' })->parent()->content_list())[1];
+	$cfg->{Status} = ($$tree->look_down('_tag' => 'th', sub { $_[0]->as_text eq 'Status:' })->parent()->content_list())[1]->as_text();
+	$cfg->{Detail} = ($$tree->look_down('_tag' => 'div', style => qr/font-weight: bolder;$/)->parent()->content_list())[3]->as_text();
 	my @seealso = $$tree->look_down('_tag' => 'span', style => 'font-weight: bolder;');
-	$s->clist()->{Seealso} = join(', ', map {$_->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$'; my $id = $1; $id =~ s/\W/_/g; $id;} @seealso);
-	#$tree->delete();
-	return 1;
+	$cfg->{Seealso} = join(', ', map {$_->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$'; my $id = $1; $id =~ s/\W/_/g; $id;} @seealso);
+	return $cfg;
 }
 
 1;

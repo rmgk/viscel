@@ -60,40 +60,39 @@ sub _searchkeys {
 
 #fetches more information about the comic
 sub _fetch_info {
-	my ($s) = @_;
-	my $url = $s->clist()->{url_info};
+	my ($s,$cfg) = @_;
+	my $url = $cfg->{url_info};
 	$url .= '?no_warning=1';
-	my $tree = DlUtil::get_tree($url) or return;
+	my $tree = DlUtil::get_tree($url);
 	my @chapter = $$tree->look_down(_tag=>'a',class=>'chico');
 	if (@chapter) {
 		my $start = $chapter[-1]->attr('href');
-		$s->clist()->{start} = URI->new_abs($start,$url)->as_string;
+		$cfg->{start} = URI->new_abs($start,$url)->as_string;
 	}
 	else {
 		Log->warn($s->{id} . ' is no longer available');
-		$s->clist()->{start} = undef;
-		$s->clist()->{Status} = 'down';
+		$cfg->{start} = undef;
+		$cfg->{Status} = 'down';
 	}
 	
 	my $info = $$tree->look_down(id => 'information');
 	my $detail = $info->look_down(_tag => 'p');
-	$s->clist()->{Detail} = HTML::Entities::encode($detail->as_trimmed_text()) if ($detail);
+	$cfg->{Detail} = HTML::Entities::encode($detail->as_trimmed_text()) if ($detail);
 	my $alias = $info->look_down(_tag => 'th' , sub { $_[0]->as_text() eq 'Alternative Name'} )->parent()->look_down(_tag => 'td');
-	$s->clist()->{Alias} = HTML::Entities::encode($alias->as_text());
+	$cfg->{Alias} = HTML::Entities::encode($alias->as_text());
 	if (@chapter) {
 		my $status = $info->look_down(_tag => 'th' , sub { $_[0]->as_text() eq 'Status'} )->parent()->look_down(_tag => 'td');
-		$s->clist()->{Status} = HTML::Entities::encode($status->as_text());
+		$cfg->{Status} = HTML::Entities::encode($status->as_text());
 	}
 	
 	my $author = $info->look_down(_tag => 'th' , sub { $_[0]->as_text() eq 'Author(s)'} )->parent()->look_down(_tag => 'td');
 	my $artist = $info->look_down(_tag => 'th' , sub { $_[0]->as_text() eq 'Artist(s)'} )->parent()->look_down(_tag => 'td');
-	$s->clist()->{Artist} = join ', ' , map {HTML::Entities::encode($_->as_text)} ($author->look_down(_tag => 'a'),$artist->look_down(_tag => 'a'));
+	$cfg->{Artist} = join ', ' , map {HTML::Entities::encode($_->as_text)} ($author->look_down(_tag => 'a'),$artist->look_down(_tag => 'a'));
 	
 	my $tags = $info->look_down(_tag => 'th' , sub { $_[0]->as_text() eq 'Genre(s)'} )->parent()->look_down(_tag => 'td');
-	$s->clist()->{Tags} = join ', ' , map {HTML::Entities::encode($_->as_text)} $tags->look_down(_tag => 'a');
+	$cfg->{Tags} = join ', ' , map {HTML::Entities::encode($_->as_text)} $tags->look_down(_tag => 'a');
 	
-	#$tree->delete();
-	return 1;
+	return $cfg;
 }
 
 1;
