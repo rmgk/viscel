@@ -7,6 +7,7 @@ use warnings;
 
 use Log;
 use Globals;
+use ConfigINI;
 
 my %data;
 my $changed = 0;
@@ -22,7 +23,7 @@ sub init {
 		Log->error('could not create cache dir ' , $dir);
 		return;
 	}
-	%data = %{ConfigINI::parse_file($default_file)};
+	%data = %{ConfigINI::parse_file($dir,$default_file)};
 	return 1;
 }
 
@@ -30,7 +31,6 @@ sub init {
 #returns the handle to a section
 sub section {
 	my ($class,$sect) = @_;
-	$sect ||= caller;
 	Log->trace("userprefs handle for ", $sect); 
 	unless ($data{$sect}) {
 		Log->debug("create $sect");

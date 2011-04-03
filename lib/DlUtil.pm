@@ -69,7 +69,7 @@ sub gethead {
 	my($url, $referer) = @_;
 	_init_ua() unless $ua;
 	Log->debug("head $url" .( $referer ? " (referer $referer)" : ''));
-	my $request = HTTP::Request->new(GET => $url);
+	my $request = HTTP::Request->new(HEAD => $url);
 	$request->referer($referer);
 	my $res = $ua->head($url);
 	Log->trace('response code: '. $res->code);

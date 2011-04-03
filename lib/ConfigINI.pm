@@ -7,7 +7,8 @@ use warnings;
 
 use Log;
 
-#$file -> \%cfg;
+#$dir,$file -> \%cfg;
+#reads %cfg from $file in $dir
 sub parse_file {
 	my ($dir,$file) = @_;
 	$file =~ s/\W+/_/g;
@@ -33,9 +34,6 @@ sub parse_file {
 		my ($what,$is) = split(/=/, $line, 2);
 		$what =~ s/^\s*//g;
 		$what =~ s/\s*$//g;
-		#keeping value exactly as is, with whitespaces
-		#$is =~ s/^\s*//g;
-		#$is =~ s/\s*$//g;
 		
 		$cfg{$block}->{$what} = $is;
 	}
@@ -44,8 +42,8 @@ sub parse_file {
 }
 
 
-#$file,$cfg 
-#saves $cfg to $file
+#$dir,$file,$cfg 
+#saves $cfg to $file in $dir
 sub save_file {
 	my ($dir,$file,$cfg) = @_;
 	$file =~ s/\W+/_/g;
