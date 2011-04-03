@@ -15,7 +15,8 @@ sub save_clist { return 1}
 #tries to load the collection list from file, creates it if it cant be found
 sub _load_list {
 	my ($pkg) = @_;
-	$pkg->update_list();
+	$pkg->clist($pkg->fetch_list()->());
+	Log->debug($pkg . ' loaded ' . scalar($pkg->clist()) . ' collections');
 	return 1;
 }
 

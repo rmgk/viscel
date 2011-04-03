@@ -54,7 +54,7 @@ sub _load_list {
 	my ($pkg) = @_;
 	$pkg->clist(ConfigINI::parse_file(Globals::datadir,$pkg));
 	if ($pkg->clist()) {
-		Log->debug('loaded ' . scalar($pkg->clist()) . ' collections');
+		Log->debug($pkg . ' loaded ' . scalar($pkg->clist()) . ' collections');
 		return 1;
 	}
 	return 1;
