@@ -11,21 +11,20 @@ use HTTP::Daemon;
 use Time::HiRes;
 
 my $d;
-my $l = Log->new();
 my %req_handler;
 
 #$port -> $daemon
 #initialises the http server
 sub init {
 	my $port = Globals::port();
-	$l->info("launch server on port $port");
+	Log->info("launch server on port $port");
 	$d = HTTP::Daemon->new(LocalPort => $port);
 	#setting the daemon timeout makes $d->accept() return immediately if there is no connection waiting
 	#this timeout will also be the default timeout of the connection returned by $d->accept()
 	#but that connection will never timeout if it has a timeout value of 0
 	#$d->timeout(0);
 	unless($d){
-		$l->error("could not listen on port $port");
+		Log->error("could not listen on port $port");
 		return;
 	}
 	return 1;
@@ -36,11 +35,11 @@ sub init {
 sub register_handler {
 	my ($path,$handler) = @_;
 	unless ($path) {
-		$l->error('path not specified');
+		Log->error('path not specified');
 		return;
 	}
 	if ($handler) {
-		$l->trace('add request handler for ', $path); 
+		Log->trace('add request handler for ', $path); 
 		$req_handler{$path} = $handler;
 		return 1;
 	}
@@ -52,7 +51,7 @@ sub register_handler {
 #returns tue if at least one connection was accepted
 sub accept {
 	my ($timeout,$timespan) = @_;
-	$l->trace('accept connections (timeout ', $timeout , ')');
+	Log->trace('accept connections (timeout ', $timeout , ')');
 	return unless _accept_connection($timeout,0.1); #connection timed out
 	my $t = Time::HiRes::time;
 	while (Time::HiRes::time - $t < $timespan) {
@@ -71,7 +70,7 @@ sub _accept_connection {
 	if ((my ($c, $addr) = $d->accept)) {
 		my ($port, $iaddr) = sockaddr_in($addr);
 		my $addr_str = inet_ntoa($iaddr);
-		$l->debug("connection from ",$addr_str ,":",$port, " after ", Time::HiRes::time - $ls_time);
+		Log->debug("connection from ",$addr_str ,":",$port, " after ", Time::HiRes::time - $ls_time);
 		#the timout value should be big enough to let useragent sent multiple request on the same connection
 		#but it should be also small enough that it times out shortly after all request for a given page
 		#are made to allow the controller to do his work
@@ -89,16 +88,16 @@ sub _accept_requests {
 	while (my $r = $c->get_request) {
 		_handle_request($c,$r,$addr);
 	}
-	$l->trace("no more requests: " . $c->reason);
+	Log->trace("no more requests: " . $c->reason);
 }
 
 #$connection, $request
 #dispatches the request to the request handler or sends a 404 error if no handler is registered
 sub _handle_request {
 	my ($c,$r,$addr) = @_;
-	$l->debug("request: " , $r->method(), ' ', $r->url->as_string());
+	Log->debug("request: " , $r->method(), ' ', $r->url->as_string());
 	if ($r->method() ne 'GET' and $r->method() ne 'HEAD' and $addr ne '127.0.0.1') {
-		$l->warn('non GET request from foreign address send 403');
+		Log->warn('non GET request from foreign address send 403');
 		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'You are only allowed to make GET requests'));
 	}
 	if ($r->url->path eq '/') {
@@ -122,7 +121,7 @@ sub _handle_request {
 		}
 	}
 	else {
-		$l->warn('unexpected url path: ', $r->url->path);
+		Log->warn('unexpected url path: ', $r->url->path);
 		send_404($c);
 		return;
 	}
@@ -134,7 +133,7 @@ sub _handle_request {
 #sends a default html response
 sub send_response {
 	my ($c,$html) = @_;
-	$l->trace('send response');
+	Log->trace('send response');
 	my $res = HTTP::Response->new( 200, 'OK', ['Content-Type','text/html; charset=UTF-8']);
 	$res->content($html);
 	$c->send_response($res);
@@ -144,7 +143,7 @@ sub send_response {
 #sends a 404 file not found response
 sub send_404 {
 	my ($c) = @_;
-	$l->trace('send 404');
+	Log->trace('send 404');
 	my $res = HTTP::Response->new( 404, 'File Not Found',undef,'file not found');
 	$c->send_response($res);
 }
