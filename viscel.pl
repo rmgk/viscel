@@ -23,11 +23,9 @@ if ($test) {
 
 }
 else {
-	my $l = Log->new();
-	
 	
 	unless (Controller::init()) {
-		$l->fatal('could not initialise controller');
+		Log->fatal('could not initialise controller');
 		die;
 	}
 
