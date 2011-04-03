@@ -1441,7 +1441,7 @@ Landscraper => [
 Inverloch => [
 	'Inverloch',
 	'http://inverloch.seraph-inn.com/viewcomic.php?page=1',
-	[id => 'main'],
+	[id => 'main'],[src => qr'^pages/'],
 ],
 SMBC => [
 	'Saturday Morning Breakfast Cereal',

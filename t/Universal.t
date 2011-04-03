@@ -34,4 +34,14 @@ is($remote->name(),$list{$list[0]}, 'names match '. $list[0]);
 my $spot = $remote->first();
 isa_ok($spot,'Spot::Universal');
 
-done_testing(9 + 3*@list);
+is($spot->position(),1, 'first spot has position 1');
+is($spot->id(), $list[0], 'id did not change');
+
+#my $remote2 = new_ok('Core::Universal', ['Universal_Inverloch'], 'Universal_Inverloch');
+#my $spot2 = $remote2->first();
+#isa_ok($spot2,'Spot::Universal');
+#ok($spot2->mount(),'could mount first of inverloch');
+#isa_ok($spot2->element,'Element');
+#ok($spot2->next(),'next works');
+
+done_testing(11 + 3*@list);
