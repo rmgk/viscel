@@ -4,7 +4,6 @@ package Core::Template v1.2.0;
 
 use 5.012;
 use warnings;
-use lib "..";
 
 use Log;
 use DBI;
@@ -15,8 +14,6 @@ use HTML::TreeBuilder;
 use Digest::SHA;
 use Data::Dumper;
 use Time::HiRes qw(tv_interval gettimeofday);
-
-my $l = Log->new();
 
 #the somewhat shady container for all the collections data
 sub clist {
@@ -42,7 +39,7 @@ sub clist {
 sub save_clist {
 	my ($pkg) = @_;
 	$pkg = ref($pkg) || $pkg;
-	$l->trace("save clist ", $pkg);
+	Log->trace("save clist ", $pkg);
 	no strict 'refs';
 	return ConfigINI::save_file(Globals::datadir,$pkg,\%$pkg);
 }
@@ -50,8 +47,8 @@ sub save_clist {
 #initialises the core and loads collection list
 sub init {
 	my ($pkg) = @_;
-	$l->trace('initialise ',$pkg);
-	$l->warn('list already initialised, reinitialise') if $pkg->clist();
+	Log->trace('initialise ',$pkg);
+	Log->warn('list already initialised, reinitialise') if $pkg->clist();
 	return $pkg->_load_list();
 }
 
@@ -60,7 +57,7 @@ sub _load_list {
 	my ($pkg) = @_;
 	$pkg->clist(ConfigINI::parse_file(Globals::datadir,$pkg));
 	if ($pkg->clist()) {
-		$l->debug('loaded ' . scalar($pkg->clist()) . ' collections');
+		Log->debug('loaded ' . scalar($pkg->clist()) . ' collections');
 		return 1;
 	}
 	return 1;
@@ -76,7 +73,7 @@ sub update_list {
 	my $list;
 	($list,$state) = $pkg->_create_list($state);
 	$pkg->clist($list);
-	$l->debug('now has ' .  scalar($pkg->clist()) . ' collections');
+	Log->debug('now has ' .  scalar($pkg->clist()) . ' collections');
 	return unless $pkg->save_clist();
 	return $state;
 }
@@ -106,7 +103,7 @@ sub known {
 #$query,@regex -> %list
 sub search {
 	my ($p,$filter,@re) = @_;
-	$l->debug('search ', $p );
+	Log->debug('search ', $p );
 	my %cap;
 	my @return;
 	my $time = [gettimeofday];
@@ -132,7 +129,7 @@ sub search {
 		#we have a matched
 		push @return, [$id,$l->{name},$cap{$id}//$l->{name}]; #/ padre display bug
 	}
-	$l->trace('took ', tv_interval($time), ' seconds');
+	Log->trace('took ', tv_interval($time), ' seconds');
 	return @return;
 }
 
@@ -140,10 +137,10 @@ sub search {
 #creates a new remote for a given id
 sub new {
 	my ($class,$id) = @_;
-	$l->trace("create new remote $id");
+	Log->trace("create new remote $id");
 	my $self = bless {id => $id}, $class;
 	unless (keys %{$self->clist()}) {
-		$l->error("unknown id ", $id);
+		Log->error("unknown id ", $id);
 		return;
 	}
 	return $self;
@@ -162,11 +159,11 @@ sub about {
 sub fetch_info {
 	my ($s,$force) = @_;
 	return 1 if $s->clist()->{moreinfo} and !$force;
-	$l->trace('fetching more info for ', $s->{id});
+	Log->trace('fetching more info for ', $s->{id});
 	if ($s->can('_fetch_info')) {
 		local $@;
 		unless (eval { $s->_fetch_info() }) {
-			$l->error("crash on parse info: " . $@);
+			Log->error("crash on parse info: " . $@);
 			return;
 		}
 	}
@@ -183,7 +180,7 @@ sub name {
 #returns the first spot
 sub first {
 	my ($s) = @_;
-	$l->trace('creat first ',$s->{id});
+	Log->trace('creat first ',$s->{id});
 	return $s->create(1,$s->clist()->{url_start});
 }
 
@@ -193,109 +190,9 @@ sub create {
 	my ($s,$pos,$state) = @_;
 	my $class = ref($s) . '::Spot';
 	my $spot = {id => $s->{id}, position => $pos, state => $state};
-	$l->debug('create new spot ' , $class, ' id: ', $s->{id}, ,' position: ', $pos);
+	Log->debug('create new spot ' , $class, ' id: ', $s->{id}, ,' position: ', $pos);
 	$class->new($spot);
 	return $spot;
 }
-
-package Core::Template::Spot;
-
-my $SHA = Digest::SHA->new();
-
-#$class, \%self -> \%self
-#creates a new collection instance of $id at position $pos
-sub new {
-	my ($class,$self) = @_;
-	$l->trace('new ',$class,' instance');
-	$self->{fail} = 'not mounted';
-	bless $self, $class;
-	return $self;
-}
-
-#makes preparations to find objects
-sub mount {
-	my ($s) = @_;
-	$s->{page_url} = $s->{state};
-	$l->trace('mount ' . $s->{id} .' '. $s->{page_url});
-	my $tree = DlUtil::get_tree($s->{page_url});
-	return unless $tree;
-	local $@;
-	my $ret = eval { $s->_mount_parse($$tree) };
-	unless ($ret) {
-		$l->error("crash on mount page: " , $@);
-		return;
-	}
-	#$tree->delete();
-	$l->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next)); #/padre display bug	
-	$s->{fail} = undef if $ret;
-	return $ret;
-}
-
-#not implemented
-sub _mount_parse {
-	$l->fatal('mount parse not implemented');
-	die();
-}
-
-
-#-> \%element
-#returns the element
-sub fetch {
-	my ($s) = @_;
-	if ($s->{fail}) {
-		$l->error('fail is set: ' . $s->{fail});
-		return;
-	}
-	$l->trace('fetch object');
-
-	my $file = DlUtil::get($s->{src},$s->{page_url});
-	if (!$file->is_success() or !$file->header('Content-Length')) {
-		$l->error('error get ' . $s->{src});
-		$s->{fail} = 'could not fetch object';
-		return;
-	}
-	my $blob = $file->decoded_content();
-
-	$s->{type} = $file->header('Content-Type');
-	$s->{sha1} = $SHA->add($blob)->hexdigest();
-
-	return \$blob;
-}
-
-#-> \%element
-#returns the element
-sub element {
-	my ($s) = @_;
-	if ($s->{fail}) {
-		$l->error('fail is set: ' . $s->{fail});
-		return;
-	}
-	my $object = {};
-	$object->{cid} = $s->{id};
-	$object->{$_} = $s->{$_} for grep {defined $s->{$_}} Element::attribute_list_array();
-	return Element->new($object);
-}
-
-#returns the next spot
-sub next {
-	my ($s) = @_;
-	$l->trace('create next');
-	if ($s->{fail}) {
-		$l->error('fail is set: ' . $s->{fail});
-		return;
-	}
-	unless ($s->{next}) {
-		$l->error('no next was found');
-		return;
-	}
-	my $next = {id => $s->{id}, position => $s->{position} + 1, state => $s->{next} };
-	$next = ref($s)->new($next);
-	return $next;
-}
-
-#accessors:
-sub id { return $_[0]->{id} }
-sub position { return $_[0]->{position} }
-
 
 1;
