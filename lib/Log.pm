@@ -27,7 +27,6 @@ sub log {
 	my @call = caller 1;
 	my $line = $call[2];
 	my $module = $call[0];
-	$module =~ s/^\w+::/:/;
 	#getting the call depth
 	my $d = 1;
 	while(caller(++$d)){}; 
