@@ -1,20 +1,18 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Animea v1.2.0;
+package Core::Animea v1.3.0;
 
 use 5.012;
 use warnings;
-use lib "..";
 
 use parent qw(Core::Template);
-
-my $l = Log->new();
+use Spot::Animea;
 
 #creates the list of known manga
 sub _create_list {
 	my ($pkg,$state) = @_;
 	my %clist;
-	$l->trace('create list of known collections');
+	Log->trace('create list of known collections');
 	my $url = ref $state ? $state->[0] : 'http://manga.animea.net/browse.html?page=0';
 
 	my $tree = DlUtil::get_tree($url) or return;
@@ -25,7 +23,7 @@ sub _create_list {
 		my $href = $a->attr('href');
 		my ($id) = ($href =~ m'^/(.*)\.html$'i);
 		unless ($id) {
-			$l->debug("could not parse $href");
+			Log->debug("could not parse $href");
 			next;
 		}
 		$href = URI->new_abs($href,$url)->as_string;
@@ -57,7 +55,7 @@ sub _fetch_info {
 	my $tree = DlUtil::get_tree($url) or return;
 	my $chapterslist = $$tree->look_down(_tag=>'table',id=>'chapterslist');
 	unless ($chapterslist) { # if chapterslist could not be found, its most likely that something is wrong with the page download
-		$l->warn('could not parse page ' , $url);
+		Log->warn('could not parse page ' , $url);
 		#$tree->delete();
 		return; 
 	}
@@ -75,32 +73,10 @@ sub _fetch_info {
 		$s->clist()->{url_start} =~ s/\.html$/-page-1\.html/;
 	}
 	else {
-		$l->warn("animea no longer makes this collection available");
+		Log->warn("animea no longer makes this collection available");
 		$s->clist()->{Status} = 'down';
 	}
 	#$tree->delete();
-	return 1;
-}
-
-
-package Core::Animea::Spot;
-
-use parent -norequire, 'Core::Template::Spot';
-
-#$tree
-#parses the page to mount it
-sub _mount_parse {
-	my ($s,$tree) = @_;
-	my $img = $tree->look_down(_tag => 'img', class=>'chapter_img');
-	unless ($img) {
-		$l->error('could not parse page');
-		return;
-	}
-	map {$s->{$_} = $img->attr($_)} qw( src width height);
-	my $a_next = $img->look_up(_tag => 'a');
-	if ($a_next) {
-		$s->{next} = $a_next->attr('href');
-	}
 	return 1;
 }
 

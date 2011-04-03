@@ -1,20 +1,18 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Cartooniverse v1.2.0;
+package Core::Cartooniverse v1.3.0;
 
 use 5.012;
 use warnings;
-use lib "..";
 
 use parent qw(Core::Template);
-
-my $l = Log->new();
+use Spot::Cartooniverse;
 
 #creates the list of known manga
 sub _create_list {
 	my ($pkg) = @_;
 	my %clist;
-	$l->trace('create list of known collections');
+	Log->trace('create list of known collections');
 	my $tree = DlUtil::get_tree('http://www.cartooniverse.co.uk/beta/list.php') or return;
 	foreach my $content ($$tree->look_down('_tag' => 'div', 'class' => 'postcontent')) {
 		foreach my $td ($content->look_down('_tag' => 'td')) {
@@ -23,7 +21,7 @@ sub _create_list {
 			my $href = $a->attr('href');
 			my ($id) = ($href =~ m'/([^/]*)\.html$'i);
 			unless ($id) {
-				$l->debug("could not parse $href");
+				Log->debug("could not parse $href");
 				next;
 			}
 			$id =~ s/\W/_/g;
@@ -48,7 +46,7 @@ sub _fetch_info {
 	my ($tree,$page) = DlUtil::get_tree($url);
 	unless($$tree) {
 		if ($page->code() == 404) { #404 is a permanent error and means the collection is broken
-			$l->warn('collection is not available');
+			Log->warn('collection is not available');
 			$s->clist()->{Status} = 'down'; 
 			return 1;
 		}
@@ -72,29 +70,6 @@ sub _fetch_info {
 	my @chaplist = $postcontent[-1]->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'tr');
 	$s->clist()->{url_start} = $chaplist[-1]->look_down(_tag=>'td')->look_down(_tag=>'a')->attr('href');
 	#$tree->delete();
-	return 1;
-}
-
-
-package Core::Cartooniverse::Spot;
-
-use parent -norequire, 'Core::Template::Spot';
-
-#$tree
-#parses the page to mount it
-sub _mount_parse {
-	my ($s,$tree) = @_;
-	my $img = $tree->look_down(_tag => 'img', id=>'supermanga');
-	map {$s->{$_} = $img->attr($_)} qw( src );
-	my $js = $tree->look_down(_tag => 'input', value=>'next')->attr('onclick');
-	if ($js =~ m#javascript:window.location='(.*)';$#) {
-		$s->{next} = $1;
-	}
-	#my $title = $tree->look_down(_tag=>'title')->as_trimmed_text();
-	#if ($title =~ m/Chapter (\d+) page \d+ : Cartooniverse.co.uk/) { 
-	#	$s->{chapter} = $1;
-	#}
-	($s->{filename}) = ($s->{src} =~ m'/([^/]+)$');
 	return 1;
 }
 

@@ -1,18 +1,14 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Template v1.2.0;
+package Core::Template v1.3.0;
 
 use 5.012;
 use warnings;
 
 use Log;
-use DBI;
-use Element;
-use HTML::Entities;
+use Globals;
 use DlUtil;
-use HTML::TreeBuilder;
-use Digest::SHA;
-use Data::Dumper;
+use HTML::Entities;
 use Time::HiRes qw(tv_interval gettimeofday);
 use Spot::Template;
 

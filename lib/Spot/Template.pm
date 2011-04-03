@@ -6,6 +6,9 @@ use 5.012;
 use warnings;
 
 use Log;
+use Element;
+use DlUtil;
+use Digest::SHA;
 
 my $SHA = Digest::SHA->new();
 

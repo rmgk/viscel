@@ -6,6 +6,7 @@ use 5.012;
 use warnings;
 
 use parent qw(Core::Template);
+use Spot::Universal;
 use FindBin;
 
 #universal does not want to save its list

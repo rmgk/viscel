@@ -1,20 +1,18 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::AnyManga v1.2.0;
+package Core::AnyManga v1.3.0;
 
 use 5.012;
 use warnings;
-use lib "..";
 
 use parent qw(Core::Template);
-
-my $l = Log->new();
+use Spot::AnyManga;
 
 #creates the list of known manga
 sub _create_list {
 	my ($pkg) = @_;
 	my %mangalist;
-	$l->trace('create list of known collections');
+	Log->trace('create list of known collections');
 	my $tree = DlUtil::get_tree('http://www.anymanga.com/directory/all/') or return;
 	foreach my $list ($$tree->look_down('_tag' => 'ul', 'class' => 'mainmangalist')) {
 		foreach my $item ($list->look_down('_tag'=>'li')) {
@@ -66,28 +64,6 @@ sub _fetch_info {
 	my @seealso = $$tree->look_down('_tag' => 'span', style => 'font-weight: bolder;');
 	$s->clist()->{Seealso} = join(', ', map {$_->look_down('_tag'=> 'a')->attr('href') =~ m'^/(.*)/$'; my $id = $1; $id =~ s/\W/_/g; $id;} @seealso);
 	#$tree->delete();
-	return 1;
-}
-
-
-
-package Core::AnyManga::Spot;
-
-use parent -norequire, 'Core::Template::Spot';
-
-#$tree
-#parses the page to mount it
-sub _mount_parse {
-	my ($s,$tree) = @_;
-	my $img = $tree->look_down(_tag => 'img', title => qr'Click to view next page or press next or back buttons'i);
-	map {$s->{$_} = $img->attr($_)} qw( src title alt );
-	my $a_next = $img->look_up(_tag => 'a');
-	if ($a_next) {
-		$s->{next} = 'http://www.anymanga.com' . $a_next->attr('href');
-	}
-	$s->{src} = 'http://www.anymanga.com' . $s->{src};
-	$s->{title} =~ s/\)\s*\[.*$/)/s;
-	$s->{alt} =~ s/\)\s*\[.*$/)/s;
 	return 1;
 }
 

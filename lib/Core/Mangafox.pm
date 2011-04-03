@@ -1,20 +1,18 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Mangafox v1.2.0;
+package Core::Mangafox v1.3.0;
 
 use 5.012;
 use warnings;
-use lib "..";
 
 use parent qw(Core::Template);
-
-my $l = Log->new();
+use Spot::Mangafox;
 
 #creates the list of known manga
 sub _create_list {
 	my ($pkg,$state) = @_;
 	my %clist;
-	$l->trace('create list of known collections');
+	Log->trace('create list of known collections');
 	my $url = ref $state ? $state->[0] : 'http://www.mangafox.com/directory/all/1.htm';
 	my $tree = DlUtil::get_tree($url) or return;
 	my $table = $$tree->look_down(_tag => 'table', id => 'listing');
@@ -30,7 +28,7 @@ sub _create_list {
 		
 		my ($id) = ($href =~ m'^/manga/(.*)/$'i);
 		unless ($id) {
-			$l->debug("could not parse $href");
+			Log->debug("could not parse $href");
 			next;
 		}
 		$href = URI->new_abs($href,$url)->as_string;
@@ -72,7 +70,7 @@ sub _fetch_info {
 		$s->clist()->{url_start} = URI->new_abs($url_start,$url)->as_string;
 	}
 	else {
-		$l->warn($s->{id} . ' is no longer available');
+		Log->warn($s->{id} . ' is no longer available');
 		$s->clist()->{url_start} = undef;
 		$s->clist()->{Status} = 'down';
 	}
@@ -95,44 +93,6 @@ sub _fetch_info {
 	$s->clist()->{Tags} = join ', ' , map {HTML::Entities::encode($_->as_text)} $tags->look_down(_tag => 'a');
 	
 	#$tree->delete();
-	return 1;
-}
-
-
-package Core::Mangafox::Spot;
-
-use parent -norequire, 'Core::Template::Spot';
-
-#$tree
-#parses the page to mount it
-sub _mount_parse {
-	my ($s,$tree) = @_;
-	my $img = $tree->look_down(_tag => 'img', id => 'image');
-	unless ($img) {
-		$l->error('could not parse page');
-		return;
-	}
-	map {$s->{$_} = $img->attr($_)} qw( src alt);
-	
-	my $next = $img->parent()->attr('href');
-	if ($next eq 'javascript:void(0);') {
-		$next = undef;
-		my $url_info = $s->{page_url};
-		$url_info =~ s'/[^/]+/[^/]+/[^/]+$'/';
-		my $tree = Core::Mangafox->_get_tree($url_info) or return;
-		my $url = $s->{page_url};
-		my @chapter = reverse $tree->look_down(_tag=>'a',class=>'chico');
-		for (0..($#chapter - 1)) {
-			my $href = $chapter[$_]->attr('href');
-			if ($url =~ m/\Q$href\E/i) {
-				$next = $chapter[$_+1]->attr('href');
-				last;
-			}
-		}
-		$tree->delete();
-	}
-	return unless $next;
-	$s->{next} = URI->new_abs($next,$s->{page_url})->as_string();
 	return 1;
 }
 
