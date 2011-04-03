@@ -160,7 +160,7 @@ sub about {
 
 sub want_info {
 	my ($s) = @_;
-	return (!$s->clist()->{moreinfo}) and $s->can('_fetch_info')
+	return ((!$s->clist()->{moreinfo}) and $s->can('_fetch_info'));
 }
 
 #->\%info
