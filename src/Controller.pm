@@ -230,21 +230,13 @@ sub hint_view {
 sub _store {
 	my ($col,$spot) = @_;
 	return unless $spot;
-	my $blob;
-	my $elem;
-	try {
-		return unless $spot->mount();
-		$blob = $spot->fetch();
-		$elem = $spot->element();
-	} catch {
-		die "there was an unhandled error, please fix!\n" . Dumper $_;
-	};
-	
-	if ($elem) {
-		return $col->store($elem,$blob) if $elem;
-		return 1;
+	$spot->mount();
+	my $blob = $spot->fetch();
+	my $elem = $spot->element();
+	if ($elem and $blob) {
+		return $col->store($elem,$blob);
 	}
-	return;
+	return ();
 }
 
 #trims the collections

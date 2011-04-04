@@ -76,6 +76,23 @@ sub time_list {
 	return $c, @return;
 }
 
+#$config, $current, $factor
+#adjusts the time values according to factor
+sub adjust_time {
+	my ($config,$current,$factor) = @_;
+	$config->{$current->[0]} = join ':', time, $current->[2] * $factor;
+}
+
+#$error -> $bool
+#returns true if $error seems to be temporary
+sub is_temporary {
+	my ($error) = @_;
+	if (ref $error) {
+		return (($error->[0] eq 'get page') and ($error->[1] >= 500));
+	}
+	return ();
+}
+
 #updates the lists of collections of the cores
 sub update_cores_lists {
 	my ($s) = @_;
@@ -97,10 +114,10 @@ sub update_cores_lists {
 				if ((@oldkeys == keys %$list) and
 					!(grep {!exists $list->{$_}} @oldkeys) )
 				{ #there are no new remotes
-					$c->{$core->[0]} = join ':', time, $core->[2] * 1.2;
+					adjust_time($c,$core,1.2);
 				}
 				else {
-					$c->{$core->[0]} = join ':', time, $core->[2] * 0.7;
+					adjust_time($c,$core,0.7);
 				}
 				#update the list either way
 				$core->[0]->clist($list);
@@ -111,7 +128,14 @@ sub update_cores_lists {
 			return 1;
 		}
 		catch {
-			die "there was an unhandled error, please fix!\n" . Dumper $_;
+			my $error = $_;
+			if (is_temporary($error)) { 
+				Log->warn("updating core list $core had an error");
+				return 1;
+			}
+			else {
+				die "there was an unhandled error, please fix!\n" . Dumper $error;
+			}
 		};
 	};
 }
@@ -123,59 +147,96 @@ sub check_collections {
 	my ($c,@to_update) = $s->time_list('consistency_check',Collection->list());
 	return () unless @to_update;
 	
-	my $next_check;
+	my $current;
 	return sub {
-		$next_check = shift @to_update;
-		return () unless $next_check;
-		$l->trace('check ' , $next_check->[0]);
-		if (try { check_collection($next_check->[0]) } ) {
-			$c->{$next_check->[0]} = join ':', time, $next_check->[2] * 0.7;
+		unless ($current) {
+			$current = shift @to_update;
+			return () unless $current;
+			return 1 unless Cores::known($current->[0]);
+			try {
+				if (!check_first($current->[0])) {
+					adjust_time($c,$current,0.7);
+					$current = undef;
+				}
+			} catch { 
+				my $error = $_;
+				if (is_temporary($error)) {
+					Log->warn("error check first of ", $current->[0]);
+					push @to_update, $current;
+					$current = undef;
+				}
+				else {
+					die "there was an unhandled error, please fix!\n" . Dumper $error;
+				}
+			};
+			return 1;
 		}
-		else {
-			$c->{$next_check->[0]} = join ':', time, $next_check->[2] * 1.2;
+		try {
+			if (my $ret = check_last($current->[0])) {
+				adjust_time($c,$current,$current->[3]||($ret<0 ? 0.7 : 1.2));
+				$current = undef;
+			}
+			else {
+				$current->[3] = 0.7;
+			}
+		} catch {
+			my $error = $_;
+			if (is_temporary($error)) {
+				Log->warn("error check last of ", $current->[0]);
+				push @to_update, $current;
+				$current = undef;
+			}
+			else {
+				die "there was an unhandled error, please fix!\n" . Dumper $error;
+			}
 		}
+
 		return 1;
 	}
 }
 
-#$collections
+#$id -> $bool
+#returns true if first of $id
+#matches local and remote
+sub check_first {
+	my ($id) = @_;
+	my $col = Collection->get($id);
+	my $first_elem = $col->fetch(1);
+	return 1 unless $first_elem;
+	my $r_first = Cores::first($id);
+	return 1 unless $r_first;
+	$r_first->mount();
+	my $r_first_elem = $r_first->element();
+	if (my $attr = $first_elem->differs($r_first_elem)) {
+		$l->error('attribute ', $attr, ' of first is inconsistent ', $id);
+		$col->purge();
+		return 0;
+	}
+	return 1;
+}
+
+#$id -> $bool
 #checks the given collection
-sub check_collection {
+sub check_last {
 	my ($next_check) = @_;
 	my $col = Collection->get($next_check);
-	unless (Cores::known($next_check)) {
-		#$col->purge();
-		return 1;
-	}
+
 	my $last_pos = $col->last();
 	unless ($last_pos) {
 		$l->error('has no elements', $next_check);
 		$col->purge();
-		return 1;
+		return -1;
 	}
 	$l->trace("checking last ($last_pos) of $next_check");
 	if ($last_pos > 1) {
 		my $last_elem = $col->fetch($last_pos);
 		my $r_last = $last_elem->create_spot();
-		return 1 unless $r_last->mount();
 		my $r_last_elem = $r_last->element();
 		if (my $attr = $last_elem->differs($r_last_elem)) {
 			$l->error('attribute ', $attr, ' of last is inconsistent ', $next_check);
 			$col->delete($last_pos);
-			return 1;
+			return 0;
 		}
-	}
-	#checking first
-	my $first_ent = $col->fetch(1);
-	return 1 unless $first_ent;
-	my $r_first = Cores::first($next_check);
-	return 1 unless $r_first;
-	return 1 unless $r_first->mount();
-	my $r_first_ent = $r_first->element();
-	if (my $attr = $first_ent->differs($r_first_ent)) {
-		$l->error('attribute ', $attr, ' of first is inconsistent ', $next_check);
-		$col->purge();
-		return 1;
 	}
 	return 1;
 }
@@ -201,45 +262,75 @@ sub keep_current {
 			my $remote = Cores::new($id);
 			try {
 				$remote->clist($remote->fetch_info()) if $remote->want_info();
-			} catch {
-				die "there was an unhandled error, please fix!\n" . Dumper $_;
-			};
-			my $col = Collection->get($id);
-			my $last = $col->last();
-			if ($last) {
-				$spot = $col->fetch($last)->create_spot();
-			}
-			else {
-				$spot = Cores::first($id);
-			}
-			try {
+				my $col = Collection->get($id);
+				my $last = $col->last();
+				if ($last) {
+					$spot = $col->fetch($last)->create_spot();
+				}
+				else {
+					$spot = Cores::first($id);
+				}
 				$spot->mount();
 			} catch {
-				die "there was an unhandled error, please fix!\n" . Dumper $_;
-			};	
+				my $error = $_;
+				if (is_temporary($error)) {
+					Log->warn("error keep current of ", $current->[0]);
+					push @to_update, $current;
+					$current = undef;
+					$spot = undef;
+				}
+				elsif (ref($error) and ($error->[0] eq 'get page')) {
+					Log->warn("error keep current of ", $current->[0], ' code ', $error->[1]);
+					$spot = undef;
+				}
+				elsif (ref($error) and ($error->[0] eq 'mount parse failed')) {
+					Log->warn("error keep current of ", $current->[0]);
+					$spot = undef;
+				}
+				else {
+					die "there was an unhandled error, please fix!\n" . Dumper $error;
+				}
+			};
+			return 1;
 		}
 		my $id = $spot->id;
-		if (Collection->get($id)->fetch($spot->position + 1)) {
+		my $col = Collection->get($id);
+		if ($col->fetch($spot->position + 1)) {
 			$spot = undef;
 		}
 		else {
 			try {
-				$spot = $spot->next();
-			}
-			catch {
-				die "there was an unhandled error, please fix!\n" . Dumper $_;
+				return unless $spot = $spot->next();
+				$spot->mount();
+				my $blob = $spot->fetch();
+				my $elem = $spot->element();
+				if ($elem and $blob) {
+					$col->store($elem,$blob);
+					$col->clean();
+					$current->[3] = 0.7;
+				}
+			} catch {
+				my $error = $_;
+				if (is_temporary($error)) {
+					Log->warn("error keep current of ", $current->[0]);
+					push @to_update, $current;
+					$spot = undef;
+				}
+				elsif (ref($error) and ($error->[0] eq 'get page')) {
+					Log->warn("error keep current of ", $current->[0], ' code ', $error->[1]);
+					$spot = undef;
+				}
+				elsif (ref($error) and ($error->[0] eq 'mount parse failed')) {
+					Log->warn("error keep current of ", $current->[0]);
+					$spot = undef;
+				}
+				else {
+					die "there was an unhandled error, please fix!\n" . Dumper $error;
+				}
 			};
-			my $col = Collection->get($id);
-			if (!Controller::_store($col,$spot)) {
-				$spot = undef;
-			}
-			else {
-				$current->[3] ||= $current->[2] * 1.2;
-				$col->clean();
-			}
 		}
 		unless ($spot) {
-			$c->{$current->[0]} = join ':', time, $current->[3] || $current->[2] * 0.7;
+			adjust_time($c,$current,$current->[3]||1.2);
 			$current = undef;
 		}
 		return 1;
@@ -263,7 +354,15 @@ sub fetch_info {
 		return try {
 			$remote->clist($remote->fetch_info());
 		} catch {
-			die "there was an unhandled error, please fix!\n" . Dumper $_;
+			my $error = $_;
+			if (is_temporary($error)) {
+				Log->warn("fetch info of ", $id);
+				push @fetch_list, $id;
+				return 1;
+			}
+			else {
+				die "there was an unhandled error, please fix!\n" . Dumper $error;
+			}
 		};
 	}
 }
