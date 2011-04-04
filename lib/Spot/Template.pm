@@ -27,17 +27,15 @@ sub mount {
 	my ($s) = @_;
 	$s->{page_url} = $s->{state};
 	Log->trace('mount ' . $s->{id} .' '. $s->{page_url});
-	my $tree = DlUtil::get_tree($s->{page_url});
-	return unless $tree;
-	local $@;
-	my $ret = eval { $s->_mount_parse($$tree) };
-	unless ($ret) {
-		Log->error("crash on mount page: " , $@);
-		return;
+	my ($tree,$page) = DlUtil::get_tree($s->{page_url});
+	
+	unless ($s->_mount_parse($$tree)) {
+		Log->error("failed to parse page ". $s->{page_url});
+		die ['mount parse returned failure', $s, $page]
 	}
 	Log->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next));
-	$s->{fail} = undef if $ret;
-	return $ret;
+	$s->{fail} = undef;
+	return 1;
 }
 
 #not implemented
@@ -61,7 +59,7 @@ sub fetch {
 	if (!$file->is_success() or !$file->header('Content-Length')) {
 		Log->error('error get ' . $s->{src});
 		$s->{fail} = 'could not fetch object';
-		return;
+		die ['fetch element', $s, $file];
 	}
 	my $blob = $file->decoded_content();
 
@@ -77,7 +75,7 @@ sub element {
 	my ($s) = @_;
 	if ($s->{fail}) {
 		Log->error('fail is set: ' . $s->{fail});
-		return;
+		die 'cant get element of failed page';
 	}
 	my $object = {};
 	$object->{cid} = $s->{id};
@@ -91,7 +89,7 @@ sub next {
 	Log->trace('create next');
 	if ($s->{fail}) {
 		Log->error('fail is set: ' . $s->{fail});
-		return;
+		die 'cant get next of failed page';
 	}
 	unless ($s->{next}) {
 		Log->error('no next was found');
