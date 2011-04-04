@@ -157,7 +157,11 @@ sub hint_view {
 				return;
 			}
 		}
-		$spot = $spot->next();
+		try {
+			$spot = $spot->next();
+		} catch {
+			die "there was an unhandled error, please fix!\n" . Dumper $_;
+		};
 		return unless $spot;
 		_store($col,$spot);
 		$col->clean();
@@ -225,10 +229,11 @@ sub hint_export {
 #stores the element of the spot into the collection
 sub _store {
 	my ($col,$spot) = @_;
-	return unless $spot and $spot->mount();
+	return unless $spot;
 	my $blob;
 	my $elem;
 	try {
+		return unless $spot->mount();
 		$blob = $spot->fetch();
 		$elem = $spot->element();
 	} catch {
