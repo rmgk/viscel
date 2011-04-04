@@ -5,7 +5,7 @@ package Viscel v4.3.0;
 use 5.012;
 use warnings;
 use FindBin;
-use lib $FindBin::Bin.'/lib';
+use lib $FindBin::Bin.'/src';
 use Getopt::Long;
 use Test::Harness;
 
