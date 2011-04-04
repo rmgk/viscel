@@ -60,31 +60,35 @@ sub cfg {
 	return $s->{cfg}->{$sect};
 }
 
-#resets the non global state
-sub reset {
-	my ($s) = @_;
-	$s->{istate} = undef;
+#section,@keylist -> $config, @timelist
+#takes a section and a list of keys
+#and returns the config and the list of array
+#refs with the id and the times
+sub time_list {
+	my ($s,$section) = (shift,shift);
+	my $c = $s->cfg($section);
+	my @return;
+	for my $key (@_) {
+		my ($last_time,$next_time) = split(/:/,$c->{$key}//'');
+		$last_time ||= 0; $next_time ||= 209600;
+		push(@return, [$key,$last_time,$next_time]) if (time - $last_time > $next_time);
+	}
+	return $c, @return;
 }
 
 #updates the lists of collections of the cores
 sub update_cores_lists {
 	my ($s) = @_;
 	Log->trace('initialise update cores list');
-	my $c = $s->cfg('update_core_list');
-	my @cores_to_check;
-	for my $core (Cores::initialised()) {
-		my ($last_time,$next_time) = split(/:/,$c->{$core}//'');
-		$last_time ||= 0; $next_time ||= 1209600;
-		push(@cores_to_check, [$core,$last_time,$next_time]) if (time - $last_time > $next_time);
-	}
-	return () unless @cores_to_check;
+	my ($c,@to_check) = $s->time_list('update_core_list',Cores::initialised());
+	return () unless @to_check;
 	Log->trace('start update cores list');
 	my $core;
 	my $fetch;
 	return sub {
 		unless ($core) {
-			return () unless @cores_to_check;
-			$core = shift @cores_to_check;
+			return () unless @to_check;
+			$core = shift @to_check;
 			$fetch = $core->[0]->fetch_list();
 		}
 		return try {
@@ -116,13 +120,7 @@ sub update_cores_lists {
 sub check_collections {
 	my ($s) = @_;
 	Log->trace('initialise check collections');
-	my $c = $s->cfg('consistency_check');
-	my @to_update;
-	for my $id (Collection->list()) {
-		my ($last_time,$next_time) = split(/:/,$c->{$id}//'');
-		$last_time ||= 0; $next_time ||= 1209600;
-		push(@to_update, [$id,$last_time,$next_time]) if (time - $last_time > $next_time);
-	}
+	my ($c,@to_update) = $s->time_list('consistency_check',Collection->list());
 	return () unless @to_update;
 	
 	my $next_check;
@@ -187,14 +185,7 @@ sub keep_current {
 	my ($s) = @_;
 	Log->trace('initialise keep current');
 	my $up = UserPrefs->section('bookmark');
-	my $c = $s->cfg('keep_current');
-	
-	my @to_update;
-	for my $id ($up->list()) {
-		my ($last_time,$next_time) = split(/:/,$c->{$id}//'');
-		$last_time ||= 0; $next_time ||= 86400;
-		push(@to_update, [$id,$last_time,$next_time]) if (time - $last_time > $next_time);
-	}
+	my ($c,@to_update) = $s->time_list('keep_current',$up->list());
 	return () unless @to_update;
 	
 	my $spot;
