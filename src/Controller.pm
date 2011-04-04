@@ -115,18 +115,24 @@ sub hint_front {
 		return;
 	}
 	if ($remote->want_info()) {
-		try {
+		return unless try {
 			$remote->clist($remote->fetch_info());
+			return 1;
 		} catch {
-			die "there was an unhandled error, please fix!\n" . Dumper $_;
+			Log->error("there was an unhandled error, please fix!\n" . Dumper $_);
+			return 0 ;
 		};
 	}
 	my $col = Collection->get($id);
 	return if $col->fetch(1);
 	my $spot = Cores::first($id);
-	_store($col,$spot);
-	$col->clean();
-	$HS = $spot;
+	try {
+		_store($col,$spot);
+		$col->clean();
+		$HS = $spot;
+	} catch {
+		Log->error("there was an unhandled error, please fix!\n" . Dumper $_);
+	}
 	return 1;
 }
 
@@ -146,10 +152,12 @@ sub hint_view {
 			my $ent = $col->fetch($pos);
 			if ($ent) { 
 				$spot = $ent->create_spot();
-				try {
+				return unless try {
 					$spot->mount();
+					return 1;
 				} catch {
-					die "there was an unhandled error, please fix!\n" . Dumper $_;
+					Log->error("there was an unhandled error, please fix!\n" . Dumper $_);
+					return 0;
 				};
 			}
 			else {
@@ -159,13 +167,13 @@ sub hint_view {
 		}
 		try {
 			$spot = $spot->next();
+			return unless $spot;
+			_store($col,$spot);
+			$col->clean();
+			$HS = $spot;
 		} catch {
-			die "there was an unhandled error, please fix!\n" . Dumper $_;
+			Log->error("there was an unhandled error, please fix!\n" . Dumper $_);
 		};
-		return unless $spot;
-		_store($col,$spot);
-		$col->clean();
-		$HS = $spot;
 	}
 	return 1;
 }
