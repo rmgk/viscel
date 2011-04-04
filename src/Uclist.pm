@@ -1,3 +1,5 @@
+use 5.012;
+use warnings;
 sub text_match {
 	my $to_match = shift;
 	return sub {$_[0]->as_text ~~ $to_match};

@@ -23,7 +23,7 @@ sub _load_list {
 #fetches the list of known remotes
 sub _fetch_list {
 	my ($pkg) = @_;
-	my %raw_list = do ($FindBin::Bin.'/uclist.txt');
+	my %raw_list = do ($FindBin::Bin.'/src/Uclist.pm');
 	if ($@) {
 		chomp $@;
 		Log->error('could not load list: ' , $@);
