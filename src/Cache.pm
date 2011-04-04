@@ -88,7 +88,7 @@ sub list {
 		my $dir = $cachedir.$a.$b.'/';
 		opendir(my $dh, $dir);
 		push @hashes, map { $a.$b.$_ } grep /^[\da-f]{38}$/, readdir $dh;
-		close $dh;
+		closedir $dh;
 	}}
 	return @hashes;
 }

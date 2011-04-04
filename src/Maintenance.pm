@@ -261,7 +261,10 @@ sub keep_current {
 			my $id = $current->[0];
 			my $remote = Cores::new($id);
 			try {
-				$remote->clist($remote->fetch_info()) if $remote->want_info();
+				if ($remote->want_info()) {
+					$remote->clist($remote->fetch_info());
+					$remote->save_clist();
+				}
 				my $col = Collection->get($id);
 				my $last = $col->last();
 				if ($last) {
@@ -353,6 +356,7 @@ sub fetch_info {
 		my $remote = Cores::new($id);
 		return try {
 			$remote->clist($remote->fetch_info());
+			$remote->save_clist();
 		} catch {
 			my $error = $_;
 			if (is_temporary($error)) {

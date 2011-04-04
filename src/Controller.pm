@@ -117,6 +117,7 @@ sub hint_front {
 	if ($remote->want_info()) {
 		return unless try {
 			$remote->clist($remote->fetch_info());
+			$remote->save_clist();
 			return 1;
 		} catch {
 			Log->error("there was an unhandled error, please fix!\n" . Dumper $_);

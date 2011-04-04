@@ -68,7 +68,7 @@ sub _fetch_info {
 		$cfg->{Artist} = HTML::Entities::encode(($p[2]->content_list())[1]);
 		$cfg->{Artist} =~  s/^\s*:\s*+//;
 		$cfg->{Artist} .= ' ' . $author;
-		$cfg->{Tags} = ($p[2]->content_list())[1];
+		$cfg->{Tags} = ($p[3]->content_list())[1];
 		$cfg->{Tags} =~  s/^\s*:\s*+//;
 		$cfg->{Detail} = HTML::Entities::encode($p[5]->as_trimmed_text());
 	}
