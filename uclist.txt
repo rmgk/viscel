@@ -1863,7 +1863,7 @@ GreystoneInn => [
 ],
 Bunny => [
 	'Bunny',
-	'http://www.bunny-comic.com/?id=1',
+	'http://www.bunny-comic.com/1.html',
 	[src => qr'strips/'],
 	next => [src => 'resource/nav_next.png'],
 ],
