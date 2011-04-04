@@ -29,12 +29,13 @@ sub log {
 	my $module = $call[0];
 	#getting the call depth
 	my $d = 1;
-	while(caller(++$d)){}; 
-	say $line,
-		' ' x (3-length($line)), #number of spaces depends on line number length
-		'-' x ($d-2) , '>', #add call depth indicator
-		$module, 
-		' ' x ((24-$d-length($module))), #uhm well it works for now
+	while(caller(++$d)){};
+	$line = ' ' x (3-length($line)) . $line;
+	my $cdi = ('-' x ($d-2)) . '>';
+	$cdi .= $module;
+	$cdi .= ' ' x ((24-$d-length($module)));
+	substr($cdi,23) = '';
+	say $line, $cdi,' ', 
 		join '', grep {defined} @_; #the message itself
 } 
 
