@@ -9,7 +9,8 @@ use Globals;
 
 our ($TRACE, $DEBUG, $INFO, $WARN, $ERROR, $FATAL, $SILENT) = 0..6;
 
-$Globals::LOGLVL //= $DEBUG; #/
+$Globals::LOGLVL //= $DEBUG;
+$Globals::FILELOG //= $ERROR;
 
 #$class, \%settings -> \%self
 #constructor
@@ -23,7 +24,7 @@ sub new {
 #$msg
 #logs $msg 
 sub log {
-	my ($s) = shift;
+	my ($s,$level) = (shift,shift);
 	my @call = caller 1;
 	my $line = $call[2];
 	my $module = $call[0];
@@ -35,8 +36,13 @@ sub log {
 	$cdi .= $module;
 	$cdi .= ' ' x ((24-$d-length($module)));
 	substr($cdi,23) = '';
-	say $line, $cdi,' ', 
+	my $message = $line . $cdi . ' ' . 
 		join '', grep {defined} @_; #the message itself
+	say $message;
+	return if ($level < $Globals::FILELOG);
+	open (my $fh, '>>', 'error.txt');
+	print $fh $message , "\n";
+	close $fh;
 } 
 
 #$msg
@@ -44,42 +50,42 @@ sub trace {
 	my ($s) = shift;
 	return if ($TRACE < $Globals::LOGLVL);
 	print 'TRACE ';
-	$s->log(@_);
+	$s->log($TRACE,@_);
 }
 #$msg
 sub debug { 
 	my ($s) = shift;
 	return if ($DEBUG < $Globals::LOGLVL);
 	print 'DEBUG ';
-	$s->log(@_);
+	$s->log($DEBUG,@_);
 }
 #$msg
 sub info { 
 	my ($s) = shift;
 	return if ($INFO < $Globals::LOGLVL);
 	print 'INFO  ';
-	$s->log(@_);
+	$s->log($INFO,@_);
 }
 #$msg
 sub warn { 
 	my ($s) = shift;
 	return if ($WARN < $Globals::LOGLVL);
 	print 'WARN  ';
-	$s->log(@_);
+	$s->log($WARN,@_);
 }
 #$msg
 sub error { 
 	my ($s) = shift;
 	return if ($ERROR < $Globals::LOGLVL);
 	print 'ERROR ';
-	$s->log(@_);
+	$s->log($ERROR,@_);
 }
 #$msg
 sub fatal { 
 	my ($s) = shift;
 	return if ($FATAL < $Globals::LOGLVL);
 	print 'FATAL ';
-	$s->log(@_);
+	$s->log($FATAL,@_);
 }
 
 1;

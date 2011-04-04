@@ -8,6 +8,7 @@ use warnings;
 # ----- global default variables -----
 
 our $LOGLVL; #loglevel is set in log.pm
+our $FILELOG; #filelog is set in log.pm
 our $PORT = 80; 
 our $CACHEDIR = './cache/';
 our $DATADIR = './data/';
@@ -20,6 +21,10 @@ our $UPDATEUNIVERSAL = undef;
 sub loglevel { 
 	$LOGLVL = shift if @_;
 	return $LOGLVL;
+}
+sub filelog { 
+	$FILELOG = shift if @_;
+	return $FILELOG;
 }
 sub port { 
 	$PORT = shift if @_;
@@ -50,6 +55,7 @@ sub updateuniversal {
 sub getoptarray {
 	return (
 		"LOGLVL=i" => \$LOGLVL,
+		"FILELOG=i" => \$FILELOG,
 		"PORT=i" => \$PORT,
 		"CACHEDIR=s" => \$CACHEDIR,
 		"DATADIR=s" => \$DATADIR,
