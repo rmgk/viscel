@@ -20,6 +20,9 @@ my $result = GetOptions (Globals::getoptarray(),"test" => \$test, 'purge=s' => \
 if ($purge) {
 	if (Controller::init()) {
 		given($purge) {
+			when(/\w+_\w+/) {
+				Collection->get($purge)->purge();
+			}
 			when('collections') {
 				Controller::trim_collections();
 			}
