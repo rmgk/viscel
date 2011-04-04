@@ -132,7 +132,7 @@ sub hint_front {
 		$HS = $spot;
 	} catch {
 		Log->error("there was an unhandled error, please fix!\n" . Dumper $_);
-	}
+	};
 	return 1;
 }
 
