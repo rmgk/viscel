@@ -82,14 +82,17 @@ sub first {
 	Log->trace("request first of $id");
 	my $remote = new($id);
 	return unless $remote;
-	$remote->fetch_info() if $remote->want_info();
+	if ($remote->want_info()) {
+		$remote->clist($remote->fetch_info());
+		$remote->save_clist();
+	}
 	return $remote->first();
 }
 
 #$id -> $remote
 #returns the remote for the given id
 sub new {
-	my  ($id) = @_;
+	my ($id) = @_;
 	my $core = _core_from_id($id);
 	if (!$core) {
 		Log->error("$core is not initialised");

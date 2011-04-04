@@ -237,8 +237,8 @@ Diablito => [
 ],
 SophiaAwakening => [
 	'Sophia Awakening',
-	'http://parasitepublishing.com/wordpress/?p=179',
-	[class=>'object'],
+	'http://parasitepublishing.com/wordpress/?webcomic_post=sophia01_v1b-e292316',
+	[class=>qr'webcomic-object-full'],
 ],
 DoctorVoluptua => [
 	'Doctor Voluptua',
@@ -568,8 +568,8 @@ NeoEarthNENW => [
 ],
 Awakened => [
 	'The Awakened',
-	'http://www.mousekaroos.com/theawakened/firstpage.html',
-	[src => qr'page'],
+	'http://www.theawakenedcomic.com/2011/01/09/chapter-one-page-one/',
+	[id => 'comic-1'],
 ],
 HaruSari => [
 	'Haru-Sari',
@@ -929,11 +929,6 @@ SuburbanTribe => [
 	'Suburban Tribe',
 	'http://www.pixelwhip.com/?p=83',
 	[id => 'comic'],
-],
-HH => [
-	'H.H.',
-	'http://www.jastusa.com/webcomic/index.php?page=1&lang=',
-	[src => qr'/webcomic/']
 ],
 Copper => [
 	'Copper',
@@ -2045,8 +2040,8 @@ CAD => [
 ],
 Kawaiinot => [
 	'Kawaii Not',
-	'http://www.kawaiinot.com/?p=1',
-	[id => 'cg_img'],
+	'http://www.kawaiinot.com/2005/06/18/the-cloud-and-the-fart/',
+	[id => 'comic-1'],
 ],
 Multiplex => [
 	'Multiplex',

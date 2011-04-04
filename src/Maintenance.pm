@@ -66,6 +66,7 @@ sub cfg {
 #refs with the id and the times
 sub time_list {
 	my ($s,$section) = (shift,shift);
+	Log->trace('create time list');
 	my $c = $s->cfg($section);
 	my @return;
 	for my $key (@_) {
@@ -80,6 +81,7 @@ sub time_list {
 #adjusts the time values according to factor
 sub adjust_time {
 	my ($config,$current,$factor) = @_;
+	Log->trace('adjusting time of ', $current->[0], ' by factor ', $factor); 
 	$config->{$current->[0]} = join ':', time, $current->[2] * $factor;
 }
 
@@ -107,6 +109,7 @@ sub update_cores_lists {
 			return () unless @to_check;
 			$core = shift @to_check;
 			$fetch = $core->[0]->fetch_list();
+			Log->info('update core ', $core->[0]);
 		}
 		return try {
 			if (my $list = $fetch->()) {
@@ -148,21 +151,29 @@ sub check_collections {
 	return () unless @to_update;
 	
 	my $current;
+	my %seen;
 	return sub {
 		unless ($current) {
 			$current = shift @to_update;
 			return () unless $current;
-			return 1 unless Cores::known($current->[0]);
+			Log->info('check collection ' , $current->[0]);
+			unless (Cores::known($current->[0])) {
+				Log->warn('unknown collection ', $current->[0]);
+				$current = undef;
+				return 1;
+			}
 			try {
 				if (!check_first($current->[0])) {
 					adjust_time($c,$current,0.7);
 					$current = undef;
 				}
-			} catch { 
+			} catch {
 				my $error = $_;
 				if (is_temporary($error)) {
 					Log->warn("error check first of ", $current->[0]);
-					push @to_update, $current;
+					push @to_update, $current unless $seen{$current->[0]};
+					$seen{$current->[0]} = 1;
+					adjust_time($c,$current,1);
 					$current = undef;
 				}
 				else {
@@ -183,13 +194,15 @@ sub check_collections {
 			my $error = $_;
 			if (is_temporary($error)) {
 				Log->warn("error check last of ", $current->[0]);
-				push @to_update, $current;
+				push @to_update, $current unless $seen{$current->[0]};
+				$seen{$current->[0]} = 1;
+				adjust_time($c,$current,1);
 				$current = undef;
 			}
 			else {
 				die "there was an unhandled error, please fix!\n" . Dumper $error;
 			}
-		}
+		};
 
 		return 1;
 	}
@@ -200,6 +213,7 @@ sub check_collections {
 #matches local and remote
 sub check_first {
 	my ($id) = @_;
+	Log->trace('check first ', $id);
 	my $col = Collection->get($id);
 	my $first_elem = $col->fetch(1);
 	return 1 unless $first_elem;
@@ -208,7 +222,7 @@ sub check_first {
 	$r_first->mount();
 	my $r_first_elem = $r_first->element();
 	if (my $attr = $first_elem->differs($r_first_elem)) {
-		$l->error('attribute ', $attr, ' of first is inconsistent ', $id);
+		$l->debug('attribute ', $attr, ' of first is inconsistent ', $id);
 		$col->purge();
 		return 0;
 	}
@@ -227,10 +241,20 @@ sub check_last {
 		$col->purge();
 		return -1;
 	}
-	$l->trace("checking last ($last_pos) of $next_check");
-	if ($last_pos > 1) {
+	$l->trace("check last ($last_pos) of $next_check");
+	if ($last_pos >= 1) {
 		my $last_elem = $col->fetch($last_pos);
 		my $r_last = $last_elem->create_spot();
+		return unless try {
+			$r_last->mount();
+			return 1;
+		} catch {
+			my $error = $_;
+			die $error if (is_temporary($error)); #temporary errors are handled further up
+			$l->error('page of last no longer parses ', $next_check);
+			$col->delete($last_pos);
+			return 0;
+		};
 		my $r_last_elem = $r_last->element();
 		if (my $attr = $last_elem->differs($r_last_elem)) {
 			$l->error('attribute ', $attr, ' of last is inconsistent ', $next_check);
@@ -251,6 +275,7 @@ sub keep_current {
 	
 	my $spot;
 	my $current;
+	my %seen;
 	return sub {
 		unless ($spot) {
 			unless (@to_update) {
@@ -278,7 +303,8 @@ sub keep_current {
 				my $error = $_;
 				if (is_temporary($error)) {
 					Log->warn("error keep current of ", $current->[0]);
-					push @to_update, $current;
+					push @to_update, $current unless $seen{$current->[0]};
+					$seen{$current->[0]} = 1;
 					$current = undef;
 					$spot = undef;
 				}
@@ -316,7 +342,8 @@ sub keep_current {
 				my $error = $_;
 				if (is_temporary($error)) {
 					Log->warn("error keep current of ", $current->[0]);
-					push @to_update, $current;
+					push @to_update, $current unless $seen{$current->[0]};
+					$seen{$current->[0]} = 1;
 					$spot = undef;
 				}
 				elsif (ref($error) and ($error->[0] eq 'get page')) {
@@ -349,19 +376,20 @@ sub fetch_info {
 		push(@fetch_list, $core->list_need_info());
 	}
 	return () unless @fetch_list;
-	
+	my %seen;
 	return sub {
 		my $id = shift @fetch_list;
 		return () unless $id;
 		my $remote = Cores::new($id);
 		return try {
-			$remote->clist($remote->fetch_info());
+			$remote->clist($remote->fetch_info()) and
 			$remote->save_clist();
 		} catch {
 			my $error = $_;
 			if (is_temporary($error)) {
 				Log->warn("fetch info of ", $id);
-				push @fetch_list, $id;
+				push @fetch_list, $id unless $seen{$id};
+				$seen{$id} = 1;
 				return 1;
 			}
 			else {
