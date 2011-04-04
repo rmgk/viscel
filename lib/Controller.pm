@@ -18,7 +18,6 @@ use Data::Dumper;
 use Try::Tiny;
 
 my $HS; #hint state, chaches the current read spot
-my $maintainer;
 my @hint;
 
 our $TERM = 0;
@@ -53,7 +52,7 @@ sub init {
 sub start {
 	Log->trace('run main loop');
 	my $timeout = 0;
-	$maintainer = Maintenance->new();
+	my $maintainer = Maintenance->new();
 	while (!$TERM) {
 		Core::Universal->_load_list() if Globals::updateuniversal();
 		$SIG{'INT'} = $INTF;
@@ -61,18 +60,18 @@ sub start {
 			$SIG{'INT'} = $INTS;
 			handle_hints();
 			$timeout = 60; #resetting timeout
-			$maintainer->reset();
+			#$maintainer->reset('keep_current');
 		}
-		#else {
-		#	$SIG{'INT'} = $INTS;
-		#	if ($maintainer->tick()) {
-		#		$timeout = 0; #instant timeout to get some work done
-		#	}
-		#	else {
-		#		$maintainer = Maintenance->new();
-		#		$timeout = 3600; #one hour timeout
-		#	}
-		#}
+		else {
+			$SIG{'INT'} = $INTS;
+			if ($maintainer->tick()) {
+				$timeout = 0; #instant timeout to get some work done
+			}
+			else {
+				$maintainer = Maintenance->new();
+				$timeout = 3600; #one hour timeout
+			}
+		}
 	}
 }
 
@@ -96,7 +95,7 @@ sub handle_hints {
 				when ('front') {hint_front(@$hint)}
 				when ('view') {hint_view(@$hint)}
 				#when ('getall') {hint_getall(@$hint)}
-				when ('config') {$maintainer = Maintenance->new()} #config changed, maintain anew
+				when ('config') {} 
 				#when ('export') {hint_export(@$hint)}
 				#when ('check') { until (Maintenance::check_collection(@$hint)) {} }
 				default {Log->warn("unknown hint $_")}
@@ -117,10 +116,7 @@ sub hint_front {
 	}
 	if ($remote->want_info()) {
 		try {
-			my $list = $remote->fetch_info();
-			say $list;
-			$remote->clist($list);
-			1;
+			$remote->clist($remote->fetch_info());
 		} catch {
 			die "there was an unhandled error, please fix!\n" . Dumper $_;
 		};
@@ -150,7 +146,11 @@ sub hint_view {
 			my $ent = $col->fetch($pos);
 			if ($ent) { 
 				$spot = $ent->create_spot();
-				$spot->mount();
+				try {
+					$spot->mount();
+				} catch {
+					die "there was an unhandled error, please fix!\n" . Dumper $_;
+				};
 			}
 			else {
 				Log->debug('could not get spot');
@@ -170,60 +170,60 @@ sub hint_view {
 	return 1;
 }
 
-#$id
-#handles getall hints
-sub hint_getall {
-	my ($id) = @_;
-	Log->trace("handle getall hint $id");
-	my $col = Collection->get($id);
-	Log->debug("get last collected");
-	my $last = $col->last();
-	return unless ($last);
-	my $spot = $col->fetch($last)->create_spot();
-	return unless $spot;
-	$spot->mount();
-	while ($spot = $spot->next()) {
-		return unless _store($col,$spot);
-		$col->clean();
-	};
-	$HS = $spot;
-	return 1;
-}
+##$id
+##handles getall hints
+#sub hint_getall {
+#	my ($id) = @_;
+#	Log->trace("handle getall hint $id");
+#	my $col = Collection->get($id);
+#	Log->debug("get last collected");
+#	my $last = $col->last();
+#	return unless ($last);
+#	my $spot = $col->fetch($last)->create_spot();
+#	return unless $spot;
+#	$spot->mount();
+#	while ($spot = $spot->next()) {
+#		return unless _store($col,$spot);
+#		$col->clean();
+#	};
+#	$HS = $spot;
+#	return 1;
+#}
 
-#$collection
-#export collection to file
-sub hint_export {
-	my ($id) = @_;
-	Log->debug('exporting ', $id);
-	my $col = Collection->get($id);
-	my $last = $col->last();
-	my $dir = $main::EXPORT . $id . '/';
-	if ($last) {
-		mkdir ($main::EXPORT) unless -e $main::EXPORT ;
-		mkdir ($dir) unless -e $dir;
-		open (my $lfh, '>:encoding(UTF-8)', $dir . 'urls.txt');
-		for (1..$last) {
-			my $elem = $col->fetch($_);
-			next unless $elem and $elem->sha1;
-			print $lfh "$_=" .$elem->page_url() . "\n";
-			my $blob = Cache::get($elem->sha1);
-			my $ft;
-			given ($elem->type) {
-				when (/bmp/i) {$ft = '.bmp'}
-				when (/jpe?g/i) {$ft = '.jpg'}
-				when (/gif/i) {$ft = '.gif'}
-				when (/png/i) {$ft = '.png'}
-				when (/shockwave/i) {$ft = '.swf'}
-				default {$ft = $_; $ft =~ s'^.*/''}
-			}
-			open (my $FH, '>', $dir . $_ . $ft);
-			binmode $FH;
-			print $FH $$blob;
-			close $FH;
-		}
-		close $lfh;
-	}
-}
+##$collection
+##export collection to file
+#sub hint_export {
+#	my ($id) = @_;
+#	Log->debug('exporting ', $id);
+#	my $col = Collection->get($id);
+#	my $last = $col->last();
+#	my $dir = $main::EXPORT . $id . '/';
+#	if ($last) {
+#		mkdir ($main::EXPORT) unless -e $main::EXPORT ;
+#		mkdir ($dir) unless -e $dir;
+#		open (my $lfh, '>:encoding(UTF-8)', $dir . 'urls.txt');
+#		for (1..$last) {
+#			my $elem = $col->fetch($_);
+#			next unless $elem and $elem->sha1;
+#			print $lfh "$_=" .$elem->page_url() . "\n";
+#			my $blob = Cache::get($elem->sha1);
+#			my $ft;
+#			given ($elem->type) {
+#				when (/bmp/i) {$ft = '.bmp'}
+#				when (/jpe?g/i) {$ft = '.jpg'}
+#				when (/gif/i) {$ft = '.gif'}
+#				when (/png/i) {$ft = '.png'}
+#				when (/shockwave/i) {$ft = '.swf'}
+#				default {$ft = $_; $ft =~ s'^.*/''}
+#			}
+#			open (my $FH, '>', $dir . $_ . $ft);
+#			binmode $FH;
+#			print $FH $$blob;
+#			close $FH;
+#		}
+#		close $lfh;
+#	}
+#}
 
 #$col,$spot
 #stores the element of the spot into the collection

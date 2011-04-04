@@ -6,6 +6,8 @@ use 5.012;
 use warnings;
 
 use Log;
+use Try::Tiny;
+use Data::Dumper;
 
 my $l = Log->new();
 
@@ -21,15 +23,34 @@ sub new {
 #does some maintenance work
 sub tick {
 	my ($s) = @_;
-	given ($s->{state}) {
-		when ('update_cores') { $s->update_cores_lists() or $s->{state} = 'check_collections' }
-		when ('check_collections') { $s->check_collections() or $s->{state} = 'keep_current' }
-		when ('keep_current') { $s->keep_current() or $s->{state} = 'fetch_info' }
-		when ('fetch_info') { $s->fetch_info() or $s->{state} = 'done' }
-		when ('done') { return }
-		default { return }
+	if ($s->{continuation}) {
+		Log->trace('do continuation');
+		delete $s->{continuation} unless $s->{continuation}->();
+		ConfigINI::save_file(Globals::datadir,ref($s),$s->{cfg});
 	}
-	ConfigINI::save_file(Globals::datadir,ref($s),$s->{cfg});
+	else {
+		given ($s->{state}) {
+			when ('update_cores') {
+				$s->{state} = 'check_collections'
+					unless $s->{continuation} = $s->update_cores_lists();
+			}
+			when ('check_collections') {
+				$s->{state} = 'keep_current'
+					unless $s->{continuation} = $s->check_collections();
+			}
+			when ('keep_current') {
+				$s->{state} = 'fetch_info'
+					unless $s->{continuation} = $s->keep_current();
+			}
+			when ('fetch_info') {
+				$s->{state} = 'done'
+					unless $s->{continuation} = $s->fetch_info();
+			}
+			when ('done') { return }
+			default { return }
+		}
+		Log->trace('maintenance state ', $s->{state});
+	}
 	return 1;
 }
 
@@ -48,39 +69,75 @@ sub reset {
 #updates the lists of collections of the cores
 sub update_cores_lists {
 	my ($s) = @_;
+	Log->trace('initialise update cores list');
 	my $c = $s->cfg('update_core_list');
-	my $core = $s->{ucore};
-	unless ($core) {
-		my @cores_to_check = grep {time - ($c->{$_}||0) > 1209600} Cores::initialised();
-		unless (@cores_to_check) {
-			$l->debug('all core lists up to date');
-			return;
+	my @cores_to_check;
+	for my $core (Cores::initialised()) {
+		my ($last_time,$next_time) = split(/:/,$c->{$core}//'');
+		$last_time ||= 0; $next_time ||= 1209600;
+		push(@cores_to_check, [$core,$last_time,$next_time]) if (time - $last_time > $next_time);
+	}
+	return () unless @cores_to_check;
+	Log->trace('start update cores list');
+	my $core;
+	my $fetch;
+	return sub {
+		unless ($core) {
+			return () unless @cores_to_check;
+			$core = shift @cores_to_check;
+			$fetch = $core->[0]->fetch_list();
 		}
-		$core = shift @cores_to_check;
-		$s->{ucore} = $core;
-	}
-	$c->{$core} = time;
-	unless ($s->{cstate} = $core->update_list($s->{cstate})) {
-			$s->{ucore} = undef;
-	}
-	return 1;
+		return try {
+			if (my $list = $fetch->()) {
+				my @oldkeys = $core->[0]->clist();
+				if ((@oldkeys == keys %$list) and
+					!(grep {!exists $list->{$_}} @oldkeys) )
+				{ #there are no new remotes
+					$c->{$core->[0]} = join ':', time, $core->[2] * 1.2;
+				}
+				else {
+					$c->{$core->[0]} = join ':', time, $core->[2] * 0.7;
+				}
+				#update the list either way
+				$core->[0]->clist($list);
+				$core->[0]->save_clist();
+				$core = undef;
+				$fetch = undef;
+			}
+			return 1;
+		}
+		catch {
+			die "there was an unhandled error, please fix!\n" . Dumper $_;
+		};
+	};
 }
 
 #checks the collections for errors
 sub check_collections {
 	my ($s) = @_;
+	Log->trace('initialise check collections');
 	my $c = $s->cfg('consistency_check');
-	my @to_update = grep {(time - ($c->{$_}||0)) > 1209600} Collection->list();
-	unless (@to_update) {
-		$l->debug('consistency check complete');
-		return;
+	my @to_update;
+	for my $id (Collection->list()) {
+		my ($last_time,$next_time) = split(/:/,$c->{$id}//'');
+		$last_time ||= 0; $next_time ||= 1209600;
+		push(@to_update, [$id,$last_time,$next_time]) if (time - $last_time > $next_time);
 	}
-	my $next_check = shift @to_update;
-	$c->{$next_check} = time;
-	return 1 unless $next_check;
-	$l->trace('check ' , $next_check);
-	check_collection($next_check);
-	return 1;
+	return () unless @to_update;
+	
+	my $next_check;
+	return sub {
+		$next_check = shift @to_update;
+		return () unless $next_check;
+		$l->trace('check ' , $next_check->[0]);
+		if (try { check_collection($next_check->[0]) } ) {
+			$c->{$next_check->[0]} = join ':', time, $next_check->[2] * 0.7;
+		}
+		else {
+			$c->{$next_check->[0]} = join ':', time, $next_check->[2] * 1.2;
+		}
+		return 1;
+	}
 }
 
 #$collections
@@ -88,8 +145,8 @@ sub check_collections {
 sub check_collection {
 	my ($next_check) = @_;
 	my $col = Collection->get($next_check);
-	unless (Cores::new($next_check)) { # unknown collections get purged
-		$col->purge();
+	unless (Cores::known($next_check)) {
+		#$col->purge();
 		return 1;
 	}
 	my $last_pos = $col->last();
@@ -127,57 +184,97 @@ sub check_collection {
 
 #fetching new content
 sub keep_current {
-	my ($s) = @_; 
-	my $spot = $s->{istate};
-	my $up = UserPrefs->section('keep_current');
+	my ($s) = @_;
+	Log->trace('initialise keep current');
+	my $up = UserPrefs->section('bookmark');
 	my $c = $s->cfg('keep_current');
-	unless ($spot) {
-		my @to_update = grep {$up->get($_) and (!$c->{$_} or (time - $c->{$_}) > 86400)} $up->list();
-		unless (@to_update) {
-			$l->debug('selected collections kept current');
-			$s->{istate} = undef;
-			return;
+	
+	my @to_update;
+	for my $id ($up->list()) {
+		my ($last_time,$next_time) = split(/:/,$c->{$id}//'');
+		$last_time ||= 0; $next_time ||= 86400;
+		push(@to_update, [$id,$last_time,$next_time]) if (time - $last_time > $next_time);
+	}
+	return () unless @to_update;
+	
+	my $spot;
+	my $current;
+	return sub {
+		unless ($spot) {
+			unless (@to_update) {
+				$l->debug('selected collections kept current');
+				return ();
+			}
+			$current = shift @to_update;
+			my $id = $current->[0];
+			my $remote = Cores::new($id);
+			try {
+				$remote->clist($remote->fetch_info()) if $remote->want_info();
+			} catch {
+				die "there was an unhandled error, please fix!\n" . Dumper $_;
+			};
+			my $col = Collection->get($id);
+			my $last = $col->last();
+			if ($last) {
+				$spot = $col->fetch($last)->create_spot();
+			}
+			else {
+				$spot = Cores::first($id);
+			}
+			try {
+				$spot->mount();
+			} catch {
+				die "there was an unhandled error, please fix!\n" . Dumper $_;
+			};	
 		}
-		my $next_update = shift @to_update;
-		Cores::new($next_update)->fetch_info() or return 1;
-		my $col = Collection->get($next_update);
-		my $last = $col->last();
-		if ($last) {
-			$spot = $col->fetch($last)->create_spot();
+		my $id = $spot->id;
+		if (Collection->get($id)->fetch($spot->position + 1)) {
+			$spot = undef;
 		}
 		else {
-			$spot = Cores::first($next_update);
+			try {
+				$spot = $spot->next();
+			}
+			catch {
+				die "there was an unhandled error, please fix!\n" . Dumper $_;
+			};
+			my $col = Collection->get($id);
+			if (!Controller::_store($col,$spot)) {
+				$spot = undef;
+			}
+			else {
+				$current->[3] ||= $current->[2] * 1.2;
+				$col->clean();
+			}
 		}
-		$spot->mount();
-	}
-	my $id = $spot->id;
-	$spot = $spot->next();
-	my $col = Collection->get($id);
-	unless (Controller::_store($col,$spot)) {
-		$s->{istate} = undef;
-		$c->{$id} =  time;
+		unless ($spot) {
+			$c->{$current->[0]} = join ':', time, $current->[3] || $current->[2] * 0.7;
+			$current = undef;
+		}
 		return 1;
 	}
-	$col->clean();
-	$s->{istate} = $spot;
-	return 1;
 }
 
 #fetches more info for collections
 sub fetch_info {
 	my ($s) = @_;
-	unless ($s->{fetch_info_list}) {
-		$s->{fetch_info_list} = [];
-		my @cores = Cores::initialised();
-		for my $core (@cores) {
-			push(@{$s->{fetch_info_list}}, $core->list_need_info());
-		}
+	Log->trace('initialise fetch info');
+	my @fetch_list;
+	for my $core (Cores::initialised()) {
+		push(@fetch_list, $core->list_need_info());
 	}
-	my $icore_id = shift @{$s->{fetch_info_list}};
-	return 0 unless $icore_id;
-	my $remote = Cores::new($icore_id);
-	$remote->fetch_info();
-	return 1;
+	return () unless @fetch_list;
+	
+	return sub {
+		my $id = shift @fetch_list;
+		return () unless $id;
+		my $remote = Cores::new($id);
+		return try {
+			$remote->clist($remote->fetch_info());
+		} catch {
+			die "there was an unhandled error, please fix!\n" . Dumper $_;
+		};
+	}
 }
 
 1;
