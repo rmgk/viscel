@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Core::Cartooniverse::Spot v1.3.0;
+package Spot::Cartooniverse v1.3.0;
 
 use 5.012;
 use warnings;

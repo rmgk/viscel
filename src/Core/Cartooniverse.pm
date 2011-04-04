@@ -19,6 +19,7 @@ sub _fetch_list {
 		foreach my $td ($content->look_down('_tag' => 'td')) {
 			my $a = $td->look_down(_tag=>'a');
 			my $name = HTML::Entities::encode($a->as_trimmed_text(extra_chars => '\xA0'));
+			next unless $name;
 			my $href = $a->attr('href');
 			my ($id) = ($href =~ m'/([^/]*)\.html$'i);
 			unless ($id) {
@@ -59,22 +60,19 @@ sub _fetch_info {
 		die $_;
 	};
 
-	my @postcontent = $$tree->look_down('_tag' => 'div', class=>'postcontent');
-	my $td = $postcontent[0]->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'td'); #first postcontent, first td
-	my @p = $td->look_down(_tag=>'p');
-	if ($p[6]) {
+	my $td = $$tree->look_down('_tag' => 'td', width=>'317', align => 'left', valign => 'top');
+	my @p = $td->content_list();
+	if ($p[5]) {
 		my $author = HTML::Entities::encode(($p[1]->content_list())[1]);
 		$author =~  s/^\s*:\s*//;
 		$cfg->{Artist} = HTML::Entities::encode(($p[2]->content_list())[1]);
 		$cfg->{Artist} =~  s/^\s*:\s*+//;
 		$cfg->{Artist} .= ' ' . $author;
-		$cfg->{Scanlator} = HTML::Entities::encode(($p[3]->content_list())[1]);
-		$cfg->{Scanlator} =~  s/^\s*:\s*+//;
-		$cfg->{Tags} = join ", ", map {$_->as_trimmed_text()} $p[4]->look_down(class => 'series-info');
-		$cfg->{Detail} = HTML::Entities::encode(($p[6]->content_list())[2]);
+		$cfg->{Tags} = join ", ", map {$_->as_trimmed_text()} $p[3]->look_down(class => 'series-info');
+		$cfg->{Detail} = HTML::Entities::encode($p[5]->as_trimmed_text());
 	}
 	
-	my @chaplist = $postcontent[-1]->look_down(_tag=>'table',align=>'center')->look_down(_tag=>'tr');
+	my @chaplist = $$tree->look_down(_tag=>'table',align=>'center',width => '520')->look_down(_tag=>'tr');
 	$cfg->{start} = $chaplist[-1]->look_down(_tag=>'td')->look_down(_tag=>'a')->attr('href');
 	return $cfg;
 }
