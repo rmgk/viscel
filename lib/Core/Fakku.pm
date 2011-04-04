@@ -8,13 +8,12 @@ use warnings;
 use parent qw(Core::Template);
 use Spot::Fakku;
 
-#creates the list of comic
-sub _create_list {
+#fetches the list of known remotes
+sub _fetch_list {
 	my ($pkg,$state) = @_;
 	my %clist;
-	Log->trace('create list of known collections');
-	my $url = ref $state ? $state->[0] : 'http://www.fakku.net/manga.php?select=english';
-	
+	my $url = $state ? $state : 'http://www.fakku.net/manga/english';
+	Log->trace('fetch list of known remotes ', $url);
 	my $tree = DlUtil::get_tree($url) or return;
 	foreach my $main ($$tree->look_down('_tag' => 'div', 'class' => 'content_row')) {
 		my $a = $main->look_down('_tag'=> 'div', 'class' => 'manga_row1')->look_down('_tag' => 'a');
@@ -39,7 +38,7 @@ sub _create_list {
 		$clist{$_} = HTML::Entities::encode $clist{$_} for grep {$clist{$_}} qw(Series Scanlator Artist Stats Date Detail);
 	}
 	my $next = $$tree->look_down('_tag' => 'div', 'id' => 'pagination')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^\s*>\s*$/});
-	$url = $next ? [URI->new_abs($next->attr('href'),$url)->as_string] : undef;
+	$url = $next ? URI->new_abs($next->attr('href'),$url)->as_string : undef;
 	#$tree->delete();
 		
 	return (\%clist, $url);

@@ -20,8 +20,8 @@ sub _load_list {
 	return 1;
 }
 
-#creates the list of known collections
-sub _create_list {
+#fetches the list of known remotes
+sub _fetch_list {
 	my ($pkg) = @_;
 	my %raw_list = do ($FindBin::Bin.'/uclist.txt');
 	if ($@) {

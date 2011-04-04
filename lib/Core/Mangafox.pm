@@ -8,12 +8,12 @@ use warnings;
 use parent qw(Core::Template);
 use Spot::Mangafox;
 
-#creates the list of known manga
-sub _create_list {
+#fetches the list of known remotes
+sub _fetch_list {
 	my ($pkg,$state) = @_;
 	my %clist;
-	Log->trace('create list of known collections');
-	my $url = ref $state ? $state->[0] : 'http://www.mangafox.com/directory/all/1.htm';
+	my $url = $state ? $state : 'http://www.mangafox.com/directory/all/1.htm';
+	Log->trace('fetch list of known remotes ', $url);
 	my $tree = DlUtil::get_tree($url) or return;
 	my $table = $$tree->look_down(_tag => 'table', id => 'listing');
 	foreach my $tr ($table->look_down('_tag' => 'tr')) {
@@ -42,13 +42,11 @@ sub _create_list {
 	}
 	my $next = $$tree->look_down('_tag' => 'span', class => 'next')->parent();
 	if ($next and $next->attr('_tag') eq 'a') {
-		$url = [URI->new_abs($next->attr('href'),$url)->as_string];
+		$url = URI->new_abs($next->attr('href'),$url)->as_string;
 	}
 	else {
 		$url = undef;
 	}
-	#$tree->delete();
-	
 	return (\%clist,$url);
 }
 

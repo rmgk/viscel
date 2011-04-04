@@ -8,12 +8,12 @@ use warnings;
 use parent qw(Core::Template);
 use Spot::Animea;
 
-#creates the list of known manga
-sub _create_list {
+#fetches the list of known remotes
+sub _fetch_list {
 	my ($pkg,$state) = @_;
 	my %clist;
-	Log->trace('create list of known collections');
-	my $url = ref $state ? $state->[0] : 'http://manga.animea.net/browse.html?page=0';
+	my $url = $state ? $state : 'http://manga.animea.net/browse.html?page=0';
+	Log->trace('fetch list of remotes ', $url);
 
 	my $tree = DlUtil::get_tree($url) or return;
 	foreach my $td ($$tree->look_down('_tag' => 'td', 'class' => 'c')) {
@@ -35,7 +35,7 @@ sub _create_list {
 		
 	}
 	my $next = $$tree->look_down('_tag' => 'ul', 'class' => 'paging')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^Next$/});
-	$url = $next ? [URI->new_abs($next->attr('href'),$url)->as_string] : undef;
+	$url = $next ? URI->new_abs($next->attr('href'),$url)->as_string : undef;
 	
 	return (\%clist,$url);
 }

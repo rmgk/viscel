@@ -8,8 +8,8 @@ use warnings;
 use parent qw(Core::Template);
 use Spot::Homeunix;
 
-#creates the list of known manga
-sub _create_list {
+#fetches the list of known remotes
+sub _fetch_list {
 	my ($pkg) = @_;
 	my %clist;
 	Log->trace('create list of known collections');

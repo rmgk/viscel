@@ -76,7 +76,7 @@ sub fetch_list {
 	my $state;
 	return sub {
 		my $list;
-		($list,$state) = $pkg->_create_list($state);
+		($list,$state) = $pkg->_fetch_list($state);
 		$accumulator->{$_} = $list->{$_} for keys %$list;
 		return $state ? () : $accumulator;
 	};

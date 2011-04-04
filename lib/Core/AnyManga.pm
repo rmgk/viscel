@@ -8,11 +8,11 @@ use warnings;
 use parent qw(Core::Template);
 use Spot::AnyManga;
 
-#creates the list of known manga
-sub _create_list {
+#fetches the list of known remotes
+sub _fetch_list {
 	my ($pkg) = @_;
 	my %mangalist;
-	Log->trace('create list of known collections');
+	Log->trace('fetch list of known remotes');
 	my $tree = DlUtil::get_tree('http://www.anymanga.com/directory/all/') or return;
 	foreach my $list ($$tree->look_down('_tag' => 'ul', 'class' => 'mainmangalist')) {
 		foreach my $item ($list->look_down('_tag'=>'li')) {

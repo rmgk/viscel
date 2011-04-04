@@ -8,15 +8,14 @@ use warnings;
 use parent qw(Core::Template);
 use Spot::ComicGenesis;
 
-#creates the list of comic
-sub _create_list {
+#fetches the list of known remotes
+sub _fetch_list {
 	my ($pkg,$state) = @_;
 	my %comiclist;
-	Log->trace('create list of known collections');
 	my @letters = ('0','A'..'Z');
 	my $index = ref $state ? $state->[0] : 0;
 	my $letter =  $letters[$index];
-	Log->trace("get tree for letter $letter");
+	Log->trace('fetch list of known remotes ', $letter);
 	my $tree = DlUtil::get_tree("http://guide.comicgenesis.com/Keenspace_$letter.html") or return; 
 	foreach my $main ($$tree->look_down('_tag' => 'div', 'class' => 'comicmain', sub { $_[0]->as_text =~ m/Number of Days: (\d+)/i; $1 > 20} )) {
 		my $a = $main->look_down('_tag'=> 'a', 'target' => '_blank', sub {$_[0]->as_text =~ /^\d{8}$/});

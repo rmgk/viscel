@@ -9,11 +9,11 @@ use parent qw(Core::Template);
 use Spot::Cartooniverse;
 use Try::Tiny;
 
-#creates the list of known manga
-sub _create_list {
+#fetches the list of known remotes
+sub _fetch_list {
 	my ($pkg) = @_;
 	my %clist;
-	Log->trace('create list of known collections');
+	Log->trace('fetch list of known remotes');
 	my $tree = DlUtil::get_tree('http://www.cartooniverse.co.uk/beta/list.php') or return;
 	foreach my $content ($$tree->look_down('_tag' => 'div', 'class' => 'postcontent')) {
 		foreach my $td ($content->look_down('_tag' => 'td')) {

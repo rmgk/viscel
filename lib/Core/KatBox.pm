@@ -8,11 +8,11 @@ use warnings;
 use parent qw(Core::Template);
 use Spot::KatBox;
 
-#creates the list of known colections
-sub _create_list {
+#fetches the list of known remotes
+sub _fetch_list {
 	my ($pkg) = @_;
 	my %clist;
-	Log->trace('create list of known collections');
+	Log->trace('fetch list of known remotes');
 
 	my $tree = DlUtil::get_tree('http://www.katbox.net/') or return;
 	foreach my $area ($$tree->look_down('_tag' => 'area', 'shape' => 'poly')) {
@@ -28,7 +28,6 @@ sub _create_list {
 		$clist{$id} = {start => $href.'index.php?strip_id=1', name => $name};
 		
 	}
-	#$tree->delete();
 
 	return \%clist;
 }
