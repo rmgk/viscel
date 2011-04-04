@@ -333,10 +333,12 @@ sub keep_current {
 				$spot->mount();
 				my $blob = $spot->fetch();
 				my $elem = $spot->element();
-				if ($elem and $blob) {
-					$col->store($elem,$blob);
+				if ($elem and $blob and $col->store($elem,$blob)) {
 					$col->clean();
 					$current->[3] = 0.7;
+				}
+				else {
+					$spot = undef;
 				}
 			} catch {
 				my $error = $_;
