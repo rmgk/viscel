@@ -28,7 +28,7 @@ sub _fetch_list {
 			}
 			$id =~ s/\W/_/g;
 			$id = 'Cartooniverse_' . $id;
-			$clist{$id} = {start => $href. '1/0/', name => $name, url_info=>$href};
+			$clist{$id} = {name => $name, url_info=>$href};
 		}
 	}
 	#$tree->delete();
@@ -68,7 +68,8 @@ sub _fetch_info {
 		$cfg->{Artist} = HTML::Entities::encode(($p[2]->content_list())[1]);
 		$cfg->{Artist} =~  s/^\s*:\s*+//;
 		$cfg->{Artist} .= ' ' . $author;
-		$cfg->{Tags} = join ", ", map {$_->as_trimmed_text()} $p[3]->look_down(class => 'series-info');
+		$cfg->{Tags} = ($p[2]->content_list())[1];
+		$cfg->{Tags} =~  s/^\s*:\s*+//;
 		$cfg->{Detail} = HTML::Entities::encode($p[5]->as_trimmed_text());
 	}
 	
