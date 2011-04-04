@@ -173,6 +173,7 @@ sub fetch_info {
 		$info->{moreinfo} = 1;
 		return $info;
 	}
+	return ();
 }
 
 #$self -> $name
