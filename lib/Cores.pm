@@ -14,6 +14,7 @@ use Core::Cartooniverse;
 use Core::Homeunix;
 use Core::KatBox;
 use Core::Mangafox;
+use Core::Mangashare;
 use Log;
 
 
@@ -26,6 +27,7 @@ my %cores = (	'Core::AnyManga' => 0,
 				'Core::Homeunix' => 0,
 				'Core::KatBox' => 0,
 				'Core::Mangafox' => 0,
+				'Core::Mangashare' => 0,
 				);
 
 #initialises all used cores
