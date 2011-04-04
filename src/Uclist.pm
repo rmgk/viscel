@@ -4,6 +4,7 @@ sub text_match {
 	my $to_match = shift;
 	return sub {$_[0]->as_text ~~ $to_match};
 };
+return
 Zona => [
 	'The challenges of Zona',
 	'http://www.soulgeek.com/comics/zona/2005/08/01/page-01/',
@@ -62,7 +63,7 @@ PrincessPlanet => [
 GeekFetish => [
 	'Geek Fetish',
 	'http://akrobotics.com/comics/2007/02/07/bandit-the-wonder-dog',
-	[id => comicPlate]
+	[id => 'comicPlate']
 ],
 EverAfter => [
 	'Ever After',
@@ -502,7 +503,7 @@ DesperateAngels => [
 AlaskaRobotics => [
 	'Alaska Robotics',
 	'http://akrobotics.com/comics/2007/01/29/launch-party',
-	[id => comicPlate],
+	[id => 'comicPlate'],
 ],
 Carzorthade => [
 	'Carzorthade',
