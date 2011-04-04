@@ -11,8 +11,6 @@ use Handler;
 use Time::HiRes qw(tv_interval gettimeofday);
 use FindBin;
 
-my $l = Log->new();
-
 #initialises the request handlers
 sub init {
 	Server::register_handler(handler(url_main()),\&index);
@@ -34,7 +32,7 @@ sub css {
 #handles index requests
 sub index {
 	my ($c,$r) = @_;
-	$l->trace('handle index');
+	Log->trace('handle index');
 	my $html = html_header('index','index');
 	$html .= cgi->start_fieldset({-class=>'info'});
 	$html .= cgi->legend('Search');
@@ -56,7 +54,7 @@ sub index {
 #handles view requests
 sub view {
 	my ($c,$r,$id,$pos) = @_;
-	$l->trace('handle collection');
+	Log->trace('handle collection');
 	my $col = Collection->get($id);
 	$pos =~ s/[^\d,\.]//g;
 	my @pos = eval($pos);
@@ -64,11 +62,11 @@ sub view {
 	unless ($ent[0]) {
 		my $last = $col->last();
 		if ($last) {
-			$l->debug("$pos not found redirect to last $last");
+			Log->debug("$pos not found redirect to last $last");
 			$c->send_redirect( absolute(url_view($id,$last)), 303 );
 		}
 		else {
-			$l->debug("$pos not found redirect to front");
+			Log->debug("$pos not found redirect to front");
 			$c->send_redirect( absolute(url_front($id)), 303 );
 		}
 		return "view redirect";
@@ -104,13 +102,12 @@ sub view {
 #handles front requests
 sub front {
 	my ($c,$r,$id) = @_;
-	$l->trace('handle front request');
+	Log->trace('handle front request');
 	my $html = html_header('front',$id);
 	if ($r->method eq 'POST') {
 		my $cgi = cgi($r->content());
 		if ($cgi->param('submit') eq 'pause') {
 			UserPrefs->section('bookmark')->set($id,$cgi->param('bookmark'));
-			UserPrefs->section('keep_current')->set($id,1);
 		}
 		UserPrefs::save();
 		$html .= html_notification('updated');
@@ -148,7 +145,7 @@ sub front {
 #handles action requests
 sub search {
 	my ($c,$r,@args) = @_;
-	$l->trace('handle search request');
+	Log->trace('handle search request');
 	my $cgi = cgi($r->url->query());
 	my $query = $cgi->param('q');
 	my $time = [gettimeofday];
@@ -172,7 +169,7 @@ sub search {
 #handles tool requests
 sub tools {
 	my ($c,$r) = @_;
-	$l->trace('handle tools');
+	Log->trace('handle tools');
 	my $html = html_header('index','index');
 	$html .= cgi->start_fieldset({-class=>'info'});
 	$html .= cgi->legend('Tools');
@@ -190,7 +187,7 @@ sub tools {
 #handles blob requests
 sub blob {
 	my ($c,$r,$sha) = @_;
-	$l->trace('handle blob');
+	Log->trace('handle blob');
 	my $mtime =  HTTP::Date::str2time($r->header('If-Modified-Since'));
 	my %stat = Cache::stat($sha);
 	if (!$stat{size}) {

@@ -4,8 +4,10 @@ package Log v1.2.0;
 
 use 5.012;
 use warnings;
+use autodie;
 
 use Globals;
+
 
 our ($TRACE, $DEBUG, $INFO, $WARN, $ERROR, $FATAL, $SILENT) = 0..6;
 

@@ -8,7 +8,6 @@ use lib '..';
 
 use Handler;
 
-my $l = Log->new();
 my $cgi;
 
 #$core,$cfg -> html config list
@@ -54,12 +53,12 @@ sub init {
 #handles front requests
 sub config {
 	my ($c,$r,$core) = @_;
-	$l->trace('handle config request');
+	Log->trace('handle config request');
 	my $cfg = Cores::config($core);
 	my $html = html_header('config',"$core - config");
 	my $ret = "config";
 	if ($r->method eq 'POST') {
-		$l->debug("change config " . $r->content());
+		Log->debug("change config " . $r->content());
 		my $cgi = cgi($r->content());
 		my %c;
 		for (keys %$cfg) {
@@ -92,23 +91,23 @@ sub config {
 sub action {
 	my ($c,$r,@args) = @_;
 	my $ret = 'action';
-	$l->trace('handle action request');
+	Log->trace('handle action request');
 	
 	my $html = html_header('action','action');
 	$html .= cgi->start_div({-class=>'info'});
 	if ($r->method eq 'POST') {
-		$l->debug("call action ". join ' ' , @args);
+		Log->debug("call action ". join ' ' , @args);
 		my $cgi = cgi($r->content());
 		$html .=  join '', map {$_ .': '.$cgi->param($_).cgi->br()} $cgi->param();
 		given($args[0]) {
 			when ('initialise') {
 				my $core = $args[1];
-				$l->debug("send action to initialise $core");
+				Log->debug("send action to initialise $core");
 				$ret = sub {Cores::init($core)};
 				$html .= 'initialising a core may take a while';
 			}
 			when ('halt') {
-				$l->debug("give signal to exit");
+				Log->debug("give signal to exit");
 				$html .= "bye";
 				$ret = sub { exit(1) };
 			}
@@ -130,7 +129,7 @@ sub action {
 				$html .= "please wait a moment";
 			}
 			default {
-				$l->warn('unknown action' . $_ ); 
+				Log->warn('unknown action' . $_ ); 
 				$html .= 'unknown action'; 
 			}
 		}

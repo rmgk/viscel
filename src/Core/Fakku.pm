@@ -37,7 +37,7 @@ sub _fetch_list {
 		$clist{$id}->{Detail} = $desc unless ($desc =~ m/No description has been written/i);
 		$clist{$_} = HTML::Entities::encode $clist{$_} for grep {$clist{$_}} qw(Series Scanlator Artist Stats Date Detail);
 	}
-	my $next = $$tree->look_down('_tag' => 'div', 'id' => 'pagination')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^\s*>\s*$/});
+	my $next = $$tree->look_down('_tag' => 'div', 'id' => 'pagination')->look_down(_tag => 'a', sub { $_[0]->as_text =~ m/^\s*Next\s*$/});
 	$url = $next ? URI->new_abs($next->attr('href'),$url)->as_string : undef;
 	#$tree->delete();
 		
