@@ -44,7 +44,7 @@ sub _fetch_list {
 
 #returns a list of keys to search for
 sub _searchkeys {
-	qw(name Status Chapter Rating Artist Tags);
+	qw(name Artist Tags Chapter Updated);
 }
 
 #fetches more information about the comic
