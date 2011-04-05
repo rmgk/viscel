@@ -78,7 +78,7 @@ FunnyFarm => [
 AccursedDragon => [ #dead pages (161)
 	'Accursed Dragon!',
 	'http://www.accurseddragon.com/site/index.php/archive/0001aza/',
-	[class => 'object'], [class => qr/webcomic-object-full/],
+	[id => 'webcomic'], [class => qr/webcomic-object-full/],
 ],
 LaptopFerret => [
 	'Laptop and Ferret',
@@ -1516,7 +1516,7 @@ EerieCuties => [
 	'Eerie Cuties',
 	'http://www.eeriecuties.com/d/20090601.html',
 	[id => 'comic'],
-	next => [_tag => 'img' , name => 'next_day'],
+	next => [_tag => 'img' , id => 'next_day1'],
 ],
 RoadWaffles => [
 	'Road Waffles',
