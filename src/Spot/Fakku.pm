@@ -17,12 +17,12 @@ sub mount {
 		unless ($max) {
 			Log->warn('could not parse page');
 			$s->{fail} = 'could not parse page';
-			return;
+			die ['mount failed', $s]
 		}
 	}
 	if ($pos > $max) {
 		$s->{fail} = 'last page';
-		return;
+		die ['mount failed', $s, $pos, $max]
 	}
 	$s->{page_url} = 'http://www.fakku.net/viewonline.php?id='.$id . '#page='.$pos;
 	$s->{src} = 'http://c.fakku.net/manga/' . $section . '/' . $folder . '/images/'. $pos . '.jpg';

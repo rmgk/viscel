@@ -32,7 +32,7 @@ sub mount {
 	unless ($s->_mount_parse($$tree)) {
 		Log->error("failed to parse page ". $s->{page_url});
 		$s->{fail} = 'mount parse returned failure';
-		die ['mount parse failed', $s, $page]
+		die ['mount failed', $s, $page]
 	}
 	Log->trace(join "\n\t\t\t\t", map {"$_: " .($s->{$_}//'')} qw(src next));
 	$s->{fail} = undef;

@@ -24,7 +24,7 @@ sub new {
 sub tick {
 	my ($s) = @_;
 	if ($s->{continuation}) {
-		Log->trace('do continuation');
+		Log->trace('do continuation ' , $s->{state});
 		delete $s->{continuation} unless $s->{continuation}->();
 		ConfigINI::save_file(Globals::datadir,ref($s),$s->{cfg});
 	}
@@ -312,7 +312,7 @@ sub keep_current {
 					Log->warn("error keep current of ", $current->[0], ' code ', $error->[1]);
 					$spot = undef;
 				}
-				elsif (ref($error) and ($error->[0] eq 'mount parse failed')) {
+				elsif (ref($error) and ($error->[0] eq 'mount failed')) {
 					Log->warn("error keep current of ", $current->[0]);
 					$spot = undef;
 				}
@@ -352,7 +352,7 @@ sub keep_current {
 					Log->warn("error keep current of ", $current->[0], ' code ', $error->[1]);
 					$spot = undef;
 				}
-				elsif (ref($error) and ($error->[0] eq 'mount parse failed')) {
+				elsif (ref($error) and ($error->[0] eq 'mount failed')) {
 					Log->warn("error keep current of ", $current->[0]);
 					$spot = undef;
 				}
