@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Handler v1.2.0;
+package Handler v1.3.0;
 
 use 5.012;
 use warnings;
@@ -17,14 +17,13 @@ handler html_core_status html_group html_header html_info html_notification
 link_config link_front link_main link_search link_view 
 url_action url_config url_front url_main url_search url_tools url_view);
 
-my $l = Log->new();
 my $cgi;
 
 #$request -> $cgi
 #returns the cgi object and possibly initialises its parameters
 sub cgi {
 	if ($_[0]) {
-		$l->trace('parse parameters');
+		Log->trace('parse parameters');
 		return CGI->new($_[0]);
 	}
 	return $cgi;

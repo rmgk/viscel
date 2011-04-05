@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Globals v1.2.0;
+package Globals v1.3.0;
 
 use 5.012;
 use warnings;
