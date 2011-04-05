@@ -23,9 +23,9 @@ sub _mount_parse {
 		$next = undef;
 		my $url_info = $s->{page_url};
 		$url_info =~ s'/[^/]+/[^/]+/[^/]+$'/';
-		my $tree = Core::Mangafox->_get_tree($url_info) or return;
+		my $tree = DlUtil::get_tree($url_info);
 		my $url = $s->{page_url};
-		my @chapter = reverse $tree->look_down(_tag=>'a',class=>'chico');
+		my @chapter = reverse $$tree->look_down(_tag=>'a',class=>'chico');
 		for (0..($#chapter - 1)) {
 			my $href = $chapter[$_]->attr('href');
 			if ($url =~ m/\Q$href\E/i) {
@@ -33,7 +33,6 @@ sub _mount_parse {
 				last;
 			}
 		}
-		$tree->delete();
 	}
 	return unless $next;
 	$s->{next} = URI->new_abs($next,$s->{page_url})->as_string();
