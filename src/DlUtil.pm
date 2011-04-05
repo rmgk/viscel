@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package DlUtil v1.17.0;
+package DlUtil v1.18.0;
 
 use 5.012;
 use warnings;
@@ -17,7 +17,7 @@ our $ua;
 sub _init_ua {
 	Log->trace('initialise user agent');
 	$ua = new LWP::UserAgent;  # we create a global UserAgent object
-	$ua->agent("vdlu/".$DlUtil::VERSION->normal());
+	$ua->agent("vidlu/".$DlUtil::VERSION->normal());
 	$ua->timeout(15);
 	$ua->env_proxy;
 	$ua->conn_cache(LWP::ConnCache->new());

@@ -93,7 +93,7 @@ Banished => [
 BeaverAndSteve => [
 	'Beaver and Steve',
 	'http://www.beaverandsteve.com/index.php?comic=1',
-	[src => qr'comics/']
+	[src => qr'comics/'],
 ],
 MuseAcademy => [
 	'The Muse Academy',
