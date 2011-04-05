@@ -39,13 +39,13 @@ sub tick {
 					unless $s->{continuation} = $s->check_collections();
 			}
 			when ('keep_current') {
-				$s->{state} = 'fetch_info'
+				$s->{state} = 'done'
 					unless $s->{continuation} = $s->keep_current();
 			}
-			when ('fetch_info') {
-				$s->{state} = 'done'
-					unless $s->{continuation} = $s->fetch_info();
-			}
+			#when ('fetch_info') {
+			#	$s->{state} = 'done'
+			#		unless $s->{continuation} = $s->fetch_info();
+			#}
 			when ('done') { return }
 			default { return }
 		}
@@ -369,36 +369,36 @@ sub keep_current {
 	}
 }
 
-#fetches more info for collections
-sub fetch_info {
-	my ($s) = @_;
-	Log->trace('initialise fetch info');
-	my @fetch_list;
-	for my $core (Cores::initialised()) {
-		push(@fetch_list, $core->list_need_info());
-	}
-	return () unless @fetch_list;
-	my %seen;
-	return sub {
-		my $id = shift @fetch_list;
-		return () unless $id;
-		my $remote = Cores::new($id);
-		return try {
-			$remote->clist($remote->fetch_info()) and
-			$remote->save_clist();
-		} catch {
-			my $error = $_;
-			if (is_temporary($error)) {
-				Log->warn("fetch info of ", $id);
-				push @fetch_list, $id unless $seen{$id};
-				$seen{$id} = 1;
-				return 1;
-			}
-			else {
-				die "there was an unhandled error, please fix!\n" . Dumper $error;
-			}
-		};
-	}
-}
+##fetches more info for collections
+#sub fetch_info {
+#	my ($s) = @_;
+#	Log->trace('initialise fetch info');
+#	my @fetch_list;
+#	for my $core (Cores::initialised()) {
+#		push(@fetch_list, $core->list_need_info());
+#	}
+#	return () unless @fetch_list;
+#	my %seen;
+#	return sub {
+#		my $id = shift @fetch_list;
+#		return () unless $id;
+#		my $remote = Cores::new($id);
+#		return try {
+#			$remote->clist($remote->fetch_info()) and
+#			$remote->save_clist();
+#		} catch {
+#			my $error = $_;
+#			if (is_temporary($error)) {
+#				Log->warn("fetch info of ", $id);
+#				push @fetch_list, $id unless $seen{$id};
+#				$seen{$id} = 1;
+#				return 1;
+#			}
+#			else {
+#				die "there was an unhandled error, please fix!\n" . Dumper $error;
+#			}
+#		};
+#	}
+#}
 
 1;
