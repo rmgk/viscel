@@ -1,6 +1,6 @@
 #!perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
-package Maintenance v1.1.0;
+package Maintenance v1.3.0;
 
 use 5.012;
 use warnings;
@@ -8,8 +8,6 @@ use warnings;
 use Log;
 use Try::Tiny;
 use Data::Dumper;
-
-my $l = Log->new();
 
 #constructor
 sub new {
@@ -222,7 +220,7 @@ sub check_first {
 	$r_first->mount();
 	my $r_first_elem = $r_first->element();
 	if (my $attr = $first_elem->differs($r_first_elem)) {
-		$l->debug('attribute ', $attr, ' of first is inconsistent ', $id);
+		Log->debug('attribute ', $attr, ' of first is inconsistent ', $id);
 		$col->purge();
 		return 0;
 	}
@@ -237,11 +235,11 @@ sub check_last {
 
 	my $last_pos = $col->last();
 	unless ($last_pos) {
-		$l->error('has no elements', $next_check);
+		Log->error('has no elements', $next_check);
 		$col->purge();
 		return -1;
 	}
-	$l->trace("check last ($last_pos) of $next_check");
+	Log->trace("check last ($last_pos) of $next_check");
 	if ($last_pos >= 1) {
 		my $last_elem = $col->fetch($last_pos);
 		my $r_last = $last_elem->create_spot();
@@ -251,13 +249,13 @@ sub check_last {
 		} catch {
 			my $error = $_;
 			die $error if (is_temporary($error)); #temporary errors are handled further up
-			$l->error('page of last no longer parses ', $next_check);
+			Log->error('page of last no longer parses ', $next_check);
 			$col->delete($last_pos);
 			return 0;
 		};
 		my $r_last_elem = $r_last->element();
 		if (my $attr = $last_elem->differs($r_last_elem)) {
-			$l->error('attribute ', $attr, ' of last is inconsistent ', $next_check);
+			Log->error('attribute ', $attr, ' of last is inconsistent ', $next_check);
 			$col->delete($last_pos);
 			return 0;
 		}
@@ -279,7 +277,7 @@ sub keep_current {
 	return sub {
 		unless ($spot) {
 			unless (@to_update) {
-				$l->debug('selected collections kept current');
+				Log->debug('selected collections kept current');
 				return ();
 			}
 			$current = shift @to_update;
