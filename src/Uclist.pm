@@ -73,22 +73,22 @@ EverAfter => [
 FunnyFarm => [
 	'Funny Farm',
 	'http://www.accurseddragon.com/site/index.php/archive/20090126b-4/',
-	[class => 'object'], [class => qr/webcomic-object-full/],
+	[class => qr/webcomic-object-full/],
 ],
 AccursedDragon => [ #dead pages (161)
 	'Accursed Dragon!',
 	'http://www.accurseddragon.com/site/index.php/archive/0001aza/',
-	[id => 'webcomic'], [class => qr/webcomic-object-full/],
+	[class => qr/webcomic-object-full/],
 ],
 LaptopFerret => [
 	'Laptop and Ferret',
 	'http://www.accurseddragon.com/site/index.php/archive/0001-2/',
-	[class => 'object'], [class => qr/webcomic-object-full/],
+	[class => qr/webcomic-object-full/],
 ],
 Banished => [
 	'Banished!',
 	'http://www.accurseddragon.com/site/index.php/archive/20100830a-2/',
-	[class => 'object'], [class => qr/webcomic-object-full/],
+	[class => qr/webcomic-object-full/],
 ],
 BeaverAndSteve => [
 	'Beaver and Steve',
