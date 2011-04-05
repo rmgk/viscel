@@ -60,7 +60,7 @@ sub fetch {
 	if (!$file->is_success() or !$file->header('Content-Length')) {
 		Log->error('error get ' . $s->{src});
 		$s->{fail} = 'could not fetch object';
-		die ['fetch element', $s, $file];
+		die ['fetch element', $file->code(), $file, $s];
 	}
 	my $blob = $file->decoded_content();
 

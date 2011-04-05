@@ -90,7 +90,7 @@ sub adjust_time {
 sub is_temporary {
 	my ($error) = @_;
 	if (ref $error) {
-		return (($error->[0] eq 'get page') and ($error->[1] >= 500));
+		return (($error->[0] =~ /^(get page|fetch element)$/) and ($error->[1] >= 500));
 	}
 	return ();
 }
@@ -308,7 +308,7 @@ sub keep_current {
 					$current = undef;
 					$spot = undef;
 				}
-				elsif (ref($error) and ($error->[0] eq 'get page')) {
+				elsif (ref($error) and ($error->[0] =~ /^(get page|fetch element)$/)) {
 					Log->warn("error keep current of ", $current->[0], ' code ', $error->[1]);
 					$spot = undef;
 				}
@@ -348,7 +348,7 @@ sub keep_current {
 					$seen{$current->[0]} = 1;
 					$spot = undef;
 				}
-				elsif (ref($error) and ($error->[0] eq 'get page')) {
+				elsif (ref($error) and ($error->[0] =~ /^(get page|fetch element)$/)) {
 					Log->warn("error keep current of ", $current->[0], ' code ', $error->[1]);
 					$spot = undef;
 				}
