@@ -41,8 +41,9 @@ sub index {
 	my $bm = UserPrefs->section('bookmark');
 	#do some name mapping for performance or peace of mind at least
 	my %bmd = map {$_ =>  Cores::known($_) ? Cores::name($_) : $_} grep {$bm->get($_)} $bm->list();
-	my %new = map {$_ => 1} grep {$bm->get($_) < Collection->get($_)->last()} keys %bmd;
-	$html .= html_group('New Pages' ,map {[$_ , ($bmd{$_}) x 2]} keys %new);
+	my %last = map {$_ => Collection->get($_)->last()//0} keys %bmd;
+	my %new = map {$_ => $bmd{$_} . ' (' . ($last{$_} - $bm->get($_)) . ') '} grep { $bm->get($_) < $last{$_} } keys %bmd;
+	$html .= html_group('New Pages' ,map {[$_ , ($new{$_}) x 2]} keys %new);
 	$html .= html_group('Bookmarks' ,map {[$_ , ($bmd{$_}) x 2]} grep {!$new{$_}} keys %bmd);
 	$html .= html_core_status();
 	$html .= cgi->end_html();
