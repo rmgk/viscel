@@ -93,7 +93,7 @@ Banished => [
 BeaverAndSteve => [
 	'Beaver and Steve',
 	'http://www.beaverandsteve.com/index.php?comic=1',
-	[src => qr'comics/']
+	[src => qr'comics/'],
 ],
 MuseAcademy => [
 	'The Muse Academy',
@@ -1116,6 +1116,7 @@ DungeonCrawlInc => [
 	[src => qr'DCI_'],
 ],
 #ProjectAusserdem => [
+#	'Project Außerdem',
 #	'http://rono64.com/?p=12',
 #	[id => 'comic-1'],
 #],
