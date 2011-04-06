@@ -157,6 +157,7 @@ sub check_collections {
 			Log->info('check collection ' , $current->[0]);
 			unless (Cores::known($current->[0])) {
 				Log->warn('unknown collection ', $current->[0]);
+				adjust_time($c,$current,1);
 				$current = undef;
 				return 1;
 			}
