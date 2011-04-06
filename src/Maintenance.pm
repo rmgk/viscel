@@ -172,7 +172,7 @@ sub check_collections {
 					Log->warn("error check first of ", $current->[0]);
 					push @to_update, $current unless $seen{$current->[0]};
 					$seen{$current->[0]} = 1;
-					adjust_time($c,$current,1);
+					adjust_time($c,$current,1.1);
 					$current = undef;
 				}
 				else {
@@ -195,7 +195,7 @@ sub check_collections {
 				Log->warn("error check last of ", $current->[0]);
 				push @to_update, $current unless $seen{$current->[0]};
 				$seen{$current->[0]} = 1;
-				adjust_time($c,$current,1);
+				adjust_time($c,$current,1.1);
 				$current = undef;
 			}
 			else {
@@ -279,6 +279,7 @@ sub keep_current {
 	Log->trace('initialise keep current');
 	my $up = UserPrefs->section('bookmark');
 	my ($c,@to_update) = $s->time_list('keep_current',$up->list());
+	@to_update = grep { Cores::known($_->[0]) } @to_update;
 	return () unless @to_update;
 	
 	my $spot;
@@ -292,7 +293,6 @@ sub keep_current {
 			}
 			$current = shift @to_update;
 			my $id = $current->[0];
-			return 1 unless Cores::known($id);
 			my $remote = Cores::new($id);
 			try {
 				if ($remote->want_info()) {
@@ -311,23 +311,23 @@ sub keep_current {
 			} catch {
 				my $error = $_;
 				if (is_temporary($error)) {
-					Log->warn("error keep current of ", $current->[0]);
+					Log->warn("temporary error start keep current of ", $current->[0]);
 					push @to_update, $current unless $seen{$current->[0]};
 					$seen{$current->[0]} = 1;
-					$current = undef;
 					$spot = undef;
 				}
 				elsif (ref($error) and ($error->[0] =~ /^(get page|fetch element)$/)) {
-					Log->warn("error keep current of ", $current->[0], ' code ', $error->[1]);
+					Log->warn("network error start keep current of ", $current->[0], ' code ', $error->[1]);
 					$spot = undef;
 				}
 				elsif (ref($error) and ($error->[0] eq 'mount failed')) {
-					Log->warn("error keep current of ", $current->[0]);
+					Log->warn("mount error start keep current of ", $current->[0]);
 					$spot = undef;
 				}
 				else {
 					die "there was an unhandled error, please fix!\n" . Dumper $error;
 				}
+				adjust_time($c,$current,1.1);
 			};
 			return 1;
 		}
@@ -352,17 +352,17 @@ sub keep_current {
 			} catch {
 				my $error = $_;
 				if (is_temporary($error)) {
-					Log->warn("error keep current of ", $current->[0]);
+					Log->warn("temporary error continue keep current of ", $current->[0]);
 					push @to_update, $current unless $seen{$current->[0]};
 					$seen{$current->[0]} = 1;
 					$spot = undef;
 				}
 				elsif (ref($error) and ($error->[0] =~ /^(get page|fetch element)$/)) {
-					Log->warn("error keep current of ", $current->[0], ' code ', $error->[1]);
+					Log->warn("network error continue keep current of ", $current->[0], ' code ', $error->[1]);
 					$spot = undef;
 				}
 				elsif (ref($error) and ($error->[0] eq 'mount failed')) {
-					Log->warn("error keep current of ", $current->[0]);
+					Log->warn("mount error continue keep current of ", $current->[0]);
 					$spot = undef;
 				}
 				else {

@@ -26,7 +26,7 @@ sub new {
 sub mount {
 	my ($s) = @_;
 	$s->{page_url} = $s->{state};
-	die ['mount failed', 'no state'];
+	die ['mount failed', 'no state'] unless $s->{state};
 	Log->trace('mount ' . $s->{id} .' '. $s->{page_url});
 	my ($tree,$page) = DlUtil::get_tree($s->{page_url});
 	
