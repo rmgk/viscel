@@ -120,7 +120,8 @@ sub hint_front {
 			$remote->save_clist();
 			return 1;
 		} catch {
-			Log->error("there was an unhandled error, please fix!\n" . Dumper $_);
+			Log->error("error fetch info");
+			Log->silent(Dumper $_);
 			return 0 ;
 		};
 	}
@@ -132,7 +133,8 @@ sub hint_front {
 		$col->clean();
 		$HS = $spot;
 	} catch {
-		Log->error("there was an unhandled error, please fix!\n" . Dumper $_);
+			Log->error("error store first");
+			Log->silent(Dumper $_);
 	};
 	return 1;
 }
@@ -157,7 +159,8 @@ sub hint_view {
 					$spot->mount();
 					return 1;
 				} catch {
-					Log->error("there was an unhandled error, please fix!\n" . Dumper $_);
+					Log->error("error mount this");
+					Log->silent(Dumper $_);
 					return 0;
 				};
 			}
@@ -173,7 +176,8 @@ sub hint_view {
 			$col->clean();
 			$HS = $spot;
 		} catch {
-			Log->error("there was an unhandled error, please fix!\n" . Dumper $_);
+			Log->error("error fetch and store next");
+			Log->silent(Dumper $_);
 		};
 	}
 	return 1;

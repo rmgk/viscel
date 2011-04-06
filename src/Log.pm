@@ -40,7 +40,7 @@ sub log {
 	substr($cdi,23) = '';
 	my $message = $line . $cdi . ' ' . 
 		join '', grep {defined} @_; #the message itself
-	say $message;
+	say $message unless $level == $SILENT;
 	return if ($level < $Globals::FILELOG);
 	open (my $fh, '>>', 'error.txt');
 	print $fh $message , "\n";
@@ -88,6 +88,11 @@ sub fatal {
 	return if ($FATAL < $Globals::LOGLVL);
 	print 'FATAL ';
 	$s->log($FATAL,@_);
+}
+#$msg
+sub silent { 
+	my ($s) = shift;
+	$s->log($SILENT,@_);
 }
 
 1;
