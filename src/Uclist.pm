@@ -93,7 +93,7 @@ Banished => [
 BeaverAndSteve => [
 	'Beaver and Steve',
 	'http://www.beaverandsteve.com/index.php?comic=1',
-	[src => qr'comics/'],
+	[src => qr'comics/']
 ],
 MuseAcademy => [
 	'The Muse Academy',
@@ -635,7 +635,7 @@ GuiltyPleasures => [
 TwoGamerz => [
 	'2Gamerz',
 	'http://2gamerz.com/?p=47',
-	[class => qr'comic-item'],
+	[src => qr'/webcomic/'],
 ],
 Jinxville => [
 	'Welcome to Jinxville',
@@ -923,7 +923,7 @@ TheaterHopper => [
 Ayane => [
 	'Ayane',
 	'http://ayane.tsunami-art.com/view.aspx?Rec=1',
-	[id => 'ComicImage']
+	[id => 'ITD']
 ],
 SuburbanTribe => [
 	'Suburban Tribe',
@@ -1115,11 +1115,10 @@ DungeonCrawlInc => [
 	'http://www.dungeoncrawlinc.com/comic1.html',
 	[src => qr'DCI_'],
 ],
-ProjectAusserdem => [
-	'Project Außerdem',
-	'http://rono64.com/?p=12',
-	[id => 'comic-1'],
-],
+#ProjectAusserdem => [
+#	'http://rono64.com/?p=12',
+#	[id => 'comic-1'],
+#],
 KrakowTwo => [
 	'Krakow 2.0',
 	'http://www.krakowstudios.com/krakow20/archive.php?date=20080121',
