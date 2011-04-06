@@ -292,6 +292,7 @@ sub keep_current {
 			}
 			$current = shift @to_update;
 			my $id = $current->[0];
+			return 1 unless Cores::known($id);
 			my $remote = Cores::new($id);
 			try {
 				if ($remote->want_info()) {
