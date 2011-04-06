@@ -217,14 +217,23 @@ sub check_first {
 	return 1 unless $first_elem;
 	my $r_first = Cores::first($id);
 	return 1 unless $r_first;
-	$r_first->mount();
-	my $r_first_elem = $r_first->element();
-	if (my $attr = $first_elem->differs($r_first_elem)) {
-		Log->debug('attribute ', $attr, ' of first is inconsistent ', $id);
+	return try {
+		$r_first->mount();
+		my $r_first_elem = $r_first->element();
+		if (my $attr = $first_elem->differs($r_first_elem)) {
+			Log->debug('attribute ', $attr, ' of first is inconsistent ', $id);
+			$col->purge();
+			return 0;
+		}
+		return 1;
+	}
+	catch {
+		my $error = $_;
+		die $error if (is_temporary($error)); #temporary errors are handled further up
+		Log->error('page of first no longer parses ', $id);
 		$col->purge();
 		return 0;
-	}
-	return 1;
+	};
 }
 
 #$id -> $bool
