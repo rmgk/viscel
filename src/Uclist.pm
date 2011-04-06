@@ -598,9 +598,8 @@ DelusionaryState => [
 ],
 Reiko => [
 	'Reiko',
-	'http://www.taintedink.com/reikogalleryclassic4.htm',
-	[src => qr'/Reiko.*Gallery/'],
-	next => [src => 'pointleft.jpg'],
+	'http://taintedink.com/?p=1274',
+	[src => qr'/comics/'],
 ],
 DirectionsOfDestiny => [
 	'Directions of Destiny',
