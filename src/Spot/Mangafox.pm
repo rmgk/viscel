@@ -20,21 +20,12 @@ sub _mount_parse {
 	
 	my $next = $img->parent()->attr('href');
 	if ($next eq 'javascript:void(0);') {
-		$next = undef;
-		my $url_info = $s->{page_url};
-		$url_info =~ s'/[^/]+/[^/]+/[^/]+$'/';
-		my $tree = DlUtil::get_tree($url_info);
-		my $url = $s->{page_url};
-		my @chapter = reverse $$tree->look_down(_tag=>'a',class=>'chico');
-		for (0..($#chapter - 1)) {
-			my $href = $chapter[$_]->attr('href');
-			if ($url =~ m/\Q$href\E/i) {
-				$next = $chapter[$_+1]->attr('href');
-				last;
-			}
-		}
+		$next = $tree->look_down(_tag => 'span', sub { $_[0]->as_text() =~ m'^Next Chapter:$' } )->parent()->look_down(_tag => 'a')->attr('href');
 	}
-	return unless $next;
+	unless ($next) {
+		Log->warn('could not find next ', $s->id());
+		return 1;
+	}
 	$s->{next} = URI->new_abs($next,$s->{page_url})->as_string();
 	return 1;
 }

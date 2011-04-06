@@ -146,6 +146,7 @@ sub check_collections {
 	my ($s) = @_;
 	Log->trace('initialise check collections');
 	my ($c,@to_update) = $s->time_list('consistency_check',Collection->list());
+	@to_update = grep { Cores::known($_->[0]) } @to_update;
 	return () unless @to_update;
 	
 	my $current;
@@ -215,9 +216,15 @@ sub check_first {
 	Log->trace('check first ', $id);
 	my $col = Collection->get($id);
 	my $first_elem = $col->fetch(1);
-	return 1 unless $first_elem;
+	unless ($first_elem) {
+		Log->warn("first element not found");
+		return 0;
+	}
 	my $r_first = Cores::first($id);
-	return 1 unless $r_first;
+	unless ($r_first) {
+		Log->warn("first spot not found");
+		return 0;
+	}
 	return try {
 		$r_first->mount();
 		my $r_first_elem = $r_first->element();

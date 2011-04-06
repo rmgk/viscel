@@ -2150,7 +2150,7 @@ SparePants => [
 Undertow => [
 	'Undertow',
 	'http://undertow.dreamshards.org/0/u0_0.html',
-	[src => qr'^u\d+_'],
+	[src => qr'^up?\d+_'],
 	next => [src => qr'saepoint'],
 ],
 CyanideHappiness => [
