@@ -208,6 +208,23 @@ sub check_collections {
 	}
 }
 
+#$element, $spot
+#mounts the spot and checks if the elements match
+sub check_element {
+	my ($elem,$spot) = @_;
+	return () unless $elem and $spot;
+	Log->trace('check ', $elem->position(), ' of ', $elem->cid());
+	$spot->mount();
+	my $relem = $spot->element();
+	if (my $attr = $elem->differs($relem)) {
+		Log->debug($attr, ' missmatch ', $elem->position(), ' ', $elem->cid());
+		return 0;
+	}
+	else {
+		return 1
+	}
+}
+
 #$id -> $bool
 #returns true if first of $id
 #matches local and remote

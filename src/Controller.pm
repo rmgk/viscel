@@ -60,7 +60,6 @@ sub start {
 			$SIG{'INT'} = $INTS;
 			handle_hints();
 			$timeout = 60; #resetting timeout
-			#$maintainer->reset('keep_current');
 		}
 		else {
 			$SIG{'INT'} = $INTS;
