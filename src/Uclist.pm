@@ -2932,3 +2932,9 @@ DandyAndCompany => [
 	'http://www.dandyandcompany.com/2001/10/11/october-11-2001/',
 	[id => 'strip_bg'],
 ],
+MagickChicks => [
+	'Magick Chicks',
+	'http://www.magickchicks.com/d/20110204.html',
+	[id => 'comic'],
+	next => [id => 'next_day1'],
+],
