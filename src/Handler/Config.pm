@@ -4,7 +4,7 @@ package Handler::Config v1.1.0;
 
 use 5.012;
 use warnings;
-use lib '..';
+use utf8;
 
 use Handler;
 

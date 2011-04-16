@@ -4,6 +4,7 @@ package Maintenance v1.3.0;
 
 use 5.012;
 use warnings;
+use utf8;
 
 use Log;
 use Try::Tiny;
@@ -71,7 +72,7 @@ sub adjust_time {
 	if ( ((time - $current->[1]) > 2 * $current->[2]) and $factor < 1) {
 		$factor = 1;
 	}
-	$config->{$current->[0]} = join ':', time, $current->[2] * $factor;
+	$config->{$current->[0]} = join ':', time, int($current->[2] * $factor);
 }
 
 #$error -> $bool

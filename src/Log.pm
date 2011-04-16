@@ -4,6 +4,7 @@ package Log v1.3.0;
 
 use 5.012;
 use warnings;
+use utf8;
 use autodie;
 
 use Data::Dumper;

@@ -4,11 +4,13 @@ package Collection v1.3.0;
 
 use 5.012;
 use warnings;
+use utf8;
 
 use Log;
 use DBI;
 use Element;
 use Cache;
+use Encode;
 
 my $DBH;
 my $cache;
@@ -94,7 +96,8 @@ sub store {
 		Log->error('can not store element with mismatching id');
 		return;
 	}
-	my @values = $ent->attribute_values_array();
+	my @values = map {encode( "utf8", $_ )} $ent->attribute_values_array();
+	#my @values = $ent->attribute_values_array();
 	unless($DBH->do('INSERT OR FAIL INTO '. $s->{id} . ' ('.Element::attribute_list_string().') VALUES ('.(join ',',map {'?'} @values).')',undef,@values)) {
 		Log->error('could not insert into table: ' . $DBH->errstr);
 		return;
@@ -116,8 +119,10 @@ sub fetch {
 		Log->warn('could not retrieve element '.$DBH->errstr) if $DBH->err;
 		return;
 	}
+	$ret = { map { decode( "utf8", $_ ) } %{$ret} };
 	$ret->{cid} = $s->{id};
 	$ret = Element->new($ret);
+	
 	return $ret;
 }
 

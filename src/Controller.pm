@@ -4,6 +4,7 @@ package Controller v1.3.0;
 
 use 5.012;
 use warnings;
+use utf8;
 
 use Log;
 use Server;
@@ -142,7 +143,6 @@ sub hint_front {
 	my $spot = Cores::first($id);
 	try {
 		_store($col,$spot);
-		$col->clean();
 		$HS = $spot;
 	} catch {
 			Log->error("error store first",[$_]);
@@ -183,7 +183,6 @@ sub hint_view {
 			$spot = $spot->next();
 			return unless $spot;
 			_store($col,$spot);
-			$col->clean();
 			$HS = $spot;
 		} catch {
 			Log->error("error fetch and store next",[$_]);

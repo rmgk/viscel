@@ -4,7 +4,7 @@ package Handler::Misc v1.3.0;
 
 use 5.012;
 use warnings;
-use lib '..';
+use utf8;
 
 use Handler;
 

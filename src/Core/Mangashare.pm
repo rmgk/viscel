@@ -4,6 +4,7 @@ package Core::Mangashare v1.3.0;
 
 use 5.012;
 use warnings;
+use utf8;
 
 use parent qw(Core::Template);
 use Spot::Mangashare;

@@ -4,6 +4,7 @@ package Element v1.3.0;
 
 use 5.012;
 use warnings;
+use utf8;
 
 use CGI qw(img embed);
 use Log;
@@ -75,7 +76,10 @@ sub differs {
 	for my $a (attribute_list_array()) {
 		next if ($a eq 'sha1' or $a eq 'type')
 				and (!defined $s->{$a} or !defined $other->{$a}); #type and sha1 are not required so may also be not equal 
-		return $a unless $s->{$a} ~~ $other->{$a};
+		unless ($s->{$a} ~~ $other->{$a}) {
+			Log->error($s->cid, ' missmatch ', $a, ' ', $s->{$a}, ' ', $other->{$a});
+			return $a;
+		}
 	}
 	return;
 }

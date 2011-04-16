@@ -1,5 +1,6 @@
 use 5.012;
 use warnings;
+use utf8;
 
 use Test::More;
 use Core::Universal;
@@ -28,7 +29,6 @@ my $remote = new_ok('Core::Universal', [$list[0]], $list[0]);
 my @about = $remote->about();
 ok(0+@about,'about returned something '. explain \@about);
 isa_ok($about[0],'ARRAY','first about is array ref');
-ok($remote->fetch_info(),'fetch info returned ok ' . $list[0]);
 is($remote->name(),$list{$list[0]}, 'names match '. $list[0]);
 
 my $spot = $remote->first();
@@ -44,4 +44,4 @@ is($spot->id(), $list[0], 'id did not change');
 #isa_ok($spot2->element,'Element');
 #ok($spot2->next(),'next works');
 
-done_testing(11 + 3*@list);
+done_testing(10 + 3*@list);

@@ -4,6 +4,7 @@ package Handler v1.3.0;
 
 use 5.012;
 use warnings;
+use utf8;
 
 use parent qw( Exporter );
 use Log;
@@ -92,6 +93,7 @@ sub html_header {
 	my $html = cgi->start_html(	-style	=>	'/css',
 						-title => $title,
 						-id => $id,
+						-encoding => 'UTF-8',
 						-head => [ map {cgi->Link({-rel=>$_,-href=>$links{$_}})} keys %links ]
 					);
 }
