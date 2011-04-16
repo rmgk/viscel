@@ -133,7 +133,8 @@ sub update_cores_lists {
 sub update_collections {
 	my ($s) = @_;
 	Log->trace('initialise check collections');
-	my ($c,@to_update) = $s->time_list('update',Collection->list());
+	my $up = UserPrefs->section('bookmark');
+	my ($c,@to_update) = $s->time_list('update',$up->list());
 	@to_update = grep { Cores::known($_->[0]) } @to_update;
 	return () unless @to_update;
 	
