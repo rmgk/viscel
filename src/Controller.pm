@@ -52,25 +52,39 @@ sub init {
 sub start {
 	Log->trace('run main loop');
 	my $timeout = 0;
-	my $maintainer = Maintenance->new();
-	while (!$TERM) {
+	
+	my $accept = sub {
+		my ($longwait) = @_;
+		die 'terminate' if $TERM; 
 		Core::Universal->_load_list() if Globals::updateuniversal();
 		$SIG{'INT'} = $INTF;
 		if (Server::accept($timeout,0.5)) { #some connection was accepted
 			$SIG{'INT'} = $INTS;
 			handle_hints();
 			$timeout = 60; #resetting timeout
+			return 1;
 		}
 		else {
 			$SIG{'INT'} = $INTS;
-			if ($maintainer->tick()) {
-				$timeout = 0; #instant timeout to get some work done
+			if ($longwait) {
+				$timeout = 3600; #one hour timeout
+				
 			}
 			else {
-				$maintainer = Maintenance->new();
-				$timeout = 3600; #one hour timeout
+				$timeout = 0; #instant timeout to get some work done
 			}
+			return 0;
 		}
+	};
+	my $maintainer = Maintenance->new($accept);
+	try {
+		$maintainer->maintain();
+		while (!$TERM) {
+			$accept->(1);
+		}
+	} catch {
+		when(/^terminate /) { };
+		default { die $_ };
 	}
 }
 
@@ -119,8 +133,7 @@ sub hint_front {
 			$remote->save_clist();
 			return 1;
 		} catch {
-			Log->error("error fetch info");
-			Log->silent(Dumper $_);
+			Log->error("error fetch info",[$_]);
 			return 0 ;
 		};
 	}
@@ -132,8 +145,7 @@ sub hint_front {
 		$col->clean();
 		$HS = $spot;
 	} catch {
-			Log->error("error store first");
-			Log->silent(Dumper $_);
+			Log->error("error store first",[$_]);
 	};
 	return 1;
 }
@@ -158,8 +170,7 @@ sub hint_view {
 					$spot->mount();
 					return 1;
 				} catch {
-					Log->error("error mount this");
-					Log->silent(Dumper $_);
+					Log->error("error mount this", [$_]);
 					return 0;
 				};
 			}
@@ -175,8 +186,7 @@ sub hint_view {
 			$col->clean();
 			$HS = $spot;
 		} catch {
-			Log->error("error fetch and store next");
-			Log->silent(Dumper $_);
+			Log->error("error fetch and store next",[$_]);
 		};
 	}
 	return 1;

@@ -6,6 +6,7 @@ use 5.012;
 use warnings;
 use autodie;
 
+use Data::Dumper;
 use Globals;
 
 
@@ -27,6 +28,8 @@ sub new {
 #logs $msg 
 sub log {
 	my ($s,$level) = (shift,shift);
+	my $addinfo = '';
+	$addinfo = (Dumper pop @_)."\n" if ref $_[-1];
 	my @call = caller 1;
 	my $line = $call[2];
 	my $module = $call[0];
@@ -43,7 +46,7 @@ sub log {
 	say $message unless $level == $SILENT;
 	return if ($level < $Globals::FILELOG);
 	open (my $fh, '>>', 'error.txt');
-	print $fh $message , "\n";
+	print $fh $message ,"\n",$addinfo;
 	close $fh;
 } 
 
@@ -88,11 +91,6 @@ sub fatal {
 	return if ($FATAL < $Globals::LOGLVL);
 	print 'FATAL ';
 	$s->log($FATAL,@_);
-}
-#$msg
-sub silent { 
-	my ($s) = shift;
-	$s->log($SILENT,@_);
 }
 
 1;

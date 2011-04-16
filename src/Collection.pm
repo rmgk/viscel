@@ -99,6 +99,7 @@ sub store {
 		Log->error('could not insert into table: ' . $DBH->errstr);
 		return;
 	}
+	$DBH->commit();
 	if (defined $blob) {
 		return Cache::put($ent->sha1,$blob);
 	}
@@ -130,12 +131,6 @@ sub last {
 	}
 	Log->warn('could not retrieve last position of ' . $s->{id} , $DBH->errstr);
 	return;
-}
-
-#commits the database changes
-sub clean {
-	my ($s) = @_;
-	$DBH->commit;
 }
 
 1;
