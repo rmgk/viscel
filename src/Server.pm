@@ -10,6 +10,7 @@ use Log;
 use Config;
 use HTTP::Daemon;
 use Time::HiRes;
+use Encode;
 
 my $d;
 my %req_handler;
@@ -136,7 +137,7 @@ sub send_response {
 	my ($c,$html) = @_;
 	Log->trace('send response');
 	my $res = HTTP::Response->new( 200, 'OK', ['Content-Type','text/html; charset=UTF-8']);
-	$res->content($html);
+	$res->content(encode('utf8',$html));
 	$c->send_response($res);
 }
 

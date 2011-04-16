@@ -95,7 +95,7 @@ sub next {
 		die 'cant get next of failed page';
 	}
 	unless ($s->{next}) {
-		Log->error('no next was found');
+		Log->error('no next found ', $s->id);
 		return;
 	}
 	my $next = {id => $s->{id}, position => $s->{position} + 1, state => $s->{next} };
