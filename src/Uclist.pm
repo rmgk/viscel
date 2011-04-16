@@ -2649,6 +2649,7 @@ GUComics => [
 	'GU Comics',
 	'http://www.gucomics.com/comic/?cdate=20000710',
 	[src => qr'/gu_\d{8}'],
+	next => [alt => 'Next Comic'],
 ],
 TerrorIsland => [
 	'Terror Island',
@@ -2685,6 +2686,7 @@ ErrantStory => [
 	'Errant Story',
 	'http://www.errantstory.com/2002-11-04/15',
 	[id => 'comic'],
+	next => [text_match('Next>')],
 ],
 HomeOnTheStrange => [
 	'Home on the Strange',
