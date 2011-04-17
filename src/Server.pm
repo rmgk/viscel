@@ -118,12 +118,13 @@ sub _handle_request {
 			return $req_handler{$path}($c,$r,@args);
 		}
 		else {
+			Log->error('unknown handler ', $path, $r);
 			send_404($c);
 			return;
 		}
 	}
 	else {
-		Log->warn('unexpected url path: ', $r->url->path);
+		Log->error('unexpected url path: ', $r->url->path, $r);
 		send_404($c);
 		return;
 	}
