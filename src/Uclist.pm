@@ -2596,7 +2596,7 @@ Taiki => [
 	'Taiki',
 	'http://www.taikiwebcomic.com/Chapter1/Ch1.html',
 	[_tag=>'img', height => 800, width => 600],
-	next => [_tag => 'a', href => qr'/Chapter\d+/Ch\d+Pg\d+'], [_tag => 'img', src => 'http://www.taikiwebcomic.com/Button_Next.jpg'],
+	next => [_tag => 'a', href => qr'/Chapter\d+/Ch\d+'], [_tag => 'img', src => 'http://www.taikiwebcomic.com/Button_Next.jpg'],
 ],
 WireHeads => [
 	'Wire Heads',
