@@ -110,6 +110,9 @@ sub front {
 		if ($cgi->param('submit') eq 'pause') {
 			UserPrefs->section('bookmark')->set($id,$cgi->param('bookmark'));
 		}
+		elsif ($cgi->param('submit') eq 'remove') {
+			UserPrefs::remove('bookmark',$id);
+		}
 		UserPrefs::save();
 		$html .= html_notification('updated');
 		Controller::add_hint(['config']);
@@ -118,12 +121,18 @@ sub front {
 	$html .= html_info(Cores::about($id));
 	$html .= cgi->start_div({-class=>'navigation'});
 		$html .= link_main();
-		$html .= ' - ';
+		$html .= ' – ';
 		$html .= link_view($id,1,'first');
 		$html .= ' ';
 		$html.= link_view($id,$bm,'Bookmark') if $bm; 
 		$html .= ' ';
 		$html .= link_view($id,'*','last');
+		if ($bm) {
+			$html .= ' – ';
+			$html .= cgi->start_form(-method=>'POST',-action=>url_front($id),-enctype=>&CGI::URL_ENCODED);
+				$html .= cgi->submit(-name=>'submit',-class=>'submit', -value => 'remove');
+			$html .= cgi->end_form();
+		}
 	$html .= cgi->end_div();
 	my $col = Collection->get($id);
 	my $ent = $bm ? $col->fetch($bm) : undef;

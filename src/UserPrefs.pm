@@ -66,6 +66,16 @@ sub set {
 	return $value;
 }
 
+#$self|$section,$key -> $result
+#removes the stored value
+sub remove {
+	my ($sect,$key) = @_;
+	$sect = $$sect if ref $sect;
+	Log->trace("delete sect: $sect key: $key");
+	my $result = delete $data{$sect}->{$key};
+	return $result;
+}
+
 #saves the config
 sub save {
 	return unless $changed;
