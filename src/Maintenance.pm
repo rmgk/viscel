@@ -107,7 +107,8 @@ sub update_cores_lists {
 				adjust_time($c,$core,1.5);
 			}
 			else {
-				adjust_time($c,$core,0.8);
+				#Log->error('list missmatch', [\@oldkeys,[keys %$list]]);
+				adjust_time($c,$core,0.9);
 			}
 			#update the list either way
 			$core->[0]->clist($list);
