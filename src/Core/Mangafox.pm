@@ -63,7 +63,7 @@ sub _fetch_info {
 	my $url = $cfg->{url_info};
 	$url .= '?no_warning=1';
 	my $tree = DlUtil::get_tree($url);
-	my @chapter = $$tree->look_down(_tag=>'a',class=>'chico');
+	my @chapter = $$tree->look_down(_tag=>'a',class=>'ch');
 	if (@chapter) {
 		my $start = $chapter[-1]->attr('href');
 		$cfg->{start} = URI->new_abs($start,$url)->as_string;

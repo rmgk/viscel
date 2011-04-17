@@ -120,7 +120,7 @@ sub update_cores_lists {
 				die $error;
 			}
 			elsif (is_temporary($error)) { 
-				Log->warn("updating core list $core had an error");
+				Log->warn("updating core list ", $core->[0], " had an error");
 			}
 			else {
 				die "there was an unhandled error, please fix!\n" . Dumper $error;
