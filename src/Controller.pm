@@ -288,7 +288,7 @@ sub trim_cache {
 		for my $i (1..$last) {
 			my $elem = $col->fetch($i);
 			unless ($elem) {
-				Log->warn($id, ' is missing position ', $i);
+				Log->error($id, ' is missing position ', $i);
 				next;
 			}
 			$hashes{$elem->sha1} = 1;

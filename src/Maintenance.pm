@@ -183,6 +183,13 @@ sub fetch_next {
 	}
 	return try {
 		return unless $spot = $spot->next();
+		fetch_store($spot,$col);
+	} &catch(std_handler('update ', $spot->id));
+}
+
+sub fetch_store {
+	my ($spot,$col,$nomount) = @_;
+	try {
 		$spot->mount();
 		my $blob = $spot->fetch();
 		my $elem = $spot->element();
@@ -192,19 +199,24 @@ sub fetch_next {
 		else {
 			return ();
 		}
-	} catch {
+	} &catch(std_handler('fetch ', $spot->id));
+}
+
+sub std_handler {
+	my @desc = @_;
+	return sub {
 		my $error = $_;
 		if (is_temporary($error)) {
-			Log->warn("temporary error continue keep current of ", $spot->id, $error);
+			Log->warn("temporary error ", @desc , $error);
 		}
 		elsif (ref($error) and ($error->[0] =~ /^(get page|fetch element)$/)) {
-			Log->warn("network error continue keep current of ", $spot->id, ' code ', $error->[1], $error);
+			Log->warn("network error ", @desc , $error);
 		}
 		elsif (ref($error) and ($error->[0] eq 'mount failed')) {
-			Log->error("mount error continue keep current of ", $spot->id, $error);
+			Log->error("mount error ", @desc , $error);
 		}
 		else {
-			Log->fatal('unhandled error fetch next of ', $spot->id, \$error);
+			Log->fatal('unhandled error ', @desc , \$error);
 			die "there was an unhandled error, please fix!\n" . Dumper $error;
 		}
 		return ();
@@ -215,34 +227,19 @@ sub fetch_next {
 #returns the last spot
 sub get_last_spot {
 	my ($id) = @_;
-	return try {
-		my $col = Collection->get($id);
-		my $last = $col->last();
-		my $spot;
-		if ($last) {
-			$spot = $col->fetch($last)->create_spot();
-		}
-		else {
-			$spot = Cores::first($id);
-		}
-		$spot->mount();
-		return $spot;
-	} catch {
-		my $error = $_;
-		if (is_temporary($error)) {
-			Log->warn("temporary error start keep current of ", $id);
-		}
-		elsif (ref($error) and ($error->[0] =~ /^(get page|fetch element)$/)) {
-			Log->warn("network error start keep current of ", $id, ' code ', $error->[1]);
-		}
-		elsif (ref($error) and ($error->[0] eq 'mount failed')) {
-			Log->warn("mount error start keep current of ", $id);
-		}
-		else {
-			Log->error('unhandled error get last spot of ', $id, $error);
-		}
-		return ();
-	};
+	my $col = Collection->get($id);
+	my $last = $col->last();
+	my $spot;
+	if ($last) {
+		$spot = $col->fetch($last)->create_spot();
+		$spot = try {
+			$spot->mount();
+		} &catch(std_handler('last ', $spot->id));
+	}
+	else {
+		$spot = fetch_store(Cores::first($id),$col);
+	}
+	return $spot;
 }
 
 
