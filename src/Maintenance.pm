@@ -124,7 +124,7 @@ sub update_cores_lists {
 				Log->warn("updating core list ", $core->[0], " had an error");
 			}
 			else {
-				die "there was an unhandled error, please fix!\n" . Dumper $error;
+				Log->error("unhandled error while updating core", $error);
 			}
 		};
 	};
