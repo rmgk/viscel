@@ -2121,7 +2121,7 @@ BookOfBiff => [
 CoolCadStudio => [
 	'Cool Cat Studio',
 	'http://www.coolcatstudio.com/d/20000313.html',
-	[alt => 'comic'],
+	[src => qr'comics/ccs'],
 ],
 FissionChicken => [
 	'Fission Chicken',
