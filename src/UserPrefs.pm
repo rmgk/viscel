@@ -73,7 +73,7 @@ sub remove {
 	$sect = $$sect if ref $sect;
 	Log->trace("delete sect: $sect key: $key");
 	my $result = delete $data{$sect}->{$key};
-	$changed = 1;
+	$changed = 1 if defined $result;
 	return $result;
 }
 
