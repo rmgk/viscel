@@ -1444,7 +1444,7 @@ Inverloch => [
 SMBC => [
 	'Saturday Morning Breakfast Cereal',
 	'http://www.smbc-comics.com/index.php?db=comics&id=1',
-	[src => qr'/comics/\d{8}'],
+	[class => 'comicboxcenter'],[src => qr'/comics/\d{8}(?!after)'],
 	next => [_tag => 'area', coords => "351,21,425,87"],
 ],
 SSWestern => [
