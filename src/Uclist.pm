@@ -2336,7 +2336,7 @@ PCWeenies => [
 Fafnir => [
 	'Fafnir the Dragon',
 	'http://fafnirthedragon.com/?p=42',
-	[id => 'comic'],[src => qr'/comics/'],
+	[id => 'comic'],[src => qr'/comics/|^$'],
 	next => [class => 'next'],[_tag => 'a'],
 ],
 SerenianCentury => [
