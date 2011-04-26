@@ -803,11 +803,6 @@ Amazoness => [
 	[src => qr'^comics/'],
 	next => [src => 'advance.gif']
 ],
-NotAlone => [
-	'Not Alone',
-	'http://warofwinds.com/not-alone/?comic_id=0',
-	[src => qr'comics/\d{6}'],
-],
 ChocolateMilkmaid => [
 	'Chocolate Milkmaid',
 	'http://www.wlpcomics.com/adult/cm/001.html',
@@ -1539,11 +1534,6 @@ Ding => [
 	[src => qr'comics/ding/ding'],
 	next => [class => 'comics-next'],
 ],
-Catlegend => [
-	'Catlegend',
-	'http://www.cat-legend.com/?comic_id=0',
-	[src => qr'comics/\d{6}'],
-],
 HaikuComics => [
 	'Haiku Comics',
 	'http://haikucomics.com/2009/01/14/haikuone/',
@@ -1650,11 +1640,6 @@ Darken => [
 	'Darken',
 	'http://darkencomic.com/?webcomic_post=20031217',
 	[class => qr'webcomic-object-full'],
-],
-Lint => [
-	'Lint',
-	'http://www.purnicellin.com/lint/2004/01/10/01102004/',
-	[id => 'comic'],
 ],
 BetterDays => [
 	'Better Days',
@@ -1997,11 +1982,6 @@ UFO => [
 	'u.f.o.',
 	'http://mangowow.zamomo.com/index.php?strip_id=1',
 	[src => qr'istrip_files/strips/\d{8}'],
-],
-WillowsGroove => [
-	"Willow's Groove",
-	'http://www.willowsgrove.com/wordpress/?p=17',
-	[id => 'comic'],
 ],
 Filibuster => [
 	'Filibuster',
@@ -2941,3 +2921,250 @@ MagickChicks => [
 	[id => 'comic'],
 	next => [id => 'next_day1'],
 ],
+#spiderforest starts here
+AppleValley => [
+	'Apple Valley',
+	'http://www.applevalleycomic.com/2008/dungeons-and-dragons/',
+	[class => 'image-section'], [src => qr'uploads/\d{4}-\d\d-\d\d'],
+	next => [text_match('Next Comic')],
+],
+Avernyght => [
+	'The Chronicles of Avernyght',
+	'http://avernyght.com/?comic_id=0',
+	[src => qr'comics/\d{6}'],
+],
+BetweenPlaces => [
+	'Between Places',
+	'http://betweenplaces.spiderforest.com/?comic=20080617-chapter-one---title-page',
+	[src => qr'comics/\d{8}'],
+],
+CatLegend => [
+	'Cat Legend',
+	'http://www.cat-legend.com/?comic=20030827-1.-the-first',
+	[src => qr'comics/\d{8}'],
+],
+Catalyst => [
+	'Catalyst',
+	'http://catalyst.spiderforest.com/comic.php?comic_id=0',
+	[src => qr'comics/\d{6}'],
+],
+Cetiya => [
+	'Cetiya',
+	'http://cetiya.spiderforest.com/?comic=20080601',
+	[src => qr'comics/\d{8}'],
+],
+Chirault => [
+	'Chirault',
+	'http://chirault.sevensmith.net/pages/00_01.html',
+	[src => qr'images/\d\d_\d\d'],
+],
+Chromacorps => [
+	'Kyoudaikido Soldier Chromacorps',
+	'http://www.takacomics.com/2010/05/future-work-kyoudaikido-soldier-chromacorps/',
+	[id => 'comic'],
+],
+CodeNameHunter => [
+	'Code Name: Hunter',
+	'http://www.codenamehunter.com/archive/2005/06/20',
+	[class => 'comicImage'],[src => qr'/comics/'],
+],
+Cooties => [
+	'Cooties',
+	'http://cooties.spiderforest.com/2006/06/23/06232006/',
+	[id => 'comic'],
+],
+DreamScar => [
+	'Dream*Scar',
+	'http://dream-scar.net/view.php?id=1',
+	[id => 'contents'],
+],
+Fuzznuts => [
+	'Fuzznuts',
+	'http://fuzznuts.spiderspawn.com/?p=10',
+	[id => 'comic'],
+],
+Gemutations => [
+	'Gemutations: Plague',
+	'http://gemutations.spiderforest.com/comic.php?comic=20100924-gemutations-plague',
+	[src => qr'comics/\d{8}'],
+],
+Keys => [
+	'Keys',
+	'http://keys.spiderforest.com/?comic=20100903',
+	[src => qr'comics/\d{8}'],
+],
+Kinnari => [
+	'Kinnari',
+	'http://www.kinnaricomic.com/?id=1',
+	[id => 'comicimg'],
+],
+LifesAWitch => [
+	'Life’s a Witch',
+	'http://www.witchytech.com/lifesawitch/2006/08/07/2006-08-07/',
+	[id => 'comic'],
+],
+Malaak => [
+	'Malaak',
+	'http://malaakonline.com/I1.html',
+	[src => qr'I+\d+', width => 800],
+],
+MysteriesArcana => [
+	'Mysteries of the Arcana',
+	'http://mysteriesofthearcana.com/index.php?action=comics&cid=1',
+	[id => 'comic'],
+],
+Nahast => [
+	'Nahast Lands of Strife',
+	'http://nahast.spiderforest.com/archive.php?comic_id=0',
+	[src => qr'comics/\d{6}'],
+],
+Omega => [
+	'Omega',
+	'http://omega.indanthrone.com/?p=301',
+	[class => 'attachment-full wp-post-image'],
+	next => [rel => 'next'],
+],
+Eldlor => [
+	'Planes of Eldlor',
+	'http://www.eldlor.com/?page=comic&id=104263',
+	[alt => 'Comic'],
+],
+Precocious => [
+	'Precocious',
+	'http://precociouscomic.com/comic.php?page=1',
+	[src => qr'archive/strips/'],
+],
+RealLifeFiction => [
+	'Real Life Fiction',
+	'http://rlfcomic.com/?comic=20080824-cup-a-soup',
+	[src => qr'comics/\d{8}'],
+],
+Requiem => [
+	'Requiem',
+	'http://requiem.spiderforest.com/?p=4',
+	[id => 'comic-1'],
+],
+RivenSol => [
+	'Riven Sol',
+	'http://www.rivensol.com/?p=92',
+	[id => 'comic'],
+],
+RuneMaster => [
+	'Rune Master',
+	'http://rmtoads.com/rm/comic.php?page=1',
+	[src => qr'/pages/'],
+],
+SakanaNoSadness => [
+	'Sakana no Sadness',
+	'http://www.sakanacomic.com/page/ch1',
+	[id => 'comic-inner'],
+],
+SchoolSpirit => [
+	'School Spirit',
+	'http://www.schoolspiritcomic.com/2004/06/12/caspersfirstday/',
+	[id => 'comic-1'],
+],
+#http://www.smyzerandblyde.com/ multipage
+SpecialSchool => [
+	'Special School',
+	'http://specialschool.spiderforest.com/?comic=20050319-and-so-it-begins',
+	[id => 'comic-inner'],
+],
+SunsetGrill => [
+	'Sunset Grill',
+	'http://sunsetgrillcomic.com/index.php?comic=20080804-august-4,-2008',
+	[src => qr'comics/\d{8}'],
+],
+TalesFromMiddleKingdom => [
+	'Tales from the Middle Kingdom',
+	'http://middlekingdomtales.com/2010/04/01/p1-beginning/',
+	[id => 'comic-1'],
+],
+TalesTravelingGnome => [
+	'Tales of the Traveling Gnome',
+	'http://ttg.spiderforest.com/?page=ch01/1-000.html',
+	[src => qr'\.\./ch\d\d'],
+	url_hack => sub { $_[0] =~ s'\.\./''; $_[0] }
+],
+ThinkBeforeYouThink => [
+	'Think before you Think',
+	'http://thinkbeforeyouthink.net/?comic=20090613-coffee',
+	[src => qr'comics/\d{8}'],
+],
+TwilightLady => [
+	'Twilight Lady',
+	'http://www.twilightlady.com/2008/03/16/the-secret-of-cass-corridor-2/',
+	[id => 'comic'],
+],
+WarOfWinds => [
+	'The War fo Winds',
+	'http://warofwinds.com/comic.php?comic_id=0',
+	[id => 'comic'],
+],
+NotAlone => [
+	'Not Alone',
+	'http://warofwinds.com/not-alone/?comic_id=0',
+	[src => qr'comics/\d{6}'],
+],
+#hiatus before release
+#FromEarthToHeaven => [
+#	'From Earth to Heaven',
+#	'http://warofwinds.com/from-earth-to-heaven/archive.php?comic_id=0',
+#	[id => 'comic'],
+#],
+Weave => [
+	'Weave',
+	'http://weave.spiderforest.com/2009/08/10/ch01page001/',
+	[class => qr'comic-item'],
+],
+WhatNonsense => [
+	'What Nonsense',
+	'http://whatnonsensecomic.com/?comic=20080208',
+	[src => qr'comics/\d{8}'],
+],
+WillowsGrove => [
+	'Willow’s Grove',
+	'http://www.willowsgrove.com/wordpress/?p=17',
+	[id => 'comic'],
+],
+Xander => [
+	'Xander',
+	'http://xandercomic.com/comic/chapter1/01-%e2%80%93-waking-up-on-the-right-side-of-bed/',
+	[id => 'comic-1'],
+],
+XyliaTales => [
+	'Xylia Tales',
+	'http://www.xyliatales.com/10032007/',
+	[src => qr'comics/\d{4}-\d\d-\d\d'],
+],
+ArtisteManquee => [
+	'The Artiste Manquée',
+	'http://artiste.harchun.com/comic/1/beginning',
+	[src => qr'img/com/'],
+],
+Lint => [
+	'Lint',
+	'http://www.purnicellin.com/lint/2004/01/10/01102004/',
+	[id => 'comic'],
+],
+Valiant => [
+	'Valiant',
+	'http://valiant.spiderforest.com/?comic_id=0',
+	[src => qr'comics/\d{8}'],
+],
+GodsPack => [
+	'The Gods’ Pack',
+	'http://godspack.com/archives/index.php?strip_id=1',
+	[src => qr'strips/\d{8}'],
+],
+CatLegendLegends => [
+	'Legends, the expanded Cat Legend adventures',
+	'http://legends.spiderforest.com/?comic_id=0',
+	[src => qr'comics/\d{6}'],
+],
+ScatteredLeaves => [
+	'Scattered Leaves',
+	'http://scatteredleaves.spiderforest.com/?comic=20090809',
+	[src => qr'comics/\d{8}'],
+],
+#spiderforest end

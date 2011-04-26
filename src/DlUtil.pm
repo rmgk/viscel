@@ -11,6 +11,7 @@ use LWP;
 use LWP::UserAgent;
 use LWP::ConnCache;
 use HTML::TreeBuilder;
+use Encode;
 
 our $ua;
 
@@ -31,6 +32,8 @@ sub _init_ua {
 sub get {
 	my($url, $referer) = @_;
 	_init_ua() unless $ua;
+	$url = encode('utf8',$url);
+	$referer = encode('utf8',$referer) if $referer;
 	Log->debug("get $url" .( $referer ? " (referer $referer)" : ''));
 	my $request = HTTP::Request->new(GET => $url);
 	$request->referer($referer);
