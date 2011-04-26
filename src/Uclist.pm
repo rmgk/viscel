@@ -3167,4 +3167,14 @@ ScatteredLeaves => [
 	'http://scatteredleaves.spiderforest.com/?comic=20090809',
 	[src => qr'comics/\d{8}'],
 ],
+BlueSkunk => [
+	'Blue Skunk',
+	'http://blueskunk.spiderforest.com/?comic_id=0',
+	[src => qr'comics/\d{6}'],
+],
 #spiderforest end
+Lancaster => [
+	'Lancaster the Ghost Detective',
+	'http://lancaster-comic.com/archive/2010/01/26',
+	[src => qr'/comics/'],
+],

@@ -1,16 +1,16 @@
-RuneMaster(spiderforest)		http://www.rmtoads.com/rm/comic.php?page=1
+
 BigHeadPress		http://www.bigheadpress.com/
 Bhag(down)	http://bhag.sackofjustice.com/daily.php?date=040801
 Elftor(multiple strips per page)		http://elftor.com/elftor.php?number=1
 SonicPals(multiple strips per page)		http://www.sonicandpals.com/2004/january/testingstrips1.htm
 
 Framed(keenspot)		http://www.damonk.com/prime/d/20001003.html
-SvenAndYon(spiderforest)		http://svenandyon.spiderspawn.com/?comic_id=0
+
 MonicaFurious(not really a webcomic but still nice)		http://leadsalad.com/viewcomic.php?id=1
 plusEV(keenspot)		http://www.plusev.net/d/20060811.html
 
 GodMode(keenspot)		http://godmodeonline.com/d/20050915.html
-TheFloor(spiderforest)		http://thefloor.spiderspawn.com/?comic_id=0
+
 StickyFloors(snafu)		http://sf.snafu-comics.com/?comic_id=0
 
 
@@ -32,13 +32,12 @@ SosSaga(smackjeeves)		http://sossagav2.smackjeeves.com/comics/465667/001-title-c
 
 
 
-TryEverythingOnce(spiderforest)		http://teo.spiderspawn.com/?comic_id=0
-SexPercussions(spiderforest)			http://sexpercussions.spiderforest.com/?comic_id=0
 
 
 
 
-EndTime(spiderforest)		http://etime.spiderforest.com/?comic_id=0
+
+
 
 
 AjanWarriors(ladystar)		http://ladystar.net/ajanwarriors/2008/10/22/beyond-this-door-is-a-magical-and-mysterious-adventure-like-nothing-youve-seen-before/#comic
@@ -146,7 +145,7 @@ AngstTechnology(down)		http://www.inktank.com/category/comics/angst-technology/
 
 UnspeakableVault(bad html)		http://www.macguff.fr/goomi/unspeakable/vault00-cast.html
 
-Nahast(spiderforest)		http://nahast.spiderforest.com/archive.php?comic_id=0
+
 
 
 
@@ -158,7 +157,7 @@ Nahast(spiderforest)		http://nahast.spiderforest.com/archive.php?comic_id=0
 
 
 AprilAndMay(clonemanga)		http://manga.clone-army.org/anm.php?lang=%3C?php%20print%20?%3E&page=1&lang=
-NotAlone(spiderforest)		http://warofwinds.com/not-alone/?comic_id=0
+
 
 
 
@@ -187,7 +186,7 @@ ArcaneQuarry(missing)		http://aq.mewzstudios.com/2005/07/31/and-were-off/
 
 
 
-LifesAWitch(spiderforest)		http://www.witchytech.com/lifesawitch/2006/08/07/2006-08-07/
+
 
 
 BrunoTheBandit(keenspot)		http://brunothebandit.com/d/19980720.html
@@ -220,7 +219,7 @@ GrimTales(snafu)		http://grim.snafu-comics.com/?comic_id=0
 ShapeQuest(gone)		http://www.shapequest.net/?id=1
 
 
-Fuzznuts(spiderforest)		http://fuzznuts.spiderspawn.com/?p=10
+
 
 
 
@@ -287,8 +286,7 @@ Knave(gone?)		http://www.coloringdragons.com/knave/page0.htm
 
 
 Tomoyo42sRoom(clone manga)		http://manga.clone-army.org/t42r.php?page=1&lang=
-Requiem(spiderforest)		http://requiem.spiderforest.com/?p=4
-Cooties(spiderforest)		http://cooties.spiderforest.com/2006/06/23/06232006/
+
 
 
 
@@ -317,11 +315,10 @@ BeyondRapture(gone?)		http://beyondrapture.godspack.com/archives/page-1
 
 
 FlakyPastry(sage-comics)		http://flakypastry.runningwithpencils.com/comic.php?strip_id=0
-BlueSkunk(spiderforest)		http://blueskunk.spiderforest.com/?comic_id=0
+
 
 BoredAndEvil(HyenaComics)		http://www.boredandevil.com/?date=2004-06-07
 InkTank(down?)		http://www.inktank.com/2008/04/01/a-new-day/
-Xylia(spiderforest)		http://xyliatales.com/10032007/
 
 TheEndOfThings(down)		http://endofthingscomic.com/?p=254
 
@@ -340,8 +337,8 @@ GirlVsPig(multipage)		http://www.girlvspig.com/archives/her1.html
 
 
 
-SidAndLasker(spiderforest)		http://sidandlasker.spiderspawn.com/?comic_id=0
-BalladMaker(spiderforest)			http://balladmaker.spiderforest.com/?strip_id=0
+
+
 NanasEverydayLife(clonemanga)			http://manga.clone-army.org/nana.php?page=1&lang=
 Freefall(belfrycomics)		http://freefall.purrsia.com/ff100/fv00001.htm
 
@@ -351,8 +348,7 @@ kanami(clonemanga)		http://manga.clone-army.org/kanami.php?lang=%3C?php%20print%
 
 
 Butternutsquash(TX)		http://www.butternutsquash.net/2003/04/16/meet-da-punks/
-Valiant(spiderforest)		http://valiant.spiderforest.com/?comic_id=0
-SunsetGrill(spiderforest)		http://sunsetgrillcomic.com/index.php?comic=20080804-august-4,-2008
+
 
 InniesAndOutties(webcomicsnation)		http://www.webcomicsnation.com/lcachola/innies4/series.php?view=single&ID=61033
 
@@ -396,7 +392,7 @@ SorryWereOpen(ninjas?! (gone))		http://www.inktank.com/category/comics/sorry-wer
 
 
 
-LancasterTheGhostDetective(spiderforest)		http://lancaster.spiderspawn.com/?comic_id=0
+
 
 
 
@@ -413,7 +409,7 @@ CountYourSheep(keenspot)		http://www.countyoursheep.com/d/20030611.html
 
 
 
-NormAndCory(spiderforest)		http://normandcory.spiderforest.com/?comic_id=0
+
 NoCrap(sage comics)		http://no-crap.net/2004-11-20/
 
 
@@ -435,7 +431,7 @@ Pixelheaven	(gone)	http://www.pixelheaven.net/ph_001.php
 
 
 MacHall(down?)		http://www.machall.com/view.php?date=2000-11-07
-HeyMike(spiderfores)		http://heymike.spiderspawn.com/?comic_id=0
+
 
 
 
@@ -451,7 +447,7 @@ ExperiencePoints(crispygamer)		http://www.crispygamer.com/comics/experiencepoint
 
 
 
-Ravenwood	(spiderforest)	http://ravenwood.spiderforest.com/?comic_id=0
+
 TruckBearingKibble(gone?)		http://truckbearingkibble.com/comic/2006/12/29/platypus/
 GalacticDivine(gone?)		http://hikaruhoshi.com/tkawaii/comic/gd/index.php?p=1
 
@@ -466,7 +462,7 @@ SchoolBites(dualimage)		http://schoolbites.net/d/20090817.html
 
 
 
-TheWarOfWinds(spiderforest)		http://warofwinds.com/comic.php?comic_id=0
+
 
 
 
@@ -562,7 +558,7 @@ Necropolis(sage-comics)		http://www.necropoliscomic.com/?p=31
 DeadHeaven(register only)		http://www.deadheaven.net/thebeginning.html
 
 
-SpecialSchool(spiderforest)		http://specialschool.spiderforest.com/?comic_id=0
+
 Fans(http://www.tcampbell.net/)		http://www.faans.com/index.php?p=1
 YouDamnKid(keenspot)		http://www.youdamnkid.com/d/19990301.html
 FreakAngels(later dude)		http://www.freakangels.com/?p=22&page=1
@@ -590,7 +586,7 @@ GeekLovesNerd(http://nlcast.com/)		http://geeklovesnerd.com/2008/06/new-web-comi
 
 
 
-GodsPack(spiderforest)		http://www.godspack.com/archives/index.php?strip_id=1
+
 MarshRocket(dualimage)		http://www.marsh-rocket.com/Pages.aspx?Pg_ID=0
 
 
@@ -666,7 +662,7 @@ DrawingBoard(smackjeeves)		http://drawingboard.smackjeeves.com/comics/552579/exc
 PennyTribute(clone manga)		http://manga.clone-army.org/penny.php?page=1&lang=
 Yirmumah(keenspot)		http://yirmumah.net/archives.php?date=20031005
 
-Avernyght(spiderforest)		http://avernyght.com/?comic_id=0
+
 
 
 
