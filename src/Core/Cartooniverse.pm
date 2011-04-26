@@ -6,7 +6,7 @@ use 5.012;
 use warnings;
 use utf8;
 
-use parent qw(Core::Template);
+use parent qw(Core);
 use Spot::Cartooniverse;
 use Try::Tiny;
 

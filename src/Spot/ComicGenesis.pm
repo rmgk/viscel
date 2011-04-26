@@ -6,7 +6,7 @@ use 5.012;
 use warnings;
 use utf8;
 
-use parent qw(Spot::Template);
+use parent qw(Spot);
 
 #$tree
 #parses the page to mount it

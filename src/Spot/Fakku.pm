@@ -6,7 +6,7 @@ use 5.012;
 use warnings;
 use utf8;
 
-use parent qw(Spot::Template);
+use parent qw(Spot);
 
 #makes preparations to find objects
 sub mount {
