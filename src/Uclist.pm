@@ -2098,10 +2098,10 @@ BookOfBiff => [
 	'http://www.thebookofbiff.com/2006/01/02/4/',
 	[id => 'comic'],
 ],
-CoolCadStudio => [
+CoolCatStudio => [
 	'Cool Cat Studio',
 	'http://www.coolcatstudio.com/d/20000313.html',
-	[src => qr'comics/ccs'],
+	[src => qr'comics/ccs'i],
 ],
 FissionChicken => [
 	'Fission Chicken',
