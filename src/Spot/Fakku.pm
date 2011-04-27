@@ -50,7 +50,14 @@ sub _mount_parse {
 	
 	#say $content;
 
-	if ($content =~ /"section":"(\w+)".*?"folder":"(\w+)".*?"thumbs":\[(.*?)\]\}\;/m) {
+	if ($content =~ /"section":"(\w+)"
+						.*?
+						"folder":"(\w+)"
+						.*?
+						"thumbs":
+						\[(.*?)\],
+						"full_page"
+						/mx) {
 		my $section = $1;
 		my $folder = $2;
 		my $thumbs = $3;
