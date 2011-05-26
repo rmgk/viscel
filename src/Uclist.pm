@@ -3178,3 +3178,8 @@ Lancaster => [
 	'http://lancaster-comic.com/archive/2010/01/26',
 	[src => qr'/comics/'],
 ],
+Bugcomic => [
+	'Bugcomic',
+	'http://www.bugcomic.com/comics/letter/',
+	[id => 'comic-1'],
+],
