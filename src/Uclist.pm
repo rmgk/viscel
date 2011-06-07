@@ -1291,7 +1291,7 @@ Dreamer => [
 ],
 Catena => [
 	'Catena',
-	'http://catenamanor.com/2003/06/06/20030617/',
+	'http://catenamanor.com/2003/06/17/the-start-of-it-all/',
 	[class => 'object'],
 ],
 JumpfourtwoDE => [
