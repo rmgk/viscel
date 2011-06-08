@@ -3183,3 +3183,8 @@ Bugcomic => [
 	'http://www.bugcomic.com/comics/letter/',
 	[id => 'comic-1'],
 ],
+Spinnerette => [
+	'Spinnerette',
+	'http://www.krakowstudios.com/spinnerette/2010/02/09/20100209/',
+	[id => 'comic-1'],
+],
