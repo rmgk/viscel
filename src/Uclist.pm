@@ -1292,7 +1292,7 @@ Dreamer => [
 Catena => [
 	'Catena',
 	'http://catenamanor.com/2003/06/17/the-start-of-it-all/',
-	[class => 'object'],
+	[id => 'comic'],
 ],
 JumpfourtwoDE => [
 	'Jump 42 (deutsch)',
