@@ -701,9 +701,8 @@ Comet => [
 ],
 TryingHuman => [
 	'Trying Human',
-	'http://www.introducing-emy.com/th/pro_01.html',
-	[src => qr'comic/'],
-	next => [src => 'arrow_forward.jpg'],
+	'http://tryinghuman.com/comic.php?strip_id=1',
+	[src => qr'strips/'],
 ],
 Kristy => [
 	'Kristy versus the Zombie Army',
