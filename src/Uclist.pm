@@ -2101,6 +2101,9 @@ CoolCatStudio => [
 	'Cool Cat Studio',
 	'http://www.coolcatstudio.com/d/20000313.html',
 	[src => qr'comics/ccs'i],
+	url_hack => sub { if ($_[0] eq 'http://www.coolcatstudio.com/d/20070625.html') {
+							return 'http://www.coolcatstudio.com/d/20070626.html';
+						} return $_[0] }
 ],
 FissionChicken => [
 	'Fission Chicken',
