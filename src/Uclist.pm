@@ -2103,6 +2103,8 @@ CoolCatStudio => [
 	[src => qr'comics/ccs'i],
 	url_hack => sub { if ($_[0] eq 'http://www.coolcatstudio.com/d/20070625.html') {
 							return 'http://www.coolcatstudio.com/d/20070626.html';
+						} elsif ($_[0] eq 'http://www.coolcatstudio.com/index.php?p=66') {
+							return 'http://www.coolcatstudio.com/index.php?p=67';
 						} return $_[0] }
 ],
 FissionChicken => [
