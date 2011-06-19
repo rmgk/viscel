@@ -3192,3 +3192,8 @@ Spinnerette => [
 	'http://www.krakowstudios.com/spinnerette/2010/02/09/20100209/',
 	[id => 'comic-1'],
 ],
+EdgeOfDecember => [
+	'Edge of December',
+	'http://www.edgeofdecember.com/index.php?pid=1',
+	[id => 'comic'],
+],
