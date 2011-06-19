@@ -1948,7 +1948,7 @@ ForTheWicked => [
 	[src => qr'pages/'],
 ],
 MenageA3 => [
-	'Menage A 3',
+	'Ménage à 3',
 	'http://www.menagea3.net/d/20080517.html',
 	[src => qr'/comics/'],
 ],
