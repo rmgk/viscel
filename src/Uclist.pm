@@ -3197,3 +3197,8 @@ EdgeOfDecember => [
 	'http://www.edgeofdecember.com/index.php?pid=1',
 	[id => 'comic'],
 ],
+EverNight => [
+	'EverNight',
+	'http://www.evernightcomic.com/archives/1',
+	[id => 'comic-1'],
+],
