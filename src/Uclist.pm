@@ -3119,7 +3119,8 @@ NotAlone => [
 Weave => [
 	'Weave',
 	'http://weave.spiderforest.com/2009/08/10/ch01page001/',
-	[class => qr'comic-item'],
+	[id => qr'^comic-'],[class => qr'comic-item'],
+	next => [class => 'next-comic-link'],
 ],
 WhatNonsense => [
 	'What Nonsense',
