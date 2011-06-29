@@ -3203,3 +3203,9 @@ EverNight => [
 	'http://www.evernightcomic.com/archives/1',
 	[id => 'comic-1'],
 ],
+Aeria => [
+	'Aeria',
+	'http://www.aeria-comic.com/2010/04/20/the-tale-of-aeria/',
+	[id => 'comic'],
+	next => [id => 'next'],
+],
