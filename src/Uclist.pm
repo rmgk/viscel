@@ -2725,8 +2725,9 @@ PicturesForSadChildren => [
 ],
 WhatBirdsKnow => [
 	'What Birds Know',
-	'http://whatbirdsknow.atspace.com/wbk01.htm',
-	[_tag => 'img'],
+	#'http://whatbirdsknow.atspace.com/wbk01.htm',
+	'http://fribergthorelli.com/wbk/index.php/page-1/',
+	[id => 'comic'],
 ],
 FragileGravity => [
 	'Fragile Gravity',
