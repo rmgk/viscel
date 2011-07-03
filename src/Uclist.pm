@@ -3310,7 +3310,7 @@ RomanticallyApocalyptic => [
 MilkForDeadHamsters => [
 	'Milk For Dead Hamsters',
 	'http://milkfordeadhamsters.com/comics/pet-fish',
-	[src => qr'/comic2/wp-content/'],
+	[src => qr'/wp-content/uploads/'],
 ],
 Archipelago => [
 	'Archipelago',
