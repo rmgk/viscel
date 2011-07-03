@@ -2725,8 +2725,9 @@ PicturesForSadChildren => [
 ],
 WhatBirdsKnow => [
 	'What Birds Know',
-	'http://whatbirdsknow.atspace.com/wbk01.htm',
-	[_tag => 'img'],
+	#'http://whatbirdsknow.atspace.com/wbk01.htm',
+	'http://fribergthorelli.com/wbk/index.php/page-1/',
+	[id => 'comic'],
 ],
 FragileGravity => [
 	'Fragile Gravity',
@@ -3330,4 +3331,10 @@ VampireCheerleaders => [
 	'Vampire CHeerleaders',
 	'http://gomanga.com/webmanga/index.php?series=vampirecheerleaders&page=1',
 	[id => 'page'],
+],
+Aeria => [
+	'Aeria',
+	'http://www.aeria-comic.com/2010/04/20/the-tale-of-aeria/',
+	[id => 'comic'],
+	next => [id => 'next'],
 ],
