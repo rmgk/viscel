@@ -3203,3 +3203,131 @@ EverNight => [
 	'http://www.evernightcomic.com/archives/1',
 	[id => 'comic-1'],
 ],
+NotAVillain => [
+	'Not A Villain',
+	'http://navcomic.com/archive/v1-001/',
+	[src => qr'/wp-content/webcomic/'],
+],
+BittersweetCandyBowl => [
+	'Bittersweet Candy Bowl',
+	'http://www.bittersweetcandybowl.com/c1/p1.html',
+	[class => 'comicpage'],
+],
+Unsounded => [
+	'Unsounded',
+	'http://www.casualvillain.com/Unsounded/comic/ch01/ch01_01.html',
+	[id => 'comic'],
+	next => [class => 'forward'],
+],
+Derelict => [
+	'Derelict',
+	'http://derelictcomic.com/?strip_id=0',
+	[src => qr'comics'],
+],
+SinsVenial => [
+	'Sins Venials',
+	'http://sincomics.com/index.php?1',
+	[src => qr'comic/'],
+	next => [src => qr'foward.jpg'],
+],
+FullTimeInk => [
+	'Full Time Ink',
+	'http://fulltimeink.com/archives/129',
+	[src => qr'comic_object'],
+],
+Evon => [
+	'Evon',
+	'http://evoncomics.com/?p=58',
+	[id => 'comic'],
+],
+NikkiSprite => [
+	'Nikki Sprite',
+	'http://nikkisprite.com/?p=7',
+	[id => 'comic'],
+],
+Underling => [
+	'Underling',
+	'http://underlingcomic.com/page-one/',
+	[id => 'comic'],
+],
+TurboDefiantKimecan => [
+	'Turbo Defiant Kimecan',
+	'http://www.kimecan.com/eng/archive/chapter-1-cover/',
+	[src => qr'/wp-content/webcomic/'],
+],
+RankorChronicles => [
+	'Rankor Chronicles',
+	'http://rankorchronicles.weebly.com/page-1.html',
+	[id => 'comic'],
+],
+TheMaor => [
+	'The Maor',
+	'http://www.themaor.com/2008/07/05/themaor-chapter-one-cover/',
+	[id => 'comic'],
+],
+Tamuran => [
+	'Tamuran',
+	'http://www.tamurancomic.com/?p=120',
+	[id => 'comic'],
+],
+SuperNormalStep => [
+	'Super Normal Step',
+	'http://www.supernormalstep.com/1/',
+	[src => qr'strips'],
+],
+Otherworld => [
+	'Otherworld',
+	'http://www.otherworldcomic.com/page3/files/23393629afd763c95a23282d39ed70bd-1.html',
+	[id => qr'unique-entry-id'],
+	next => [class => 'right'],
+],
+BlueMilkSpecial => [
+	'Blue Milk Special',
+	'http://www.bluemilkspecial.com/?p=4',
+	[id => 'comic'],
+],
+ParanormalMysterySquad => [
+	'Paranormal Mystery Squad',
+	'http://www.paranormalmysterysquad.com/d/20110504.html',
+	[src => qr'comics'],
+],
+Memoria => [
+	'Memoria',
+	'http://memoria.valice.net/?p=77',
+	[id => 'comic'],
+],
+ThistilMistilKistil => [
+	'Thistil Mistil Kistil',
+	'http://tmkcomic.depleti.com/comic/ch01-pg00/',
+	[id => 'comic'],
+],
+RomanticallyApocalyptic => [
+	'Romantically Apocalyptic',
+	'http://romanticallyapocalyptic.com/1',
+	[src => qr'/art/'],
+],
+MilkForDeadHamsters => [
+	'Milk For Dead Hamsters',
+	'http://milkfordeadhamsters.com/comics/pet-fish',
+	[src => qr'/comic2/wp-content/'],
+],
+Archipelago => [
+	'Archipelago',
+	'http://archipelagocomic.com/comic/?id=1',
+	[src => qr'/comic/img/comic/'],
+],
+ZombieRanch => [
+	'Zombie Ranch',
+	'http://www.zombieranchcomic.com/2009/09/25/onthezombieranch/',
+	[id => 'comic'],
+],
+Everblue => [
+	'Everblue',
+	'http://everblue-comic.com/2010/01/01/volume-1-cover/',
+	[id => 'comic'],
+],
+VampireCheerleaders => [
+	'Vampire CHeerleaders',
+	'http://gomanga.com/webmanga/index.php?series=vampirecheerleaders&page=1',
+	[id => 'page'],
+],
