@@ -98,10 +98,14 @@ sub _accept_requests {
 sub _handle_request {
 	my ($c,$r,$addr) = @_;
 	Log->debug("request: " , $r->method(), ' ', $r->url->as_string());
-	if ($r->method() ne 'GET' and $r->method() ne 'HEAD' and $addr ne '127.0.0.1') {
-		Log->warn('non GET request from foreign address send 403');
-		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'You are only allowed to make GET requests'));
+	if ($addr ne '127.0.0.1') {
+		Log->error('non local address send 403 ', $addr, $r-> method(), $r->url->as_string());
+		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'Forbidden'));
 	}
+	# if ($r->method() ne 'GET' and $r->method() ne 'HEAD' and $addr ne '127.0.0.1') {
+		# Log->warn('non GET request from foreign address send 403');
+		# $c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'You are only allowed to make GET requests'));
+	# }
 	if ($r->url->path eq '/') {
 		if ($req_handler{'main'}) {
 			return $req_handler{'main'}($c,$r);
