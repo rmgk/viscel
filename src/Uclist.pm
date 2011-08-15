@@ -2657,9 +2657,8 @@ WintersInLavelle => [
 ],
 EvilDiva => [
 	'Evil Diva',
-	'http://www.evildivacomics.com/cover.html',
-	[_tag => 'img'],
-	next => [_tag => 'a',text_match(qr'forward') ],
+	'http://www.evildivacomics.com/?p=145',
+	[id => 'comic'],
 ],
 OtakuNoYen => [
 	'Otaku no Yen',
