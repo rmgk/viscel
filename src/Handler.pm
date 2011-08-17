@@ -52,7 +52,7 @@ sub link_config { cgi->a({-href=>url_config(@_)}, $_[1] || $_[0])}
 sub link_search { cgi->a({-href=>url_search().'?q='.$_[1]},$_[0]) }
 
 sub handler { $_[0] =~ m'^/([^/]+)'; return $1; }
-sub absolute { URI->new_abs($_[0],$_[1] || 'http://127.0.0.1') }
+sub absolute { URI->new_abs($_[0],$_[1] || 'http://127.0.0.1:' . Globals::port() ) }
 
 
 #$name,$url -> POST form
