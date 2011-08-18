@@ -462,7 +462,7 @@ LoveInBlood => [
 	[class => 'object']
 ],
 UnlikeMinerva => [
-	'Unlike Minverva',
+	'Unlike Minerva',
 	'http://www.unlikeminerva.com/comics/index.php?date=20010101',
 	[src => qr'/comics/']
 ],
