@@ -3337,3 +3337,8 @@ Aeria => [
 	[id => 'comic'],
 	next => [id => 'next'],
 ],
+HundredPercentCat => [
+	'100% Cat',
+	'http://www.100percentcat.com/comics/index.php?date=20110406',
+	[src => qr'/comics/']
+],
