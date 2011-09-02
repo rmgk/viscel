@@ -1754,7 +1754,7 @@ Oglaf => [
 Annyseed => [
 	'Annyseed',
 	'http://www.colourofivy.com/annyseed_webcomic.htm',
-	[_tag => 'body'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'img']
+	[_tag => 'body'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'img', src=> qr'Annyseed']
 ],
 PepperminntSaga => [
 	'Pepperminnt Saga',
