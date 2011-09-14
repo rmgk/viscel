@@ -9,6 +9,7 @@ use utf8;
 use Log;
 use Try::Tiny;
 use Data::Dumper;
+use List::Util qw(min max);
 
 #constructor
 sub new {
@@ -66,13 +67,16 @@ sub time_list {
 #$config, $current, $factor
 #adjusts the time values according to factor
 sub adjust_time {
-	my ($config,$current,$factor) = @_;
+	my ($config,$current,$factor,$min,$max) = @_;
 	Log->trace('adjusting time of ', $current->[0], ' by factor ', $factor);
 	#dont shorten the time if the update was delayed for to long
 	if ( ((time - $current->[1]) > 2 * $current->[2]) and $factor < 1) {
 		$factor = 1;
 	}
-	$config->{$current->[0]} = join ':', time, int($current->[2] * $factor);
+	my $seconds_to_update = int($current->[2] * $factor);
+	$seconds_to_update = min($seconds_to_update,$min) if (defined $min);
+	$seconds_to_update = max($seconds_to_update,$max) if (defined $max);
+	$config->{$current->[0]} = join ':', time, ;
 }
 
 #$error -> $bool
@@ -108,7 +112,7 @@ sub update_cores_lists {
 			}
 			else {
 				#Log->error('list missmatch', [\@oldkeys,[keys %$list]]);
-				adjust_time($c,$core,0.9);
+				adjust_time($c,$core,0.9,600000); #minimum about a week
 			}
 			#update the list either way
 			$core->[0]->clist($list);
