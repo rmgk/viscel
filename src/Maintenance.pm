@@ -76,7 +76,7 @@ sub adjust_time {
 	my $seconds_to_update = int($current->[2] * $factor);
 	$seconds_to_update = min($seconds_to_update,$min) if (defined $min);
 	$seconds_to_update = max($seconds_to_update,$max) if (defined $max);
-	$config->{$current->[0]} = join ':', time, ;
+	$config->{$current->[0]} = join ':', time, $seconds_to_update;
 }
 
 #$error -> $bool
@@ -112,7 +112,7 @@ sub update_cores_lists {
 			}
 			else {
 				#Log->error('list missmatch', [\@oldkeys,[keys %$list]]);
-				adjust_time($c,$core,0.9,600000); #minimum about a week
+				adjust_time($c,$core,0.9,400000); #minimum about half a week
 			}
 			#update the list either way
 			$core->[0]->clist($list);
