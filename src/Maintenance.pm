@@ -74,8 +74,8 @@ sub adjust_time {
 		$factor = 1;
 	}
 	my $seconds_to_update = int($current->[2] * $factor);
-	$seconds_to_update = min($seconds_to_update,$min) if (defined $min);
-	$seconds_to_update = max($seconds_to_update,$max) if (defined $max);
+	$seconds_to_update = max($seconds_to_update,$min) if (defined $min);
+	$seconds_to_update = min($seconds_to_update,$max) if (defined $max);
 	$config->{$current->[0]} = join ':', time, $seconds_to_update;
 }
 
