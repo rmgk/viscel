@@ -3327,7 +3327,7 @@ Everblue => [
 	[id => 'comic'],
 ],
 VampireCheerleaders => [
-	'Vampire CHeerleaders',
+	'Vampire Cheerleaders',
 	'http://gomanga.com/webmanga/index.php?series=vampirecheerleaders&page=1',
 	[id => 'page'],
 ],
@@ -3341,4 +3341,9 @@ HundredPercentCat => [
 	'100% Cat',
 	'http://www.100percentcat.com/comics/index.php?date=20110406',
 	[src => qr'/comics/']
+],
+DoesNotPlayWellWithOthers => [
+	'Does Not Play Well With Others',
+	'http://www.doesnotplaywellwithothers.com/comics/pwc-000f',
+	[id => 'comic'],
 ],
