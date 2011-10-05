@@ -214,7 +214,7 @@ sub std_handler {
 		if (is_temporary($error)) {
 			Log->warn("temporary error ", @desc , $error);
 		}
-		elsif (ref($error) and ($error->[0] =~ /^(get page|fetch element)$/)) {
+		elsif (ref($error) and ($error->[0] =~ /^(get page|fetch element|decode page)$/)) {
 			Log->warn("network error ", @desc , $error);
 		}
 		elsif (ref($error) and ($error->[0] eq 'mount failed')) {
