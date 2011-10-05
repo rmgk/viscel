@@ -58,7 +58,7 @@ PS238(nodwick humor gamespy)		http://nodwick.humor.gamespy.com/ps238/comics/inde
 
 AbsurdNotions(multiple strips per page)		http://www.absurdnotions.org/page1.html
 
-AsWeWere(sorcery101)		http://www.sorcery101.net/2009/aswewere/20090120-2/
+
 RPGworld(keenspot)		http://rpgworldcomic.com/d/20000827.html
 
 
@@ -549,7 +549,7 @@ SugarBits(snafu)		http://sugar.snafu-comics.com/?comic_id=0
 
 LovecraftIsMissing(multi image)		http://lovecraftismissing.com/?p=930
 
-Sorcery101(sorcery101)		http://www.sorcery101.net/2005/sorcery101/20050512/
+
 
 Necropolis(sage-comics)		http://www.necropoliscomic.com/?p=31
 

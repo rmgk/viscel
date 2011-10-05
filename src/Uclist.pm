@@ -3347,3 +3347,48 @@ DoesNotPlayWellWithOthers => [
 	'http://www.doesnotplaywellwithothers.com/comics/pwc-000f',
 	[id => 'comic'],
 ],
+Aikonia => [
+	'Aikonia',
+	'http://www.aikoniacomic.com/index.php?id=1',
+	[id => 'comic'],
+],
+DraculaMysteryClub => [
+	'Dracula Mystery Club',
+	'http://draculamysteryclub.com/archive/dracula-mystery-club-cover',
+	[id => 'comicbox'],
+],
+Sorcery101 => [
+	'Sorcery 101',
+	'http://www.sorcery101.net/sorcery101/s101chapter1/',
+	[class => 'comic'],
+],
+Bisclavret => [
+	'Bisclavret',
+	'http://www.sorcery101.net/bisclavret/biscover/',
+	[class => 'comic'],
+],
+AsWeWere => [
+	'As We Were',
+	'http://www.sorcery101.net/aswewere/awwcover/',
+	[class => 'comic'],
+],
+FromScratch => [
+	'From Scratch',
+	'http://www.sorcery101.net/fromscratch/fscover/',
+	[class => 'comic'],
+],
+StrangeSomeone => [
+	'Strange Someone',
+	'http://www.sorcery101.net/strangesomeone/cover/',
+	[class => 'comic'],
+],
+MonsterPulse => [
+	'Monster Pulse',
+	'http://www.monster-pulse.com/?webcomic_post=mppage1',
+	[src => qr'/wp-content/webcomic/'],
+],
+LoveMeNice => [
+	'Love Me Nice',
+	'http://www.lovemenicecomic.com/archive/every-monkey-has-his-day/',
+	[src => qr'/wp-content/webcomic/'],
+],
