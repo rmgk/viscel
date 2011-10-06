@@ -3392,3 +3392,8 @@ LoveMeNice => [
 	'http://www.lovemenicecomic.com/archive/every-monkey-has-his-day/',
 	[src => qr'/wp-content/webcomic/'],
 ],
+Locus => [
+	'Locus',
+	'http://www.locuscomics.com/wordpress/?p=58',
+	[id => 'comic'],
+],
