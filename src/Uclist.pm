@@ -1509,7 +1509,7 @@ Candi => [
 EerieCuties => [
 	'Eerie Cuties',
 	'http://www.eeriecuties.com/d/20090601.html',
-	[id => 'comic'],
+	[src => qr'/comics/ec\d{8}'],
 	next => [_tag => 'img' , id => 'next_day1'],
 ],
 RoadWaffles => [
