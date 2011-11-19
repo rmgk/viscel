@@ -1891,7 +1891,7 @@ BrokenPlotDevice => [
 ],
 YouSayItFirst => [
 	'You Say it First',
-	'http://www.yousayitfirst.com/comics/index.php?date=20040220',
+	'http://www.yousayitfirst.com/comics/index.php?date=20040223',
 	[src => qr'/comics/'],
 ],
 TinyKittenTeeth => [
