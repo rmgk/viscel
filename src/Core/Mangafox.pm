@@ -62,7 +62,8 @@ sub _fetch_info {
 	my $info = $$tree->look_down(id => 'title');
 	my $detail = $info->look_down(_tag => 'p', class => 'summary less');
 	$cfg->{Detail} = HTML::Entities::encode($detail->as_trimmed_text()) if ($detail);
-	$cfg->{Alias} = HTML::Entities::encode($info->look_down(_tag => 'h3')->as_trimmed_text());
+	my $alias = $info->look_down(_tag => 'h3');
+	$cfg->{Alias} = HTML::Entities::encode($alias->as_trimmed_text()) if $alias;
 	
 	my @tds = ($info->look_down(_tag => 'tr'))[1]->look_down(_tag => 'td');
 	my $author = $tds[1];
