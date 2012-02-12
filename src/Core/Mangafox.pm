@@ -60,7 +60,8 @@ sub _fetch_info {
 	$cfg->{Chapter} = scalar @chapter;
 	
 	my $info = $$tree->look_down(id => 'title');
-	my $detail = $info->look_down(_tag => 'p', class => 'summary less');
+	my $detail = $info->look_down(class => qr'summary');
+	say $detail;
 	$cfg->{Detail} = HTML::Entities::encode($detail->as_trimmed_text()) if ($detail);
 	my $alias = $info->look_down(_tag => 'h3');
 	$cfg->{Alias} = HTML::Entities::encode($alias->as_trimmed_text()) if $alias;
