@@ -13,21 +13,15 @@ use Spot::Mangafox;
 sub _fetch_list {
 	my ($pkg,$state) = @_;
 	my %clist;
-	my $url = $state ? $state : 'http://www.mangafox.com/directory/all/1.htm';
+	my $url = $state ? $state : 'http://www.mangafox.com/manga/';
 	Log->trace('fetch list of known remotes ', $url);
 	my $tree = DlUtil::get_tree($url) or return;
-	my $table = $$tree->look_down(_tag => 'table', id => 'listing');
-	foreach my $tr ($table->look_down('_tag' => 'tr')) {
-		my @td = $tr->look_down(_tag => 'td');
-		next unless @td;
-		my $a = $td[0]->look_down(_tag => 'a');
+	foreach my $a ($$tree->look_down('_tag' => 'a', class => qr'series_preview\s+manga_(open|close)')) {
 		my $href = $a->attr('href');
 		my $status = $a->attr('class');
 		my $name = HTML::Entities::encode($a->as_trimmed_text(extra_chars => '\xA0'));
-		my $rating = $td[1]->look_down(_tag => 'img')->attr('alt');
-		my $chapters = $td[3]->as_trimmed_text();
 		
-		my ($id) = ($href =~ m'^/manga/(.*)/$'i);
+		my ($id) = ($href =~ m'/manga/(.*)/$'i);
 		unless ($id) {
 			Log->debug("could not parse $href");
 			next;
@@ -37,18 +31,9 @@ sub _fetch_list {
 		$id = 'Mangafox_' . $id;
 		$clist{$id} = {url_info => $href, name => $name }; #start => $href . 'v01/c001/'};
 		$clist{$id}->{Status} = ($status eq 'manga_close') ? 'complete' : 'ongoing';
-		$clist{$id}->{Chapter} = $chapters;
-		$clist{$id}->{Rating} = $rating;
 		
 	}
-	my $next = $$tree->look_down('_tag' => 'span', class => 'next')->parent();
-	if ($next and $next->attr('_tag') eq 'a') {
-		$url = URI->new_abs($next->attr('href'),$url)->as_string;
-	}
-	else {
-		$url = undef;
-	}
-	return (\%clist,$url);
+	return (\%clist,undef);
 }
 
 
@@ -61,9 +46,8 @@ sub _searchkeys {
 sub _fetch_info {
 	my ($s,$cfg) = @_;
 	my $url = $cfg->{url_info};
-	$url .= '?no_warning=1';
 	my $tree = DlUtil::get_tree($url);
-	my @chapter = $$tree->look_down(_tag=>'a',class=>'ch');
+	my @chapter = $$tree->look_down(_tag=>'a',class=>'tips');
 	if (@chapter) {
 		my $start = $chapter[-1]->attr('href');
 		$cfg->{start} = URI->new_abs($start,$url)->as_string;
@@ -71,25 +55,31 @@ sub _fetch_info {
 	else {
 		Log->warn($s->{id} . ' is no longer available');
 		$cfg->{start} = undef;
-		$cfg->{Status} = 'down';
 	}
 	
-	my $info = $$tree->look_down(id => 'information');
-	my $detail = $info->look_down(_tag => 'p');
+	$cfg->{Chapter} = scalar @chapter;
+	
+	my $info = $$tree->look_down(id => 'title');
+	my $detail = $info->look_down(_tag => 'p', class => 'summary less');
 	$cfg->{Detail} = HTML::Entities::encode($detail->as_trimmed_text()) if ($detail);
-	my $alias = $info->look_down(_tag => 'th' , sub { $_[0]->as_text() eq 'Alternative Name'} )->parent()->look_down(_tag => 'td');
-	$cfg->{Alias} = HTML::Entities::encode($alias->as_text());
-	if (@chapter) {
-		my $status = $info->look_down(_tag => 'th' , sub { $_[0]->as_text() eq 'Status'} )->parent()->look_down(_tag => 'td');
-		$cfg->{Status} = HTML::Entities::encode($status->as_text());
-	}
+	$cfg->{Alias} = HTML::Entities::encode($info->look_down(_tag => 'h3')->as_trimmed_text());
 	
-	my $author = $info->look_down(_tag => 'th' , sub { $_[0]->as_text() eq 'Author(s)'} )->parent()->look_down(_tag => 'td');
-	my $artist = $info->look_down(_tag => 'th' , sub { $_[0]->as_text() eq 'Artist(s)'} )->parent()->look_down(_tag => 'td');
+	my @tds = ($info->look_down(_tag => 'tr'))[1]->look_down(_tag => 'td');
+	my $author = $tds[1];
+	my $artist = $tds[2];
 	$cfg->{Artist} = join ', ' , map {HTML::Entities::encode($_->as_text)} ($author->look_down(_tag => 'a'),$artist->look_down(_tag => 'a'));
 	
-	my $tags = $info->look_down(_tag => 'th' , sub { $_[0]->as_text() eq 'Genre(s)'} )->parent()->look_down(_tag => 'td');
+	my $tags = $tds[3];
 	$cfg->{Tags} = join ', ' , map {HTML::Entities::encode($_->as_text)} $tags->look_down(_tag => 'a');
+	
+	my @data = $$tree->look_down(class => 'data');
+	my $status = $data[0]->look_down(_tag => 'span');
+	$status = HTML::Entities::encode(($status->content_list())[0]);
+	$status =~ s/,//;
+	$cfg->{Status} = @chapter ? $status : 'down';
+	my $rating = $data[2]->look_down(_tag => 'span');
+	$cfg->{Rating} = HTML::Entities::encode($rating->as_trimmed_text());
+
 	
 	return $cfg;
 }
