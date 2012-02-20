@@ -778,8 +778,8 @@ AdventureLog => [
 ],
 CollarSix => [
 	'Collar Six',
-	'http://collar6.com/2009/choices-1',
-	[src => qr'/comics/\d{4}-\d\d-\d\d'],
+	'http://collar6.com/archive/collar-6-1',
+	[src => qr'webcomic/collar6/\d{4}-\d\d-\d\d'],
 ],
 Cartridge => [
 	'Cartridge',
