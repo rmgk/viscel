@@ -1675,11 +1675,6 @@ Maliki => [
 	'http://www.maliki.com/en/eng_strip.php?strip=68',
 	[src => qr'Strips'],
 ],
-GoGetARoomie => [
-	'Go Get A Roomie',
-	'http://gogetaroomie.chloe-art.com/2010/05/go-get-a-roomie-10/',
-	[id => qr'comic'],
-],
 BattleSuitGirls => [
 	'Battle Suit Girls',
 	'http://bsgcomic.free.fr/?p=1',
@@ -1718,7 +1713,7 @@ Maliki => [
 GoGetARoomie => [
 	'Go Get A Roomie',
 	'http://gogetaroomie.chloe-art.com/2010/05/go-get-a-roomie-10/',
-	[id => qr'comic'],
+	[id => 'comic-1'],
 ],
 BattleSuitGirls => [
 	'Battle Suit Girls',
