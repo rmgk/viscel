@@ -20,7 +20,7 @@ sub _mount_parse {
 	}
 	my @img = grep {defined} map {$_->look_down(_tag=>'img')} @$tags;
 	@img = grep {defined} map {$_->look_down(_tag=>'embed')} @$tags unless @img;
-	Log->warn('more than one image found') if @img > 1;
+	Log->warn('more than one image found',\@img) if @img > 1;
 	my $img = $img[0];
 	unless ($img) {
 		Log->error('no object found');
