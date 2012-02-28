@@ -1675,41 +1675,6 @@ Maliki => [
 	'http://www.maliki.com/en/eng_strip.php?strip=68',
 	[src => qr'Strips'],
 ],
-BattleSuitGirls => [
-	'Battle Suit Girls',
-	'http://bsgcomic.free.fr/?p=1',
-	[src => qr'/wp-content/uploads/'],
-],
-Brightest => [
-	'Brightest',
-	'http://www.brightestcomic.com/?p=46',
-	[id => 'comic'],
-],
-Inkdolls => [
-	'Inkdolls',
-	'http://inkdolls.com/comic/001/',
-	[src => qr'/strips/\d+-?[a-zA-Z]+'],
-],
-SlimyThief => [
-	'Slimy Thief',
-	'http://slimythief.com/intro/',
-	[id => 'comic'],
-],
-ShipInABottle => [
-	'Ship In A Bottle',
-	'http://shipinbottle.pepsaga.com/comic/shiphrah-test/',
-	[id => 'comic-1'],
-],
-SisterClaire => [
-	'Sister Claire',
-	'http://www.sisterclaire.com/comic/chapter-1-comic/coming-soon/',
-	[id => 'comic-1'],
-],
-Maliki => [
-	'Maliki',
-	'http://www.maliki.com/en/eng_strip.php?strip=68',
-	[src => qr'Strips'],
-],
 GoGetARoomie => [
 	'Go Get A Roomie',
 	'http://gogetaroomie.chloe-art.com/2010/05/go-get-a-roomie-10/',
