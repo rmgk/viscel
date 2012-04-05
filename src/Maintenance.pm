@@ -30,7 +30,6 @@ sub save_cfg {
 	ConfigINI::save_file(Globals::datadir,ref($self),$self->{cfg});
 }
 
-
 #does some maintenance work
 sub maintain {
 	my ($s) = @_;
