@@ -1,10 +1,19 @@
 use 5.012;
 use warnings;
 use utf8;
+
 sub text_match {
 	my $to_match = shift;
 	return sub {$_[0]->as_text ~~ $to_match};
-};
+}
+sub group {
+	given($_[0]) {
+		when(['zoom', 'pixie']) {
+			return [id => 'comic'], [src => qr'/comics/'];
+		}
+	}
+}
+
 return
 Zona => [
 	'The challenges of Zona',
@@ -1506,12 +1515,6 @@ Candi => [
 	'http://www.candicomics.com/d/20040625.html',
 	[src => qr'/comics/\d{8}'],
 ],
-EerieCuties => [
-	'Eerie Cuties',
-	'http://www.eeriecuties.com/d/20090601.html',
-	[src => qr'/comics/ec\d{8}'],
-	next => [_tag => 'img' , id => 'next_day1'],
-],
 RoadWaffles => [
 	'Road Waffles',
 	'http://roadwaffles.com/index.php?c=1999-11-8',
@@ -1887,11 +1890,6 @@ Nichtlustig => [
 	[src => qr'/comics/full/'],
 	next => [src => qr'pfeil_rechts'],
 ],
-AOIHouse => [
-	'AOI House',
-	'http://www.gomanga.com/webmanga/index.php?series=aoi&page=1',
-	[id => 'page'],
-],
 Sinfest => [
 	'Sinfest',
 	'http://sinfest.net/archive_page.php?comicID=1',
@@ -1909,7 +1907,7 @@ ForTheWicked => [
 ],
 MenageA3 => [
 	'Ménage à 3',
-	'http://www.menagea3.net/d/20080517.html',
+	'http://www.menagea3.net/strips-ma3/room_for_two_more_(vol1)',
 	[src => qr'/comics/'],
 ],
 QuestionableContent => [
@@ -2056,16 +2054,6 @@ BookOfBiff => [
 	'The Book of Biff',
 	'http://www.thebookofbiff.com/2006/01/02/4/',
 	[id => 'comic'],
-],
-CoolCatStudio => [
-	'Cool Cat Studio',
-	'http://www.coolcatstudio.com/d/20000313.html',
-	[src => qr'comics/ccs'i],
-	url_hack => sub { if ($_[0] eq 'http://www.coolcatstudio.com/d/20070625.html') {
-							return 'http://www.coolcatstudio.com/d/20070626.html';
-						} elsif ($_[0] eq 'http://www.coolcatstudio.com/index.php?p=66') {
-							return 'http://www.coolcatstudio.com/index.php?p=67';
-						} return $_[0] }
 ],
 FissionChicken => [
 	'Fission Chicken',
@@ -2879,12 +2867,6 @@ DandyAndCompany => [
 	'http://www.dandyandcompany.com/2001/10/11/october-11-2001/',
 	[id => 'strip_bg'],
 ],
-MagickChicks => [
-	'Magick Chicks',
-	'http://www.magickchicks.com/d/20110204.html',
-	[id => 'comic'],
-	next => [id => 'next_day1'],
-],
 #spiderforest starts here
 AppleValley => [
 	'Apple Valley',
@@ -3246,11 +3228,6 @@ BlueMilkSpecial => [
 	'http://www.bluemilkspecial.com/?p=4',
 	[id => 'comic'],
 ],
-ParanormalMysterySquad => [
-	'Paranormal Mystery Squad',
-	'http://www.paranormalmysterysquad.com/d/20110504.html',
-	[src => qr'comics'],
-],
 Memoria => [
 	'Memoria',
 	'http://memoria.valice.net/?p=77',
@@ -3285,11 +3262,6 @@ Everblue => [
 	'Everblue',
 	'http://everblue-comic.com/2010/01/01/volume-1-cover/',
 	[id => 'comic'],
-],
-VampireCheerleaders => [
-	'Vampire Cheerleaders',
-	'http://gomanga.com/webmanga/index.php?series=vampirecheerleaders&page=1',
-	[id => 'page'],
 ],
 Aeria => [
 	'Aeria',
@@ -3356,4 +3328,81 @@ Locus => [
 	'Locus',
 	'http://www.locuscomics.com/wordpress/?p=58',
 	[id => 'comic'],
+],
+AmazingAgentJennifer => [
+	'Amazing Agent Jennifer',
+	'http://www.amazingagentjennifer.com/strips-aaj/a_beautiful_campus',
+	group('zoom'),
+],
+AmazingAgentLuna => [
+	'Amazing Agent Luna',
+	'http://www.amazingagentluna.com/strips-aal/file_01_-_page_1',
+	group('zoom'),
+],
+DraculaEverlasting => [
+	'Dracula Everlasting',
+	'http://www.draculaeverlasting.com/strips-de/abraham_van_helsing_journal_i',
+	group('zoom'),
+],
+ParanormalMysterySquad => [
+	'Paranormal Mystery Squad',
+	'http://www.paranormalmysterysquad.com/strips-pms/do_you_see_our_target',
+	group('zoom'),
+],
+AOIHouse => [
+	'AOI House',
+	'http://www.aoihouse.net/strips-aoi/chewed_out',
+	group('zoom'),
+],
+VampireCheerleaders => [
+	'Vampire Cheerleaders',
+	'http://www.vampirecheerleaders.net/strips-vc/inspiration_point_1',
+	group('zoom'),
+],
+LizzieNewton => [
+	'Lizzie Newton',
+	'http://www.lizzienewton.com/strips-lizzie/chapter_1_-_page_1',
+	group('zoom'),
+],
+WitchHunter => [
+	'Witch Hunter',
+	'http://www.witchhuntercomic.com/strips-wh/chapter_1_-_page_1',
+	group('zoom'),
+],
+EerieCuties => [
+	'Eerie Cuties',
+	'http://www.eeriecuties.com/strips-ec/(chapter_1)_it_is_gonna_eat_me!',
+	group('pixie'),
+],
+MagickChicks => [
+	'Magick Chicks',
+	'http://www.magickchicks.com/strips-mc/tis_but_a_trifle',
+	group('pixie'),
+],
+SailorCosmos => [
+	'Sailor Cosmos',
+	'http://comics.shouri.com.ar/sailorcosmos00.html',
+	[src => qr'sailorcosmos_shouri'],
+],
+Springiette => [
+	'Springiette',
+	'http://www.springiette.net/strips/the_beginning',
+	[src => qr'dstrips/\d{8}'],
+	url_hack => sub { $_[0] =~ s'/strips/dstrips'/dstrips'; $_[0] }
+],
+Fragile => [
+	'Fragile',
+	'http://www.fragilestory.com/strips/chapter_01',
+	[src => qr'dstrips/\d{8}'],
+	url_hack => sub { $_[0] =~ s'/strips/dstrips'/dstrips'; $_[0] }
+],
+CoolCatStudio => [
+	'Cool Cat Studio',
+	'http://coolcatstudio.com/strips-cat/first',
+	group('pixie'),
+],
+SwordOClock => [
+	'Sword O´ Clock',
+	'http://gatogordito.wordpress.com/2012/01/15/sword-o´-clock/',
+	[class => qr'wp-image-\d+'],
 ],
