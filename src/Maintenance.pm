@@ -123,7 +123,7 @@ sub update_cores_lists {
 			if ($error =~ /^terminate/) {
 				die $error;
 			}
-			elsif (is_temporary($error)) { 
+			elsif (is_temporary($error)) {
 				Log->warn("updating core list ", $core->[0], " had an error");
 			}
 			else {
@@ -141,7 +141,7 @@ sub update_collections {
 	my ($c,@to_update) = $s->time_list('update',$up->list());
 	@to_update = grep { Cores::known($_->[0]) } @to_update;
 	return () unless @to_update;
-	
+
 	foreach my $current (@to_update) {
 		my $id = $current->[0];
 		Log->info('check collection ' , $id);
@@ -153,7 +153,8 @@ sub update_collections {
 				}
 			}
 			return 1;
-		} catch {
+		}
+		catch {
 			if ($_ =~ /^terminate/) {
 				die $_;
 			}
@@ -161,7 +162,7 @@ sub update_collections {
 			adjust_time($c,$current,1.0);
 			return 0;
 		};
-		
+
 		$spot = get_last_spot($current->[0]) unless ref $spot;
 		next unless $spot;
 		my $col = Collection->get($id);
