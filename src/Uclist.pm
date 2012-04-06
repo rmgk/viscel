@@ -2921,8 +2921,8 @@ Cooties => [
 ],
 DreamScar => [
 	'Dream*Scar',
-	'http://dream-scar.net/view.php?id=1',
-	[id => 'contents'],
+	'http://dream-scar.net/?id=1',
+	[id => 'comic'],
 ],
 Fuzznuts => [
 	'Fuzznuts',
