@@ -10,17 +10,17 @@ use CGI qw(img embed);
 use Log;
 
 my $l = Log->new();
-my %attributes = ( 	position => 'INTEGER PRIMARY KEY', 
-					state => 'CHAR UNIQUE',
-					sha1 => 'CHAR',
-					type => 'CHAR',
-					page_url => 'CHAR',
-					src => 'CHAR',
-					title => 'CHAR',
-					alt => 'CHAR',
-					width => 'INTEGER',
-					height => 'INTEGER'
-					);
+my %attributes = (	position => 'INTEGER PRIMARY KEY',
+                  	state => 'CHAR UNIQUE',
+                  	sha1 => 'CHAR',
+                  	type => 'CHAR',
+                  	page_url => 'CHAR',
+                  	src => 'CHAR',
+                  	title => 'CHAR',
+                  	alt => 'CHAR',
+                  	width => 'INTEGER',
+                  	height => 'INTEGER'
+                  	);
 
 #$class, \%data -> \%data
 sub new {
@@ -30,7 +30,7 @@ sub new {
 		unless (defined $self->{$needed}) {
 			$l->error($needed . ' not defined');
 			return;
-		} 
+		}
 	}
 	foreach my $has (keys %$self) {
 		unless (exists $attributes{$has} or $has ~~ m/^(blob|cid)$/i) {
@@ -75,7 +75,7 @@ sub differs {
 	my ($s,$other) = @_;
 	for my $a (attribute_list_array()) {
 		next if ($a eq 'sha1' or $a eq 'type')
-				and (!defined $s->{$a} or !defined $other->{$a}); #type and sha1 are not required so may also be not equal 
+				and (!defined $s->{$a} or !defined $other->{$a}); #type and sha1 are not required so may also be not equal
 		unless ($s->{$a} ~~ $other->{$a}) {
 			Log->error($s->cid, ' missmatch ', $a, ': ', $s->{$a}, ' <=> ', $other->{$a});
 			return $a;
@@ -91,11 +91,11 @@ sub html {
 	if (!$s->sha1) {
 		return 'placeholder';
 	}
-	my $paramhash = {	src	=>	"/b/". $s->sha1 . "/?type=" . $s->type,
-							    class => 'element',
-								map { $_ => $s->{$_} } grep { defined $s->{$_} } qw<alt title width height>
-							};
-	
+	my $paramhash = {	src => "/b/". $s->sha1 . "/?type=" . $s->type,
+	                 	class => 'element',
+	                 	map { $_ => $s->{$_} } grep { defined $s->{$_} } qw<alt title width height>
+	                 	};
+
 	given ($s->type) {
 		when ('application/x-shockwave-flash') {
 			my $html .= embed($paramhash);

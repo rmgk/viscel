@@ -10,7 +10,6 @@ use autodie;
 use Data::Dumper;
 use Globals;
 
-
 our ($TRACE, $DEBUG, $INFO, $WARN, $ERROR, $FATAL, $SILENT) = 0..6;
 
 $Globals::LOGLVL //= $DEBUG;
@@ -26,7 +25,7 @@ sub new {
 }
 
 #$msg
-#logs $msg 
+#logs $msg
 sub log {
 	my ($s,$level) = (shift,shift);
 	my $addinfo = '';
@@ -42,52 +41,52 @@ sub log {
 	$cdi .= $module;
 	$cdi .= ' ' x ((24-$d-length($module)));
 	substr($cdi,23) = '';
-	my $message = $line . $cdi . ' ' . 
+	my $message = $line . $cdi . ' ' .
 		join '', grep {defined} @_; #the message itself
 	say $message unless $level == $SILENT;
 	return if ($level < $Globals::FILELOG);
 	open (my $fh, '>>', 'error.txt');
 	print $fh $message ,"\n",$addinfo;
 	close $fh;
-} 
+}
 
 #$msg
-sub trace { 
+sub trace {
 	my ($s) = shift;
 	return if ($TRACE < $Globals::LOGLVL);
 	print 'TRACE ';
 	$s->log($TRACE,@_);
 }
 #$msg
-sub debug { 
+sub debug {
 	my ($s) = shift;
 	return if ($DEBUG < $Globals::LOGLVL);
 	print 'DEBUG ';
 	$s->log($DEBUG,@_);
 }
 #$msg
-sub info { 
+sub info {
 	my ($s) = shift;
 	return if ($INFO < $Globals::LOGLVL);
 	print 'INFO  ';
 	$s->log($INFO,@_);
 }
 #$msg
-sub warn { 
+sub warn {
 	my ($s) = shift;
 	return if ($WARN < $Globals::LOGLVL);
 	print 'WARN  ';
 	$s->log($WARN,@_);
 }
 #$msg
-sub error { 
+sub error {
 	my ($s) = shift;
 	return if ($ERROR < $Globals::LOGLVL);
 	print 'ERROR ';
 	$s->log($ERROR,@_);
 }
 #$msg
-sub fatal { 
+sub fatal {
 	my ($s) = shift;
 	return if ($FATAL < $Globals::LOGLVL);
 	print 'FATAL ';
