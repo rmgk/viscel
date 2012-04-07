@@ -3410,3 +3410,8 @@ SwordOClock => [
 	'http://gatogordito.wordpress.com/2012/01/15/sword-o´-clock/',
 	[class => qr'wp-image-\d+'],
 ],
+TheDevilsPanties => [
+	'The Devils Panties',
+	'http://thedevilspanties.com/archives/300',
+	[id => 'comic'],
+],
