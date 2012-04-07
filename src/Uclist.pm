@@ -1157,9 +1157,8 @@ George => [
 ],
 BrawlInTheFamily => [
 	'Brawl in the Family',
-	'http://www.brawlinthefamily.com/comic001.html',
-	[src => qr'Images/\d\d'i],
-	url_hack => sub {$_[0] =~ s'/../'/'; $_[0]}
+	'http://brawlinthefamily.keenspot.com/2008/05/01/alpha-comik/',
+	[id => 'comic'],
 ],
 Stubble => [
 	'Stubble',
