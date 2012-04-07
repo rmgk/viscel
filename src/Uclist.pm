@@ -132,8 +132,8 @@ Building => [
 ],
 Strays => [
 	'Strays',
-	'http://www.straysonline.com/comic/01.htm',
-	[src => qr/^\d\d+/],
+	'http://www.straysonline.com/2007/11/volume-1/',
+	[id => 'comic'],
 ],
 Twokinds => [
 	'Twokinds',
