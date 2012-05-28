@@ -14,8 +14,8 @@ use URI;
 
 #export basically everything (except init)
 our @EXPORT = qw(absolute cgi form_action form_action_input form_search
-handler html_core_status html_group html_header html_info html_notification 
-link_config link_front link_main link_search link_view 
+handler html_core_status html_group html_header html_info html_notification
+link_config link_front link_main link_search link_view
 url_action url_config url_front url_main url_search url_tools url_view);
 
 my $cgi;
@@ -88,7 +88,7 @@ sub html_notification { cgi->div({-class=>'notification'},$_[0]) }
 
 #$title,%link_rel -> common html header and body start
 sub html_header {
-	my ($id,$title,%links) = @_; 
+	my ($id,$title,%links) = @_;
 	$links{'index'} ||= url_main();
 	my $html = cgi->start_html(	-style	=>	'/css',
 						-title => $title,
@@ -118,12 +118,12 @@ sub html_group {
 	my ($name,@collections) = @_;
 	my $html .= cgi->start_fieldset({-class=>'group'});
 	$html .= cgi->legend($name);
-	$html .= join '', map {link_front($_->[0],$_->[1]).cgi->br() } 
-					sort {(($a->[2].$b->[2]) ~~ /^\d+$/)?  $a->[2] <=> $b->[2] : lc($a->[2]) cmp lc($b->[2])} @collections;
+	$html .= join '', map {link_front($_->[0],$_->[1]).cgi->br() }
+					sort {(($a->[2].$b->[2]) ~~ /^[\d\.\-]+$/)?  $a->[2] <=> $b->[2] : lc($a->[2]) cmp lc($b->[2])} @collections;
 	$html .= cgi->end_fieldset();
 }
 
-#@someinfo -> info div 
+#@someinfo -> info div
 sub html_info {
 	my $html .= cgi->start_div({-class=>'info'});
 	$html .= cgi->start_table() . cgi->start_tbody();

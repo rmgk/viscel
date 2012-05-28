@@ -43,7 +43,7 @@ sub index {
 	my %bmd = map {$_ =>  Cores::known($_) ? Cores::name($_) : $_} grep {$bm->get($_)} $bm->list();
 	my %last = map {$_ => Collection->get($_)->last()//0} keys %bmd;
 	my %new = map {$_ => $bmd{$_} . ' (' . ($last{$_} - $bm->get($_)) . ') '} grep { $bm->get($_) < $last{$_} } keys %bmd;
-	$html .= html_group('New Pages' ,map {[$_ , ($new{$_}) x 2]} keys %new);
+	$html .= html_group('New Pages' ,map {[$_ , $new{$_}, $bm->get($_) - $last{$_} ]} keys %new);
 	$html .= html_group('Bookmarks' ,map {[$_ , ($bmd{$_}) x 2]} grep {!$new{$_}} keys %bmd);
 	$html .= html_core_status();
 	$html .= cgi->end_html();
@@ -71,7 +71,7 @@ sub view {
 			$c->send_redirect( absolute(url_front($id)), 303 );
 		}
 		return "view redirect";
-	} 
+	}
 	my $next_pos = join ',', map { $_ + @pos } @pos;
 	my $prev_pos = join ',', grep {$_ > 0} map { $_ - @pos } @pos;
 	my $html = html_header('view',$pos);
@@ -86,7 +86,7 @@ sub view {
 			$html .= cgi->start_form(-method=>'POST',-action=>url_front($id),-enctype=>&CGI::URL_ENCODED);
 			$html .= cgi->hidden('bookmark',$pos[0]);
 			$html .= cgi->submit(-name=>'submit',-class=>'submit', -value => 'pause');
-			$html .= cgi->end_form();		
+			$html .= cgi->end_form();
 		$html .= ' ';
 		$html .= @pos == 1 ? link_view($id,$pos[0] . ',' . $next_pos,'dualpage') : link_view($id, join(',',reverse @pos),'flip');
 		$html .= ' ';
@@ -124,7 +124,7 @@ sub front {
 		$html .= ' – ';
 		$html .= link_view($id,1,'first');
 		$html .= ' ';
-		$html.= link_view($id,$bm,'Bookmark') if $bm; 
+		$html.= link_view($id,$bm,'Bookmark') if $bm;
 		$html .= ' ';
 		$html .= link_view($id,'*','last');
 		if ($bm) {
@@ -145,7 +145,7 @@ sub front {
 			$html .= link_view($id,$bm,$ent->html());
 		$html .= cgi->end_div();
 	}
-	
+
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
 	Controller::add_hint(['front',$id]);
