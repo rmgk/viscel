@@ -132,8 +132,8 @@ Building => [
 ],
 Strays => [
 	'Strays',
-	'http://www.straysonline.com/comic/01.htm',
-	[src => qr/^\d\d+/],
+	'http://www.straysonline.com/2007/11/volume-1/',
+	[id => 'comic'],
 ],
 Twokinds => [
 	'Twokinds',
@@ -1157,9 +1157,8 @@ George => [
 ],
 BrawlInTheFamily => [
 	'Brawl in the Family',
-	'http://www.brawlinthefamily.com/comic001.html',
-	[src => qr'Images/\d\d'i],
-	url_hack => sub {$_[0] =~ s'/../'/'; $_[0]}
+	'http://brawlinthefamily.keenspot.com/2008/05/01/alpha-comik/',
+	[id => 'comic'],
 ],
 Stubble => [
 	'Stubble',
@@ -1260,6 +1259,7 @@ SlightlyDamned => [
 	'Slightly Damned',
 	'http://www.sdamned.com/2004/03/03142004/',
 	[id => 'comic'],
+
 ],
 EdgeTheDevilhunter => [
 	'Edge the Devilhunter',
@@ -1301,6 +1301,10 @@ Catena => [
 	'Catena',
 	'http://catenamanor.com/2003/06/17/the-start-of-it-all/',
 	[id => 'comic'],
+	url_hack => sub { if ($_[0] eq 'http://catenamanor.com/2011/05/23/thats-annoying/') {
+							return 'http://catenamanor.com/2011/05/30/it-happens-all-the-time/';
+						} return $_[0] }
+
 ],
 JumpfourtwoDE => [
 	'Jump 42 (deutsch)',
@@ -3405,4 +3409,9 @@ SwordOClock => [
 	'Sword O´ Clock',
 	'http://gatogordito.wordpress.com/2012/01/15/sword-o´-clock/',
 	[class => qr'wp-image-\d+'],
+],
+TheDevilsPanties => [
+	'The Devils Panties',
+	'http://thedevilspanties.com/archives/300',
+	[id => 'comic'],
 ],
