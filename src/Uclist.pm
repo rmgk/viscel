@@ -1609,7 +1609,7 @@ WhatsNew => [
 Meek => [
 	'The Meek',
 	'http://www.meekcomic.com/2008/12/27/chapter-1-cover/',
-	[id => 'comic'],
+	[id => 'comic-1'],
 ],
 QuestionableContent => [
 	'Questionable Content',
