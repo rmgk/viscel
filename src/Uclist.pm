@@ -33,12 +33,12 @@ PennyAndAggie => [
 Kukubiri => [
 	'Kukubiri',
 	'http://www.kukuburi.com/v2/2007/08/09/one/',
-	[id => 'comic']	
+	[id => 'comic']
 ],
 KhaosKomic => [
 	'Khaos Komik',
 	'http://www.khaoskomix.com/cgi-bin/comic.cgi?chp=1',
-	[id => 'currentcomic'] 
+	[id => 'currentcomic']
 ],
 Catalyst => [
 	'Catalyst',
@@ -56,7 +56,7 @@ Drowtales => [
 	[src => qr'mainarchive//']
 ],
 HilarityComics => [
-	'Hilarity Comics', 
+	'Hilarity Comics',
 	'http://www.eegra.com/show/sub/do/browse/cat/comics/id/4',
 	[src => qr'comics/\d{4}/']
 ],
@@ -166,7 +166,7 @@ Ice => [
 	[naturalsizeflag => 3],
 ],
 KissingChaos => [
-	"Kissing Chaos 'Til I Die", 
+	"Kissing Chaos 'Til I Die",
 	'http://kissingchaos.com/tx/?p=4',
 	[id => 'comic'],
 ],
@@ -1581,7 +1581,7 @@ FindersKeepers => [
 	'http://www.finderskeepers.gcgstudios.com/?p=comic&chap=0&cid=0',
 	[id => 'FKsp'],
 	next => [alt => qr'^Next', href => qr'^[^#]+$'],
-],	
+],
 UpUpDownDown => [
 	'Up Up Down Down',
 	'http://upup-downdown.com/comics/2010/09/01/darkstrigers/',
@@ -1712,7 +1712,7 @@ Oglaf => [
 	'Oglaf',
 	'http://oglaf.com/cumsprite/',
 	[id => 'strip'],
-	next => [id => 'nx'], 
+	next => [id => 'nx'],
 ],
 Annyseed => [
 	'Annyseed',
@@ -2064,7 +2064,7 @@ Marooned => [
 	'Marooned',
 	'http://www.maroonedcomic.com/comic-strip/comic-for-3242008/',
 	[id => 'comic-1'],
-], 
+],
 ElsieHooper => [
 	'Elsie Hooper',
 	'http://www.elsiehooper.com/comics/comic000.shtml',

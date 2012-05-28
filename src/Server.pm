@@ -41,7 +41,7 @@ sub register_handler {
 		return;
 	}
 	if ($handler) {
-		Log->trace('add request handler for ', $path); 
+		Log->trace('add request handler for ', $path);
 		$req_handler{$path} = $handler;
 		return 1;
 	}
@@ -63,7 +63,7 @@ sub accept {
 }
 
 #$timeout, $timespan
-#$accepts connections for at most $timeout seconds, 
+#$accepts connections for at most $timeout seconds,
 #and listens on them for $timespan $seconds
 sub _accept_connection {
 	my ($timeout,$timespan) = @_;

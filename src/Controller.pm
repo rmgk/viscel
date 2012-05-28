@@ -18,16 +18,16 @@ use Maintenance;
 use Data::Dumper;
 use Try::Tiny;
 
-my $HS; #hint state, chaches the current read spot
+my $HS; #hint state, caches the current read spot
 my @hint;
 
 our $TERM = 0;
-our $INTS = sub { 
+our $INTS = sub {
 	print "\nTerminating\n\n" ;
 	$TERM = 1;
 };
 our $INTF = $SIG{'INT'};
-$SIG{'INT'} = $INTS; 
+$SIG{'INT'} = $INTS;
 
 
 #initialises the needed modules
@@ -53,10 +53,10 @@ sub init {
 sub start {
 	Log->trace('run main loop');
 	my $timeout = 0;
-	
+
 	my $accept = sub {
 		my ($longwait) = @_;
-		die 'terminate' if $TERM; 
+		die 'terminate' if $TERM;
 		Core::Universal->_load_list() if Globals::updateuniversal();
 		$SIG{'INT'} = $INTF;
 		if (Server::accept($timeout,0.5)) { #some connection was accepted
@@ -69,7 +69,7 @@ sub start {
 			$SIG{'INT'} = $INTS;
 			if ($longwait) {
 				$timeout = 3600; #one hour timeout
-				
+
 			}
 			else {
 				$timeout = 0; #instant timeout to get some work done
@@ -109,7 +109,7 @@ sub handle_hints {
 				when ('front') {hint_front(@$hint)}
 				when ('view') {hint_view(@$hint)}
 				#when ('getall') {hint_getall(@$hint)}
-				when ('config') {} 
+				when ('config') {}
 				#when ('export') {hint_export(@$hint)}
 				#when ('check') { until (Maintenance::check_collection(@$hint)) {} }
 				default {Log->warn("unknown hint $_")}
@@ -164,7 +164,7 @@ sub hint_view {
 		my $spot = $HS;
 		unless (defined $spot and $spot->id eq $id and $spot->position == $pos) {
 			my $ent = $col->fetch($pos);
-			if ($ent) { 
+			if ($ent) {
 				$spot = $ent->create_spot();
 				return unless try {
 					$spot->mount();
