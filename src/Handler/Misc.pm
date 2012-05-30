@@ -31,7 +31,7 @@ sub css {
 #$connection, $request
 #handles index requests
 sub index {
-	my ($c,$r) = @_;
+	my ($c,$r,$debug) = @_;
 	Log->trace('handle index');
 	my $html = html_header('index','index');
 	$html .= cgi->start_fieldset({-class=>'info'});
@@ -42,9 +42,35 @@ sub index {
 	#do some name mapping for performance or peace of mind at least
 	my %bmd = map {$_ =>  Cores::known($_) ? Cores::name($_) : $_} grep {$bm->get($_)} $bm->list();
 	my %last = map {$_ => Collection->get($_)->last()//0} keys %bmd;
-	my %new = map {$_ => $bmd{$_} . ' (' . ($last{$_} - $bm->get($_)) . ') '} grep { $bm->get($_) < $last{$_} } keys %bmd;
-	$html .= html_group('New Pages' ,map {[$_ , $new{$_}, $bm->get($_) - $last{$_} ]} keys %new);
-	$html .= html_group('Bookmarks' ,map {[$_ , ($bmd{$_}) x 2]} grep {!$new{$_}} keys %bmd);
+	%bmd = map {$_ => $bmd{$_} . (($last{$_} - $bm->get($_)) ? ( ' (' . ($last{$_} - $bm->get($_)) . ') ') : '')} keys %bmd;
+	my %new = map {$_ => $bmd{$_}} grep { $bm->get($_) < $last{$_} } keys %bmd;
+	my $mt = Maintenance->new();
+	my %times;
+	if ($debug) {
+		for my $bm (keys %bmd) {
+			my ($t, $n) = split(':', $mt->cfg('update')->{$bm}//'');
+			$times{$bm} = [time - $t, $n];
+		}
+	}
+
+	my $pretty_seconds = sub {
+		my $t = shift;
+		my $s = $t % 60;
+		$t /= 60;
+		my $m = int($t) % 60;
+		$t /= 60;
+		my $h = int($t) % 24;
+		$t /= 24;
+		my $d = int($t);
+		return "(${d}d ${h}h)";
+	};
+
+	$html .= html_group('New Pages' ,map {[$_ , $new{$_} . ($debug?(' ' . $pretty_seconds->($times{$_}->[0]) . ' ' . $pretty_seconds->($times{$_}->[1])):''), $bm->get($_) - $last{$_} ]} keys %new);
+	$html .= html_group('Bookmarks' ,map {[$_ ,
+		($debug
+			? ($bmd{$_} . (' ' . $pretty_seconds->($times{$_}->[0]) . ' ' . $pretty_seconds->($times{$_}->[1])), $times{$_}->[0])
+			: ($bmd{$_})x2
+		)]} grep {!$new{$_}} keys %bmd);
 	$html .= html_core_status();
 	$html .= cgi->end_html();
 	Server::send_response($c,$html);
