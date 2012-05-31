@@ -20,8 +20,8 @@ sub clist {
 	if (ref $pkg) {
 		$replace = $id;
 		$id = $pkg->{id};
-		$pkg = ref $pkg;	
-	} 
+		$pkg = ref $pkg;
+	}
 	if (ref $id) {
 		%$pkg = %$id;
 	}
@@ -126,13 +126,13 @@ sub search {
 				if ($l->{$k} ~~ $re) {
 					$cap{$id} = $1;
 					next reg;
-				} 
+				}
 			}
 			#not all regexes matched, checking next collection
 			next col;
 		}
 		#we have a matched
-		push @return, [$id,$l->{name},$cap{$id}//$l->{name}];
+		push @return, [$id,$l->{name} // $id, $cap{$id} // $l->{name} //$id];
 	}
 	Log->trace('took ', tv_interval($time), ' seconds');
 	return @return;
