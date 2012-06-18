@@ -698,11 +698,6 @@ Bellen => [
 	'http://boxbrown.com/?p=440',
 	[id => 'comic'],
 ],
-PunchAndPie => [
-	"Punch an' Pie",
-	'http://www.punchanpie.net/cgi-bin/autokeenlite.cgi?date=20070222',
-	[src => qr'comics/pnp\d{8}'],
-],
 Comet => [
 	'Comet 7',
 	'http://www.comet7.com/archive_page.php?id=1',
@@ -1153,11 +1148,6 @@ OctopusPie => [
 George => [
 	'George',
 	'http://www.george-comics.com/2005/01/31/its-probably-a-water-buffalo/',
-	[id => 'comic'],
-],
-BrawlInTheFamily => [
-	'Brawl in the Family',
-	'http://brawlinthefamily.keenspot.com/2008/05/01/alpha-comik/',
 	[id => 'comic'],
 ],
 Stubble => [
@@ -1666,11 +1656,6 @@ QueenOfWands => [
 	'Queen Of Wands',
 	'http://www.queenofwands.net/d/20020722.html',
 	[src => qr'/comics/\d{8}'],
-],
-MysticRevolution => [
-	'Mystic Revolution',
-	'http://www.mysticrev.com/index.php?cid=1',
-	[id => 'comic'],
 ],
 SisterClaire => [
 	'Sister Claire',
@@ -2315,11 +2300,6 @@ OddFish => [
 	'Odd Fish',
 	'http://www.odd-fish.net/viewing.php?&comic_id=1',
 	[alt => 'Odd-Fish webcomic'],
-],
-MakeshiftMiracle => [
-	'The Makeshift Miracle',
-	'http://www.makeshiftmiracle.com/?p=75',
-	[id => 'comic'],
 ],
 LastResort => [
 	'Last Resort',
@@ -3415,8 +3395,199 @@ TheDevilsPanties => [
 	'http://thedevilspanties.com/archives/300',
 	[id => 'comic'],
 ],
+#start keenspot
+PlusEV => [
+	'+EV',
+	'http://plusev.keenspot.com/d/20060811.html',
+	[id => 'comicmain_'],
+	next => [id => 'Next'],
+],
+TwentySeven => [
+	'27 Twenty-Seven',
+	'http://twenty-seven.keenspot.com/d/20120227.html',
+	[id => 'left_'],
+],
+Adventurers => [
+	'Adventurers!',
+	'http://adventurers.keenspot.com/d/0001.html',
+	[src => qr'/comics/'],
+],
+Avengelyne => [
+	'Avengelyne',
+	'http://avengelyne.keenspot.com/d/20111212.html',
+	[id => 'comicspot'],
+],
+AntiheroForHire => [
+	'Antihero For Hire',
+	'http://antihero.keenspot.com/d/20030601.html',
+	[id => 'afhcomic'],
+],
+Barker => [
+	'Barker',
+	'http://barkercomic.keenspot.com/d/20101025.html',
+	[src => qr'/comics/barker'],
+],
+BrawlInTheFamily => [
+	'Brawl in the Family',
+	'http://brawlinthefamily.keenspot.com/2008/05/01/alpha-comik/',
+	[id => 'comic'],
+],
+Buzzboy => [
+	'Buzzboy',
+	'http://buzzboy.keenspot.com/d/20111007.html',
+	[id => 'cimg_'],
+],
+ChoppingBlock => [
+	'Chopping Block',
+	'http://choppingblock.keenspot.com/d/20000725.html',
+	[src => qr'/comics/cb'],
+],
+CountYourSheep => [
+	'Count Your Sheep',
+	'http://countyoursheep.keenspot.com/d/20030611.html',
+	[src => qr'/comics/'],
+],
+CrowScare => [
+	'Crow Scare',
+	'http://crowscare.keenspot.com/d/20081027.html',
+	[src => qr'/comics/'],
+],
+Dreamless => [
+	'Dreamless',
+	'http://dreamless.keenspot.com/d/20090105.html',
+	[src => qr'/comics/'],
+],
+EveryThingJake => [
+	'Every Thing Jake',
+	'http://everythingjake.keenspot.com/d/20000410.html',
+	[src => qr'/comics/jake'],
+],
+Exposure => [
+	'Exposure',
+	'http://exposure.keenspot.com/d/20110110.html',
+	[id => 'comicpos'],
+	next => [id => 'exp48'],
+],
+FallOutToyWork => [
+	'Fall Out Toy Work',
+	'http://fallouttoyworks.keenspot.com/d/20120326.html',
+	[id => 'comicpage'],
+],
+TheFirstDaughter => [
+	'The First Daughter',
+	'http://thefirstdaughter.keenspot.com/d/20100704.html',
+	[src => qr'/comics/tfd'],
+],
+FriarAndBrimstone => [
+	'Friar & Brimstone',
+	'http://friarandbrimstone.keenspot.com/d/20111204.html',
+	[id => 'fbcmx'],
+],
+GeneCatlow => [
+	'Gene Catlow',
+	'http://genecatlow.keenspot.com/d/20000717.html',
+	[src => qr'/comics/'],
+],
+GodMode => [
+	'God Mode',
+	'http://godmode.keenspot.com/d/20050915.html',
+	[src => qr'/comics/'],
+],
+GreenWake => [
+	'Green Wake',
+	'http://greenwake.keenspot.com/d/20120206.html',
+	[id => 'left_'],
+],
+HeadTrip => [
+	'Head Trip',
+	'http://headtrip.keenspot.com/d/20060303.html',
+	[src => qr'/comics/'],
+],
+HeroByNight => [
+	'Hero By Night',
+	'http://herobynight.keenspot.com/d/20061020.html',
+	[id => 'COMIC'],
+	next => [_tag => 'area', coords => '437,0,502,25']
+],
+Landis => [
+	'Landis',
+	'http://landis.keenspot.com/d/20050625.html',
+	[src => qr'/comics/'],
+],
+LastBlood => [
+	'Last Blood',
+	'http://www.lastblood.net/main/2006/12/25/last-blood-begins/',
+	[id => 'comic'],
+],
+TheLounge => [
+	'The Lounge',
+	'http://thelounge.keenspot.com/d/20020601.html',
+	[src => qr'/comics/'],
+],
+Makes => [
+	'Makes',
+	'http://makeshiftmiracle.keenspot.com/d/20110926.html',
+	[id => 'comic'],
+],
+MakeshiftMiracle => [
+	'The Makeshift Miracle',
+	'http://makeshiftmiracle.keenspot.com/d/20110926.html',
+	[id => 'mleft'],
+],
+Marksmen => [
+	'Marksmen',
+	'http://marksmen.keenspot.com/d/20120305.html',
+	[id => 'comicpage'],
+],
+MarryMe => [
+	'Marry Me',
+	'http://marryme.keenspot.com/main/2007/02/14/page-1-ex-boyfriends/',
+	[id => 'comic'],
+],
+MonsterMassacre => [
+	'Monster Massacre',
+	'http://monstermassacre.keenspot.com/d/20120319.html',
+	[id => 'comicpage'],
+],
+MysticRevolution => [
+	'Mystic Revolution',
+	'http://mysticrevolution.keenspot.com/index.php?cid=1',
+	[id => 'comicpage_'],
+],
+Newshounds => [
+	'Newshounds',
+	'http://newshounds.keenspot.com/d/20070201.html',
+	[src => qr'/comics/'],
+],
+NoPinkPonies => [
+	'No Pink Ponies',
+	'http://nopinkponies.keenspot.com/d/20060207.html',
+	[src => qr'/comics/'],
+],
+NoRoomforMagic => [
+	'No Room for Magic',
+	'http://noroomformagic.keenspot.com/d/20050901.html',
+	[src => qr'/comics/'],
+],
+OutThere => [
+	'Out There',
+	'http://outthere.keenspot.com/d/20060612.html',
+	[src => qr'/comics/'],
+],
+PunchAndPie => [
+	"Punch an' Pie",
+	'http://punchanpie.keenspot.com/daily/20070222.html',
+	[id => 'PPComicCore'],
+	next => [id => 'NextB'],
+],
 Quiltbag => [
-	'Quiltbag',
+	'QUILTBAG',
 	'http://quiltbag.keenspot.com/d/20111018.html',
 	[id => 'comicarea'],
 ],
+RoadWaffles => [
+	'Road Waffles',
+	'http://roadwaffles.keenspot.com/archive-rw.php?c=1999-11-8',
+	[src => qr'comics/rw'],
+],
+#keenspot ends here
