@@ -3415,3 +3415,8 @@ TheDevilsPanties => [
 	'http://thedevilspanties.com/archives/300',
 	[id => 'comic'],
 ],
+Quiltbag => [
+	'Quiltbag',
+	'http://quiltbag.keenspot.com/d/20111018.html',
+	[id => 'comicarea'],
+],
