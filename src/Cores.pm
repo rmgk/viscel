@@ -21,17 +21,17 @@ use Log;
 
 
 my %cores = (	'Core::AnyManga' => 0,
-				'Core::ComicGenesis' => 0,
-				'Core::Fakku' => 0,
-				'Core::Animea' => 0,
-				'Core::Universal' => 0,
-				'Core::Cartooniverse' => 0,
-				'Core::Homeunix' => 0,
-				'Core::KatBox' => 0,
-				'Core::Mangafox' => 0,
-				'Core::Mangashare' => 0,
-				'Core::Mangareader' => 0,
-				);
+             	'Core::ComicGenesis' => 0,
+             	# 'Core::Fakku' => 0,
+             	'Core::Animea' => 0,
+             	'Core::Universal' => 0,
+             	'Core::Cartooniverse' => 0,
+             	'Core::Homeunix' => 0,
+             	'Core::KatBox' => 0,
+             	'Core::Mangafox' => 0,
+             	'Core::Mangashare' => 0,
+             	'Core::Mangareader' => 0,
+             	);
 
 #initialises all used cores
 sub init {
@@ -112,7 +112,7 @@ sub known {
 	return unless $core;
 	return $core->known($id);
 }
-	
+
 
 #$id -> $core
 #returns the name of the core of the given id
@@ -123,9 +123,9 @@ sub _core_from_id {
 	return unless ( $cores{$core} );
 	return $core;
 }
-	
 
-#$query -> %collections 
+
+#$query -> %collections
 sub search {
 	Log->debug('search for ',join ' ',@_);
 	my @cores;
@@ -141,7 +141,7 @@ sub search {
 		shift;
 	}
 	my @re = map {qr/$_/i} @_;
-	return map {$_->search(\@filter, @re)} @cores ? grep {initialised($_)} @cores : initialised(); 
+	return map {$_->search(\@filter, @re)} @cores ? grep {initialised($_)} @cores : initialised();
 }
 
 1;
