@@ -3590,4 +3590,102 @@ RoadWaffles => [
 	'http://roadwaffles.keenspot.com/archive-rw.php?c=1999-11-8',
 	[src => qr'comics/rw'],
 ],
+RedSpike => [
+	'Red Spike',
+	'http://redspike.keenspot.com/d/20120309.html',
+	[id => 'comicpage'],
+],
+BanzaiGirl => [
+	'Banzai Girl',
+	'http://banzaigirl.keenspot.com/d/20120521.html',
+	[id => 'Bzg_35'],
+	next => [id => 'Bzg_29'],
+],
+SamuraisBlood => [
+	'Samurai’s Blood',
+	'http://samuraisblood.keenspot.com/d/20120213.html',
+	[id => 'comicpage'],
+],
+Shadowbinders => [
+	'Shadowbinders',
+	'http://shadowbinders.keenspot.com/2010/08/27/shadowbinders-chapter-1/',
+	[id => 'comic-1'],
+],
+Sharky => [
+	'Sharky',
+	'http://sharky.keenspot.com/d/20120227.html',
+	[id => 'comicpage'],
+],
+ShockwaveDarkside2D => [
+	'Shockwave, Darkside (2D)',
+	'http://shockwave.keenspot.com/2d/20100920.html',
+	[src => qr'/comics2D/'],
+],
+ShockwaveDarkside3D => [
+	'Shockwave, Darkside (3D)',
+	'http://shockwave.keenspot.com/3d/20100920.html',
+	[src => qr'/comics3D/'],
+],
+Skullkickers => [
+	'Skull☠kickers',
+	'http://skullkickers.keenspot.com/d/20120106.html',
+	[src => qr'/comics/'],
+],
+SomethingHappens => [
+	'Something Happens',
+	'http://somethinghappens.keenspot.com/d/20060406.html',
+	[src => qr'/comics/'],
+],
+SoreThumbs => [
+	'Sore Thumbs',
+	'http://sorethumbs.keenspot.com/d/20040308.html',
+	[src => qr'/comics/'],
+],
+Striptease => [
+	'Striptease',
+	'http://striptease.keenspot.com/d/20000930.html',
+	[id => 'comic'],
+],
+Supernovas => [
+	'Supernovas',
+	'http://supernovas.keenspot.com/d/20110630.html',
+	[id => 'comicpos'],
+	next => [id => 'n_top_nav'],
+],
+Superosity => [
+	'Superosity',
+	'http://superosity.keenspot.com/d/19990301.html',
+	[src => qr'/comics/'],
+],
+TheVault => [
+	'The Vault',
+	'http://thevault.keenspot.com/d/20120220.html',
+	[id => 'comicpage'],
+],
+WickedPowered => [
+	'Wicked Powered',
+	'http://wickedpowered.keenspot.com/d/20061211.html',
+	[src => qr'/comics/'],
+],
+WaywardSons => [
+	'Wayward Sons',
+	'http://waywardsons.keenspot.com/d/20100531.html',
+	[id => 'comicpos'],
+	next => [id => 'n_top_nav'],
+],
+WisdomOfMoo => [
+	'Wisdom of Moo',
+	'http://wisdomofmoo.keenspot.com/d/20081110.html',
+	[src => qr'/comics/'],
+],
+Yirmumah => [
+	'Yirmumah!',
+	'http://yirmumah.keenspot.com/2003/10/get-a-real-job/',
+	[id => 'comic-1'],
+],
+YouDamnKid => [
+	'You Damn Kid!',
+	'http://youdamnkid.keenspot.com/d/19990303.html',
+	[src => qr'/comics/ydk'],
+],
 #keenspot ends here
