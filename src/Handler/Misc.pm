@@ -83,6 +83,7 @@ sub view {
 	my ($c,$r,$id,$pos) = @_;
 	Log->trace('handle collection');
 	my $col = Collection->get($id);
+	$pos =~ s/(\d+)\:(\d+)/$1 . '..' . ($1 + $2 - 1)/ge;
 	$pos =~ s/[^\d,\.]//g;
 	my @pos = eval($pos);
 	my @ent = map { $col->fetch($_) } @pos ;
