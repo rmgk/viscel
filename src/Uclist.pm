@@ -3524,11 +3524,6 @@ TheLounge => [
 	'http://thelounge.keenspot.com/d/20020601.html',
 	[src => qr'/comics/'],
 ],
-Makes => [
-	'Makes',
-	'http://makeshiftmiracle.keenspot.com/d/20110926.html',
-	[id => 'comic'],
-],
 MakeshiftMiracle => [
 	'The Makeshift Miracle',
 	'http://makeshiftmiracle.keenspot.com/d/20110926.html',
