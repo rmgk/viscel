@@ -14,8 +14,7 @@ sub _mount_parse {
 	my ($s,$tree) = @_;
 	my $img = $tree->look_down( '_tag' => 'img', src => qr'/comics/\d{6}_');
 	$s->{$_} = $img->attr($_) for qw(src alt);
-	my $navbar = $tree->look_down(class => 'navbar', sub {$_[0]->as_text ~~ qr'Next'});
-	my $next = $navbar->look_down(_tag => 'a', sub {$_[0]->as_text ~~ qr'Next'});
+	my $next = $tree->look_down(_tag => 'a', sub {$_[0]->as_text ~~ qr'Next'});
 	if ($next) {
 		$s->{next} = $next->attr('href');
 	}
