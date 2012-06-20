@@ -19,7 +19,8 @@ sub _fetch_list {
 	foreach my $elem ($$tree->look_down('_tag' => 'img', hsrc => qr'http://www.snafu-comics.com/images/comic\w+_over.jpg')) {
 		my $name = HTML::Entities::encode($elem->attr('alt'));
 		my $href = $elem->parent()->attr('href');
-		my ($id) = $href =~ qr'^http://(\w+)\.';
+		my $img_src = $elem->attr('src');
+		my ($id) = $img_src =~ qr'/comic(\w+).jpg';
 		$id = 'Snafu_' . $1;
 		$clist{$id} = {start => $href.'/?comic_id=0', name => $name};
 
