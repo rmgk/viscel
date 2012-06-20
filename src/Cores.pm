@@ -17,6 +17,7 @@ use Core::KatBox;
 use Core::Mangafox;
 use Core::Mangashare;
 use Core::Mangareader;
+use Core::Snafu;
 use Log;
 
 
@@ -31,6 +32,7 @@ my %cores = (	'Core::AnyManga' => 0,
              	'Core::Mangafox' => 0,
              	'Core::Mangashare' => 0,
              	'Core::Mangareader' => 0,
+             	'Core::Snafu' => 0,
              	);
 
 #initialises all used cores
