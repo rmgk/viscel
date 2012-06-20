@@ -142,7 +142,7 @@ sub search {
 		}
 		shift;
 	}
-	my @re = map {qr/$_/i} @_;
+	my @re = map {qr/\Q$_\E/i} @_;
 	return map {$_->search(\@filter, @re)} @cores ? grep {initialised($_)} @cores : initialised();
 }
 
