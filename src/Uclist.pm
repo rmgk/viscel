@@ -3457,8 +3457,8 @@ Dreamless => [
 	'http://dreamless.keenspot.com/d/20090105.html',
 	[src => qr'/comics/'],
 ],
-EveryThingJake => [
-	'Every Thing Jake',
+EverythingJake => [
+	'Everything Jake',
 	'http://everythingjake.keenspot.com/d/20000410.html',
 	[src => qr'/comics/jake'],
 ],
@@ -3688,4 +3688,55 @@ YouDamnKid => [
 	'http://youdamnkid.keenspot.com/d/19990303.html',
 	[src => qr'/comics/ydk'],
 ],
+Framed => [
+	'Framed',
+	'http://www.damonk.com/prime/d/20001003.html',
+	[src => qr'/prime/comics/'],
+],
+LostAndFound => [
+	'Lost & Found',
+	'http://www.lostandfoundcomic.com/d/20000103.html',
+	[src => qr'/comics/'],
+],
+RPGWorld => [
+	'RPG World',
+	'http://rpgworldcomic.com/d/20000827.html',
+	[src => qr'/comics/'],
+],
+LookWhatIBroughtHome => [
+	'Look What I Brought Home!',
+	'http://lookwhatibroughthome.com/d/19990208.html',
+	[src => qr'/comics/'],
+],
+BrunoTheBandit => [
+	'Bruno The Bandit',
+	'http://brunothebandit.com/d/19980720.html',
+	[src => qr'/comics/'],
+],
+ElfOnlyInn => [
+	'Elf Only Inn',
+	'http://www.elfonlyinn.net/d/20020523.html',
+	[src => qr'/comics/'],
+],
+MenInHats => [
+	'Men In Hats',
+	'http://meninhats.com/d/20020805.html',
+	[src => qr'/comics/'],
+],
+RipAndTeri => [
+	'Rip & Teri',
+	'http://www.ripandteri.com/index.php?p=1',
+	[src => qr'/comics/'],
+],
+SexAndViolence => [
+	'Sex & Violence',
+	'http://mrbang.net/d/20000515.html',
+	[src => qr'/comics/'],
+],
+
 #keenspot ends here
+OzyAndMillie => [
+	'Ozy and Millie',
+	'http://ozyandmillie.org/1998/04/29/ozy-and-millie-2/',
+	[id => 'comic-1'],
+],

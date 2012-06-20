@@ -4,14 +4,9 @@ Bhag(down)	http://bhag.sackofjustice.com/daily.php?date=040801
 Elftor(multiple strips per page)		http://elftor.com/elftor.php?number=1
 SonicPals(multiple strips per page)		http://www.sonicandpals.com/2004/january/testingstrips1.htm
 
-Framed(keenspot)		http://www.damonk.com/prime/d/20001003.html
-
 MonicaFurious(not really a webcomic but still nice)		http://leadsalad.com/viewcomic.php?id=1
-plusEV(keenspot)		http://www.plusev.net/d/20060811.html
 
-GodMode(keenspot)		http://godmodeonline.com/d/20050915.html
 
-StickyFloors(snafu)		http://sf.snafu-comics.com/?comic_id=0
 
 
 TheCoffeeAchievers(down)		http://www.coffeeachievers.net/index.php?pageNum_Recordset2=0&totalRows_Recordset2=137
@@ -25,7 +20,7 @@ PixelBSC(blocked)		http://pixel.bombsheltercomics.com/index.php?strip_ID=1
 
 
 
-LostAndFound(keenspot)		http://www.lostandfoundcomic.com/d/20000103.html
+
 SosSaga(smackjeeves)		http://sossagav2.smackjeeves.com/comics/465667/001-title-chapter/
 
 
@@ -42,7 +37,6 @@ SosSaga(smackjeeves)		http://sossagav2.smackjeeves.com/comics/465667/001-title-c
 
 AjanWarriors(ladystar)		http://ladystar.net/ajanwarriors/2008/10/22/beyond-this-door-is-a-magical-and-mysterious-adventure-like-nothing-youve-seen-before/#comic
 
-Snafu(snafu)		http://www.snafu-comics.com/comics.php?comic_id=0
 
 
 
@@ -59,7 +53,7 @@ PS238(nodwick humor gamespy)		http://nodwick.humor.gamespy.com/ps238/comics/inde
 AbsurdNotions(multiple strips per page)		http://www.absurdnotions.org/page1.html
 
 
-RPGworld(keenspot)		http://rpgworldcomic.com/d/20000827.html
+
 
 
 
@@ -108,10 +102,10 @@ ThePort(TX)		http://www.transmission-x.com/_the_port/2007/06/17/prologue/
 EtherealLegacies(down)		http://www.ethereallegacies.com/webcomic/2007/06/01/2007-06-01/
 
 
-NoRoomForMagic(keenspot)		http://www.noroomformagic.com/d/20050901.html
-LookWhatIBroughtHome(keenspot)		http://lookwhatibroughthome.com/d/19990208.html
 
-TinTheIncompetentNinja(snafu)		http://tin.snafu-comics.com/?comic_id=0
+
+
+
 Skyfall(sage-comics)	http://www.skyfallmanga.com/archive/cover-1.php
 AbstractGender(gone)		http://www.abstractgender.com/?comic=1
 
@@ -168,7 +162,7 @@ AprilAndMay(clonemanga)		http://manga.clone-army.org/anm.php?lang=%3C?php%20prin
 
 CounterRose(bad html)		http://www.counter-rose.com/page.php?p=1
 Arcana(spiderforest)		http://mysteriesofthearcana.com/index.php?action=comics&cid=1
-AntiHeroForHire(keenspot)		http://antiheroforhire.com/d/20030611.html
+
 
 
 
@@ -189,7 +183,6 @@ ArcaneQuarry(missing)		http://aq.mewzstudios.com/2005/07/31/and-were-off/
 
 
 
-BrunoTheBandit(keenspot)		http://brunothebandit.com/d/19980720.html
 
 
 
@@ -206,15 +199,14 @@ VenomLegion(ladystar)		http://ladystar.net/venomlegion/2008/02/14/hello-world/
 ClemmysDoodles(french)		http://www.clementinebeauvais.com/?p=53
 
 
-Superosity(keenspot)		http://superosity.com/d/19990301.html
 
 
-ElfOnlyInn(keenspot)		http://www.elfonlyinn.net/d/20020523.html
+
+
 Gunbaby(gone)		http://www.gunbaby.com/comic.php?comicID=1
 RedMoon(sage-comics)		http://www.redmoonrising.org/2009/01/chapter-1-cover/
 SinTitulo(TX)		http://www.sintitulocomic.com/2007/06/17/page-01/
 AnimeNewsNinja(bigger image available)		http://www.animenewsnetwork.com/anime-news-nina/2007-10-24
-GrimTales(snafu)		http://grim.snafu-comics.com/?comic_id=0
 
 ShapeQuest(gone)		http://www.shapequest.net/?id=1
 
@@ -225,7 +217,7 @@ ShapeQuest(gone)		http://www.shapequest.net/?id=1
 
 
 megatokyo(bad html)		http://www.megatokyo.com/strip/1
-OutThere(keenspot)		http://outtherecomic.com/d/20060612.html
+
 
 
 
@@ -248,7 +240,6 @@ DMOfTheRings(multi strip page)		http://www.shamusyoung.com/twentysidedtale/?p=61
 
 
 
-PowerpuffGirls(snafu)		http://ppg.snafu-comics.com/?comic_id=0
 
 
 
@@ -265,7 +256,6 @@ NorthernEdge(down)		http://ne.tsunami-art.com/view.aspx?Rec=2
 
 
 
-striptease(keenspot)		http://www.stripteasecomic.com/d/20000930.html
 
 KickinRad(petit symphony)		http://petitesymphony.com/comic/kickin-rad/hell-no
 
@@ -357,7 +347,6 @@ InniesAndOutties(webcomicsnation)		http://www.webcomicsnation.com/lcachola/innie
 
 
 
-TitanSphere(snafu)		http://titan.snafu-comics.com/?comic_id=0
 
 
 
@@ -403,9 +392,7 @@ LavenderLegend(gone)		http://emeraldwinter.net/lavender/?id=1
 
 
 
-Newshounds(keenspot)		http://www.newshounds.com/d/20070601.html
 Prefeathers(crowfeathers)		http://crowfeathers.net/index.php?blog=7
-CountYourSheep(keenspot)		http://www.countyoursheep.com/d/20030611.html
 
 
 
@@ -476,7 +463,6 @@ AskDrEldritch(gone?)		http://www.askdreldritch.com/comic001.html
 
 
 
-NoPinkPonies(keenspot)		http://nopinkponies.com/d/20060207.html
 
 Grootlore(broken)		http://www.grootlore.com/comics/index.php?date=20010101
 
@@ -489,7 +475,6 @@ WeltonColbert(ryanestrada)		http://www.ryanestrada.com/2004/10/01/welton-colbert
 
 Cascadia(down?)		http://www.cascadiacomic.com/comic/prologue/0.htm
 
-BrainDead(snafu)		http://braindead.snafu-comics.com/index.php?comic_id=0
 
 
 
@@ -521,7 +506,6 @@ HeroesOfMiddlecenter(down?)		http://www.middlecenter.com/comic/display.php?pg=0
 AkiAlliance(ryanestrada)		http://www.ryanestrada.com/2005/12/05/comics/aki-alliance/aki-alliance-cover/
 
 
-SoulFrontier(snafu)		http://soul.snafu-comics.com/?comic_id=0
 
 SuccubusJustice(gone)		http://www.succubus-justice.com/000%20r%20frame.htm
 
@@ -537,7 +521,6 @@ StarshipMoonhawkRetro(gone?)		http://oldcomics.starshipmoonhawk.com/?date=200206
 
 SageComic(sage-comics)		http://sage-comics.com/comic/001/
 Seen(smackjeeves)		http://seen.smackjeeves.com/comics/155698/seen-page-1/
-SugarBits(snafu)		http://sugar.snafu-comics.com/?comic_id=0
 
 
 
@@ -560,9 +543,7 @@ DeadHeaven(register only)		http://www.deadheaven.net/thebeginning.html
 
 
 Fans(http://www.tcampbell.net/)		http://www.faans.com/index.php?p=1
-YouDamnKid(keenspot)		http://www.youdamnkid.com/d/19990301.html
 FreakAngels(later dude)		http://www.freakangels.com/?p=22&page=1
-ManInHats(keenspot)		http://meninhats.com/d/20020805.html
 Robomeks(http://catolate.com/)		http://robomeks.com/lang/en/2008/10/01/chapter-1-cover/
 
 
@@ -577,10 +558,7 @@ FailedObjective(down)		http://failedobjective.com/?p=9
 
 
 Reila(pigtailstudio)		http://www.reila.pigtailstudio.com/0pg001_cover.html
-ChoppingBlock(keenspot)		http://www.choppingblock.org/d/20000725.html
-RipAndTeri(keenspot)		http://www.ripandteri.com/index.php?p=1
 
-LastBlood(keenspot)		http://lastblood.net/main/2006/12/25/last-blood-begins/
 GeekLovesNerd(http://nlcast.com/)		http://geeklovesnerd.com/2008/06/new-web-comic-you-aint-right/
 
 
@@ -598,7 +576,6 @@ WTTF(down)		http://wttf.org/2007/01/01/hello-world/
 
 
 
-MarryMe(keenspot)		http://marrymemovie.com/main/2007/02/14/page-1-ex-boyfriends/
 
 AssortedOddities(ryanestrada)		http://www.ryanestrada.com/2003/05/19/comics/assorted-oddities/gubooki-wa-tokki/
 
@@ -621,7 +598,6 @@ ModelBehaviour(gone)		http://www.jinsunoh.com/page1.html
 
 
 
-TrainingWheels(snafu)		http://tw.snafu-comics.com/?comic_id=0
 WeakEndWarriors(down)		http://www.inktank.com/category/comics/weak-end-warriors/
 
 
@@ -637,11 +613,9 @@ Housd(dead?)		http://housd.net/archive_page.php?comicID=1
 
 
 
-OzyAndMillie(keenspot)		http://www.ozyandmillie.org/d/19980429.html
 
 CutieDevil(h-manga)		http://h-manga.info/manga/index.php/Cutie%20Devil/184%20(826%20x%201200).jpg?action=big&size=original
 Guron(gone)		http://guron.org/guron1/2009/02/01/281/
-SexViolence(keenspot)		http://mrbang.net/d/20000515.html
 
 
 FullFrontalNerdity(nodwick humor gamespy)		http://nodwick.humor.gamespy.com/ffn/index.php?date=2001-11-29
@@ -660,7 +634,6 @@ DrawingBoard(smackjeeves)		http://drawingboard.smackjeeves.com/comics/552579/exc
 
 
 PennyTribute(clone manga)		http://manga.clone-army.org/penny.php?page=1&lang=
-Yirmumah(keenspot)		http://yirmumah.net/archives.php?date=20031005
 
 
 
@@ -677,7 +650,6 @@ Witchcraft(h-manga)		http://h-manga.info/manga/index.php/Witchcraft/witch1_01.jp
 
 
 TheLittleMatchGirl(gone?)		http://slimemansion.com/comics/matches/index.htm
-InvaderZim(snafu)		http://zim.snafu-comics.com/?comic_id=0
 
 
 
@@ -691,7 +663,6 @@ Canadiana(gone)		http://sandycarruthers.com/canadiana1.html
 
 
 Faradon(down)		http://khangaki.com/cover1.php
-GeneCatlow(keenspot)		http://genecatlow.com/d/20000717.html
 DemonsInTheCloset(gone?)		http://crowfeathers.net/index.php?blog=10
 Inhuman(sage-comics)		http://www.inhuman-comic.com/comic1.php
 
@@ -710,13 +681,10 @@ Daqueran(gurukitty)		http://gurukitty.com/daquerancover.php
 
 
 
-ForgottenTower(snafu)		http://ft.snafu-comics.com/?comic_id=0
 FightCastOrEvade(gone)		http://www.fightcastorevade.net/d/20000731.html
-EverythingJake(keenspot)		http://everythingjake.com/d/20000410.html
 
-DigitalPurgatory(snafu)		http://dp.snafu-comics.com/index.php?comic_id=0
 
-TrueMagic(sage)		http://true-magic.com/view.php?id=1
+TrueMagic(sage)           		http://true-magic.com/view.php?id=1
 RoadToEden(down temporary)		http://road-to-eden.com/?p=232
 
 
