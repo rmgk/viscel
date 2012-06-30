@@ -20,15 +20,15 @@ my $cache_id = '';
 sub init {
 	my $db_dir = shift // Globals::datadir();
 
-	unless (-e $cachedir or mkdir $cachedir) {
+	unless (-e $db_dir or mkdir $db_dir) {
 		Log->error('could not create data dir ' , $db_dir);
 		return;
 	}
 
-	my $db_path = $db_name . 'collections.db';
+	my $db_path = $db_dir . 'collections.db';
 	Log->trace('initialise database');
 	Log->warn('already initialised, reinitialise') if $DBH;
-	$DBH = DBI->connect("dbi:SQLite:dbname=$db_dir","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
+	$DBH = DBI->connect("dbi:SQLite:dbname=$db_path","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
 	return 1 if $DBH;
 	Log->error('could not connect to database');
 	return;
