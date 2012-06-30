@@ -15,20 +15,20 @@ my $cachedir;
 sub init {
 	Log->trace('initialise cache');
 	$cachedir = shift // Globals::cachedir();
-	
-	unless (-e $cachedir or mkdir $$cachedir) {
+
+	unless (-e $cachedir or mkdir $cachedir) {
 		Log->error('could not create cache dir ' , $cachedir);
 		return;
 	}
-	
-	for my $a ('0'..'9','a'..'f') { for my $b ('0'..'9','a'..'f') { 
+
+	for my $a ('0'..'9','a'..'f') { for my $b ('0'..'9','a'..'f') {
 		my $dir = $cachedir.$a.$b.'/';
 		unless (-e $dir or mkdir $dir) {
 			Log->error('could not create storage dir ' .$dir);
 			return;
 		}
 	}}
-	
+
 
 	return 1;
 }
@@ -82,10 +82,10 @@ sub remove {
 }
 
 #->@all_shas
-#returns a list of all sha1 hashes 
+#returns a list of all sha1 hashes
 sub list {
 	my @hashes;
-	for my $a ('0'..'9','a'..'f') { for my $b ('0'..'9','a'..'f') { 
+	for my $a ('0'..'9','a'..'f') { for my $b ('0'..'9','a'..'f') {
 		my $dir = $cachedir.$a.$b.'/';
 		opendir(my $dh, $dir);
 		push @hashes, map { $a.$b.$_ } grep /^[\da-f]{38}$/, readdir $dh;

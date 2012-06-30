@@ -18,7 +18,14 @@ my $cache_id = '';
 
 #initialises the database
 sub init {
-	my $db_dir = shift // Globals::datadir() . 'collections.db';
+	my $db_dir = shift // Globals::datadir();
+
+	unless (-e $cachedir or mkdir $cachedir) {
+		Log->error('could not create data dir ' , $db_dir);
+		return;
+	}
+
+	my $db_path = $db_name . 'collections.db';
 	Log->trace('initialise database');
 	Log->warn('already initialised, reinitialise') if $DBH;
 	$DBH = DBI->connect("dbi:SQLite:dbname=$db_dir","","",{AutoCommit => 0,PrintError => 1, PrintWarn => 1 });
@@ -122,7 +129,7 @@ sub fetch {
 	$ret = { map { decode( "utf8", $_ ) } %{$ret} };
 	$ret->{cid} = $s->{id};
 	$ret = Element->new($ret);
-	
+
 	return $ret;
 }
 
