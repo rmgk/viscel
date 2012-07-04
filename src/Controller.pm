@@ -5,6 +5,7 @@ package Controller v1.3.0;
 use 5.012;
 use warnings;
 use utf8;
+use autodie;
 
 use Log;
 use Server;
@@ -32,6 +33,8 @@ $SIG{'INT'} = $INTS;
 
 #initialises the needed modules
 sub init {
+	Log->trace('create folders');
+	-e $_ or mkdir $_ for Globals::userdir(), Globals::cachedir(), Globals::datadir();
 	Log->trace('initialise modules');
 	if (
 		UserPrefs::init(Globals::userdir(),'user') &&

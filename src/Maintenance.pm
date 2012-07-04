@@ -277,7 +277,7 @@ sub check_first {
 	my $first_elem = $col->fetch(1);
 	my $r_first = Cores::first($id);
 	unless ($first_elem and $r_first) {
-		Log->warn("first not found, first element: $first_elem remote first: $r_first");
+		Log->warn("first not found, check database for errors");
 		$col->purge();
 		return 0;
 	}
