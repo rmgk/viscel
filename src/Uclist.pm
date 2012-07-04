@@ -3402,6 +3402,12 @@ PlusEV => [
 	[id => 'comicmain_'],
 	next => [id => 'Next'],
 ],
+PlusEVug => [
+	'+EV (ultimategrinders)',
+	'http://ultimategrinders.com/node/2660',
+	[class => 'comic'], [class => 'field-item even'],
+],
+
 TwentySeven => [
 	'27 Twenty-Seven',
 	'http://twenty-seven.keenspot.com/d/20120227.html',
