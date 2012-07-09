@@ -3741,3 +3741,8 @@ OzyAndMillie => [
 	'http://ozyandmillie.org/1998/04/29/ozy-and-millie-2/',
 	[id => 'comic-1'],
 ],
+TheBrads => [
+	'The Brads',
+	'http://bradcolbow.com/archive/view/the_brads_impossible/',
+	[class => 'entry'],
+],
