@@ -10,44 +10,44 @@ use utf8;
 
 our $LOGLVL; #loglevel is set in log.pm
 our $FILELOG; #filelog is set in log.pm
-our $PORT = 80; 
+our $PORT = 80;
 our $CACHEDIR = './cache/';
 our $DATADIR = './data/';
 our $EXPORTDIR = './export/';
 our $USERDIR = './user/';
-our $UPDATEUNIVERSAL = undef; 
+our $UPDATEUNIVERSAL = undef;
 
 # ----- accessors --------------------
 
-sub loglevel { 
+sub loglevel {
 	$LOGLVL = shift if @_;
 	return $LOGLVL;
 }
-sub filelog { 
+sub filelog {
 	$FILELOG = shift if @_;
 	return $FILELOG;
 }
-sub port { 
+sub port {
 	$PORT = shift if @_;
 	return $PORT;
 }
-sub cachedir { 
+sub cachedir {
 	$CACHEDIR = shift if @_;
 	return $CACHEDIR;
 }
-sub datadir { 
+sub datadir {
 	$DATADIR = shift if @_;
 	return $DATADIR;
 }
-sub exportdir { 
+sub exportdir {
 	$EXPORTDIR = shift if @_;
 	return $EXPORTDIR;
 }
-sub userdir { 
+sub userdir {
 	$USERDIR = shift if @_;
 	return $USERDIR;
 }
-sub updateuniversal { 
+sub updateuniversal {
 	$UPDATEUNIVERSAL = shift if @_;
 	return $UPDATEUNIVERSAL;
 }

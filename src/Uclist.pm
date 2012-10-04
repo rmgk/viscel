@@ -1659,8 +1659,8 @@ QueenOfWands => [
 ],
 SisterClaire => [
 	'Sister Claire',
-	'http://www.sisterclaire.com/comic/chapter-1-comic/coming-soon/',
-	[id => 'comic-1'],
+	'http://www.sisterclaire.com/index.php?id=1',
+	[id => 'comic'],
 ],
 Maliki => [
 	'Maliki',
@@ -1777,8 +1777,8 @@ UnderPower => [
 ],
 Misfile => [
 	'Misfile',
-	'http://www.misfile.com/?page=1',
-	[src => qr'pageCalled'],
+	'http://www.misfile.com/?date=2004-02-22',
+	[class => 'comic2'],
 ],
 Millennium => [
 	'Millenium',
@@ -3461,7 +3461,8 @@ CrowScare => [
 Dreamless => [
 	'Dreamless',
 	'http://dreamless.keenspot.com/d/20090105.html',
-	[src => qr'/comics/'],
+	[src => qr'/comics/|dreamlessbookad-revised.jpg'],
+	next => [id => "next_day1"]
 ],
 EverythingJake => [
 	'Everything Jake',
@@ -3745,4 +3746,56 @@ TheBrads => [
 	'The Brads',
 	'http://bradcolbow.com/archive/view/the_brads_impossible/',
 	[class => 'entry'],
+	next => [class => 'next']
+],
+FourTales => [
+	'FourTales',
+	'http://www.fourtales.com/index.php?id=1',
+	[id => 'comic'],
+],
+Namesake => [
+	'Namesake',
+	'http://www.namesakecomic.com/comic/prologue-cover-3/',
+	[id => 'comic'],
+],
+CrazySunshine => [
+	'Crazy Sunshine',
+	'http://www.crazysunshine.com/2011/08/apocalypse-now/',
+	[id => 'comic-1'],
+],
+BlasterNation => [
+	'Blaster Nation',
+	'http://www.blasternation.com/index.php?id=1',
+	[id => 'comic'],
+],
+LesbianPiratesFromOuterSpace => [
+	'Lesbian Pirates from Outer Space',
+	'http://www.lesbianspacepirates.com/index.php?id=1',
+	[id => 'comic'],
+],
+CardboardAngel => [
+	'Cardboard Angel',
+	'http://cangel.strawberrycomics.com/comic/ch01-p00.html',
+	[src => qr'ch\d+-p\d+'],
+],
+DevilsCake => [
+	q(Devil's Cake),
+	'http://devilscake.smackjeeves.com/comics/284987/book1-chp1-sketch/',
+	[id => 'comic_image'],
+],
+### has multiple images per page
+# TheLittlestElle => [
+#	'The Littlest Elle',
+#	'http://elle.mysky.net/archives/11',
+#	[class => 'entry'],
+# ],
+Patches => [
+	'Patches',
+	'http://patches.genkigirl.com/?p=3',
+	[id => 'comic'],
+],
+RedString => [
+	'Red String',
+	'http://redstring.strawberrycomics.com/index.php?id=434',
+	[id => 'comic'],
 ],
