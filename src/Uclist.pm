@@ -1669,8 +1669,8 @@ Maliki => [
 ],
 GoGetARoomie => [
 	'Go Get A Roomie',
-	'http://gogetaroomie.chloe-art.com/2010/05/go-get-a-roomie-10/',
-	[id => 'comic-1'],
+	'http://www.gogetaroomie.com/index.php?id=1',
+	[id => 'comic'],
 ],
 BattleSuitGirls => [
 	'Battle Suit Girls',
