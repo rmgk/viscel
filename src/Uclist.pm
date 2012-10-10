@@ -3116,8 +3116,9 @@ Bugcomic => [
 ],
 Spinnerette => [
 	'Spinnerette',
-	'http://www.krakowstudios.com/spinnerette/2010/02/09/20100209/',
+	'http://www.spinnyverse.com/2010/02/09/20100209/',
 	[id => 'comic-1'],
+	next => [class => 'nav-next'],
 ],
 EdgeOfDecember => [
 	'Edge of December',
