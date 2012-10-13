@@ -1705,8 +1705,8 @@ Oglaf => [
 ],
 Annyseed => [
 	'Annyseed',
-	'http://www.colourofivy.com/annyseed_webcomic.htm',
-	[_tag => 'body'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'table'], [_tag => 'tr'], [_tag => 'td'], [_tag => 'img', src=> qr'Annyseed']
+	'http://www.colourofivy.com/annyseedhome.htm',
+	[_tag => 'img', src=> qr'Annyseed(Part\d+|cover)'],
 ],
 PepperminntSaga => [
 	'Pepperminnt Saga',
@@ -1741,9 +1741,14 @@ FriendlyHostility => [
 	next => [alt => 'Next'],
 ],
 StrawberryDeathCake => [
+	'Strawberry Death Cake Original',
+	'http://strawberrydeathcake.com/original/archive/page0/',
+	[class => qr'webcomic-object-full'],
+],
+StrawberryDeathCakeNew => [
 	'Strawberry Death Cake',
-	'http://rainchildstudios.com/strawberry/?p=19',
-	[id => 'comic'],
+	'http://strawberrydeathcake.com/archive/prologuepage1/',
+	[class => qr'webcomic-object-full'],
 ],
 Uncubed => [
 	'Uncubed',
@@ -2246,8 +2251,8 @@ BlankIt => [
 ],
 Cortland => [
 	'Cortland',
-	'http://www.cortlandcomic.com/index.php?pageID=1',
-	[src => qr'/pages/'],
+	'http://cortland.comicgenesis.com/d/20040320.html',
+	[class => 'comic'],
 ],
 PCWeenies => [
 	'PC Weenies',
@@ -2584,8 +2589,8 @@ Terra => [
 ],
 WintersInLavelle => [
 	'Winters in Lavelle',
-	'http://wintersinlavelle.com/?p=13',
-	[id => 'comic']
+	'http://wintersinlavelle.com/?webcomic_post=2009-02-01',
+	[class => qr'webcomic-object-full'],
 ],
 EvilDiva => [
 	'Evil Diva',
@@ -2668,7 +2673,7 @@ FragileGravity => [
 PeterIsTheWolf => [
 	'Peter is the Wolf',
 	'http://www.peteristhewolf.com/adult/001.html',
-	[src => qr'comics/pitw_'],
+	[src => qr'comics/pitw'i],
 ],
 PrideOfLife => [
 	'Pride of Life',
@@ -2885,8 +2890,8 @@ Cetiya => [
 ],
 Chirault => [
 	'Chirault',
-	'http://chirault.sevensmith.net/pages/00_01.html',
-	[src => qr'images/\d\d_\d\d'],
+	'http://chirault.sevensmith.net/?comic_id=0',
+	[src => qr'comics/\d{8}'],
 ],
 Chromacorps => [
 	'Kyoudaikido Soldier Chromacorps',
@@ -2957,7 +2962,7 @@ Omega => [
 Eldlor => [
 	'Planes of Eldlor',
 	'http://www.eldlor.com/?page=comic&id=104263',
-	[alt => 'Comic'],
+	[src => qr'comic/ch'],
 ],
 Precocious => [
 	'Precocious',
