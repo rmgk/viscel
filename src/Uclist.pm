@@ -482,7 +482,7 @@ OneNineSevenSeven => [
 ],
 Cucuc => [
 	'Cú cuC',
-	'http://www.oghme.com/cucuc/post/001-Balor-doesn-t-like-Snails',
+	'http://www.oghme.com/origins/cucuc/post/001-Balor-doesn-t-like-Snails',
 	[class=>'zestrip']
 ],
 Masago => [
@@ -3804,4 +3804,9 @@ RedString => [
 	'Red String',
 	'http://redstring.strawberrycomics.com/index.php?id=434',
 	[id => 'comic'],
+],
+WonderMomo => [
+	'Wonder Momo',
+	'http://www.shiftylook.com/comics/wondermomo/in-the-spotlight',
+	[class => 'the-comic'],
 ],
