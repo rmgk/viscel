@@ -468,7 +468,7 @@ Sloan => [
 LoveInBlood => [
 	'Love is in the Blood',
 	'http://www.loveisintheblood.com/2008/04/29/welcome-to-love-is-in-the-blood/',
-	[class => 'object']
+	[class => qr'webcomic-object-full'],
 ],
 UnlikeMinerva => [
 	'Unlike Minerva',
@@ -3482,7 +3482,7 @@ Exposure => [
 	next => [id => 'exp48'],
 ],
 FallOutToyWork => [
-	'Fall Out Toy Work',
+	'Fall Out Toy Works',
 	'http://fallouttoyworks.keenspot.com/d/20120326.html',
 	[id => 'comicpage'],
 ],
@@ -3809,4 +3809,9 @@ WonderMomo => [
 	'Wonder Momo',
 	'http://www.shiftylook.com/comics/wondermomo/in-the-spotlight',
 	[class => 'the-comic'],
+],
+Erstwhile => [
+	'Erstwhile',
+	'http://www.erstwhiletales.com/fcd-00/',
+	[id => 'comic'],
 ],
