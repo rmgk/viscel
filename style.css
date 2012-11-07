@@ -61,11 +61,13 @@ legend {
 	border: none; /*firefox displays a border if a link is on the image */
 }
 #view .content {
-	vertical-align: top;
 	display: flex;
 	flex-flow: row wrap;
-	align-items: center;
+	align-items: top;
 	justify-content: space-around;
+}
+#view .content .element {
+	vertical-align: top;
 }
 
 .element {
