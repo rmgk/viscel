@@ -64,7 +64,7 @@ legend {
 	display: flex;
 	flex-flow: row wrap;
 	align-items: top;
-	justify-content: space-around;
+	justify-content: center;
 }
 #view .content .element {
 	vertical-align: top;
