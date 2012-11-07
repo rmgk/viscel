@@ -37,7 +37,7 @@ a.extern {
 	border-style: solid;
 	border-color: #310000;
 	border-width: 1px;
-}	
+}
 legend {
 	margin: 0px;
 	padding: 0px;
@@ -60,6 +60,14 @@ legend {
 	padding: 0;
 	border: none; /*firefox displays a border if a link is on the image */
 }
+#view .content {
+	vertical-align: top;
+	display: flex;
+	flex-flow: row wrap;
+	align-items: center;
+	justify-content: space-around;
+}
+
 .element {
 	background-color: white;
 }
@@ -109,6 +117,7 @@ fieldset.info {
 	height: auto;
 	margin: 0px 0.2%;
 	padding: 0px;
+	vertical-align: top;
 }
 
 #config .info {

@@ -442,7 +442,7 @@ GalacticDivine(gone?)		http://hikaruhoshi.com/tkawaii/comic/gd/index.php?p=1
 StarkReality(smackjeeves)		http://starkreality.smackjeeves.com/Sale/
 BackwardCompatible(crispygamer)			http://www.crispygamer.com/comics/backward/2008-01-02.aspx
 
-RedString(strawberrycomics)		http://www.redstring.strawberrycomics.com/?p=1138
+
 
 
 SchoolBites(dualimage)		http://schoolbites.net/d/20090817.html
