@@ -21,7 +21,8 @@ sub _mount_parse {
 	
 	my $next = $img->parent()->attr('href');
 	if ($next eq 'javascript:void(0);') {
-		$next = $tree->look_down(_tag => 'span', sub { $_[0]->as_text() =~ m'^Next Chapter:$' } )->parent()->look_down(_tag => 'a')->attr('href');
+		$next = $tree->look_down(_tag => 'span', sub { $_[0]->as_text() =~ m'^Next Chapter:$' } )->parent()->look_down(_tag => 'a');
+		$next = $next and $next->attr('href');
 	}
 	unless ($next) {
 		Log->warn('could not find next ', $s->id());
