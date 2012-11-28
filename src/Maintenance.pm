@@ -33,6 +33,7 @@ sub save_cfg {
 #does some maintenance work
 sub maintain {
 	my ($s) = @_;
+	return if (Globals::nomaintenance());
 	Log->trace('start maintenance');
 	$s->accept();
 	$s->update_cores_lists();

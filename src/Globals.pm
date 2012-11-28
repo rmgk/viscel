@@ -16,6 +16,7 @@ our $DATADIR = './data/';
 our $EXPORTDIR = './export/';
 our $USERDIR = './user/';
 our $UPDATEUNIVERSAL = undef;
+our $NOMAINTENANCE = 0;
 
 # ----- accessors --------------------
 
@@ -51,6 +52,10 @@ sub updateuniversal {
 	$UPDATEUNIVERSAL = shift if @_;
 	return $UPDATEUNIVERSAL;
 }
+sub nomaintenance {
+	$NOMAINTENANCE = shift if @_;
+	return $NOMAINTENANCE;
+}
 
 # config array for getopt long
 sub getoptarray {
@@ -63,6 +68,7 @@ sub getoptarray {
 		"EXPORTDIR=s" => \$EXPORTDIR,
 		"USERDIR=s" => \$USERDIR,
 		"UPDATEUNIVERSAL" => \$UPDATEUNIVERSAL,
+		"NOMAINTENANCE" => \$NOMAINTENANCE,
 	);
 }
 
