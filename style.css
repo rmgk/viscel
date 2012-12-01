@@ -61,7 +61,9 @@ legend {
 	border: none; /*firefox displays a border if a link is on the image */
 }
 #view .content {
-	display: flex;
+	/* flex display seems buggy in current versions of opera with images larger than the screen */
+	/*display: flex;*/
+	display: block;
 	flex-flow: row wrap;
 	align-items: top;
 	justify-content: center;
