@@ -3815,3 +3815,8 @@ Erstwhile => [
 	'http://www.erstwhiletales.com/fcd-00/',
 	[id => 'comic'],
 ],
+GuildedAge => [
+	'Guilded Age',
+	'http://guildedage.net/webcomic/chapter-1/chapter-1-cover/',
+	[id => 'comic-1'],
+],
