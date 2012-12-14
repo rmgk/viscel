@@ -3825,3 +3825,8 @@ Clockworks => [
 	'http://shawntionary.com/clockworks/?p=1636',
 	[id => 'comic'],
 ],
+Digger => [
+	'Digger',
+	'http://www.diggercomic.com/?p=3',
+	[id => 'comic'],
+],
