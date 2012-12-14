@@ -3820,3 +3820,8 @@ GuildedAge => [
 	'http://guildedage.net/webcomic/chapter-1/chapter-1-cover/',
 	[id => 'comic-1'],
 ],
+Clockworks => [
+	'Clockworks',
+	'http://shawntionary.com/clockworks/?p=1636',
+	[id => 'comic'],
+],
