@@ -3835,3 +3835,44 @@ Digger => [
 	'http://www.diggercomic.com/?p=3',
 	[id => 'comic'],
 ],
+Amya => [
+	'Amya',
+	'http://www.amyachronicles.com/archives/117',
+	[id => 'comic-1'],
+],
+TwoGuysAndGuy => [
+	'Two Guys and Guy',
+	'http://www.twogag.com/archives/4',
+	[id => 'comic-1'],
+],
+ToiletGenie => [
+	'Toilet Genie',
+	'http://www.storyofthedoor.com/comics/729570/chapter-1-cover/',
+	[id => 'comic_image'],
+],
+RedMoonRising => [
+	'Red Moon Rising',
+	'http://www.redmoonrising.org/archive/red-moon-rising/',
+	[class => qr'webcomic-object-full'],
+],
+Anathema => [
+	'Anathema',
+	'http://www.drunkduck.com/Anathema/5078677/',
+	[id => 'comic'],
+],
+TheLockedMaze => [
+	'The Locked Maze',
+	'http://thelockedmaze.com/the-locked-maze',
+	[id => 'comic_img'],
+	next => [id => 'comic_link_next'],
+],
+SnowByNight => [
+	'Snow by Night',
+	'http://snowbynight.com/pages/ch1/pg1.html',
+	[id => 'storyContent'], [src => qr'pages/'],
+],
+planb => [
+	'plan b',
+	'http://www.planbwebcomic.com/archive/cover-4/',
+	[class => qr'webcomic-object-full']
+],
