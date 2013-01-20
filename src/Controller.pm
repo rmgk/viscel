@@ -84,7 +84,7 @@ sub start {
 	try {
 		while (!$TERM) {
 			$maintainer->maintain();
-			$accept->();
+			$accept->(1);
 		}
 	} catch {
 		when(/^terminate /) { };
