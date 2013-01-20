@@ -17,6 +17,8 @@ our $EXPORTDIR = './export/';
 our $USERDIR = './user/';
 our $UPDATEUNIVERSAL = undef;
 our $NOMAINTENANCE = 0;
+our $MAINTENANCETIMEOUT = 60;
+our $LONGMAINTENANCETIMEOUT = 3600;
 
 # ----- accessors --------------------
 
@@ -56,6 +58,14 @@ sub nomaintenance {
 	$NOMAINTENANCE = shift if @_;
 	return $NOMAINTENANCE;
 }
+sub maintenancetimeout {
+	$MAINTENANCETIMEOUT = shift if @_;
+	return $MAINTENANCETIMEOUT;
+}
+sub longmaintenancetimeout {
+	$LONGMAINTENANCETIMEOUT = shift if @_;
+	return $LONGMAINTENANCETIMEOUT;
+}
 
 # config array for getopt long
 sub getoptarray {
@@ -69,6 +79,8 @@ sub getoptarray {
 		"USERDIR=s" => \$USERDIR,
 		"UPDATEUNIVERSAL" => \$UPDATEUNIVERSAL,
 		"NOMAINTENANCE" => \$NOMAINTENANCE,
+		"MAINTENANCETIMEOUT=i" => \$MAINTENANCETIMEOUT,
+		"LONGMAINTENANCETIMEOUT=i" => \$LONGMAINTENANCETIMEOUT,
 	);
 }
 

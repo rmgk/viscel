@@ -65,13 +65,13 @@ sub start {
 		if (Server::accept($timeout,0.5)) { #some connection was accepted
 			$SIG{'INT'} = $INTS;
 			handle_hints();
-			$timeout = 60; #resetting timeout
+			$timeout = Globals::maintenancetimeout(); #resetting timeout
 			return 1;
 		}
 		else {
 			$SIG{'INT'} = $INTS;
 			if ($longwait) {
-				$timeout = 3600; #one hour timeout
+				$timeout = Globals::longmaintenancetimeout(); #one hour timeout
 
 			}
 			else {
