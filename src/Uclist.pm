@@ -1904,6 +1904,11 @@ MenageA3 => [
 	'http://www.menagea3.net/strips-ma3/room_for_two_more_(vol1)',
 	[src => qr'/comics/'],
 ],
+StickyDillyBuns => [
+	'Sticky Dilly Buns',
+	'http://www.stickydillybuns.com/strips-sdb/awesome_leading_man',
+	group('pixie'),
+],
 QuestionableContent => [
 	'Questionable Content',
 	'http://www.questionablecontent.net/view.php?comic=1',
@@ -3202,10 +3207,10 @@ Tamuran => [
 	'http://www.tamurancomic.com/?p=120',
 	[id => 'comic'],
 ],
-SuperNormalStep => [
-	'Super Normal Step',
-	'http://www.supernormalstep.com/1/',
-	[src => qr'strips'],
+SupernormalStep => [
+	'Supernormal Step',
+	'http://supernormalstep.com/?p=8',
+	[id => 'comic-1'],
 ],
 Otherworld => [
 	'Otherworld',
@@ -3817,8 +3822,8 @@ Erstwhile => [
 ],
 GuildedAge => [
 	'Guilded Age',
-	'http://guildedage.net/webcomic/chapter-1/chapter-1-cover/',
-	[id => 'comic-1'],
+	'http://guildedage.net/comic/chapter-1-cover/',
+	[id => 'comic'],
 ],
 Clockworks => [
 	'Clockworks',
