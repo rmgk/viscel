@@ -82,9 +82,9 @@ sub start {
 	};
 	my $maintainer = Maintenance->new($accept);
 	try {
-		$maintainer->maintain();
 		while (!$TERM) {
-			$accept->(1);
+			$maintainer->maintain();
+			$accept->();
 		}
 	} catch {
 		when(/^terminate /) { };
