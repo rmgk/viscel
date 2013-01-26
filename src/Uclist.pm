@@ -397,7 +397,7 @@ Untitled => [
 	'http://www.viruscomix.com/page199.html',
 	[_tag => 'img']
 ],
-Earthsong => [
+Earthsong => [ #changes page layout on http://www.earthsongsaga.com/vol4/vol4cover.php
 	'Earthsong Saga',
 	'http://www.earthsongsaga.com/vol1/vol1cover.html',
 	[colspan => 3],
