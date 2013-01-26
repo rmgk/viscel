@@ -2258,6 +2258,7 @@ Cortland => [
 	'Cortland',
 	'http://cortland.comicgenesis.com/d/20040320.html',
 	[class => 'comic'],
+	url_hack => sub { $_[0] =~ s'20041031'20041101'; $_[0] }
 ],
 PCWeenies => [
 	'PC Weenies',
@@ -2594,8 +2595,8 @@ Terra => [
 ],
 WintersInLavelle => [
 	'Winters in Lavelle',
-	'http://wintersinlavelle.com/?webcomic_post=2009-02-01',
-	[class => qr'webcomic-object-full'],
+	'http://wintersinlavelle.com/?id=1',
+	[id => 'comicimg'],
 ],
 EvilDiva => [
 	'Evil Diva',
