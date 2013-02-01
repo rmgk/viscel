@@ -1671,6 +1671,7 @@ GoGetARoomie => [
 	'Go Get A Roomie',
 	'http://www.gogetaroomie.com/index.php?id=1',
 	[id => 'comic'],
+	next => [rel => 'next', class => 'next']
 ],
 BattleSuitGirls => [
 	'Battle Suit Girls',
