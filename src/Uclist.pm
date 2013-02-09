@@ -3878,3 +3878,8 @@ planb => [
 	'http://www.planbwebcomic.com/archive/cover-4/',
 	[class => qr'webcomic-object-full']
 ],
+Goblins => [
+	'Goblins',
+	'http://www.goblinscomic.com/06262005/',
+	[id => 'comic'],
+],
