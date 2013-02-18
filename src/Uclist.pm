@@ -11,6 +11,9 @@ sub group {
 		when(['zoom', 'pixie']) {
 			return [id => 'comic'], [src => qr'/comics/'];
 		}
+		when('pigtailstudio') {
+			return [id => 'imageWrapper'];
+		}
 	}
 }
 
@@ -4005,3 +4008,35 @@ TrueMagic => [
 	'http://true-magic.com/view.php?id=1',
 	[id => 'CONTENT'],
 ],
+#pigtailstudio
+Ponzi => [
+	'Ponzi',
+	'http://www.pigtailstudio.com/news/projects/ponzi/01/',
+	group('pigtailstudio'),
+],
+Jupitan => [
+	'Jupitan',
+	'http://www.pigtailstudio.com/news/projects/jupitan/1/',
+	group('pigtailstudio'),
+],
+PigTales => [
+	'Pig Tales',
+	'http://www.pigtailstudio.com/news/projects/pigtales/1/',
+	group('pigtailstudio'),
+],
+Memoriam => [
+	'Memoriam',
+	'http://www.pigtailstudio.com/news/projects/memoriam/1/',
+	group('pigtailstudio'),
+],
+Reila => [
+	'Reila',
+	'http://www.pigtailstudio.com/news/projects/Reila/OneShot/',
+	group('pigtailstudio'),
+],
+IScream => [
+	'I Scream',
+	'http://www.pigtailstudio.com/news/projects/iscream/1/',
+	group('pigtailstudio'),
+],
+#pigtailstudio end
