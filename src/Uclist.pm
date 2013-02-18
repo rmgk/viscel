@@ -40,20 +40,15 @@ KhaosKomic => [
 	'http://www.khaoskomix.com/cgi-bin/comic.cgi?chp=1',
 	[id => 'currentcomic']
 ],
-Catalyst => [
-	'Catalyst',
-	'http://catalyst.spiderforest.com/comic.php?comic_id=0',
-	[src => qr/comics/]
-],
 EmergencyExit => [
 	'Emergency Exit',
 	'http://www.eecomics.net/?strip_id=0',
 	[src => qr'comics/\d{6}\.']
 ],
 Drowtales => [
-	'Drowtales',
-	'http://www.drowtales.com/mainarchive.php?order=chapters&id=0&overview=1&chibi=1&cover=1&extra=1&page=1&check=1',
-	[src => qr'mainarchive//']
+	'Drowtales Moonless Age',
+	'http://www.drowtales.com/mainarchive.php?sid=4192',
+	[alt => 'Manga'],
 ],
 HilarityComics => [
 	'Hilarity Comics',
@@ -3376,6 +3371,11 @@ MagickChicks => [
 	'http://www.magickchicks.com/strips-mc/tis_but_a_trifle',
 	group('pixie'),
 ],
+DangerouslyChloe => [
+	'Dangerously Chloe',
+	'http://www.dangerouslychloe.com/articles/strips-dc/chapter_1_-_that_damned_girl',
+	group('pixie'),
+],
 SailorCosmos => [
 	'Sailor Cosmos',
 	'http://comics.shouri.com.ar/sailorcosmos00.html',
@@ -3882,4 +3882,126 @@ Goblins => [
 	'Goblins',
 	'http://www.goblinscomic.com/06262005/',
 	[id => 'comic'],
+],
+AnimeNewsNina => [
+	'Anime News Nina!',
+	'http://www.animenewsnetwork.com/anime-news-nina/2007-10-24',
+	[class => 'KonaBody'],
+	url_hack => sub { $_[0] =~ s'thumbnails/max600x1000'images'; $_[0] }
+],
+AcademyVale => [
+	'Academy Vale',
+	'http://imagerie.com/vale/avarch.cgi?001',
+	[src => qr'avale\d{4}'],
+],
+Kaspall => [
+	'Kaspall',
+	'http://www.kaspall.com/comic/2004/08/12',
+	[src => qr'/comics/'],
+],
+FlakyPastry => [
+	'Flaky Pastry',
+	'http://flakypastry.runningwithpencils.com/comic.php?strip_id=0',
+	[src => qr'comics/'],
+],
+BoredEvil => [
+	'Bored and Evil',
+	'http://www.boredandevil.com/?date=2004-06-07',
+	[id => 'comic'],
+],
+TheEndOfThings => [
+	'The End of Things',
+	'http://endofthingscomic.com/?p=254',
+	[id => 'comic-1'],
+],
+Freefall => [
+	'Freefall',
+	'http://freefall.purrsia.com/ff100/fv00001.htm',
+	[src => qr'fv\d{5}\.'],
+],
+LavenderLegend => [
+	'Lavender Legend',
+	'http://lavenderlegend.com/?p=414',
+	[id => 'comic-1'],
+],
+Phineus => [
+	'Phineus',
+	'http://olddyingkitty.com/Phinmagic/?p=1900',
+	[id => 'comic-1'],
+],
+ThePath => [
+	'The Path',
+	'http://thepathcomic.olddyingkitty.com/?p=20',
+	[id => 'comic-1'],
+],
+BastardWho => [
+	'Bastard Who',
+	'http://olddyingkitty.com/BastardWho/?p=18',
+	[id => 'comic-1'],
+],
+WilliamFeist => [
+	'William Feist',
+	'http://olddyingkitty.com/William_Feist/?p=216',
+	[id => 'comic-1'],
+],
+TheErrantApprentice => [
+	'The Errant Apprentice',
+	'http://olddyingkitty.com/errant_apprentice/?p=8',
+	[id => 'comic-1'],
+],
+MacHall => [
+	'Mac Hall',
+	'http://www.machall.com/view.php?date=2000-11-07',
+	[src => qr'comics/\d{8}'],
+],
+Whomp => [
+	'Whomp!',
+	'http://www.whompcomic.com/2010/06/14/06142010/',
+	[id => 'comic-1'],
+],
+Nymph => [
+	'Nymph',
+	'http://fern.junglestudio.com/comics/nymph/index.html',
+	[src => qr'images/ny\d\d\.'],
+],
+OtherSoldiers => [
+	'Other Soldiers',
+	'http://iperyys.net/ssos/e1.html',
+	[src => qr'e?(c|\d+-)\d+\.\w{3,4}'],
+],
+Necropolis => [
+	'Necropolis',
+	'http://www.necropoliscomic.com/?p=31',
+	[id => 'comic'],
+],
+Fans => [
+	'Fans!',
+	'http://www.faans.com/books1-6/index.php?p=1',
+	[class => 'comicImage'],
+],
+Robomeks => [
+	'Robomeks',
+	'http://catolate.com/archive/chapter-1-cover/',
+	[class => qr'webcomic-object-full'],
+],
+Cracks => [
+	'Cracks',
+	'http://catolate.com/archive/teaser-01/',
+	[class => qr'webcomic-object-full'],
+],
+PlanetKaren => [
+	'Planet Karen',
+	'http://planetkaren.girl-wonder.org/index.php?strip_id=1',
+	[src => qr'/strips/\d{8}'],
+],
+Inhuman => [
+	'Inhuman',
+	'http://www.inhuman-comic.com/comic1.php',
+	[src => qr'manga\d+\.|cover\.'],
+	next => [src => 'potato.gif']
+],
+TrueMagic => [
+	'True Magic',
+	'http://true-magic.com/view.php?id=1',
+	[id => 'CONTENT'],
 ],
