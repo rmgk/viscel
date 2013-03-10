@@ -51,7 +51,7 @@ EmergencyExit => [
 Drowtales => [
 	'Drowtales Moonless Age',
 	'http://www.drowtales.com/mainarchive.php?sid=4192',
-	[alt => 'Manga'],
+	[id => 'content_middle'],
 ],
 HilarityComics => [
 	'Hilarity Comics',
@@ -1659,6 +1659,7 @@ SisterClaire => [
 	'Sister Claire',
 	'http://www.sisterclaire.com/index.php?id=1',
 	[id => 'comic'],
+	next => [class => "next", rel => "next"]
 ],
 Maliki => [
 	'Maliki',
@@ -4040,3 +4041,9 @@ IScream => [
 	group('pigtailstudio'),
 ],
 #pigtailstudio end
+OlympusOverdrive => [
+	'Olympus Overdrive',
+	'http://www.olympusoverdrive.com/index.php?id=14',
+	[id => 'comicbody'],
+	url_hack => sub { $_[0] =~ s'\.\./''; $_[0] }
+],
