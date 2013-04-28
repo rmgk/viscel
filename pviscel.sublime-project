@@ -1,0 +1,23 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"SublimeLinter":
+		{
+			"perl":
+			{
+				"working_directory": ".",
+
+				"lint_args":
+				[
+					"-Isrc"
+				]
+			}
+		}
+	}
+}

@@ -1,6 +1,9 @@
+*.sublime-workspace
+.codeintel
+.tags*
 cache
 data
-zeug
+error.txt
 export
 user
-error.txt
+zeug
