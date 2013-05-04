@@ -76,8 +76,14 @@ sub differs {
 	for my $a (attribute_list_array()) {
 		next if ($a eq 'sha1' or $a eq 'type')
 				and (!defined $s->{$a} or !defined $other->{$a}); #type and sha1 are not required so may also be not equal
-		unless ($s->{$a} ~~ $other->{$a}) {
-			Log->error($s->cid, ' missmatch ', $a, ': ', $s->{$a}, ' <=> ', $other->{$a});
+		my $aAttr = $s->{$a};
+		my $bAttr = $other->{$a};
+		if ($a eq 'page_url' or $a eq 'src') {
+			$aAttr =~ s#//www\.#//#;
+			$bAttr =~ s#//www\.#//#;
+		}
+		unless ($aAttr ~~ $bAttr) {
+			Log->error($s->cid, ' missmatch ', $a, ': ', $aAttr, ' <=> ', $bAttr);
 			return $a;
 		}
 	}
