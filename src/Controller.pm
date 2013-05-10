@@ -18,6 +18,7 @@ use UserPrefs;
 use Maintenance;
 use Data::Dumper;
 use Try::Tiny;
+use URI;
 
 my $HS; #hint state, caches the current read spot
 my @hint;
@@ -29,6 +30,9 @@ our $INTS = sub {
 };
 our $INTF = $SIG{'INT'};
 $SIG{'INT'} = $INTS;
+
+# this will reove leading .. in an url (so no http://blah/../meh)
+$URI::ABS_REMOTE_LEADING_DOTS = 1;
 
 
 #initialises the needed modules
