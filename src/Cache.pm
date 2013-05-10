@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/env perl
 #This program is free software. You may redistribute it under the terms of the Artistic License 2.0.
 package Cache v1.3.0;
 
