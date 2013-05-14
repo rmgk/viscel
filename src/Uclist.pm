@@ -2997,7 +2997,7 @@ RuneMaster => [
 ],
 SakanaNoSadness => [
 	'Sakana no Sadness',
-	'http://www.sakanacomic.com/page/ch1',
+	'http://old.sakanacomic.com/page/ch1',
 	[id => 'comic-inner'],
 ],
 SchoolSpirit => [
