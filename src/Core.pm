@@ -191,7 +191,7 @@ sub first {
 }
 
 #$class, $position, $state -> \%self
-#creates a new spot of $id at in state $state
+#creates a new spot of $id in state $state
 sub create {
 	my ($s,$pos,$state) = @_;
 	my $class = ref($s);

@@ -30,7 +30,7 @@ sub mount {
 	die ['mount failed', 'no state'] unless $s->{state};
 	Log->trace('mount ' . $s->{id} .' '. $s->{page_url});
 	my ($tree,$page) = DlUtil::get_tree($s->{page_url});
-	
+
 	unless ($s->_mount_parse($$tree)) {
 		Log->error("failed to parse page ". $s->{page_url});
 		$s->{fail} = 'mount parse returned failure';

@@ -2670,6 +2670,13 @@ WhatBirdsKnow => [
 	#'http://whatbirdsknow.atspace.com/wbk01.htm',
 	'http://fribergthorelli.com/wbk/index.php/page-1/',
 	[id => 'comic'],
+	custom_missmatch => sub {
+		my ($attr, $a, $b) = @_;
+		return unless $attr eq "src";
+		$a =~ s/.*Page(?:%20|,P20)(\d+).*/$1/;
+		$b =~ s/.*Page(?:%20|,P20)(\d+).*/$1/;
+		return $a ~~ $b;
+	}
 ],
 FragileGravity => [
 	'Fragile Gravity',

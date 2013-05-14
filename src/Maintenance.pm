@@ -159,7 +159,7 @@ sub update_collections {
 			if ($_ =~ /^terminate/) {
 				die $_;
 			}
-			Log->error('check collection failed', [$_]);
+			Log->error('check collection failed', $_);
 			adjust_time($c,$current,1.0);
 			return 0;
 		};

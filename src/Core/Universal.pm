@@ -39,7 +39,7 @@ sub _fetch_list {
 		push(@criteria,shift @l) while ref $l[0];
 		$list{'Universal_'.$id}->{criteria} = \@criteria;
 		while ($l[0]) {
-			given (shift @l) { 
+			given (shift @l) {
 				when ('next') {
 					my @next;
 					push(@next,shift @l) while ref $l[0];
@@ -47,6 +47,13 @@ sub _fetch_list {
 				}
 				when ('url_hack') {
 					$list{'Universal_'.$id}->{url_hack} = shift @l;
+				}
+				when ('custom_missmatch') {
+					$list{'Universal_'.$id}->{custom_missmatch} = shift @l;
+				}
+				default {
+					Log->error('illegal entry: ' . $_);
+					die "illegal entry: " . $_;
 				}
 			}
 		}
