@@ -48,8 +48,8 @@ sub _fetch_list {
 				when ('url_hack') {
 					$list{'Universal_'.$id}->{url_hack} = shift @l;
 				}
-				when ('custom_missmatch') {
-					$list{'Universal_'.$id}->{custom_missmatch} = shift @l;
+				when ('custom_match') {
+					$list{'Universal_'.$id}->{custom_match} = shift @l;
 				}
 				default {
 					Log->error('illegal entry: ' . $_);

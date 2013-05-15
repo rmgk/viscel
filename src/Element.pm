@@ -74,8 +74,7 @@ sub attribute_values_array {
 sub differs {
 	my ($s,$other) = @_;
 	my $remote = Cores::new($s->cid);
-	my $missmatch_handler = $remote->clist()->{'custom_missmatch'};
-	$l->error("inside missmatch of " . $s->cid . " missmatch handler is " . $missmatch_handler );
+	my $match_handler = $remote->clist()->{'custom_match'};
 	for my $a (attribute_list_array()) {
 		next if ($a eq 'sha1' or $a eq 'type')
 				and (!defined $s->{$a} or !defined $other->{$a}); #type and sha1 are not required so may also be not equal
@@ -86,7 +85,7 @@ sub differs {
 			$bAttr =~ s#//www\.#//#;
 		}
 		unless ($aAttr ~~ $bAttr) {
-			if ($missmatch_handler and $missmatch_handler->($a, $aAttr, $bAttr)) {
+			if ($match_handler and !$match_handler->($a, $aAttr, $bAttr)) {
 				Log->error($s->cid, ' missmatch ', $a, ': ', $aAttr, ' <=> ', $bAttr);
 				return $a;
 			}
