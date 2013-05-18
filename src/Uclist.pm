@@ -1710,8 +1710,8 @@ Annyseed => [
 ],
 PepperminntSaga => [
 	'Pepperminnt Saga',
-	'http://www.pepsaga.com/comics/10202007/',
-	[_tag => 'body'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'div'], [_tag => 'a'], [_tag => 'img']
+	'http://www.pepsaga.com/?p=3',
+	[q{//*[@id='comic-1']}]
 ],
 RadioactivePanda => [
 	'Radioactive Panda',
