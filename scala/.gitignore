@@ -1,3 +1,4 @@
+*.db
 *.sublime-workspace
 .cache
 .classpath
@@ -6,4 +7,5 @@
 .settings
 .tags*
 project
+spray
 target
