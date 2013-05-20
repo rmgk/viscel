@@ -1,0 +1,9 @@
+*.sublime-workspace
+.cache
+.classpath
+.ensime*
+.project
+.settings
+.tags*
+project
+target

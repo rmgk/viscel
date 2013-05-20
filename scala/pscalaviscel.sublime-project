@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"folder_exclude_patterns": [
+				"project",
+				"target"
+			]
+		},
+		{
+			"path": "./target/External Libraries"
+		}
+	]
+}
