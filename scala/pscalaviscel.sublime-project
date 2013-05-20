@@ -9,6 +9,12 @@
 		},
 		{
 			"path": "./target/External Libraries"
+		},
+		{
+			"path": "..",
+			"folder_exclude_patterns": [
+				"scala"
+			]
 		}
 	]
 }
