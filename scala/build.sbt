@@ -50,6 +50,8 @@ seq(SbtStartScript.startScriptForClassesSettings: _*)
 
 seq(com.github.retronym.SbtOneJar.oneJarSettings: _*)
 
+seq(Revolver.settings: _*)
+
 net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 
