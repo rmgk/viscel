@@ -1,4 +1,8 @@
+import com.typesafe.sbt.SbtStartScript
+
 name := "ScalaViscel"
+
+version := "5.0.0"
 
 scalaVersion := "2.10.1"
 
@@ -32,8 +36,26 @@ libraryDependencies ++= Seq(
 	"commons-lang" % "commons-lang" % "2.6"
 )
 
-seq(ProguardPlugin.proguardSettings :_*)
 
-proguardOptions += keepMain("Server")
+
+
+seq(SbtStartScript.startScriptForClassesSettings: _*)
 
 seq(com.github.retronym.SbtOneJar.oneJarSettings: _*)
+
+net.virtualvoid.sbt.graph.Plugin.graphSettings
+
+
+proguardSettings
+
+ProguardKeys.options in Proguard ++= Seq("-dontnote", "-dontwarn", "-ignorewarnings", "-dontobfuscate")
+
+ProguardKeys.options in Proguard += ProguardOptions.keepMain("Server")
+
+ProguardKeys.merge in Proguard := true
+
+ProguardKeys.mergeStrategies in Proguard += ProguardMerge.discard("META-INF/MANIFEST.MF")
+
+ProguardKeys.mergeStrategies in Proguard += ProguardMerge.discard("META-INF/.*".r)
+
+ProguardKeys.mergeStrategies in Proguard += ProguardMerge.append("reference.conf")
