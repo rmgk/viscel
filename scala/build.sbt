@@ -8,6 +8,14 @@ scalaVersion := "2.10.1"
 
 scalaSource in Compile <<= baseDirectory {(base) => new File(base, "src")}
 
+scalacOptions ++= List(
+	"-deprecation",
+	"-encoding", "UTF-8",
+	"-unchecked",
+	"-feature",
+	"-target:jvm-1.7"
+)
+
 resolvers ++= Seq(
 	"Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/",
 	"Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
@@ -35,7 +43,6 @@ libraryDependencies ++= Seq(
 	"com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
 	"commons-lang" % "commons-lang" % "2.6"
 )
-
 
 
 
