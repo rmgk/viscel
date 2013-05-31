@@ -1,20 +1,14 @@
 {
 	"folders": [
 		{
-			"path": ".",
 			"folder_exclude_patterns": [
 				"project",
 				"target"
-			]
+			],
+			"path": "."
 		},
 		{
-			"path": "./target/External Libraries"
-		},
-		{
-			"path": "..",
-			"folder_exclude_patterns": [
-				"scala"
-			]
+			"path": "target/External Libraries"
 		}
 	]
 }
