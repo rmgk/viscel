@@ -15,7 +15,6 @@
 
 # comics with multiple strips
 
-
 |       comic        |                                url                                 |
 |--------------------|--------------------------------------------------------------------|
 | AbsurdNotions      | <http://www.absurdnotions.org/page1.html>                          |
@@ -25,9 +24,9 @@
 | LovecraftIsMissing | <http://lovecraftismissing.com/?p=930>                             |
 | MarshRocket        | <http://www.marsh-rocket.com/Pages.aspx?Pg_ID=0>                   |
 | AngelMoxie         | <http://www.venisproductions.com/angelmoxie/archives/0/0/001.html> |
+| Spying with Lana   | <http://www.amazingartbros.com/Lana2>                              |
 
 # comics with other problems
-
 
 |    comic    |              problem               |                              url                              |
 |-------------|------------------------------------|---------------------------------------------------------------|
