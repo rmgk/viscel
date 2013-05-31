@@ -1,8 +1,6 @@
-import com.typesafe.sbt.SbtStartScript
-
 name := "ScalaViscel"
 
-version := "5.0.0"
+version := "5.0.0-α"
 
 scalaVersion := "2.10.1"
 
@@ -43,16 +41,6 @@ libraryDependencies ++= Seq(
 	"com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
 	"commons-lang" % "commons-lang" % "2.6"
 )
-
-
-
-seq(SbtStartScript.startScriptForClassesSettings: _*)
-
-seq(com.github.retronym.SbtOneJar.oneJarSettings: _*)
-
-seq(Revolver.settings: _*)
-
-net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 
 proguardSettings
