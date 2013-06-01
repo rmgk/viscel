@@ -39,7 +39,8 @@ libraryDependencies ++= Seq(
 	"org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1",
 	"com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2",
 	"com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
-	"commons-lang" % "commons-lang" % "2.6"
+	"commons-lang" % "commons-lang" % "2.6",
+	"net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5"
 )
 
 

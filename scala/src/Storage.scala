@@ -23,7 +23,7 @@ object Storage {
 	}
 
 	lazy val digester = MessageDigest.getInstance("SHA1")
-	def sha1hex(b: Array[Byte]) = (digester.digest(b) map {"%02X" format _}).mkString
+	def sha1hex(b: Array[Byte]): String = (digester.digest(b) map {"%02X" format _}).mkString
 
 
 	def put(els: Element*): Option[Int] = TableElements.insertAll(els: _*)
@@ -41,6 +41,15 @@ object Storage {
 		else None
 	}
 
+	object TableExperimental extends Table[(Int, String, String)]("Experimental") {
+		def position = column[Int]("position")
+		def state = column[String]("state")
+		def element = column[String]("element")
+
+		def elementFK = foreignKey("element_foreign", element, TableElements)(_.id)
+
+		def * = (position ~ state ~ element)
+	}
 
 	object TableElements extends Table[Element]("Elements") {
 		def blob = column[String]("blob")
