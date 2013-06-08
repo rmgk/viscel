@@ -40,7 +40,9 @@ libraryDependencies ++= Seq(
 	"com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2",
 	"com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
 	"commons-lang" % "commons-lang" % "2.6",
-	"net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5"
+	"net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5",
+	"com.typesafe" %% "scalalogging-slf4j" % "1.0.1",
+	"org.jsoup" % "jsoup" % "1.7.2"
 )
 
 
