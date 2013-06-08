@@ -50,6 +50,9 @@ trait DefaultRoutes extends HttpService {
 		} ~
 		pathPrefix("legacy" / Segment) {col =>
 			Legacy(col).route
+		} ~
+		pathPrefix("experiment") {
+			Viscel.cW.collection.route
 		}
 	}
 

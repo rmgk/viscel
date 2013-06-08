@@ -1,27 +1,44 @@
 package viscel.core
 
 import spray.client.pipelining._
-import org.htmlcleaner._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import spray.http.Uri
 import com.typesafe.scalalogging.slf4j.Logging
-import org.jsoup.nodes._
+import org.jsoup.nodes.Document
+import viscel.Element
 
 class Experimental extends Logging {
 
-	val first = Uri("http://carciphona.com/view.php?page=33&chapter=4&lang=")
-	lazy val cleaner = new HtmlCleaner();
-
+	val firstUri = "http://carciphona.com/view.php?page=cover&chapter=1&lang="
 	val extractImageUri = """[\w-]+:url\((.*)\)""".r
 
-	def mount(document: Document) = {
-		val linkarea = document.getElementById("link")
-		val extractImageUri(img) = linkarea.parent.attr("style")
-		val absimg = Uri.parseAndResolve(img, first)
-		val next = linkarea.getElementById("nextarea").attr("abs:href")
-		logger.info(s"img: $absimg, next: $next")
-		(next, absimg)
+	def first = new Seed(firstUri, 1)
+
+
+	class Sprout (document: Document, val seed: Seed) extends Logging {
+		val (nextUri, imgUri) = {
+			val linkarea = document.getElementById("link")
+			val extractImageUri(img) = linkarea.parent.attr("style")
+			val absimg = Uri.parseAndResolve(img, seed.uri)
+			val next = linkarea.getElementById("nextarea").attr("abs:href")
+			logger.debug(s"img: $absimg, next: $next")
+			(next, absimg)
+		}
+
+		val elements: Seq[Element] = for (img <- List(imgUri)) yield {
+			Element.fromData(blob = "invalid", mediatype = "invalid", origin = "unknown", source = img.toString)
+		}
+
+		val next: Seed = new Seed(nextUri, seed.pos + 1)
 	}
 
+	class Seed(val uri: String, val pos: Int) extends (Document => Sprout) {
+		def apply(doc: Document) = new Sprout(doc, this)
+	}
 }
+
+
+
+
+
