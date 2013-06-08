@@ -25,7 +25,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
 	"com.chuusai" %% "shapeless" % "1.2.4",
-	"com.typesafe.slick" %% "slick" % "1.0.0",
+	"com.typesafe.slick" %% "slick" % "1.0.1",
 	"org.xerial" % "sqlite-jdbc" % "3.7.2",
 	"org.slf4j" % "slf4j-simple" % "1.7.5",
 	"io.spray" % "spray-can" % "1.2-20130516",
