@@ -13,6 +13,7 @@
 | WLP              | <http://www.wlpcomics.com/adult/comics.html> |
 | Moderntales      | <http://www.moderntales.com/>                |
 | Comic Fury       | <http://comicfury.com/index.php>             |
+| Mangamagazine    | <http://www.mangamagazine.net/>              |
 
 
 # comics with multiple strips
