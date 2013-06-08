@@ -12,6 +12,8 @@
 | Rice Boy         | <http://www.rice-boy.com/>                   |
 | WLP              | <http://www.wlpcomics.com/adult/comics.html> |
 | Moderntales      | <http://www.moderntales.com/>                |
+| Comic Fury       | <http://comicfury.com/index.php>             |
+
 
 # comics with multiple strips
 
