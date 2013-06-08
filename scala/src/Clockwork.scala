@@ -6,7 +6,6 @@ import spray.can.Http
 import spray.client.pipelining._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import spray.client.pipelining._
 import org.htmlcleaner._
 import scala.concurrent._
 import scala.concurrent.duration._
@@ -17,12 +16,12 @@ import org.jsoup.Jsoup
 
 class Clockwork(val pipe: spray.client.SendReceive) extends Logging {
 
-	val cE = new core.Experimental
+	val cE = new core.Carciphona
 	val collection = new viscel.collection.Memory("Carciphona")
 
 	get(cE.first)
 
-	def get(seed: core.Experimental#Seed) {
+	def get(seed: core.Seed) {
 		logger.info(s"get ${seed.uri}")
 		val resf = pipe(Get(seed.uri))
 		resf.onFailure{case e => logger.error(s"failed to download ${seed.uri}: $e")}
@@ -33,9 +32,38 @@ class Clockwork(val pipe: spray.client.SendReceive) extends Logging {
 
 		sprout.onFailure{case e => logger.error(s"failed to download ${seed.uri}: $e")}
 
-		sprout.onSuccess{case sprout: cE.Sprout => get(sprout.next)}
-		sprout.onSuccess{case sprout: cE.Sprout => collection.store(sprout.seed.pos, sprout.elements.head)}
+		sprout.foreach{ sprout =>
+			sprout.elements.foreach{ getElement(_).foreach{el => collection.store(sprout.seed.pos, el)} }
 
+			get(sprout.next)
+		}
+		// sprout.onSuccess{case sprout: core.Sprout => collection.store(sprout.seed.pos, sprout.elements.head)}
+
+	}
+
+	def getElement(eseed: ElementSeed): Future[Element] = {
+		val inStore = Storage.find(eseed.source)
+		if (!inStore.isEmpty) {
+			logger.info(s"already has ${eseed.source}")
+			future { inStore.head }
+		}
+		else {
+			logger.info(s"get ${eseed.source}")
+			val resf = pipe(addHeader("referer", eseed.origin)(Get(eseed.source)))
+			resf.onFailure{case e => logger.error(s"failed to download ${eseed.source}: $e")}
+			val element = for {
+				res <- resf
+				spray.http.HttpBody(contentType, _) = res.entity
+				buffer = res.entity.buffer
+				sha1 = sha1hex(buffer)
+			} yield (contentType.value, buffer)
+			element.map{ case (ctype, buffer) =>
+				val sha1 = Storage.store(buffer)
+				val el = eseed(sha1, ctype)
+				Storage.put(el)
+				el
+			}
+		}
 	}
 
 }

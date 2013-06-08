@@ -15,7 +15,7 @@ trait OrderedDisplay extends Directives {
 					<ul>
 					{ (1 to last) map {pos =>
 						<li>
-						<a href={s"/legacy/$name/$pos"}>{pos.toString}</a>
+						<a href={s"/experiment/$name/$pos"}>{pos.toString}</a>
 						</li>
 					}}
 					</ul>
@@ -25,12 +25,12 @@ trait OrderedDisplay extends Directives {
 	)
 
 	def display(pos: Int) = {
-		assume(pos > 0)
+		val posOK = ( 0 < pos && pos <= last)
 		HttpResponse(
 			entity = HttpEntity(MediaTypes.`text/html`,
 				<html>
 					<body>
-						{ get(pos).display}
+						{ if (posOK) get(pos).display else ""}
 						<br/>
 						<a href={(pos-1).toString}>prev</a>
 						<a href=".">up</a>

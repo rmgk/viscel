@@ -17,10 +17,11 @@ import org.jsoup.Jsoup
 
 object Viscel extends App {
 
-	System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE");
+	System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "INFO");
 	System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_THREAD_NAME_KEY, "false");
 
 
+	Storage.init()
 	implicit val system = ActorSystem()
 
 	// create and start our service actor

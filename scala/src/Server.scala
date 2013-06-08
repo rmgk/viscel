@@ -25,7 +25,7 @@ trait DefaultRoutes extends HttpService {
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
 	implicit def executionContext = actorRefFactory.dispatcher
 
-	def hashToFilename(h: String): String = (new StringBuilder(h)).insert(2,'/').insert(0,"../../viscel/cache/").toString
+	def hashToFilename(h: String): String = s"../cache/$h"//(new StringBuilder(h)).insert(2,'/').insert(0,"../../viscel/cache/").toString
 
 	val blobs = new collection.Blobs
 
@@ -51,7 +51,7 @@ trait DefaultRoutes extends HttpService {
 		pathPrefix("legacy" / Segment) {col =>
 			Legacy(col).route
 		} ~
-		pathPrefix("experiment") {
+		pathPrefix("experiment"/ Segment) { col =>
 			Viscel.cW.collection.route
 		}
 	}

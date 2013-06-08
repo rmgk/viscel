@@ -3,6 +3,7 @@ package viscel
 import scala.slick.session.Database
 //import Database.threadLocalSession
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
+import scala.slick.jdbc.meta.MTable
 import Q.interpolation
 import scala.slick.driver.SQLiteDriver.simple._
 
@@ -17,17 +18,14 @@ object Storage {
 
 	val folder = Path.fromString("../cache").toRealPath()
 
-	def init {
-		TableElements.ddl.create
-		folder.createDirectory(createParents = false, failIfExists = true)
+	def init() {
+		if (!MTable.getTables.list.exists(_.name.name == TableElements.tableName))
+			TableElements.ddl.create
+		folder.createDirectory(createParents = false, failIfExists = false)
 	}
 
-	lazy val digester = MessageDigest.getInstance("SHA1")
-	def sha1hex(b: Array[Byte]): String = (digester.digest(b) map {"%02X" format _}).mkString
-
-
 	def put(els: Element*): Option[Int] = TableElements.insertAll(els: _*)
-	def get(id: String): Option[String] = TableElements.filter(_.id === id).map(_.id).firstOption
+	def get(id: String): Option[Element] = TableElements.filter(_.id === id).map(x => x).firstOption
 
 	def store(blob: Array[Byte]): String = {
 		val sha1 = sha1hex(blob)
@@ -40,6 +38,8 @@ object Storage {
 		if (path.exists) Some(path.byteArray)
 		else None
 	}
+
+	def find(src: String): IndexedSeq[Element] = TableElements.filter(_.source === src).map(x => x).list.toIndexedSeq
 
 	object TableExperimental extends Table[(Int, String, String)]("Experimental") {
 		def position = column[Int]("position")

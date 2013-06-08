@@ -9,16 +9,13 @@ case class Element(
 	mediatype: String,
 	source: String,
 	origin: String,
-	alt: Option[String],
-	title: Option[String],
-	width: Option[Int],
-	height: Option[Int]
+	alt: Option[String] = None,
+	title: Option[String] = None,
+	width: Option[Int] = None,
+	height: Option[Int] = None
 ) extends ElementDisplay
 
 object Element {
-
-	lazy val digester = MessageDigest.getInstance("SHA1")
-	def sha1hex(b: Array[Byte]) = (digester.digest(b) map {"%02X" format _}).mkString
 
 	def fromData(
 		blob: String,
@@ -34,4 +31,17 @@ object Element {
 		val id = sha1hex(idstring.getBytes("UTF8"))
 		Element(id = id, blob = blob, mediatype = mediatype, source = source, origin = origin, alt = alt, title = title, width = width, height = height)
 	}
+
+}
+
+class ElementSeed(
+	val source: String,
+	val origin: String,
+	val alt: Option[String] = None,
+	val title: Option[String] = None,
+	val width: Option[Int] = None,
+	val height: Option[Int] = None
+) extends ((String, String) => Element) {
+	def apply(blob: String, mediatype: String) =
+		Element.fromData(blob = blob, mediatype = mediatype, source = source, origin = origin, alt = alt, title = title, width = width, height = height)
 }
