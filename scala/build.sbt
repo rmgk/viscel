@@ -2,7 +2,7 @@ name := "ScalaViscel"
 
 version := "5.0.0-α"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2"
 
 scalaSource in Compile <<= baseDirectory {(base) => new File(base, "src")}
 
@@ -11,7 +11,8 @@ scalacOptions ++= List(
 	"-encoding", "UTF-8",
 	"-unchecked",
 	"-feature",
-	"-target:jvm-1.7"
+	"-target:jvm-1.7",
+	"-Xlint"
 )
 
 resolvers ++= Seq(
