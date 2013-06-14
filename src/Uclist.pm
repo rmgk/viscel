@@ -1711,7 +1711,7 @@ Annyseed => [
 PepperminntSaga => [
 	'Pepperminnt Saga',
 	'http://www.pepsaga.com/?p=3',
-	[q{//*[@id='comic-1']}]
+	[id => 'comic-1'],
 ],
 RadioactivePanda => [
 	'Radioactive Panda',
