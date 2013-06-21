@@ -72,12 +72,7 @@ sub _find {
 		return $tags;
 	}
 	for my $tag (@$tags) {
-		my $downtags = ( @{$c} == 1 ?
-			# single element means its an xpath query
-			$tag->findnodes($c->[0]) :
-			# multiple element uses normal look_down
-			[$tag->look_down(@{$c})]);
-		my $t = _find($downtags ,@_);
+		my $t = _find([$tag->look_down(@{$c})],@_);
 		return $t if @$t;
 	}
 	return [];

@@ -10,7 +10,7 @@ use Log;
 use LWP;
 use LWP::UserAgent;
 use LWP::ConnCache;
-use HTML::TreeBuilder::XPath;
+use HTML::TreeBuilder;
 use Encode;
 
 our $ua;
@@ -60,7 +60,7 @@ sub get_tree {
 		die ['get page', $page->code(), $page];
 	}
 	Log->trace('parse HTML into tree');
-	my $tree = HTML::TreeBuilder::XPath->new();
+	my $tree = HTML::TreeBuilder->new();
 	my $content = $page->decoded_content();
 	die ['decode page', $page] unless $content;
 	die ['generate tree', $page] unless $tree->parse_content($content);
@@ -86,11 +86,11 @@ package TreeKeeper v1.0.0;
 
 sub new {
 	my ($pkg,$tree) = @_;
-	return bless \$tree, $pkg;
+	return bless \$tree, $pkg;  
 }
 sub DESTROY {
 	my $self = shift;
-	$$self->delete();
+	$$self->delete(); 
 }
 
 

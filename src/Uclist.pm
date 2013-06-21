@@ -1711,7 +1711,7 @@ Annyseed => [
 PepperminntSaga => [
 	'Pepperminnt Saga',
 	'http://www.pepsaga.com/?p=3',
-	[q{//*[@id='comic-1']}]
+	[id => 'comic-1'],
 ],
 RadioactivePanda => [
 	'Radioactive Panda',
@@ -4053,4 +4053,19 @@ OlympusOverdrive => [
 	'http://www.olympusoverdrive.com/index.php?id=14',
 	[id => 'comicbody'],
 	url_hack => sub { $_[0] =~ s'\.\./''; $_[0] }
+],
+OhJoySexToy => [
+	'Oh Joy Sex Toy',
+	'http://www.ohjoysextoy.com/introduction/',
+	[id => 'comic-1'],
+],
+DAR => [
+	'DAR',
+	'http://www.darcomic.com/2004/01/01/whatthefuck/',
+	[id => 'comic-1'],
+],
+Bucko => [
+	'Bucko',
+	'http://www.buckocomic.com/2011/02/01/bucko01/',
+	[id => 'comic-1'],
 ],
