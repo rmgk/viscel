@@ -34,6 +34,8 @@ $SIG{'INT'} = $INTS;
 # this will reove leading .. in an url (so no http://blah/../meh)
 $URI::ABS_REMOTE_LEADING_DOTS = 1;
 
+# ignore pipe failures
+$SIG{'PIPE'} = sub { Log->trace("got PIPE!"); };
 
 #initialises the needed modules
 sub init {
