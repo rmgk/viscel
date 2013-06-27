@@ -4069,3 +4069,8 @@ Bucko => [
 	'http://www.buckocomic.com/2011/02/01/bucko01/',
 	[id => 'comic-1'],
 ],
+StarPower => [
+	'Star Power',
+	'http://www.starpowercomic.com/new-chapter/',
+	[id => 'comic-1'],
+],
