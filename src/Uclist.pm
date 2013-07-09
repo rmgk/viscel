@@ -1072,9 +1072,8 @@ Zap => [
 ],
 Yamara => [
 	'Yamara',
-	'http://www.yamara.com/yamaraclassic/index.php?date=2005-05-23',
-	[src => qr'(strips|war)/\d{4}-\d\d-\d\d'],
-	next => [title => qr'Next|On to The Working Title War!'],
+	'http://yamara.com/2005/05/23/heres-pun-in-your-eye/',
+	[id => 'comic'],
 ],
 TodayNothingHappened => [
 	'Dear Diary, Today Nothing Happened',
@@ -2862,7 +2861,7 @@ DoctorInsano => [
 DMFAAbel => [
 	'Dan and Mab’s Furry Adventures: Abel’s Story',
 	'http://www.missmab.com/Comics/Abel_01.php',
-	[src => qr'Abel'],
+	[src => qr'(Abel|Ab_\d{3})'],
 ],
 DandyAndCompany => [
 	'Dandy & Company',
@@ -4073,4 +4072,9 @@ StarPower => [
 	'Star Power',
 	'http://www.starpowercomic.com/new-chapter/',
 	[id => 'comic-1'],
+],
+DMFAMatilda => [
+	'Dan and Mab’s Furry Adventures: Matilda',
+	'http://www.missmab.com/Comics/Ma_001.php',
+	[src => qr'Mat_\d{3}'],
 ],
