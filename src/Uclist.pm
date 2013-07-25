@@ -4078,3 +4078,8 @@ DMFAMatilda => [
 	'http://www.missmab.com/Comics/Ma_001.php',
 	[src => qr'Mat_\d{3}'],
 ],
+SandraOnTheRocks => [
+	'Sandra on the Rocks',
+	'http://www.sandraontherocks.com/strips-sotr/start_by_running',
+	[id => 'comic'],
+],
