@@ -4083,3 +4083,13 @@ SandraOnTheRocks => [
 	'http://www.sandraontherocks.com/strips-sotr/start_by_running',
 	[id => 'comic'],
 ],
+Aura => [
+	'Aura',
+	'http://www.genkigirl.com/aura/?p=59',
+	[id => 'comic-1'],
+],
+OfWolvesAndMen => [
+	'Of Wolves and Men',
+	'http://www.genkigirl.com/wolvesandmen/?p=69',
+	[id => 'comic-1'],
+],
