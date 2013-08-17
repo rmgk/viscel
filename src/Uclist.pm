@@ -17,7 +17,6 @@ sub group {
 	}
 }
 
-return
 Zona => [
 	'The challenges of Zona',
 	'http://www.soulgeek.com/comics/zona/2005/08/01/page-01/',
@@ -2484,8 +2483,8 @@ CatAndGirl => [
 ],
 Bardsworth => [
 	'Bardsworth',
-	'http://www.bardsworth.com/archive.php?p=1',
-	[id => 'cg_img'],
+	'http://www.bardsworth.com/?p=750',
+	[id => 'comic-1'],
 ],
 SpikyHairedDragon => [
 	'Spiky-Haired Dragon, Worthless Knight',
