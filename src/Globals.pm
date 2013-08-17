@@ -10,7 +10,7 @@ use utf8;
 
 our $LOGLVL; #loglevel is set in log.pm
 our $FILELOG; #filelog is set in log.pm
-our $PORT = 80;
+our $PORT = 8080;
 our $CACHEDIR = './cache/';
 our $DATADIR = './data/';
 our $EXPORTDIR = './export/';

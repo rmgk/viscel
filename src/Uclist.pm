@@ -17,7 +17,6 @@ sub group {
 	}
 }
 
-return
 Zona => [
 	'The challenges of Zona',
 	'http://www.soulgeek.com/comics/zona/2005/08/01/page-01/',
@@ -1072,9 +1071,8 @@ Zap => [
 ],
 Yamara => [
 	'Yamara',
-	'http://www.yamara.com/yamaraclassic/index.php?date=2005-05-23',
-	[src => qr'(strips|war)/\d{4}-\d\d-\d\d'],
-	next => [title => qr'Next|On to The Working Title War!'],
+	'http://yamara.com/2005/05/23/heres-pun-in-your-eye/',
+	[id => 'comic'],
 ],
 TodayNothingHappened => [
 	'Dear Diary, Today Nothing Happened',
@@ -2485,8 +2483,8 @@ CatAndGirl => [
 ],
 Bardsworth => [
 	'Bardsworth',
-	'http://www.bardsworth.com/archive.php?p=1',
-	[id => 'cg_img'],
+	'http://www.bardsworth.com/?p=750',
+	[id => 'comic-1'],
 ],
 SpikyHairedDragon => [
 	'Spiky-Haired Dragon, Worthless Knight',
@@ -2862,7 +2860,7 @@ DoctorInsano => [
 DMFAAbel => [
 	'Dan and Mab’s Furry Adventures: Abel’s Story',
 	'http://www.missmab.com/Comics/Abel_01.php',
-	[src => qr'Abel'],
+	[src => qr'(Abel|Ab_\d{3})'],
 ],
 DandyAndCompany => [
 	'Dandy & Company',
@@ -4067,5 +4065,30 @@ DAR => [
 Bucko => [
 	'Bucko',
 	'http://www.buckocomic.com/2011/02/01/bucko01/',
+	[id => 'comic-1'],
+],
+StarPower => [
+	'Star Power',
+	'http://www.starpowercomic.com/new-chapter/',
+	[id => 'comic-1'],
+],
+DMFAMatilda => [
+	'Dan and Mab’s Furry Adventures: Matilda',
+	'http://www.missmab.com/Comics/Ma_001.php',
+	[src => qr'Mat_\d{3}'],
+],
+SandraOnTheRocks => [
+	'Sandra on the Rocks',
+	'http://www.sandraontherocks.com/strips-sotr/start_by_running',
+	[id => 'comic'],
+],
+Aura => [
+	'Aura',
+	'http://www.genkigirl.com/aura/?p=59',
+	[id => 'comic-1'],
+],
+OfWolvesAndMen => [
+	'Of Wolves and Men',
+	'http://www.genkigirl.com/wolvesandmen/?p=69',
 	[id => 'comic-1'],
 ],

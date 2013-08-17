@@ -98,7 +98,7 @@ sub _accept_requests {
 sub _handle_request {
 	my ($c,$r,$addr) = @_;
 	Log->debug("request: " , $r->method(), ' ', $r->url->as_string());
-	if ($addr ne '127.0.0.1') {
+	if ($addr ne '127.0.0.1' and $addr !~ m/^192\.168\.[\d\.]+$/) {
 		Log->error('non local address send 403: ', $addr,' ', $r-> method(), ' ', $r->url->as_string());
 		$c->send_response(HTTP::Response->new( 403, 'Forbidden',undef,'Forbidden'));
 		return;
