@@ -21,7 +21,7 @@ class Collection(val id: String) {
 
 	def last = Neo.execute("""
 		|start main = node({main})
-		|match (main) -[r:last]-> (page: Page)
+		|match (main) -[:last]-> (page: Page)
 		|return page
 		""",
 		"main" -> main
@@ -29,11 +29,22 @@ class Collection(val id: String) {
 
 	def first = Neo.execute("""
 		|start main = node({main})
-		|match (main) -[r:first]-> (page: Page)
+		|match (main) -[:first]-> (page: Page)
 		|return page
 		""",
 		"main" -> main
 		).columnAs[Node]("page").toList.headOption
+
+	def size = Neo.execute("""
+		|start main = node({main})
+		|match (main) -[first?:first]-> () -[r:next*]-> () <-[?:last]- (main)
+		|return case
+		|when first is null THEN 0
+		|else length(r) + 1
+		|end as length
+		""".stripMargin.trim,
+		"main" -> main
+		).columnAs[Long]("length").next
 
 	def add(element: Element, pred: Option[Node] = None) = Neo.tx { db =>
 		val node = db.createNode(labelPage)
@@ -77,4 +88,9 @@ object Collection {
 	}
 
 	def apply(id: String) = new Collection(id)
+
+	def list = Neo.execute("""
+		|match (col: Collection)
+		|return col.id
+		""").columnAs[String]("col.id").toList
 }

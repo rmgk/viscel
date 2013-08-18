@@ -5,6 +5,7 @@ import spray.routing.{HttpService, RequestContext}
 import spray.http.{MediaTypes, ContentType}
 import spray.routing.directives.ContentTypeResolver
 import viscel.collection.Legacy
+import viscel.display.FullList
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -49,6 +50,7 @@ trait DefaultRoutes extends HttpService {
 			val filename = hashToFilename(hash)
 			getFromFile(filename)
 		} ~
+		path("legacy"){complete(FullList())} ~
 		pathPrefix("legacy" / Segment) {col =>
 			Legacy(col).route
 		} //~

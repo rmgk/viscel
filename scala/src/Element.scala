@@ -2,6 +2,8 @@ package viscel
 
 import java.security.MessageDigest
 import viscel.display.ElementDisplay
+import org.neo4j.graphdb.Node
+import viscel.store.Neo
 
 case class Element(
 	blob: String,
@@ -24,6 +26,21 @@ case class Element(
 		title.map{"title" -> _} ++
 		width.map{"width" -> _} ++
 		height.map{"height" -> _}
+	}
+}
+
+object Element {
+	def fromNode(node: Node) = Neo.tx{ _ =>
+		Element(
+			blob = node.getProperty("blob").asInstanceOf[String],
+			mediatype = node.getProperty("mediatype").asInstanceOf[String],
+			source = node.getProperty("source").asInstanceOf[String],
+			origin = node.getProperty("origin").asInstanceOf[String],
+			alt = Option(node.getProperty("alt", null).asInstanceOf[String]),
+			title = Option(node.getProperty("title", null).asInstanceOf[String]),
+			width = Option(node.getProperty("width", null).asInstanceOf[Int]),
+			height = Option(node.getProperty("height", null).asInstanceOf[Int])
+		)
 	}
 }
 
