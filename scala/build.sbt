@@ -25,38 +25,25 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
 	"com.chuusai" %% "shapeless" % "1.2.4",
-	"com.typesafe.slick" %% "slick" % "1.0.1",
-	"org.xerial" % "sqlite-jdbc" % "3.7.2",
-	"org.slf4j" % "slf4j-simple" % "1.7.5",
-	"io.spray" % "spray-can" % "1.2-20130516",
-	"io.spray" % "spray-client" % "1.2-20130516",
-	"io.spray" % "spray-util" % "1.2-20130516",
-	"io.spray" % "spray-routing" % "1.2-20130516",
-	"io.spray" % "spray-httpx" % "1.2-20130516",
-	"io.spray" % "spray-caching" % "1.2-20130516",
-	"io.spray" % "spray-http" % "1.2-20130516",
-	"com.typesafe.akka" %% "akka-actor" % "2.2-M3",
-	"io.spray" %% "spray-json" % "1.2.4",
-	"org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1",
 	"com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2",
 	"com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
-	"commons-lang" % "commons-lang" % "2.6",
-	"net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5",
 	"com.typesafe" %% "scalalogging-slf4j" % "1.0.1",
-	"org.jsoup" % "jsoup" % "1.7.2"
+	"com.typesafe.akka" %% "akka-actor" % "2.2-M3",
+	"com.typesafe.slick" %% "slick" % "1.0.1",
+	"commons-lang" % "commons-lang" % "2.6",
+	"io.spray" % "spray-caching" % "1.2-20130516",
+	"io.spray" % "spray-can" % "1.2-20130516",
+	"io.spray" % "spray-client" % "1.2-20130516",
+	"io.spray" % "spray-http" % "1.2-20130516",
+	"io.spray" % "spray-httpx" % "1.2-20130516",
+	"io.spray" % "spray-routing" % "1.2-20130516",
+	"io.spray" % "spray-util" % "1.2-20130516",
+	"io.spray" %% "spray-json" % "1.2.4",
+	"net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5",
+	"org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1",
+	"org.jsoup" % "jsoup" % "1.7.2",
+	"org.neo4j" % "neo4j" % "2.0.0-M04",
+	"org.neo4j" % "neo4j-graphviz" % "2.0.0-M04",
+	"org.slf4j" % "slf4j-simple" % "1.7.5",
+	"org.xerial" % "sqlite-jdbc" % "3.7.2"
 )
-
-
-proguardSettings
-
-ProguardKeys.options in Proguard ++= Seq("-dontnote", "-dontwarn", "-ignorewarnings", "-dontobfuscate")
-
-ProguardKeys.options in Proguard += ProguardOptions.keepMain("Server")
-
-ProguardKeys.merge in Proguard := true
-
-ProguardKeys.mergeStrategies in Proguard += ProguardMerge.discard("META-INF/MANIFEST.MF")
-
-ProguardKeys.mergeStrategies in Proguard += ProguardMerge.discard("META-INF/.*".r)
-
-ProguardKeys.mergeStrategies in Proguard += ProguardMerge.append("reference.conf")
