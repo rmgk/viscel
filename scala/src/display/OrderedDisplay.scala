@@ -15,7 +15,7 @@ trait OrderedDisplay extends Directives {
 					<ul>
 					{ (1 to last) map {pos =>
 						<li>
-						<a href={s"/experiment/$name/$pos"}>{pos.toString}</a>
+						<a href={s"/legacy/$name/$pos"}>{pos.toString}</a>
 						</li>
 					}}
 					</ul>

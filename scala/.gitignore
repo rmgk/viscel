@@ -6,6 +6,7 @@
 .project
 .settings
 .tags*
+neoViscelStore
 project
 spray
 target

@@ -13,37 +13,58 @@ import scalax.io.Resource
 import scalax.file.Path
 
 import viscel.Element
+import viscel.store.Neo
+import org.neo4j.graphdb.Node
+
 
 class Legacy(val name: String) extends OrderedCollection {
 
-	val folder = Path.fromString("../../viscel/cache").toRealPath()
+	val collectionNode = {
+		Neo.execute("""
+			|match col: Collection
+			|where col.id = {name}
+			|return col
+			""".stripMargin.trim,
+			"name" -> name).next.apply("col").asInstanceOf[Node]
+	}
 
-	def last: Int = Legacy.last(name)
+	def last: Int = {
+		Neo.execute("""
+			|start col = node({id})
+			|match (col) -[r:page]-> (page: Page), (something)
+			|where not( (page) -[:next]-> (something) )
+			|return r.num
+			""".stripMargin.trim,
+			"id" -> collectionNode.getId
+			).next.apply("r.num").asInstanceOf[Int]
+	}
 
-	def get(pos: Int): Element = Legacy.get(name, pos)
+	def get(pos: Int): Element = {
+		val node = Neo.execute("""
+			|start col = node({id})
+			|match (col) -[r:page]-> (page: Page)
+			|where r.num = {pos}
+			|return page
+			""".stripMargin.trim,
+			"id" -> collectionNode.getId,
+			"pos" -> pos
+			).next.apply("page").asInstanceOf[Node]
+		Neo.tx{ _ =>
+			Element(
+				blob = node.getProperty("blob").asInstanceOf[String],
+				mediatype = node.getProperty("mediatype").asInstanceOf[String],
+				source = node.getProperty("source").asInstanceOf[String],
+				origin = node.getProperty("origin").asInstanceOf[String],
+				alt = Option(node.getProperty("alt", null).asInstanceOf[String]),
+				title = Option(node.getProperty("title", null).asInstanceOf[String]),
+				width = Option(node.getProperty("width", null).asInstanceOf[Int]),
+				height = Option(node.getProperty("height", null).asInstanceOf[Int])
+			)
+		}
+	}
 
 }
 
 object Legacy {
-	lazy val db = Database.forURL("jdbc:sqlite:collections.db", driver = "org.sqlite.JDBC")
-	lazy val session = db.createSession()
-
-	lazy val qcollections = sql"SELECT name FROM sqlite_master WHERE type='table'".as[String]
-
-	def list: IndexedSeq[String] = qcollections.elements()(session).toIndexedSeq
-
-	def apply(col: String): Legacy = new Legacy(col)
-
-	def last(col: String): Int = {
-		(Q[Int] + "SELECT MAX(position) FROM " + col).first()(session)
-	}
-
-	def get(col:String, pos: Int): Element = {
-		implicit val getElement = GetResult{r =>
-			Element.fromData(blob = r.<<, mediatype = r.<<, source = r.<<, origin = r.<<, alt = r.<<?, title = r.<<?, width = r.<<?, height = r.<<?)
-		}
-		val sel = Q[Element] + "SELECT sha1, type, src, page_url, alt, title, width, height FROM " + col + " WHERE position = " +? pos
-		sel.first()(session)
-	}
-
+	def apply(name: String) = new Legacy(name)
 }

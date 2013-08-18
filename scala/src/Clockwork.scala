@@ -14,7 +14,7 @@ import spray.http.Uri
 import com.typesafe.scalalogging.slf4j.Logging
 import org.jsoup.Jsoup
 
-class Clockwork(val pipe: spray.client.SendReceive) extends Logging {
+class Clockwork(val pipe: spray.client.pipelining.SendReceive) extends Logging {
 
 	val cE = new core.Carciphona
 	val collection = new viscel.collection.Memory("Carciphona")
@@ -41,29 +41,29 @@ class Clockwork(val pipe: spray.client.SendReceive) extends Logging {
 
 	}
 
-	def getElement(eseed: ElementSeed): Future[Element] = {
-		val inStore = Storage.find(eseed.source)
-		if (!inStore.isEmpty) {
-			logger.info(s"already has ${eseed.source}")
-			future { inStore.head }
-		}
-		else {
-			logger.info(s"get ${eseed.source}")
-			val resf = pipe(addHeader("referer", eseed.origin)(Get(eseed.source)))
-			resf.onFailure{case e => logger.error(s"failed to download ${eseed.source}: $e")}
-			val element = for {
-				res <- resf
-				spray.http.HttpBody(contentType, _) = res.entity
-				buffer = res.entity.buffer
-				sha1 = sha1hex(buffer)
-			} yield (contentType.value, buffer)
-			element.map{ case (ctype, buffer) =>
-				val sha1 = Storage.store(buffer)
-				val el = eseed(sha1, ctype)
-				Storage.put(el)
-				el
-			}
-		}
-	}
+	def getElement(eseed: ElementSeed): Future[Element] = ??? //{
+	// 	val inStore = Storage.find(eseed.source)
+	// 	if (!inStore.isEmpty) {
+	// 		logger.info(s"already has ${eseed.source}")
+	// 		future { inStore.head }
+	// 	}
+	// 	else {
+	// 		logger.info(s"get ${eseed.source}")
+	// 		val resf = pipe(addHeader("referer", eseed.origin)(Get(eseed.source)))
+	// 		resf.onFailure{case e => logger.error(s"failed to download ${eseed.source}: $e")}
+	// 		val element = for {
+	// 			res <- resf
+	// 			spray.http.HttpBody(contentType, _) = res.entity
+	// 			buffer = res.entity.buffer
+	// 			sha1 = sha1hex(buffer)
+	// 		} yield (contentType.value, buffer)
+	// 		element.map{ case (ctype, buffer) =>
+	// 			val sha1 = Storage.store(buffer)
+	// 			val el = eseed(sha1, ctype)
+	// 			Storage.put(el)
+	// 			el
+	// 		}
+	// 	}
+	// }
 
 }
