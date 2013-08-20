@@ -53,9 +53,10 @@ trait DefaultRoutes extends HttpService with Logging {
 			getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
 		} ~
 		pathPrefix("f" / Segment) {col =>
-			formFields('bookmark.?.as[Option[Int]]) { bm =>
+			formFields('bookmark.?.as[Option[Int]], 'submit.?.as[Option[String]]) { (bm, remove) =>
 				val cn = time(s"create collection node for $col"){CollectionNode(col)}
 				bm.foreach{cn.bookmark(_)}
+				remove.foreach{case "remove" => cn.bookmarkDelete(); case _ =>}
 				complete(time("total"){FrontPage(cn)})
 			}
 		} ~

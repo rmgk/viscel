@@ -51,6 +51,8 @@ trait HtmlPage extends Logging {
 	def link_node(en: Option[ElementNode], ts: STag*): STag = en.map{n => a.href(path_eid(n.id))(ts)}.getOrElse(ts)
 	// def link_node(en: Option[ElementNode], ts: STag*): STag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
 
+	def make_form(action: String, ts: STag*) = form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
+
 	def elemToImg(elem: Element) = img.src(path_blob(elem.blob)).cls("element").attr(Seq(
 			elem.width.map("width" -> _),
 			elem.height.map("height" -> _),
@@ -80,6 +82,8 @@ object IndexPage extends HtmlPage {
 
 class FrontPage(collection: CollectionNode) extends HtmlPage {
 	override def Title = collection.id
+	def bmRemoveForm(bm: ElementNode) = make_form(path_front(collection.id),
+		input.ctype("submit").name("submit").value("remove").cls("submit"))
 	def content = {
 		val bm = collection.bookmark
 		val bm1 = bm.flatMap{_.prev}
@@ -93,9 +97,12 @@ class FrontPage(collection: CollectionNode) extends HtmlPage {
 				" – ",
 				link_node(collection.first, "first"),
 				" ",
-				link_node(collection.bookmark, "bookmark"),
+				link_node(bm, "bookmark"),
 				" ",
-				link_node(collection.last, "last")),
+				link_node(collection.last, "last"),
+				" – ",
+				bm.map{bmRemoveForm(_)}.getOrElse("remove")
+				),
 			div.cls("content")(Seq(
 				bm2.map{e => link_node(Some(e), elemToImg(e.toElement))},
 				bm1.map{e => link_node(Some(e), elemToImg(e.toElement))},
@@ -111,7 +118,7 @@ class ViewPage(enode: ElementNode) extends HtmlPage {
 	val element = enode.toElement
 	val collection = enode.collection
 
-	override def Title = s"${enode.position} - ${collection.id}"
+	override def Title = s"${enode.position} – ${collection.id}"
 
 	def content = body.id("view")(
 		div.cls("content")(
@@ -123,7 +130,7 @@ class ViewPage(enode: ElementNode) extends HtmlPage {
 			" ",
 			link_front(collection.id, "front"),
 			" ",
-			form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(path_front(collection.id))(
+			make_form(path_front(collection.id),
 				input.ctype("hidden").name("bookmark").value(enode.position),
 				input.ctype("submit").name("submit").value("pause").cls("submit")),
 			" ",

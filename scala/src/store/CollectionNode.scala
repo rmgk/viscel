@@ -21,13 +21,13 @@ class CollectionNode(val self: Node) {
 	def size = Neo.txs{ last.map{_.self[Int]("position")}.getOrElse(0) }
 
 	def apply(pos: Int) = Neo.execute("""
-			|start self = node({self})
-			|match (self) <-[:parent]- (node)
-			|where node.position = {pos}
-			|return node limit 1
-			""",
-			"self" -> self,
-			"pos" -> pos).columnAs[Node]("node").toList.headOption.map{ElementNode(_)}
+		|start self = node({self})
+		|match (self) <-[:parent]- (node)
+		|where node.position = {pos}
+		|return node limit 1
+		""",
+		"self" -> self,
+		"pos" -> pos).columnAs[Node]("node").toList.headOption.map{ElementNode(_)}
 
 	def bookmark(pos: Int): Option[ElementNode] = apply(pos).map(bookmark(_))
 	def bookmark(en: ElementNode): ElementNode = Neo.txs{
@@ -35,6 +35,8 @@ class CollectionNode(val self: Node) {
 		self.createRelationshipTo(en.self, "bookmark")
 		en
 	}
+
+	def bookmarkDelete() = Neo.txs{ Option(self.getSingleRelationship("bookmark", Direction.OUTGOING)).foreach{_.delete} }
 
 	def unread = Neo.txs{	for (bm <- bookmark; l <- last) yield l.position - bm.position }
 
