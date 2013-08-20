@@ -30,4 +30,6 @@ object Neo {
 		}
 	}
 
+	def txs[R](f: => R): R = tx(db => f)
+
 }

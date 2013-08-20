@@ -35,7 +35,10 @@ object Viscel {
 			store.Neo.shutdown()
 		}
 
-		val server = system.actorOf(Props[Server], "viscel-server")
+		// store.Neo.execute("create index on :Collection(id)")
+		// store.Neo.execute("create index on :Element(position)")
+
+		val server = system.actorOf(Props[viscel.server.Server], "viscel-server")
 		ioHttp ! Http.Bind(server, interface = "0", port = 8080)
 	}
 

@@ -8,6 +8,8 @@ import com.typesafe.scalalogging.slf4j.Logging
 import scala.language.implicitConversions
 import viscel.Element
 import org.neo4j.graphdb.Node
+import viscel.time
+
 
 object LegacyAdapter {
 	lazy val db = Database.forURL("jdbc:sqlite:../data/collections.db", driver = "org.sqlite.JDBC")
@@ -29,41 +31,47 @@ object LegacyAdapter {
 
 object LegacyImporter extends Logging {
 
-	def main(args: Array[String]) = {
-		sys.addShutdownHook{
-			Neo.shutdown()
-		}
-		importAll()
-	}
-
-	def time[T](desc: String = "")(f: => T): T = {
-		val start = System.currentTimeMillis()
-		val res = f
-		logger.info(s"$desc took ${System.currentTimeMillis - start}ms")
-		res
-	}
+	// def main(args: Array[String]) = {
+	// 	sys.addShutdownHook{
+	// 		Neo.shutdown()
+	// 	}
+	// 	importAll()
+	// 	Neo.shutdown()
+	// }
 
 	def importAll() = {
+		Neo.execute("create index on :Collection(id)")
+		Neo.execute("create index on :Element(position)")
+
 		val collections = LegacyAdapter.list
 
 		time("everything") {
+			val bookmarks = getBookmarks
 			for (id <- collections) {
 				time("total") {
 					Neo.tx{ _ =>
 						logger.info(id)
-						val node = Collection.create(id)
-						fillCollection(Collection(id))
+						val node = CollectionNode.create(id)
+						val cn = CollectionNode(id)
+						fillCollection(cn)
+						bookmarks.get(id).foreach{cn.bookmark(_)}
 					}
 				}
 			}
 		}
 	}
 
-	def fillCollection(col: Collection) = {
+	def getBookmarks = {
+		val extract = """(?x) \s+ (\w+) = (\d+)""".r
+		scala.io.Source.fromFile("../user/user.ini").getLines
+			.collect{ case extract(id, pos) => id -> pos.toInt }.toMap
+	}
+
+	def fillCollection(col: CollectionNode) = {
 		val elts = time("load elements") {LegacyAdapter.getAll(col.id).toList}
 		logger.info(elts.size.toString)
 
-		def createLinkedElts(elts: List[Element], last: Node): Unit = elts match {
+		def createLinkedElts(elts: List[Element], last: ElementNode): Unit = elts match {
 			case head :: tail => createLinkedElts(tail, col.add(head, Some(last)))
 			case List() =>
 		}
