@@ -37,9 +37,5 @@ object ElementNode {
 	def apply(node: Node) = new ElementNode(node)
 	def apply(nodeId: Int) = new ElementNode(Neo.tx { _.getNodeById(nodeId) })
 
-	def create(element: Element) = Neo.tx { db =>
-		val node = db.createNode(labelElement)
-		element.toMap.foreach { case (k, v) => node.setProperty(k, v) }
-		ElementNode(node)
-	}
+	def create(element: Element) = ElementNode(Neo.create(labelElement, element.toMap.toSeq: _*))
 }

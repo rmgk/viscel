@@ -7,6 +7,17 @@ version := "5.0.0-α"
 
 scalaVersion := "2.10.2"
 
+initialCommands in console := """
+import com.typesafe.scalalogging.slf4j.Logging
+import org.neo4j.graphdb.DynamicLabel
+import org.neo4j.graphdb.DynamicRelationshipType
+import org.neo4j.graphdb.Label
+import org.neo4j.graphdb.Node
+import scala.collection.JavaConversions._
+import viscel.store._
+import viscel._
+"""
+
 scalaSource in Compile <<= baseDirectory {(base) => new File(base, "src")}
 
 scalacOptions ++= List(
@@ -22,6 +33,7 @@ scalariformSettings
 
 ScalariformKeys.preferences := FormattingPreferences()
   .setPreference(IndentWithTabs, true)
+  .setPreference(CompactControlReadability, true)
 
 resolvers ++= Seq(
 	"Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/",
@@ -33,6 +45,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
 	"com.chuusai" %% "shapeless" % "1.2.4",
+	"com.github.axel22" %% "scalameter" % "0.3",
 	"com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2",
 	"com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
 	"com.scalatags" %% "scalatags" % "0.1.4",

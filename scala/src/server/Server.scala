@@ -1,18 +1,19 @@
 package viscel.server
 
 import akka.actor.{ ActorSystem, Props, Actor }
-import spray.routing.{ HttpService, RequestContext }
-import spray.http.{ MediaTypes, ContentType }
-import spray.routing.directives.ContentTypeResolver
-import viscel.display._
+import com.typesafe.scalalogging.slf4j.Logging
 import java.io.File
+import scala.concurrent.future
+import scala.concurrent.Future
+import spray.http.{ MediaTypes, ContentType }
+import spray.routing.authentication._
+import spray.routing.directives.ContentTypeResolver
+import spray.routing.{ HttpService, RequestContext, Route }
+import viscel.display._
 import viscel.store.CollectionNode
 import viscel.store.ElementNode
+import viscel.store.UserNode
 import viscel.time
-import com.typesafe.scalalogging.slf4j.Logging
-import scala.concurrent.future
-import spray.routing.authentication._
-import scala.concurrent.Future
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -35,47 +36,65 @@ trait DefaultRoutes extends HttpService with Logging {
 
 	def hashToFilename(h: String): String = (new StringBuilder(h)).insert(2, '/').insert(0, "../cache/").toString
 
-	val defaultRoute = {
-		(path("") | path("index")) {
-			complete(time("total") { IndexPage() })
-		} ~
-			path("stop") {
-				complete {
-					spray.util.actorSystem.shutdown()
-					viscel.store.Neo.shutdown()
-					"shutdown"
-				}
-			} ~
-			path("css") {
-				getFromFile("../style.css")
-			} ~
-			path("b" / Segment) { hash =>
-				val filename = hashToFilename(hash)
-				getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
-			} ~
-			pathPrefix("f" / Segment) { col =>
-				formFields('bookmark.?.as[Option[Int]], 'submit.?.as[Option[String]]) { (bm, remove) =>
-					val cn = time(s"create collection node for $col") { CollectionNode(col) }
-					bm.foreach { cn.bookmark(_) }
-					remove.foreach { case "remove" => cn.bookmarkDelete(); case _ => }
-					complete(time("total") { FrontPage(cn) })
-				}
-			} ~
-			pathPrefix("v" / Segment / IntNumber) { (col, pos) =>
-				complete(time("total") { viewFallback(col, pos.toInt) })
-			} ~
-			pathPrefix("id" / IntNumber) { id =>
-				complete(time("total") { ViewPage(time(s"create element node for $id") { ElementNode(id) }) })
-			} ~
-			path("importLegacy") {
-				complete {
-					future { viscel.store.LegacyImporter.importAll() }
-					"will work on this"
+	val loginOrCreate = BasicAuth(UserPassAuthenticator[UserNode] {
+		case Some(UserPass(user, password)) =>
+			logger.trace(s"login: $user $password")
+			if (user.matches("\\w+")) {
+				Future.successful {
+					UserNode(user).orElse {
+						logger.warn("create new user $user $password")
+						Some(UserNode.create(user, password))
+					}.flatMap { un =>
+						if (un.password == password) Some(un)
+						else None
+					}
 				}
 			}
-	}
+			else { Future.successful(None) }
+		case None =>
+			Future.successful(None)
+	}, "Username is used to store configuration; Passwords are saved in plain text; User is created on first login")
 
-	def viewFallback(col: String, pos: Int) = time(s"create element node for $col $pos") { time(s"create collection node for $col") { CollectionNode(col) }(pos) }.map { ViewPage(_) }
-		.getOrElse(FrontPage(time(s"create collection node for $col") { CollectionNode(col) }))
+	val defaultRoute =
+		authenticate(loginOrCreate) { user =>
+			(path("") | path("index")) {
+				complete(IndexPage(user))
+			} ~
+				path("stop") {
+					complete {
+						spray.util.actorSystem.shutdown()
+						viscel.store.Neo.shutdown()
+						"shutdown"
+					}
+				} ~
+				path("css") {
+					getFromFile("../style.css")
+				} ~
+				path("b" / Segment) { hash =>
+					val filename = hashToFilename(hash)
+					getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
+				} ~
+				pathPrefix("f" / Segment) { col =>
+					rejectNone(CollectionNode(col)) { cn =>
+						formFields('bookmark.?.as[Option[Int]], 'submit.?.as[Option[String]]) { (bm, remove) =>
+							bm.foreach { cn.bookmark(_) }
+							remove.foreach { case "remove" => cn.bookmarkDelete(); case _ => }
+							complete(FrontPage(user, cn))
+						}
+					}
+				} ~
+				pathPrefix("v" / Segment / IntNumber) { (col, pos) =>
+					rejectNone(CollectionNode(col)) { cn =>
+						complete(viewFallback(user, cn, pos))
+					}
+				} ~
+				pathPrefix("id" / IntNumber) { id =>
+					complete(ViewPage(user, ElementNode(id)))
+				}
+		}
+
+	def rejectNone[T](opt: Option[T])(route: T => Route) = opt.map { route(_) }.getOrElse(reject)
+
+	def viewFallback(user: UserNode, cn: CollectionNode, pos: Int) = cn(pos).map { ViewPage(user, _) }.getOrElse { FrontPage(user, cn) }
 
 }

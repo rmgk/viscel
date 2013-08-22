@@ -5,6 +5,7 @@ import scala.language.implicitConversions
 import org.neo4j.graphdb.DynamicLabel
 import org.neo4j.graphdb.DynamicRelationshipType
 import org.neo4j.graphdb.Node
+import org.neo4j.graphdb.Label
 import org.neo4j.graphdb.Relationship
 import org.neo4j.graphdb.Direction
 
@@ -12,6 +13,7 @@ package object store {
 
 	val labelCollection = DynamicLabel.label("Collection")
 	val labelElement = DynamicLabel.label("Element")
+	val labelUser = DynamicLabel.label("User")
 
 	implicit def stringToRelationshipType(name: String) = DynamicRelationshipType.withName(name)
 
@@ -28,4 +30,5 @@ package object store {
 		def get[T](key: String) = Option(rel.getProperty(key, null).asInstanceOf[T])
 		// def get[T](key: String, default: T) = rel.getProperty(key, default).asInstanceOf[T]
 	}
+
 }

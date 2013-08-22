@@ -50,8 +50,7 @@ object LegacyImporter extends Logging {
 				time("total") {
 					Neo.tx { _ =>
 						logger.info(id)
-						val node = CollectionNode.create(id)
-						val cn = CollectionNode(id)
+						val cn = CollectionNode.create(id)
 						fillCollection(cn)
 						bookmarks.get(id).foreach { cn.bookmark(_) }
 					}

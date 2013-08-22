@@ -40,6 +40,13 @@ class CollectionNode(val self: Node) {
 
 	def unread = Neo.txs { for (bm <- bookmark; l <- last) yield l.position - bm.position }
 
+	override def equals(other: Any) = other match {
+		case o: CollectionNode => self == o.self
+		case _ => false
+	}
+
+	override def toString = id
+
 	def add(element: Element, pred: Option[ElementNode] = None) = Neo.txs { append(ElementNode.create(element), pred) }
 
 	def append(elementNode: ElementNode, pred: Option[ElementNode] = None) = Neo.tx { db =>
@@ -62,15 +69,10 @@ class CollectionNode(val self: Node) {
 }
 
 object CollectionNode {
-	def create(id: String, name: Option[String] = None) = Neo.tx { db =>
-		val node = db.createNode(labelCollection)
-		node.setProperty("id", id)
-		name.foreach(node.setProperty("name", _))
-		node
-	}
-
-	def apply(id: String) = new CollectionNode(Neo.tx { _.findNodesByLabelAndProperty(labelCollection, "id", id).toList.head })
 	def apply(node: Node) = new CollectionNode(node)
+	def apply(id: String) = Neo.node(labelCollection, "id", id).map { new CollectionNode(_) }
+
+	def create(id: String, name: Option[String] = None) = CollectionNode(Neo.create(labelCollection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
 
 	def list = Neo.execute("""
 		|match (col: Collection)

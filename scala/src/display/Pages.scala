@@ -1,14 +1,15 @@
 package viscel.display
 
-import scalatags._
-import spray.http.{ HttpResponse, HttpEntity, MediaTypes, ContentType, HttpCharsets }
-import viscel.store.ElementNode
-import viscel.Element
-import viscel.store.CollectionNode
+import com.typesafe.scalalogging.slf4j.Logging
 import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.NodeSeq
-import com.typesafe.scalalogging.slf4j.Logging
+import scalatags._
+import spray.http.{ HttpResponse, HttpEntity, MediaTypes, ContentType, HttpCharsets }
+import viscel.Element
+import viscel.store.CollectionNode
+import viscel.store.ElementNode
+import viscel.store.UserNode
 import viscel.time
 
 object MinimizeXML {
@@ -20,9 +21,7 @@ object MinimizeXML {
 
 trait HtmlPage extends Logging {
 
-	def apply() = response
-
-	def response = {
+	def response: HttpResponse = {
 		val html = time("generate html") { fullHtml.toXML }
 		val min = time("hack minimization") { MinimizeXML(html) }
 		val body = time("generating string") { "<!DOCTYPE html>" + min.toString }
@@ -61,7 +60,7 @@ trait HtmlPage extends Logging {
 
 }
 
-object IndexPage extends HtmlPage {
+class IndexPage(user: UserNode) extends HtmlPage {
 	override def Title = "Index"
 
 	def content = {
@@ -83,7 +82,11 @@ object IndexPage extends HtmlPage {
 	def makeGroup(name: String, entries: Seq[STag]) = fieldset.cls("group")(legend(name), entries.flatMap { e => Seq(e, br) })
 }
 
-class FrontPage(collection: CollectionNode) extends HtmlPage {
+object IndexPage {
+	def apply(user: UserNode) = new IndexPage(user).response
+}
+
+class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
 	override def Title = collection.id
 	def bmRemoveForm(bm: ElementNode) = make_form(path_front(collection.id),
 		input.ctype("submit").name("submit").value("remove").cls("submit"))
@@ -113,10 +116,10 @@ class FrontPage(collection: CollectionNode) extends HtmlPage {
 }
 
 object FrontPage {
-	def apply(collection: CollectionNode) = new FrontPage(collection).response
+	def apply(user: UserNode, collection: CollectionNode) = new FrontPage(user, collection).response
 }
 
-class ViewPage(enode: ElementNode) extends HtmlPage {
+class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 	val element = enode.toElement
 	val collection = enode.collection
 
@@ -145,5 +148,5 @@ class ViewPage(enode: ElementNode) extends HtmlPage {
 // <input type="submit" name="submit" value="pause" class="submit"/>
 
 object ViewPage {
-	def apply(enode: ElementNode) = new ViewPage(enode).response
+	def apply(user: UserNode, enode: ElementNode): HttpResponse = new ViewPage(user, enode).response
 }
