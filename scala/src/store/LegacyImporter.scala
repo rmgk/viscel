@@ -1,7 +1,7 @@
 package viscel.store
 
 import scala.slick.session.Database
-import scala.slick.jdbc.{GetResult, StaticQuery => Q}
+import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
 import Q.interpolation
 import scala.slick.driver.SQLiteDriver.simple._
 import com.typesafe.scalalogging.slf4j.Logging
@@ -9,7 +9,6 @@ import scala.language.implicitConversions
 import viscel.Element
 import org.neo4j.graphdb.Node
 import viscel.time
-
 
 object LegacyAdapter {
 	lazy val db = Database.forURL("jdbc:sqlite:../data/collections.db", driver = "org.sqlite.JDBC")
@@ -19,8 +18,8 @@ object LegacyAdapter {
 
 	def list: IndexedSeq[String] = qcollections.elements()(session).toIndexedSeq
 
-	def getAll(col:String): Seq[Element] = {
-		implicit val getConversionElement = GetResult{r =>
+	def getAll(col: String): Seq[Element] = {
+		implicit val getConversionElement = GetResult { r =>
 			Element(blob = r.<<, mediatype = r.<<, source = r.<<, origin = r.<<, alt = r.<<?, title = r.<<?, width = r.<<?, height = r.<<?)
 		}
 		val sel = Q[Element] + "SELECT sha1, type, src, page_url, alt, title, width, height FROM " + col + " ORDER BY position ASC"
@@ -49,12 +48,12 @@ object LegacyImporter extends Logging {
 			val bookmarks = getBookmarks
 			for (id <- collections) {
 				time("total") {
-					Neo.tx{ _ =>
+					Neo.tx { _ =>
 						logger.info(id)
 						val node = CollectionNode.create(id)
 						val cn = CollectionNode(id)
 						fillCollection(cn)
-						bookmarks.get(id).foreach{cn.bookmark(_)}
+						bookmarks.get(id).foreach { cn.bookmark(_) }
 					}
 				}
 			}
@@ -64,11 +63,11 @@ object LegacyImporter extends Logging {
 	def getBookmarks = {
 		val extract = """(?x) \s+ (\w+) = (\d+)""".r
 		scala.io.Source.fromFile("../user/user.ini").getLines
-			.collect{ case extract(id, pos) => id -> pos.toInt }.toMap
+			.collect { case extract(id, pos) => id -> pos.toInt }.toMap
 	}
 
 	def fillCollection(col: CollectionNode) = {
-		val elts = time("load elements") {LegacyAdapter.getAll(col.id).toList}
+		val elts = time("load elements") { LegacyAdapter.getAll(col.id).toList }
 		logger.info(elts.size.toString)
 
 		def createLinkedElts(elts: List[Element], last: ElementNode): Unit = elts match {

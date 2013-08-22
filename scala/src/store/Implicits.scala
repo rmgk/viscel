@@ -10,16 +10,16 @@ import org.neo4j.graphdb.Direction
 
 package object store {
 
-	val labelCollection = DynamicLabel.label( "Collection" )
-	val labelElement = DynamicLabel.label( "Element" )
+	val labelCollection = DynamicLabel.label("Collection")
+	val labelElement = DynamicLabel.label("Element")
 
 	implicit def stringToRelationshipType(name: String) = DynamicRelationshipType.withName(name)
 
 	implicit class NodeOps(node: Node) {
 		def apply[T](key: String) = node.getProperty(key).asInstanceOf[T]
 		def get[T](key: String) = Option(node.getProperty(key, null).asInstanceOf[T])
-		def to(rel: String) = Option(node.getSingleRelationship(rel, Direction.OUTGOING)).map{_.getEndNode}
-		def from(rel: String) = Option(node.getSingleRelationship(rel, Direction.INCOMING)).map{_.getStartNode}
+		def to(rel: String) = Option(node.getSingleRelationship(rel, Direction.OUTGOING)).map { _.getEndNode }
+		def from(rel: String) = Option(node.getSingleRelationship(rel, Direction.INCOMING)).map { _.getStartNode }
 		// def get[T](key: String, default: T) = node.getProperty(key, default).asInstanceOf[T]
 	}
 

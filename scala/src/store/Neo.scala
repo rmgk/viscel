@@ -9,8 +9,8 @@ import org.neo4j.graphdb.GraphDatabaseService
 import org.neo4j.graphdb.Node
 
 object Neo {
-	val db = new GraphDatabaseFactory().newEmbeddedDatabase( "neoViscelStore" )
-	val ee = new ExecutionEngine( db )
+	val db = new GraphDatabaseFactory().newEmbeddedDatabase("neoViscelStore")
+	val ee = new ExecutionEngine(db)
 
 	def execute(query: String, args: Tuple2[String, Any]*) = ee.execute(query.stripMargin.trim, args.toMap[String, Any])
 
@@ -24,8 +24,7 @@ object Neo {
 			val res = f(db)
 			tx.success
 			res
-		}
-		finally {
+		} finally {
 			tx.finish
 		}
 	}

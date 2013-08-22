@@ -12,18 +12,17 @@ case class Element(
 	alt: Option[String] = None,
 	title: Option[String] = None,
 	width: Option[Int] = None,
-	height: Option[Int] = None
-) {
+	height: Option[Int] = None) {
+
 	def toMap = {
 		Map(
-				"blob" -> blob,
-				"mediatype" -> mediatype,
-				"source" -> source,
-				"origin" -> origin
-		) ++
-		alt.map{"alt" -> _} ++
-		title.map{"title" -> _} ++
-		width.map{"width" -> _} ++
-		height.map{"height" -> _}
+			"blob" -> blob,
+			"mediatype" -> mediatype,
+			"source" -> source,
+			"origin" -> origin) ++
+			alt.map { "alt" -> _ } ++
+			title.map { "title" -> _ } ++
+			width.map { "width" -> _ } ++
+			height.map { "height" -> _ }
 	}
 }

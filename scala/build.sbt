@@ -1,3 +1,6 @@
+import scalariform.formatter.preferences._
+import com.typesafe.sbt.SbtScalariform._
+
 name := "ScalaViscel"
 
 version := "5.0.0-α"
@@ -14,6 +17,11 @@ scalacOptions ++= List(
 	"-target:jvm-1.7",
 	"-Xlint"
 )
+
+scalariformSettings
+
+ScalariformKeys.preferences := FormattingPreferences()
+  .setPreference(IndentWithTabs, true)
 
 resolvers ++= Seq(
 	"Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/",
