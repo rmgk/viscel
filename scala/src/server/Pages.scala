@@ -1,4 +1,4 @@
-package viscel.display
+package viscel.server
 
 import com.typesafe.scalalogging.slf4j.Logging
 import scala.xml.Elem
@@ -10,6 +10,7 @@ import viscel.Element
 import viscel.store.CollectionNode
 import viscel.store.Collections
 import viscel.store.ElementNode
+import viscel.store.Neo
 import viscel.store.UserNode
 import viscel.time
 
@@ -96,8 +97,8 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
 				bm.map { e => link_node(Some(e), elemToImg(e.toElement)) }).flatten[STag]))
 	}
 
-	override def navPrev = bm2.orElse(bm1).map { en => path_nid(en.nid) }
-	override def navNext = bm.map { en => path_nid(en.nid) }
+	override def navPrev = bm2.orElse(bm1).orElse(collection.first).map { en => path_nid(en.nid) }
+	override def navNext = bm.orElse(collection.last).map { en => path_nid(en.nid) }
 	override def navUp = Some(path_main)
 }
 
@@ -145,7 +146,7 @@ trait HtmlPage extends Logging {
 
 	// implicit def optionSTag(x: Option[STag]) = SeqSTag(x.toSeq)
 
-	def response: HttpResponse = time("generate response") {
+	def response: HttpResponse = time(s"create response $Title") {
 		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
 			"<!DOCTYPE html>" + fullHtml.toXML.toString))
 	}

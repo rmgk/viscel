@@ -1,3 +1,5 @@
+// package viscel.tools
+
 // import org.scalameter.api._
 // import scala.concurrent.ExecutionContext.Implicits.global
 // import scala.concurrent.future
@@ -7,16 +9,21 @@
 
 // 	val un = UserNode("ragnar").get
 
-// 	val cols = Gen.enumeration("c")(CollectionNode.list: _*)
+// 	val cols = Gen.enumeration("c")(Neo.txs { Collections.list.toIndexedSeq }: _*)
 
 // 	measure method "bookmarks" config (
 // 		exec.benchRuns -> 1) in {
-// 			using(cols) in { un.bookmark(_) }
+// 			using(cols) in { un.getBookmark(_) }
 // 		}
 
 // 	measure method "bookmarks no tx" config (
 // 		exec.benchRuns -> 1) in {
-// 			using(cols) in { un.bookmarkntx(_) }
+// 			using(cols) in { un.getBookmark(_) }
+// 		}
+
+// 	measure method "collection get first by number" config (
+// 		exec.benchRuns -> 1) in {
+// 			using(cols) in { _(1) }
 // 		}
 
 // }

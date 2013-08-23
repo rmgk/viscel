@@ -4,24 +4,22 @@ import akka.actor.{ ActorSystem, Props, Actor }
 import akka.io.IO
 import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.Logging
-import org.htmlcleaner._
 import org.jsoup.Jsoup
+import org.rogach.scallop._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ ExecutionContext, Future }
 import spray.can.Http
 import spray.client.pipelining._
 import spray.http.Uri
+import java.io.File
+import viscel.store._
 
 import spray.io.ServerSSLEngineProvider
 import java.security.{ SecureRandom, KeyStore }
 import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
 object Viscel {
-
-	implicit val system = ActorSystem()
-
-	val ioHttp = IO(Http)
 
 	// val pipe = {
 	// 	implicit val timeout: Timeout = 30.seconds
@@ -52,22 +50,61 @@ object Viscel {
 	}
 
 	def main(args: Array[String]) {
-		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "INFO")
+
+		val conf = new Conf(args)
+
+		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, conf.loglevel())
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_THREAD_NAME_KEY, "false")
 
-		sys.addShutdownHook {
-			system.shutdown()
-			store.Neo.shutdown()
+		sys.addShutdownHook { Neo.shutdown() }
+
+		if (conf.dbwarmup()) time("warmup db") { Neo.txs {} }
+
+		if (conf.createIndexes()) {
+			Neo.execute("create index on :Collection(id)")
+			Neo.execute("create index on :Element(position)")
+			Neo.execute("create index on :User(name)")
 		}
 
-		time("warmup db") { store.Neo.txs {} }
+		conf.importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir).importAll)
 
-		// store.Neo.execute("create index on :Collection(id)")
-		// store.Neo.execute("create index on :Element(position)")
-		// store.Neo.execute("create index on :User(name)")
+		for {
+			userdir <- conf.importbookmarks.get
+			uname <- conf.username.get
+			un <- UserNode(uname)
+		} yield { tools.BookmarkImporter(un, userdir) }
 
-		val server = system.actorOf(Props[viscel.server.Server], "viscel-server")
-		ioHttp ! Http.Bind(server, interface = "0", port = 8080)
+		if (conf.server()) {
+			implicit val system = ActorSystem()
+			val ioHttp = IO(Http)
+			val server = system.actorOf(Props[viscel.server.Server], "viscel-server")
+			ioHttp ! Http.Bind(server, interface = "0", port = conf.port())
+		}
+
+		if (conf.dbshutdown()) Neo.shutdown
 	}
 
+}
+
+class Conf(arguments: Seq[String]) extends ScallopConf(arguments) {
+	version("viscel 5")
+	banner("")
+	val loglevel = opt[String](default = Option("INFO"), descr = "set the default loglevel")
+	val port = opt[Int](default = Some(8080), descr = "server listening port")
+	val server = toggle(default = Some(true), descrYes = "start the server")
+	val dbwarmup = toggle(default = Some(true), descrYes = "do database warmup")
+	val dbshutdown = toggle(default = Some(false), descrYes = "shut the database down when main finishes")
+	val importdb = opt[String](descr = "path to collections.db")
+	val importbookmarks = opt[String](descr = "path to user.ini")
+	val createIndexes = opt[Boolean](descr = "create neo4j indexes")
+	val username = opt[String](descr = "username to work with")
+
+	dependsOnAny(importbookmarks, List(username))
+
+	errorMessageHandler = { message =>
+		printHelp
+		println()
+		println(s"Error: $message")
+		sys.exit(1)
+	}
 }

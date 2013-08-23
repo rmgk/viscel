@@ -9,7 +9,6 @@ import spray.http.{ MediaTypes, ContentType }
 import spray.routing.authentication._
 import spray.routing.directives.ContentTypeResolver
 import spray.routing.{ HttpService, RequestContext, Route }
-import viscel.display._
 import viscel.store.CollectionNode
 import viscel.store.ElementNode
 import viscel.store.UserNode

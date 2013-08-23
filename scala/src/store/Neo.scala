@@ -9,6 +9,7 @@ import org.neo4j.graphdb.GraphDatabaseService
 import org.neo4j.graphdb.Label
 import org.neo4j.graphdb.Node
 import scala.collection.JavaConversions._
+import viscel.time
 
 object Neo {
 	val db = new GraphDatabaseFactory().newEmbeddedDatabase("neoViscelStore")
@@ -46,6 +47,10 @@ object Neo {
 		}
 	}
 
+	def txt[R](desc: String)(f: GraphDatabaseService => R): R = time(desc) { tx(f) }
+
 	def txs[R](f: => R): R = tx(_ => f)
+
+	def txts[R](desc: String)(f: => R): R = txt(desc)(_ => f)
 
 }

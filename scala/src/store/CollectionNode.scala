@@ -20,14 +20,17 @@ class CollectionNode(val self: Node) {
 
 	def size = Neo.txs { last.map { _.self[Int]("position") }.getOrElse(0) }
 
-	def apply(pos: Int) = Neo.execute("""
-		|start self = node({self})
-		|match (self) <-[:parent]- (node)
-		|where node.position = {pos}
-		|return node limit 1
-		""",
-		"self" -> self,
-		"pos" -> pos).columnAs[Node]("node").toList.headOption.map { ElementNode(_) }
+	def apply(pos: Int) = Neo.txs {
+		self.getRelationships(Direction.INCOMING, "parent").map { r => ElementNode { r.getStartNode } }.find { _.position == pos }
+	}
+	// Neo.execute("""
+	// |start self = node({self})
+	// |match (self) <-[:parent]- (node)
+	// |where node.position = {pos}
+	// |return node limit 1
+	// """,
+	// "self" -> self,
+	// "pos" -> pos).columnAs[Node]("node").toList.headOption.map { ElementNode(_) }
 
 	override def equals(other: Any) = other match {
 		case o: CollectionNode => self == o.self

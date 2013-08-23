@@ -1,17 +1,18 @@
-package viscel.store
+package viscel.tools
 
-import scala.slick.session.Database
-import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
-import Q.interpolation
-import scala.slick.driver.SQLiteDriver.simple._
 import com.typesafe.scalalogging.slf4j.Logging
-import scala.language.implicitConversions
-import viscel.Element
 import org.neo4j.graphdb.Node
+import scala.language.implicitConversions
+import scala.slick.driver.SQLiteDriver.simple._
+import scala.slick.jdbc.StaticQuery.interpolation
+import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
+import scala.slick.session.Database
+import viscel.Element
+import viscel.store._
 import viscel.time
 
-object LegacyAdapter {
-	lazy val db = Database.forURL("jdbc:sqlite:../data/collections.db", driver = "org.sqlite.JDBC")
+class LegacyAdapter(dbdir: String) {
+	lazy val db = Database.forURL(s"jdbc:sqlite:$dbdir", driver = "org.sqlite.JDBC")
 	lazy val session = db.createSession()
 
 	lazy val qcollections = sql"SELECT name FROM sqlite_master WHERE type='table'".as[String]
@@ -28,23 +29,13 @@ object LegacyAdapter {
 
 }
 
-object LegacyImporter extends Logging {
+class LegacyImporter(dbdir: String) extends Logging {
 
-	// def main(args: Array[String]) = {
-	// 	sys.addShutdownHook{
-	// 		Neo.shutdown()
-	// 	}
-	// 	importAll()
-	// 	Neo.shutdown()
-	// }
+	val legacyAdapter = new LegacyAdapter(dbdir)
 
 	def importAll() = {
-		Neo.execute("create index on :Collection(id)")
-		Neo.execute("create index on :Element(position)")
-
-		val collections = LegacyAdapter.list
-
 		time("everything") {
+			val collections = legacyAdapter.list
 			// val bookmarks = getBookmarks
 			for (id <- collections) {
 				time("total") {
@@ -56,17 +47,12 @@ object LegacyImporter extends Logging {
 					}
 				}
 			}
+			legacyAdapter.session.close()
 		}
 	}
 
-	// def getBookmarks = {
-	// 	val extract = """(?x) \s+ (\w+) = (\d+)""".r
-	// 	scala.io.Source.fromFile("../user/user.ini").getLines
-	// 		.collect { case extract(id, pos) => id -> pos.toInt }.toMap
-	// }
-
 	def fillCollection(col: CollectionNode) = {
-		val elts = time("load elements") { LegacyAdapter.getAll(col.id).toList }
+		val elts = time("load elements") { legacyAdapter.getAll(col.id).toList }
 		logger.info(elts.size.toString)
 
 		def createLinkedElts(elts: List[Element], last: ElementNode): Unit = elts match {
@@ -80,5 +66,22 @@ object LegacyImporter extends Logging {
 				createLinkedElts(elts.tail, first)
 			}
 		}
+	}
+}
+
+object BookmarkImporter extends Logging {
+	def apply(user: UserNode, bmdir: String) = {
+		val extract = """(?x) \s+ (\w+) = (\d+)""".r
+		scala.io.Source.fromFile(bmdir).getLines
+			.collect { case extract(id, pos) => id -> pos.toInt }.foreach {
+				case (id, pos) =>
+					CollectionNode(id).map { cn =>
+						cn(pos).map { en =>
+							logger.info(s"$id: $pos")
+							user.setBookmark(en)
+						}.getOrElse { logger.warn("$id has no element $pos") }
+					}.getOrElse { logger.warn(s"unknown id $id") }
+			}
+
 	}
 }

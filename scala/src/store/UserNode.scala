@@ -2,16 +2,17 @@ package viscel.store
 
 import com.typesafe.scalalogging.slf4j.Logging
 import org.neo4j.cypher.ExecutionEngine
+import org.neo4j.graphdb.Direction
 import org.neo4j.graphdb.DynamicLabel
 import org.neo4j.graphdb.DynamicRelationshipType
 import org.neo4j.graphdb.Node
-import org.neo4j.graphdb.Direction
 import scala.collection.JavaConversions._
 import scala.language.implicitConversions
-import viscel.Element
 import util.Try
+import viscel.Element
+import viscel.time
 
-class UserNode(val self: Node) {
+class UserNode(val self: Node) extends Logging {
 	def nid = Neo.txs { self.getId }
 	def name = Neo.txs { self[String]("name") }
 	def password = Neo.txs { self[String]("password") }
@@ -19,14 +20,8 @@ class UserNode(val self: Node) {
 	def getBookmark(cn: CollectionNode) = Neo.txs { bookmarks.find(_.collection == cn) }
 
 	//def bookmark(pos: Int): Option[ElementNode] = apply(pos).map(bookmark(_))
-	def setBookmark(en: ElementNode) = Neo.txs {
-		Neo.execute("""
-			|start user = node({self}), en = node({en})
-			|match (user) -[bm :bookmark]-> () -[:parent]-> (col) <-[:parent]- (en)
-			|delete bm
-			|""",
-			"self" -> self,
-			"en" -> en.self)
+	def setBookmark(en: ElementNode) = Neo.txts(s"create bookmark ${en.collection.id}:${en.position} for ${name}") {
+		deleteBookmark(en.collection)
 		self.createRelationshipTo(en.self, "bookmark")
 	}
 
@@ -34,10 +29,10 @@ class UserNode(val self: Node) {
 		self.getRelationships(Direction.OUTGOING, "bookmark").map { r => ElementNode { r.getEndNode } }
 	}
 
-	def deleteBookmark(cn: CollectionNode) = Neo.txs {
+	def deleteBookmark(cn: CollectionNode) = Neo.txts(s"delete bookmark ${cn.id} for ${name}") {
 		for {
 			en <- getBookmark(cn)
-			rel <- Option(self.getSingleRelationship("bookmark", Direction.INCOMING))
+			rel <- en.self.getRelationships("bookmark", Direction.INCOMING)
 		} rel.delete
 	}
 
