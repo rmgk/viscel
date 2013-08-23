@@ -13,5 +13,26 @@ import viscel.Element
 import viscel.time
 
 object Collections {
-	def list = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(labelCollection).toStream }
+	def list = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(labelCollection).toStream.map { CollectionNode(_) } }
+	def search(query: String) = time("search") {
+		val lcql = query.toLowerCase.replaceAll("""\s+""", "").toList
+		Neo.txs {
+			list.map { cn => cn -> fuzzyMatch(lcql, cn.id.toLowerCase.toList) }
+				.filter { _._2 > 0 }
+				.sortBy { _._2 }
+				.map { _._1 }
+				.toIndexedSeq
+		}
+	}
+
+	def fuzzyMatch(query: List[Char], text: List[Char], score: Long = 0, bestScore: Long = 0, block: Boolean = false): Long = query match {
+		case Nil => bestScore + score * score
+		case q :: qs => text match {
+			case Nil => 0
+			case t :: ts =>
+				if (t == q) fuzzyMatch(qs, ts, score + 1, bestScore, true)
+				else fuzzyMatch(query, ts, 0, score * score + bestScore, false)
+		}
+	}
+
 }

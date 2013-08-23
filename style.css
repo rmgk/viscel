@@ -104,6 +104,10 @@ fieldset.info {
 	padding: 1.2em 3em 2em 3em;
 }
 
+.info input {
+	width: 100%;
+}
+
 #front .content {
 	text-align:left;
 	margin: 2cm 1cm;

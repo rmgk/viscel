@@ -76,7 +76,7 @@ trait DefaultRoutes extends HttpService with Logging {
 					val filename = hashToFilename(hash)
 					getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
 				} ~
-				pathPrefix("f" / Segment) { col =>
+				path("f" / Segment) { col =>
 					rejectNone(CollectionNode(col)) { cn =>
 						formFields('bookmark.?.as[Option[Long]], 'submit.?.as[Option[String]]) { (bm, remove) =>
 							bm.foreach { bid => user.setBookmark(ElementNode(bid)) }
@@ -85,13 +85,16 @@ trait DefaultRoutes extends HttpService with Logging {
 						}
 					}
 				} ~
-				pathPrefix("v" / Segment / IntNumber) { (col, pos) =>
+				path("v" / Segment / IntNumber) { (col, pos) =>
 					rejectNone(CollectionNode(col)) { cn =>
 						complete(viewFallback(user, cn, pos))
 					}
 				} ~
-				pathPrefix("id" / IntNumber) { id =>
+				path("id" / IntNumber) { id =>
 					complete(ViewPage(user, ElementNode(id)))
+				} ~
+				(path("s") & parameter('q)) { query =>
+					complete(SearchPage(user, query))
 				}
 		}
 

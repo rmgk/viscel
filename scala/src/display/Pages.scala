@@ -8,6 +8,7 @@ import scalatags._
 import spray.http.{ HttpResponse, HttpEntity, MediaTypes, ContentType, HttpCharsets }
 import viscel.Element
 import viscel.store.CollectionNode
+import viscel.store.Collections
 import viscel.store.ElementNode
 import viscel.store.UserNode
 import viscel.time
@@ -48,7 +49,10 @@ trait HtmlPage extends Logging {
 	def link_node(en: Option[ElementNode], ts: STag*): STag = en.map { n => a.href(path_eid(n.nid))(ts) }.getOrElse(ts)
 	// def link_node(en: Option[ElementNode], ts: STag*): STag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
 
-	def make_form(action: String, ts: STag*) = form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
+	def form_post(action: String, ts: STag*) = form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
+	def form_get(action: String, ts: STag*) = form.attr("method" -> "get", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
+
+	def searchForm(init: String) = form_get(path_search, input.ctype("textfield").name("q").value(init))
 
 	def elemToImg(elem: Element) = img.src(path_blob(elem.blob)).cls("element").attr(Seq(
 		elem.width.map("width" -> _),
@@ -68,9 +72,9 @@ class IndexPage(user: UserNode) extends HtmlPage {
 		val currentTags = current.sortBy { _._1 }.map { case (id, unread) => link_front(id, s"$id") }
 
 		body.id("index")(
-			makeFieldset("Search", Seq("todo")).cls("info"),
+			makeFieldset("Search", Seq(searchForm(""))).cls("info"),
 			makeFieldset("New Pages", unreadTags).cls("group"),
-			makeFieldset("Bookmarked", currentTags).cls("group"))
+			makeFieldset("Bookmarks", currentTags).cls("group"))
 	}
 
 	def makeFieldset(name: String, entries: Seq[STag]) = fieldset(legend(name), entries.flatMap { e => Seq(e, br) })
@@ -80,9 +84,33 @@ object IndexPage {
 	def apply(user: UserNode) = new IndexPage(user).response
 }
 
+class SearchPage(user: UserNode, text: String) extends HtmlPage {
+	override def Title = "Search"
+
+	def content = {
+
+		val containing = Collections.search(text)
+			.map { cn => link_front(cn.id, cn.id) }
+
+		body.id("search")(
+			makeFieldset("Search", Seq(searchForm(text))).cls("info"),
+			div.cls("navigation")(
+				link_main("index")),
+			makeFieldset(text, containing).cls("group"))
+	}
+
+	def searchForm = form_get(path_search, input.ctype("textfield").name("q"))
+
+	def makeFieldset(name: String, entries: Seq[STag]) = fieldset(legend(name), entries.flatMap { e => Seq(e, br) })
+}
+
+object SearchPage {
+	def apply(user: UserNode, text: String) = new SearchPage(user, text).response
+}
+
 class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
 	override def Title = collection.id
-	def bmRemoveForm(bm: ElementNode) = make_form(path_front(collection.id),
+	def bmRemoveForm(bm: ElementNode) = form_post(path_front(collection.id),
 		input.ctype("submit").name("submit").value("remove").cls("submit"))
 	def content = {
 		val bm = user.getBookmark(collection)
@@ -129,7 +157,7 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 		" ",
 		link_front(collection.id, "front"),
 		" ",
-		make_form(path_front(collection.id),
+		form_post(path_front(collection.id),
 			input.ctype("hidden").name("bookmark").value(enode.nid),
 			input.ctype("submit").name("submit").value("pause").cls("submit")),
 		" ",
