@@ -20,48 +20,6 @@ object MinimizeXML {
 	}
 }
 
-trait HtmlPage extends Logging {
-
-	def response: HttpResponse = time("generate response") {
-		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
-			"<!DOCTYPE html>" + fullHtml.toXML.toString))
-	}
-
-	def fullHtml = html(header, content)
-
-	def header = head(stylesheet(path_css), title(Title))
-
-	def Title = "Viscel"
-
-	def content: STag
-
-	def path_main = "/index"
-	def path_css = "/css"
-	def path_front(id: String) = s"/f/$id"
-	def path_view(id: String, pos: Int) = s"/v/$id/$pos"
-	def path_search = "/s";
-	def path_blob(id: String) = s"/b/$id"
-	def path_nid(id: Long) = s"/id/$id"
-
-	def link_main(ts: STag*) = a.href(path_main)(ts)
-	def link_front(id: String, ts: STag*) = a.href(path_front(id))(ts)
-	def link_view(id: String, pos: Int, ts: STag*) = a.href(path_view(id, pos))(ts)
-	def link_node(en: Option[ElementNode], ts: STag*): STag = en.map { n => a.href(path_nid(n.nid))(ts) }.getOrElse(ts)
-	// def link_node(en: Option[ElementNode], ts: STag*): STag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
-
-	def form_post(action: String, ts: STag*) = form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
-	def form_get(action: String, ts: STag*) = form.attr("method" -> "get", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
-
-	def searchForm(init: String) = form_get(path_search, input.ctype("textfield").name("q").value(init))
-
-	def elemToImg(elem: Element) = img.src(path_blob(elem.blob)).cls("element").attr(Seq(
-		elem.width.map("width" -> _),
-		elem.height.map("height" -> _),
-		elem.alt.map("alt" -> _),
-		elem.title.map("title" -> _)).flatten: _*)
-
-}
-
 class IndexPage(user: UserNode) extends HtmlPage {
 	override def Title = "Index"
 
@@ -110,12 +68,14 @@ object SearchPage {
 
 class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
 	override def Title = collection.id
+
+	val bm = user.getBookmark(collection)
+	val bm1 = bm.flatMap { _.prev }
+	val bm2 = bm1.flatMap { _.prev }
+
 	def bmRemoveForm(bm: ElementNode) = form_post(path_front(collection.id),
 		input.ctype("submit").name("submit").value("remove").cls("submit"))
 	def content = {
-		val bm = user.getBookmark(collection)
-		val bm1 = bm.flatMap { _.prev }
-		val bm2 = bm1.flatMap { _.prev }
 		body.id("front")(
 			div.cls("info")(
 				table(tbody(tr(td("id"), td(collection.id)),
@@ -135,6 +95,10 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
 				bm1.map { e => link_node(Some(e), elemToImg(e.toElement)) },
 				bm.map { e => link_node(Some(e), elemToImg(e.toElement)) }).flatten[STag]))
 	}
+
+	override def navPrev = bm2.orElse(bm1).map { en => path_nid(en.nid) }
+	override def navNext = bm.map { en => path_nid(en.nid) }
+	override def navUp = Some(path_main)
 }
 
 object FrontPage {
@@ -148,28 +112,11 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 
 	override def Title = s"${enode.position} – ${cid}"
 
-	override def header = {
-		val prev = enode.prev.map { en => path_nid(en.nid) }
-		val next = enode.next.map { en => path_nid(en.nid) }
-		def keypress(location: String, keyCodes: Int*) = s"""
-			|if (${keyCodes.map { c => s"ev.keyCode == $c" }.mkString(" || ")}) {
-			|	ev.preventDefault();
-			|	document.location.pathname = "${location}";
-			|	return false;
-			|}
-			""".stripMargin
-		def keyNavigation = s"""
-			|document.onkeydown = function(ev) {
-			|	if (!ev.ctrlKey && !ev.altKey) {
-			|${prev.map { loc => keypress(loc, 37, 65) }.getOrElse("")}
-			|${next.map { loc => keypress(loc, 39, 68) }.getOrElse("")}
-			| }
-			|}
-			""".stripMargin
-		super.header(
-			script(s"window.history.replaceState('param one?','param two?','${path_view(cid, enode.position)}')"),
-			script(scala.xml.Unparsed(keyNavigation)))
-	}
+	override def maskLocation = Some(path_view(cid, enode.position))
+
+	override def navPrev = enode.prev.map { en => path_nid(en.nid) }
+	override def navNext = enode.next.map { en => path_nid(en.nid) }
+	override def navUp = Some(path_front(cid))
 
 	def content = body.id("view")(
 		div.cls("content")(
@@ -190,9 +137,79 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 		link_node(enode.next, "next"))
 }
 
-// <input type="hidden" name="bookmark" value="518"/>
-// <input type="submit" name="submit" value="pause" class="submit"/>
-
 object ViewPage {
 	def apply(user: UserNode, enode: ElementNode): HttpResponse = new ViewPage(user, enode).response
+}
+
+trait HtmlPage extends Logging {
+
+	// implicit def optionSTag(x: Option[STag]) = SeqSTag(x.toSeq)
+
+	def response: HttpResponse = time("generate response") {
+		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
+			"<!DOCTYPE html>" + fullHtml.toXML.toString))
+	}
+
+	def fullHtml = html(header, content)
+
+	def header = head(
+		stylesheet(path_css),
+		title(Title),
+		maskLocation.map { loc => script(s"window.history.replaceState('param one?','param two?','${loc}')") }.toSeq,
+		script(scala.xml.Unparsed(keyNavigation(up = navUp, down = navDown, prev = navPrev, next = navNext))))
+
+	def navUp: Option[String] = None
+	def navNext: Option[String] = None
+	def navPrev: Option[String] = None
+	def navDown: Option[String] = None
+
+	def maskLocation: Option[String] = None
+
+	def Title = "Viscel"
+
+	def content: STag
+
+	def path_main = "/index"
+	def path_css = "/css"
+	def path_front(id: String) = s"/f/$id"
+	def path_view(id: String, pos: Int) = s"/v/$id/$pos"
+	def path_search = "/s";
+	def path_blob(id: String) = s"/b/$id"
+	def path_nid(id: Long) = s"/id/$id"
+
+	def link_main(ts: STag*) = a.href(path_main)(ts)
+	def link_front(id: String, ts: STag*) = a.href(path_front(id))(ts)
+	def link_view(id: String, pos: Int, ts: STag*) = a.href(path_view(id, pos))(ts)
+	def link_node(en: Option[ElementNode], ts: STag*): STag = en.map { n => a.href(path_nid(n.nid))(ts) }.getOrElse(ts)
+	// def link_node(en: Option[ElementNode], ts: STag*): STag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
+
+	def form_post(action: String, ts: STag*) = form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
+	def form_get(action: String, ts: STag*) = form.attr("method" -> "get", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
+
+	def searchForm(init: String) = form_get(path_search, input.ctype("textfield").name("q").value(init))
+
+	def elemToImg(elem: Element) = img.src(path_blob(elem.blob)).cls("element").attr(Seq(
+		elem.width.map("width" -> _),
+		elem.height.map("height" -> _),
+		elem.alt.map("alt" -> _),
+		elem.title.map("title" -> _)).flatten: _*)
+
+	def keypress(location: String, keyCodes: Int*) = s"""
+			|if (${keyCodes.map { c => s"ev.keyCode == $c" }.mkString(" || ")}) {
+			|	ev.preventDefault();
+			|	document.location.pathname = "${location}";
+			|	return false;
+			|}
+			""".stripMargin
+	def keyNavigation(prev: Option[String] = None, next: Option[String] = None, up: Option[String] = None, down: Option[String] = None) = s"""
+			|document.onkeydown = function(ev) {
+			|	if (!ev.ctrlKey && !ev.altKey) {
+			|${prev.map { loc => keypress(loc, 37, 65, 188) }.getOrElse("")}
+			|${next.map { loc => keypress(loc, 39, 68, 190) }.getOrElse("")}
+			|${up.map { loc => keypress(loc, 13, 87, 77) }.getOrElse("")}
+			|${down.map { loc => keypress(loc, 40, 83, 66, 78) }.getOrElse("")}
+			| }
+			|}
+			""".stripMargin
+
 }
