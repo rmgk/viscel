@@ -12,8 +12,9 @@ import viscel.Element
 import util.Try
 
 class ElementNode(val self: Node) {
-	def nid = Neo.txs { self.getId }
+	require(Neo.txs { self.getLabels.exists(_ == labelElement) })
 
+	def nid = Neo.txs { self.getId }
 	def next: Option[ElementNode] = Neo.txs { self.to("next").map { ElementNode(_) } }
 	def prev: Option[ElementNode] = Neo.txs { self.from("next").map { ElementNode(_) } }
 

@@ -22,6 +22,8 @@ import viscel.time
  * (c) -[:bookmark]-> (b) -[:bookmarks]-> (e)
  */
 class UserNode(val self: Node) extends Logging {
+	require(Neo.txs { self.getLabels.exists(_ == labelUser) })
+
 	def nid = Neo.txs { self.getId }
 	def name = Neo.txs { self[String]("name") }
 	def password = Neo.txs { self[String]("password") }

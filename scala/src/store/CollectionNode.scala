@@ -12,12 +12,12 @@ import util.Try
 import viscel.time
 
 class CollectionNode(val self: Node) {
+	require(Neo.txs { self.getLabels.exists(_ == labelCollection) })
+
 	def nid = Neo.txs { self.getId }
 	def id = Neo.txs { self[String]("id") }
-
 	def last = Neo.txs { self.to("last").map { ElementNode(_) } }
 	def first = Neo.txs { self.to("first").map { ElementNode(_) } }
-
 	def size = Neo.txs { last.map { _.self[Int]("position") }.getOrElse(0) }
 
 	def apply(pos: Int) = Neo.txs {
