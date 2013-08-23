@@ -23,21 +23,13 @@ class CollectionNode(val self: Node) {
 	def apply(pos: Int) = Neo.txs {
 		self.getRelationships(Direction.INCOMING, "parent").map { r => ElementNode { r.getStartNode } }.find { _.position == pos }
 	}
-	// Neo.execute("""
-	// |start self = node({self})
-	// |match (self) <-[:parent]- (node)
-	// |where node.position = {pos}
-	// |return node limit 1
-	// """,
-	// "self" -> self,
-	// "pos" -> pos).columnAs[Node]("node").toList.headOption.map { ElementNode(_) }
 
 	override def equals(other: Any) = other match {
 		case o: CollectionNode => self == o.self
 		case _ => false
 	}
 
-	override def toString = id
+	override def toString = s"Collection($id)"
 
 	def add(element: Element, pred: Option[ElementNode] = None) = Neo.txs { append(ElementNode.create(element), pred) }
 
