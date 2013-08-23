@@ -24,7 +24,7 @@ trait HtmlPage extends Logging {
 
 	def response: HttpResponse = time("generate response") {
 		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
-			"<!DOCTYPE html>" + MinimizeXML(fullHtml.toXML).toString))
+			"<!DOCTYPE html>" + fullHtml.toXML.toString))
 	}
 
 	def fullHtml = html(header, content)
@@ -41,12 +41,12 @@ trait HtmlPage extends Logging {
 	def path_view(id: String, pos: Int) = s"/v/$id/$pos"
 	def path_search = "/s";
 	def path_blob(id: String) = s"/b/$id"
-	def path_eid(id: Long) = s"/id/$id"
+	def path_nid(id: Long) = s"/id/$id"
 
 	def link_main(ts: STag*) = a.href(path_main)(ts)
 	def link_front(id: String, ts: STag*) = a.href(path_front(id))(ts)
 	def link_view(id: String, pos: Int, ts: STag*) = a.href(path_view(id, pos))(ts)
-	def link_node(en: Option[ElementNode], ts: STag*): STag = en.map { n => a.href(path_eid(n.nid))(ts) }.getOrElse(ts)
+	def link_node(en: Option[ElementNode], ts: STag*): STag = en.map { n => a.href(path_nid(n.nid))(ts) }.getOrElse(ts)
 	// def link_node(en: Option[ElementNode], ts: STag*): STag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
 
 	def form_post(action: String, ts: STag*) = form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
@@ -77,7 +77,7 @@ class IndexPage(user: UserNode) extends HtmlPage {
 			makeFieldset("Bookmarks", currentTags).cls("group"))
 	}
 
-	def makeFieldset(name: String, entries: Seq[STag]) = fieldset(legend(name), entries.flatMap { e => Seq(e, br) })
+	def makeFieldset(name: String, entries: Seq[STag]) = fieldset(legend(name), entries.flatMap { e => Seq[STag](e, <br/>) })
 }
 
 object IndexPage {
@@ -101,7 +101,7 @@ class SearchPage(user: UserNode, text: String) extends HtmlPage {
 
 	def searchForm = form_get(path_search, input.ctype("textfield").name("q"))
 
-	def makeFieldset(name: String, entries: Seq[STag]) = fieldset(legend(name), entries.flatMap { e => Seq(e, br) })
+	def makeFieldset(name: String, entries: Seq[STag]) = fieldset(legend(name), entries.flatMap { e => Seq[STag](e, <br/>) })
 }
 
 object SearchPage {
@@ -144,8 +144,32 @@ object FrontPage {
 class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 	val element = enode.toElement
 	val collection = enode.collection
+	val cid = collection.id
 
-	override def Title = s"${enode.position} – ${collection.id}"
+	override def Title = s"${enode.position} – ${cid}"
+
+	override def header = {
+		val prev = enode.prev.map { en => path_nid(en.nid) }
+		val next = enode.next.map { en => path_nid(en.nid) }
+		def keypress(location: String, keyCodes: Int*) = s"""
+			|if (${keyCodes.map { c => s"ev.keyCode == $c" }.mkString(" || ")}) {
+			|	ev.preventDefault();
+			|	document.location.pathname = "${location}";
+			|	return false;
+			|}
+			""".stripMargin
+		def keyNavigation = s"""
+			|document.onkeydown = function(ev) {
+			|	if (!ev.ctrlKey && !ev.altKey) {
+			|${prev.map { loc => keypress(loc, 37, 65) }.getOrElse("")}
+			|${next.map { loc => keypress(loc, 39, 68) }.getOrElse("")}
+			| }
+			|}
+			""".stripMargin
+		super.header(
+			script(s"window.history.replaceState('param one?','param two?','${path_view(cid, enode.position)}')"),
+			script(scala.xml.Unparsed(keyNavigation)))
+	}
 
 	def content = body.id("view")(
 		div.cls("content")(
@@ -155,9 +179,9 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 	def navigation = Seq[STag](
 		link_node(enode.prev, "prev"),
 		" ",
-		link_front(collection.id, "front"),
+		link_front(cid, "front"),
 		" ",
-		form_post(path_front(collection.id),
+		form_post(path_front(cid),
 			input.ctype("hidden").name("bookmark").value(enode.nid),
 			input.ctype("submit").name("submit").value("pause").cls("submit")),
 		" ",
