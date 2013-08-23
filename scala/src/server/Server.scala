@@ -39,18 +39,20 @@ trait DefaultRoutes extends HttpService with Logging {
 	val loginOrCreate = BasicAuth(UserPassAuthenticator[UserNode] {
 		case Some(UserPass(user, password)) =>
 			logger.trace(s"login: $user $password")
-			if (user.matches("\\w+")) {
-				Future.successful {
-					UserNode(user).orElse {
-						logger.warn("create new user $user $password")
-						Some(UserNode.create(user, password))
-					}.flatMap { un =>
-						if (un.password == password) Some(un)
-						else None
+			time("login") {
+				if (user.matches("\\w+")) {
+					Future.successful {
+						UserNode(user).orElse {
+							logger.warn("create new user $user $password")
+							Some(UserNode.create(user, password))
+						}.flatMap { un =>
+							if (un.password == password) Some(un)
+							else None
+						}
 					}
 				}
+				else { Future.successful(None) }
 			}
-			else { Future.successful(None) }
 		case None =>
 			Future.successful(None)
 	}, "Username is used to store configuration; Passwords are saved in plain text; User is created on first login")
@@ -76,10 +78,10 @@ trait DefaultRoutes extends HttpService with Logging {
 				} ~
 				pathPrefix("f" / Segment) { col =>
 					rejectNone(CollectionNode(col)) { cn =>
-						formFields('bookmark.?.as[Option[Int]], 'submit.?.as[Option[String]]) { (bm, remove) =>
-							bm.foreach { cn.bookmark(_) }
-							remove.foreach { case "remove" => cn.bookmarkDelete(); case _ => }
-							complete(FrontPage(user, cn))
+						formFields('bookmark.?.as[Option[Long]], 'submit.?.as[Option[String]]) { (bm, remove) =>
+							bm.foreach { bid => user.setBookmark(ElementNode(bid)) }
+							remove.foreach { case "remove" => user.deleteBookmark(cn); case _ => }
+							complete(time("total") { FrontPage(user, cn) })
 						}
 					}
 				} ~

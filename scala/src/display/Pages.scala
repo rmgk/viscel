@@ -21,13 +21,11 @@ object MinimizeXML {
 
 trait HtmlPage extends Logging {
 
-	def response: HttpResponse = {
-		val html = time("generate html") { fullHtml.toXML }
-		val min = time("hack minimization") { MinimizeXML(html) }
-		val body = time("generating string") { "<!DOCTYPE html>" + min.toString }
-
-		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`), body))
+	def response: HttpResponse = time("generate response") {
+		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
+			"<!DOCTYPE html>" + MinimizeXML(fullHtml.toXML).toString))
 	}
+
 	def fullHtml = html(header, content)
 
 	def header = head(stylesheet(path_css), title(Title))
@@ -47,7 +45,7 @@ trait HtmlPage extends Logging {
 	def link_main(ts: STag*) = a.href(path_main)(ts)
 	def link_front(id: String, ts: STag*) = a.href(path_front(id))(ts)
 	def link_view(id: String, pos: Int, ts: STag*) = a.href(path_view(id, pos))(ts)
-	def link_node(en: Option[ElementNode], ts: STag*): STag = en.map { n => a.href(path_eid(n.id))(ts) }.getOrElse(ts)
+	def link_node(en: Option[ElementNode], ts: STag*): STag = en.map { n => a.href(path_eid(n.nid))(ts) }.getOrElse(ts)
 	// def link_node(en: Option[ElementNode], ts: STag*): STag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
 
 	def make_form(action: String, ts: STag*) = form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
@@ -64,22 +62,18 @@ class IndexPage(user: UserNode) extends HtmlPage {
 	override def Title = "Index"
 
 	def content = {
-		val cols = collectionList
-		val (bookmarks, noBookmarks) = cols.view
-			.map { c => (c, c.unread) }.partition {
-				case (c, Some(unread)) => true
-				case _ => false
-			}
-		val bmTags = bookmarks.map { case (c, Some(unread)) => c.id -> unread }
-			.sortBy { -_._2 }
-			.map { case (id, unread) => link_front(id, s"$id ($unread)") }
-		val noBmTags = noBookmarks.map { _._1.id }.sorted.map { id => link_front(id, id) }
+		val bookmarks = user.bookmarks.toStream
+		val (unread, current) = bookmarks.map { bm => bm.collection.id -> bm.distanceToLast }.partition { _._2 > 0 }
+		val unreadTags = unread.sortBy { -_._2 }.map { case (id, unread) => link_front(id, s"$id ($unread)") }
+		val currentTags = current.sortBy { _._1 }.map { case (id, unread) => link_front(id, s"$id") }
+
 		body.id("index")(
-			makeGroup("Bookmarked", bmTags),
-			makeGroup("Rest", noBmTags))
+			makeFieldset("Search", Seq("todo")).cls("info"),
+			makeFieldset("New Pages", unreadTags).cls("group"),
+			makeFieldset("Bookmarked", currentTags).cls("group"))
 	}
-	def collectionList = time("get collection list") { CollectionNode.list }
-	def makeGroup(name: String, entries: Seq[STag]) = fieldset.cls("group")(legend(name), entries.flatMap { e => Seq(e, br) })
+
+	def makeFieldset(name: String, entries: Seq[STag]) = fieldset(legend(name), entries.flatMap { e => Seq(e, br) })
 }
 
 object IndexPage {
@@ -91,7 +85,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
 	def bmRemoveForm(bm: ElementNode) = make_form(path_front(collection.id),
 		input.ctype("submit").name("submit").value("remove").cls("submit"))
 	def content = {
-		val bm = collection.bookmark
+		val bm = user.getBookmark(collection)
 		val bm1 = bm.flatMap { _.prev }
 		val bm2 = bm1.flatMap { _.prev }
 		body.id("front")(
@@ -136,7 +130,7 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 		link_front(collection.id, "front"),
 		" ",
 		make_form(path_front(collection.id),
-			input.ctype("hidden").name("bookmark").value(enode.position),
+			input.ctype("hidden").name("bookmark").value(enode.nid),
 			input.ctype("submit").name("submit").value("pause").cls("submit")),
 		" ",
 		a.href(element.origin).cls("extern")("site"),

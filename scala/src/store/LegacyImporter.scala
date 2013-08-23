@@ -45,25 +45,25 @@ object LegacyImporter extends Logging {
 		val collections = LegacyAdapter.list
 
 		time("everything") {
-			val bookmarks = getBookmarks
+			// val bookmarks = getBookmarks
 			for (id <- collections) {
 				time("total") {
 					Neo.tx { _ =>
 						logger.info(id)
 						val cn = CollectionNode.create(id)
 						fillCollection(cn)
-						bookmarks.get(id).foreach { cn.bookmark(_) }
+						// bookmarks.get(id).foreach { cn.bookmark(_) }
 					}
 				}
 			}
 		}
 	}
 
-	def getBookmarks = {
-		val extract = """(?x) \s+ (\w+) = (\d+)""".r
-		scala.io.Source.fromFile("../user/user.ini").getLines
-			.collect { case extract(id, pos) => id -> pos.toInt }.toMap
-	}
+	// def getBookmarks = {
+	// 	val extract = """(?x) \s+ (\w+) = (\d+)""".r
+	// 	scala.io.Source.fromFile("../user/user.ini").getLines
+	// 		.collect { case extract(id, pos) => id -> pos.toInt }.toMap
+	// }
 
 	def fillCollection(col: CollectionNode) = {
 		val elts = time("load elements") { LegacyAdapter.getAll(col.id).toList }

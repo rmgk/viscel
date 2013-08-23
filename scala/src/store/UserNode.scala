@@ -12,7 +12,7 @@ import viscel.Element
 import util.Try
 
 class UserNode(val self: Node) {
-	def id = Neo.txs { self.getId }
+	def nid = Neo.txs { self.getId }
 	def name = Neo.txs { self[String]("name") }
 	def password = Neo.txs { self[String]("password") }
 

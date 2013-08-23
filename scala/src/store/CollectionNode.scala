@@ -12,11 +12,11 @@ import util.Try
 import viscel.time
 
 class CollectionNode(val self: Node) {
+	def nid = Neo.txs { self.getId }
 	def id = Neo.txs { self[String]("id") }
 
 	def last = Neo.txs { self.to("last").map { ElementNode(_) } }
 	def first = Neo.txs { self.to("first").map { ElementNode(_) } }
-	def bookmark = Neo.txs { self.to("bookmark").map { ElementNode(_) } }
 
 	def size = Neo.txs { last.map { _.self[Int]("position") }.getOrElse(0) }
 
@@ -28,17 +28,6 @@ class CollectionNode(val self: Node) {
 		""",
 		"self" -> self,
 		"pos" -> pos).columnAs[Node]("node").toList.headOption.map { ElementNode(_) }
-
-	def bookmark(pos: Int): Option[ElementNode] = apply(pos).map(bookmark(_))
-	def bookmark(en: ElementNode): ElementNode = Neo.txs {
-		Option(self.getSingleRelationship("bookmark", Direction.OUTGOING)).foreach { _.delete }
-		self.createRelationshipTo(en.self, "bookmark")
-		en
-	}
-
-	def bookmarkDelete() = Neo.txs { Option(self.getSingleRelationship("bookmark", Direction.OUTGOING)).foreach { _.delete } }
-
-	def unread = Neo.txs { for (bm <- bookmark; l <- last) yield l.position - bm.position }
 
 	override def equals(other: Any) = other match {
 		case o: CollectionNode => self == o.self
@@ -73,9 +62,4 @@ object CollectionNode {
 	def apply(id: String) = Neo.node(labelCollection, "id", id).map { new CollectionNode(_) }
 
 	def create(id: String, name: Option[String] = None) = CollectionNode(Neo.create(labelCollection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
-
-	def list = Neo.execute("""
-		|match (col: Collection)
-		|return col
-		""").columnAs[Node]("col").map { CollectionNode(_) }.toList
 }
