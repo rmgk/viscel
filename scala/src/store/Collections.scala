@@ -13,10 +13,11 @@ import viscel.time
 
 object Collections {
 	def list = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(labelCollection).toStream.map { CollectionNode(_) } }
+
 	def search(query: String) = time("search") {
 		val lcql = query.toLowerCase.replaceAll("""\s+""", "").toList
 		Neo.txs {
-			list.map { cn => cn -> fuzzyMatch(lcql, cn.id.toLowerCase.toList) }
+			list.map { cn => cn -> fuzzyMatch(lcql, cn.name.toLowerCase.toList) }
 				.filter { _._2 > 0 }
 				.sortBy { _._2 }
 				.map { _._1 }
