@@ -81,8 +81,8 @@ object Viscel {
 				implicit val timeout: Timeout = 30.seconds
 				sendReceive(ioHttp)
 			}
-			val core = new Core(pipe)
-			core.test
+			val clock = new Clockwork(pipe)
+			clock.test
 		}
 
 		if (conf.dbshutdown()) Neo.shutdown

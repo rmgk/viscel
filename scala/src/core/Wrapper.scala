@@ -10,7 +10,7 @@ import spray.client.pipelining._
 import spray.http.Uri
 import viscel._
 
-trait Definition {
+trait Core {
 	def id: String
 	def name: String
 	def first: Uri
@@ -27,7 +27,7 @@ trait Wrapped {
 	def elements: Seq[Try[Element]]
 }
 
-object CarciphonaWrapper extends Definition with Wrapper with Logging {
+object CarciphonaWrapper extends Core with Wrapper with Logging {
 	def id = "X_Carciphona"
 	def name = "Carciphona"
 
@@ -46,7 +46,7 @@ object CarciphonaWrapper extends Definition with Wrapper with Logging {
 				_.attr("style")
 					.pipe { case extractImageUri(img) => img }
 					.pipe { Uri.parseAndResolve(_, doc.baseUri) }
-					.pipe { uri => Element(source = uri.toString) }
+					.pipe { uri => Element(source = uri.toString, origin = doc.baseUri) }
 			}.pipe { Seq(_) }
 	}
 

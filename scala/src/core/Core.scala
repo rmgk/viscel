@@ -14,58 +14,78 @@ import spray.client.pipelining._
 import spray.http.Uri
 import viscel._
 import viscel.store._
+import spray.http.HttpHeaders.`Content-Type`
+import spray.http.HttpRequest
+import spray.http.HttpResponse
+import spray.http.ContentType
+import scalax.io._
 
-class Runner(definition: Definition) {
-	val collection = CollectionNode(definition.id).get
-}
+case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte], response: HttpResponse, element: Element)
 
-class Core(val iopipe: SendReceive) extends Logging {
+class Clockwork(val iopipe: SendReceive) extends Logging {
 
-	val definitions = Seq(CarciphonaWrapper)
+	val cores = Seq(CarciphonaWrapper)
 
-	def document(uri: Uri) = iopipe(Get(uri)).map { res => Jsoup.parse(res.entity.asString, uri.toString) }
+	def get(uri: Uri, referer: Option[Uri] = None): Future[HttpResponse] = {
+		logger.info(s"get $uri ($referer)")
+		val addReferer = referer match {
+			case Some(ref) => addHeader("referer", ref.toString)
+			case None => (x: HttpRequest) => x
+		}
+		Get(uri).pipe { addReferer }.pipe { iopipe }
+	}
 
-	def wrap(loc: Uri, wrapper: Wrapper) = loc.pipe { document }.map { wrapper }
+	def document(uri: Uri): Future[Document] = get(uri).map { res => Jsoup.parse(res.entity.asString, uri.toString) }
+
+	def elementData(eseed: Element): Future[ElementData] = {
+		get(eseed.source, Some(eseed.origin)).map { res =>
+			ElementData(
+				mediatype = res.header[`Content-Type`].get.contentType,
+				buffer = res.entity.buffer,
+				sha1 = sha1hex(res.entity.buffer),
+				response = res,
+				element = eseed)
+		}
+	}
+
+	def wrap(loc: Uri, wrapper: Wrapper): Future[Wrapped] = loc.pipe { document }.map { wrapper }
 
 	def test() = {
-		val cp = definitions.head
-		wrapNext(cp.first, cp.wrapper)
+		val cp = cores.head
+		new Runner(cp).start().onComplete {
+			case Success(_) => logger.info("test complete without errorrs")
+			case Failure(e) => logger.info(s"test complete ${e.getMessage}")
+		}
 	}
 
-	def wrapNext(loc: Uri, wrapper: Wrapper): Unit = wrap(loc, wrapper).onComplete {
-		case Failure(e) => logger.warn(s"failed download")
-		case Success(wrapped) =>
-			wrapped.next.foreach { n =>
-				logger.info(s"next is $n")
-				wrapNext(n, wrapper)
-			}
-			wrapped.next.recover { case t => t.getMessage.pipe { println } }
-	}
+	def hashToFilename(h: String): String = (new StringBuilder(h)).insert(2, '/').insert(0, "../cache/").toString
 
-	// def getElement(eseed: ElementSeed): Future[Element] = {
-	// 	val inStore = Storage.find(eseed.source)
-	// 	if (!inStore.isEmpty) {
-	// 		logger.info(s"already has ${eseed.source}")
-	// 		future { inStore.head }
-	// 	}
-	// 	else {
-	// 		logger.info(s"get ${eseed.source}")
-	// 		val resf = pipe(addHeader("referer", eseed.origin)(Get(eseed.source)))
-	// 		resf.onFailure { case e => logger.error(s"failed to download ${eseed.source}: $e") }
-	// 		val element = for {
-	// 			res <- resf
-	// 			spray.http.HttpBody(contentType, _) = res.entity
-	// 			buffer = res.entity.buffer
-	// 			sha1 = sha1hex(buffer)
-	// 		} yield (contentType.value, buffer)
-	// 		element.map {
-	// 			case (ctype, buffer) =>
-	// 				val sha1 = Storage.store(buffer)
-	// 				val el = eseed(sha1, ctype)
-	// 				Storage.put(el)
-	// 				el
-	// 		}
-	// 	}
-	// }
+	class Runner(core: Core) {
+		val collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
+
+		def wrapNext(loc: Uri, wrapper: Wrapper): Future[Unit] = wrap(loc, wrapper).flatMap { wrapped =>
+			require(wrapped.elements.forall(_.isSuccess), "not all elements were a success " + (wrapped.elements.filter(_.isFailure).mkString(" & ")))
+			wrapped.elements.map(_.get).map { elementData }.pipe { Future.sequence(_) }
+				.andThen {
+					case Success(elements) =>
+						elements.foreach { element =>
+							Resource.fromFile(hashToFilename(element.sha1)).write(element.buffer)
+							Neo.txs {
+								ElementNode.create((element.element.toMap ++ Seq("blob" -> element.sha1, "mediatype" -> element.mediatype.toString)).toSeq: _*)
+									.pipe(collection.append(_, None))
+							}
+						}
+				}
+				.flatMap { _ =>
+					wrapped.next match {
+						case Success(n) => wrapNext(n, wrapper)
+						case Failure(e) => Future.failed(e)
+					}
+				}
+		}
+
+		def start() = wrapNext(core.first, core.wrapper)
+
+	}
 
 }
