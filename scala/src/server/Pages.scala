@@ -25,9 +25,9 @@ class IndexPage(user: UserNode) extends HtmlPage {
 
 	def content = {
 		val bookmarks = user.bookmarks.toStream
-		val (unread, current) = bookmarks.map { bm => bm.collection.id -> bm.distanceToLast }.partition { _._2 > 0 }
-		val unreadTags = unread.sortBy { -_._2 }.map { case (id, unread) => link_front(id, s"$id ($unread)") }
-		val currentTags = current.sortBy { _._1 }.map { case (id, unread) => link_front(id, s"$id") }
+		val (unread, current) = bookmarks.map { bm => (bm.collection.id, bm.collection.name, bm.distanceToLast) }.partition { _._3 > 0 }
+		val unreadTags = unread.sortBy { -_._3 }.map { case (id, name, unread) => link_front(id, s"$name ($unread)") }
+		val currentTags = current.sortBy { _._2 }.map { case (id, name, unread) => link_front(id, s"$name") }
 
 		body.id("index")(
 			makeFieldset("Search", Seq(searchForm(""))).cls("info"),
@@ -67,7 +67,7 @@ object SearchPage {
 }
 
 class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
-	override def Title = collection.id
+	override def Title = collection.name
 
 	val bm = user.getBookmark(collection)
 	val bm1 = bm.flatMap { _.prev }
@@ -78,7 +78,9 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
 	def content = {
 		body.id("front")(
 			div.cls("info")(
-				table(tbody(tr(td("id"), td(collection.id)),
+				table(tbody(
+					tr(td("id"), td(collection.id)),
+					tr(td("name"), td(collection.name)),
 					tr(td("size"), td(collection.size.toString))))),
 			div.cls("navigation")(
 				link_main("index"),
@@ -109,7 +111,7 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 	val collection = enode.collection
 	val cid = collection.id
 
-	override def Title = s"${enode.position} – ${cid}"
+	override def Title = s"${enode.position} – ${collection.name}"
 
 	override def maskLocation = Some(path_view(cid, enode.position))
 

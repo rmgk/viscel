@@ -82,7 +82,7 @@ object Viscel {
 				sendReceive(ioHttp)
 			}
 			val core = new Core(pipe)
-			core.go()
+			core.test
 		}
 
 		if (conf.dbshutdown()) Neo.shutdown

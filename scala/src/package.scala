@@ -16,6 +16,7 @@ package object viscel extends Logging {
 	implicit class Identity[T](x: T) {
 		def pipe[R](f: T => R) = f(x)
 		def tap[R](f: T => R) = { f(x); x }
+		def validate(f: T => Unit) = Try { f(x); x }
 		def fail(implicit evidence: T <:< String) = Failure(new Throwable(x))
 	}
 
