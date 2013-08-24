@@ -7,7 +7,6 @@ import org.neo4j.graphdb.DynamicRelationshipType
 import org.neo4j.graphdb.Node
 import org.neo4j.graphdb.Direction
 import scala.collection.JavaConversions._
-import viscel.Element
 import util.Try
 import viscel.time
 
@@ -31,7 +30,7 @@ class CollectionNode(val self: Node) {
 
 	override def toString = s"Collection($id)"
 
-	def add(element: Element, pred: Option[ElementNode] = None) = Neo.txs { append(ElementNode.create(element), pred) }
+	// def add(element: Element, pred: Option[ElementNode] = None) = Neo.txs { append(ElementNode.create(element), pred) }
 
 	def append(elementNode: ElementNode, pred: Option[ElementNode] = None) = Neo.tx { db =>
 		val node = elementNode.self

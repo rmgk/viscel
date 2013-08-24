@@ -8,7 +8,6 @@ import org.neo4j.graphdb.Node
 import org.neo4j.graphdb.Direction
 import scala.collection.JavaConversions._
 import scala.language.implicitConversions
-import viscel.Element
 import util.Try
 
 class ElementNode(val self: Node) {
@@ -22,22 +21,25 @@ class ElementNode(val self: Node) {
 	def position: Int = Neo.txs { self[Int]("position") }
 	def distanceToLast: Int = Neo.txs { collection.last.get.position - position }
 
-	def toElement = Neo.txs {
-		Element(
-			blob = self[String]("blob"),
-			mediatype = self[String]("mediatype"),
-			source = self[String]("source"),
-			origin = self[String]("origin"),
-			alt = self.get[String]("alt"),
-			title = self.get[String]("title"),
-			width = self.get[Int]("width"),
-			height = self.get[Int]("height"))
-	}
+	def apply[T](k: String) = Neo.txs { self[T](k) }
+	def get[T](k: String) = Neo.txs { self.get[T](k) }
+
+	// def toElement = Neo.txs {
+	// 	Element(
+	// 		blob = self[String]("blob"),
+	// 		mediatype = self[String]("mediatype"),
+	// 		source = self[String]("source"),
+	// 		origin = self[String]("origin"),
+	// 		alt = self.get[String]("alt"),
+	// 		title = self.get[String]("title"),
+	// 		width = self.get[Int]("width"),
+	// 		height = self.get[Int]("height"))
+	// }
 }
 
 object ElementNode {
 	def apply(node: Node) = new ElementNode(node)
 	def apply(nodeId: Long) = new ElementNode(Neo.tx { _.getNodeById(nodeId) })
 
-	def create(element: Element) = ElementNode(Neo.create(labelElement, element.toMap.toSeq: _*))
+	def create(attributes: (String, Any)*) = ElementNode(Neo.create(labelElement, attributes: _*))
 }

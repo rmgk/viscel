@@ -13,6 +13,7 @@ import spray.can.Http
 import spray.client.pipelining._
 import spray.http.Uri
 import java.io.File
+import viscel.core._
 import viscel.store._
 
 import spray.io.ServerSSLEngineProvider
@@ -21,33 +22,26 @@ import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
 object Viscel {
 
-	// val pipe = {
-	// 	implicit val timeout: Timeout = 30.seconds
-	// 	sendReceive(ioHttp)
+	// implicit val myEngineProvider = ServerSSLEngineProvider { engine =>
+	//  // engine.setEnabledCipherSuites(Array("TLS_RSA_WITH_AES_256_CBC_SHA"))
+	//  // engine.setEnabledProtocols(Array("SSLv3", "TLSv1"))
+	//  engine
 	// }
 
-	// val cW = new Clockwork(pipe)
+	// implicit def sslContext: SSLContext = {
+	//  val keyStoreResource = "/ssl-test-keystore.jks"
+	//  val password = ""
 
-	implicit val myEngineProvider = ServerSSLEngineProvider { engine =>
-		// engine.setEnabledCipherSuites(Array("TLS_RSA_WITH_AES_256_CBC_SHA"))
-		// engine.setEnabledProtocols(Array("SSLv3", "TLSv1"))
-		engine
-	}
-
-	implicit def sslContext: SSLContext = {
-		val keyStoreResource = "/ssl-test-keystore.jks"
-		val password = ""
-
-		val keyStore = KeyStore.getInstance("jks")
-		keyStore.load(getClass.getResourceAsStream(keyStoreResource), password.toCharArray)
-		val keyManagerFactory = KeyManagerFactory.getInstance("SunX509")
-		keyManagerFactory.init(keyStore, password.toCharArray)
-		val trustManagerFactory = TrustManagerFactory.getInstance("SunX509")
-		trustManagerFactory.init(keyStore)
-		val context = SSLContext.getInstance("TLS")
-		context.init(keyManagerFactory.getKeyManagers, trustManagerFactory.getTrustManagers, new SecureRandom)
-		context
-	}
+	//  val keyStore = KeyStore.getInstance("jks")
+	//  keyStore.load(getClass.getResourceAsStream(keyStoreResource), password.toCharArray)
+	//  val keyManagerFactory = KeyManagerFactory.getInstance("SunX509")
+	//  keyManagerFactory.init(keyStore, password.toCharArray)
+	//  val trustManagerFactory = TrustManagerFactory.getInstance("SunX509")
+	//  trustManagerFactory.init(keyStore)
+	//  val context = SSLContext.getInstance("TLS")
+	//  context.init(keyManagerFactory.getKeyManagers, trustManagerFactory.getTrustManagers, new SecureRandom)
+	//  context
+	// }
 
 	def main(args: Array[String]) {
 
@@ -74,14 +68,25 @@ object Viscel {
 			un <- UserNode(uname)
 		} yield { tools.BookmarkImporter(un, userdir) }
 
+		implicit val system = ActorSystem()
+		val ioHttp = IO(Http)
+
 		if (conf.server()) {
-			implicit val system = ActorSystem()
-			val ioHttp = IO(Http)
 			val server = system.actorOf(Props[viscel.server.Server], "viscel-server")
 			ioHttp ! Http.Bind(server, interface = "0", port = conf.port())
 		}
 
+		if (conf.core()) {
+			val pipe = {
+				implicit val timeout: Timeout = 30.seconds
+				sendReceive(ioHttp)
+			}
+			val core = new Core(pipe)
+			core.go()
+		}
+
 		if (conf.dbshutdown()) Neo.shutdown
+		if (conf.actorshutdown()) system.shutdown
 	}
 
 }
@@ -92,8 +97,10 @@ class Conf(arguments: Seq[String]) extends ScallopConf(arguments) {
 	val loglevel = opt[String](default = Option("INFO"), descr = "set the default loglevel")
 	val port = opt[Int](default = Some(8080), descr = "server listening port")
 	val server = toggle(default = Some(true), descrYes = "start the server")
+	val core = toggle(default = Some(true), descrYes = "start the core downloader")
 	val dbwarmup = toggle(default = Some(true), descrYes = "do database warmup")
 	val dbshutdown = toggle(default = Some(false), descrYes = "shut the database down when main finishes")
+	val actorshutdown = toggle(default = Some(false), descrYes = "shut the actor system down when main finishes")
 	val importdb = opt[String](descr = "path to collections.db")
 	val importbookmarks = opt[String](descr = "path to user.ini")
 	val createIndexes = opt[Boolean](descr = "create neo4j indexes")

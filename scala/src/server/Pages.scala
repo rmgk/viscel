@@ -6,7 +6,6 @@ import scala.xml.Node
 import scala.xml.NodeSeq
 import scalatags._
 import spray.http.{ HttpResponse, HttpEntity, MediaTypes, ContentType, HttpCharsets }
-import viscel.Element
 import viscel.store.CollectionNode
 import viscel.store.Collections
 import viscel.store.ElementNode
@@ -92,9 +91,9 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
 				" – ",
 				bm.map { bmRemoveForm(_) }.getOrElse("remove")),
 			div.cls("content")(Seq(
-				bm2.map { e => link_node(Some(e), elemToImg(e.toElement)) },
-				bm1.map { e => link_node(Some(e), elemToImg(e.toElement)) },
-				bm.map { e => link_node(Some(e), elemToImg(e.toElement)) }).flatten[STag]))
+				bm2.map { e => link_node(Some(e), enodeToImg(e)) },
+				bm1.map { e => link_node(Some(e), enodeToImg(e)) },
+				bm.map { e => link_node(Some(e), enodeToImg(e)) }).flatten[STag]))
 	}
 
 	override def navPrev = bm2.orElse(bm1).orElse(collection.first).map { en => path_nid(en.nid) }
@@ -107,7 +106,6 @@ object FrontPage {
 }
 
 class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
-	val element = enode.toElement
 	val collection = enode.collection
 	val cid = collection.id
 
@@ -121,7 +119,7 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 
 	def content = body.id("view")(
 		div.cls("content")(
-			link_node(enode.next, elemToImg(element))),
+			link_node(enode.next, enodeToImg(enode))),
 		div.cls("navigation")(navigation.toSeq))
 
 	def navigation = Seq[STag](
@@ -133,7 +131,7 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 			input.ctype("hidden").name("bookmark").value(enode.nid),
 			input.ctype("submit").name("submit").value("pause").cls("submit")),
 		" ",
-		a.href(element.origin).cls("extern")("site"),
+		a.href(enode[String]("origin")).cls("extern")("site"),
 		" ",
 		link_node(enode.next, "next"))
 }
@@ -143,8 +141,6 @@ object ViewPage {
 }
 
 trait HtmlPage extends Logging {
-
-	// implicit def optionSTag(x: Option[STag]) = SeqSTag(x.toSeq)
 
 	def response: HttpResponse = time(s"create response $Title") {
 		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
@@ -189,11 +185,8 @@ trait HtmlPage extends Logging {
 
 	def searchForm(init: String) = form_get(path_search, input.ctype("textfield").name("q").value(init))
 
-	def elemToImg(elem: Element) = img.src(path_blob(elem.blob)).cls("element").attr(Seq(
-		elem.width.map("width" -> _),
-		elem.height.map("height" -> _),
-		elem.alt.map("alt" -> _),
-		elem.title.map("title" -> _)).flatten: _*)
+	def enodeToImg(en: ElementNode) = img.src(path_blob(en[String]("blob"))).cls("element")
+		.attr { Seq("width", "height", "alt", "title").flatMap { k => en.get[String](k).map { k -> _ } }: _* }
 
 	def keypress(location: String, keyCodes: Int*) = s"""
 			|if (${keyCodes.map { c => s"ev.keyCode == $c" }.mkString(" || ")}) {

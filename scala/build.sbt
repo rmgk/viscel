@@ -8,14 +8,24 @@ version := "5.0.0-α"
 scalaVersion := "2.10.2"
 
 initialCommands in console := """
+import akka.actor.{ ActorSystem, Props, Actor }
+import akka.io.IO
+import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.Logging
+import org.jsoup._
 import org.neo4j.graphdb.DynamicLabel
 import org.neo4j.graphdb.DynamicRelationshipType
 import org.neo4j.graphdb.Label
 import org.neo4j.graphdb.Node
 import scala.collection.JavaConversions._
-import viscel.store._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ ExecutionContext, Future }
+import spray.can.Http
+import spray.client.pipelining._
+import spray.http.Uri
 import viscel._
+import viscel.store._
 """
 
 scalaSource in Compile <<= baseDirectory {(base) => new File(base, "src")}
@@ -48,7 +58,7 @@ libraryDependencies ++= Seq(
 	"com.github.axel22" %% "scalameter" % "0.3", // new bsd
 	"com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2", // scala license (bsdish)
 	"com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
-	"com.github.scopt" %% "scopt" % "3.1.0", //mit
+	"com.github.scopt" %% "scopt" % "3.1.0", // mit
 	"com.scalatags" %% "scalatags" % "0.1.4", // mit (according to pom)
 	"com.typesafe" %% "scalalogging-slf4j" % "1.0.1", // apache 2
 	"com.typesafe.akka" %% "akka-actor" % "2.2.0", // apache 2
@@ -62,7 +72,7 @@ libraryDependencies ++= Seq(
 	"io.spray" % "spray-routing" % "1.2-20130801",
 	"io.spray" % "spray-util" % "1.2-20130801",
 	"io.spray" %% "spray-json" % "1.2.5",
-	"org.jsoup" % "jsoup" % "1.7.2",// mit
+	"org.jsoup" % "jsoup" % "1.7.2", // mit
 	"org.neo4j" % "neo4j" % "2.0.0-M04", // gpl3
 	"org.neo4j" % "neo4j-graphviz" % "2.0.0-M04",
 	"org.rogach" %% "scallop" % "0.9.4", //mit

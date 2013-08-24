@@ -7,7 +7,6 @@ import scala.slick.driver.SQLiteDriver.simple._
 import scala.slick.jdbc.StaticQuery.interpolation
 import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
 import scala.slick.session.Database
-import viscel.Element
 import viscel.store._
 import viscel.time
 
@@ -19,11 +18,11 @@ class LegacyAdapter(dbdir: String) {
 
 	def list: IndexedSeq[String] = qcollections.elements()(session).toIndexedSeq
 
-	def getAll(col: String): Seq[Element] = {
+	def getAll(col: String): Seq[LegacyElement] = {
 		implicit val getConversionElement = GetResult { r =>
-			Element(blob = r.<<, mediatype = r.<<, source = r.<<, origin = r.<<, alt = r.<<?, title = r.<<?, width = r.<<?, height = r.<<?)
+			LegacyElement(blob = r.<<, mediatype = r.<<, source = r.<<, origin = r.<<, alt = r.<<?, title = r.<<?, width = r.<<?, height = r.<<?)
 		}
-		val sel = Q[Element] + "SELECT sha1, type, src, page_url, alt, title, width, height FROM " + col + " ORDER BY position ASC"
+		val sel = Q[LegacyElement] + "SELECT sha1, type, src, page_url, alt, title, width, height FROM " + col + " ORDER BY position ASC"
 		sel.elements()(session).toList
 	}
 
@@ -38,13 +37,11 @@ class LegacyImporter(dbdir: String) extends Logging {
 			val collections = legacyAdapter.list
 			// val bookmarks = getBookmarks
 			for (id <- collections) {
-				time("total") {
-					Neo.tx { _ =>
-						logger.info(id)
-						val cn = CollectionNode.create(id)
-						fillCollection(cn)
-						// bookmarks.get(id).foreach { cn.bookmark(_) }
-					}
+				Neo.txt("total") { _ =>
+					logger.info(id)
+					val cn = CollectionNode.create(id)
+					fillCollection(cn)
+					// bookmarks.get(id).foreach { cn.bookmark(_) }
 				}
 			}
 			legacyAdapter.session.close()
@@ -55,14 +52,18 @@ class LegacyImporter(dbdir: String) extends Logging {
 		val elts = time("load elements") { legacyAdapter.getAll(col.id).toList }
 		logger.info(elts.size.toString)
 
-		def createLinkedElts(elts: List[Element], last: ElementNode): Unit = elts match {
-			case head :: tail => createLinkedElts(tail, col.add(head, Some(last)))
+		def createLinkedElts(elts: List[LegacyElement], last: ElementNode): Unit = elts match {
+			case head :: tail =>
+				val newElem = ElementNode.create(head.toSeq: _*)
+				col.append(newElem, Some(last))
+				createLinkedElts(tail, newElem)
 			case List() =>
 		}
 
 		if (!elts.isEmpty) {
 			time("create elements") {
-				val first = col.add(elts.head, None)
+				val first = ElementNode.create(elts.head.toSeq: _*)
+				col.append(first, None)
 				createLinkedElts(elts.tail, first)
 			}
 		}
@@ -83,5 +84,27 @@ object BookmarkImporter extends Logging {
 					}.getOrElse { logger.warn(s"unknown id $id") }
 			}
 
+	}
+}
+
+case class LegacyElement(
+	source: String,
+	origin: String,
+	blob: String,
+	mediatype: String,
+	alt: Option[String] = None,
+	title: Option[String] = None,
+	width: Option[Int] = None,
+	height: Option[Int] = None) {
+
+	def toSeq = {
+		Seq("source" -> source,
+			"origin" -> origin,
+			"blob" -> blob,
+			"mediatype" -> mediatype) ++
+			alt.map { "alt" -> _ } ++
+			title.map { "title" -> _ } ++
+			width.map { "width" -> _ } ++
+			height.map { "height" -> _ }
 	}
 }

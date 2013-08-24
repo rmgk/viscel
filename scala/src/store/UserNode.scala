@@ -9,7 +9,6 @@ import org.neo4j.graphdb.Node
 import scala.collection.JavaConversions._
 import scala.language.implicitConversions
 import util.Try
-import viscel.Element
 import viscel.time
 
 /**
