@@ -21,13 +21,13 @@ import viscel.time
  * (c) -[:bookmark]-> (b) -[:bookmarks]-> (e)
  */
 class UserNode(val self: Node) extends Logging {
-	require(Neo.txs { self.getLabels.exists(_ == labelUser) })
+	require(Neo.txs { self.getLabels.exists(_ == label.User) })
 
 	def nid = Neo.txs { self.getId }
 	def name = Neo.txs { self[String]("name") }
 	def password = Neo.txs { self[String]("password") }
 
-	def getBookmark(cn: CollectionNode) = Neo.txts("get bookmark") { getBookmarkNode(cn).flatMap { _.to("bookmarks") }.map { ElementNode(_) } }
+	def getBookmark(cn: CollectionNode) = Neo.txts("get bookmark") { getBookmarkNode(cn).flatMap { _.to(rel.bookmarks) }.map { ElementNode(_) } }
 
 	override def equals(other: Any) = other match {
 		case o: UserNode => self == o.self
@@ -39,19 +39,19 @@ class UserNode(val self: Node) extends Logging {
 	//def bookmark(pos: Int): Option[ElementNode] = apply(pos).map(bookmark(_))
 	def setBookmark(en: ElementNode) = Neo.txt(s"create bookmark ${en.collection.id}:${en.position} for ${name}") { db =>
 		val bmn = getBookmarkNode(en.collection).map { bmn =>
-			bmn.outgoing("bookmarks").foreach { _.delete }
+			bmn.outgoing(rel.bookmarks).foreach { _.delete }
 			bmn
 		}.getOrElse {
-			val bmn = db.createNode(labelBookmark)
-			self.createRelationshipTo(bmn, "bookmarked")
-			en.collection.self.createRelationshipTo(bmn, "bookmark")
+			val bmn = db.createNode(label.Bookmark)
+			self.createRelationshipTo(bmn, rel.bookmarked)
+			en.collection.self.createRelationshipTo(bmn, rel.bookmark)
 			bmn
 		}
-		bmn.createRelationshipTo(en.self, "bookmarks")
+		bmn.createRelationshipTo(en.self, rel.bookmarks)
 	}
 
 	def bookmarks = Neo.txs {
-		self.outgoing("bookmarked").map { _.getEndNode }.flatMap { _.to("bookmarks") }.map { ElementNode(_) }
+		self.outgoing("bookmarked").map { _.getEndNode }.flatMap { _.to(rel.bookmarks) }.map { ElementNode(_) }
 	}
 
 	def deleteBookmark(cn: CollectionNode) = Neo.txts(s"delete bookmark ${cn.id} for ${name}") {
@@ -62,7 +62,7 @@ class UserNode(val self: Node) extends Logging {
 	}
 
 	def getBookmarkNode(cn: CollectionNode) = Neo.txs {
-		cn.self.outgoing("bookmark").map { _.getEndNode }.find { bmn => bmn.from("bookmarked").get == this.self }
+		cn.self.outgoing(rel.bookmark).map { _.getEndNode }.find { bmn => bmn.from(rel.bookmarked).get == this.self }
 	}
 
 	//def unread = Neo.txs { for (bm <- bookmark; l <- last) yield l.position - bm.position }
@@ -71,7 +71,7 @@ class UserNode(val self: Node) extends Logging {
 
 object UserNode {
 	def apply(node: Node) = new UserNode(node)
-	def apply(name: String) = Neo.node(labelUser, "name", name).map { new UserNode(_) }
+	def apply(name: String) = Neo.node(label.User, "name", name).map { new UserNode(_) }
 
-	def create(name: String, password: String) = UserNode(Neo.create(labelUser, "name" -> name, "password" -> password))
+	def create(name: String, password: String) = UserNode(Neo.create(label.User, "name" -> name, "password" -> password))
 }

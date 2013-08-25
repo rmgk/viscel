@@ -11,13 +11,13 @@ import scala.language.implicitConversions
 import util.Try
 
 class ElementNode(val self: Node) {
-	require(Neo.txs { self.getLabels.exists(_ == labelElement) })
+	require(Neo.txs { self.getLabels.exists(_ == label.Element) })
 
 	def nid = Neo.txs { self.getId }
-	def next: Option[ElementNode] = Neo.txs { self.to("next").map { ElementNode(_) } }
-	def prev: Option[ElementNode] = Neo.txs { self.from("next").map { ElementNode(_) } }
+	def next: Option[ElementNode] = Neo.txs { self.to(rel.next).map { ElementNode(_) } }
+	def prev: Option[ElementNode] = Neo.txs { self.from(rel.next).map { ElementNode(_) } }
 
-	def collection: CollectionNode = Neo.txs { CollectionNode(self.getSingleRelationship("parent", Direction.OUTGOING).getEndNode) }
+	def collection: CollectionNode = Neo.txs { CollectionNode(self.getSingleRelationship(rel.parent, Direction.OUTGOING).getEndNode) }
 	def position: Int = Neo.txs { self[Int]("position") }
 	def distanceToLast: Int = Neo.txs { collection.last.get.position - position }
 
@@ -41,5 +41,5 @@ object ElementNode {
 	def apply(node: Node) = new ElementNode(node)
 	def apply(nodeId: Long) = new ElementNode(Neo.tx { _.getNodeById(nodeId) })
 
-	def create(attributes: (String, Any)*) = ElementNode(Neo.create(labelElement, attributes: _*))
+	def create(attributes: (String, Any)*) = ElementNode(Neo.create(label.Element, attributes: _*))
 }

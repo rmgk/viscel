@@ -12,11 +12,6 @@ import scala.language.implicitConversions
 
 package object store {
 
-	val labelCollection = DynamicLabel.label("Collection")
-	val labelElement = DynamicLabel.label("Element")
-	val labelUser = DynamicLabel.label("User")
-	val labelBookmark = DynamicLabel.label("Bookmark")
-
 	implicit def stringToRelationshipType(name: String) = DynamicRelationshipType.withName(name)
 
 	implicit class NodeOps(node: Node) {

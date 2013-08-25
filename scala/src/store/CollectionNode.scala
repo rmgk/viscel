@@ -11,7 +11,7 @@ import util.Try
 import viscel.time
 
 class CollectionNode(val self: Node) {
-	require(Neo.txs { self.getLabels.exists(_ == labelCollection) })
+	require(Neo.txs { self.getLabels.exists(_ == label.Collection) })
 
 	def nid = Neo.txs { self.getId }
 	def id = Neo.txs { self[String]("id") }
@@ -21,7 +21,7 @@ class CollectionNode(val self: Node) {
 	def size = Neo.txs { last.map { _.self[Int]("position") }.getOrElse(0) }
 
 	def apply(pos: Int) = Neo.txs {
-		self.getRelationships(Direction.INCOMING, "parent").map { r => ElementNode { r.getStartNode } }.find { _.position == pos }
+		self.getRelationships(Direction.INCOMING, rel.parent).map { r => ElementNode { r.getStartNode } }.find { _.position == pos }
 	}
 
 	override def equals(other: Any) = other match {
@@ -37,15 +37,15 @@ class CollectionNode(val self: Node) {
 		val node = elementNode.self
 		val lastPos = pred.orElse(last) match {
 			case Some(en) =>
-				en.self.getSingleRelationship("last", Direction.INCOMING).delete
-				en.self.createRelationshipTo(node, "next")
+				en.self.getSingleRelationship(rel.last, Direction.INCOMING).delete
+				en.self.createRelationshipTo(node, rel.next)
 				en.position
 			case None =>
-				self.createRelationshipTo(node, "first")
+				self.createRelationshipTo(node, rel.first)
 				0
 		}
-		self.createRelationshipTo(node, "last")
-		node.createRelationshipTo(self, "parent")
+		self.createRelationshipTo(node, rel.last)
+		node.createRelationshipTo(self, rel.parent)
 		node.setProperty("position", lastPos + 1)
 		elementNode
 	}
@@ -54,7 +54,7 @@ class CollectionNode(val self: Node) {
 
 object CollectionNode {
 	def apply(node: Node) = new CollectionNode(node)
-	def apply(id: String) = Neo.node(labelCollection, "id", id).map { new CollectionNode(_) }
+	def apply(id: String) = Neo.node(label.Collection, "id", id).map { new CollectionNode(_) }
 
-	def create(id: String, name: Option[String] = None) = CollectionNode(Neo.create(labelCollection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
+	def create(id: String, name: Option[String] = None) = CollectionNode(Neo.create(label.Collection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
 }

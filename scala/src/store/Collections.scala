@@ -12,7 +12,7 @@ import util.Try
 import viscel.time
 
 object Collections {
-	def list = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(labelCollection).toStream.map { CollectionNode(_) } }
+	def list = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).toStream.map { CollectionNode(_) } }
 
 	def search(query: String) = time("search") {
 		val lcql = query.toLowerCase.replaceAll("""\s+""", "").toList
