@@ -48,12 +48,10 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 		}
 	}
 
-	def wrappedElementData(wrapped: Wrapped): Future[Seq[ElementData]] = {
+	def elementData(wrapped: Wrapped): Future[Seq[ElementData]] = {
 		require(wrapped.elements.forall(_.isSuccess), "could not get element: " + (wrapped.elements.filter(_.isFailure).map { _.failed.get.getMessage }))
 		wrapped.elements.map(_.get).map { elementData }.pipe { Future.sequence(_) }
 	}
-
-	def wrap(loc: Uri, wrapper: Wrapper): Future[Wrapped] = loc.pipe { document }.map { wrapper }
 
 	def test() = cores.foreach {
 		new Runner(_).start().onComplete {
@@ -67,6 +65,8 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 	class Runner(core: Core) {
 		val collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
 
+		def wrap(loc: Uri): Future[Wrapped] = loc.pipe { document }.map { core.wrapper }
+
 		def createElementNode(edata: ElementData): ElementNode = Neo.txs {
 			ElementNode.create(
 				(edata.element.toMap ++
@@ -76,38 +76,35 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 				.tap { en => logger.info(s"""create element node ${en.nid} pos ${en.position} ${en("source")}""") }
 		}
 
-		def storeElements(elements: Seq[ElementData]): Unit =
+		def store(elements: Seq[ElementData]): Unit =
 			elements.foreach { edata =>
 				Resource.fromFile(hashToFilename(edata.sha1)).write(edata.buffer)
 				createElementNode(edata)
 			}
 
-		def downloadElements(wrapped: Wrapped): Future[Seq[ElementData]] =
-			wrappedElementData(wrapped)
-				.map { elements => storeElements(elements); elements }
-
-		def downloadAllFrom(loc: Uri, wrapper: Wrapper): Future[Unit] =
-			wrap(loc, wrapper)
-				.flatMap { wrapped => downloadElements(wrapped).map { _ => wrapped } }
-				.flatMap { wrapped =>
-					wrapped.next match {
-						case Success(n) => downloadAllFrom(n, wrapper)
-						case Failure(e) => Future.failed(e)
-					}
+		def get(wrapped: Wrapped): Future[Wrapped] =
+			elementData(wrapped)
+				.map { elements =>
+					store(elements)
+					wrapped
 				}
 
-		def downloadAllAfter(loc: Uri, wrapper: Wrapper): Future[Unit] =
-			wrap(loc, wrapper)
-				.flatMap { wrapped =>
-					wrapped.next match {
-						case Success(n) => downloadAllFrom(n, wrapper)
-						case Failure(e) => Future.failed(e)
-					}
-				}
+		def next(wrapped: Wrapped): Future[Uri] = wrapped.next.toFuture
+
+		def continue(loc: Uri): Future[Unit] =
+			wrap(loc)
+				.flatMap { get }
+				.flatMap { next }
+				.flatMap { continue }
+
+		def continueAfter(loc: Uri): Future[Unit] =
+			wrap(loc)
+				.flatMap { next }
+				.flatMap { continue }
 
 		def start() = collection.last match {
-			case None => downloadAllFrom(core.first, core.wrapper)
-			case Some(last) => downloadAllAfter(last[String]("origin"), core.wrapper)
+			case None => continue(core.first)
+			case Some(last) => continueAfter(last[String]("origin"))
 		}
 
 	}

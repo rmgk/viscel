@@ -1,6 +1,7 @@
 import com.typesafe.scalalogging.slf4j.Logging
 import java.security.MessageDigest
 import scala.util._
+import scala.concurrent.Future
 
 package object viscel extends Logging {
 	def time[T](desc: String = "")(f: => T): T = {
@@ -18,6 +19,13 @@ package object viscel extends Logging {
 		def tap[R](f: T => R) = { f(x); x }
 		def validate(f: T => Unit) = Try { f(x); x }
 		def fail(implicit evidence: T <:< String) = Failure(new Throwable(x))
+	}
+
+	implicit class TryPimps[T](x: Try[T]) {
+		def toFuture = x match {
+			case Success(v) => Future.successful(v)
+			case Failure(e) => Future.failed(e)
+		}
 	}
 
 }
