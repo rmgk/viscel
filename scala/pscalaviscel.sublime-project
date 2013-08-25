@@ -2,7 +2,6 @@
 	"folders": [
 		{
 			"folder_exclude_patterns": [
-				"project",
 				"target"
 			],
 			"path": "."
