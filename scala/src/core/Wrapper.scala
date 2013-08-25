@@ -32,6 +32,7 @@ object CarciphonaWrapper extends Core with Wrapper with Logging {
 	def name = "Carciphona"
 
 	val first = Uri("http://carciphona.com/view.php?page=cover&chapter=1&lang=")
+	// val first = Uri("http://carciphona.com/view.php?page=45&chapter=10&lang")
 	def wrapper: Wrapper = this
 
 	val extractImageUri = """[\w-]+:url\((.*)\)""".r
@@ -46,8 +47,29 @@ object CarciphonaWrapper extends Core with Wrapper with Logging {
 				_.attr("style")
 					.pipe { case extractImageUri(img) => img }
 					.pipe { Uri.parseAndResolve(_, doc.baseUri) }
-					.pipe { uri => Element(source = uri.toString, origin = doc.baseUri) }
+					.pipe { uri => Element(source = uri, origin = doc.baseUri) }
 			}.pipe { Seq(_) }
+	}
+
+}
+
+object FlipsideWrapper extends Core with Wrapper with Logging {
+	def id = "X_Flipside"
+	def name = "Flipside"
+
+	val first = Uri("http://flipside.keenspot.com/comic.php?i=1")
+	def wrapper: Wrapper = this
+
+	val extractImageUri = """[\w-]+:url\((.*)\)""".r
+
+	def found(count: Int)(es: Elements) = require(es.size == count, s"wrong number of elements found ${es.size} need $count")
+
+	override def apply(doc: Document): Wrapped = new Wrapped {
+		def document = doc
+		val next = document.select("[rel=next][accesskey=n]").validate { found(1) }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
+		val elements = document.select("img.ksc").validate { found(1) }.map { itag =>
+			Element(source = itag.attr("abs:src"), origin = doc.baseUri, alt = Option(itag.attr("alt")))
+		}.pipe { Seq(_) }
 	}
 
 }

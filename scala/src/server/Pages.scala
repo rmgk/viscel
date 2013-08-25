@@ -31,6 +31,8 @@ class IndexPage(user: UserNode) extends HtmlPage {
 
 		body.id("index")(
 			makeFieldset("Search", Seq(searchForm(""))).cls("info"),
+			div.cls("navigation")(
+				link_stop("stop")),
 			makeFieldset("New Pages", unreadTags).cls("group"),
 			makeFieldset("Bookmarks", currentTags).cls("group"))
 	}
@@ -175,8 +177,10 @@ trait HtmlPage extends Logging {
 	def path_search = "/s";
 	def path_blob(id: String) = s"/b/$id"
 	def path_nid(id: Long) = s"/id/$id"
+	def path_stop = "/stop"
 
 	def link_main(ts: STag*) = a.href(path_main)(ts)
+	def link_stop(ts: STag*) = a.href(path_stop)(ts)
 	def link_front(id: String, ts: STag*) = a.href(path_front(id))(ts)
 	def link_view(id: String, pos: Int, ts: STag*) = a.href(path_view(id, pos))(ts)
 	def link_node(en: Option[ElementNode], ts: STag*): STag = en.map { n => a.href(path_nid(n.nid))(ts) }.getOrElse(ts)

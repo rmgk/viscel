@@ -38,20 +38,20 @@ trait DefaultRoutes extends HttpService with Logging {
 	val loginOrCreate = BasicAuth(UserPassAuthenticator[UserNode] {
 		case Some(UserPass(user, password)) =>
 			logger.trace(s"login: $user $password")
-			time("login") {
-				if (user.matches("\\w+")) {
-					Future.successful {
-						UserNode(user).orElse {
-							logger.warn("create new user $user $password")
-							Some(UserNode.create(user, password))
-						}.flatMap { un =>
-							if (un.password == password) Some(un)
-							else None
-						}
+			// time("login") {
+			if (user.matches("\\w+")) {
+				Future.successful {
+					UserNode(user).orElse {
+						logger.warn("create new user $user $password")
+						Some(UserNode.create(user, password))
+					}.flatMap { un =>
+						if (un.password == password) Some(un)
+						else None
 					}
 				}
-				else { Future.successful(None) }
 			}
+			else { Future.successful(None) }
+		// }
 		case None =>
 			Future.successful(None)
 	}, "Username is used to store configuration; Passwords are saved in plain text; User is created on first login")
@@ -63,8 +63,10 @@ trait DefaultRoutes extends HttpService with Logging {
 			} ~
 				path("stop") {
 					complete {
-						spray.util.actorSystem.shutdown()
-						viscel.store.Neo.shutdown()
+						future {
+							spray.util.actorSystem.shutdown()
+							viscel.store.Neo.shutdown()
+						}
 						"shutdown"
 					}
 				} ~
