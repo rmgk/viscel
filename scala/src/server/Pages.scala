@@ -37,7 +37,7 @@ class IndexPage(user: UserNode) extends HtmlPage {
 			makeFieldset("Bookmarks", currentTags).cls("group"))
 	}
 
-	def makeFieldset(name: String, entries: Seq[STag]) = fieldset(legend(name), entries.flatMap { e => Seq[STag](e, <br/>) })
+	def makeFieldset(name: String, entries: Seq[STag]) = fieldset(legend(name), div(entries.flatMap { e => Seq[STag](e, <br/>) }))
 }
 
 object IndexPage {
@@ -77,6 +77,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
 
 	def bmRemoveForm(bm: ElementNode) = form_post(path_front(collection.id),
 		input.ctype("submit").name("submit").value("remove").cls("submit"))
+
 	def content = {
 		body.id("front")(
 			div.cls("info")(
@@ -192,7 +193,7 @@ trait HtmlPage extends Logging {
 	def searchForm(init: String) = form_get(path_search, input.ctype("textfield").name("q").value(init))
 
 	def enodeToImg(en: ElementNode) = img.src(path_blob(en[String]("blob"))).cls("element")
-		.attr { Seq("width", "height", "alt", "title").flatMap { k => en.get[String](k).map { k -> _ } }: _* }
+		.attr { Seq("width", "height").flatMap { k => en.get[Int](k).map { k -> _ } } ++ Seq("alt", "title").flatMap { k => en.get[String](k).map { k -> _ } }: _* }
 
 	def keypress(location: String, keyCodes: Int*) = s"""
 			|if (${keyCodes.map { c => s"ev.keyCode == $c" }.mkString(" || ")}) {

@@ -48,6 +48,11 @@ legend {
 	display:inline;
 	font-size:large;
 }
+fieldset.group div {
+	column-width: 20em;
+	-webkit-column-width: 20em;
+	-moz-column-width: 20em;
+}
 
 /* comic pages */
 .content {
