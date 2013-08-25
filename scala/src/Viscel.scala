@@ -60,6 +60,16 @@ object Viscel {
 			Neo.execute("create index on :User(name)")
 		}
 
+		if (conf.purgeUnreferenced()) {
+			Neo.execute("""
+				|match (user :User), (col: Collection)
+				|where NOT( user -[:bookmarked]-> () <-[:bookmark]- col )
+				|with col
+				|match col -[r1]-> (node) -[r2?]- ()
+				|delete node, r1, r2
+				""").dumpToString.pipe { println }
+		}
+
 		conf.importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir).importAll)
 
 		for {
@@ -105,6 +115,7 @@ class Conf(arguments: Seq[String]) extends ScallopConf(arguments) {
 	val importbookmarks = opt[String](descr = "path to user.ini")
 	val createIndexes = opt[Boolean](descr = "create neo4j indexes")
 	val username = opt[String](descr = "username to work with")
+	val purgeUnreferenced = opt[Boolean](descr = "purge unreferenced collections from database")
 
 	dependsOnAny(importbookmarks, List(username))
 
