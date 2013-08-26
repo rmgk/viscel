@@ -56,8 +56,8 @@ object Viscel {
 
 		if (conf.createIndexes()) {
 			Neo.execute("create index on :Collection(id)")
-			Neo.execute("create index on :Element(position)")
-			Neo.execute("create index on :User(name)")
+			//Neo.execute("create index on :Element(position)")
+			//Neo.execute("create index on :User(name)")
 		}
 
 		if (conf.purgeUnreferenced()) {

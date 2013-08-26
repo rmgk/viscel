@@ -24,6 +24,10 @@ class CollectionNode(val self: Node) {
 		self.getRelationships(Direction.INCOMING, rel.parent).map { r => ElementNode { r.getStartNode } }.find { _.position == pos }
 	}
 
+	def children = Neo.txs {
+		self.getRelationships(Direction.INCOMING, rel.parent).map { r => ElementNode { r.getStartNode } }.toIndexedSeq
+	}
+
 	override def equals(other: Any) = other match {
 		case o: CollectionNode => self == o.self
 		case _ => false

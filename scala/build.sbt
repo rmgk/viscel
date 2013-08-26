@@ -13,19 +13,17 @@ import akka.io.IO
 import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.Logging
 import org.jsoup._
-import org.neo4j.graphdb.DynamicLabel
-import org.neo4j.graphdb.DynamicRelationshipType
-import org.neo4j.graphdb.Label
-import org.neo4j.graphdb.Node
+import org.neo4j.graphdb._
 import scala.collection.JavaConversions._
+import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ ExecutionContext, Future }
-import spray.can.Http
+import spray.can._
 import spray.client.pipelining._
-import spray.http.Uri
+import spray.http._
 import viscel._
 import viscel.store._
+
 """
 
 scalaSource in Compile <<= baseDirectory {(base) => new File(base, "src")}

@@ -19,6 +19,8 @@ import spray.http.HttpRequest
 import spray.http.HttpResponse
 import spray.http.ContentType
 import scalax.io._
+import scala.collection.JavaConversions._
+import org.neo4j.graphdb.Direction
 
 case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte], response: HttpResponse, element: Element)
 
@@ -82,6 +84,10 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 				createElementNode(edata)
 			}
 
+		def find(loc: Uri) = Neo.txs {
+			collection.children.filter { node => Uri(node[String]("origin")) == loc }.toIndexedSeq
+		}
+
 		def get(wrapped: Wrapped): Future[Wrapped] =
 			elementData(wrapped)
 				.map { elements =>
@@ -91,14 +97,22 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 
 		def next(wrapped: Wrapped): Future[Uri] = wrapped.next.toFuture
 
-		def continue(loc: Uri): Future[Unit] =
+		def matches(wrapped: Wrapped): Future[Wrapped] = {
+			wrapped.elements.last.get.similar(collection.last.get)
+			Future.successful(wrapped)
+		}
+
+		def continue(loc: Uri): Future[Unit] = {
+			require(find(loc).isEmpty, s"already seen $loc")
 			wrap(loc)
 				.flatMap { get }
 				.flatMap { next }
 				.flatMap { continue }
+		}
 
 		def continueAfter(loc: Uri): Future[Unit] =
 			wrap(loc)
+				.flatMap { matches }
 				.flatMap { next }
 				.flatMap { continue }
 
