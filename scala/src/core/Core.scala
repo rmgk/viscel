@@ -91,7 +91,7 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 				(edata.element.toMap ++
 					Seq("blob" -> edata.sha1,
 						"mediatype" -> edata.mediatype.toString)).toSeq: _*)
-				.pipe(collection.append(_, None))
+				.pipe(collection.append)
 				.tap { en => logger.info(s"""create element node ${en.nid} pos ${en.position} ${en("source")}""") }
 		}
 

@@ -52,19 +52,19 @@ class LegacyImporter(dbdir: String) extends Logging {
 		val elts = time("load elements") { legacyAdapter.getAll(col.id).toList }
 		logger.info(elts.size.toString)
 
-		def createLinkedElts(elts: List[LegacyElement], last: ElementNode): Unit = elts match {
+		def createLinkedElts(elts: List[LegacyElement]): Unit = elts match {
 			case head :: tail =>
 				val newElem = ElementNode.create(head.toSeq: _*)
-				col.append(newElem, Some(last))
-				createLinkedElts(tail, newElem)
+				col.append(newElem)
+				createLinkedElts(tail)
 			case List() =>
 		}
 
 		if (!elts.isEmpty) {
 			time("create elements") {
 				val first = ElementNode.create(elts.head.toSeq: _*)
-				col.append(first, None)
-				createLinkedElts(elts.tail, first)
+				col.append(first)
+				createLinkedElts(elts.tail)
 			}
 		}
 	}

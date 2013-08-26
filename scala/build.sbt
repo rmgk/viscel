@@ -56,9 +56,10 @@ libraryDependencies ++= Seq(
 	"org.neo4j" % "neo4j-graphviz" % "2.0.0-M04",
 	"org.rogach" %% "scallop" % "0.9.4", //mit
 	"org.slf4j" % "slf4j-simple" % "1.7.5", //mit
-	"org.xerial" % "sqlite-jdbc" % "3.7.2" // apache2
+	"org.xerial" % "sqlite-jdbc" % "3.7.2", // apache2
 	// "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5", //bsd
 	// "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1", // apache2
+	"org.neo4j" % "neo4j-kernel" % "2.0.0-M04" % "test" classifier "tests"
 )
 
 

@@ -26,7 +26,7 @@ object DCore {
 
 class DynamicCoreBuilder(val cores: List[DynamicCore]) extends Dynamic {
 	def applyDynamic(id: String)(name: String, first: Uri, img: String, next: String = null) =
-		new DynamicCoreBuilder(new DynamicCore(id, name, first, img, Option(next)) :: cores)
+		new DynamicCoreBuilder(new DynamicCore(s"DX_$id", name, first, img, Option(next)) :: cores)
 }
 
 class DynamicCore(val id: String, val name: String, val first: Uri, elementSelector: String, nextSelector: Option[String]) extends Core with Wrapper with Logging {
@@ -55,7 +55,7 @@ class DynamicWrapped(val document: Document, elementSelector: String, nextSelect
 		case None => img.flatMap {
 			_.parents.find { _.tag.getName == "a" }.pipe {
 				case Some(t) => Try(t)
-				case None => Try { throw new Throwable("image has no anchor parent") }
+				case None => Try { throw abort("image has no anchor parent") }
 			}
 		}
 		case Some(nextSelector) => document.select(nextSelector).validate { found(1, "next") }.map { _.get(0) }
