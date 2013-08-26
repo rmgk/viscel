@@ -26,7 +26,7 @@ object DCore {
 
 class DynamicCoreBuilder(val cores: List[DynamicCore]) extends Dynamic {
 	def applyDynamic(id: String)(name: String, first: Uri, img: String, next: String = null) =
-		DCore(new DynamicCore(id, name, first, img, Option(next)) :: cores)
+		new DynamicCoreBuilder(new DynamicCore(id, name, first, img, Option(next)) :: cores)
 }
 
 class DynamicCore(val id: String, val name: String, val first: Uri, elementSelector: String, nextSelector: Option[String]) extends Core with Wrapper with Logging {

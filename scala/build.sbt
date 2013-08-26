@@ -3,7 +3,7 @@ import com.typesafe.sbt.SbtScalariform._
 
 name := "ScalaViscel"
 
-version := "5.0.0-α"
+version := "5.0.0-β"
 
 scalaVersion := "2.10.2"
 
