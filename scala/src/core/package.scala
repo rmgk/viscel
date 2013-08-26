@@ -16,5 +16,5 @@ package core {
 
 package object core {
 	def abort(msg: String) = new AbortRun(msg)
-	def found(count: Int, name: String)(es: Elements) = if (es.size == count) true else throw new AbortRun("$name found ${es.size} need $count")
+	def found(count: Int, name: String)(es: Elements) = if (es.size == count) true else throw new AbortRun(s"$name found ${es.size} need $count")
 }
