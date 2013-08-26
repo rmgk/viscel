@@ -21,11 +21,11 @@ class CollectionNode(val self: Node) {
 	def size = Neo.txs { last.map { _.self[Int]("position") }.getOrElse(0) }
 
 	def apply(pos: Int) = Neo.txs {
-		self.getRelationships(Direction.INCOMING, rel.parent).map { r => ElementNode { r.getStartNode } }.find { _.position == pos }
+		self.incoming(rel.parent).map { r => ElementNode { r.getStartNode } }.find { _.position == pos }
 	}
 
 	def children = Neo.txs {
-		self.getRelationships(Direction.INCOMING, rel.parent).map { r => ElementNode { r.getStartNode } }.toIndexedSeq
+		self.incoming(rel.parent).map { r => ElementNode { r.getStartNode } }.toIndexedSeq
 	}
 
 	override def equals(other: Any) = other match {
@@ -52,6 +52,20 @@ class CollectionNode(val self: Node) {
 		node.createRelationshipTo(self, rel.parent)
 		node.setProperty("position", lastPos + 1)
 		elementNode
+	}
+
+	def drop() = Neo.txs {
+		self.outgoing(rel.last).foreach { lrel =>
+			val lnode = lrel.getEndNode
+			lnode.incoming(rel.next).map { prel =>
+				val pnode = prel.getStartNode
+				self.createRelationshipTo(pnode, rel.last)
+				prel.delete
+			}
+			lnode.outgoing(rel.parent).foreach { _.delete }
+			lrel.delete
+			lnode.delete
+		}
 	}
 
 }
