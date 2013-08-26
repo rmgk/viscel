@@ -60,8 +60,6 @@ object FlipsideWrapper extends Core with Wrapper with Logging {
 	val first = Uri("http://flipside.keenspot.com/comic.php?i=1")
 	def wrapper: Wrapper = this
 
-	val extractImageUri = """[\w-]+:url\((.*)\)""".r
-
 	def found(count: Int)(es: Elements) = require(es.size == count, s"wrong number of elements found ${es.size} need $count")
 
 	override def apply(doc: Document): Wrapped = new Wrapped {
@@ -69,6 +67,48 @@ object FlipsideWrapper extends Core with Wrapper with Logging {
 		val next = document.select("[rel=next][accesskey=n]").validate { found(1) }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
 		val elements = document.select("img.ksc").validate { found(1) }.map { itag =>
 			Element(source = itag.attr("abs:src"), origin = doc.baseUri, alt = Option(itag.attr("alt")))
+		}.pipe { Seq(_) }
+	}
+
+}
+
+object DrMcNinjaWrapper extends Core with Wrapper with Logging {
+	def id = "X_DrMcNinja"
+	def name = "Dr. McNinja"
+
+	val first = Uri("http://drmcninja.com/archives/comic/0p1/")
+	def wrapper: Wrapper = this
+
+	def found(count: Int)(es: Elements) = require(es.size == count, s"wrong number of elements found ${es.size} need $count")
+
+	override def apply(doc: Document): Wrapped = new Wrapped {
+		def document = doc
+		val next = document.select("[rel=next]").validate { found(1) }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
+		val elements = document.select("#comic img").validate { found(1) }.map { itag =>
+			Element(source = Uri.parseAbsolute(itag.attr("abs:src")), origin = doc.baseUri, alt = Option(itag.attr("alt")), title = Option(itag.attr("title")))
+		}.pipe { Seq(_) }
+	}
+
+}
+
+object FreakAngelsWrapper extends Core with Wrapper with Logging {
+	def id = "X_FreakAngels"
+	def name = "Freak Angels"
+
+	val first = Uri("http://www.freakangels.com/?p=22&page=1")
+	def wrapper: Wrapper = this
+
+	def found(count: Int)(es: Elements) = require(es.size == count, s"wrong number of elements found ${es.size} need $count")
+
+	override def apply(doc: Document): Wrapped = new Wrapped {
+		def document = doc
+		val next = document.select(".pagenums").validate { found(1) }.flatMap { pns =>
+			val nextid = pns.get(0).ownText.toInt + 1
+			pns.select(s":containsOwn($nextid)").validate { found(1) }
+		}.recoverWith { case e => document.select("a[rel=next]").validate { found(1) } }
+			.map { _.attr { "abs:href" }.pipe { Uri.parseAbsolute(_) } }
+		val elements = document.select(".entry_page img").validate { found(1) }.map { itag =>
+			Element(source = Uri.parseAbsolute(itag.attr("abs:src")), origin = doc.baseUri, alt = Option(itag.attr("alt")), title = Option(itag.attr("title")))
 		}.pipe { Seq(_) }
 	}
 

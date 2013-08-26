@@ -7,25 +7,6 @@ version := "5.0.0-α"
 
 scalaVersion := "2.10.2"
 
-initialCommands in console := """
-import akka.actor.{ ActorSystem, Props, Actor }
-import akka.io.IO
-import akka.util.Timeout
-import com.typesafe.scalalogging.slf4j.Logging
-import org.jsoup._
-import org.neo4j.graphdb._
-import scala.collection.JavaConversions._
-import scala.concurrent._
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-import spray.can._
-import spray.client.pipelining._
-import spray.http._
-import viscel._
-import viscel.store._
-
-"""
-
 scalaSource in Compile <<= baseDirectory {(base) => new File(base, "src")}
 
 scalacOptions ++= List(
@@ -79,3 +60,27 @@ libraryDependencies ++= Seq(
 	// "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5", //bsd
 	// "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1", // apache2
 )
+
+
+initialCommands in console := """
+import akka.actor.{ ActorSystem, Props, Actor }
+import akka.io.IO
+import akka.util.Timeout
+import com.typesafe.scalalogging.slf4j.Logging
+import org.jsoup._
+import org.neo4j.graphdb._
+import scala.collection.JavaConversions._
+import scala.concurrent._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import spray.can._
+import spray.client.pipelining._
+import spray.http._
+import viscel._
+import viscel.store._
+def getPipe = {
+	implicit val system = ActorSystem()
+	implicit val timeout: Timeout = 30.seconds
+	sendReceive(IO(Http))
+}
+"""

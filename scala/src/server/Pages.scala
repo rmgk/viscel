@@ -50,7 +50,7 @@ class SearchPage(user: UserNode, text: String) extends HtmlPage {
 	def content = {
 
 		val containing = Collections.search(text)
-			.map { cn => link_front(cn.id, cn.id) }
+			.map { cn => link_front(cn.id, cn.name) }
 
 		body.id("search")(
 			makeFieldset("Search", Seq(searchForm(text))).cls("info"),

@@ -26,9 +26,9 @@ case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte]
 
 class Clockwork(val iopipe: SendReceive) extends Logging {
 
-	val cores = Seq(CarciphonaWrapper, FlipsideWrapper)
+	val cores = Seq(CarciphonaWrapper, FlipsideWrapper, DrMcNinjaWrapper, FreakAngelsWrapper)
 
-	def get(uri: Uri, referer: Option[Uri] = None): Future[HttpResponse] = {
+	def response(uri: Uri, referer: Option[Uri] = None): Future[HttpResponse] = {
 		logger.info(s"get $uri ($referer)")
 		val addReferer = referer match {
 			case Some(ref) => addHeader("referer", ref.toString)
@@ -37,10 +37,10 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 		Get(uri).pipe { addReferer }.pipe { iopipe }
 	}
 
-	def document(uri: Uri): Future[Document] = get(uri).map { res => Jsoup.parse(res.entity.asString, uri.toString) }
+	def document(uri: Uri): Future[Document] = response(uri).map { res => Jsoup.parse(res.entity.asString, uri.toString) }
 
 	def elementData(eseed: Element): Future[ElementData] = {
-		get(eseed.source, Some(eseed.origin)).map { res =>
+		response(eseed.source, Some(eseed.origin)).map { res =>
 			ElementData(
 				mediatype = res.header[`Content-Type`].get.contentType,
 				buffer = res.entity.buffer,
@@ -55,10 +55,10 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 		wrapped.elements.map(_.get).map { elementData }.pipe { Future.sequence(_) }
 	}
 
-	def test() = cores.foreach {
-		new Runner(_).start().onComplete {
+	def test() = cores.foreach { core =>
+		new Runner(core).start().onComplete {
 			case Success(_) => logger.info("test complete without errorrs")
-			case Failure(e) => logger.info(s"test complete ${e.getMessage}")
+			case Failure(e) => logger.info(s"${core.id} complete ${e.getMessage}")
 		}
 	}
 
