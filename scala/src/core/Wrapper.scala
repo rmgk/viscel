@@ -9,6 +9,7 @@ import scala.util._
 import spray.client.pipelining._
 import spray.http.Uri
 import viscel._
+import scala.collection.JavaConversions._
 
 trait Core {
 	def id: String
@@ -81,9 +82,13 @@ object DrMcNinjaWrapper extends Core with Wrapper with Logging {
 
 	def found(count: Int)(es: Elements) = require(es.size == count, s"wrong number of elements found ${es.size} need $count")
 
+	val extractChapter = """http://drmcninja.com/archives/comic/(\d+)p\d+/""".r
+
 	override def apply(doc: Document): Wrapped = new Wrapped {
 		def document = doc
-		val next = document.select("[rel=next]").validate { found(1) }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
+		val next = document.select("#comic-head .next").validate { found(1) }.map { _.attr("abs:href") }
+			.recoverWith { case e => Try { doc.baseUri.pipe { case extractChapter(c) => s"http://drmcninja.com/archives/comic/${c.toInt + 1}p1/" } } }
+			.map { Uri.parseAbsolute(_) }
 		val elements = document.select("#comic img").validate { found(1) }.map { itag =>
 			Element(source = Uri.parseAbsolute(itag.attr("abs:src")), origin = doc.baseUri, alt = Option(itag.attr("alt")), title = Option(itag.attr("title")))
 		}.pipe { Seq(_) }
@@ -107,9 +112,9 @@ object FreakAngelsWrapper extends Core with Wrapper with Logging {
 			pns.select(s":containsOwn($nextid)").validate { found(1) }
 		}.recoverWith { case e => document.select("a[rel=next]").validate { found(1) } }
 			.map { _.attr { "abs:href" }.pipe { Uri.parseAbsolute(_) } }
-		val elements = document.select(".entry_page img").validate { found(1) }.map { itag =>
+		val elements = document.select(".entry_page > p > img").map { itag =>
 			Element(source = Uri.parseAbsolute(itag.attr("abs:src")), origin = doc.baseUri, alt = Option(itag.attr("alt")), title = Option(itag.attr("title")))
-		}.pipe { Seq(_) }
+		}.map { Try(_) }
 	}
 
 }
