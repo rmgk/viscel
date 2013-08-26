@@ -38,12 +38,10 @@ object CarciphonaWrapper extends Core with Wrapper with Logging {
 
 	val extractImageUri = """[\w-]+:url\((.*)\)""".r
 
-	def found(count: Int)(es: Elements) = require(es.size == count, s"wrong number of elements found ${es.size} need $count")
-
 	override def apply(doc: Document): Wrapped = new Wrapped {
 		def document = doc
-		val next = document.select("#link #nextarea").validate { found(1) }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
-		val elements = document.select(".page:has(#link)").validate { found(1) }
+		val next = document.select("#link #nextarea").validate { found(1, "next") }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
+		val elements = document.select(".page:has(#link)").validate { found(1, "image") }
 			.map {
 				_.attr("style")
 					.pipe { case extractImageUri(img) => img }
@@ -61,12 +59,10 @@ object FlipsideWrapper extends Core with Wrapper with Logging {
 	val first = Uri("http://flipside.keenspot.com/comic.php?i=1")
 	def wrapper: Wrapper = this
 
-	def found(count: Int)(es: Elements) = require(es.size == count, s"wrong number of elements found ${es.size} need $count")
-
 	override def apply(doc: Document): Wrapped = new Wrapped {
 		def document = doc
-		val next = document.select("[rel=next][accesskey=n]").validate { found(1) }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
-		val elements = document.select("img.ksc").validate { found(1) }.map { itag =>
+		val next = document.select("[rel=next][accesskey=n]").validate { found(1, "next") }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
+		val elements = document.select("img.ksc").validate { found(1, "image") }.map { itag =>
 			Element(source = itag.attr("abs:src"), origin = doc.baseUri, alt = Option(itag.attr("alt")))
 		}.pipe { Seq(_) }
 	}
@@ -80,16 +76,14 @@ object DrMcNinjaWrapper extends Core with Wrapper with Logging {
 	val first = Uri("http://drmcninja.com/archives/comic/0p1/")
 	def wrapper: Wrapper = this
 
-	def found(count: Int)(es: Elements) = require(es.size == count, s"wrong number of elements found ${es.size} need $count")
-
 	val extractChapter = """http://drmcninja.com/archives/comic/(\d+)p\d+/""".r
 
 	override def apply(doc: Document): Wrapped = new Wrapped {
 		def document = doc
-		val next = document.select("#comic-head .next").validate { found(1) }.map { _.attr("abs:href") }
+		val next = document.select("#comic-head .next").validate { found(1, "next") }.map { _.attr("abs:href") }
 			.recoverWith { case e => Try { doc.baseUri.pipe { case extractChapter(c) => s"http://drmcninja.com/archives/comic/${c.toInt + 1}p1/" } } }
 			.map { Uri.parseAbsolute(_) }
-		val elements = document.select("#comic img").validate { found(1) }.map { itag =>
+		val elements = document.select("#comic img").validate { found(1, "image") }.map { itag =>
 			Element(source = Uri.parseAbsolute(itag.attr("abs:src")), origin = doc.baseUri, alt = Option(itag.attr("alt")), title = Option(itag.attr("title")))
 		}.pipe { Seq(_) }
 	}
@@ -103,14 +97,12 @@ object FreakAngelsWrapper extends Core with Wrapper with Logging {
 	val first = Uri("http://www.freakangels.com/?p=22&page=1")
 	def wrapper: Wrapper = this
 
-	def found(count: Int)(es: Elements) = require(es.size == count, s"wrong number of elements found ${es.size} need $count")
-
 	override def apply(doc: Document): Wrapped = new Wrapped {
 		def document = doc
-		val next = document.select(".pagenums").validate { found(1) }.flatMap { pns =>
+		val next = document.select(".pagenums").validate { found(1, "next") }.flatMap { pns =>
 			val nextid = pns.get(0).ownText.toInt + 1
-			pns.select(s":containsOwn($nextid)").validate { found(1) }
-		}.recoverWith { case e => document.select("a[rel=next]").validate { found(1) } }
+			pns.select(s":containsOwn($nextid)").validate { found(1, "next") }
+		}.recoverWith { case e => document.select("a[rel=next]").validate { found(1, "next") } }
 			.map { _.attr { "abs:href" }.pipe { Uri.parseAbsolute(_) } }
 		val elements = document.select(".entry_page > p > img").map { itag =>
 			Element(source = Uri.parseAbsolute(itag.attr("abs:src")), origin = doc.baseUri, alt = Option(itag.attr("alt")), title = Option(itag.attr("title")))

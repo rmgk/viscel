@@ -15,6 +15,7 @@ import spray.http.Uri
 import viscel._
 import viscel.store._
 import spray.http.HttpHeaders.`Content-Type`
+import spray.http.HttpHeaders.Location
 import spray.http.HttpRequest
 import spray.http.HttpResponse
 import spray.http.ContentType
@@ -22,11 +23,9 @@ import scalax.io._
 import scala.collection.JavaConversions._
 import org.neo4j.graphdb.Direction
 
-case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte], response: HttpResponse, element: Element)
-
 class Clockwork(val iopipe: SendReceive) extends Logging {
 
-	val cores = Seq(CarciphonaWrapper, FlipsideWrapper, DrMcNinjaWrapper, FreakAngelsWrapper)
+	val cores = DCore.list.cores ++ Seq(CarciphonaWrapper, FlipsideWrapper, DrMcNinjaWrapper, FreakAngelsWrapper)
 
 	def response(uri: Uri, referer: Option[Uri] = None): Future[HttpResponse] = {
 		logger.info(s"get $uri ($referer)")
@@ -35,9 +34,14 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 			case None => (x: HttpRequest) => x
 		}
 		Get(uri).pipe { addReferer }.pipe { iopipe }
+			.flatMap { res => res.validate(_.status.intValue == 200, abort(s"invalid response ${res.status}; $uri ($referer)")).toFuture }
 	}
 
-	def document(uri: Uri): Future[Document] = response(uri).map { res => Jsoup.parse(res.entity.asString, uri.toString) }
+	def document(uri: Uri): Future[Document] = response(uri).map { res =>
+		Jsoup.parse(
+			res.entity.asString,
+			res.header[Location].map { _.uri }.getOrElse(uri).toString)
+	}
 
 	def elementData(eseed: Element): Future[ElementData] = {
 		response(eseed.source, Some(eseed.origin)).map { res =>
@@ -51,14 +55,27 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 	}
 
 	def elementData(wrapped: Wrapped): Future[Seq[ElementData]] = {
-		require(wrapped.elements.forall(_.isSuccess), "could not get element: " + (wrapped.elements.filter(_.isFailure).map { _.failed.get.getMessage }))
-		wrapped.elements.map(_.get).map { elementData }.pipe { Future.sequence(_) }
+		wrapped.validate(
+			_.elements.forall(_.isSuccess),
+			abort("could not get element: " + {
+				wrapped.elements.filter(_.isFailure).map {
+					_.failed.get.tap {
+						case e: AbortRun =>
+						case e => e.printStackTrace
+					}
+				}
+			})).toFuture.flatMap {
+				_.elements.map(_.get).map { elementData }.pipe { Future.sequence(_) }
+			}
 	}
 
 	def test() = cores.foreach { core =>
 		new Runner(core).start().onComplete {
 			case Success(_) => logger.info("test complete without errorrs")
-			case Failure(e) => logger.info(s"${core.id} complete ${e.getMessage}")
+			case Failure(e) => e match {
+				case e: AbortRun => logger.info(s"${core.id} complete ${e}")
+				case e => logger.info(s"${core.id} failed ${e}"); e.printStackTrace
+			}
 		}
 	}
 
@@ -103,8 +120,8 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 		}
 
 		def continue(loc: Uri): Future[Unit] = {
-			require(find(loc).isEmpty, s"already seen $loc")
-			wrap(loc)
+			loc.validate(find(_).isEmpty, abort { s"already seen $loc" }).toFuture
+				.flatMap { wrap }
 				.flatMap { get }
 				.flatMap { next }
 				.flatMap { continue }
