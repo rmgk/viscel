@@ -11,10 +11,10 @@ import scala.language.implicitConversions
 import util.Try
 import viscel._
 
-class ConfigNode(val self: Node) {
-	require(Neo.txs { self.getLabels.exists(_ == label.Config) })
+class ConfigNode(val self: Node) extends {
+	val selfLabel = label.Config
+} with ViscelNode {
 
-	def nid = Neo.txs { self.getId }
 	def version = Neo.txs { self[Int]("version") }
 
 }

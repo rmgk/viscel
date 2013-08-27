@@ -10,20 +10,15 @@ import scala.collection.JavaConversions._
 import util.Try
 import viscel.time
 
-class ChapterNode(val self: Node) extends NodeContainer[ElementNode] with ContainableNode[ChapterNode] {
-	require(Neo.txs { self.getLabels.exists(_ == label.Chapter) })
+class ChapterNode(val self: Node) extends {
+	val selfLabel = label.Chapter
+} with NodeContainer[ElementNode] with ContainableNode[ChapterNode] with ViscelNode {
 
 	def containRelation = rel.chapter
 	def makeChild = ElementNode(_)
 	def makeSelf = ChapterNode(_)
 
-	def nid = Neo.txs { self.getId }
 	def name = Neo.txs { self.get[String]("name") }
-
-	override def equals(other: Any) = other match {
-		case o: ChapterNode => self == o.self
-		case _ => false
-	}
 
 	def delete: Unit = {}
 

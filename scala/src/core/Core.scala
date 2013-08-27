@@ -70,6 +70,7 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 	}
 
 	def nonChaptered() = cores.foreach { core =>
+		logger.info(s"start core ${core.id}")
 		val collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
 
 		new Runner(collection, core.wrapper).start(core.first).onComplete {

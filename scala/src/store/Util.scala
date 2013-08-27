@@ -11,7 +11,7 @@ import scala.collection.JavaConversions._
 import util.Try
 import viscel.time
 
-object Collections {
+object Util {
 	def list = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).toStream.map { CollectionNode(_) } }
 
 	def search(query: String) = time("search") {

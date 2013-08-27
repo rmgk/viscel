@@ -12,9 +12,8 @@ import util.Try
 import viscel.time
 import viscel._
 
-trait NodeContainer[ChildType <: ContainableNode[ChildType]] {
+trait NodeContainer[ChildType <: ContainableNode[ChildType]] extends ViscelNode {
 
-	def self: Node
 	def containRelation: RelationshipType
 	def makeChild: Node => ChildType
 
@@ -59,9 +58,8 @@ trait NodeContainer[ChildType <: ContainableNode[ChildType]] {
 
 }
 
-trait ContainableNode[SelfType] {
+trait ContainableNode[SelfType] extends ViscelNode {
 
-	def self: Node
 	def makeSelf: Node => SelfType
 
 	def next: Option[SelfType] = Neo.txs { self.to(rel.next).map { makeSelf } }

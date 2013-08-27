@@ -12,6 +12,7 @@ import spray.routing.{ HttpService, RequestContext, Route }
 import viscel.store.CollectionNode
 import viscel.store.ElementNode
 import viscel.store.UserNode
+import viscel.store.ViscelNode
 import viscel.time
 
 // we don't implement our route structure directly in the service actor because
@@ -92,7 +93,7 @@ trait DefaultRoutes extends HttpService with Logging {
 					}
 				} ~
 				path("id" / IntNumber) { id =>
-					complete(ViewPage(user, ElementNode(id)))
+					complete(PageDispatcher(user, ViscelNode(id).get))
 				} ~
 				(path("s") & parameter('q)) { query =>
 					complete(SearchPage(user, query))

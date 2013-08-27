@@ -10,12 +10,11 @@ import scala.collection.JavaConversions._
 import scala.language.implicitConversions
 import util.Try
 
-class ElementNode(val self: Node) extends ContainableNode[ElementNode] {
-	require(Neo.txs { self.getLabels.exists(_ == label.Element) })
+class ElementNode(val self: Node) extends {
+	val selfLabel = label.Element
+} with ViscelNode with ContainableNode[ElementNode] {
 
 	def makeSelf = ElementNode(_)
-
-	def nid = Neo.txs { self.getId }
 
 	def collection: CollectionNode = Neo.txs { CollectionNode(self.getSingleRelationship(rel.parent, Direction.OUTGOING).getEndNode) }
 	def distanceToLast: Int = Neo.txs { collection.last.get.position - position }

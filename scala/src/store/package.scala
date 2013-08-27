@@ -12,7 +12,7 @@ import scala.language.implicitConversions
 
 package object store {
 
-	implicit def stringToRelationshipType(name: String) = DynamicRelationshipType.withName(name)
+	// implicit def stringToRelationshipType(name: String) = DynamicRelationshipType.withName(name)
 
 	implicit class NodeOps(node: Node) {
 		def apply[T](key: String) = node.getProperty(key).asInstanceOf[T]

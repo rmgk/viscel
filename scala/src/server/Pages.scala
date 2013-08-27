@@ -7,10 +7,11 @@ import scala.xml.NodeSeq
 import scalatags._
 import spray.http.{ HttpResponse, HttpEntity, MediaTypes, ContentType, HttpCharsets }
 import viscel.store.CollectionNode
-import viscel.store.Collections
 import viscel.store.ElementNode
 import viscel.store.Neo
 import viscel.store.UserNode
+import viscel.store.ViscelNode
+import viscel.store.{ Util => StoreUtil }
 import viscel.time
 
 object MinimizeXML {
@@ -20,14 +21,24 @@ object MinimizeXML {
 	}
 }
 
+object PageDispatcher {
+	def apply(user: UserNode, vn: ViscelNode) = vn match {
+		//case n: ChapterNode =>
+		case n: CollectionNode => FrontPage(user, n)
+		// case n: ChapteredCollectionNode =>
+		case n: ElementNode => ViewPage(user, n)
+		//case n: UserNode =>
+	}
+}
+
 class IndexPage(user: UserNode) extends HtmlPage {
 	override def Title = "Index"
 
 	def content = {
 		val bookmarks = user.bookmarks.toStream
-		val (unread, current) = bookmarks.map { bm => (bm.collection.id, bm.collection.name, bm.distanceToLast) }.partition { _._3 > 0 }
-		val unreadTags = unread.sortBy { -_._3 }.map { case (id, name, unread) => link_front(id, s"$name ($unread)") }
-		val currentTags = current.sortBy { _._2 }.map { case (id, name, unread) => link_front(id, s"$name") }
+		val (unread, current) = bookmarks.map { bm => (bm.collection, bm.collection.name, bm.distanceToLast) }.partition { _._3 > 0 }
+		val unreadTags = unread.sortBy { -_._3 }.map { case (id, name, unread) => link_node(id, s"$name ($unread)") }
+		val currentTags = current.sortBy { _._2 }.map { case (id, name, unread) => link_node(id, s"$name") }
 
 		body.id("index")(
 			makeFieldset("Search", Seq(searchForm(""))).cls("info"),
@@ -48,9 +59,8 @@ class SearchPage(user: UserNode, text: String) extends HtmlPage {
 	override def Title = "Search"
 
 	def content = {
-
-		val containing = Collections.search(text)
-			.map { cn => link_front(cn.id, cn.name) }
+		val containing = StoreUtil.search(text)
+			.map { cn => link_node(cn, cn.name) }
 
 		body.id("search")(
 			makeFieldset("Search", Seq(searchForm(text))).cls("info"),
@@ -70,6 +80,7 @@ object SearchPage {
 
 class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage {
 	override def Title = collection.name
+	override def maskLocation = Some(path_front(collection.id))
 
 	val bm = user.getBookmark(collection)
 	val bm1 = bm.flatMap { _.prev }
@@ -120,7 +131,7 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 
 	override def navPrev = enode.prev.map { en => path_nid(en.nid) }
 	override def navNext = enode.next.map { en => path_nid(en.nid) }
-	override def navUp = Some(path_front(cid))
+	override def navUp = Some(path_nid(collection.nid))
 
 	def content = body.id("view")(
 		div.cls("content")(
@@ -130,7 +141,7 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage {
 	def navigation = Seq[STag](
 		link_node(enode.prev, "prev"),
 		" ",
-		link_front(cid, "front"),
+		link_node(collection, "front"),
 		" ",
 		form_post(path_front(cid),
 			input.ctype("hidden").name("bookmark").value(enode.nid),
@@ -184,7 +195,8 @@ trait HtmlPage extends Logging {
 	def link_stop(ts: STag*) = a.href(path_stop)(ts)
 	def link_front(id: String, ts: STag*) = a.href(path_front(id))(ts)
 	def link_view(id: String, pos: Int, ts: STag*) = a.href(path_view(id, pos))(ts)
-	def link_node(en: Option[ElementNode], ts: STag*): STag = en.map { n => a.href(path_nid(n.nid))(ts) }.getOrElse(ts)
+	def link_node(vn: ViscelNode, ts: STag*): STag = a.href(path_nid(vn.nid))(ts)
+	def link_node(vn: Option[ViscelNode], ts: STag*): STag = vn.map { link_node(_, ts: _*) }.getOrElse(ts)
 	// def link_node(en: Option[ElementNode], ts: STag*): STag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
 
 	def form_post(action: String, ts: STag*) = form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)

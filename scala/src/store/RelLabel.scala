@@ -7,6 +7,7 @@ package label {
 	class SimpleLabel(val name: String) extends Label
 
 	case object Collection extends SimpleLabel("Collection")
+	case object ChapteredCollection extends SimpleLabel("ChapteredCollection")
 	case object Element extends SimpleLabel("Element")
 	case object User extends SimpleLabel("User")
 	case object Bookmark extends SimpleLabel("Bookmark")

@@ -20,21 +20,14 @@ import viscel.time
  * (u) -[:bookmarked]-> (b)
  * (c) -[:bookmark]-> (b) -[:bookmarks]-> (e)
  */
-class UserNode(val self: Node) extends Logging {
-	require(Neo.txs { self.getLabels.exists(_ == label.User) })
+class UserNode(val self: Node) extends {
+	val selfLabel = label.User
+} with ViscelNode with Logging {
 
-	def nid = Neo.txs { self.getId }
 	def name = Neo.txs { self[String]("name") }
 	def password = Neo.txs { self[String]("password") }
 
 	def getBookmark(cn: CollectionNode) = Neo.txts("get bookmark") { getBookmarkNode(cn).flatMap { _.to(rel.bookmarks) }.map { ElementNode(_) } }
-
-	override def equals(other: Any) = other match {
-		case o: UserNode => self == o.self
-		case _ => false
-	}
-
-	override def toString = s"User($name)"
 
 	//def bookmark(pos: Int): Option[ElementNode] = apply(pos).map(bookmark(_))
 	def setBookmark(en: ElementNode) = Neo.txt(s"create bookmark ${en.collection.id}:${en.position} for ${name}") { db =>
@@ -51,7 +44,7 @@ class UserNode(val self: Node) extends Logging {
 	}
 
 	def bookmarks = Neo.txs {
-		self.outgoing("bookmarked").map { _.getEndNode }.flatMap { _.to(rel.bookmarks) }.map { ElementNode(_) }
+		self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { _.to(rel.bookmarks) }.map { ElementNode(_) }
 	}
 
 	def deleteBookmark(cn: CollectionNode) = Neo.txts(s"delete bookmark ${cn.id} for ${name}") {
