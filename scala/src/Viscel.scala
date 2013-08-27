@@ -4,7 +4,12 @@ import akka.actor.{ ActorSystem, Props, Actor }
 import akka.io.IO
 import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.Logging
+import java.io.File
 import org.jsoup.Jsoup
+import org.neo4j.graphdb.traversal._
+import org.neo4j.kernel._
+import org.neo4j.visualization.graphviz._
+import org.neo4j.walk.Walker
 import org.rogach.scallop._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -12,7 +17,6 @@ import scala.concurrent.{ ExecutionContext, Future }
 import spray.can.Http
 import spray.client.pipelining._
 import spray.http.Uri
-import java.io.File
 import viscel.core._
 import viscel.store._
 
@@ -70,13 +74,25 @@ object Viscel {
 				""").dumpToString.pipe { println }
 		}
 
-		conf.importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir).importAll)
+		conf.importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir.toString).importAll)
 
 		for {
-			userdir <- conf.importbookmarks.get
+			userpath <- conf.importbookmarks.get
 			uname <- conf.username.get
 			un <- UserNode(uname)
-		} yield { tools.BookmarkImporter(un, userdir) }
+		} { tools.BookmarkImporter(un, userpath.toString) }
+
+		for {
+			dotpath <- conf.makedot.get
+			uname <- conf.username.get
+			un <- UserNode(uname)
+		} { visualizeUser(un, dotpath) }
+
+		for {
+			dotpath <- conf.makedot.get
+			cid <- conf.collectionid.get
+			cn <- CollectionNode(cid)
+		} { visualizeCollection(cn, dotpath) }
 
 		implicit val system = ActorSystem()
 		val ioHttp = IO(Http)
@@ -99,6 +115,32 @@ object Viscel {
 		if (conf.actorshutdown()) system.shutdown
 	}
 
+	def visualizeUser(user: UserNode, dotpath: String) = {
+		val td = Traversal.description.depthFirst
+			.relationships(rel.bookmarked)
+			.relationships(rel.bookmarks)
+			.relationships(rel.bookmark)
+			.relationships(rel.first)
+			.relationships(rel.last)
+			.evaluator(Evaluators.excludeStartPosition)
+		Neo.txs {
+			val writer = new GraphvizWriter();
+			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(user.self).nodes, rel.bookmarked, rel.bookmarks, rel.bookmark, rel.first, rel.last))
+		}
+	}
+
+	def visualizeCollection(col: CollectionNode, dotpath: String) = {
+		val td = Traversal.description.depthFirst
+			.relationships(rel.first)
+			.relationships(rel.last)
+			.relationships(rel.next)
+			.evaluator(Evaluators.all)
+		Neo.txs {
+			val writer = new GraphvizWriter();
+			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.next))
+		}
+	}
+
 }
 
 class Conf(arguments: Seq[String]) extends ScallopConf(arguments) {
@@ -111,13 +153,16 @@ class Conf(arguments: Seq[String]) extends ScallopConf(arguments) {
 	val dbwarmup = toggle(default = Some(true), descrYes = "do database warmup")
 	val dbshutdown = toggle(default = Some(false), descrYes = "shut the database down when main finishes")
 	val actorshutdown = toggle(default = Some(false), descrYes = "shut the actor system down when main finishes")
-	val importdb = opt[String](descr = "path to collections.db")
-	val importbookmarks = opt[String](descr = "path to user.ini")
+	val importdb = opt[File](descr = "path to collections.db")
+	val importbookmarks = opt[File](descr = "path to user.ini")
 	val createIndexes = opt[Boolean](descr = "create neo4j indexes")
 	val username = opt[String](descr = "username to work with")
 	val purgeUnreferenced = opt[Boolean](descr = "purge unreferenced collections from database")
+	val makedot = opt[String](descr = "make a dotfile for the bookmarks of the given user or collection")
+	val collectionid = opt[String](descr = "id of a collection for other commands to work with")
 
 	dependsOnAny(importbookmarks, List(username))
+	dependsOnAny(makedot, List(username, collectionid))
 
 	errorMessageHandler = { message =>
 		printHelp
@@ -125,4 +170,5 @@ class Conf(arguments: Seq[String]) extends ScallopConf(arguments) {
 		println(s"Error: $message")
 		sys.exit(1)
 	}
+
 }
