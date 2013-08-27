@@ -29,9 +29,12 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 
 	def nonChaptered() = cores.foreach { core =>
 		logger.info(s"start core ${core.id}")
-		val collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
 
-		new Runner(collection, core.wrapper, iopipe).start(core.first).onComplete {
+		new Runner {
+			def iopipe = Clockwork.this.iopipe
+			def wrapPage = core.wrapPage _
+			def collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
+		}.start(core.first).onComplete {
 			case Success(_) => logger.info("test complete without errors")
 			case Failure(e) => e match {
 				case e: EndRun => logger.info(s"${core.id} complete ${e}")
@@ -41,7 +44,12 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 	}
 
 	def chaptered() = DrMcNinjaWrapper.pipe { core =>
-		new ChapteredRunner(core, iopipe).start().onComplete {
+		new ChapteredRunner {
+			def iopipe = Clockwork.this.iopipe
+			def wrapChapter = core.wrapChapter _
+			def wrapPage = core.wrapPage _
+			def collection = ChapteredCollectionNode(core.id).getOrElse(ChapteredCollectionNode.create(core.id, Some(core.name)))
+		}.start(core.first).onComplete {
 			case Success(_) => logger.info("test complete without errors")
 			case Failure(e) => e match {
 				case e: EndRun => logger.info(s"${core.id} complete ${e}")

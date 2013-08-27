@@ -23,16 +23,22 @@ import scalax.io._
 import scala.collection.JavaConversions._
 import org.neo4j.graphdb.Direction
 
-class ChapteredRunner(core: ChapteredCore, val iopipe: SendReceive) extends NetworkPrimitives {
+trait ChapteredRunner extends NetworkPrimitives {
 
-	val collection = ChapteredCollectionNode(core.id).getOrElse(ChapteredCollectionNode.create(core.id, Some(core.name)))
+	def wrapPage: Document => WrappedPage
+	def wrapChapter: Document => WrappedChapter
+	def collection: ChapteredCollectionNode
 
 	def getChapter(pos: Int, chapter: Chapter) = {
 		val cnode = collection(pos).getOrElse(Neo.txs {
 			ChapterNode.create(chapter.name)
 				.tap { collection.append }
 		})
-		new Runner(cnode, core.wrapper, iopipe).start(chapter.first)
+		new Runner {
+			def iopipe = ChapteredRunner.this.iopipe
+			def wrapPage = ChapteredRunner.this.wrapPage
+			def collection = cnode
+		}.start(chapter.first)
 	}
 
 	def nextChapter(pos: Int, chapters: List[Chapter]): Future[Unit] = chapters match {
@@ -46,8 +52,8 @@ class ChapteredRunner(core: ChapteredCore, val iopipe: SendReceive) extends Netw
 		case Nil => Future.failed(endRun("all chapters done"))
 	}
 
-	def start() = {
-		document(core.first).map { core.wrapChapter }.flatMap { wchap =>
+	def start(first: Uri) = {
+		document(first).map { wrapChapter }.flatMap { wchap =>
 			wchap.validate(_.chapter.forall(_.isSuccess), failRun("could not get element: " + {
 				wchap.chapter.filter(_.isFailure).map {
 					_.failed.get.tap {

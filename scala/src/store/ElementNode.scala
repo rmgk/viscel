@@ -24,17 +24,6 @@ class ElementNode(val self: Node) extends {
 
 	def delete() = {}
 
-	// def toElement = Neo.txs {
-	// 	Element(
-	// 		blob = self[String]("blob"),
-	// 		mediatype = self[String]("mediatype"),
-	// 		source = self[String]("source"),
-	// 		origin = self[String]("origin"),
-	// 		alt = self.get[String]("alt"),
-	// 		title = self.get[String]("title"),
-	// 		width = self.get[Int]("width"),
-	// 		height = self.get[Int]("height"))
-	// }
 }
 
 object ElementNode {

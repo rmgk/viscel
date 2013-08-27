@@ -54,18 +54,7 @@ trait NetworkPrimitives extends Logging {
 		}
 	}
 
-	def elementData(wrapped: Wrapped): Future[Seq[ElementData]] = {
-		wrapped.validate(
-			_.elements.forall(_.isSuccess),
-			endRun("could not get element: " + {
-				wrapped.elements.filter(_.isFailure).map {
-					_.failed.get.tap {
-						case e: EndRun =>
-						case e => e.printStackTrace
-					}
-				}
-			})).toFuture.flatMap {
-				_.elements.map(_.get).map { elementData }.pipe { Future.sequence(_) }
-			}
+	def elementsData(elements: Seq[Element]): Future[Seq[ElementData]] = {
+		elements.map { elementData }.pipe { Future.sequence(_) }
 	}
 }

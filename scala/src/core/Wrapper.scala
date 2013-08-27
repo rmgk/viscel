@@ -11,17 +11,15 @@ import spray.http.Uri
 import viscel._
 import scala.collection.JavaConversions._
 
-object CarciphonaWrapper extends Core with Wrapper with Logging {
+object CarciphonaWrapper extends Core with Logging {
 	def id = "X_Carciphona"
 	def name = "Carciphona"
 
 	val first = Uri("http://carciphona.com/view.php?page=cover&chapter=1&lang=")
-	// val first = Uri("http://carciphona.com/view.php?page=45&chapter=10&lang")
-	def wrapper: Wrapper = this
 
 	val extractImageUri = """[\w-]+:url\((.*)\)""".r
 
-	override def apply(doc: Document): Wrapped = new Wrapped {
+	def wrapPage(doc: Document): WrappedPage = new WrappedPage {
 		def document = doc
 		val next = document.select("#link #nextarea").validate { found(1, "next") }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
 		val elements = document.select(".page:has(#link)").validate { found(1, "image") }
@@ -35,14 +33,13 @@ object CarciphonaWrapper extends Core with Wrapper with Logging {
 
 }
 
-object FlipsideWrapper extends Core with Wrapper with Logging {
+object FlipsideWrapper extends Core with Logging {
 	def id = "X_Flipside"
 	def name = "Flipside"
 
 	val first = Uri("http://flipside.keenspot.com/comic.php?i=1")
-	def wrapper: Wrapper = this
 
-	override def apply(doc: Document): Wrapped = new Wrapped {
+	def wrapPage(doc: Document): WrappedPage = new WrappedPage {
 		def document = doc
 		val next = document.select("[rel=next][accesskey=n]").validate { found(1, "next") }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
 		val elements = document.select("img.ksc").validate { found(1, "image") }.map { itag =>
@@ -52,12 +49,11 @@ object FlipsideWrapper extends Core with Wrapper with Logging {
 
 }
 
-object DrMcNinjaWrapper extends ChapteredCore with Wrapper with Logging {
+object DrMcNinjaWrapper extends ChapteredCore with Logging {
 	def id = "XC_DrMcNinja"
 	def name = "Dr. McNinja"
 
 	val first = Uri("http://drmcninja.com/issues/")
-	def wrapper: Wrapper = this
 
 	def wrapChapter(doc: Document): WrappedChapter = new WrappedChapter {
 		def document = doc
@@ -71,7 +67,7 @@ object DrMcNinjaWrapper extends ChapteredCore with Wrapper with Logging {
 
 	val extractChapter = """http://drmcninja.com/archives/comic/(\d+)p\d+/""".r
 
-	override def apply(doc: Document): Wrapped = new Wrapped {
+	def wrapPage(doc: Document): WrappedPage = new WrappedPage {
 		def document = doc
 		val next = document.select("#comic-head .next").validate { found(1, "next") }.map { _.attr("abs:href") }
 			//.recoverWith { case e => Try { doc.baseUri.pipe { case extractChapter(c) => s"http://drmcninja.com/archives/comic/${c.toInt + 1}p1/" } } }
@@ -83,14 +79,13 @@ object DrMcNinjaWrapper extends ChapteredCore with Wrapper with Logging {
 
 }
 
-object FreakAngelsWrapper extends Core with Wrapper with Logging {
+object FreakAngelsWrapper extends Core with Logging {
 	def id = "X_FreakAngels"
 	def name = "Freak Angels"
 
 	val first = Uri("http://www.freakangels.com/?p=22&page=1")
-	def wrapper: Wrapper = this
 
-	override def apply(doc: Document): Wrapped = new Wrapped {
+	def wrapPage(doc: Document): WrappedPage = new WrappedPage {
 		def document = doc
 		val next = document.select(".pagenums").validate { found(1, "next") }.flatMap { pns =>
 			val nextid = pns.get(0).ownText.toInt + 1
