@@ -4,6 +4,10 @@ import spray.http.Uri
 import org.neo4j.graphdb.Node
 import viscel.store.ElementNode
 
+case class Chapter(
+	name: String,
+	first: Uri)
+
 case class Element(
 	source: Uri,
 	origin: Uri,
@@ -31,7 +35,3 @@ case class Element(
 		true
 	}
 }
-
-case class Chapter(
-	name: String,
-	first: Uri)

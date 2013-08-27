@@ -11,32 +11,6 @@ import spray.http.Uri
 import viscel._
 import scala.collection.JavaConversions._
 
-trait Core {
-	def id: String
-	def name: String
-	def first: Uri
-	def wrapper: Wrapper
-}
-
-trait ChapteredCore extends Core {
-	def wrapChapter(doc: Document): WrappedChapter
-}
-
-trait Wrapper extends (Document => Wrapped) {
-	override def apply(document: Document): Wrapped
-}
-
-trait Wrapped {
-	def document: Document
-	def next: Try[Uri]
-	def elements: Seq[Try[Element]]
-}
-
-trait WrappedChapter {
-	def document: Document
-	def chapter: Seq[Try[Chapter]]
-}
-
 object CarciphonaWrapper extends Core with Wrapper with Logging {
 	def id = "X_Carciphona"
 	def name = "Carciphona"

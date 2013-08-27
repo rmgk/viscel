@@ -23,8 +23,8 @@ scalacOptions ++= List(
 scalariformSettings
 
 ScalariformKeys.preferences := FormattingPreferences()
-  .setPreference(IndentWithTabs, true)
-  .setPreference(CompactControlReadability, true)
+	.setPreference(IndentWithTabs, true)
+	.setPreference(CompactControlReadability, true)
 
 resolvers ++= Seq(
 	"Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/",
@@ -82,9 +82,9 @@ import spray.client.pipelining._
 import spray.http._
 import viscel._
 import viscel.store._
-def getPipe = {
+def getPipe() = {
 	implicit val system = ActorSystem()
 	implicit val timeout: Timeout = 30.seconds
-	sendReceive(IO(Http))
+	(system, sendReceive(IO(Http)))
 }
 """
