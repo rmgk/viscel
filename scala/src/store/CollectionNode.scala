@@ -37,3 +37,15 @@ object CollectionNode {
 
 	def create(id: String, name: Option[String] = None) = CollectionNode(Neo.create(label.Collection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
 }
+
+class ChapteredCollectionNode(self: Node) extends AbstractCollectionNode[ChapterNode](self) {
+	def containRelation = rel.chapter
+	def makeChild = ChapterNode(_)
+}
+
+object ChapteredCollectionNode {
+	def apply(node: Node) = new ChapteredCollectionNode(node)
+	def apply(id: String) = Neo.node(label.Collection, "id", id).map { new ChapteredCollectionNode(_) }
+
+	def create(id: String, name: Option[String] = None) = ChapteredCollectionNode(Neo.create(label.Collection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
+}

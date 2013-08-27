@@ -25,7 +25,7 @@ import org.neo4j.graphdb.Direction
 
 class Clockwork(val iopipe: SendReceive) extends Logging {
 
-	val cores = DCore.list.cores ++ Seq(CarciphonaWrapper, FlipsideWrapper, DrMcNinjaWrapper, FreakAngelsWrapper)
+	val cores = DCore.list.cores ++ Seq(CarciphonaWrapper, FlipsideWrapper, FreakAngelsWrapper)
 
 	def response(uri: Uri, referer: Option[Uri] = None): Future[HttpResponse] = {
 		logger.info(s"get $uri ($referer)")
@@ -34,7 +34,7 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 			case None => (x: HttpRequest) => x
 		}
 		Get(uri).pipe { addReferer }.pipe { iopipe }
-			.flatMap { res => res.validate(_.status.intValue == 200, abort(s"invalid response ${res.status}; $uri ($referer)")).toFuture }
+			.flatMap { res => res.validate(_.status.intValue == 200, endRun(s"invalid response ${res.status}; $uri ($referer)")).toFuture }
 	}
 
 	def document(uri: Uri): Future[Document] = response(uri).map { res =>
@@ -57,10 +57,10 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 	def elementData(wrapped: Wrapped): Future[Seq[ElementData]] = {
 		wrapped.validate(
 			_.elements.forall(_.isSuccess),
-			abort("could not get element: " + {
+			endRun("could not get element: " + {
 				wrapped.elements.filter(_.isFailure).map {
 					_.failed.get.tap {
-						case e: AbortRun =>
+						case e: EndRun =>
 						case e => e.printStackTrace
 					}
 				}
@@ -69,22 +69,35 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 			}
 	}
 
-	def test() = cores.foreach { core =>
-		new Runner(core).start().onComplete {
-			case Success(_) => logger.info("test complete without errorrs")
+	def nonChaptered() = cores.foreach { core =>
+		val collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
+
+		new Runner(collection, core.wrapper).start(core.first).onComplete {
+			case Success(_) => logger.info("test complete without errors")
 			case Failure(e) => e match {
-				case e: AbortRun => logger.info(s"${core.id} complete ${e}")
+				case e: EndRun => logger.info(s"${core.id} complete ${e}")
 				case e => logger.info(s"${core.id} failed ${e}"); e.printStackTrace
 			}
 		}
 	}
 
+	def chaptered() = DrMcNinjaWrapper.pipe { core =>
+		new ChapteredRunner(core).start().onComplete {
+			case Success(_) => logger.info("test complete without errors")
+			case Failure(e) => e match {
+				case e: EndRun => logger.info(s"${core.id} complete ${e}")
+				case e => logger.info(s"${core.id} failed ${e}"); e.printStackTrace
+			}
+		}
+	}
+
+	def test() = chaptered(); nonChaptered();
+
 	def hashToFilename(h: String): String = (new StringBuilder(h)).insert(2, '/').insert(0, "../cache/").toString
 
-	class Runner(core: Core) {
-		val collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
+	class Runner(collection: NodeContainer[ElementNode], wrapper: Wrapper) {
 
-		def wrap(loc: Uri): Future[Wrapped] = loc.pipe { document }.map { core.wrapper }
+		def wrap(loc: Uri): Future[Wrapped] = loc.pipe { document }.map { wrapper }
 
 		def createElementNode(edata: ElementData): ElementNode = Neo.txs {
 			ElementNode.create(
@@ -120,7 +133,7 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 		}
 
 		def continue(loc: Uri): Future[Unit] = {
-			loc.validate(find(_).isEmpty, abort { s"already seen $loc" }).toFuture
+			loc.validate(find(_).isEmpty, endRun(s"already seen $loc")).toFuture
 				.flatMap { wrap }
 				.flatMap { get }
 				.flatMap { next }
@@ -133,9 +146,49 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 				.flatMap { next }
 				.flatMap { continue }
 
-		def start() = collection.last match {
-			case None => continue(core.first)
+		def start(first: Uri) = collection.last match {
+			case None => continue(first)
 			case Some(last) => continueAfter(last[String]("origin"))
+		}
+
+	}
+
+	class ChapteredRunner(core: ChapteredCore) {
+
+		val collection = ChapteredCollectionNode(core.id).getOrElse(ChapteredCollectionNode.create(core.id, Some(core.name)))
+
+		def getChapter(pos: Int, chapter: Chapter) = {
+			val cnode = collection(pos).getOrElse(Neo.txs {
+				ChapterNode.create(chapter.name)
+					.tap { collection.append }
+			})
+			new Runner(cnode, core.wrapper).start(chapter.first)
+		}
+
+		def nextChapter(pos: Int, chapters: List[Chapter]): Future[Unit] = chapters match {
+			case c :: cs =>
+				getChapter(pos, c).recoverWith {
+					case e: EndRun =>
+						logger.info(s"${c.name} of ${collection.id} complete ${e}")
+						nextChapter(pos + 1, cs)
+					case e => Future.failed(e)
+				}
+			case Nil => Future.failed(endRun("all chapters done"))
+		}
+
+		def start() = {
+			document(core.first).map { core.wrapChapter }.flatMap { wchap =>
+				wchap.validate(_.chapter.forall(_.isSuccess), failRun("could not get element: " + {
+					wchap.chapter.filter(_.isFailure).map {
+						_.failed.get.tap {
+							case e: EndRun =>
+							case e => e.printStackTrace
+						}
+					}
+				})).toFuture
+			}.flatMap { wchap =>
+				nextChapter(1, wchap.chapter.map { _.get }.to[List])
+			}
 		}
 
 	}

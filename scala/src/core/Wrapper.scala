@@ -18,6 +18,10 @@ trait Core {
 	def wrapper: Wrapper
 }
 
+trait ChapteredCore extends Core {
+	def wrapChapter(doc: Document): WrappedChapter
+}
+
 trait Wrapper extends (Document => Wrapped) {
 	override def apply(document: Document): Wrapped
 }
@@ -26,6 +30,11 @@ trait Wrapped {
 	def document: Document
 	def next: Try[Uri]
 	def elements: Seq[Try[Element]]
+}
+
+trait WrappedChapter {
+	def document: Document
+	def chapter: Seq[Try[Chapter]]
 }
 
 object CarciphonaWrapper extends Core with Wrapper with Logging {
@@ -69,19 +78,29 @@ object FlipsideWrapper extends Core with Wrapper with Logging {
 
 }
 
-object DrMcNinjaWrapper extends Core with Wrapper with Logging {
-	def id = "X_DrMcNinja"
+object DrMcNinjaWrapper extends ChapteredCore with Wrapper with Logging {
+	def id = "XC_DrMcNinja"
 	def name = "Dr. McNinja"
 
-	val first = Uri("http://drmcninja.com/archives/comic/0p1/")
+	val first = Uri("http://drmcninja.com/issues/")
 	def wrapper: Wrapper = this
+
+	def wrapChapter(doc: Document): WrappedChapter = new WrappedChapter {
+		def document = doc
+
+		def chapter: Seq[Try[Chapter]] = doc.select("#column .serieslist-content > h2 > a").map { href =>
+			Try(Chapter(
+				name = href.text,
+				first = href.attr("abs:href").pipe { Uri.parseAbsolute(_) }))
+		}
+	}
 
 	val extractChapter = """http://drmcninja.com/archives/comic/(\d+)p\d+/""".r
 
 	override def apply(doc: Document): Wrapped = new Wrapped {
 		def document = doc
 		val next = document.select("#comic-head .next").validate { found(1, "next") }.map { _.attr("abs:href") }
-			.recoverWith { case e => Try { doc.baseUri.pipe { case extractChapter(c) => s"http://drmcninja.com/archives/comic/${c.toInt + 1}p1/" } } }
+			//.recoverWith { case e => Try { doc.baseUri.pipe { case extractChapter(c) => s"http://drmcninja.com/archives/comic/${c.toInt + 1}p1/" } } }
 			.map { Uri.parseAbsolute(_) }
 		val elements = document.select("#comic img").validate { found(1, "image") }.map { itag =>
 			Element(source = Uri.parseAbsolute(itag.attr("abs:src")), origin = doc.baseUri, alt = Option(itag.attr("alt")), title = Option(itag.attr("title")))

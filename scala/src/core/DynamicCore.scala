@@ -55,7 +55,7 @@ class DynamicWrapped(val document: Document, elementSelector: String, nextSelect
 		case None => img.flatMap {
 			_.parents.find { _.tag.getName == "a" }.pipe {
 				case Some(t) => Try(t)
-				case None => Try { throw abort("image has no anchor parent") }
+				case None => Try { throw endRun("image has no anchor parent") }
 			}
 		}
 		case Some(nextSelector) => document.select(nextSelector).validate { found(1, "next") }.map { _.get(0) }

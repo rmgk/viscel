@@ -8,6 +8,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory
 import org.neo4j.graphdb.GraphDatabaseService
 import org.neo4j.graphdb.Label
 import org.neo4j.graphdb.Node
+import org.neo4j.tooling.GlobalGraphOperations
 import scala.collection.JavaConversions._
 import viscel.time
 
@@ -28,6 +29,8 @@ object Neo {
 			case Stream(_, _) => throw new java.lang.IllegalStateException(s"found more than one entry for ($label) ${property}: $value")
 		}
 	}
+
+	def nodes(label: Label) = txs { GlobalGraphOperations.at(db).getAllNodesWithLabel(label).toIndexedSeq }
 
 	def create(label: Label, attributes: (String, Any)*): Node = Neo.tx { db =>
 		val node = db.createNode(label)

@@ -31,3 +31,7 @@ case class Element(
 		true
 	}
 }
+
+case class Chapter(
+	name: String,
+	first: Uri)

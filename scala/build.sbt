@@ -9,6 +9,8 @@ scalaVersion := "2.10.2"
 
 scalaSource in Compile <<= baseDirectory {(base) => new File(base, "src")}
 
+scalaSource in Test <<= baseDirectory {(base) => new File(base, "test")}
+
 scalacOptions ++= List(
 	"-deprecation",
 	"-encoding", "UTF-8",
@@ -59,6 +61,7 @@ libraryDependencies ++= Seq(
 	"org.xerial" % "sqlite-jdbc" % "3.7.2", // apache2
 	// "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5", //bsd
 	// "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1", // apache2
+	"org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
 	"org.neo4j" % "neo4j-kernel" % "2.0.0-M04" % "test" classifier "tests"
 )
 

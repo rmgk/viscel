@@ -10,11 +10,12 @@ import scala.collection.JavaConversions._
 import util.Try
 import viscel.time
 
-class ChapterNode(val self: Node) extends NodeContainer[ElementNode] {
+class ChapterNode(val self: Node) extends NodeContainer[ElementNode] with ContainableNode[ChapterNode] {
 	require(Neo.txs { self.getLabels.exists(_ == label.Chapter) })
 
 	def containRelation = rel.chapter
 	def makeChild = ElementNode(_)
+	def makeSelf = ChapterNode(_)
 
 	def nid = Neo.txs { self.getId }
 	def name = Neo.txs { self.get[String]("name") }
@@ -24,11 +25,13 @@ class ChapterNode(val self: Node) extends NodeContainer[ElementNode] {
 		case _ => false
 	}
 
+	def delete: Unit = {}
+
 }
 
 object ChapterNode {
 	def apply(node: Node) = new ChapterNode(node)
-	def apply(id: String) = Neo.node(label.Collection, "id", id).map { new ChapterNode(_) }
+	def apply(id: String) = Neo.node(label.Chapter, "id", id).map { new ChapterNode(_) }
 
-	def create(id: String, name: Option[String] = None) = ChapterNode(Neo.create(label.Collection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
+	def create(name: String) = ChapterNode(Neo.create(label.Chapter, "name" -> name))
 }
