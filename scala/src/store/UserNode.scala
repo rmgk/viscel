@@ -27,7 +27,7 @@ class UserNode(val self: Node) extends {
 	def name = Neo.txs { self[String]("name") }
 	def password = Neo.txs { self[String]("password") }
 
-	def getBookmark(cn: CollectionNode) = Neo.txts("get bookmark") { getBookmarkNode(cn).flatMap { _.to(rel.bookmarks) }.map { ElementNode(_) } }
+	def getBookmark(cn: AbstractCollectionNode[_]) = Neo.txts("get bookmark") { getBookmarkNode(cn).flatMap { _.to(rel.bookmarks) }.map { ElementNode(_) } }
 
 	//def bookmark(pos: Int): Option[ElementNode] = apply(pos).map(bookmark(_))
 	def setBookmark(en: ElementNode) = Neo.txt(s"create bookmark ${en.collection.id}:${en.position} for ${name}") { db =>
@@ -47,14 +47,14 @@ class UserNode(val self: Node) extends {
 		self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { _.to(rel.bookmarks) }.map { ElementNode(_) }
 	}
 
-	def deleteBookmark(cn: CollectionNode) = Neo.txts(s"delete bookmark ${cn.id} for ${name}") {
+	def deleteBookmark(cn: AbstractCollectionNode[_]) = Neo.txts(s"delete bookmark ${cn.id} for ${name}") {
 		getBookmarkNode(cn).foreach { bmn =>
 			bmn.getRelationships().foreach { _.delete }
 			bmn.delete
 		}
 	}
 
-	def getBookmarkNode(cn: CollectionNode) = Neo.txs {
+	def getBookmarkNode(cn: AbstractCollectionNode[_]) = Neo.txs {
 		cn.self.outgoing(rel.bookmark).map { _.getEndNode }.find { bmn => bmn.from(rel.bookmarked).get == this.self }
 	}
 

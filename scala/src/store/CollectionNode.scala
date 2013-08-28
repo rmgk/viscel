@@ -25,16 +25,16 @@ class CollectionNode(self: Node) extends AbstractCollectionNode[ElementNode](sel
 	def makeChild = ElementNode(_)
 }
 
+class ChapteredCollectionNode(self: Node) extends AbstractCollectionNode[ChapterNode](self, label.ChapteredCollection) {
+	def containRelation = rel.chapter
+	def makeChild = ChapterNode(_)
+}
+
 object CollectionNode {
 	def apply(node: Node) = new CollectionNode(node)
 	def apply(id: String) = Neo.node(label.Collection, "id", id).map { new CollectionNode(_) }
 
 	def create(id: String, name: Option[String] = None) = CollectionNode(Neo.create(label.Collection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
-}
-
-class ChapteredCollectionNode(self: Node) extends AbstractCollectionNode[ChapterNode](self, label.ChapteredCollection) {
-	def containRelation = rel.chapter
-	def makeChild = ChapterNode(_)
 }
 
 object ChapteredCollectionNode {
