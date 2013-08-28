@@ -17,6 +17,7 @@ import viscel.time
 class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with JavascriptNavigation {
 	override def Title = collection.name
 	override def maskLocation = path_front(collection.id)
+	override def bodyId = "front"
 
 	val bm = user.getBookmark(collection)
 	val bm1 = bm.flatMap { _.prev }
@@ -25,28 +26,25 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 	def bmRemoveForm(bm: ElementNode) = form_post(path_front(collection.id),
 		input.ctype("submit").name("submit").value("remove").cls("submit"))
 
-	def content = {
-		body.id("front")(
-			div.cls("info")(
-				table(tbody(
-					tr(td("id"), td(collection.id)),
-					tr(td("name"), td(collection.name)),
-					tr(td("size"), td(collection.size.toString))))),
-			div.cls("navigation")(
-				link_main("index"),
-				" – ",
-				link_node(collection.first, "first"),
-				" ",
-				link_node(bm, "bookmark"),
-				" ",
-				link_node(collection.last, "last"),
-				" – ",
-				bm.map { bmRemoveForm(_) }.getOrElse("remove")),
-			div.cls("content")(Seq(
-				bm2.map { e => link_node(Some(e), enodeToImg(e)) },
-				bm1.map { e => link_node(Some(e), enodeToImg(e)) },
-				bm.map { e => link_node(Some(e), enodeToImg(e)) }).flatten[STag]))
-	}
+	def mainPart = div.cls("info")(
+		table(tbody(
+			tr(td("id"), td(collection.id)),
+			tr(td("name"), td(collection.name)),
+			tr(td("size"), td(collection.size.toString)))))
+	def navigation = Seq[STag](
+		link_main("index"),
+		" – ",
+		link_node(collection.first, "first"),
+		" ",
+		link_node(bm, "bookmark"),
+		" ",
+		link_node(collection.last, "last"),
+		" – ",
+		bm.map { bmRemoveForm(_) }.getOrElse("remove"))
+	def sidePart = div.cls("content")(Seq(
+		bm2.map { e => link_node(Some(e), enodeToImg(e)) },
+		bm1.map { e => link_node(Some(e), enodeToImg(e)) },
+		bm.map { e => link_node(Some(e), enodeToImg(e)) }).flatten[STag])
 
 	override def navPrev = bm2.orElse(bm1).orElse(collection.first).map { en => path_nid(en.nid) }
 	override def navNext = bm.orElse(collection.last).map { en => path_nid(en.nid) }

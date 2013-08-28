@@ -12,13 +12,14 @@ import viscel.store.Neo
 import viscel.store.UserNode
 import viscel.store.ViscelNode
 import viscel.store.{ Util => StoreUtil }
-import viscel.time
+import viscel._
 
 class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with JavascriptNavigation with MaskLocation {
 	val collection = enode.collection
 	val cid = collection.id
 
 	override def Title = s"${enode.position} – ${collection.name}"
+	override def bodyId = "view"
 
 	override def maskLocation = path_view(cid, enode.position)
 
@@ -26,10 +27,8 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with Javascr
 	override def navNext = enode.next.map { en => path_nid(en.nid) }
 	override def navUp = Some(path_nid(collection.nid))
 
-	def content = body.id("view")(
-		div.cls("content")(
-			link_node(enode.next, enodeToImg(enode))),
-		div.cls("navigation")(navigation.toSeq))
+	def mainPart = div.cls("content")(link_node(enode.next, enodeToImg(enode)))
+	def sidePart = "": STag
 
 	def navigation = Seq[STag](
 		link_node(enode.prev, "prev"),

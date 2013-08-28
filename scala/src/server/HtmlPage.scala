@@ -28,8 +28,16 @@ trait HtmlPage extends HtmlPageUtils {
 		stylesheet(path_css),
 		title(Title))
 
-	def Title = "Viscel"
+	def Title: String
+	def bodyId: String
 
-	def content: STag
+	def mainPart: STag
+	def navigation: STag
+	def sidePart: STag
+
+	def content: STag = body.id(bodyId)(
+		div.cls("main")(mainPart),
+		div.cls("navigation")(navigation),
+		div.cls("side")(sidePart))
 
 }

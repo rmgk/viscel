@@ -14,12 +14,10 @@ import viscel.store.ViscelNode
 import viscel.store.{ Util => StoreUtil }
 import viscel.time
 
-trait MaskLocation {
-	page: HtmlPage =>
-
+trait MaskLocation extends HtmlPage {
 	def maskLocation: String
 
-	override def header: HtmlTag = page.header(maskLocation.map { loc => script(s"window.history.replaceState('param one?','param two?','${loc}')") }.toSeq)
+	override def header: HtmlTag = super.header(maskLocation.map { loc => script(s"window.history.replaceState('param one?','param two?','${loc}')") }.toSeq)
 }
 
 trait HtmlPageUtils {
@@ -51,10 +49,8 @@ trait HtmlPageUtils {
 
 }
 
-trait JavascriptNavigation {
-	page: HtmlPage =>
-
-	override def header: HtmlTag = page.header(script(scala.xml.Unparsed(keyNavigation(up = navUp, down = navDown, prev = navPrev, next = navNext))))
+trait JavascriptNavigation extends HtmlPage {
+	override def header = super.header(script(scala.xml.Unparsed(keyNavigation(up = navUp, down = navDown, prev = navPrev, next = navNext))))
 
 	def navUp: Option[String] = None
 	def navNext: Option[String] = None

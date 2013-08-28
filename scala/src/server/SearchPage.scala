@@ -16,16 +16,16 @@ import viscel.time
 
 class SearchPage(user: UserNode, text: String) extends HtmlPage {
 	override def Title = "Search"
+	override def bodyId = "search"
 
-	def content = {
+	def mainPart = makeFieldset("Search", Seq(searchForm(text))).cls("info")
+
+	def navigation = link_main("index")
+
+	def sidePart = {
 		val containing = StoreUtil.search(text)
 			.map { cn => link_node(cn, cn.name) }
-
-		body.id("search")(
-			makeFieldset("Search", Seq(searchForm(text))).cls("info"),
-			div.cls("navigation")(
-				link_main("index")),
-			makeFieldset(text, containing).cls("group"))
+		makeFieldset(text, containing).cls("group")
 	}
 
 	def searchForm = form_get(path_search, input.ctype("textfield").name("q"))

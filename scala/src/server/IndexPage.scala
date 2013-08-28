@@ -13,25 +13,33 @@ import viscel.store.UserNode
 import viscel.store.ViscelNode
 import viscel.store.{ Util => StoreUtil }
 import viscel.time
+import viscel._
 
 class IndexPage(user: UserNode) extends HtmlPage {
 	override def Title = "Index"
+	override def bodyId = "index"
 
-	def content = {
+	override def sidePart = makeFieldset("Search", Seq(searchForm(""))).cls("info")
+
+	override def navigation = link_stop("stop")
+
+	override def mainPart = {
 		val bookmarks = user.bookmarks.toStream
 		val (unread, current) = bookmarks.map { bm => (bm.collection, bm.collection.name, bm.distanceToLast) }.partition { _._3 > 0 }
 		val unreadTags = unread.sortBy { -_._3 }.map { case (id, name, unread) => link_node(id, s"$name ($unread)") }
 		val currentTags = current.sortBy { _._2 }.map { case (id, name, unread) => link_node(id, s"$name") }
 
-		body.id("index")(
-			makeFieldset("Search", Seq(searchForm(""))).cls("info"),
-			div.cls("navigation")(
-				link_stop("stop")),
+		Seq(
 			makeFieldset("New Pages", unreadTags).cls("group"),
 			makeFieldset("Bookmarks", currentTags).cls("group"))
 	}
 
 	def makeFieldset(name: String, entries: Seq[STag]) = fieldset(legend(name), div(entries.flatMap { e => Seq[STag](e, <br/>) }))
+
+	override def content: STag = body.id(bodyId)(
+		div.cls("main")(mainPart),
+		div.cls("side")(sidePart),
+		div.cls("navigation")(navigation))
 }
 
 object IndexPage {
