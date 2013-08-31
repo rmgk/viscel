@@ -5,15 +5,17 @@ import akka.io.IO
 import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.Logging
 import java.io.File
+import joptsimple._
 import org.jsoup.Jsoup
 import org.neo4j.graphdb.traversal._
 import org.neo4j.kernel._
 import org.neo4j.visualization.graphviz._
 import org.neo4j.walk.Walker
-import org.rogach.scallop._
+import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.language.implicitConversions
 import spray.can.Http
 import spray.client.pipelining._
 import spray.http.Uri
@@ -49,60 +51,76 @@ object Viscel {
 
 	def main(args: Array[String]) {
 
-		val conf = new Conf(args)
+		import Opts._
+		formatHelpWith(new BuiltinHelpFormatter((new scala.tools.jline.console.ConsoleReader()).getTerminal.getWidth, 4))
+		implicit val conf = try {
+			parse(args: _*)
+		}
+		catch {
+			case oe: OptionException =>
+				printHelpOn(System.out)
+				println()
+				println(s"$oe")
+				sys.exit(0)
+		}
 
-		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, conf.loglevel())
+		if (help.?) {
+			printHelpOn(System.out)
+			sys.exit(0)
+		}
+
+		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, loglevel())
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_THREAD_NAME_KEY, "false")
 
 		sys.addShutdownHook { Neo.shutdown() }
 
-		if (conf.dbwarmup()) time("warmup db") { Neo.txs {} }
+		if (!nodbwarmup.?) time("warmup db") { Neo.txs {} }
 
-		if (conf.createIndexes()) {
+		if (createIndexes.?) {
 			Neo.execute("create index on :Collection(id)")
 			//Neo.execute("create index on :Element(position)")
 			//Neo.execute("create index on :User(name)")
 		}
 
-		if (conf.purgeUnreferenced()) {
+		if (purgeUnreferenced.?) {
 			Neo.execute("""
-				|match (user :User), (col: Collection)
-				|where NOT( user -[:bookmarked]-> () <-[:bookmark]- col )
-				|with col
-				|match col -[r1]-> (node) -[r2?]- ()
-				|delete node, r1, r2
-				""").dumpToString.pipe { println }
+					|match (user :User), (col: Collection)
+					|where NOT( user -[:bookmarked]-> () <-[:bookmark]- col )
+					|with col
+					|match col -[r1]-> (node) -[r2?]- ()
+					|delete node, r1, r2
+					""").dumpToString.pipe { println }
 		}
 
-		conf.importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir.toString).importAll)
+		importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir.toString).importAll)
 
 		for {
-			userpath <- conf.importbookmarks.get
-			uname <- conf.username.get
+			userpath <- importbookmarks.get
+			uname <- username.get
 			un <- UserNode(uname)
 		} { tools.BookmarkImporter(un, userpath.toString) }
 
 		for {
-			dotpath <- conf.makedot.get
-			uname <- conf.username.get
+			dotpath <- makedot.get
+			uname <- username.get
 			un <- UserNode(uname)
 		} { visualizeUser(un, dotpath) }
 
 		for {
-			dotpath <- conf.makedot.get
-			cid <- conf.collectionid.get
+			dotpath <- makedot.get
+			cid <- collectionid.get
 			cn <- CollectionNode(cid)
 		} { visualizeCollection(cn, dotpath) }
 
 		implicit val system = ActorSystem()
 		val ioHttp = IO(Http)
 
-		if (conf.server()) {
+		if (!noserver.?) {
 			val server = system.actorOf(Props[viscel.server.Server], "viscel-server")
-			ioHttp ! Http.Bind(server, interface = "0", port = conf.port())
+			ioHttp ! Http.Bind(server, interface = "0", port = port())
 		}
 
-		if (conf.core()) {
+		if (!nocore.?) {
 			val pipe = {
 				implicit val timeout: Timeout = 30.seconds
 				sendReceive(ioHttp)
@@ -111,8 +129,10 @@ object Viscel {
 			clock.test
 		}
 
-		if (conf.dbshutdown()) Neo.shutdown
-		if (conf.actorshutdown()) system.shutdown
+		if (shutdown.?) {
+			Neo.shutdown
+			system.shutdown
+		}
 	}
 
 	def visualizeUser(user: UserNode, dotpath: String) = {
@@ -143,32 +163,35 @@ object Viscel {
 
 }
 
-class Conf(arguments: Seq[String]) extends ScallopConf(arguments) {
-	version("viscel 5")
-	banner("")
-	val loglevel = opt[String](default = Option("INFO"), descr = "set the default loglevel")
-	val port = opt[Int](default = Some(8080), descr = "server listening port")
-	val server = toggle(default = Some(true), descrYes = "start the server")
-	val core = toggle(default = Some(true), descrYes = "start the core downloader")
-	val dbwarmup = toggle(default = Some(true), descrYes = "do database warmup")
-	val dbshutdown = toggle(default = Some(false), descrYes = "shut the database down when main finishes")
-	val actorshutdown = toggle(default = Some(false), descrYes = "shut the actor system down when main finishes")
-	val importdb = opt[File](descr = "path to collections.db")
-	val importbookmarks = opt[File](descr = "path to user.ini")
-	val createIndexes = opt[Boolean](descr = "create neo4j indexes")
-	val username = opt[String](descr = "username to work with")
-	val purgeUnreferenced = opt[Boolean](descr = "purge unreferenced collections from database")
-	val makedot = opt[String](descr = "make a dotfile for the bookmarks of the given user or collection")
-	val collectionid = opt[String](descr = "id of a collection for other commands to work with")
+object Opts extends OptionParser {
+	val loglevel = accepts("loglevel", "set the loglevel")
+		.withRequiredArg().describedAs("loglevel").defaultsTo("INFO")
+	val port = accepts("port", "server listening port")
+		.withRequiredArg().ofType(classOf[Int]).defaultsTo(8080).describedAs("port")
+	val noserver = accepts("noserver", "do not start the server")
+	val nocore = accepts("nocore", "do not start the core downloader")
+	val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
+	val shutdown = accepts("shutdown", "shutdown after main")
+	val importdb = accepts("importdb", "import a viscel 4 database")
+		.withRequiredArg().ofType(classOf[File]).describedAs("data/collections.db")
+	val importbookmarks = accepts("importbookmarks", "imports viscel 4 bookmark file for given username")
+		.withRequiredArg().ofType(classOf[File]).describedAs("user/user.ini")
+	val createIndexes = accepts("create-indexes", "create database indexes")
+	val username = accepts("username", "name of the user for other commands")
+		.requiredIf("importbookmarks").withRequiredArg().describedAs("name")
+	val purgeUnreferenced = accepts("purge-unreferenced", "remove entries that are not referenced by any user")
+	val makedot = accepts("makedot", "makes a dot file for a given user or collection")
+		.withRequiredArg().describedAs("path")
+	val collectionid = accepts("collectionid", "id of the ccollection for other commands")
+		.withRequiredArg().describedAs("collection id")
+	val help = accepts("help").forHelp()
 
-	dependsOnAny(importbookmarks, List(username))
-	dependsOnAny(makedot, List(username, collectionid))
+	implicit def optToBool(opt: OptionSpecBuilder)(implicit oset: OptionSet): Boolean = oset.has(opt)
 
-	errorMessageHandler = { message =>
-		printHelp
-		println()
-		println(s"Error: $message")
-		sys.exit(1)
+	implicit class OptEnhancer[T](opt: OptionSpec[T]) {
+		def ?(implicit oset: OptionSet): Boolean = oset.has(opt)
+		def get(implicit oset: OptionSet): Option[T] = if (! ?) None else Some(apply())
+		def apply()(implicit oset: OptionSet): T = oset.valueOf(opt)
 	}
 
 }

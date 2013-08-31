@@ -62,7 +62,9 @@ libraryDependencies ++= Seq(
 	// "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5", //bsd
 	// "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1", // apache2
 	"org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
-	"org.neo4j" % "neo4j-kernel" % "2.0.0-M04" % "test" classifier "tests"
+	"org.neo4j" % "neo4j-kernel" % "2.0.0-M04" % "test" classifier "tests",
+	"net.sf.jopt-simple" % "jopt-simple" % "4.5",
+	"org.scala-lang" % "jline" % "2.10.2"
 )
 
 
