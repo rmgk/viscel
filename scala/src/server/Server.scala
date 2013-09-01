@@ -26,7 +26,7 @@ class Server extends Actor with DefaultRoutes {
 	// this actor only runs our route, but you could add
 	// other things here, like request stream processing,
 	// timeout handling or alternative handler registration
-	def receive = runRoute { authenticate(loginOrCreate) { user => defaultRoute(user) } }
+	def receive = runRoute { authenticate(loginOrCreate) { user => handleFormFields(user) } }
 }
 
 trait DefaultRoutes extends HttpService with Logging {
@@ -57,6 +57,13 @@ trait DefaultRoutes extends HttpService with Logging {
 			Future.successful(None)
 	}, "Username is used to store configuration; Passwords are saved in plain text; User is created on first login")
 
+	def handleFormFields(user: UserNode) =
+		formFields('bookmark.?.as[Option[Long]], 'remove_bookmark.?.as[Option[Long]]) { (bm, remove) =>
+			bm.foreach { bid => user.setBookmark(ElementNode(bid)) }
+			remove.foreach { colid => user.deleteBookmark(CollectionNode(colid)) }
+			defaultRoute(user)
+		}
+
 	def defaultRoute(user: UserNode) =
 		(path("") | path("index")) {
 			complete(IndexPage(user))
@@ -77,16 +84,12 @@ trait DefaultRoutes extends HttpService with Logging {
 				val filename = hashToFilename(hash)
 				getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
 			} ~
-			path("v" / Segment) { col =>
+			path("f" / Segment) { col =>
 				rejectNone(CollectionNode(col)) { cn =>
-					formFields('bookmark.?.as[Option[Long]], 'submit.?.as[Option[String]]) { (bm, remove) =>
-						bm.foreach { bid => user.setBookmark(ElementNode(bid)) }
-						remove.foreach { case "remove" => user.deleteBookmark(cn); case _ => }
-						complete(time("total") { FrontPage(user, cn) })
-					}
+					complete(time("total") { FrontPage(user, cn) })
 				}
 			} ~
-			path("v" / Segment / IntNumber) { (col, chapter) =>
+			path("c" / Segment / IntNumber) { (col, chapter) =>
 				rejectNone(CollectionNode(col)) { cn =>
 					complete(viewFallback(user, cn, chapter))
 				}

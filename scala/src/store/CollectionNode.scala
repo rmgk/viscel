@@ -25,6 +25,7 @@ class CollectionNode(val self: Node) extends NodeContainer[ChapterNode] with Vis
 
 object CollectionNode {
 	def apply(node: Node) = new CollectionNode(node)
+	def apply(nodeId: Long) = new CollectionNode(Neo.tx { _.getNodeById(nodeId) })
 	def apply(id: String) = Neo.node(label.Collection, "id", id).map { new CollectionNode(_) }
 
 	def create(id: String, name: Option[String] = None) = CollectionNode(Neo.create(label.Collection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))

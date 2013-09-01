@@ -24,8 +24,9 @@ trait HtmlPageUtils {
 
 	def path_main = "/index"
 	def path_css = "/css"
-	def path_front(id: String) = s"/v/$id"
-	def path_chapter(id: String, pos: Int) = s"/v/$id/$pos"
+	def path_front(id: String) = s"/f/$id"
+	def path_chapter(id: String, pos: Int) = s"/c/$id/$pos"
+	def path_view(id: String, absPos: Int) = s"/v/$id/$absPos"
 	def path_view(id: String, chapter: Int, pos: Int) = s"/v/$id/$chapter/$pos"
 	def path_search = "/s";
 	def path_blob(id: String) = s"/b/$id"

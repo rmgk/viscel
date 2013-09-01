@@ -18,7 +18,7 @@ class ChapterPage(user: UserNode, chapter: ChapterNode) extends HtmlPage with Ma
 
 	override def navPrev = chapter.prev.map { ch => path_nid(ch.nid) }
 	override def navNext = chapter.next.map { ch => path_nid(ch.nid) }
-	override def navUp = Some(path_nid(collection.nid))
+	override def navUp = Some(path_nid(chapter.nid))
 	override def navDown = chapter.first.map { f => path_nid(f.nid) }
 
 	override def mainPart = div.cls("info")(make_table(
