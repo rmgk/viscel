@@ -18,7 +18,7 @@ class ElementNode(val self: Node) extends {
 	def chapter: ChapterNode = Neo.txs { self.to(rel.parent).map { ChapterNode(_) }.get }
 	def collection: CollectionNode = Neo.txs { chapter.collection }
 
-	override def next = super.next.orElse { chapter.next.flatMap { _.last } }
+	override def next = super.next.orElse { chapter.next.flatMap { _.first } }
 	override def prev = super.prev.orElse { chapter.prev.flatMap { _.last } }
 
 	def distanceToLast: Int = Neo.txs {
