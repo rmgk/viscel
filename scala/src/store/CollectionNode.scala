@@ -11,18 +11,16 @@ import scala.collection.JavaConversions._
 import util.Try
 import viscel.time
 
-abstract class AbstractCollectionNode[ChildType <: ContainableNode[ChildType]](val self: Node, val selfLabel: Label) extends NodeContainer[ChildType] with ViscelNode {
+class CollectionNode(val self: Node) extends NodeContainer[ChapterNode] with ViscelNode {
+	def selfLabel = label.Collection
+	def makeChild = ChapterNode(_)
 
 	def id = Neo.txs { self[String]("id") }
 	def name = Neo.txs { self.get[String]("name").getOrElse(id) }
 
+	def totalSize = Neo.txs { children.map { _.size }.sum }
+
 	override def toString = s"Collection($id)"
-
-}
-
-class CollectionNode(self: Node) extends AbstractCollectionNode[ElementNode](self, label.Collection) {
-	def containRelation = rel.parent
-	def makeChild = ElementNode(_)
 }
 
 object CollectionNode {
@@ -30,16 +28,4 @@ object CollectionNode {
 	def apply(id: String) = Neo.node(label.Collection, "id", id).map { new CollectionNode(_) }
 
 	def create(id: String, name: Option[String] = None) = CollectionNode(Neo.create(label.Collection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
-}
-
-class ChapteredCollectionNode(self: Node) extends AbstractCollectionNode[ChapterNode](self, label.ChapteredCollection) {
-	def containRelation = rel.chapter
-	def makeChild = ChapterNode(_)
-}
-
-object ChapteredCollectionNode {
-	def apply(node: Node) = new ChapteredCollectionNode(node)
-	def apply(id: String) = Neo.node(label.ChapteredCollection, "id", id).map { new ChapteredCollectionNode(_) }
-
-	def create(id: String, name: Option[String] = None) = ChapteredCollectionNode(Neo.create(label.ChapteredCollection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
 }

@@ -13,28 +13,24 @@ import util.Try
 class ElementNode(val self: Node) extends {
 	val selfLabel = label.Element
 } with ViscelNode with ContainableNode[ElementNode] {
-
 	def makeSelf = ElementNode(_)
 
-	def collection: CollectionNode = Neo.txs { CollectionNode(self.getSingleRelationship(rel.parent, Direction.OUTGOING).getEndNode) }
-	def distanceToLast: Int = Neo.txs { collection.last.get.position - position }
+	def chapter: ChapterNode = Neo.txs { self.to(rel.parent).map { ChapterNode(_) }.get }
+	def collection: CollectionNode = Neo.txs { chapter.collection }
+
+	override def next = super.next.orElse { chapter.next.flatMap { _.last } }
+	override def prev = super.prev.orElse { chapter.prev.flatMap { _.last } }
+
+	def distanceToLast: Int = Neo.txs {
+		def countFrom(cno: Option[ChapterNode], acc: Int): Int = cno match {
+			case Some(cn) => countFrom(cn.next, cn.size + acc)
+			case None => acc
+		}
+		chapter.size - position + countFrom(chapter.next, 0)
+	}
 
 	def apply[T](k: String) = Neo.txs { self[T](k) }
 	def get[T](k: String) = Neo.txs { self.get[T](k) }
-
-	def delete() = {}
-
-	// def toElement = Neo.txs {
-	// 	Element(
-	// 		blob = self[String]("blob"),
-	// 		mediatype = self[String]("mediatype"),
-	// 		source = self[String]("source"),
-	// 		origin = self[String]("origin"),
-	// 		alt = self.get[String]("alt"),
-	// 		title = self.get[String]("title"),
-	// 		width = self.get[Int]("width"),
-	// 		height = self.get[Int]("height"))
-	// }
 }
 
 object ElementNode {

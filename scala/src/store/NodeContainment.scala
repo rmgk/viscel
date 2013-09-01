@@ -14,7 +14,6 @@ import viscel._
 
 trait NodeContainer[ChildType <: ContainableNode[ChildType]] extends ViscelNode {
 
-	def containRelation: RelationshipType
 	def makeChild: Node => ChildType
 
 	def last = Neo.txs { self.to(rel.last).map { makeChild } }
@@ -26,14 +25,14 @@ trait NodeContainer[ChildType <: ContainableNode[ChildType]] extends ViscelNode 
 	}
 
 	def children = Neo.txs {
-		self.incoming(containRelation).map { _.getStartNode.pipe { makeChild } }.toIndexedSeq
+		self.incoming(rel.parent).map { _.getStartNode.pipe { makeChild } }.toIndexedSeq
 	}
 
 	def append(childNode: ChildType) = Neo.tx { db =>
 		val node = childNode.self
 		val lastPos = last match {
 			case Some(en) =>
-				en.self.getSingleRelationship(rel.last, Direction.INCOMING).delete
+				en.self.incoming(rel.last).foreach { _.delete }
 				en.self.createRelationshipTo(node, rel.next)
 				en.position
 			case None =>
@@ -41,32 +40,16 @@ trait NodeContainer[ChildType <: ContainableNode[ChildType]] extends ViscelNode 
 				0
 		}
 		self.createRelationshipTo(node, rel.last)
-		node.createRelationshipTo(self, containRelation)
+		node.createRelationshipTo(self, rel.parent)
 		node.setProperty("position", lastPos + 1)
 		childNode
-	}
-
-	def drop() = Neo.txs {
-		for {
-			lnode <- last
-			pnode <- lnode.prev
-		} {
-			pnode.self.createRelationshipTo(self, containRelation)
-			lnode.delete
-		}
 	}
 
 }
 
 trait ContainableNode[SelfType] extends ViscelNode {
-
 	def makeSelf: Node => SelfType
-
 	def next: Option[SelfType] = Neo.txs { self.to(rel.next).map { makeSelf } }
 	def prev: Option[SelfType] = Neo.txs { self.from(rel.next).map { makeSelf } }
-
 	def position: Int = Neo.txs { self[Int]("position") }
-
-	def delete(): Unit
-
 }

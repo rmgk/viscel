@@ -19,6 +19,8 @@ trait ViscelNode {
 
 	require(Neo.txs { self.getLabels.exists(_ == selfLabel) }, s"node label did not match $selfLabel")
 
+	// def deleteNode(): Unit
+
 	override def equals(other: Any) = other match {
 		case o: ViscelNode => self == o.self
 		case _ => false
@@ -34,8 +36,7 @@ object ViscelNode {
 		case List() => failure(s"node has no label")
 		case List(l) if l == label.Chapter => Try(ChapterNode(node))
 		case List(l) if l == label.Collection => Try(CollectionNode(node))
-		case List(l) if l == label.ChapteredCollection => Try(ChapteredCollectionNode(node))
-		//case List(l) if l == label.Config => Try(ConfigNode(node))
+		//case List(l) if l == label.Config => Try(ConfigNode())
 		case List(l) if l == label.Element => Try(ElementNode(node))
 		case List(l) if l == label.User => Try(UserNode(node))
 		case List(l) => failure(s"unhandled label $l")

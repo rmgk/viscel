@@ -10,18 +10,15 @@ import scala.collection.JavaConversions._
 import util.Try
 import viscel.time
 
-class ChapterNode(val self: Node) extends {
-	val selfLabel = label.Chapter
-} with NodeContainer[ElementNode] with ContainableNode[ChapterNode] with ViscelNode {
+class ChapterNode(val self: Node) extends NodeContainer[ElementNode] with ContainableNode[ChapterNode] {
 
-	def containRelation = rel.chapter
+	def selfLabel = label.Chapter
 	def makeChild = ElementNode(_)
 	def makeSelf = ChapterNode(_)
 
-	def name = Neo.txs { self.get[String]("name") }
+	def name = Neo.txs { self[String]("name") }
 
-	def delete: Unit = {}
-
+	def collection = Neo.txs { self.to(rel.parent).map { CollectionNode(_) }.get }
 }
 
 object ChapterNode {

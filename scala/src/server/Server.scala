@@ -26,7 +26,7 @@ class Server extends Actor with DefaultRoutes {
 	// this actor only runs our route, but you could add
 	// other things here, like request stream processing,
 	// timeout handling or alternative handler registration
-	def receive = runRoute(defaultRoute)
+	def receive = runRoute { authenticate(loginOrCreate) { user => defaultRoute(user) } }
 }
 
 trait DefaultRoutes extends HttpService with Logging {
@@ -57,51 +57,55 @@ trait DefaultRoutes extends HttpService with Logging {
 			Future.successful(None)
 	}, "Username is used to store configuration; Passwords are saved in plain text; User is created on first login")
 
-	val defaultRoute =
-		authenticate(loginOrCreate) { user =>
-			(path("") | path("index")) {
-				complete(IndexPage(user))
-			} ~
-				path("stop") {
-					complete {
-						future {
-							spray.util.actorSystem.shutdown()
-							viscel.store.Neo.shutdown()
-						}
-						"shutdown"
+	def defaultRoute(user: UserNode) =
+		(path("") | path("index")) {
+			complete(IndexPage(user))
+		} ~
+			path("stop") {
+				complete {
+					future {
+						spray.util.actorSystem.shutdown()
+						viscel.store.Neo.shutdown()
 					}
-				} ~
-				path("css") {
-					getFromFile("../style.css")
-				} ~
-				path("b" / Segment) { hash =>
-					val filename = hashToFilename(hash)
-					getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
-				} ~
-				path("f" / Segment) { col =>
-					rejectNone(CollectionNode(col)) { cn =>
-						formFields('bookmark.?.as[Option[Long]], 'submit.?.as[Option[String]]) { (bm, remove) =>
-							bm.foreach { bid => user.setBookmark(ElementNode(bid)) }
-							remove.foreach { case "remove" => user.deleteBookmark(cn); case _ => }
-							complete(time("total") { FrontPage(user, cn) })
-						}
-					}
-				} ~
-				path("v" / Segment / IntNumber) { (col, pos) =>
-					rejectNone(CollectionNode(col)) { cn =>
-						complete(viewFallback(user, cn, pos))
-					}
-				} ~
-				path("id" / IntNumber) { id =>
-					complete(PageDispatcher(user, ViscelNode(id).get))
-				} ~
-				(path("s") & parameter('q)) { query =>
-					complete(SearchPage(user, query))
+					"shutdown"
 				}
-		}
+			} ~
+			path("css") {
+				getFromFile("../style.css")
+			} ~
+			path("b" / Segment) { hash =>
+				val filename = hashToFilename(hash)
+				getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
+			} ~
+			path("v" / Segment) { col =>
+				rejectNone(CollectionNode(col)) { cn =>
+					formFields('bookmark.?.as[Option[Long]], 'submit.?.as[Option[String]]) { (bm, remove) =>
+						bm.foreach { bid => user.setBookmark(ElementNode(bid)) }
+						remove.foreach { case "remove" => user.deleteBookmark(cn); case _ => }
+						complete(time("total") { FrontPage(user, cn) })
+					}
+				}
+			} ~
+			path("v" / Segment / IntNumber) { (col, chapter) =>
+				rejectNone(CollectionNode(col)) { cn =>
+					complete(viewFallback(user, cn, chapter))
+				}
+			} ~
+			path("v" / Segment / IntNumber / IntNumber) { (col, chapter, pos) =>
+				rejectNone(CollectionNode(col)) { cn =>
+					complete(viewFallback(user, cn, chapter, pos))
+				}
+			} ~
+			path("i" / IntNumber) { id =>
+				complete(PageDispatcher(user, ViscelNode(id).get))
+			} ~
+			(path("s") & parameter('q)) { query =>
+				complete(SearchPage(user, query))
+			}
 
 	def rejectNone[T](opt: Option[T])(route: T => Route) = opt.map { route(_) }.getOrElse(reject)
 
-	def viewFallback(user: UserNode, cn: CollectionNode, pos: Int) = cn(pos).map { ViewPage(user, _) }.getOrElse { FrontPage(user, cn) }
+	def viewFallback(user: UserNode, cn: CollectionNode, chapter: Int) = cn(chapter).map { ChapterPage(user, _) }.getOrElse { FrontPage(user, cn) }
+	def viewFallback(user: UserNode, cn: CollectionNode, chapter: Int, pos: Int) = cn(chapter).flatMap { _(pos).map { ViewPage(user, _) } }.getOrElse { FrontPage(user, cn) }
 
 }

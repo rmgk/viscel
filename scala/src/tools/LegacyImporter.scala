@@ -7,6 +7,7 @@ import scala.slick.driver.SQLiteDriver.simple._
 import scala.slick.jdbc.StaticQuery.interpolation
 import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
 import scala.slick.session.Database
+import scalax.io._
 import viscel.store._
 import viscel.time
 
@@ -52,10 +53,13 @@ class LegacyImporter(dbdir: String) extends Logging {
 		val elts = time("load elements") { legacyAdapter.getAll(col.id).toList }
 		logger.info(elts.size.toString)
 
+		val chap = ChapterNode.create(s"Imported Legacy Chapter")
+		col.append(chap)
+
 		def createLinkedElts(elts: List[LegacyElement]): Unit = elts match {
 			case head :: tail =>
 				val newElem = ElementNode.create(head.toSeq: _*)
-				col.append(newElem)
+				chap.append(newElem)
 				createLinkedElts(tail)
 			case List() =>
 		}
@@ -63,7 +67,7 @@ class LegacyImporter(dbdir: String) extends Logging {
 		if (!elts.isEmpty) {
 			time("create elements") {
 				val first = ElementNode.create(elts.head.toSeq: _*)
-				col.append(first)
+				chap.append(first)
 				createLinkedElts(elts.tail)
 			}
 		}
@@ -72,18 +76,20 @@ class LegacyImporter(dbdir: String) extends Logging {
 
 object BookmarkImporter extends Logging {
 	def apply(user: UserNode, bmdir: String) = {
+		logger.info(s"importing bookmarks for ${user.name}")
 		val extract = """(?x) \s+ (\w+) = (\d+)""".r
-		scala.io.Source.fromFile(bmdir).getLines
+		Resource.fromFile(bmdir).lines()
 			.collect { case extract(id, pos) => id -> pos.toInt }.foreach {
 				case (id, pos) =>
 					CollectionNode(id).map { cn =>
-						cn(pos).map { en =>
-							logger.info(s"$id: $pos")
-							user.setBookmark(en)
+						cn(1).flatMap {
+							_(pos).map { en =>
+								logger.info(s"$id: $pos")
+								user.setBookmark(en)
+							}
 						}.getOrElse { logger.warn("$id has no element $pos") }
 					}.getOrElse { logger.warn(s"unknown id $id") }
 			}
-
 	}
 }
 

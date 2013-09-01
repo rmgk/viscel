@@ -64,7 +64,7 @@ object Viscel {
 				sys.exit(0)
 		}
 
-		if (help.?) {
+		if (help.? || conf.nonOptionArguments.size > 0) {
 			printHelpOn(System.out)
 			sys.exit(0)
 		}
@@ -79,7 +79,7 @@ object Viscel {
 		if (createIndexes.?) {
 			Neo.execute("create index on :Collection(id)")
 			//Neo.execute("create index on :Element(position)")
-			//Neo.execute("create index on :User(name)")
+			Neo.execute("create index on :User(name)")
 		}
 
 		if (purgeUnreferenced.?) {
