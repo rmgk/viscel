@@ -46,8 +46,10 @@ trait HtmlPageUtils {
 
 	def form_search(init: String) = form_get(path_search, input.ctype("textfield").name("q").value(init))
 
-	def enodeToImg(en: ElementNode) = img.src(path_blob(en[String]("blob"))).cls("element")
-		.attr { Seq("width", "height").flatMap { k => en.get[Int](k).map { k -> _ } } ++ Seq("alt", "title").flatMap { k => en.get[String](k).map { k -> _ } }: _* }
+	def enodeToImg(en: ElementNode) = en.get[String]("blob").map { blob =>
+		img.src(path_blob(blob)).cls("element")
+			.attr { Seq("width", "height").flatMap { k => en.get[Int](k).map { k -> _ } } ++ Seq("alt", "title").flatMap { k => en.get[String](k).map { k -> _ } }: _* }
+	}.getOrElse(div.cls("info")("Placeholder"))
 
 	def make_table(entry: (String, STag)*) = table(tbody(entry.map {
 		case (k, v) =>

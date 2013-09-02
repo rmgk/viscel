@@ -23,30 +23,41 @@ import scala.language.implicitConversions
 trait Core {
 	def id: String
 	def name: String
-	def first: Uri
-	def wrapPage(doc: Document): WrappedPage
+	def archive: Uri
+	def wrapArchive(doc: Document): Future[ArchiveDescription]
+	def wrapPage(doc: Document): Future[FullPage]
 }
 
-trait ChapteredCore extends Core {
-	def wrapChapter(doc: Document): WrappedChapter
+trait ArchiveDescription {
+	def chapters: Seq[ChapterDescription]
 }
 
-trait WrappedPage {
-	def next: Try[Uri]
-	def elements: Seq[Try[Element]]
+sealed trait ChapterDescription {
+	def name: String
 }
+case class ChapterPointer(name: String, loc: Uri) extends ChapterDescription
+case class LinkedChapter(
+	name: String,
+	first: PageDescription) extends ChapterDescription
+case class CompleteChapter(
+	name: String,
+	pages: Seq[PageDescription]) extends ChapterDescription
 
-trait WrappedChapter {
-	def chapter: Seq[Try[Chapter]]
+sealed trait PageDescription {
+	def loc: Uri
 }
+case class PagePointer(loc: Uri, next: Option[PageDescription] = None) extends PageDescription
+// case class SinglePage(
+// 	loc: Uri,
+// 	elements: Seq[Try[ElementDescription]]) extends PageDescription
+case class FullPage(
+	loc: Uri,
+	next: Option[Try[PageDescription]],
+	elements: Seq[ElementDescription]) extends PageDescription
 
-class EndRun(msg: String) extends Throwable(msg)
+case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte], response: HttpResponse, description: ElementDescription)
 
-case class Chapter(name: String, first: Uri)
-
-case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte], response: HttpResponse, element: Element)
-
-case class Element(
+case class ElementDescription(
 	source: Uri,
 	origin: Uri,
 	alt: Option[String] = None,

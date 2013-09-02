@@ -71,6 +71,7 @@ object Viscel {
 
 		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, loglevel())
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_THREAD_NAME_KEY, "false")
+		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_LOG_NAME_KEY, "false")
 
 		sys.addShutdownHook { Neo.shutdown() }
 
@@ -87,8 +88,8 @@ object Viscel {
 					|match (user :User), (col: Collection)
 					|where NOT( user -[:bookmarked]-> () <-[:bookmark]- col )
 					|with col
-					|match col -[r1]-> (node) -[r2?]- ()
-					|delete node, r1, r2
+					|match col -[*0..2]- (node) -[r2?]- ()
+					|delete col, node, r2
 					""").dumpToString.pipe { println }
 		}
 

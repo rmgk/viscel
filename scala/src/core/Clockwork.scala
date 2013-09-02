@@ -25,13 +25,28 @@ import org.neo4j.graphdb.Direction
 
 class Clockwork(val iopipe: SendReceive) extends Logging {
 
-	val cores = DCore.list.cores ++ Seq(CarciphonaWrapper, FlipsideWrapper, FreakAngelsWrapper)
+	// val cores = DCore.list.cores ++ Seq(CarciphonaWrapper, FlipsideWrapper, FreakAngelsWrapper)
 
-	// def nonChaptered() = cores.foreach { core =>
-	// 	logger.info(s"start core ${core.id}")
+	// // def nonChaptered() = cores.foreach { core =>
+	// // 	logger.info(s"start core ${core.id}")
 
-	// 	new Runner {
+	// // 	new Runner {
+	// // 		def iopipe = Clockwork.this.iopipe
+	// // 		def wrapPage = core.wrapPage _
+	// // 		def collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
+	// // 	}.start(core.first).onComplete {
+	// // 		case Success(_) => logger.info("test complete without errors")
+	// // 		case Failure(e) => e match {
+	// // 			case e: EndRun => logger.info(s"${core.id} complete ${e}")
+	// // 			case e => logger.info(s"${core.id} failed ${e}"); e.printStackTrace
+	// // 		}
+	// // 	}
+	// // }
+
+	// def chaptered() = DrMcNinjaWrapper.pipe { core =>
+	// 	new ChapteredRunner {
 	// 		def iopipe = Clockwork.this.iopipe
+	// 		def wrapChapter = core.wrapChapter _
 	// 		def wrapPage = core.wrapPage _
 	// 		def collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
 	// 	}.start(core.first).onComplete {
@@ -43,20 +58,19 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 	// 	}
 	// }
 
-	def chaptered() = DrMcNinjaWrapper.pipe { core =>
-		new ChapteredRunner {
+	def fullArchive(ocore: Core) = {
+		new FullArchiveRunner {
+			def collection = CollectionNode(ocore.id).getOrElse(CollectionNode.create(ocore.id, ocore.name))
+			def core = ocore
 			def iopipe = Clockwork.this.iopipe
-			def wrapChapter = core.wrapChapter _
-			def wrapPage = core.wrapPage _
-			def collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
-		}.start(core.first).onComplete {
+		}.start().onComplete {
 			case Success(_) => logger.info("test complete without errors")
 			case Failure(e) => e match {
-				case e: EndRun => logger.info(s"${core.id} complete ${e}")
-				case e => logger.info(s"${core.id} failed ${e}"); e.printStackTrace
+				case e: NormalStatus => logger.info(s"${ocore.id} complete ${e}")
+				case e: FailedStatus => logger.info(s"${ocore.id} failed ${e}"); e.printStackTrace
 			}
 		}
 	}
 
-	def test() = chaptered()
+	def test() = fullArchive(TwokindsArchive)
 }

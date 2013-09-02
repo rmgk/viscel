@@ -18,27 +18,32 @@ class ChapterPage(user: UserNode, chapter: ChapterNode) extends HtmlPage with Ma
 
 	override def navPrev = chapter.prev.map { ch => path_nid(ch.nid) }
 	override def navNext = chapter.next.map { ch => path_nid(ch.nid) }
-	override def navUp = Some(path_nid(chapter.nid))
+	override def navUp = Some(path_nid(chapter.collection.nid))
 	override def navDown = chapter.first.map { f => path_nid(f.nid) }
 
-	override def mainPart = div.cls("info")(make_table(
-		"name" -> chapter.name,
-		"chapter" -> chapter.position.toString,
-		"pages" -> chapter.size.toString))
+	// def mainPart = div.cls("info")(make_table(
+	// 	"name" -> chapter.name,
+	// 	"chapter" -> chapter.position.toString,
+	// 	"pages" -> chapter.size.toString))
 
-	def navigation = Seq[STag](
-		link_node(chapter.prev, "prev"),
-		" ",
-		link_node(chapter.first, "first"),
-		" – ",
-		link_node(chapter.collection, "front"),
-		" – ",
-		link_node(chapter.last, "last"),
-		" ",
-		link_node(chapter.next, "next"))
+	def mainPart = ""
 
-	override def sidePart = make_fieldset("Pages",
-		chapter.children.sortBy(_.position).map { child => link_node(child, child.position.toString) }).cls("group pages")
+	def navigation = link_node(chapter.collection, "front")
+	// def navigation = Seq[STag](
+	// 	link_node(chapter.prev, "prev"),
+	// 	" ",
+	// 	link_node(chapter.first, "first"),
+	// 	" – ",
+	// 	link_node(chapter.collection, "front"),
+	// 	" – ",
+	// 	link_node(chapter.last, "last"),
+	// 	" ",
+	// 	link_node(chapter.next, "next"))
+
+	def make_pagelist(chapter: ChapterNode): STag = fieldset.cls("group pages")(legend(chapter.name),
+		chapter.children.sortBy(_.position).flatMap { child => Seq(link_node(child, child.position.toString), " ": STag) })
+
+	override def sidePart = chapter.collection.children.sortBy(_.position).map { make_pagelist }
 
 }
 

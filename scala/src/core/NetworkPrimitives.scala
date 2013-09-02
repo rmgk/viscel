@@ -34,7 +34,11 @@ trait NetworkPrimitives extends Logging {
 			case None => (x: HttpRequest) => x
 		}
 		Get(uri).pipe { addReferer }.pipe { iopipe }
-			.flatMap { res => res.validate(_.status.intValue == 200, endRun(s"invalid response ${res.status}; $uri ($referer)")).toFuture }
+			.flatMap { res =>
+				res.validate(
+					_.status.intValue == 200,
+					FailRun(s"invalid response ${res.status}; $uri ($referer)")).toFuture
+			}
 	}
 
 	def document(uri: Uri): Future[Document] = response(uri).map { res =>
@@ -43,18 +47,18 @@ trait NetworkPrimitives extends Logging {
 			res.header[Location].map { _.uri }.getOrElse(uri).toString)
 	}
 
-	def elementData(eseed: Element): Future[ElementData] = {
-		response(eseed.source, Some(eseed.origin)).map { res =>
+	def elementData(edesc: ElementDescription): Future[ElementData] = {
+		response(edesc.source, Some(edesc.origin)).map { res =>
 			ElementData(
 				mediatype = res.header[`Content-Type`].get.contentType,
 				buffer = res.entity.buffer,
 				sha1 = sha1hex(res.entity.buffer),
 				response = res,
-				element = eseed)
+				description = edesc)
 		}
 	}
 
-	def elementsData(elements: Seq[Element]): Future[Seq[ElementData]] = {
+	def elementsData(elements: Seq[ElementDescription]): Future[Seq[ElementData]] = {
 		elements.map { elementData }.pipe { Future.sequence(_) }
 	}
 }

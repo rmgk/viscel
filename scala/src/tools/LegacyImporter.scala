@@ -40,7 +40,7 @@ class LegacyImporter(dbdir: String) extends Logging {
 			for (id <- collections) {
 				Neo.txt("total") { _ =>
 					logger.info(id)
-					val cn = CollectionNode.create(id)
+					val cn = CollectionNode.create(id, id)
 					fillCollection(cn)
 					// bookmarks.get(id).foreach { cn.bookmark(_) }
 				}

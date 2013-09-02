@@ -54,10 +54,8 @@ fieldset.group div {
 	-moz-column-width: 20em;
 }
 
-fieldset.pages div {
-	column-width: 5em;
-	-webkit-column-width: 5em;
-	-moz-column-width: 5em;
+.pages {
+	margin: 20px 10px;
 }
 
 /* comic pages */

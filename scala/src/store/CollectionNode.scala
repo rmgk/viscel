@@ -28,5 +28,5 @@ object CollectionNode {
 	def apply(nodeId: Long) = new CollectionNode(Neo.tx { _.getNodeById(nodeId) })
 	def apply(id: String) = Neo.node(label.Collection, "id", id).map { new CollectionNode(_) }
 
-	def create(id: String, name: Option[String] = None) = CollectionNode(Neo.create(label.Collection, (Seq("id" -> id) ++ name.map { "name" -> _ }): _*))
+	def create(id: String, name: String) = CollectionNode(Neo.create(label.Collection, "id" -> id, "name" -> name))
 }

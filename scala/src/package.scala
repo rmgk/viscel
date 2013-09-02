@@ -12,7 +12,7 @@ package object viscel extends Logging {
 	}
 
 	val digester = MessageDigest.getInstance("SHA1")
-	def sha1hex(b: Array[Byte]) = digester.digest(b).map { "%02X" format _ }.mkString
+	def sha1hex(b: Array[Byte]) = digester.digest(b).map { "%02x" format _ }.mkString
 
 	def hashToFilename(h: String): String = (new StringBuilder(h)).insert(2, '/').insert(0, "../cache/").toString
 
