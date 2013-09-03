@@ -23,14 +23,16 @@ import scala.language.implicitConversions
 trait Core {
 	def id: String
 	def name: String
-	def archive: Uri
-	def wrapArchive(doc: Document): Future[ArchiveDescription]
+	def archive: ArchiveDescription
+	def wrapArchive(doc: Document): Future[FullArchive]
 	def wrapPage(doc: Document): Future[FullPage]
 }
 
-trait ArchiveDescription {
-	def chapters: Seq[ChapterDescription]
-}
+sealed trait ArchiveDescription
+case class ArchivePointer(loc: Uri) extends ArchiveDescription
+case class FullArchive(
+	chapters: Seq[ChapterDescription],
+	next: Option[ArchiveDescription] = None) extends ArchiveDescription
 
 sealed trait ChapterDescription {
 	def name: String
@@ -39,17 +41,11 @@ case class ChapterPointer(name: String, loc: Uri) extends ChapterDescription
 case class LinkedChapter(
 	name: String,
 	first: PageDescription) extends ChapterDescription
-case class CompleteChapter(
-	name: String,
-	pages: Seq[PageDescription]) extends ChapterDescription
 
 sealed trait PageDescription {
 	def loc: Uri
 }
 case class PagePointer(loc: Uri, next: Option[PageDescription] = None) extends PageDescription
-// case class SinglePage(
-// 	loc: Uri,
-// 	elements: Seq[Try[ElementDescription]]) extends PageDescription
 case class FullPage(
 	loc: Uri,
 	next: Option[Try[PageDescription]],

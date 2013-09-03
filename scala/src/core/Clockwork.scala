@@ -72,5 +72,5 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 		}
 	}
 
-	def test() = fullArchive(TwokindsArchive)
+	def test() = fullArchive(InverlochArchive); fullArchive(TwokindsArchive)
 }

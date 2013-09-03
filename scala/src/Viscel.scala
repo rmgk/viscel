@@ -16,6 +16,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.language.implicitConversions
+import scala.util.Try
 import spray.can.Http
 import spray.client.pipelining._
 import spray.http.Uri
@@ -52,7 +53,9 @@ object Viscel {
 	def main(args: Array[String]) {
 
 		import Opts._
-		formatHelpWith(new BuiltinHelpFormatter((new scala.tools.jline.console.ConsoleReader()).getTerminal.getWidth, 4))
+		val formatWidth = try { (new scala.tools.jline.console.ConsoleReader()).getTerminal.getWidth }
+		catch { case e: Throwable => 80 }
+		formatHelpWith(new BuiltinHelpFormatter(formatWidth, 4))
 		implicit val conf = try {
 			parse(args: _*)
 		}

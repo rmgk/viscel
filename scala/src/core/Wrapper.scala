@@ -12,11 +12,52 @@ import spray.http.Uri
 import viscel._
 import scala.collection.JavaConversions._
 
+object InverlochArchive extends Core with Logging {
+	def archive = ArchivePointer("http://inverloch.seraph-inn.com/volume1.html")
+	def id: String = "AX_Inverloch"
+	def name: String = "Inverloch"
+	def wrapArchive(doc: Document): Future[FullArchive] =
+		doc.getElementById("main").validate(_ != null, FailRun("main id not found")).map { main =>
+			val vol = main.child(0).text
+			val chapters = main.children.slice(1, 6)
+			val cdescs = chapters.flatMap { chapter =>
+				val cname = chapter.ownText
+				val scenes = chapter.getElementsByTag("a")
+				scenes.map { scene =>
+					val sname = scene.text
+					LinkedChapter(s"$vol; $cname; $sname", PagePointer(scene.attr("abs:href")))
+				}
+			}
+			val volumes = doc.select("#nav > ul > li.lisub > a")
+			val nVolInd = volumes.indexWhere { _.text == vol } + 1
+			val nextVol = if (1 until volumes.size contains nVolInd) Some(volumes(nVolInd)) else None
+			FullArchive(cdescs, nextVol.map { _.attr("abs:href") }.map { ArchivePointer(_) })
+		}.toFuture
+
+	def strOpt(s: String) = if (s.isEmpty) None else Some(s)
+
+	def imgToElement(img: Element): ElementDescription = ElementDescription(
+		source = img.attr("abs:src").pipe { Uri.parseAbsolute(_) },
+		origin = img.baseUri,
+		alt = strOpt(img.attr("alt")),
+		title = strOpt(img.attr("title")),
+		width = strOpt(img.attr("width")).map { _.toInt },
+		height = strOpt(img.attr("height")).map { _.toInt })
+
+	def wrapPage(doc: Document): Future[FullPage] =
+		doc.select("#main").validate(_.size == 1, FailRun("no image found ${doc.baseUri}")).map { main =>
+			val ed = main.select("> p > img").map { imgToElement }
+			val next = Try { main(0).getElementsContainingOwnText("Next").attr("abs:href").pipe { Uri(_) }.pipe { PagePointer(_) } }
+			FullPage(loc = doc.baseUri, elements = ed, next = Some(next))
+		}.toFuture
+}
+
 object TwokindsArchive extends Core with Logging {
-	def archive: spray.http.Uri = Uri("http://twokinds.keenspot.com/?pageid=3")
+	def archive = ArchivePointer("http://twokinds.keenspot.com/?pageid=3")
 	def id: String = "AX_Twokinds"
 	def name: String = "Twokinds"
-	def wrapArchive(doc: Document): Future[ArchiveDescription] = {
+
+	def wrapArchive(doc: Document): Future[FullArchive] = {
 
 		def extractChapterDescription(element: Element) = for {
 			name <- element.select("h4").validate(_.size == 1).map { _.text }
@@ -29,11 +70,7 @@ object TwokindsArchive extends Core with Logging {
 		} yield LinkedChapter(name, pageDesc.get)
 
 		Try { doc.select(".chapter").map { extractChapterDescription }.map { _.get } }
-			.map { chaps =>
-				new ArchiveDescription {
-					def chapters = chaps
-				}
-			}.toFuture
+			.map { FullArchive(_) }.toFuture
 	}
 
 	def strOpt(s: String) = if (s.isEmpty) None else Some(s)

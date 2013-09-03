@@ -32,13 +32,16 @@ trait FullArchiveRunner extends NetworkPrimitives with Logging {
 		new ChapterRunner() {
 			def chapterNode = cn
 			def forbidden = fb
-			def pageRunner = new FullPageRunner() {
-				def iopipe = FullArchiveRunner.this.iopipe
-				def wrapPage = core.wrapPage
-			}.apply(_)
+			def pageRunner = new PlaceholderPageRunner() {}.apply(_)
+			// new FullPageRunner() {
+			// 	def iopipe = FullArchiveRunner.this.iopipe
+			// 	def wrapPage = core.wrapPage
+			// }.apply(_)
 		}.continue(lc.first)
 			.recoverWith {
-				case e: NormalStatus => Future.successful(())
+				case e: NormalStatus =>
+					logger.info(s"chapter ${cn.name} finished normally: ${e.getMessage}")
+					Future.successful(())
 			}
 	}
 
@@ -52,12 +55,22 @@ trait FullArchiveRunner extends NetworkPrimitives with Logging {
 				.flatMap { _ => getChapterList(tcl) }
 	}
 
-	def start() = {
-		document(core.archive)
-			.flatMap { core.wrapArchive }
-			.flatMap { archiveDescription =>
-				getChapterList(archiveDescription.chapters.toList.asInstanceOf[List[LinkedChapter]])
+	def continue(archive: ArchiveDescription, chapters: List[LinkedChapter] = List()): Future[Unit] = {
+		val fullArchive = archive match {
+			case fa: FullArchive => Future.successful(fa)
+			case ap: ArchivePointer =>
+				document(ap.loc)
+					.flatMap { core.wrapArchive }
+		}
+		fullArchive.flatMap { fa =>
+			val allChapters = chapters ::: fa.chapters.toList.asInstanceOf[List[LinkedChapter]]
+			fa.next match {
+				case Some(archive) => continue(archive, allChapters)
+				case None => getChapterList(allChapters)
 			}
+		}
 	}
+
+	def start(): Future[Unit] = continue(core.archive)
 }
 
