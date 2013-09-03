@@ -32,11 +32,11 @@ trait FullArchiveRunner extends NetworkPrimitives with Logging {
 		new ChapterRunner() {
 			def chapterNode = cn
 			def forbidden = fb
-			def pageRunner = new PlaceholderPageRunner() {}.apply(_)
-			// new FullPageRunner() {
-			// 	def iopipe = FullArchiveRunner.this.iopipe
-			// 	def wrapPage = core.wrapPage
-			// }.apply(_)
+			def pageRunner = //new PlaceholderPageRunner() {}.apply(_)
+				new FullPageRunner() {
+					def iopipe = FullArchiveRunner.this.iopipe
+					def wrapPage = core.wrapPage
+				}.apply(_)
 		}.continue(lc.first)
 			.recoverWith {
 				case e: NormalStatus =>
