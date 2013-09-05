@@ -31,6 +31,7 @@ class ElementNode(val self: Node) extends {
 
 	def apply[T](k: String) = Neo.txs { self[T](k) }
 	def get[T](k: String) = Neo.txs { self.get[T](k) }
+	def origin = Neo.txs { self[String]("origin") }
 }
 
 object ElementNode {

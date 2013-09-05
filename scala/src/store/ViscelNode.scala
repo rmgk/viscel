@@ -16,6 +16,7 @@ trait ViscelNode {
 	def self: Node
 	def selfLabel: Label
 	def nid = Neo.txs { self.getId }
+	def created = Neo.txs { self[Long]("created") }
 
 	require(Neo.txs { self.getLabels.exists(_ == selfLabel) }, s"node label did not match $selfLabel")
 

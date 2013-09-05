@@ -59,11 +59,11 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 	// }
 
 	def fullArchive(ocore: Core) = {
-		new FullArchiveRunner {
+		new ArchiveRunner {
 			def collection = CollectionNode(ocore.id).getOrElse(CollectionNode.create(ocore.id, ocore.name))
 			def core = ocore
 			def iopipe = Clockwork.this.iopipe
-		}.start().onComplete {
+		}.update().onComplete {
 			case Success(_) => logger.info("test complete without errors")
 			case Failure(e) => e match {
 				case e: NormalStatus => logger.info(s"${ocore.id} complete ${e}")

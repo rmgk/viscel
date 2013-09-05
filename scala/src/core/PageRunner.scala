@@ -23,7 +23,13 @@ import scalax.io._
 import scala.collection.JavaConversions._
 import org.neo4j.graphdb.Direction
 
-trait FullPageRunner extends NetworkPrimitives {
+trait PageRunner {
+	def nodes(page: PageDescription): Future[Seq[ElementNode]]
+	def apply(page: PageDescription): Future[PageDescription]
+
+}
+
+trait FullPageRunner extends PageRunner with NetworkPrimitives {
 
 	def wrapPage: Document => Future[FullPage]
 
@@ -55,15 +61,35 @@ trait FullPageRunner extends NetworkPrimitives {
 			createElementNode(edata)
 		}
 
-	def apply(page: PageDescription): Future[(FullPage, Seq[ElementNode])] =
-		page.pipe {
+	def apply(page: PageDescription): Future[FullPage] =
+		page match {
 			case fp: FullPage => Future.successful(fp)
 			case pp: PagePointer => wrap(pp)
-		}.flatMap { fullPage =>
-			elementsData(fullPage.elements)
-				.map { store }
-				.map { (fullPage, _) }
 		}
 
+	def nodes(page: PageDescription): Future[Seq[ElementNode]] =
+		apply(page).flatMap { fullPage =>
+			elementsData(fullPage.elements)
+				.map { store }
+		}
+
+}
+
+trait PlaceholderPageRunner extends PageRunner with Logging {
+
+	def createElementNodes(page: PageDescription): Seq[ElementNode] = Neo.txs {
+		page match {
+			case pp: PagePointer =>
+				logger.info(s"create element for ${pp.loc}")
+				Seq(ElementNode.create("origin" -> pp.loc.toString))
+			case fp: FullPage => fp.elements.map { ed =>
+				logger.info(s"create element for ${ed}")
+				ElementNode.create(ed.toMap.toSeq: _*)
+			}
+		}
+	}
+
+	def nodes(page: PageDescription): Future[Seq[ElementNode]] = Future.successful { createElementNodes(page) }
+	def apply(page: PageDescription): Future[PageDescription] = Future.successful(page)
 }
 

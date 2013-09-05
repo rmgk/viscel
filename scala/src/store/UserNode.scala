@@ -35,7 +35,7 @@ class UserNode(val self: Node) extends {
 			bmn.outgoing(rel.bookmarks).foreach { _.delete }
 			bmn
 		}.getOrElse {
-			val bmn = db.createNode(label.Bookmark)
+			val bmn = Neo.create(label.Bookmark)
 			self.createRelationshipTo(bmn, rel.bookmarked)
 			en.collection.self.createRelationshipTo(bmn, rel.bookmark)
 			bmn

@@ -29,27 +29,16 @@ trait Core {
 }
 
 sealed trait ArchiveDescription
-case class ArchivePointer(loc: Uri) extends ArchiveDescription
-case class FullArchive(
-	chapters: Seq[ChapterDescription],
-	next: Option[ArchiveDescription] = None) extends ArchiveDescription
+case class ArchivePointer(loc: Uri, next: Option[ArchiveDescription] = None) extends ArchiveDescription
+case class FullArchive(chapters: Seq[ChapterDescription], next: Option[ArchiveDescription] = None) extends ArchiveDescription
 
-sealed trait ChapterDescription {
-	def name: String
-}
+sealed trait ChapterDescription { def name: String }
 case class ChapterPointer(name: String, loc: Uri) extends ChapterDescription
-case class LinkedChapter(
-	name: String,
-	first: PageDescription) extends ChapterDescription
+case class LinkedChapter(name: String, first: PageDescription) extends ChapterDescription
 
-sealed trait PageDescription {
-	def loc: Uri
-}
+sealed trait PageDescription { def loc: Uri }
 case class PagePointer(loc: Uri, next: Option[PageDescription] = None) extends PageDescription
-case class FullPage(
-	loc: Uri,
-	next: Option[Try[PageDescription]],
-	elements: Seq[ElementDescription]) extends PageDescription
+case class FullPage(loc: Uri, next: Option[Try[PageDescription]], elements: Seq[ElementDescription]) extends PageDescription
 
 case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte], response: HttpResponse, description: ElementDescription)
 
@@ -68,15 +57,5 @@ case class ElementDescription(
 			title.map { "title" -> _ } ++
 			width.map { "width" -> _ } ++
 			height.map { "height" -> _ }
-	}
-
-	def similar(node: ElementNode) = {
-		require(source == Uri(node[String]("source")), "source does not match")
-		require(origin == Uri(node[String]("origin")), "origin does not match")
-		require(alt == node.get[String]("alt"), "alt does not match")
-		require(title == node.get[String]("title"), "title does not match")
-		require(width == node.get[Int]("width"), "width does not match")
-		require(height == node.get[Int]("height"), "height does not match")
-		true
 	}
 }

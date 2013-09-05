@@ -36,6 +36,7 @@ object Neo {
 
 	def create(label: Label, attributes: (String, Any)*): Node = Neo.tx { db =>
 		val node = db.createNode(label)
+		node.setProperty("created", System.currentTimeMillis)
 		attributes.foreach { case (k, v) => node.setProperty(k, v) }
 		node
 	}

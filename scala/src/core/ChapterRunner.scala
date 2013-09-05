@@ -23,41 +23,86 @@ import scalax.io._
 import scala.collection.JavaConversions._
 import org.neo4j.graphdb.Direction
 
-trait ChapterRunner {
+trait ChapterRunner extends Logging {
 
 	def chapterNode: ChapterNode
 	def forbidden: Uri => Boolean
-	// def wrapPage: Document => FullPage
 
-	def pageRunner: PageDescription => Future[(PageDescription, Seq[ElementNode])]
-	// val pageRunner = new FullPageRunner {
-	// 	override def iopipe = ChapterRunner.this.iopipe
-	// 	def wrapPage = ChapterRunner.this.wrapPage
-	// }
+	def pageRunner: PageRunner //PageDescription => Future[(PageDescription, Seq[ElementNode])]
 
-	def next(page: PageDescription): Future[PageDescription] = {
+	def next(page: PageDescription): Try[PageDescription] = {
 		page.pipe {
 			case FullPage(_, next, _) => next
 			case PagePointer(_, next) => next.map { Try(_) }
 		}.pipe {
-			case None => Future.failed(EndRun(s"no next for ${page.loc}"))
-			case Some(tried) => tried.toFuture
+			case None => Try { throw EndRun(s"no next for ${page.loc}") }
+			case Some(tried) => tried
 		}
 	}
 
 	def process(page: PageDescription): Future[PageDescription] =
-		pageRunner(page)
-			.map {
-				case (newPage, nodes) =>
-					nodes.foreach { chapterNode.append(_) }
-					newPage
+		pageRunner(page).flatMap { newPage =>
+			pageRunner.nodes(newPage).map { nodes =>
+				nodes.foreach { chapterNode.append(_) }
+				newPage
 			}
+		}
+
+	def append(page: PageDescription): Future[Unit] = {
+		page.validate(p => !forbidden(p.loc), EndRun(s"not part of this chapter ${page.loc}")).toFuture
+			.flatMap { process }
+			.flatMap { next(_).toFuture }
+			.flatMap { append }
+	}
+
+	def validatePage(oen: Option[ElementNode], page: PageDescription): Try[PageDescription] = {
+		def elementNodeExists = oen match {
+			case None => Try { throw FailRun("can not check empty element") }
+			case Some(en) => Try { en }
+		}
+		def pointerMatches(pp: PagePointer, en: ElementNode) = {
+			if (en.origin == pp.loc.toString) Try { pp }
+			else Try { throw FailRun(s"element origin does not match page location (${en.origin}) (${pp.loc})") }
+		}
+		def descriptionMatches(ed: ElementDescription, en: ElementNode) = {
+			if (ed.origin.toString != en.origin)
+				throw FailRun(s"description origin does not match node origin (${ed.origin}) (${en.origin})")
+			if (ed.source.toString != en[String]("source"))
+				throw FailRun(s"description source does not match node soucre (${ed.source}) (${en[String]("source")})")
+		}
+		def pageMatchesNode(en: ElementNode) = page match {
+			case pp @ PagePointer(_, _) => pointerMatches(pp, en)
+			case FullPage(_, _, elements) =>
+				elements.validate(_.size > 0, FailRun("can not validate page without elements"))
+					.map { elements => descriptionMatches(elements.last, en) }
+					.map { _ => page }
+		}
+		elementNodeExists.flatMap { pageMatchesNode }
+	}
 
 	def continue(page: PageDescription): Future[Unit] = {
-		page.validate(p => !forbidden(p.loc), EndRun(s"already seen ${page.loc}")).toFuture
-			.flatMap { process }
-			.flatMap { next }
-			.flatMap { continue }
+		pageRunner(page)
+			.flatMap { validatePage(chapterNode.last, _).toFuture }
+			.flatMap { next(_).toFuture }
+			.flatMap { append }
+	}
+
+	def update(chap: LinkedChapter): Future[Unit] = {
+		def eatElements(en: ElementNode, curr: PageDescription): Option[PageDescription] = {
+			if (en[String]("origin") == curr.loc.toString) en.next match {
+				case None => Option(curr)
+				case Some(next) => eatElements(next, curr)
+			}
+			else next(curr).toOption.flatMap { eatElements(en, _) }
+		}
+		chapterNode.first match {
+			case None => append(chap.first)
+			case Some(fen) =>
+				eatElements(fen, chap.first) match {
+					case None => continue(PagePointer(chapterNode.last.get.origin))
+					case Some(pd) => continue(pd)
+				}
+		}
 	}
 
 }
