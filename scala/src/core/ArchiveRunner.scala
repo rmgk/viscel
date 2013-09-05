@@ -56,14 +56,14 @@ trait ArchiveRunner extends NetworkPrimitives with Logging {
 		case List() => Future.successful(())
 		case c :: tcl =>
 			logger.info(s"create chapter ${c.name} for ${collection.id}")
-			val cnode = ChapterNode.create(c.name)
+			val cnode = ChapterNode.create(c.name, c.props.toSeq: _*)
 			collection.append(cnode)
 			getChapter(c, cnode, getForbidden(tcl))
 				.flatMap { _ => getAllChapters(tcl) }
 	}
 
 	def updateChapters(chapters: Seq[LinkedChapter]): Future[Unit] = {
-		def matchChapter(chapter: LinkedChapter, cn: ChapterNode): Boolean = cn.first.get[String]("origin") == chapter.first.loc.toString
+		def matchChapter(chapter: LinkedChapter, cn: ChapterNode): Boolean = cn.first == cn.next || cn.first.get[String]("origin") == chapter.first.loc.toString
 
 		val dbChapters = collection.children.sortBy { _.position }
 		if (dbChapters.size > chapters.size) return Future.failed(FailRun("collection knows more chapters than found"))

@@ -46,7 +46,7 @@ trait FullPageRunner extends PageRunner with NetworkPrimitives {
 		}
 	}
 
-	def wrap(pp: PagePointer): Future[FullPage] = document(pp.loc).flatMap { wrapPage }.map { selectNext(_, pp) }
+	def wrap(pp: PagePointer): Future[FullPage] = document(pp.loc).flatMap { wrapPage }.map { selectNext(_, pp) }.map { fp => fp.copy(props = fp.props ++ pp.props) }
 
 	def createElementNode(edata: ElementData): ElementNode = Neo.txs {
 		ElementNode.create(

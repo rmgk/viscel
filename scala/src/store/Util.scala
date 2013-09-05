@@ -19,7 +19,7 @@ object Util {
 		Neo.txs {
 			list.map { cn => cn -> fuzzyMatch(lcql, cn.name.toLowerCase.toList) }
 				.filter { _._2 > 0 }
-				.sortBy { _._2 }
+				.sortBy { -_._2 }
 				.map { _._1 }
 				.toIndexedSeq
 		}

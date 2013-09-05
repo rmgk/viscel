@@ -92,12 +92,12 @@ trait DefaultRoutes extends HttpService with Logging {
 			} ~
 			path("f" / Segment) { col =>
 				rejectNone(CollectionNode(col)) { cn =>
-					complete(time("total") { FrontPage(user, cn) })
+					complete(FrontPage(user, cn))
 				}
 			} ~
-			path("c" / Segment / IntNumber) { (col, chapter) =>
+			path("c" / Segment) { col =>
 				rejectNone(CollectionNode(col)) { cn =>
-					complete(viewFallback(user, cn, chapter))
+					complete(ChapterPage(user, cn))
 				}
 			} ~
 			path("v" / Segment / IntNumber / IntNumber) { (col, chapter, pos) =>
@@ -114,7 +114,7 @@ trait DefaultRoutes extends HttpService with Logging {
 
 	def rejectNone[T](opt: Option[T])(route: T => Route) = opt.map { route(_) }.getOrElse(reject)
 
-	def viewFallback(user: UserNode, cn: CollectionNode, chapter: Int) = cn(chapter).map { ChapterPage(user, _) }.getOrElse { FrontPage(user, cn) }
+	//def viewFallback(user: UserNode, cn: CollectionNode, chapter: Int) = cn(chapter).map { ChapterPage(user, _) }.getOrElse { FrontPage(user, cn) }
 	def viewFallback(user: UserNode, cn: CollectionNode, chapter: Int, pos: Int) = cn(chapter).flatMap { _(pos).map { ViewPage(user, _) } }.getOrElse { FrontPage(user, cn) }
 
 }

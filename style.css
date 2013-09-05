@@ -185,3 +185,6 @@ form input.submit {
 	cursor:pointer;
 }
 
+#chapter h3 {
+	text-align:center;
+}

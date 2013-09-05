@@ -19,11 +19,14 @@ class ChapterNode(val self: Node) extends NodeContainer[ElementNode] with Contai
 	def name = Neo.txs { self[String]("name") }
 
 	def collection = Neo.txs { self.to(rel.parent).map { CollectionNode(_) }.get }
+
+	def apply(k: String) = Neo.txs { self[String](k) }
+	def get(k: String) = Neo.txs { self.get[String](k) }
 }
 
 object ChapterNode {
 	def apply(node: Node) = new ChapterNode(node)
 	def apply(id: String) = Neo.node(label.Chapter, "id", id).map { new ChapterNode(_) }
 
-	def create(name: String) = ChapterNode(Neo.create(label.Chapter, "name" -> name))
+	def create(name: String, props: (String, Any)*) = ChapterNode(Neo.create(label.Chapter, ("name" -> name) +: props: _*))
 }

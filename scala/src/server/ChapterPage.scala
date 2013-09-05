@@ -11,15 +11,10 @@ import viscel.store.{ Util => StoreUtil }
 import viscel.time
 import viscel._
 
-class ChapterPage(user: UserNode, chapter: ChapterNode) extends HtmlPage with MaskLocation with JavascriptNavigation {
-	override def Title = chapter.name
+class ChapterPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation {
+	override def Title = collection.name
 	override def bodyId = "chapter"
-	override def maskLocation = path_chapter(chapter.collection.id, chapter.position)
-
-	override def navPrev = chapter.prev.map { ch => path_nid(ch.nid) }
-	override def navNext = chapter.next.map { ch => path_nid(ch.nid) }
-	override def navUp = Some(path_nid(chapter.collection.nid))
-	override def navDown = chapter.first.map { f => path_nid(f.nid) }
+	override def maskLocation = path_chapter(collection.id)
 
 	// def mainPart = div.cls("info")(make_table(
 	// 	"name" -> chapter.name,
@@ -28,7 +23,7 @@ class ChapterPage(user: UserNode, chapter: ChapterNode) extends HtmlPage with Ma
 
 	def mainPart = ""
 
-	def navigation = link_node(chapter.collection, "front")
+	def navigation = link_node(collection, "front")
 	// def navigation = Seq[STag](
 	// 	link_node(chapter.prev, "prev"),
 	// 	" ",
@@ -43,10 +38,18 @@ class ChapterPage(user: UserNode, chapter: ChapterNode) extends HtmlPage with Ma
 	def make_pagelist(chapter: ChapterNode): STag = fieldset.cls("group pages")(legend(chapter.name),
 		chapter.children.sortBy(_.position).flatMap { child => Seq(link_node(child, child.position.toString), " ": STag) })
 
-	override def sidePart = chapter.collection.children.sortBy(_.position).map { make_pagelist }
+	def make_chapterlist(chapters: List[ChapterNode], headline: Option[String]): Seq[STag] = chapters match {
+		case List() => Seq()
+		case c :: cs =>
+			val vol = c.get("Volume")
+			if (vol == headline) make_pagelist(c) +: make_chapterlist(cs, headline)
+			else Seq(vol.map(h3(_)), Some(make_pagelist(c))).flatten ++ make_chapterlist(cs, vol)
+	}
+
+	override def sidePart = make_chapterlist(collection.children.sortBy(_.position).toList, None)
 
 }
 
 object ChapterPage {
-	def apply(user: UserNode, chapter: ChapterNode) = new ChapterPage(user, chapter).response
+	def apply(user: UserNode, collection: CollectionNode) = new ChapterPage(user, collection).response
 }

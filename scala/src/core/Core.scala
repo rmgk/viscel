@@ -32,13 +32,13 @@ sealed trait ArchiveDescription
 case class ArchivePointer(loc: Uri, next: Option[ArchiveDescription] = None) extends ArchiveDescription
 case class FullArchive(chapters: Seq[ChapterDescription], next: Option[ArchiveDescription] = None) extends ArchiveDescription
 
-sealed trait ChapterDescription { def name: String }
-case class ChapterPointer(name: String, loc: Uri) extends ChapterDescription
-case class LinkedChapter(name: String, first: PageDescription) extends ChapterDescription
+sealed trait ChapterDescription { def name: String; def props: Map[String, String] }
+case class ChapterPointer(name: String, loc: Uri, props: Map[String, String] = Map()) extends ChapterDescription
+case class LinkedChapter(name: String, first: PageDescription, props: Map[String, String] = Map()) extends ChapterDescription
 
-sealed trait PageDescription { def loc: Uri }
-case class PagePointer(loc: Uri, next: Option[PageDescription] = None) extends PageDescription
-case class FullPage(loc: Uri, next: Option[Try[PageDescription]], elements: Seq[ElementDescription]) extends PageDescription
+sealed trait PageDescription { def loc: Uri; def props: Map[String, String] }
+case class PagePointer(loc: Uri, next: Option[PageDescription] = None, props: Map[String, String] = Map()) extends PageDescription
+case class FullPage(loc: Uri, next: Option[Try[PageDescription]], elements: Seq[ElementDescription], props: Map[String, String] = Map()) extends PageDescription
 
 case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte], response: HttpResponse, description: ElementDescription)
 

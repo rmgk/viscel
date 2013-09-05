@@ -32,8 +32,8 @@ trait ChapterRunner extends Logging {
 
 	def next(page: PageDescription): Try[PageDescription] = {
 		page.pipe {
-			case FullPage(_, next, _) => next
-			case PagePointer(_, next) => next.map { Try(_) }
+			case FullPage(_, next, _, _) => next
+			case PagePointer(_, next, _) => next.map { Try(_) }
 		}.pipe {
 			case None => Try { throw EndRun(s"no next for ${page.loc}") }
 			case Some(tried) => tried
@@ -48,11 +48,11 @@ trait ChapterRunner extends Logging {
 			}
 		}
 
-	def append(page: PageDescription): Future[Unit] = {
-		page.validate(p => !forbidden(p.loc), EndRun(s"not part of this chapter ${page.loc}")).toFuture
+	def append(page: PageDescription, processed: Set[Uri] = Set()): Future[Unit] = {
+		page.validate(p => !forbidden(p.loc) && !processed(p.loc), EndRun(s"already visited/forbidden ${page.loc}")).toFuture
 			.flatMap { process }
 			.flatMap { next(_).toFuture }
-			.flatMap { append }
+			.flatMap { append(_, processed + page.loc) }
 	}
 
 	def validatePage(oen: Option[ElementNode], page: PageDescription): Try[PageDescription] = {
@@ -71,8 +71,8 @@ trait ChapterRunner extends Logging {
 				throw FailRun(s"description source does not match node soucre (${ed.source}) (${en[String]("source")})")
 		}
 		def pageMatchesNode(en: ElementNode) = page match {
-			case pp @ PagePointer(_, _) => pointerMatches(pp, en)
-			case FullPage(_, _, elements) =>
+			case pp @ PagePointer(_, _, _) => pointerMatches(pp, en)
+			case FullPage(_, _, elements, _) =>
 				elements.validate(_.size > 0, FailRun("can not validate page without elements"))
 					.map { elements => descriptionMatches(elements.last, en) }
 					.map { _ => page }
@@ -84,16 +84,19 @@ trait ChapterRunner extends Logging {
 		pageRunner(page)
 			.flatMap { validatePage(chapterNode.last, _).toFuture }
 			.flatMap { next(_).toFuture }
-			.flatMap { append }
+			.flatMap { append(_, Set(page.loc)) }
 	}
 
 	def update(chap: LinkedChapter): Future[Unit] = {
-		def eatElements(en: ElementNode, curr: PageDescription): Option[PageDescription] = {
+		def eatElements(en: ElementNode, curr: PageDescription, eaten: Boolean = false): Option[PageDescription] = {
 			if (en[String]("origin") == curr.loc.toString) en.next match {
 				case None => Option(curr)
-				case Some(next) => eatElements(next, curr)
+				case Some(next) => eatElements(next, curr, true)
 			}
-			else next(curr).toOption.flatMap { eatElements(en, _) }
+			else {
+				if (!eaten) logger.info(s"waring: skip page without elements ${curr.loc}")
+				next(curr).toOption.flatMap { eatElements(en, _, false) }
+			}
 		}
 		chapterNode.first match {
 			case None => append(chap.first)
