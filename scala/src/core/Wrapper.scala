@@ -47,7 +47,7 @@ object InverlochArchive extends Core with Logging {
 	def wrapPage(doc: Document): Future[FullPage] =
 		doc.select("#main").validate(_.size == 1, FailRun("no image found ${doc.baseUri}")).map { main =>
 			val ed = main.select("> p > img").map { imgToElement }
-			val next = Try { main(0).getElementsContainingOwnText("Next").attr("abs:href").pipe { Uri(_) }.pipe { PagePointer(_) } }
+			val next = Try { main(0).getElementsContainingOwnText("Next").attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
 			FullPage(loc = doc.baseUri, elements = ed, next = Some(next))
 		}.toFuture
 }
@@ -86,7 +86,7 @@ object TwokindsArchive extends Core with Logging {
 	def wrapPage(doc: Document): Future[FullPage] =
 		doc.select("#cg_img img").validate(_.size == 1, FailRun("no image found ${doc.baseUri}")).map { img =>
 			val ed = img.map { imgToElement }
-			val next = Try { img(0).parent.attr("abs:href").pipe { Uri(_) }.pipe { PagePointer(_) } }
+			val next = Try { img(0).parent.attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
 			FullPage(loc = doc.baseUri, elements = ed, next = Some(next))
 		}.toFuture
 }

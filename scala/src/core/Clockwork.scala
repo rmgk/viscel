@@ -67,7 +67,9 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 			case Success(_) => logger.info("test complete without errors")
 			case Failure(e) => e match {
 				case e: NormalStatus => logger.info(s"${ocore.id} complete ${e}")
-				case e: FailedStatus => logger.info(s"${ocore.id} failed ${e}"); e.printStackTrace
+				case e: FailedStatus =>
+					logger.info(s"${ocore.id} failed ${e}"); e.printStackTrace
+				case e: Throwable => logger.info(s"${ocore.id} unexpected error ${e}"); e.printStackTrace
 			}
 		}
 	}

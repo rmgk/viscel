@@ -6,6 +6,7 @@ import java.io.File
 import scala.concurrent.future
 import scala.concurrent.Future
 import spray.http.{ MediaTypes, ContentType }
+import spray.httpx.encoding.{ Gzip, Deflate, NoEncoding }
 import spray.routing.authentication._
 import spray.routing.directives.ContentTypeResolver
 import spray.routing.{ HttpService, RequestContext, Route }
@@ -26,7 +27,12 @@ class Server extends Actor with DefaultRoutes {
 	// this actor only runs our route, but you could add
 	// other things here, like request stream processing,
 	// timeout handling or alternative handler registration
-	def receive = runRoute { authenticate(loginOrCreate) { user => handleFormFields(user) } }
+	def receive = runRoute {
+		//(encodeResponse(Gzip) | encodeResponse(Deflate) | encodeResponse(NoEncoding)) {
+		authenticate(loginOrCreate) { user => handleFormFields(user) }
+		//}
+	}
+
 }
 
 trait DefaultRoutes extends HttpService with Logging {

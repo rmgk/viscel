@@ -5,23 +5,26 @@ import akka.io.IO
 import com.typesafe.scalalogging.slf4j.Logging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.neo4j.graphdb.Direction
+import scala.collection.JavaConversions._
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util._
+import scalax.io._
 import spray.can.Http
 import spray.client.pipelining._
-import spray.http.Uri
-import viscel._
-import viscel.store._
+import spray.http.ContentType
+import spray.http.HttpHeaders.`Accept-Encoding`
 import spray.http.HttpHeaders.`Content-Type`
 import spray.http.HttpHeaders.Location
 import spray.http.HttpRequest
+import spray.http.HttpEncodings
 import spray.http.HttpResponse
-import spray.http.ContentType
-import scalax.io._
-import scala.collection.JavaConversions._
-import org.neo4j.graphdb.Direction
+import spray.http.Uri
+import spray.httpx.encoding._
+import viscel._
+import viscel.store._
 
 trait NetworkPrimitives extends Logging {
 
@@ -30,10 +33,13 @@ trait NetworkPrimitives extends Logging {
 	def response(uri: Uri, referer: Option[Uri] = None): Future[HttpResponse] = {
 		logger.info(s"get $uri ($referer)")
 		val addReferer = referer match {
-			case Some(ref) => addHeader("referer", ref.toString)
+			case Some(ref) => addHeader("Referer", ref.toString)
 			case None => (x: HttpRequest) => x
 		}
-		Get(uri).pipe { addReferer }.pipe { iopipe }
+		Get(uri).pipe {
+			addReferer ~> addHeader(`Accept-Encoding`(HttpEncodings.gzip, HttpEncodings.deflate)) ~>
+				iopipe ~> decode(Gzip) ~> decode(Deflate)
+		}
 			.flatMap { res =>
 				res.validate(
 					_.status.intValue == 200,
