@@ -42,7 +42,7 @@ object Neo {
 	}
 
 	def tx[R](f: GraphDatabaseService => R): R = {
-		val tx = db.tx.unforced.begin()
+		val tx = db.beginTx() //db.tx.unforced.begin()
 		try {
 			val res = f(db)
 			tx.success
