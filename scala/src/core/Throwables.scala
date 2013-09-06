@@ -1,8 +1,8 @@
 package viscel.core
 
-class CoreStatus(msg: String) extends Throwable(msg)
-class NormalStatus(msg: String) extends CoreStatus(msg)
-class FailedStatus(msg: String) extends CoreStatus(msg)
+sealed class CoreStatus(msg: String) extends Throwable(msg)
+case class NormalStatus(msg: String) extends CoreStatus(msg)
+case class FailedStatus(msg: String) extends CoreStatus(msg)
 
 object EndRun {
 	def apply(msg: String) = new NormalStatus(msg)
