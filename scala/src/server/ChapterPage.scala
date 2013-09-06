@@ -23,7 +23,7 @@ class ChapterPage(user: UserNode, collection: CollectionNode) extends HtmlPage w
 
 	def mainPart = ""
 
-	def navigation = link_node(collection, "front")
+	def navigation = Seq[STag](link_main("index"), " ", link_node(collection, "front"))
 	// def navigation = Seq[STag](
 	// 	link_node(chapter.prev, "prev"),
 	// 	" ",
