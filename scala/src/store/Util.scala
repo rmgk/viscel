@@ -17,11 +17,13 @@ object Util {
 	def search(query: String) = time("search") {
 		val lcql = query.toLowerCase.replaceAll("""\s+""", "").toList
 		Neo.txs {
-			list.map { cn => cn -> fuzzyMatch(lcql, cn.name.toLowerCase.toList) }
-				.filter { _._2 > 0 }
-				.sortBy { -_._2 }
-				.map { _._1 }
-				.toIndexedSeq
+			if (lcql.isEmpty) list.toIndexedSeq
+			else
+				list.map { cn => cn -> fuzzyMatch(lcql, cn.name.toLowerCase.toList) }
+					.filter { _._2 > 0 }
+					.sortBy { -_._2 }
+					.map { _._1 }
+					.toIndexedSeq
 		}
 	}
 
