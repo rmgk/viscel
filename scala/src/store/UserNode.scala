@@ -27,7 +27,7 @@ class UserNode(val self: Node) extends {
 	def name = Neo.txs { self[String]("name") }
 	def password = Neo.txs { self[String]("password") }
 
-	def getBookmark(cn: CollectionNode) = Neo.txts("get bookmark") { getBookmarkNode(cn).flatMap { bookmarkToElement } }
+	def getBookmark(cn: CollectionNode) = Neo.txs { getBookmarkNode(cn).flatMap { bookmarkToElement } }
 
 	//def bookmark(pos: Int): Option[ElementNode] = apply(pos).map(bookmark(_))
 	def setBookmark(en: ElementNode) = Neo.txt(s"create bookmark ${en.collection.id}:${en.position} for ${name}") { db =>
