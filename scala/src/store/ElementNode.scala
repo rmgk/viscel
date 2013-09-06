@@ -18,8 +18,14 @@ class ElementNode(val self: Node) extends {
 	def chapter: ChapterNode = Neo.txs { self.to(rel.parent).map { ChapterNode(_) }.get }
 	def collection: CollectionNode = Neo.txs { chapter.collection }
 
-	override def next = super.next.orElse { chapter.next.flatMap { _.first } }
-	override def prev = super.prev.orElse { chapter.prev.flatMap { _.last } }
+	override def next = super.next.orElse {
+		def firstfirst(chap: ChapterNode): Option[ElementNode] = chap.first.orElse { chap.next.flatMap { firstfirst } }
+		chapter.next.flatMap { firstfirst }
+	}
+	override def prev = super.prev.orElse {
+		def firstlast(chap: ChapterNode): Option[ElementNode] = chap.last.orElse { chap.prev.flatMap { firstlast } }
+		chapter.prev.flatMap { firstlast }
+	}
 
 	override def deleteNode() = Neo.txs {
 		self.incoming(rel.bookmarks).foreach { rel =>
