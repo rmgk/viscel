@@ -27,7 +27,7 @@ class UserNode(val self: Node) extends {
 	def name = Neo.txs { self[String]("name") }
 	def password = Neo.txs { self[String]("password") }
 
-	def getBookmark(cn: CollectionNode) = Neo.txts("get bookmark") { getBookmarkNode(cn).flatMap { _.to(rel.bookmarks) }.map { ElementNode(_) } }
+	def getBookmark(cn: CollectionNode) = Neo.txts("get bookmark") { getBookmarkNode(cn).flatMap { bookmarkToElement } }
 
 	//def bookmark(pos: Int): Option[ElementNode] = apply(pos).map(bookmark(_))
 	def setBookmark(en: ElementNode) = Neo.txt(s"create bookmark ${en.collection.id}:${en.position} for ${name}") { db =>
@@ -44,7 +44,27 @@ class UserNode(val self: Node) extends {
 	}
 
 	def bookmarks = Neo.txs {
-		self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { _.to(rel.bookmarks) }.map { ElementNode(_) }
+		self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { bookmarkToElement }
+	}
+
+	def bookmarkToElement(bmn: Node): Option[ElementNode] = Neo.txs {
+		bmn.to(rel.bookmarks) match {
+			case Some(n) => Some(ElementNode(n))
+			case None => for {
+				chapter <- bmn.get[Int]("chapter")
+				page <- bmn.get[Int]("page")
+				ncol <- bmn.from(rel.bookmark)
+				col = CollectionNode(ncol)
+				cn <- col(chapter)
+				en <- cn(page)
+			} yield {
+				bmn.createRelationshipTo(en.self, rel.bookmarks)
+				bmn.removeProperty("chapter")
+				bmn.removeProperty("page")
+				en
+			}
+
+		}
 	}
 
 	def deleteBookmark(cn: CollectionNode) = Neo.txts(s"delete bookmark ${cn.id} for ${name}") {

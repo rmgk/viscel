@@ -28,9 +28,10 @@ trait ArchiveRunner extends NetworkPrimitives with Logging {
 	def core: Core
 	def collection: CollectionNode
 
-	def chapterRunner(cn: ChapterNode, fb: Uri => Boolean) = new ChapterRunner() {
+	def chapterRunner(cn: ChapterNode, lc: LinkedChapter, fb: Uri => Boolean) = new ChapterRunner() {
 		def chapterNode = cn
 		def forbidden = fb
+		def chapter = lc
 		def pageRunner = //new PlaceholderPageRunner() {}.apply(_)
 			new FullPageRunner() {
 				def iopipe = ArchiveRunner.this.iopipe
@@ -39,7 +40,7 @@ trait ArchiveRunner extends NetworkPrimitives with Logging {
 	}
 
 	def getChapter(lc: LinkedChapter, cn: ChapterNode, fb: Uri => Boolean): Future[Unit] = {
-		chapterRunner(cn, fb).update(lc)
+		chapterRunner(cn, lc, fb).update()
 			.recoverWith {
 				case e: NormalStatus =>
 					logger.info(s"chapter ${cn.name} finished normally: ${e.getMessage}")

@@ -20,6 +20,18 @@ class ChapterNode(val self: Node) extends NodeContainer[ElementNode] with Contai
 
 	def collection = Neo.txs { self.to(rel.parent).map { CollectionNode(_) }.get }
 
+	def dropLast(origin: String): Unit = Neo.txs {
+		last match {
+			case Some(ln) if ln.origin == origin =>
+				ln.prev.foreach { pn =>
+					self.createRelationshipTo(pn.self, rel.last)
+				}
+				ln.deleteNode()
+				dropLast(origin)
+			case _ => ()
+		}
+	}
+
 	def apply(k: String) = Neo.txs { self[String](k) }
 	def get(k: String) = Neo.txs { self.get[String](k) }
 }

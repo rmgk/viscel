@@ -21,6 +21,15 @@ class ElementNode(val self: Node) extends {
 	override def next = super.next.orElse { chapter.next.flatMap { _.first } }
 	override def prev = super.prev.orElse { chapter.prev.flatMap { _.last } }
 
+	override def deleteNode() = Neo.txs {
+		self.incoming(rel.bookmarks).foreach { rel =>
+			val bmn = rel.getStartNode
+			bmn.setProperty("chapter", chapter.position)
+			bmn.setProperty("page", position)
+		}
+		super.deleteNode()
+	}
+
 	def distanceToLast: Int = Neo.txs {
 		def countFrom(cno: Option[ChapterNode], acc: Int): Int = cno match {
 			case Some(cn) => countFrom(cn.next, cn.size + acc)

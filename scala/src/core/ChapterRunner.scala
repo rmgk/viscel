@@ -27,6 +27,7 @@ trait ChapterRunner extends Logging {
 
 	def chapterNode: ChapterNode
 	def forbidden: Uri => Boolean
+	def chapter: LinkedChapter
 
 	def pageRunner: PageRunner //PageDescription => Future[(PageDescription, Seq[ElementNode])]
 
@@ -68,7 +69,7 @@ trait ChapterRunner extends Logging {
 			if (ed.origin.toString != en.origin)
 				throw FailRun(s"description origin does not match node origin (${ed.origin}) (${en.origin})")
 			if (ed.source.toString != en[String]("source"))
-				throw FailRun(s"description source does not match node soucre (${ed.source}) (${en[String]("source")})")
+				throw FailRun(s"description source does not match node source (${ed.source}) (${en[String]("source")})")
 		}
 		def pageMatchesNode(en: ElementNode) = page match {
 			case pp @ PagePointer(_, _, _) => pointerMatches(pp, en)
@@ -80,28 +81,54 @@ trait ChapterRunner extends Logging {
 		elementNodeExists.flatMap { pageMatchesNode }
 	}
 
-	def continue(page: PageDescription): Future[Unit] = {
-		pageRunner(page)
-			.flatMap { validatePage(chapterNode.last, _).toFuture }
-			.flatMap { next(_).toFuture }
-			.flatMap { append(_, Set(page.loc)) }
+	def backtrack(page: PageDescription): Future[Unit] = {
+		chapterNode.last match {
+			case Some(last) if last.origin == page.loc.toString =>
+				chapterNode.dropLast(last.origin)
+				backtrack(page)
+			case _ => update()
+		}
 	}
 
-	def update(chap: LinkedChapter): Future[Unit] = {
+	def continue(page: PageDescription): Future[Unit] = {
+		val p = Promise[Unit]()
+
+		pageRunner(page).onComplete {
+			case Success(pd) =>
+				validatePage(chapterNode.last, pd) match {
+					case Success(pd) =>
+						next(pd).toFuture
+							.flatMap { append(_, Set(page.loc)) }
+							.pipe { p.completeWith }
+					case Failure(e) =>
+						logger.warn(s"failed validation, backtracking (${e.getMessage})")
+						p.completeWith(backtrack(page))
+				}
+			case Failure(f) => f match {
+				case e: CoreStatus =>
+					logger.warn(s"failure on page for validation, backtracking (${e.getMessage})")
+					p.completeWith(backtrack(page))
+			}
+		}
+
+		p.future
+	}
+
+	def update(): Future[Unit] = {
 		def eatElements(en: ElementNode, curr: PageDescription, eaten: Boolean = false): Option[PageDescription] = {
 			if (en[String]("origin") == curr.loc.toString) en.next match {
 				case None => Option(curr)
 				case Some(next) => eatElements(next, curr, true)
 			}
 			else {
-				if (!eaten) logger.info(s"waring: skip page without elements ${curr.loc}")
+				if (!eaten) logger.info(s"warning: skip page without elements ${curr.loc}")
 				next(curr).toOption.flatMap { eatElements(en, _, false) }
 			}
 		}
 		chapterNode.first match {
-			case None => append(chap.first)
+			case None => append(chapter.first)
 			case Some(fen) =>
-				eatElements(fen, chap.first) match {
+				eatElements(fen, chapter.first) match {
 					case None => continue(PagePointer(chapterNode.last.get.origin))
 					case Some(pd) => continue(pd)
 				}

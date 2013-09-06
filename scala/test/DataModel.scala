@@ -71,10 +71,10 @@ class DataModel extends FunSuite with BeforeAndAfterAll {
 		assert(en.collection === col, "element in list has correct collection")
 		assert(en.chapter === ch, "element in list has correct chapter")
 		en.next match {
-			case Some(next) =>
+			case Some(next) if next.chapter == ch =>
 				assert(next.position === en.position + 1, "position is increasing")
 				assertSaneElementList(next, ch, col)
-			case None => assert(col.last.get === ch, "last is correct")
+			case _ => assert(ch.last.get === en, "last is correct")
 		}
 	}
 

@@ -49,7 +49,7 @@ trait DefaultRoutes extends HttpService with Logging {
 			if (user.matches("\\w+")) {
 				Future.successful {
 					UserNode(user).orElse {
-						logger.warn("create new user $user $password")
+						logger.warn(s"create new user $user $password")
 						Some(UserNode.create(user, password))
 					}.flatMap { un =>
 						if (un.password == password) Some(un)

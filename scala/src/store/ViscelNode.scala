@@ -12,7 +12,7 @@ import util.Try
 import viscel.time
 import viscel._
 
-trait ViscelNode {
+trait ViscelNode extends Logging {
 	def self: Node
 	def selfLabel: Label
 	def nid = Neo.txs { self.getId }
@@ -20,7 +20,11 @@ trait ViscelNode {
 
 	require(Neo.txs { self.getLabels.exists(_ == selfLabel) }, s"node label did not match $selfLabel")
 
-	// def deleteNode(): Unit
+	def deleteNode(): Unit = {
+		logger.warn(s"deleting node $selfLabel($nid)")
+		self.getRelationships.foreach { _.delete() }
+		self.delete()
+	}
 
 	override def equals(other: Any) = other match {
 		case o: ViscelNode => self == o.self
