@@ -76,5 +76,5 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 		}
 	}
 
-	def test() = for (core <- Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne)) fullArchive(core)
+	def test() = for (core <- Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels)) fullArchive(core)
 }

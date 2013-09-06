@@ -31,22 +31,22 @@ trait PageRunner {
 
 trait FullPageRunner extends PageRunner with NetworkPrimitives {
 
-	def wrapPage: Document => Future[FullPage]
+	def wrapPage: Document => Try[FullPage]
 
 	def selectNext(foundPage: FullPage, knownPage: PagePointer): FullPage = {
 		knownPage.next match {
 			case None => foundPage
 			case Some(knownNext) =>
 				foundPage.next match {
-					case None => foundPage.copy(next = Some(Try(knownNext)))
-					case Some(Failure(_)) => foundPage
-					case Some(Success(foundNext)) if foundNext.loc == knownNext.loc => foundPage
-					case Some(Success(foundNext)) => throw FailRun(s"found next ${foundNext.loc} but expected ${knownNext.loc}")
+					case Failure(NormalStatus(_)) => foundPage.copy(next = Try(knownNext))
+					case Failure(_) => foundPage
+					case Success(foundNext) if foundNext.loc == knownNext.loc => foundPage
+					case Success(foundNext) => throw FailRun(s"found next ${foundNext.loc} but expected ${knownNext.loc}")
 				}
 		}
 	}
 
-	def wrap(pp: PagePointer): Future[FullPage] = document(pp.loc).flatMap { wrapPage }.map { selectNext(_, pp) }.map { fp => fp.copy(props = fp.props ++ pp.props) }
+	def wrap(pp: PagePointer): Future[FullPage] = document(pp.loc).flatMap { wrapPage(_).toFuture }.map { selectNext(_, pp) }.map { fp => fp.copy(props = fp.props ++ pp.props) }
 
 	def createElementNode(edata: ElementData): ElementNode = Neo.txs {
 		ElementNode.create(

@@ -31,15 +31,14 @@ trait ChapterRunner extends Logging {
 
 	def pageRunner: PageRunner //PageDescription => Future[(PageDescription, Seq[ElementNode])]
 
-	def next(page: PageDescription): Try[PageDescription] = {
-		page.pipe {
+	def next(page: PageDescription): Try[PageDescription] =
+		page match {
 			case FullPage(_, next, _, _) => next
-			case PagePointer(_, next, _) => next.map { Try(_) }
-		}.pipe {
-			case None => Try { throw EndRun(s"no next for ${page.loc}") }
-			case Some(tried) => tried
+			case PagePointer(_, next, _) => next match {
+				case None => Try { throw EndRun(s"no next for ${page.loc}") }
+				case Some(tried) => Try { tried }
+			}
 		}
-	}
 
 	def process(page: PageDescription): Future[PageDescription] =
 		pageRunner(page).flatMap { newPage =>

@@ -24,21 +24,45 @@ trait WrapperTools {
 		height = strOpt(img.attr("height")).map { _.toInt })
 
 	def selectNext(from: Element, query: String) =
-		Some(from.select(query).validate(_.size == 1, FailRun(s"no next found ${from.baseUri}"))
-			.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } })
+		from.select(query).validate(_.size == 1, FailRun(s"no next found ${from.baseUri}"))
+			.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
 
 	def urisToPagePointer(links: Seq[String]): PagePointer = links.map { Uri.parseAbsolute(_) }
 		.foldRight(None: Option[PagePointer]) {
 			case (uri, prev) =>
 				Some(PagePointer(uri, prev))
 		}.get
+
+	def selectUnique(from: Element, query: String) = from.select(query).validate(_.size == 1, FailRun(s"query not unique ($query) on (${from.baseUri})")).map { _(0) }
+}
+
+object FreakAngels extends Core with WrapperTools with Logging {
+	def id = "X_FreakAngels"
+	def name = "Freak Angels"
+	def archive = ArchivePointer("http://www.freakangels.com/")
+
+	def wrapArchive(doc: Document): Try[FullArchive] =
+		doc.select(".archive_dropdown option[value~=http://www.freakangels.com/\\?p=\\d+]")
+			.validate(_.size > 0, FailRun("episodes not found")).map { episodes =>
+				val chapters = episodes.map { ep => LinkedChapter(ep.text, PagePointer(Uri.parseAbsolute(ep.attr("abs:value")))) }.reverse
+				FullArchive(chapters)
+			}
+
+	def wrapPage(doc: Document): Try[FullPage] = {
+		val itag = selectUnique(doc, ".entry_page > p > img")
+		val next = selectUnique(doc, ".pagenums").flatMap { pns =>
+			val nextid = pns.ownText.toInt + 1
+			selectNext(pns, s":containsOwn($nextid)")
+		}.recoverWith { case f => Try(throw EndRun(s"no next: (${f})")) }
+		Try { FullPage(loc = doc.baseUri, elements = itag.map { imgToElement }.toOption.toSeq, next = next) }
+	}
 }
 
 object Avengelyne extends Core with WrapperTools with Logging {
 	def archive = ArchivePointer("http://avengelyne.keenspot.com/archive.html")
 	def id: String = "AX_Avengelyne"
 	def name: String = "Avengelyne"
-	def wrapArchive(doc: Document): Future[FullArchive] =
+	def wrapArchive(doc: Document): Try[FullArchive] =
 		doc.select("#comicspot > table").validate(_.size == 1, FailRun("main id not found")).map { maintable =>
 			val months = maintable.select("table.ks_calendar")
 			val chapters = months.map { month =>
@@ -48,19 +72,19 @@ object Avengelyne extends Core with WrapperTools with Logging {
 			}
 
 			FullArchive(chapters)
-		}.toFuture
+		}
 
-	def wrapPage(doc: Document): Future[FullPage] =
+	def wrapPage(doc: Document): Try[FullPage] =
 		doc.select("#comicspot img.ksc").validate(_.size == 1, FailRun(s"no image found ${doc.baseUri}")).map { img =>
-			FullPage(loc = doc.baseUri, elements = img.map { imgToElement }, next = selectNext(doc, "a[rel=next]:has(#nexty)"))
-		}.toFuture
+			FullPage(loc = doc.baseUri, elements = img.map { imgToElement }, next = (selectNext(doc, "a[rel=next]:has(#nexty)")))
+		}
 }
 
 object PhoenixRequiem extends Core with WrapperTools with Logging {
 	def archive = ArchivePointer("http://requiem.seraph-inn.com/archives.html")
 	def id: String = "AX_PhoenixRequiem"
 	def name: String = "Phoenix Requiem"
-	def wrapArchive(doc: Document): Future[FullArchive] =
+	def wrapArchive(doc: Document): Try[FullArchive] =
 		doc.select(".main table").validate(_.size == 1, FailRun("main id not found")).map { maintable =>
 			val volumes = maintable.select("tr:matches(Volume|Chapter)").grouped(6).toSeq
 			val chapters = volumes.flatMap { volumeGroup =>
@@ -73,31 +97,31 @@ object PhoenixRequiem extends Core with WrapperTools with Logging {
 			}
 
 			FullArchive(chapters)
-		}.toFuture
+		}
 
-	def wrapPage(doc: Document): Future[FullPage] =
+	def wrapPage(doc: Document): Try[FullPage] =
 		doc.select(".main img[alt=Page][src~=pages/\\d+\\.\\w+]").validate(_.size == 1, FailRun(s"no image found ${doc.baseUri}")).map { img =>
-			FullPage(loc = doc.baseUri, elements = img.map { imgToElement }, next = selectNext(img(0).parent, "a"))
-		}.toFuture
+			FullPage(loc = doc.baseUri, elements = img.map { imgToElement }, next = (selectNext(img(0).parent, "a")))
+		}
 }
 
 object MarryMe extends Core with WrapperTools with Logging {
 	def archive = FullArchive(Seq(LinkedChapter("Main Story", PagePointer("http://marryme.keenspot.com/d/20120730.html"))))
 	def id: String = "AX_MarryMe"
 	def name: String = "Marry Me"
-	def wrapArchive(doc: Document): Future[FullArchive] = ???
+	def wrapArchive(doc: Document): Try[FullArchive] = ???
 
-	def wrapPage(doc: Document): Future[FullPage] =
+	def wrapPage(doc: Document): Try[FullPage] =
 		doc.select("#comicspot .ksc , #comicspot > a > img").validate(_.size == 1, FailRun(s"no image found ${doc.baseUri}")).map { img =>
-			FullPage(loc = doc.baseUri, elements = img.map { imgToElement }, next = selectNext(doc, "a[rel=next]"))
-		}.toFuture
+			FullPage(loc = doc.baseUri, elements = img.map { imgToElement }, next = (selectNext(doc, "a[rel=next]")))
+		}
 }
 
 object InverlochArchive extends Core with WrapperTools with Logging {
 	def archive = ArchivePointer("http://inverloch.seraph-inn.com/volume1.html")
 	def id: String = "AX_Inverloch"
 	def name: String = "Inverloch"
-	def wrapArchive(doc: Document): Future[FullArchive] =
+	def wrapArchive(doc: Document): Try[FullArchive] =
 		doc.getElementById("main").validate(_ != null, FailRun("main id not found")).map { main =>
 			val vol = main.child(0).text
 			val chapters = main.children.slice(1, 6)
@@ -113,14 +137,14 @@ object InverlochArchive extends Core with WrapperTools with Logging {
 			val nVolInd = volumes.indexWhere { _.text == vol } + 1
 			val nextVol = if (1 until volumes.size contains nVolInd) Some(volumes(nVolInd)) else None
 			FullArchive(cdescs, nextVol.map { _.attr("abs:href") }.map { ArchivePointer(_) })
-		}.toFuture
+		}
 
-	def wrapPage(doc: Document): Future[FullPage] =
+	def wrapPage(doc: Document): Try[FullPage] =
 		doc.select("#main").validate(_.size == 1, FailRun(s"no image found ${doc.baseUri}")).map { main =>
 			val ed = main.select("> p > img").map { imgToElement }
 			val next = Try { main(0).getElementsContainingOwnText("Next").attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
-			FullPage(loc = doc.baseUri, elements = ed, next = Some(next))
-		}.toFuture
+			FullPage(loc = doc.baseUri, elements = ed, next = (next))
+		}
 }
 
 object TwokindsArchive extends Core with WrapperTools with Logging {
@@ -128,7 +152,7 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 	def id: String = "AX_Twokinds"
 	def name: String = "Twokinds"
 
-	def wrapArchive(doc: Document): Future[FullArchive] = {
+	def wrapArchive(doc: Document): Try[FullArchive] = {
 
 		def extractChapterDescription(element: Element) = for {
 			name <- element.select("h4").validate(_.size == 1).map { _.text }
@@ -137,15 +161,15 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 		} yield LinkedChapter(name, urisToPagePointer(pageUris))
 
 		Try { doc.select(".chapter").map { extractChapterDescription }.map { _.get } }
-			.map { FullArchive(_) }.toFuture
+			.map { FullArchive(_) }
 	}
 
-	def wrapPage(doc: Document): Future[FullPage] =
+	def wrapPage(doc: Document): Try[FullPage] =
 		doc.select("#cg_img img").validate(_.size == 1, FailRun("no image found ${doc.baseUri}")).map { img =>
 			val ed = img.map { imgToElement }
 			val next = Try { img(0).parent.attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
-			FullPage(loc = doc.baseUri, elements = ed, next = Some(next))
-		}.toFuture
+			FullPage(loc = doc.baseUri, elements = ed, next = (next))
+		}
 }
 
 // object CarciphonaWrapper extends Core with Logging {
@@ -215,23 +239,5 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 // 	}
 
 // }
-
-// object FreakAngelsWrapper extends Core with Logging {
-// 	def id = "X_FreakAngels"
-// 	def name = "Freak Angels"
-
-// 	val first = Uri("http://www.freakangels.com/?p=22&page=1")
-
-// 	def wrapPage(doc: Document): WrappedPage = new WrappedPage {
-// 		def document = doc
-// 		val next = document.select(".pagenums").validate { found(1, "next") }.flatMap { pns =>
-// 			val nextid = pns.get(0).ownText.toInt + 1
-// 			pns.select(s":containsOwn($nextid)").validate { found(1, "next") }
-// 		}.recoverWith { case e => document.select("a[rel=next]").validate { found(1, "next") } }
-// 			.map { _.attr { "abs:href" }.pipe { Uri.parseAbsolute(_) } }
-// 		val elements = document.select(".entry_page > p > img").map { itag =>
-// 			Element(source = Uri.parseAbsolute(itag.attr("abs:src")), origin = doc.baseUri, alt = Option(itag.attr("alt")), title = Option(itag.attr("title")))
-// 		}.map { Try(_) }
-// 	}
 
 // }

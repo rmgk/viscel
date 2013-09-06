@@ -64,7 +64,7 @@ trait ArchiveRunner extends NetworkPrimitives with Logging {
 	}
 
 	def updateChapters(chapters: Seq[LinkedChapter]): Future[Unit] = {
-		def matchChapter(chapter: LinkedChapter, cn: ChapterNode): Boolean = cn.first == cn.next || cn.first.get[String]("origin") == chapter.first.loc.toString
+		def matchChapter(chapter: LinkedChapter, cn: ChapterNode): Boolean = cn.first == cn.next || cn.first.isEmpty || cn.first.get[String]("origin") == chapter.first.loc.toString
 
 		val dbChapters = collection.children.sortBy { _.position }
 		if (dbChapters.size > chapters.size) return Future.failed(FailRun("collection knows more chapters than found"))
@@ -86,7 +86,7 @@ trait ArchiveRunner extends NetworkPrimitives with Logging {
 			case fa: FullArchive => Future.successful(fa)
 			case ap: ArchivePointer =>
 				document(ap.loc)
-					.flatMap { core.wrapArchive }
+					.flatMap { core.wrapArchive(_).toFuture }
 		}
 		fullArchive.flatMap { fa =>
 			val allChapters = chapters ++ fa.chapters

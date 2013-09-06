@@ -24,8 +24,8 @@ trait Core {
 	def id: String
 	def name: String
 	def archive: ArchiveDescription
-	def wrapArchive(doc: Document): Future[FullArchive]
-	def wrapPage(doc: Document): Future[FullPage]
+	def wrapArchive(doc: Document): Try[FullArchive]
+	def wrapPage(doc: Document): Try[FullPage]
 }
 
 sealed trait ArchiveDescription
@@ -38,7 +38,7 @@ case class LinkedChapter(name: String, first: PageDescription, props: Map[String
 
 sealed trait PageDescription { def loc: Uri; def props: Map[String, String] }
 case class PagePointer(loc: Uri, next: Option[PageDescription] = None, props: Map[String, String] = Map()) extends PageDescription
-case class FullPage(loc: Uri, next: Option[Try[PageDescription]], elements: Seq[ElementDescription], props: Map[String, String] = Map()) extends PageDescription
+case class FullPage(loc: Uri, next: Try[PageDescription], elements: Seq[ElementDescription], props: Map[String, String] = Map()) extends PageDescription
 
 case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte], response: HttpResponse, description: ElementDescription)
 
