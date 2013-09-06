@@ -33,7 +33,9 @@ trait WrapperTools {
 				Some(PagePointer(uri, prev))
 		}.get
 
-	def selectUnique(from: Element, query: String) = from.select(query).validate(_.size == 1, FailRun(s"query not unique ($query) on (${from.baseUri})")).map { _(0) }
+	def selectUnique(from: Element, query: String) = from.select(query)
+		.validate(_.size < 2, FailRun(s"query not unique ($query) on (${from.baseUri})"))
+		.flatMap { _.validate(_.size > 0, FailRun(s"query not found ($query) on (${from.baseUri})")) }.map { _(0) }
 }
 
 object FreakAngels extends Core with WrapperTools with Logging {
@@ -165,10 +167,10 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 	}
 
 	def wrapPage(doc: Document): Try[FullPage] =
-		doc.select("#cg_img img").validate(_.size == 1, FailRun("no image found ${doc.baseUri}")).map { img =>
-			val ed = img.map { imgToElement }
-			val next = Try { img(0).parent.attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
-			FullPage(loc = doc.baseUri, elements = ed, next = (next))
+		selectUnique(doc, "#cg_img img").recoverWith { case FailedStatus(_) => selectUnique(doc, ".comic .alt-container img") }.map { img =>
+			val ed = imgToElement(img)
+			val next = selectNext(doc, "a#cg_next").recoverWith { case FailedStatus(_) => selectNext(doc, "a#cg_last") }
+			FullPage(loc = doc.baseUri, elements = Seq(ed), next = (next))
 		}
 }
 
