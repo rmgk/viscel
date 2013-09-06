@@ -17,6 +17,11 @@ class ConfigNode(val self: Node) extends {
 
 	def version = Neo.txs { self[Int]("version") }
 
+	def downloaded(size: Long) = Neo.txs {
+		val has = self.get[Long]("stat_download").getOrElse(0L)
+		self.setProperty("stat_download", has + size)
+	}
+
 }
 
 object ConfigNode {

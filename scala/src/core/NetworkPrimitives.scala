@@ -41,6 +41,7 @@ trait NetworkPrimitives extends Logging {
 				iopipe ~> decode(Gzip) ~> decode(Deflate)
 		}
 			.flatMap { res =>
+				ConfigNode().downloaded(res.entity.buffer.size)
 				res.validate(
 					_.status.intValue == 200,
 					FailRun(s"invalid response ${res.status}; $uri ($referer)")).toFuture
