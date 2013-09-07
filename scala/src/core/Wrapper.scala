@@ -13,15 +13,18 @@ import viscel._
 import scala.collection.JavaConversions._
 
 trait WrapperTools {
-	def strOpt(s: String) = if (s.isEmpty) None else Some(s)
+	def getAttr(e: Element, k: String): Option[(String, String)] = {
+		val res = e.attr(k)
+		if (res.isEmpty) None else Some(k -> res)
+	}
 
 	def imgToElement(img: Element): ElementDescription = ElementDescription(
 		source = img.attr("abs:src").pipe { Uri.parseAbsolute(_) },
 		origin = img.baseUri,
-		alt = strOpt(img.attr("alt")),
-		title = strOpt(img.attr("title")),
-		width = strOpt(img.attr("width")).map { _.toInt },
-		height = strOpt(img.attr("height")).map { _.toInt })
+		props = (getAttr(img, "alt") ++
+			getAttr(img, "title") ++
+			getAttr(img, "width") ++
+			getAttr(img, "height")).toMap)
 
 	def selectNext(from: Element, query: String) =
 		from.select(query).validate(_.size == 1, FailRun(s"no next found ${from.baseUri}"))

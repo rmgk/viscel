@@ -50,9 +50,11 @@ trait FullPageRunner extends PageRunner with NetworkPrimitives {
 
 	def createElementNode(edata: ElementData): ElementNode = Neo.txs {
 		ElementNode.create(
-			(edata.description.toMap ++
-				Seq("blob" -> edata.sha1,
-					"mediatype" -> edata.mediatype.toString)).toSeq: _*)
+			edata.description.props.toSeq :+
+				("blob" -> edata.sha1) :+
+				("mediatype" -> edata.mediatype.toString) :+
+				("source" -> edata.description.source.toString) :+
+				("origin" -> edata.description.origin.toString): _*)
 	}
 
 	def store(elements: Seq[ElementData]): Seq[ElementNode] =
@@ -84,7 +86,7 @@ trait PlaceholderPageRunner extends PageRunner with Logging {
 				Seq(ElementNode.create("origin" -> pp.loc.toString))
 			case fp: FullPage => fp.elements.map { ed =>
 				logger.info(s"create element for ${ed}")
-				ElementNode.create(ed.toMap.toSeq: _*)
+				ElementNode.create(ed.props.toSeq :+ ("source" -> ed.source) :+ ("origin" -> ed.origin): _*)
 			}
 		}
 	}

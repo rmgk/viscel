@@ -50,7 +50,7 @@ trait HtmlPageUtils {
 
 	def enodeToImg(en: ElementNode) = en.get[String]("blob").map { blob =>
 		img.src(path_blob(blob)).cls("element")
-			.attr { Seq("width", "height").flatMap { k => en.get[Int](k).map { k -> _ } } ++ Seq("alt", "title").flatMap { k => en.get[String](k).map { k -> _ } }: _* }
+			.attr { Seq("alt", "title", "width", "height").flatMap { k => en.get(k).map { v => k -> v.toString } }: _* }
 	}.getOrElse(div.cls("info")("Placeholder"))
 
 	def make_table(entry: (String, STag)*) = table(tbody(entry.map {
