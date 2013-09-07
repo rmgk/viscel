@@ -28,6 +28,8 @@ class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {
 		val cn = ConfigNode()
 		div.cls("info")(make_table(
 			"Downloaded :" -> cn.downloaded.toString,
+			"Downloads :" -> cn.downloads.toString,
+			"Failed Downloads :" -> cn.downloadsFailed.toString,
 			"Uptime                : " -> stats.uptime.toString,
 			"Collections :" -> Neo.nodes(label.Collection).size.toString,
 			"Chapters : " -> Neo.nodes(label.Chapter).size.toString,
