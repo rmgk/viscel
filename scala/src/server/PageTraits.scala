@@ -31,6 +31,7 @@ trait HtmlPageUtils {
 	def path_search = "/s";
 	def path_blob(id: String) = s"/b/$id"
 	def path_nid(id: Long) = s"/i/$id"
+	def path_raw(id: Long) = s"/r/$id"
 	def path_stop = "/stop"
 
 	def link_main(ts: STag*) = a.href(path_main)(ts)
@@ -39,6 +40,7 @@ trait HtmlPageUtils {
 	def link_view(id: String, chapter: Int, pos: Int, ts: STag*) = a.href(path_view(id, chapter, pos))(ts)
 	def link_node(vn: ViscelNode, ts: STag*): STag = a.href(path_nid(vn.nid))(ts)
 	def link_node(vn: Option[ViscelNode], ts: STag*): STag = vn.map { link_node(_, ts: _*) }.getOrElse(ts)
+	def link_raw(vn: ViscelNode, ts: STag*): STag = a.href(path_raw(vn.nid))(ts)
 	// def link_node(en: Option[ElementNode], ts: STag*): STag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
 
 	def form_post(action: String, ts: STag*) = form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)

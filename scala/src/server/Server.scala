@@ -108,6 +108,9 @@ trait DefaultRoutes extends HttpService with Logging {
 			path("i" / IntNumber) { id =>
 				complete(PageDispatcher(user, ViscelNode(id).get))
 			} ~
+			path("r" / IntNumber) { id =>
+				complete(RawPage(user, ViscelNode(id).get))
+			} ~
 			(path("s") & parameter('q)) { query =>
 				complete(SearchPage(user, query))
 			}

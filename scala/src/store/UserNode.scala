@@ -20,9 +20,8 @@ import viscel.time
  * (u) -[:bookmarked]-> (b)
  * (c) -[:bookmark]-> (b) -[:bookmarks]-> (e)
  */
-class UserNode(val self: Node) extends {
-	val selfLabel = label.User
-} with ViscelNode with Logging {
+class UserNode(val self: Node) extends ViscelNode with Logging {
+	def selfLabel = label.User
 
 	def name = Neo.txs { self[String]("name") }
 	def password = Neo.txs { self[String]("password") }

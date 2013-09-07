@@ -6,6 +6,8 @@ import org.neo4j.graphdb.RelationshipType
 package label {
 	class SimpleLabel(val name: String) extends Label
 
+	case object Unlabeled extends SimpleLabel("Unlabeled")
+
 	case object Collection extends SimpleLabel("Collection")
 	case object Element extends SimpleLabel("Element")
 	case object User extends SimpleLabel("User")

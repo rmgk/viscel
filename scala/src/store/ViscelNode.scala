@@ -18,9 +18,9 @@ trait ViscelNode extends Logging {
 	def nid = Neo.txs { self.getId }
 	def created = Neo.txs { self[Long]("created") }
 
-	require(Neo.txs { self.getLabels.exists(_ == selfLabel) }, s"node label did not match $selfLabel")
+	if (selfLabel != label.Unlabeled) require(Neo.txs { self.getLabels.exists(_ == selfLabel) }, s"node label did not match $selfLabel")
 
-	def deleteNode(): Unit = {
+	def deleteNode(): Unit = Neo.txs {
 		logger.warn(s"deleting node $selfLabel($nid)")
 		self.getRelationships.foreach { _.delete() }
 		self.delete()
@@ -36,14 +36,19 @@ trait ViscelNode extends Logging {
 	override def toString: String = s"${selfLabel.name}($nid)"
 }
 
+class UnlabeledNode(val self: Node) extends ViscelNode {
+	def selfLabel = label.Unlabeled
+}
+
 object ViscelNode {
 	def apply(node: Node): Try[ViscelNode] = Neo.txs { node.getLabels.toList } match {
-		case List() => failure(s"node has no label")
+		case List() => Try(new UnlabeledNode(node))
 		case List(l) if l == label.Chapter => Try(ChapterNode(node))
 		case List(l) if l == label.Collection => Try(CollectionNode(node))
 		//case List(l) if l == label.Config => Try(ConfigNode())
 		case List(l) if l == label.Element => Try(ElementNode(node))
 		case List(l) if l == label.User => Try(UserNode(node))
+		case List(l) if l == label.Bookmark => Try(new ViscelNode { def self = node; def selfLabel = label.Bookmark })
 		case List(l) => failure(s"unhandled label $l")
 		case list @ List(_) => failure(s"to many labels $list")
 	}

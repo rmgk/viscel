@@ -10,9 +10,8 @@ import scala.collection.JavaConversions._
 import scala.language.implicitConversions
 import util.Try
 
-class ElementNode(val self: Node) extends {
-	val selfLabel = label.Element
-} with ViscelNode with ContainableNode[ElementNode] {
+class ElementNode(val self: Node) extends ViscelNode with ContainableNode[ElementNode] {
+	def selfLabel = label.Element
 	def makeSelf = ElementNode(_)
 
 	def chapter: ChapterNode = Neo.txs { self.to(rel.parent).map { ChapterNode(_) }.get }

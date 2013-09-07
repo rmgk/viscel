@@ -11,9 +11,9 @@ import scala.language.implicitConversions
 import util.Try
 import viscel._
 
-class ConfigNode(val self: Node) extends {
-	val selfLabel = label.Config
-} with ViscelNode {
+class ConfigNode(val self: Node) extends ViscelNode {
+
+	def selfLabel = label.Config
 
 	def version = Neo.txs { self[Int]("version") }
 
