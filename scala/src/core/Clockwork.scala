@@ -98,7 +98,7 @@ class Clockwork(system: ActorSystem, ioHttp: ActorRef) extends Logging {
 		def update(): Unit = {
 			val runs = for (
 				core <- Seq(
-					PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels, AmazingAgentLuna)
+					PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels, AmazingAgentLuna, SpyingWithLana)
 			) yield { fullArchive(core) }
 			Future.sequence(runs).onComplete {
 				case _ =>

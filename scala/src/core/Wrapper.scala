@@ -41,6 +41,22 @@ trait WrapperTools {
 		.validate(_.size < 2, FailRun(s"query not unique ($query) on (${from.baseUri})"))
 		.flatMap { _.validate(_.size > 0, FailRun(s"query not found ($query) on (${from.baseUri})")) }.map { _(0) }
 }
+object SpyingWithLana extends Core with WrapperTools with Logging {
+	def archive = ArchivePointer("http://www.amazingartbros.com/Webcomics")
+	def id: String = "AX_SpyingWithLana"
+	def name: String = "Spying With Lana"
+	def wrapArchive(doc: Document): Try[FullArchive] = Try {
+		val links = doc.select("a[href~=Lana(Flare)?\\d+\\.htm").map(e => Uri.parseAbsolute(e.attr("abs:href").dropRight(4))).reverse
+		val chapters = links.zipWithIndex.map { case (l, i) => LinkedChapter(i.toString, PagePointer(l)) }
+		FullArchive(chapters)
+	}
+
+	def wrapPage(doc: Document): Try[FullPage] = Try {
+		val ed = doc.select("img[src^=http://www.amazingartbros.com/Artnew/][width~=\\d\\d\\d]").map(imgToElement)
+		val next = selectNext(doc, "a:contains(next page)").map { pp => pp.copy(loc = pp.loc.toString.dropRight(4)) }
+		FullPage(loc = doc.baseUri, elements = ed, next = (next))
+	}
+}
 
 object AmazingAgentLuna extends Core with WrapperTools with Logging {
 	def archive = ArchivePointer("http://www.amazingagentluna.com/archive/volume1")
