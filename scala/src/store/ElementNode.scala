@@ -26,13 +26,13 @@ class ElementNode(val self: Node) extends ViscelNode with ContainableNode[Elemen
 		prev.orElse { chapter.prev.flatMap { firstlast } }
 	}
 
-	override def deleteNode() = Neo.txs {
+	override def deleteNode(warn: Boolean = true) = Neo.txs {
 		self.incoming(rel.bookmarks).foreach { rel =>
 			val bmn = rel.getStartNode
 			bmn.setProperty("chapter", chapter.position)
 			bmn.setProperty("page", position)
 		}
-		super.deleteNode()
+		super.deleteNode(warn)
 	}
 
 	def distanceToLast: Int = Neo.txs {

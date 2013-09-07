@@ -8,6 +8,7 @@ import java.io.File
 import joptsimple._
 import org.jsoup.Jsoup
 import org.neo4j.graphdb.traversal._
+import org.neo4j.graphdb._
 import org.neo4j.kernel._
 import org.neo4j.visualization.graphviz._
 import org.neo4j.walk.Walker
@@ -22,32 +23,7 @@ import spray.http.Uri
 import viscel.core._
 import viscel.store._
 
-import spray.io.ServerSSLEngineProvider
-import java.security.{ SecureRandom, KeyStore }
-import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
-
-object Viscel {
-
-	// implicit val myEngineProvider = ServerSSLEngineProvider { engine =>
-	//  // engine.setEnabledCipherSuites(Array("TLS_RSA_WITH_AES_256_CBC_SHA"))
-	//  // engine.setEnabledProtocols(Array("SSLv3", "TLSv1"))
-	//  engine
-	// }
-
-	// implicit def sslContext: SSLContext = {
-	//  val keyStoreResource = "/ssl-test-keystore.jks"
-	//  val password = ""
-
-	//  val keyStore = KeyStore.getInstance("jks")
-	//  keyStore.load(getClass.getResourceAsStream(keyStoreResource), password.toCharArray)
-	//  val keyManagerFactory = KeyManagerFactory.getInstance("SunX509")
-	//  keyManagerFactory.init(keyStore, password.toCharArray)
-	//  val trustManagerFactory = TrustManagerFactory.getInstance("SunX509")
-	//  trustManagerFactory.init(keyStore)
-	//  val context = SSLContext.getInstance("TLS")
-	//  context.init(keyManagerFactory.getKeyManagers, trustManagerFactory.getTrustManagers, new SecureRandom)
-	//  context
-	// }
+object Viscel extends Logging {
 
 	def main(args: Array[String]) {
 
@@ -86,13 +62,23 @@ object Viscel {
 		}
 
 		if (purgeUnreferenced.?) {
-			Neo.execute("""
+			val collections = Neo.execute("""
 					|match (user :User), (col: Collection)
 					|where NOT( user -[:bookmarked]-> () <-[:bookmark]- col )
-					|with col
-					|match col -[*0..2]- (node) -[r2?]- ()
-					|delete col, node, r2
-					""").dumpToString.pipe { println }
+					|return col
+					""").columnAs[Node]("col").map { CollectionNode(_) }
+			collections.foreach { col =>
+				Neo.txs {
+					logger.info("sdeleting ${col.name}")
+					col.children.foreach { ch =>
+						ch.children.foreach { el =>
+							el.deleteNode(warn = false)
+						}
+						ch.deleteNode()
+					}
+					col.deleteNode()
+				}
+			}
 		}
 
 		importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir.toString).importAll)

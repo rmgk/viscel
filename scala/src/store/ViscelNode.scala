@@ -20,8 +20,8 @@ trait ViscelNode extends Logging {
 
 	if (selfLabel != label.Unlabeled) require(Neo.txs { self.getLabels.exists(_ == selfLabel) }, s"node label did not match $selfLabel")
 
-	def deleteNode(): Unit = Neo.txs {
-		logger.warn(s"deleting node $selfLabel($nid)")
+	def deleteNode(warn: Boolean = true): Unit = Neo.txs {
+		if (warn) logger.warn(s"deleting node $selfLabel($nid)")
 		self.getRelationships.foreach { _.delete() }
 		self.delete()
 	}
