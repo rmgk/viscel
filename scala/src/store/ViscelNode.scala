@@ -45,7 +45,7 @@ object ViscelNode {
 		case List() => Try(new UnlabeledNode(node))
 		case List(l) if l == label.Chapter => Try(ChapterNode(node))
 		case List(l) if l == label.Collection => Try(CollectionNode(node))
-		//case List(l) if l == label.Config => Try(ConfigNode())
+		case List(l) if l == label.Config => Try(ConfigNode())
 		case List(l) if l == label.Element => Try(ElementNode(node))
 		case List(l) if l == label.User => Try(UserNode(node))
 		case List(l) if l == label.Bookmark => Try(new ViscelNode { def self = node; def selfLabel = label.Bookmark })
