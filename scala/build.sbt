@@ -11,6 +11,8 @@ scalaSource in Compile <<= baseDirectory {(base) => new File(base, "src")}
 
 scalaSource in Test <<= baseDirectory {(base) => new File(base, "test")}
 
+resourceDirectory in Compile <<= baseDirectory {(base) => new File(base, "resources")}
+
 scalacOptions ++= List(
 	"-deprecation",
 	"-encoding", "UTF-8",
