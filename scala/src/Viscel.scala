@@ -13,7 +13,6 @@ import org.neo4j.visualization.graphviz._
 import org.neo4j.walk.Walker
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.language.implicitConversions
 import scala.util.Try
@@ -125,12 +124,7 @@ object Viscel {
 		}
 
 		if (!nocore.?) {
-			val pipe = {
-				implicit val timeout: Timeout = 30.seconds
-				sendReceive(ioHttp)
-			}
-			val clock = new Clockwork(pipe)
-			clock.test
+			new Clockwork(system, ioHttp).start
 		}
 
 		if (shutdown.?) {

@@ -20,6 +20,9 @@ class CollectionNode(val self: Node) extends NodeContainer[ChapterNode] with Vis
 
 	def totalSize = Neo.txs { children.map { _.size }.sum }
 
+	def lastUpdate = Neo.txs { self.get[Long]("last_update").getOrElse(0L) }
+	def lastUpdate_=(time: Long) = Neo.txs { self.setProperty("last_update", time) }
+
 	override def toString = s"Collection($id)"
 }
 

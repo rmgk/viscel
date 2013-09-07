@@ -1,8 +1,9 @@
 package viscel.core
 
-import akka.actor.{ ActorSystem, Props, Actor }
+import akka.actor.{ ActorSystem, Props, Actor, ActorRef }
 import akka.io.IO
 import akka.pattern.AskTimeoutException
+import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.Logging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -24,7 +25,13 @@ import spray.http.Uri
 import viscel._
 import viscel.store._
 
-class Clockwork(val iopipe: SendReceive) extends Logging {
+class Clockwork(system: ActorSystem, ioHttp: ActorRef) extends Logging {
+
+	val iopipe = {
+		implicit val timeout: Timeout = 30.seconds
+		import system.dispatcher
+		sendReceive(ioHttp)
+	}
 
 	// val cores = DCore.list.cores ++ Seq(CarciphonaWrapper, FlipsideWrapper, FreakAngelsWrapper)
 
@@ -59,22 +66,39 @@ class Clockwork(val iopipe: SendReceive) extends Logging {
 	// 	}
 	// }
 
-	def fullArchive(ocore: Core) = {
-		new ArchiveRunner {
-			def collection = CollectionNode(ocore.id).getOrElse(CollectionNode.create(ocore.id, ocore.name))
-			def core = ocore
-			def iopipe = Clockwork.this.iopipe
-		}.update().onComplete {
-			case Success(_) => logger.info("test complete without errors")
-			case Failure(e) => e match {
-				case e: NormalStatus => logger.info(s"${ocore.id} complete ${e}")
-				case e: FailedStatus =>
-					logger.info(s"${ocore.id} failed ${e}"); e.printStackTrace
-				case e: AskTimeoutException => logger.info(s"${ocore.id} timed out (system shutdown?)")
-				case e: Throwable => logger.info(s"${ocore.id} unexpected error ${e}"); e.printStackTrace
+	def fullArchive(ocore: Core): Future[Unit] = {
+		val col = CollectionNode(ocore.id).getOrElse(CollectionNode.create(ocore.id, ocore.name))
+		if (col.lastUpdate + 8 * 60 * 60 * 1000 < System.currentTimeMillis) {
+			new ArchiveRunner {
+				def collection = col
+				def core = ocore
+				def iopipe = Clockwork.this.iopipe
+			}.update().andThen {
+				case Success(_) =>
+					col.lastUpdate = System.currentTimeMillis
+					logger.info("test complete without errors")
+				case Failure(e) => e match {
+					case e: NormalStatus =>
+						col.lastUpdate = System.currentTimeMillis
+						logger.info(s"${ocore.id} complete ${e}")
+					case e: FailedStatus if e.getMessage.startsWith("invalid response 302 Found") =>
+						col.lastUpdate = System.currentTimeMillis
+						logger.info(s"${ocore.id} 302 location workaround ${e}")
+					case e: FailedStatus =>
+						logger.info(s"${ocore.id} failed ${e}"); e.printStackTrace
+					case e: AskTimeoutException => logger.info(s"${ocore.id} timed out (system shutdown?)")
+					case e: Throwable => logger.info(s"${ocore.id} unexpected error ${e}"); e.printStackTrace
+				}
 			}
 		}
+		else Future.successful(())
 	}
 
-	def test() = for (core <- Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels)) fullArchive(core)
+	def start() = {
+		def update(): Unit = {
+			val runs = for (core <- Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels)) yield { fullArchive(core) }
+			Future.sequence(runs).onComplete { case _ => system.scheduler.scheduleOnce(1.hour) { update() } }
+		}
+		update()
+	}
 }
