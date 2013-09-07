@@ -13,7 +13,7 @@ scalaSource in Test <<= baseDirectory {(base) => new File(base, "test")}
 
 resourceDirectory in Compile <<= baseDirectory {(base) => new File(base, "resources")}
 
-scalacOptions ++= List(
+scalacOptions ++= Seq(
 	"-deprecation",
 	"-encoding", "UTF-8",
 	"-unchecked",
