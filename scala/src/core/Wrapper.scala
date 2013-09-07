@@ -42,6 +42,36 @@ trait WrapperTools {
 		.flatMap { _.validate(_.size > 0, FailRun(s"query not found ($query) on (${from.baseUri})")) }.map { _(0) }
 }
 
+object AmazingAgentLuna extends Core with WrapperTools with Logging {
+	def archive = ArchivePointer("http://www.amazingagentluna.com/archive/volume1")
+	def id: String = "AX_AmazingAgentLuna"
+	def name: String = "Amazing Agent Luna"
+	def wrapArchive(doc: Document): Try[FullArchive] =
+		selectUnique(doc, "#article-columns").map { columns =>
+			val vol = columns.parent.select("h1")(0).ownText
+			val elements = columns.select(".archive-summary a").map { anchor =>
+				val img = anchor.child(0)
+				val imgSrc = img.attr("abs:src").replace("/comics/tn/", "/comics/")
+				ElementDescription(origin = anchor.attr("abs:href"), source = imgSrc,
+					props = Map("alt" -> img.attr("alt"), "title" -> anchor.text))
+			}
+			val firstPage = elements.sortBy(_.source.toString).foldRight(Try(throw EndRun("last page")): Try[FullPage]) {
+				case (element, prev) =>
+					Try(FullPage(loc = element.origin, next = prev, elements = Seq(element)))
+			}.get
+
+			val chapter = LinkedChapter(vol, firstPage)
+
+			val nextVol = selectUnique(doc, s"#main a:containsOwn($vol)").toOption.flatMap { n =>
+				Option(n.nextElementSibling)
+			}.map { _.attr("abs:href") }
+
+			FullArchive(Seq(chapter), nextVol.map { ArchivePointer(_) })
+		}
+
+	def wrapPage(doc: Document): Try[FullPage] = ???
+}
+
 object FreakAngels extends Core with WrapperTools with Logging {
 	def id = "X_FreakAngels"
 	def name = "Freak Angels"

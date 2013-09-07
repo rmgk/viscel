@@ -96,8 +96,17 @@ class Clockwork(system: ActorSystem, ioHttp: ActorRef) extends Logging {
 
 	def start() = {
 		def update(): Unit = {
-			val runs = for (core <- Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels)) yield { fullArchive(core) }
-			Future.sequence(runs).onComplete { case _ => system.scheduler.scheduleOnce(1.hour) { update() } }
+			val runs = for (
+				core <- Seq(
+					PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels, AmazingAgentLuna)
+			) yield { fullArchive(core) }
+			Future.sequence(runs).onComplete {
+				case _ =>
+					try { system.scheduler.scheduleOnce(1.hour) { update() } }
+					catch {
+						case e: IllegalStateException => logger.info(s"could not schedule next update (shutdown?) $e")
+					}
+			}
 		}
 		update()
 	}
