@@ -27,7 +27,8 @@ trait WrapperTools {
 			getAttr(img, "height")).toMap)
 
 	def selectNext(from: Element, query: String) =
-		from.select(query).validate(_.size == 1, FailRun(s"no next found ${from.baseUri}"))
+		from.select(query).validate(_.size > 0, EndRun(s"no next found ${from.baseUri}"))
+			.flatMap(_.validate(_.size < 2, FailRun(s"multiple next found ${from.baseUri}")))
 			.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
 
 	def urisToPagePointer(links: Seq[String]): PagePointer = links.map { Uri.parseAbsolute(_) }
@@ -105,7 +106,7 @@ object PhoenixRequiem extends Core with WrapperTools with Logging {
 		}
 
 	def wrapPage(doc: Document): Try[FullPage] =
-		doc.select(".main img[alt=Page][src~=pages/\\d+\\.\\w+]").validate(_.size == 1, FailRun(s"no image found ${doc.baseUri}")).map { img =>
+		doc.select(".main img[alt=Page][src~=pages/\\d+\\.\\w+]").validate(_.size == 1, EndRun(s"no image found ${doc.baseUri}")).map { img =>
 			FullPage(loc = doc.baseUri, elements = img.map { imgToElement }, next = (selectNext(img(0).parent, "a")))
 		}
 }
@@ -172,7 +173,7 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 	def wrapPage(doc: Document): Try[FullPage] =
 		selectUnique(doc, "#cg_img img").recoverWith { case FailedStatus(_) => selectUnique(doc, ".comic .alt-container img") }.map { img =>
 			val ed = imgToElement(img)
-			val next = selectNext(doc, "a#cg_next").recoverWith { case FailedStatus(_) => selectNext(doc, "a#cg_last") }
+			val next = selectNext(doc, "a#cg_next").recoverWith { case NormalStatus(_) => selectNext(doc, "a#cg_last") }
 			FullPage(loc = doc.baseUri, elements = Seq(ed), next = (next))
 		}
 }
