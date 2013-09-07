@@ -22,15 +22,15 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with Javascr
 
 	override def maskLocation = path_view(collection.id, enode.chapter.position, enode.position)
 
-	override def navPrev = enode.prev.map { en => path_nid(en.nid) }
-	override def navNext = enode.next.map { en => path_nid(en.nid) }
+	override def navPrev = enode.prevView.map { en => path_nid(en.nid) }
+	override def navNext = enode.nextView.map { en => path_nid(en.nid) }
 	override def navUp = Some(path_nid(collection.nid))
 
-	def mainPart = div.cls("content")(link_node(enode.next, enodeToImg(enode)))
+	def mainPart = div.cls("content")(link_node(enode.nextView, enodeToImg(enode)))
 	def sidePart = "": STag
 
 	def navigation = Seq[STag](
-		link_node(enode.prev, "prev"),
+		link_node(enode.prevView, "prev"),
 		" ",
 		link_node(collection, "front"),
 		" ",
@@ -40,7 +40,7 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with Javascr
 		" ",
 		a.href(enode[String]("origin")).cls("extern")("site"),
 		" ",
-		link_node(enode.next, "next"))
+		link_node(enode.nextView, "next"))
 }
 
 object ViewPage {
