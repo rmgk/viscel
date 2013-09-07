@@ -62,23 +62,7 @@ object Viscel extends Logging {
 		}
 
 		if (purgeUnreferenced.?) {
-			val collections = Neo.execute("""
-					|match (user :User), (col: Collection)
-					|where NOT( user -[:bookmarked]-> () <-[:bookmark]- col )
-					|return col
-					""").columnAs[Node]("col").map { CollectionNode(_) }
-			collections.foreach { col =>
-				Neo.txs {
-					logger.info("sdeleting ${col.name}")
-					col.children.foreach { ch =>
-						ch.children.foreach { el =>
-							el.deleteNode(warn = false)
-						}
-						ch.deleteNode()
-					}
-					col.deleteNode()
-				}
-			}
+			viscel.store.Util.purgeUnreferenced()
 		}
 
 		importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir.toString).importAll)

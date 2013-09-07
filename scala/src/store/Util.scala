@@ -11,7 +11,30 @@ import scala.collection.JavaConversions._
 import util.Try
 import viscel.time
 
-object Util {
+object Util extends Logging {
+
+	def purgeUnreferenced() = {
+		val collections = Neo.txs {
+			list.filter { col =>
+				!col.self.outgoing(rel.bookmark).exists { r =>
+					!Option(r.getEndNode).flatMap { _.from(rel.bookmarked) }.isEmpty
+				}
+			}.toIndexedSeq
+		}
+		collections.foreach { col =>
+			Neo.txs {
+				logger.info(s"deleting ${col.name}")
+				col.children.foreach { ch =>
+					ch.children.foreach { el =>
+						el.deleteNode(warn = false)
+					}
+					ch.deleteNode()
+				}
+				col.deleteNode()
+			}
+		}
+	}
+
 	def list = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).toStream.map { CollectionNode(_) } }
 
 	def search(query: String) = time("search") {
