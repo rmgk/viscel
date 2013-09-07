@@ -1,10 +1,14 @@
 package viscel.server
 
 import akka.actor.{ ActorSystem, Props, Actor }
+import akka.pattern.ask
 import com.typesafe.scalalogging.slf4j.Logging
 import java.io.File
+import scala.concurrent.duration._
 import scala.concurrent.future
 import scala.concurrent.Future
+import spray.can.Http
+import spray.can.server.Stats
 import spray.http.{ MediaTypes, ContentType }
 import spray.httpx.encoding.{ Gzip, Deflate, NoEncoding }
 import spray.routing.authentication._
@@ -113,6 +117,14 @@ trait DefaultRoutes extends HttpService with Logging {
 			} ~
 			(path("s") & parameter('q)) { query =>
 				complete(SearchPage(user, query))
+			} ~
+			path("stats") {
+				complete {
+					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
+						.ask(Http.GetStats)(1.second)
+						.mapTo[Stats]
+					stats.map { StatsPage(user, _) }
+				}
 			}
 
 	def rejectNone[T](opt: Option[T])(route: T => Route) = opt.map { route(_) }.getOrElse(reject)

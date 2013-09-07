@@ -17,10 +17,9 @@ class ConfigNode(val self: Node) extends ViscelNode {
 
 	def version = Neo.txs { self[Int]("version") }
 
-	def downloaded(size: Long) = Neo.txs {
-		val has = self.get[Long]("stat_download").getOrElse(0L)
-		self.setProperty("stat_download", has + size)
-	}
+	def downloaded(size: Long): Unit = Neo.txs { self.setProperty("stat_download", downloaded + size) }
+
+	def downloaded: Long = Neo.txs { self.get[Long]("stat_download").getOrElse(0L) }
 
 }
 
