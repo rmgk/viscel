@@ -19,15 +19,12 @@ class ElementNode(val self: Node) extends ViscelNode with ContainableNode[Elemen
 
 	def nextView: Option[ElementNode] = {
 		def firstfirst(chap: ChapterNode): Option[ElementNode] = chap.first.orElse { chap.next.flatMap { firstfirst } }
-		val candidate = next.orElse { chapter.next.flatMap { firstfirst } }
-		candidate.flatMap { can => if (can.isViewable) Some(can) else can.nextView }
+		next.orElse { chapter.next.flatMap { firstfirst } }
 	}
 	def prevView: Option[ElementNode] = {
 		def firstlast(chap: ChapterNode): Option[ElementNode] = chap.last.orElse { chap.prev.flatMap { firstlast } }
-		val candidate = prev.orElse { chapter.prev.flatMap { firstlast } }
-		candidate.flatMap { can => if (can.isViewable) Some(can) else can.prevView }
+		prev.orElse { chapter.prev.flatMap { firstlast } }
 	}
-	def isViewable = !get[Boolean]("empty_page").getOrElse(false)
 
 	override def deleteNode() = Neo.txs {
 		self.incoming(rel.bookmarks).foreach { rel =>
