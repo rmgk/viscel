@@ -20,6 +20,7 @@ import spray.http.HttpHeaders.`Content-Type`
 import spray.http.HttpHeaders.Location
 import spray.http.HttpRequest
 import spray.http.HttpEncodings
+import spray.http.HttpCharsets
 import spray.http.HttpResponse
 import spray.http.Uri
 import spray.httpx.encoding._
@@ -39,20 +40,24 @@ trait NetworkPrimitives extends Logging {
 		Get(uri).pipe {
 			addReferer ~> addHeader(`Accept-Encoding`(HttpEncodings.gzip, HttpEncodings.deflate)) ~>
 				iopipe ~> decode(Gzip) ~> decode(Deflate)
-		}
-			.flatMap { res =>
-
-				res.validate(
-					_.status.intValue == 200,
-					FailRun(s"invalid response ${res.status}; $uri ($referer)")).toFuture.andThen {
-						case result => ConfigNode().download(res.entity.buffer.size, result.isSuccess)
-					}
+		}.andThen {
+			case Success(res) => ConfigNode().download(res.entity.buffer.size, res.status.intValue == 200)
+			case Failure(_) => ConfigNode().download(0, false)
+		}.flatMap { res =>
+			val headLoc = res.header[Location]
+			if (res.status.intValue == 301 || res.status.intValue == 302 || !headLoc.isEmpty) {
+				logger.info("new location ${headLoc.get} old ($uri)")
+				response(headLoc.get.uri, referer)
 			}
+			else res.validate(
+				_.status.intValue == 200,
+				FailRun(s"invalid response ${res.status}; $uri ($referer)")).toFuture
+		}
 	}
 
 	def document(uri: Uri): Future[Document] = response(uri).map { res =>
 		Jsoup.parse(
-			res.entity.asString,
+			res.entity.asString(HttpCharsets.`UTF-8`),
 			res.header[Location].map { _.uri }.getOrElse(uri).toString)
 	}
 
