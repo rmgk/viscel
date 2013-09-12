@@ -68,6 +68,7 @@ class Clockwork(system: ActorSystem, ioHttp: ActorRef) extends Logging {
 
 	def fullArchive(ocore: Core): Future[Unit] = {
 		val col = CollectionNode(ocore.id).getOrElse(CollectionNode.create(ocore.id, ocore.name))
+		if (col.name != ocore.name) col.name = ocore.name
 		if (col.lastUpdate + 8 * 60 * 60 * 1000 < System.currentTimeMillis) {
 			new ArchiveRunner {
 				def collection = col
@@ -96,9 +97,13 @@ class Clockwork(system: ActorSystem, ioHttp: ActorRef) extends Logging {
 
 	def start() = {
 		def update(): Unit = {
+			val selectedLegacy = ConfigNode().legacyCollections.toSet
+			val legacyCores = LegacyCores.list.filter { lc =>
+				selectedLegacy(lc.id)
+			}
 			val runs = for (
-				core <- Seq(
-					PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels, AmazingAgentLuna, SpyingWithLana)
+				//core <- Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels, AmazingAgentLuna, SpyingWithLana)
+				core <- legacyCores
 			) yield { fullArchive(core) }
 			Future.sequence(runs).onComplete {
 				case _ =>

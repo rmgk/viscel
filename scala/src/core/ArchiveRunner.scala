@@ -48,10 +48,9 @@ trait ArchiveRunner extends NetworkPrimitives with Logging {
 			}
 	}
 
-	def getForbidden(chapters: Seq[LinkedChapter]): Set[Uri] = {
+	def getForbidden(chapters: Seq[LinkedChapter]): Uri => Boolean =
 		collection.children.flatMap { _.children }.map { en => Uri(en[String]("origin")) }.toSet ++
 			chapters.map { _.first.loc }.toSet
-	}
 
 	def getAllChapters(cl: List[LinkedChapter]): Future[Unit] = cl match {
 		case List() => Future.successful(())

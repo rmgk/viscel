@@ -46,7 +46,7 @@ trait HtmlPageUtils {
 	def form_post(action: String, ts: STag*) = form.attr("method" -> "post", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
 	def form_get(action: String, ts: STag*) = form.attr("method" -> "get", "enctype" -> MediaTypes.`application/x-www-form-urlencoded`.toString).action(action)(ts)
 
-	def form_search(init: String) = form_get(path_search, input.ctype("textfield").name("q").value(init))
+	def form_search(init: String) = form_get(path_search, input.ctype("textfield").name("q").value(init)).id("searchform")
 
 	def enodeToImg(en: ElementNode) = en.get[String]("blob").map { blob =>
 		img.src(path_blob(blob)).cls("element")

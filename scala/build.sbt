@@ -48,6 +48,7 @@ Seq(
 	"com.typesafe" %% "scalalogging-slf4j" % "1.0.1", // apache 2
 	"com.typesafe.akka" %% "akka-actor" % "2.2.0", // apache 2
 	"com.typesafe.slick" %% "slick" % "1.0.1", // bsdish
+	"com.twitter" %% "util-eval" % "6.5.0", // apache 2
 	"commons-lang" % "commons-lang" % "2.6", // apache 2
 	"io.spray" % "spray-caching" % sprayVersion, // apache 2
 	"io.spray" % "spray-can" % sprayVersion,
@@ -77,6 +78,7 @@ initialCommands in console := """
 import akka.actor.{ ActorSystem, Props, Actor }
 import akka.io.IO
 import akka.util.Timeout
+import com.twitter.util.Eval
 import com.typesafe.scalalogging.slf4j.Logging
 import org.jsoup._
 import org.neo4j.graphdb._

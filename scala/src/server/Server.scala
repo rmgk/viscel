@@ -9,13 +9,14 @@ import scala.concurrent.future
 import scala.concurrent.Future
 import spray.can.Http
 import spray.can.server.Stats
-import spray.http.{ MediaTypes, ContentType }
+import spray.http.{ MediaTypes, ContentType, FormData }
 import spray.httpx.encoding.{ Gzip, Deflate, NoEncoding }
 import spray.routing.authentication._
 import spray.routing.directives.ContentTypeResolver
 import spray.routing.{ HttpService, RequestContext, Route }
 import viscel.store.CollectionNode
 import viscel.store.ElementNode
+import viscel.store.ConfigNode
 import viscel.store.UserNode
 import viscel.store.ViscelNode
 import viscel.time
@@ -124,6 +125,16 @@ trait DefaultRoutes extends HttpService with Logging {
 						.ask(Http.GetStats)(1.second)
 						.mapTo[Stats]
 					stats.map { StatsPage(user, _) }
+				}
+			} ~
+			path("select") {
+				entity(as[FormData]) { form =>
+					if (form.fields.get("select_cores") == Some("apply")) {
+						val applied = form.fields.collect { case (col, "select") => col }.toSeq
+						logger.info(s"selecting $applied")
+						ConfigNode().legacyCollections = applied
+					}
+					complete { SelectionPage(user) }
 				}
 			}
 

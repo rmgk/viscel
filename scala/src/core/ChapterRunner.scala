@@ -24,12 +24,20 @@ import scala.collection.JavaConversions._
 import org.neo4j.graphdb.Direction
 
 trait ChapterRunner extends Logging {
+	outer =>
 
 	def chapterNode: ChapterNode
 	def forbidden: Uri => Boolean
 	def chapter: LinkedChapter
 
 	def pageRunner: PageRunner //PageDescription => Future[(PageDescription, Seq[ElementNode])]
+
+	def copy(allowed: Uri => Boolean) = new ChapterRunner {
+		def chapterNode = outer.chapterNode
+		def forbidden = uri => !allowed(uri) && outer.forbidden(uri)
+		def chapter = outer.chapter
+		def pageRunner = outer.pageRunner
+	}
 
 	def next(page: PageDescription): Try[PageDescription] =
 		page match {
@@ -85,7 +93,7 @@ trait ChapterRunner extends Logging {
 			case Some(last) if last.origin == page.loc.toString =>
 				chapterNode.dropLast(last.origin)
 				backtrack(page)
-			case _ => update()
+			case _ => copy(allowed = Set(page)).update()
 		}
 	}
 

@@ -17,6 +17,7 @@ class CollectionNode(val self: Node) extends NodeContainer[ChapterNode] with Vis
 
 	def id = Neo.txs { self[String]("id") }
 	def name = Neo.txs { self.get[String]("name").getOrElse(id) }
+	def name_=(value: String) = Neo.txs { self.setProperty("name", value) }
 
 	def totalSize = Neo.txs { children.map { _.size }.sum }
 

@@ -40,6 +40,10 @@ trait WrapperTools {
 	def selectUnique(from: Element, query: String) = from.select(query)
 		.validate(_.size < 2, FailRun(s"query not unique ($query) on (${from.baseUri})"))
 		.flatMap { _.validate(_.size > 0, FailRun(s"query not found ($query) on (${from.baseUri})")) }.map { _(0) }
+
+	def findParentTag(from: Element, tagname: String): Option[Element] =
+		if (from.tag.getName == tagname) Some(from)
+		else from.parents.find(_.tag.getName == tagname)
 }
 object SpyingWithLana extends Core with WrapperTools with Logging {
 	def archive = ArchivePointer("http://www.amazingartbros.com/Webcomics")

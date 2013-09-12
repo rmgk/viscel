@@ -28,6 +28,14 @@ class ConfigNode(val self: Node) extends ViscelNode {
 	def downloads: Long = Neo.txs { self.get[Long]("stat_download_count").getOrElse(0L) }
 	def downloadsFailed: Long = Neo.txs { self.get[Long]("stat_download_failed").getOrElse(0L) }
 
+	def legacyCollections_=(cols: Seq[String]) = Neo.txs {
+		self.setProperty("selected_legacy_collections", cols.toArray)
+	}
+
+	def legacyCollections: Seq[String] = Neo.txs {
+		self.get[Array[String]]("selected_legacy_collections").toSeq.flatten
+	}
+
 }
 
 object ConfigNode {

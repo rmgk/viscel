@@ -113,7 +113,7 @@ fieldset.info {
 	padding: 1.2em 3em 2em 3em;
 }
 
-.info input {
+#searchform input {
 	width: 100%;
 }
 
