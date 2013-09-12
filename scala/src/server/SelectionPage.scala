@@ -24,7 +24,7 @@ class SelectionPage(user: UserNode) extends HtmlPage {
 		val known = ConfigNode().legacyCollections
 		fieldset.cls("info")(legend("Select Cores"),
 			form_post("select",
-				viscel.core.LegacyCores.list.map { _.id }.sorted
+				Neo.txs(viscel.core.LegacyCores.list.map { _.id }.toSet & viscel.store.Util.list.map { _.id }.toSet).toSeq.sorted
 					.map { id =>
 						Seq[STag](input.ctype("checkbox").name(id).value("select").pipe {
 							case inp if known.contains(id) => inp.attr("checked" -> "checked")

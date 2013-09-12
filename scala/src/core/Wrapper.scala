@@ -1,25 +1,29 @@
 package viscel.core
 
 import com.typesafe.scalalogging.slf4j.Logging
-import scala.concurrent.ExecutionContext.Implicits.global
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
+import scala.collection.JavaConversions._
 import scala.concurrent._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.implicitConversions
 import scala.util._
 import spray.client.pipelining._
 import spray.http.Uri
+import com.github.theon.uri.{ Uri => Suri }
 import viscel._
-import scala.collection.JavaConversions._
 
-trait WrapperTools {
+trait WrapperTools extends Logging {
+	implicit def absuri(uri: String): Uri = Uri.parseAbsolute(Suri.parse(uri).toString)
+
 	def getAttr(e: Element, k: String): Option[(String, String)] = {
 		val res = e.attr(k)
 		if (res.isEmpty) None else Some(k -> res)
 	}
 
 	def imgToElement(img: Element): ElementDescription = ElementDescription(
-		source = img.attr("abs:src").pipe { Uri.parseAbsolute(_) },
+		source = img.attr("abs:src").pipe { absuri },
 		origin = img.baseUri,
 		props = (getAttr(img, "alt") ++
 			getAttr(img, "title") ++
@@ -29,9 +33,9 @@ trait WrapperTools {
 	def selectNext(from: Element, query: String) =
 		from.select(query).validate(_.size > 0, EndRun(s"no next found ${from.baseUri}"))
 			.flatMap(_.validate(_.size < 2, FailRun(s"multiple next found ${from.baseUri}")))
-			.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
+			.map { _.attr("abs:href").pipe { absuri }.pipe { PagePointer(_) } }
 
-	def urisToPagePointer(links: Seq[String]): PagePointer = links.map { Uri.parseAbsolute(_) }
+	def urisToPagePointer(links: Seq[String]): PagePointer = links.map { absuri }
 		.foldRight(None: Option[PagePointer]) {
 			case (uri, prev) =>
 				Some(PagePointer(uri, prev))
@@ -50,7 +54,7 @@ object SpyingWithLana extends Core with WrapperTools with Logging {
 	def id: String = "AX_SpyingWithLana"
 	def name: String = "Spying With Lana"
 	def wrapArchive(doc: Document): Try[FullArchive] = Try {
-		val links = doc.select("a[href~=Lana(Flare)?\\d+\\.htm").map(e => Uri.parseAbsolute(e.attr("abs:href").dropRight(4))).reverse
+		val links = doc.select("a[href~=Lana(Flare)?\\d+\\.htm").map(e => absuri(e.attr("abs:href").dropRight(4))).reverse
 		val chapters = links.zipWithIndex.map { case (l, i) => LinkedChapter(i.toString, PagePointer(l)) }
 		FullArchive(chapters)
 	}
@@ -100,7 +104,7 @@ object FreakAngels extends Core with WrapperTools with Logging {
 	def wrapArchive(doc: Document): Try[FullArchive] =
 		doc.select(".archive_dropdown option[value~=http://www.freakangels.com/\\?p=\\d+]")
 			.validate(_.size > 0, FailRun("episodes not found")).map { episodes =>
-				val chapters = episodes.map { ep => LinkedChapter(ep.text, PagePointer(Uri.parseAbsolute(ep.attr("abs:value")))) }.reverse
+				val chapters = episodes.map { ep => LinkedChapter(ep.text, PagePointer(absuri(ep.attr("abs:value")))) }.reverse
 				FullArchive(chapters)
 			}
 
@@ -198,7 +202,7 @@ object InverlochArchive extends Core with WrapperTools with Logging {
 	def wrapPage(doc: Document): Try[FullPage] =
 		doc.select("#main").validate(_.size == 1, FailRun(s"no image found ${doc.baseUri}")).map { main =>
 			val ed = main.select("> p > img").map { imgToElement }
-			val next = Try { main(0).getElementsContainingOwnText("Next").attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
+			val next = Try { main(0).getElementsContainingOwnText("Next").attr("abs:href").pipe { absuri }.pipe { PagePointer(_) } }
 			FullPage(loc = doc.baseUri, elements = ed, next = (next))
 		}
 }
@@ -238,7 +242,7 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 
 // 	def wrapPage(doc: Document): WrappedPage = new WrappedPage {
 // 		def document = doc
-// 		val next = document.select("#link #nextarea").validate { found(1, "next") }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
+// 		val next = document.select("#link #nextarea").validate { found(1, "next") }.map { _.attr("abs:href").pipe { absuri } }
 // 		val elements = document.select(".page:has(#link)").validate { found(1, "image") }
 // 			.map {
 // 				_.attr("style")
@@ -258,7 +262,7 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 
 // 	def wrapPage(doc: Document): WrappedPage = new WrappedPage {
 // 		def document = doc
-// 		val next = document.select("[rel=next][accesskey=n]").validate { found(1, "next") }.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) } }
+// 		val next = document.select("[rel=next][accesskey=n]").validate { found(1, "next") }.map { _.attr("abs:href").pipe { absuri } }
 // 		val elements = document.select("img.ksc").validate { found(1, "image") }.map { itag =>
 // 			Element(source = itag.attr("abs:src"), origin = doc.baseUri, alt = Option(itag.attr("alt")))
 // 		}.pipe { Seq(_) }
@@ -278,7 +282,7 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 // 		def chapter: Seq[Try[Chapter]] = doc.select("#column .serieslist-content > h2 > a").map { href =>
 // 			Try(Chapter(
 // 				name = href.text,
-// 				first = href.attr("abs:href").pipe { Uri.parseAbsolute(_) }))
+// 				first = href.attr("abs:href").pipe { absuri }))
 // 		}
 // 	}
 
@@ -288,7 +292,7 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 // 		def document = doc
 // 		val next = document.select("#comic-head .next").validate { found(1, "next") }.map { _.attr("abs:href") }
 // 			//.recoverWith { case e => Try { doc.baseUri.pipe { case extractChapter(c) => s"http://drmcninja.com/archives/comic/${c.toInt + 1}p1/" } } }
-// 			.map { Uri.parseAbsolute(_) }
+// 			.map { absuri }
 // 		val elements = document.select("#comic img").validate { found(1, "image") }.map { itag =>
 // 			Element(source = Uri.parseAbsolute(itag.attr("abs:src")), origin = doc.baseUri, alt = Option(itag.attr("alt")), title = Option(itag.attr("title")))
 // 		}.pipe { Seq(_) }

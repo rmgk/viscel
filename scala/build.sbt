@@ -44,11 +44,12 @@ Seq(
 	"com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2", // scala license (bsdish)
 	"com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
 	"com.github.scopt" %% "scopt" % "3.1.0", // mit
+	"com.github.theon" %% "scala-uri" % "0.4.0-SNAPSHOT", // apache 2
 	"com.scalatags" %% "scalatags" % "0.1.4", // mit (according to pom)
+	"com.twitter" %% "util-eval" % "6.5.0", // apache 2
 	"com.typesafe" %% "scalalogging-slf4j" % "1.0.1", // apache 2
 	"com.typesafe.akka" %% "akka-actor" % "2.2.0", // apache 2
 	"com.typesafe.slick" %% "slick" % "1.0.1", // bsdish
-	"com.twitter" %% "util-eval" % "6.5.0", // apache 2
 	"commons-lang" % "commons-lang" % "2.6", // apache 2
 	"io.spray" % "spray-caching" % sprayVersion, // apache 2
 	"io.spray" % "spray-can" % sprayVersion,
@@ -62,14 +63,14 @@ Seq(
 	"org.neo4j" % "neo4j" % "2.0.0-M04", // gpl3
 	"org.neo4j" % "neo4j-graphviz" % "2.0.0-M04",
 	"org.rogach" %% "scallop" % "0.9.4", //mit
-	"org.slf4j" % "slf4j-simple" % "1.7.5", //mit
+	"org.scala-lang" % "jline" % "2.10.2",
+	"net.sf.jopt-simple" % "jopt-simple" % "4.5", // mit
+	"org.slf4j" % "slf4j-simple" % "1.7.5", // mit
 	"org.xerial" % "sqlite-jdbc" % "3.7.2", // apache2
-	// "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5", //bsd
+	// "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5", // bsd
 	// "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1", // apache2
 	"org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
-	"org.neo4j" % "neo4j-kernel" % "2.0.0-M04" % "test" classifier "tests",
-	"net.sf.jopt-simple" % "jopt-simple" % "4.5",
-	"org.scala-lang" % "jline" % "2.10.2"
+	"org.neo4j" % "neo4j-kernel" % "2.0.0-M04" % "test" classifier "tests"
 )
 }
 
@@ -90,10 +91,7 @@ import spray.can._
 import spray.client.pipelining._
 import spray.http._
 import viscel._
+import viscel.core._
+import viscel.server._
 import viscel.store._
-def getPipe() = {
-	implicit val system = ActorSystem()
-	implicit val timeout: Timeout = 30.seconds
-	(system, sendReceive(IO(Http)))
-}
 """

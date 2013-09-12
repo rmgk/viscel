@@ -25,8 +25,9 @@ import viscel.store._
 
 object Viscel extends Logging {
 
-	def main(args: Array[String]) {
+	def main(args: Array[String]): Unit = run(args)
 
+	def run(args: Array[String]) = {
 		import Opts._
 		val formatWidth = try { (new scala.tools.jline.console.ConsoleReader()).getTerminal.getWidth }
 		catch { case e: Throwable => 80 }
@@ -93,14 +94,18 @@ object Viscel extends Logging {
 			ioHttp ! Http.Bind(server, interface = "0", port = port())
 		}
 
+		val props = Props(classOf[Clockwork], ioHttp)
+		val clockwork = system.actorOf(props, "clockwork")
+
 		if (!nocore.?) {
-			new Clockwork(system, ioHttp).start
+			clockwork ! Clockwork.EnqueueDefault
 		}
 
 		if (shutdown.?) {
 			Neo.shutdown
 			system.shutdown
 		}
+		(system, ioHttp, clockwork)
 	}
 
 	def visualizeUser(user: UserNode, dotpath: String) = {

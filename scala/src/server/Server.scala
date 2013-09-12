@@ -41,6 +41,7 @@ class Server extends Actor with DefaultRoutes {
 }
 
 trait DefaultRoutes extends HttpService with Logging {
+	this: Server =>
 
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
 	implicit def executionContext = actorRefFactory.dispatcher
@@ -131,8 +132,13 @@ trait DefaultRoutes extends HttpService with Logging {
 				entity(as[FormData]) { form =>
 					if (form.fields.get("select_cores") == Some("apply")) {
 						val applied = form.fields.collect { case (col, "select") => col }.toSeq
+						val config = ConfigNode()
 						logger.info(s"selecting $applied")
-						ConfigNode().legacyCollections = applied
+						val before = config.legacyCollections
+						config.legacyCollections = applied
+						val added: Set[String] = applied.toSet -- before
+						logger.info(s"adding $added")
+						added.foreach(id => context.actorSelection("/user/clockwork") ! viscel.core.Clockwork.Enqueue(id))
 					}
 					complete { SelectionPage(user) }
 				}

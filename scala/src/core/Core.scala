@@ -26,6 +26,12 @@ trait Core {
 	def archive: ArchiveDescription
 	def wrapArchive(doc: Document): Try[FullArchive]
 	def wrapPage(doc: Document): Try[FullPage]
+	override def equals(other: Any) = other match {
+		case o: Core => id == o.id
+		case _ => false
+	}
+	override def hashCode: Int = id.hashCode
+	override def toString: String = s"$id($name)"
 }
 
 sealed trait ArchiveDescription

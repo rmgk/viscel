@@ -24,95 +24,97 @@ import spray.http.HttpResponse
 import spray.http.Uri
 import viscel._
 import viscel.store._
+import scala.collection._
 
-class Clockwork(system: ActorSystem, ioHttp: ActorRef) extends Logging {
+object Clockwork {
+	case object EnqueueDefault
+	case class Run(id: String)
+	case class Enqueue(id: String)
+	case class Done(core: Core, status: Try[Unit])
+	lazy val availableCores: Seq[Core] = LegacyCores.list ++ Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels, AmazingAgentLuna, SpyingWithLana)
+}
+
+class Clockwork(ioHttp: ActorRef) extends Actor with Logging {
+	import Clockwork._
+
+	var activeCores = Set[Core]()
+	val maxActive = 2
+	val waitingCores = mutable.Queue[Core]()
 
 	val iopipe = {
 		implicit val timeout: Timeout = 30.seconds
-		import system.dispatcher
+		//import system.dispatcher
 		sendReceive(ioHttp)
 	}
 
-	// val cores = DCore.list.cores ++ Seq(CarciphonaWrapper, FlipsideWrapper, FreakAngelsWrapper)
+	def getCollection(core: Core) = {
+		val col = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, core.name))
+		if (col.name != core.name) col.name = core.name
+		col
+	}
 
-	// // def nonChaptered() = cores.foreach { core =>
-	// // 	logger.info(s"start core ${core.id}")
+	def getCore(id: String) = availableCores.find(_.id == id).get
 
-	// // 	new Runner {
-	// // 		def iopipe = Clockwork.this.iopipe
-	// // 		def wrapPage = core.wrapPage _
-	// // 		def collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
-	// // 	}.start(core.first).onComplete {
-	// // 		case Success(_) => logger.info("test complete without errors")
-	// // 		case Failure(e) => e match {
-	// // 			case e: EndRun => logger.info(s"${core.id} complete ${e}")
-	// // 			case e => logger.info(s"${core.id} failed ${e}"); e.printStackTrace
-	// // 		}
-	// // 	}
-	// // }
+	def keepUpdated: Set[String] = ConfigNode().legacyCollections.toSet
 
-	// def chaptered() = DrMcNinjaWrapper.pipe { core =>
-	// 	new ChapteredRunner {
-	// 		def iopipe = Clockwork.this.iopipe
-	// 		def wrapChapter = core.wrapChapter _
-	// 		def wrapPage = core.wrapPage _
-	// 		def collection = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, Some(core.name)))
-	// 	}.start(core.first).onComplete {
-	// 		case Success(_) => logger.info("test complete without errors")
-	// 		case Failure(e) => e match {
-	// 			case e: EndRun => logger.info(s"${core.id} complete ${e}")
-	// 			case e => logger.info(s"${core.id} failed ${e}"); e.printStackTrace
-	// 		}
-	// 	}
-	// }
+	def wantsUpdate(core: Core) = (getCollection(core).lastUpdate + 8 * 60 * 60 * 1000 < System.currentTimeMillis)
 
-	def fullArchive(ocore: Core): Future[Unit] = {
-		val col = CollectionNode(ocore.id).getOrElse(CollectionNode.create(ocore.id, ocore.name))
-		if (col.name != ocore.name) col.name = ocore.name
-		if (col.lastUpdate + 8 * 60 * 60 * 1000 < System.currentTimeMillis) {
-			new ArchiveRunner {
-				def collection = col
-				def core = ocore
-				def iopipe = Clockwork.this.iopipe
-			}.update().andThen {
+	def receive = {
+		case EnqueueDefault =>
+			val keepUp = keepUpdated
+			time("enqueue") { waitingCores.enqueue(availableCores.filter(core => keepUp(core.id) && wantsUpdate(core)): _*) }
+			fillActive()
+		case Enqueue(id) =>
+			waitingCores.enqueue(getCore(id))
+			fillActive()
+		case Run(id) => update(getCore(id))
+		case Done(core, status) =>
+			val col = getCollection(core)
+			status match {
 				case Success(_) =>
 					col.lastUpdate = System.currentTimeMillis
 					logger.info("test complete without errors")
 				case Failure(e) => e match {
 					case e: NormalStatus =>
 						col.lastUpdate = System.currentTimeMillis
-						logger.info(s"${ocore.id} complete ${e}")
+						logger.info(s"${core.id} complete ${e}")
 					case e: FailedStatus if e.getMessage.startsWith("invalid response 302 Found") =>
 						col.lastUpdate = System.currentTimeMillis
-						logger.info(s"${ocore.id} 302 location workaround ${e}")
+						logger.info(s"${core.id} 302 location workaround ${e}")
 					case e: FailedStatus =>
-						logger.info(s"${ocore.id} failed ${e}"); e.printStackTrace
-					case e: AskTimeoutException => logger.info(s"${ocore.id} timed out (system shutdown?)")
-					case e: Throwable => logger.info(s"${ocore.id} unexpected error ${e}"); e.printStackTrace
+						logger.info(s"${core.id} failed ${e}"); e.printStackTrace
+					case e: AskTimeoutException => logger.info(s"${core.id} timed out (system shutdown?)")
+					case e: Throwable => logger.info(s"${core.id} unexpected error ${e}"); e.printStackTrace
 				}
 			}
-		}
-		else Future.successful(())
+			activeCores -= core
+			fillActive()
+			if (activeCores.isEmpty) context.system.scheduler.scheduleOnce(1.hour, self, EnqueueDefault)
+		case msg => logger.warn(s"received unexpected message: $msg")
 	}
 
-	def start() = {
-		def update(): Unit = {
-			val selectedLegacy = ConfigNode().legacyCollections.toSet
-			val legacyCores = LegacyCores.list.filter { lc =>
-				selectedLegacy(lc.id)
-			}
-			val runs = for (
-				//core <- Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels, AmazingAgentLuna, SpyingWithLana)
-				core <- legacyCores
-			) yield { fullArchive(core) }
-			Future.sequence(runs).onComplete {
-				case _ =>
-					try { system.scheduler.scheduleOnce(1.hour) { update() } }
-					catch {
-						case e: IllegalStateException => logger.info(s"could not schedule next update (shutdown?) $e")
-					}
-			}
+	def fillActive() = while (activeCores.size < maxActive && !waitingCores.isEmpty) {
+		update(waitingCores.dequeue)
+	}
+
+	def update(core: Core): Boolean = {
+		if (activeCores(core)) false
+		else {
+			activeCores += core
+			fullArchive(core)
+			true
 		}
-		update()
+	}
+
+	def fullArchive(ocore: Core): Future[Unit] = {
+		val col = getCollection(ocore)
+		new ArchiveRunner {
+			def collection = col
+			def core = ocore
+			def iopipe = Clockwork.this.iopipe
+		}.update().andThen {
+			case status =>
+				self ! Done(ocore, status)
+		}
 	}
 }
