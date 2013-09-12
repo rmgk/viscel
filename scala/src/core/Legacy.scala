@@ -50,8 +50,9 @@ class LegacyCore(val id: String, val name: String, start: String, elementSelecto
 					else res
 				}
 			}.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
-
 			FullPage(elements = elements, next = next, loc = doc.baseUri)
+		}.recoverWith {
+			case FailedStatus(e) => Try { throw EndRun(s"next not found ${e}") }
 		}
 	}
 
@@ -73,7 +74,7 @@ object LegacyCores extends Logging {
 		crit.map { singleTag }.mkString(" ")
 	}
 
-	def list = {
+	val list = time("legacy list") {
 		val collections = UclistPort.get
 		val cols = collections.filter { lc =>
 			val entries = (lc.criteria ++ lc.next.getOrElse(Seq())).flatten :+ lc.url_hack :+ lc.custom_match
