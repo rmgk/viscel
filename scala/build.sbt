@@ -37,7 +37,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
-val sprayVersion = "1.2-20130822"
+val sprayVersion = "1.2-20130912"
 Seq(
 	"com.chuusai" %% "shapeless" % "1.2.4", // apache 2
 	"com.github.axel22" %% "scalameter" % "0.3", // new bsd

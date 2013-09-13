@@ -73,7 +73,7 @@ class Clockwork(ioHttp: ActorRef) extends Actor with Logging {
 			status match {
 				case Success(_) =>
 					col.lastUpdate = System.currentTimeMillis
-					logger.info("test complete without errors")
+					logger.info(s"${core.id} complete without errors")
 				case Failure(e) => e match {
 					case e: NormalStatus =>
 						col.lastUpdate = System.currentTimeMillis

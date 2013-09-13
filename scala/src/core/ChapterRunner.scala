@@ -48,8 +48,10 @@ trait ChapterRunner extends Logging {
 			}
 		}
 
-	def process(page: PageDescription): Future[PageDescription] =
+	def process(page: PageDescription, processed: Set[Uri]): Future[PageDescription] =
 		pageRunner(page).flatMap { newPage =>
+			newPage.validate(p => !forbidden(p.loc) && !processed(p.loc), EndRun(s"already visited/forbidden ${newPage.loc}")).toFuture
+		}.flatMap { newPage =>
 			pageRunner.nodes(newPage).map { nodes =>
 				nodes.foreach { chapterNode.append(_) }
 				newPage
@@ -58,9 +60,12 @@ trait ChapterRunner extends Logging {
 
 	def append(page: PageDescription, processed: Set[Uri] = Set()): Future[Unit] = {
 		page.validate(p => !forbidden(p.loc) && !processed(p.loc), EndRun(s"already visited/forbidden ${page.loc}")).toFuture
-			.flatMap { process }
-			.flatMap { next(_).toFuture }
-			.flatMap { append(_, processed + page.loc) }
+			.flatMap { process(_, processed) }
+			.flatMap { pp =>
+				next(pp).toFuture.flatMap {
+					append(_, processed + page.loc + pp.loc)
+				}
+			}
 	}
 
 	def validatePage(oen: Option[ElementNode], page: PageDescription): Try[PageDescription] = {
@@ -115,6 +120,7 @@ trait ChapterRunner extends Logging {
 				case e: CoreStatus =>
 					logger.warn(s"failure on page for validation, backtracking (${e.getMessage})")
 					p.completeWith(backtrack(page))
+				case e => p.failure(e)
 			}
 		}
 

@@ -43,13 +43,15 @@ class LegacyCore(val id: String, val name: String, start: String, elementSelecto
 				}.pipe { res =>
 					if (res.isFailure || res.get.attr("href") == "" || res.get.attr("href").matches("""(?i).*\.(jpe?g|gif|png|bmp)(\W|$).*"""))
 						Try {
-							val candidates = doc.select("a[rel=next], a:contains(next)")
+							val candidates = doc.select("a[rel=next], a:contains(next)") ++ doc.select("a").filter(_.html.matches("""(?im).*next.*"""))
 							if (candidates.isEmpty) throw EndRun("no next found")
 							else candidates(0)
 						}
 					else res
 				}
-			}.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }
+			}.map { _.attr("abs:href").pipe { Uri.parseAbsolute(_) }.pipe { PagePointer(_) } }.recoverWith {
+				case FailedStatus(e) => Try(throw EndRun(s"could not find next $e"))
+			}
 			FullPage(elements = elements, next = next, loc = doc.baseUri)
 		}.recoverWith {
 			case FailedStatus(e) => Try { throw EndRun(s"next not found ${e}") }

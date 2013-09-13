@@ -202,7 +202,7 @@ object InverlochArchive extends Core with WrapperTools with Logging {
 	def wrapPage(doc: Document): Try[FullPage] =
 		doc.select("#main").validate(_.size == 1, FailRun(s"no image found ${doc.baseUri}")).map { main =>
 			val ed = main.select("> p > img").map { imgToElement }
-			val next = Try { main(0).getElementsContainingOwnText("Next").attr("abs:href").pipe { absuri }.pipe { PagePointer(_) } }
+			val next = selectNext(main(0), "a:containsOwn(Next)")
 			FullPage(loc = doc.baseUri, elements = ed, next = (next))
 		}
 }

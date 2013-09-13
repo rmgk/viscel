@@ -29,11 +29,12 @@ class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {
 		div.cls("info")(make_table(
 			"Downloaded :" -> cn.downloaded.toString,
 			"Downloads :" -> cn.downloads.toString,
+			"Compressed Downloads :" -> cn.downloadsCompressed.toString,
 			"Failed Downloads :" -> cn.downloadsFailed.toString,
-			"Uptime                : " -> stats.uptime.toString,
 			"Collections :" -> Neo.nodes(label.Collection).size.toString,
 			"Chapters : " -> Neo.nodes(label.Chapter).size.toString,
 			"Elements : " -> Neo.nodes(label.Element).size.toString,
+			"Uptime                : " -> stats.uptime.toString,
 			"Total requests        : " -> stats.totalRequests.toString,
 			"Open requests         : " -> stats.openRequests.toString,
 			"Max open requests     : " -> stats.maxOpenRequests.toString,

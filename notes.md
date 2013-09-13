@@ -42,3 +42,10 @@
 | DrMcNinja   | not today pal                      | <http://www.drmcninja.com/mcdonalds.html>                     |
 | Shiniez     | deviant art                        | <http://shiniez.deviantart.com/gallery/35675685>              |
 | BloodStain  | devian art                         | <http://sigeel.deviantart.com/art/the-title-is-out-346949185> |
+
+# broken comics 
+
+|     comic     |       problem       |                   url                    |
+| ------------- | ------------------- | ---------------------------------------- |
+| Universal_Key | page layout changes | <http://key.shadilyn.com/pages/085.html> |
+|               |                     |                                          |
