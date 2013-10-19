@@ -1,5 +1,7 @@
 *.sublime-workspace
 .codeintel
+.idea
+.idea_modules
 .tags*
 cache
 data
