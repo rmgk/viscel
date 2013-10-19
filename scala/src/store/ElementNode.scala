@@ -9,10 +9,11 @@ import org.neo4j.graphdb.Direction
 import scala.collection.JavaConversions._
 import scala.language.implicitConversions
 import util.Try
+import viscel.time
 
 class ElementNode(val self: Node) extends ViscelNode with ContainableNode[ElementNode] {
 	def selfLabel = label.Element
-	def makeSelf = ElementNode(_)
+	def makeSelf = ElementNode.apply _
 
 	def chapter: ChapterNode = Neo.txs { self.to(rel.parent).map { ChapterNode(_) }.get }
 	def collection: CollectionNode = Neo.txs { chapter.collection }
@@ -46,6 +47,8 @@ class ElementNode(val self: Node) extends ViscelNode with ContainableNode[Elemen
 	def apply[T](k: String) = Neo.txs { self[T](k) }
 	def get[T](k: String) = Neo.txs { self.get[T](k) }
 	def origin = Neo.txs { self[String]("origin") }
+
+	override def toString = s"$selfLabel(${collection.name}, ${chapter.position}, $position)"
 }
 
 object ElementNode {

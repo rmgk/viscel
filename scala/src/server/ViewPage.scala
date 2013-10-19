@@ -14,7 +14,7 @@ import viscel.store.ViscelNode
 import viscel.store.{ Util => StoreUtil }
 import viscel._
 
-class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with JavascriptNavigation with MaskLocation {
+class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with MetaNavigation with MaskLocation {
 	val collection = enode.collection
 
 	override def Title = s"${enode.position} – ${enode.chapter.name} – ${collection.name}"

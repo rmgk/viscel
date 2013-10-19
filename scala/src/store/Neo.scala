@@ -13,7 +13,7 @@ import org.neo4j.tooling.GlobalGraphOperations
 import scala.collection.JavaConversions._
 import viscel.time
 
-object Neo {
+object Neo extends Logging {
 	val db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("neoViscelStore")
 		.setConfig(Map("keep_logical_logs" -> "false")).newGraphDatabase().asInstanceOf[GraphDatabaseAPI]
 	val ee = new ExecutionEngine(db)
@@ -24,32 +24,38 @@ object Neo {
 
 	def shutdown() = db.shutdown()
 
-	def node(label: Label, property: String, value: Any) = tx { db =>
+	def node(label: Label, property: String, value: Any) = txt(s"query $label($property=$value)") { db =>
 		db.findNodesByLabelAndProperty(label, property, value).toStream match {
 			case Stream(node) => Some(node)
 			case Stream() => None
-			case Stream(_, _) => throw new java.lang.IllegalStateException(s"found more than one entry for ($label) ${property}: $value")
+			case Stream(_, _) => throw new java.lang.IllegalStateException(s"found more than one entry for $label($property=$value)")
 		}
 	}
 
 	def nodes(label: Label) = txs { GlobalGraphOperations.at(db).getAllNodesWithLabel(label).toIndexedSeq }
 
 	def create(label: Label, attributes: (String, Any)*): Node = Neo.tx { db =>
+		logger.info(s"create node $label($attributes)")
 		val node = db.createNode(label)
 		node.setProperty("created", System.currentTimeMillis)
 		attributes.foreach { case (k, v) => node.setProperty(k, v) }
 		node
 	}
 
+	def delete(node: Node) = txs {
+		node.getRelationships.foreach { _.delete() }
+		node.delete()
+	}
+
 	def tx[R](f: GraphDatabaseService => R): R = {
 		val tx = db.beginTx() //db.tx.unforced.begin()
 		try {
 			val res = f(db)
-			tx.success
+			tx.success()
 			res
 		}
 		finally {
-			tx.finish
+			tx.close()
 		}
 	}
 

@@ -9,7 +9,7 @@ import scala.concurrent.future
 import scala.concurrent.Future
 import spray.can.Http
 import spray.can.server.Stats
-import spray.http.{ MediaTypes, ContentType, FormData }
+import spray.http.{ MediaTypes, ContentType, FormData, HttpResponse }
 import spray.httpx.encoding.{ Gzip, Deflate, NoEncoding }
 import spray.routing.authentication._
 import spray.routing.directives.ContentTypeResolver
@@ -20,10 +20,11 @@ import viscel.store.ConfigNode
 import viscel.store.UserNode
 import viscel.store.ViscelNode
 import viscel.time
+import spray.routing.directives.CachingDirectives._
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
-class Server extends Actor with DefaultRoutes {
+class Server extends Actor with DefaultRoutes with Logging {
 
 	// the HttpService trait defines only one abstract member, which
 	// connects the services environment to the enclosing actor or test
@@ -32,7 +33,7 @@ class Server extends Actor with DefaultRoutes {
 	// this actor only runs our route, but you could add
 	// other things here, like request stream processing,
 	// timeout handling or alternative handler registration
-	def receive = runRoute {
+	override def receive = runRoute {
 		//(encodeResponse(Gzip) | encodeResponse(Deflate) | encodeResponse(NoEncoding)) {
 		authenticate(loginOrCreate) { user => handleFormFields(user) }
 		//}
@@ -40,7 +41,7 @@ class Server extends Actor with DefaultRoutes {
 
 }
 
-trait DefaultRoutes extends HttpService with Logging {
+trait DefaultRoutes extends HttpService {
 	this: Server =>
 
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
@@ -48,19 +49,23 @@ trait DefaultRoutes extends HttpService with Logging {
 
 	def hashToFilename(h: String): String = (new StringBuilder(h)).insert(2, '/').insert(0, "../cache/").toString
 
+	var userCache = Map[String, UserNode]()
+
+	def getUserNode(name: String, password: String) =
+		userCache.get(name).getOrElse {
+			UserNode(name).getOrElse {
+				logger.warn(s"create new user $name $password")
+				UserNode.create(name, password)
+			}.tap(user => userCache += name -> user)
+		}
+
 	val loginOrCreate = BasicAuth(UserPassAuthenticator[UserNode] {
 		case Some(UserPass(user, password)) =>
 			logger.trace(s"login: $user $password")
 			// time("login") {
 			if (user.matches("\\w+")) {
 				Future.successful {
-					UserNode(user).orElse {
-						logger.warn(s"create new user $user $password")
-						Some(UserNode.create(user, password))
-					}.flatMap { un =>
-						if (un.password == password) Some(un)
-						else None
-					}
+					Some(getUserNode(user, password)).filter(_.password == password)
 				}
 			}
 			else { Future.successful(None) }
@@ -108,7 +113,11 @@ trait DefaultRoutes extends HttpService with Logging {
 			} ~
 			path("v" / Segment / IntNumber / IntNumber) { (col, chapter, pos) =>
 				rejectNone(CollectionNode(col)) { cn =>
-					complete(viewFallback(user, cn, chapter, pos))
+					rejectNone(cn(chapter)) { chapnode =>
+						rejectNone(chapnode(pos)) { en =>
+							complete(ViewPage(user, en))
+						}
+					}
 				}
 			} ~
 			path("i" / IntNumber) { id =>
@@ -130,7 +139,7 @@ trait DefaultRoutes extends HttpService with Logging {
 			} ~
 			path("select") {
 				entity(as[FormData]) { form =>
-					if (form.fields.get("select_cores") == Some("apply")) {
+					if (form.fields.contains(("select_cores", "apply"))) {
 						val applied = form.fields.collect { case (col, "select") => col }.toSeq
 						val config = ConfigNode()
 						logger.info(s"selecting $applied")
@@ -144,9 +153,5 @@ trait DefaultRoutes extends HttpService with Logging {
 				}
 			}
 
-	def rejectNone[T](opt: Option[T])(route: T => Route) = opt.map { route(_) }.getOrElse(reject)
-
-	//def viewFallback(user: UserNode, cn: CollectionNode, chapter: Int) = cn(chapter).map { ChapterPage(user, _) }.getOrElse { FrontPage(user, cn) }
-	def viewFallback(user: UserNode, cn: CollectionNode, chapter: Int, pos: Int) = cn(chapter).flatMap { _(pos).map { ViewPage(user, _) } }.getOrElse { FrontPage(user, cn) }
-
+	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route(_) }.getOrElse(reject)
 }

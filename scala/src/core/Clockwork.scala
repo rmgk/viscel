@@ -31,7 +31,7 @@ object Clockwork {
 	case class Run(id: String)
 	case class Enqueue(id: String)
 	case class Done(core: Core, status: Try[Unit])
-	lazy val availableCores: Seq[Core] = LegacyCores.list ++ Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels, AmazingAgentLuna, SpyingWithLana)
+	lazy val availableCores: Seq[Core] = LegacyCores.list ++ Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels, AmazingAgentLuna, SpyingWithLana, Misfile)
 }
 
 class Clockwork(ioHttp: ActorRef) extends Actor with Logging {

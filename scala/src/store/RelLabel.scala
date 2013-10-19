@@ -14,6 +14,9 @@ package label {
 	case object Bookmark extends SimpleLabel("Bookmark")
 	case object Config extends SimpleLabel("Config")
 	case object Chapter extends SimpleLabel("Chapter")
+	case object Page extends SimpleLabel("Archive")
+	case object Structure extends SimpleLabel("Structure")
+
 }
 
 package rel {
@@ -27,5 +30,7 @@ package rel {
 	case object bookmark extends SimpleRelationshipType("bookmark")
 	case object first extends SimpleRelationshipType("first")
 	case object last extends SimpleRelationshipType("last")
+	case object archive extends SimpleRelationshipType("archive")
+	case object describes extends SimpleRelationshipType("describes")
 
 }

@@ -16,11 +16,11 @@ trait NodeContainer[ChildType <: ContainableNode[ChildType]] extends ViscelNode 
 
 	def makeChild: Node => ChildType
 
-	def last = Neo.txs { self.to(rel.last).map { makeChild } }
-	def first = Neo.txs { self.to(rel.first).map { makeChild } }
-	def size = Neo.txs { last.map { _.position }.getOrElse(0) }
+	def last: Option[ChildType] = Neo.txs { self.to(rel.last).map { makeChild } }
+	def first: Option[ChildType] = Neo.txs { self.to(rel.first).map { makeChild } }
+	def size: Int = Neo.txs { last.map { _.position }.getOrElse(0) }
 
-	def apply(pos: Int) = Neo.txs {
+	def apply(pos: Int) = Neo.txts(s"query $this($pos)") {
 		children.find { _.position == pos }
 	}
 

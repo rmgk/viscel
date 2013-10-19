@@ -22,6 +22,24 @@ scalacOptions ++= Seq(
 	"-Xlint"
 )
 
+javaOptions ++= Seq(
+	"-verbose:gc",
+	"-XX:+PrintGCDetails",
+	"-Xverify:none",
+	//"-server",
+	//"-Xms16m",
+	//"-Xmx1g",
+	//"-XX:MinHeapFreeRatio=5",
+	//"-XX:MaxHeapFreeRatio=10",
+	//"-XX:NewRatio=12",
+	//"-XX:+UseSerialGC",
+	//"-XX:+UseParallelGC",
+	//"-XX:+UseParallelOldGC",
+	//"-XX:+UseConcMarkSweepGC",
+	//"-XX:+PrintTenuringDistribution",
+	""
+)
+
 scalariformSettings
 
 ScalariformKeys.preferences := FormattingPreferences()
@@ -37,20 +55,17 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
-val sprayVersion = "1.2-20130912"
+val sprayVersion = "1.2-20131011"
+val neoVersion = "2.0.0-M06"
 Seq(
-	"com.chuusai" %% "shapeless" % "1.2.4", // apache 2
-	"com.github.axel22" %% "scalameter" % "0.3", // new bsd
-	"com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2", // scala license (bsdish)
-	"com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
-	"com.github.scopt" %% "scopt" % "3.1.0", // mit
-	"com.github.theon" %% "scala-uri" % "0.4.0-SNAPSHOT", // apache 2
-	"com.scalatags" %% "scalatags" % "0.1.4", // mit (according to pom)
-	"com.twitter" %% "util-eval" % "6.5.0", // apache 2
-	"com.typesafe" %% "scalalogging-slf4j" % "1.0.1", // apache 2
-	"com.typesafe.akka" %% "akka-actor" % "2.2.0", // apache 2
+	// Database
+	"org.neo4j" % "neo4j" % neoVersion, // gpl3
+	"org.neo4j" % "neo4j-graphviz" % neoVersion,
+	"org.neo4j" % "neo4j-kernel" % neoVersion % "test" classifier "tests",
+	"org.slf4j" % "slf4j-simple" % "1.7.5", // mit
 	"com.typesafe.slick" %% "slick" % "1.0.1", // bsdish
-	"commons-lang" % "commons-lang" % "2.6", // apache 2
+	"org.xerial" % "sqlite-jdbc" % "3.7.2", // apache2
+	// Webserver
 	"io.spray" % "spray-caching" % sprayVersion, // apache 2
 	"io.spray" % "spray-can" % sprayVersion,
 	"io.spray" % "spray-client" % sprayVersion,
@@ -59,18 +74,28 @@ Seq(
 	"io.spray" % "spray-routing" % sprayVersion,
 	"io.spray" % "spray-util" % sprayVersion,
 	"io.spray" %% "spray-json" % "1.2.5",
+	// HTML
+	"com.github.theon" %% "scala-uri" % "0.4.0-SNAPSHOT", // apache 2
 	"org.jsoup" % "jsoup" % "1.7.2", // mit
-	"org.neo4j" % "neo4j" % "2.0.0-M04", // gpl3
-	"org.neo4j" % "neo4j-graphviz" % "2.0.0-M04",
-	"org.rogach" %% "scallop" % "0.9.4", //mit
-	"org.scala-lang" % "jline" % "2.10.2",
-	"net.sf.jopt-simple" % "jopt-simple" % "4.5", // mit
-	"org.slf4j" % "slf4j-simple" % "1.7.5", // mit
-	"org.xerial" % "sqlite-jdbc" % "3.7.2", // apache2
+	"com.scalatags" %% "scalatags" % "0.1.4", // mit (according to pom)
 	// "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5", // bsd
 	// "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1", // apache2
-	"org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
-	"org.neo4j" % "neo4j-kernel" % "2.0.0-M04" % "test" classifier "tests"
+	// Commandline
+	"org.scala-lang" % "jline" % "2.10.3",
+	"net.sf.jopt-simple" % "jopt-simple" % "4.5", // mit
+	// "com.github.scopt" %% "scopt" % "3.1.0", // mit
+	// "org.rogach" %% "scallop" % "0.9.4", //mit
+	// Tests
+	"com.github.axel22" %% "scalameter" % "0.3", // new bsd
+	"org.scalatest" %% "scalatest" % "1.9.1" % "test",
+	// Misc
+	"com.chuusai" %% "shapeless" % "1.2.4", // apache 2
+	"com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2", // scala license (bsdish)
+	"com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
+	"com.typesafe" %% "scalalogging-slf4j" % "1.0.1", // apache 2
+	// "com.twitter" %% "util-eval" % "6.5.0", // apache 2
+	"com.typesafe.akka" %% "akka-actor" % "2.2.1", // apache 2
+	"commons-lang" % "commons-lang" % "2.6" // apache 2
 )
 }
 

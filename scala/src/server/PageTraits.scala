@@ -62,8 +62,11 @@ trait HtmlPageUtils {
 
 }
 
-trait JavascriptNavigation extends HtmlPage {
-	override def header = super.header(script(scala.xml.Unparsed(keyNavigation(up = navUp, down = navDown, prev = navPrev, next = navNext))))
+trait MetaNavigation extends HtmlPage {
+	override def header = super.header(
+		script(scala.xml.Unparsed(keyNavigation(up = navUp, down = navDown, prev = navPrev, next = navNext))),
+		navNext.map { link.rel("next").href(_) }.getOrElse(""),
+		navPrev.map { link.rel("prev").href(_) }.getOrElse(""))
 
 	def navUp: Option[String] = None
 	def navNext: Option[String] = None

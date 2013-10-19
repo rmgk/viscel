@@ -14,7 +14,7 @@ import viscel.store.ViscelNode
 import viscel.store.{ Util => StoreUtil }
 import viscel.time
 
-class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with JavascriptNavigation {
+class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation {
 	override def Title = collection.name
 	override def bodyId = "front"
 	override def maskLocation = path_front(collection.id)

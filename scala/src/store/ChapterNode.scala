@@ -34,6 +34,8 @@ class ChapterNode(val self: Node) extends NodeContainer[ElementNode] with Contai
 
 	def apply(k: String) = Neo.txs { self[String](k) }
 	def get(k: String) = Neo.txs { self.get[String](k) }
+
+	override def toString = s"$selfLabel(${collection.name}, $name)"
 }
 
 object ChapterNode {

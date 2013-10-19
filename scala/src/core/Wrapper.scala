@@ -49,6 +49,29 @@ trait WrapperTools extends Logging {
 		if (from.tag.getName == tagname) Some(from)
 		else from.parents.find(_.tag.getName == tagname)
 }
+
+object Misfile extends Core with WrapperTools with Logging {
+	def archive = ArchivePointer("http://www.misfile.com/archives.php?arc=1&displaymode=wide")
+	def id: String = "AX_Misfile"
+	def name: String = "Misfile"
+
+	def wrapArchive(doc: Document): Try[FullArchive] = Try {
+		val chapters = doc.select("#comicbody a:matchesOwn(^Book #\\d+$)").map { anchor => LinkedChapter(first = PagePointer(anchor.attr("abs:href")), name = anchor.ownText) }
+		FullArchive(LinkedChapter(name = "Book #1", first = PagePointer(doc.baseUri)) +: chapters)
+	}
+
+	def wrapPage(doc: Document): Try[FullPage] =
+		selectUnique(doc, ".comiclist table.wide_gallery").map { clist =>
+			val elements = clist.select("[id~=^comic_\\d+$] .picture a").map { anchor =>
+				ElementDescription(origin = anchor.attr("abs:href"), source = anchor.select("img").attr("abs:src").replace("/t", "/"))
+			}
+			val next = Try { PagePointer(doc.select("a.next")(0).attr("abs:href")) }.recoverWith {
+				case e: IndexOutOfBoundsException => Try(throw EndRun("no next found"))
+			}
+			FullPage(loc = doc.baseUri, elements = elements, next = (next))
+		}
+}
+
 object SpyingWithLana extends Core with WrapperTools with Logging {
 	def archive = ArchivePointer("http://www.amazingartbros.com/Webcomics")
 	def id: String = "AX_SpyingWithLana"

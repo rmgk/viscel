@@ -24,7 +24,7 @@ class IndexPage(user: UserNode) extends HtmlPage {
 	override def navigation = link_stop("stop")
 
 	override def mainPart = {
-		val bookmarks = user.bookmarks.toStream
+		val bookmarks = user.bookmarks.toIndexedSeq
 		val (unread, current) = bookmarks.map { bm => (bm.collection, bm.collection.name, bm.distanceToLast) }.partition { _._3 > 0 }
 		val unreadTags = unread.sortBy { -_._3 }.map { case (id, name, unread) => link_node(id, s"$name ($unread)") }
 		val currentTags = current.sortBy { _._2 }.map { case (id, name, unread) => link_node(id, s"$name") }

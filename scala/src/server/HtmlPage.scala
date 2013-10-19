@@ -16,7 +16,7 @@ import viscel.time
 
 trait HtmlPage extends HtmlPageUtils {
 
-	def response: HttpResponse = time(s"create response $Title") {
+	def response: HttpResponse = Neo.txts(s"create response $Title") {
 		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
 			"<!DOCTYPE html>" + fullHtml.toXML.toString))
 	}
