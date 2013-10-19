@@ -1,3 +1,11 @@
+# comics to look into
+
+|       name       |                    url                    |
+|------------------|-------------------------------------------|
+| Destiny Fails Us | <http://destinyfailsus.com/comics/first/> |
+
+
+
 # comic groups to look into
 
 |      group       |                     url                      |
@@ -29,7 +37,6 @@
 | AngelMoxie         | <http://www.venisproductions.com/angelmoxie/archives/0/0/001.html> |
 | Spying with Lana   | <http://www.amazingartbros.com/Lana2>                              |
 
-
 # comics with other problems
 
 |    comic    |              problem               |                              url                              |
@@ -43,7 +50,7 @@
 | Shiniez     | deviant art                        | <http://shiniez.deviantart.com/gallery/35675685>              |
 | BloodStain  | devian art                         | <http://sigeel.deviantart.com/art/the-title-is-out-346949185> |
 
-# broken comics 
+# broken comics
 
 |     comic     |       problem       |                   url                    |
 | ------------- | ------------------- | ---------------------------------------- |
