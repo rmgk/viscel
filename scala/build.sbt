@@ -5,7 +5,7 @@ name := "ScalaViscel"
 
 version := "5.0.0-β"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.10.3"
 
 scalaSource in Compile <<= baseDirectory {(base) => new File(base, "src")}
 
