@@ -13,7 +13,7 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 	override def preStart() = Neo.txs { append(collection, core.archive) }
 
 	def undescribed: Seq[PageNode] = ArchiveNode(collection).map { an =>
-		ArchiveNode.foldChildren(Seq[PageNode](), an) {
+		ArchiveNode.foldNext(Seq[PageNode](), an) {
 			case (acc, pn: PageNode) => if (pn.describes.isEmpty) acc :+ pn else acc
 			case (acc, sn: StructureNode) => acc
 		}
