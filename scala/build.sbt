@@ -104,7 +104,7 @@ initialCommands in console := """
 import akka.actor.{ ActorSystem, Props, Actor }
 import akka.io.IO
 import akka.util.Timeout
-import com.twitter.util.Eval
+//import com.twitter.util.Eval
 import com.typesafe.scalalogging.slf4j.Logging
 import org.jsoup._
 import org.neo4j.graphdb._

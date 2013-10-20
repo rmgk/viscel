@@ -9,6 +9,7 @@ import org.neo4j.graphdb.Label
 import org.neo4j.graphdb.Direction
 import scala.collection.JavaConversions._
 import util.Try
+import viscel.newCore.{ PageNode, StructureNode }
 import viscel.time
 import viscel._
 
@@ -40,7 +41,7 @@ class UnlabeledNode(val self: Node) extends ViscelNode {
 }
 
 object ViscelNode {
-	def apply(node: Node): Try[ViscelNode] = Neo.txs { node.getLabels.toList } match {
+	def apply(node: Node): Try[ViscelNode] = Neo.txs { node.getLabels.to[List] } match {
 		case List() => Try(new UnlabeledNode(node))
 		case List(l) if l == label.Chapter => Try(ChapterNode(node))
 		case List(l) if l == label.Collection => Try(CollectionNode(node))
@@ -48,8 +49,10 @@ object ViscelNode {
 		case List(l) if l == label.Element => Try(ElementNode(node))
 		case List(l) if l == label.User => Try(UserNode(node))
 		case List(l) if l == label.Bookmark => Try(new ViscelNode { def self = node; def selfLabel = label.Bookmark })
-		case List(l) => failure(s"unhandled label $l")
-		case list @ List(_) => failure(s"to many labels $list")
+		case List(l) if l == label.Structure => Try(StructureNode(node))
+		case List(l) if l == label.Page => Try(PageNode(node))
+		case List(l) => failure(s"unhandled label $l for $node")
+		case list: List[_] => failure(s"to many labels $list for $node")
 	}
 	def apply(id: Long): Try[ViscelNode] = Try { Neo.tx { _.getNodeById(id) } }.flatMap { apply }
 }

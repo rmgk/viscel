@@ -12,7 +12,7 @@ import spray.http.Uri
 import viscel._
 import scala.collection.JavaConversions._
 import scala.language.dynamics
-import com.twitter.util.Eval
+//import com.twitter.util.Eval
 import scala.util.matching.Regex
 
 case class LegacyCollection(

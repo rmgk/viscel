@@ -20,6 +20,22 @@ object ArchiveNode {
 		case List(l) if l == label.Structure => StructureNode(node)
 	}
 	def apply(id: Long): ArchiveNode = apply(Neo.tx { _.getNodeById(id) })
+	def apply(cn: CollectionNode): Option[ArchiveNode] = Neo.txs { cn.self.to(rel.archive).map { apply } }
+
+	def foldChildren[A] = fold[A](nextFirst = false)_
+	def foldNext[A] = fold[A](nextFirst = true)_
+
+	def fold[A](nextFirst: Boolean)(acc: A, an: ArchiveNode)(op: (A, ArchiveNode) => A): A = {
+		val res = op(acc, an)
+		an match {
+			case pn: PageNode => pn.describes.fold(res)(desc => fold(nextFirst)(res, desc)(op))
+			case sn: StructureNode =>
+				def resChildren(inter: A): A = sn.children.foldLeft(inter)((acc, child) => fold(nextFirst)(acc, child)(op))
+				def resNext(inter: A): A = sn.next.fold(inter)(next => fold(nextFirst)(inter, next)(op))
+				if (nextFirst) resChildren(resNext(res))
+				else resNext(resChildren(res))
+		}
+	}
 }
 
 class PageNode(val self: Node) extends ArchiveNode {
@@ -27,6 +43,7 @@ class PageNode(val self: Node) extends ArchiveNode {
 
 	def location: AbsUri = Neo.txs { self[String]("location") }
 	def pagetype: String = Neo.txs { self[String]("pagetype") }
+	def pointerDescription: PointerDescription = Neo.txs { PointerDescription(location, pagetype) }
 
 	def sha1 = Neo.txs { self.get[String]("sha1") }
 	def sha1_=(sha: String) = Neo.txs { self.setProperty("sha1", sha) }

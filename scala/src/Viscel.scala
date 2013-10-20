@@ -20,16 +20,16 @@ import scala.util.Try
 import spray.can.Http
 import spray.client.pipelining._
 import spray.http.Uri
-import viscel.core._
+import viscel.newCore._
 import viscel.store._
 
 object Viscel extends Logging {
 
-	def main(args: Array[String]): Unit = run(args)
+	def main(args: Array[String]): Unit = run(args: _*)
 
-	def run(args: Array[String]) = {
+	def run(args: String*) = {
 		import Opts._
-		val formatWidth = try { (new scala.tools.jline.console.ConsoleReader()).getTerminal.getWidth }
+		val formatWidth = try { new scala.tools.jline.console.ConsoleReader().getTerminal.getWidth }
 		catch { case e: Throwable => 80 }
 		formatHelpWith(new BuiltinHelpFormatter(formatWidth, 4))
 		implicit val conf = try {
