@@ -1,40 +1,28 @@
 package viscel.server
 
-import com.typesafe.scalalogging.slf4j.Logging
-import scala.xml.Elem
-import scala.xml.Node
-import scala.xml.NodeSeq
-import scalatags._
-import spray.http.{ HttpResponse, HttpEntity, MediaTypes, ContentType, HttpCharsets }
-import viscel.store.CollectionNode
-import viscel.store.ElementNode
-import viscel.store.Neo
 import viscel.store.UserNode
-import viscel.store.ConfigNode
-import viscel.store.ViscelNode
 import viscel.store.{ Util => StoreUtil }
-import viscel.time
-import viscel._
 
 class SelectionPage(user: UserNode) extends HtmlPage {
 	override def Title = "Select"
 	override def bodyId = "select"
 
 	def mainPart = {
-		val known = ConfigNode().legacyCollections
-		fieldset.cls("info")(legend("Select Cores"),
-			form_post("select", {
-				val stored = Neo.txs { viscel.store.Util.list.map { _.id }.toSet }
-				viscel.core.Clockwork.availableCores.map { _.id }.toSeq.sorted
-					.map { id =>
-						Seq[STag](input.ctype("checkbox").name(id).value("select").pipe {
-							case inp if known.contains(id) => inp.attr("checked" -> "checked")
-							case inp => inp
-						}, if (stored(id)) b(id) else id, <br/>)
-					}
-			},
-				input.ctype("submit").name("select_cores").value("apply"),
-				input.ctype("reset").value("reset")))
+		"nothing to see, move along"
+		//		val known = ConfigNode().legacyCollections
+		//		fieldset.cls("info")(legend("Select Cores"),
+		//			form_post("select", {
+		//				val stored = Neo.txs { viscel.store.Util.list.map { _.id }.toSet }
+		//				viscel.core.Clockwork.availableCores.map { _.id }.toSeq.sorted
+		//					.map { id =>
+		//						Seq[STag](input.ctype("checkbox").name(id).value("select").pipe {
+		//							case inp if known.contains(id) => inp.attr("checked" -> "checked")
+		//							case inp => inp
+		//						}, if (stored(id)) b(id) else id, <br/>)
+		//					}
+		//			},
+		//				input.ctype("submit").name("select_cores").value("apply"),
+		//				input.ctype("reset").value("reset")))
 	}
 
 	def navigation = link_main("index")

@@ -1,17 +1,11 @@
 package viscel.store
 
 import com.typesafe.scalalogging.slf4j.Logging
-import org.neo4j.cypher.ExecutionEngine
-import org.neo4j.graphdb.DynamicLabel
-import org.neo4j.graphdb.DynamicRelationshipType
-import org.neo4j.graphdb.Node
 import org.neo4j.graphdb.Label
-import org.neo4j.graphdb.Direction
-import scala.collection.JavaConversions._
+import org.neo4j.graphdb.Node
 import util.Try
-import viscel.newCore.{ PageNode, StructureNode }
-import viscel.time
 import viscel._
+import scala.collection.JavaConversions._
 
 trait ViscelNode extends Logging {
 	def self: Node

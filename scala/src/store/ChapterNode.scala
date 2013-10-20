@@ -1,36 +1,15 @@
 package viscel.store
 
-import com.typesafe.scalalogging.slf4j.Logging
-import org.neo4j.cypher.ExecutionEngine
-import org.neo4j.graphdb.DynamicLabel
-import org.neo4j.graphdb.DynamicRelationshipType
 import org.neo4j.graphdb.Node
-import org.neo4j.graphdb.Direction
-import scala.collection.JavaConversions._
-import util.Try
-import viscel.time
 
-class ChapterNode(val self: Node) extends NodeContainer[ElementNode] with ContainableNode[ChapterNode] {
+class ChapterNode(val self: Node) extends ViscelNode {
 
 	def selfLabel = label.Chapter
-	def makeChild = ElementNode(_)
-	def makeSelf = ChapterNode(_)
 
-	def name = Neo.txs { self[String]("name") }
+	def name: String = Neo.txs { self[String]("name") }
 
 	def collection = Neo.txs { self.to(rel.parent).map { CollectionNode(_) }.get }
-
-	def dropLast(origin: String): Unit = Neo.txs {
-		last match {
-			case Some(ln) if ln.origin == origin =>
-				ln.prev.foreach { pn =>
-					self.createRelationshipTo(pn.self, rel.last)
-				}
-				ln.deleteNode()
-				dropLast(origin)
-			case _ => ()
-		}
-	}
+	def collection_=(cn: CollectionNode) = Neo.txs { self.to_=(rel.parent, cn.self) }
 
 	def apply(k: String) = Neo.txs { self[String](k) }
 	def get(k: String) = Neo.txs { self.get[String](k) }

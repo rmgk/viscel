@@ -1,19 +1,9 @@
 package viscel.server
 
-import com.typesafe.scalalogging.slf4j.Logging
-import scala.xml.Elem
-import scala.xml.Node
-import scala.xml.NodeSeq
 import scalatags._
-import spray.http.{ HttpResponse, HttpEntity, MediaTypes, ContentType, HttpCharsets }
-import viscel.store.CollectionNode
-import viscel.store.ElementNode
-import viscel.store.Neo
 import viscel.store.UserNode
-import viscel.store.ViscelNode
 import viscel.store.{ Util => StoreUtil }
-import viscel.time
-import viscel._
+import scala.collection.JavaConversions._
 
 class IndexPage(user: UserNode) extends HtmlPage {
 	override def Title = "Index"

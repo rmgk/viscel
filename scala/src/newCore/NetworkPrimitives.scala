@@ -1,26 +1,18 @@
 package viscel.newCore
 
-import akka.actor.{ ActorSystem, Props, Actor }
-import akka.io.IO
 import com.github.theon.uri.{ Uri => Suri }
 import com.typesafe.scalalogging.slf4j.Logging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.neo4j.graphdb.Direction
-import scala.collection.JavaConversions._
-import scala.concurrent._
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent._
 import scala.util._
-import scalax.io._
-import spray.can.Http
 import spray.client.pipelining._
-import spray.http.ContentType
 import spray.http.HttpCharsets
 import spray.http.HttpEncodings
+import spray.http.HttpHeaders.Location
 import spray.http.HttpHeaders.`Accept-Encoding`
 import spray.http.HttpHeaders.`Content-Type`
-import spray.http.HttpHeaders.Location
 import spray.http.HttpRequest
 import spray.http.HttpResponse
 import spray.http.Uri

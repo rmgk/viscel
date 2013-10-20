@@ -1,18 +1,10 @@
 package viscel.server
 
-import com.typesafe.scalalogging.slf4j.Logging
-import scala.xml.Elem
-import scala.xml.Node
-import scala.xml.NodeSeq
 import scalatags._
-import spray.http.{ HttpResponse, HttpEntity, MediaTypes, ContentType, HttpCharsets }
-import viscel.store.CollectionNode
+import spray.http.MediaTypes
 import viscel.store.ElementNode
-import viscel.store.Neo
-import viscel.store.UserNode
 import viscel.store.ViscelNode
 import viscel.store.{ Util => StoreUtil }
-import viscel.time
 
 trait MaskLocation extends HtmlPage {
 	def maskLocation: String
@@ -36,8 +28,8 @@ trait HtmlPageUtils {
 
 	def link_main(ts: STag*) = a.href(path_main)(ts)
 	def link_stop(ts: STag*) = a.href(path_stop)(ts)
-	def link_front(id: String, ts: STag*) = a.href(path_front(id))(ts)
-	def link_view(id: String, chapter: Int, pos: Int, ts: STag*) = a.href(path_view(id, chapter, pos))(ts)
+	//def link_front(id: String, ts: STag*) = a.href(path_front(id))(ts)
+	//def link_view(id: String, chapter: Int, pos: Int, ts: STag*) = a.href(path_view(id, chapter, pos))(ts)
 	def link_node(vn: ViscelNode, ts: STag*): STag = a.href(path_nid(vn.nid))(ts)
 	def link_node(vn: Option[ViscelNode], ts: STag*): STag = vn.map { link_node(_, ts: _*) }.getOrElse(ts)
 	def link_raw(vn: ViscelNode, ts: STag*): STag = a.href(path_raw(vn.nid))(ts)

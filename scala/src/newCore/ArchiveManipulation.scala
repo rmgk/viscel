@@ -2,7 +2,6 @@ package viscel.newCore
 
 import com.typesafe.scalalogging.slf4j.Logging
 import scala.Some
-import scala.collection.JavaConversions._
 import viscel.store._
 
 trait ArchiveManipulation extends Logging {
@@ -18,19 +17,19 @@ trait ArchiveManipulation extends Logging {
 	def createLinkage(an: ArchiveNode, collection: CollectionNode) = {
 		def link(vns: List[ViscelNode], cn: ChapterNode): Unit = vns match {
 			case Nil => ()
-			case vn :: vns => {
-				vn.self.getRelationships.foreach { rel => if (!rel.isType(viscel.store.rel.describes)) rel.delete() }
+			case vn :: vns =>
 				vn match {
 					case cn: ChapterNode =>
+						cn.collection = collection
 						link(vns, cn)
 					case en: ElementNode =>
-						cn.append(en)
+						en.chapter = cn
 						link(vns, cn)
 				}
-			}
 		}
-		val elements = flattenElements(an)
-		elements.foreach(_.parent = collection)
+		val nodes = an.flatten
+		link(nodes.to[List], null)
+		val elements = nodes.collect { case en: ElementNode => en }
 		elements.reduceLeftOption { (prev, next) =>
 			prev.next = next
 			next

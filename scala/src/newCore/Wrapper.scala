@@ -1,18 +1,13 @@
 package viscel.newCore
 
+import com.github.theon.uri.{ Uri => Suri }
 import com.typesafe.scalalogging.slf4j.Logging
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import org.jsoup.select.Elements
-import scala.collection.JavaConversions._
-import scala.concurrent._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 import scala.util._
-import spray.client.pipelining._
-import spray.http.Uri
-import com.github.theon.uri.{ Uri => Suri }
 import viscel._
+import scala.collection.JavaConversions._
 
 trait WrapperTools extends Logging {
 

@@ -66,13 +66,13 @@ object Viscel extends Logging {
 			viscel.store.Util.purgeUnreferenced()
 		}
 
-		importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir.toString).importAll)
+		//		importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir.toString).importAll)
 
-		for {
-			userpath <- importbookmarks.get
-			uname <- username.get
-			un <- UserNode(uname)
-		} { tools.BookmarkImporter(un, userpath.toString) }
+		//		for {
+		//			userpath <- importbookmarks.get
+		//			uname <- username.get
+		//			un <- UserNode(uname)
+		//		} { tools.BookmarkImporter(un, userpath.toString) }
 
 		for {
 			dotpath <- makedot.get

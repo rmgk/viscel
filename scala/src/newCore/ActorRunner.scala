@@ -1,14 +1,12 @@
 package viscel.newCore
 
-import com.typesafe.scalalogging.slf4j.Logging
-import scala.collection.JavaConversions._
-import scala.Some
-import spray.client.pipelining.SendReceive
-import viscel.store._
-import scala.concurrent.ExecutionContext.Implicits.global
-import akka.actor.{ ActorRef, ActorLogging, Actor }
+import akka.actor.Actor
 import akka.pattern.pipe
 import org.jsoup.nodes.Document
+import scala.Some
+import scala.concurrent.ExecutionContext.Implicits.global
+import spray.client.pipelining.SendReceive
+import viscel.store._
 
 class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: CollectionNode) extends Actor with ArchiveManipulation with NetworkPrimitives {
 

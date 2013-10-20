@@ -1,17 +1,14 @@
 package viscel.newCore
 
 import akka.actor.{ Props, Actor, ActorRef }
-import akka.pattern.AskTimeoutException
 import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.Logging
 import scala.collection._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util._
 import spray.client.pipelining._
 import viscel._
-import viscel.newCore.Core
 import viscel.store._
 
 object Clockwork {

@@ -1,38 +1,32 @@
 package viscel.store
 
 import com.typesafe.scalalogging.slf4j.Logging
-import org.neo4j.cypher.ExecutionEngine
-import org.neo4j.graphdb.Direction
-import org.neo4j.graphdb.DynamicLabel
-import org.neo4j.graphdb.DynamicRelationshipType
-import org.neo4j.graphdb.Node
 import org.neo4j.tooling.GlobalGraphOperations
-import scala.collection.JavaConversions._
-import util.Try
 import viscel.time
+import scala.collection.JavaConversions._
 
 object Util extends Logging {
 
 	def purgeUnreferenced() = {
-		val collections = Neo.txs {
-			list.filter { col =>
-				!col.self.outgoing(rel.bookmark).exists { r =>
-					!Option(r.getEndNode).flatMap { _.from(rel.bookmarked) }.isEmpty
-				}
-			}.toIndexedSeq
-		}
-		collections.foreach { col =>
-			Neo.txs {
-				logger.info(s"deleting ${col.name}")
-				col.children.foreach { ch =>
-					ch.children.foreach { el =>
-						el.deleteNode(warn = false)
-					}
-					ch.deleteNode()
-				}
-				col.deleteNode()
-			}
-		}
+		//		val collections = Neo.txs {
+		//			list.filter { col =>
+		//				!col.self.outgoing(rel.bookmark).exists { r =>
+		//					!Option(r.getEndNode).flatMap { _.from(rel.bookmarked) }.isEmpty
+		//				}
+		//			}.toIndexedSeq
+		//		}
+		//		collections.foreach { col =>
+		//			Neo.txs {
+		//				logger.info(s"deleting ${col.name}")
+		//				col.children.foreach { ch =>
+		//					ch.children.foreach { el =>
+		//						el.deleteNode(warn = false)
+		//					}
+		//					ch.deleteNode()
+		//				}
+		//				col.deleteNode()
+		//			}
+		//		}
 	}
 
 	def list = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).toStream.map { CollectionNode(_) } }

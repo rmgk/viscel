@@ -1,26 +1,21 @@
 package viscel.server
 
-import akka.actor.{ ActorSystem, Props, Actor }
-import akka.pattern.ask
+import akka.actor.Actor
 import com.typesafe.scalalogging.slf4j.Logging
-import java.io.File
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.concurrent.future
-import scala.concurrent.Future
 import spray.can.Http
 import spray.can.server.Stats
-import spray.http.{ MediaTypes, ContentType, FormData, HttpResponse }
-import spray.httpx.encoding.{ Gzip, Deflate, NoEncoding }
+import spray.http.{ MediaTypes, ContentType }
 import spray.routing.authentication._
-import spray.routing.directives.ContentTypeResolver
-import spray.routing.{ HttpService, RequestContext, Route }
+import spray.routing.{ HttpService, Route }
 import viscel.store.CollectionNode
 import viscel.store.ElementNode
-import viscel.store.ConfigNode
 import viscel.store.UserNode
 import viscel.store.ViscelNode
-import viscel.time
-import spray.routing.directives.CachingDirectives._
+import java.io.File
+import akka.pattern.ask
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -106,17 +101,15 @@ trait DefaultRoutes extends HttpService {
 					complete(FrontPage(user, cn))
 				}
 			} ~
-			path("c" / Segment) { col =>
+			//			path("c" / Segment) { col =>
+			//				rejectNone(CollectionNode(col)) { cn =>
+			//					complete(ChapterPage(user, cn))
+			//				}
+			//			} ~
+			path("v" / Segment / IntNumber) { (col, pos) =>
 				rejectNone(CollectionNode(col)) { cn =>
-					complete(ChapterPage(user, cn))
-				}
-			} ~
-			path("v" / Segment / IntNumber / IntNumber) { (col, chapter, pos) =>
-				rejectNone(CollectionNode(col)) { cn =>
-					rejectNone(cn(chapter)) { chapnode =>
-						rejectNone(chapnode(pos)) { en =>
-							complete(ViewPage(user, en))
-						}
+					rejectNone(cn(pos)) { en =>
+						complete(ViewPage(user, en))
 					}
 				}
 			} ~
@@ -136,22 +129,22 @@ trait DefaultRoutes extends HttpService {
 						.mapTo[Stats]
 					stats.map { StatsPage(user, _) }
 				}
-			} ~
-			path("select") {
-				entity(as[FormData]) { form =>
-					if (form.fields.contains(("select_cores", "apply"))) {
-						val applied = form.fields.collect { case (col, "select") => col }.toSeq
-						val config = ConfigNode()
-						logger.info(s"selecting $applied")
-						val before = config.legacyCollections
-						config.legacyCollections = applied
-						val added: Set[String] = applied.toSet -- before
-						logger.info(s"adding $added")
-						added.foreach(id => context.actorSelection("/user/clockwork") ! viscel.core.Clockwork.Enqueue(id))
-					}
-					complete { SelectionPage(user) }
-				}
 			}
+	//			path("select") {
+	//				entity(as[FormData]) { form =>
+	//					if (form.fields.contains(("select_cores", "apply"))) {
+	//						val applied = form.fields.collect { case (col, "select") => col }.toSeq
+	//						val config = ConfigNode()
+	//						logger.info(s"selecting $applied")
+	//						val before = config.legacyCollections
+	//						config.legacyCollections = applied
+	//						val added: Set[String] = applied.toSet -- before
+	//						logger.info(s"adding $added")
+	//						added.foreach(id => context.actorSelection("/user/clockwork") ! viscel.core.Clockwork.Enqueue(id))
+	//					}
+	//					complete { SelectionPage(user) }
+	//				}
+	//			}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route(_) }.getOrElse(reject)
 }

@@ -1,18 +1,18 @@
-package viscel.newCore
+package viscel.store
 
-import com.typesafe.scalalogging.slf4j.Logging
-import org.neo4j.cypher.ExecutionEngine
-import org.neo4j.graphdb.Direction
-import org.neo4j.graphdb.DynamicLabel
-import org.neo4j.graphdb.DynamicRelationshipType
-import org.neo4j.graphdb.Label
 import org.neo4j.graphdb.Node
+import viscel.newCore._
 import scala.collection.JavaConversions._
-import util.Try
-import viscel.time
-import viscel.store._
 
-trait ArchiveNode extends ViscelNode
+trait ArchiveNode extends ViscelNode {
+	def flatten = ArchiveNode.foldChildren(Seq[ViscelNode](), this) {
+		case (acc, pn: PageNode) => acc
+		case (acc, sn: StructureNode) => sn.describes match {
+			case Some(vn) => acc :+ vn
+			case None => acc
+		}
+	}
+}
 
 object ArchiveNode {
 	def apply(node: Node): ArchiveNode = Neo.txs { node.getLabels.toList } match {

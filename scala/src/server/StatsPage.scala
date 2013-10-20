@@ -1,23 +1,14 @@
 package viscel.server
 
-import com.typesafe.scalalogging.slf4j.Logging
-import org.neo4j.graphdb.Direction
-import scala.collection.JavaConversions._
-import scala.xml.Elem
-import scala.xml.Node
-import scala.xml.NodeSeq
 import scalatags._
 import spray.can.server.Stats
-import spray.http.{ HttpResponse, HttpEntity, MediaTypes, ContentType, HttpCharsets }
-import viscel._
-import viscel.store.CollectionNode
+import spray.http.HttpResponse
 import viscel.store.ConfigNode
-import viscel.store.ElementNode
 import viscel.store.Neo
-import viscel.store.label
 import viscel.store.UserNode
-import viscel.store.ViscelNode
 import viscel.store.{ Util => StoreUtil }
+import viscel.store.label
+import scala.collection.JavaConversions._
 
 class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {
 

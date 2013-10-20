@@ -1,15 +1,9 @@
 package viscel.store
 
 import com.typesafe.scalalogging.slf4j.Logging
-import org.neo4j.cypher.ExecutionEngine
-import org.neo4j.graphdb.Direction
-import org.neo4j.graphdb.DynamicLabel
-import org.neo4j.graphdb.DynamicRelationshipType
 import org.neo4j.graphdb.Node
-import scala.collection.JavaConversions._
 import scala.language.implicitConversions
-import util.Try
-import viscel.time
+import scala.collection.JavaConversions._
 
 /**
  * A user node currently encodes the bookmarks of the user.
@@ -50,24 +44,25 @@ class UserNode(val self: Node) extends ViscelNode with Logging {
 		bmn.to(rel.bookmarks) match {
 			case Some(n) => Some(ElementNode(n))
 			case None => {
-				for {
-					chapter <- bmn.get[Int]("chapter")
-					page <- bmn.get[Int]("page")
-					ncol <- bmn.from(rel.bookmark)
-					col = CollectionNode(ncol)
-					en <- col(chapter).flatMap { cn => cn(page).orElse(cn.last) }.orElse(col.last.flatMap { _.last })
-				} yield (chapter, page, col, en)
-			} match {
-				case None =>
-					logger.warn(s"disconnected bookmark has insufficient information, delete")
-					Neo.delete(bmn)
-					None
-				case Some((chapter, page, col, en)) =>
-					logger.warn(s"rewire disconnected bookmark $name -> ${col.name}($chapter, $page)")
-					bmn.createRelationshipTo(en.self, rel.bookmarks)
-					bmn.removeProperty("chapter")
-					bmn.removeProperty("page")
-					Some(en)
+				None
+				//				for {
+				//					chapter <- bmn.get[Int]("chapter")
+				//					page <- bmn.get[Int]("page")
+				//					ncol <- bmn.from(rel.bookmark)
+				//					col = CollectionNode(ncol)
+				//					en <- col(chapter).flatMap { cn => cn(page).orElse(cn.last) }.orElse(col.last.flatMap { _.last })
+				//				} yield (chapter, page, col, en)
+				//			} match {
+				//				case None =>
+				//					logger.warn(s"disconnected bookmark has insufficient information, delete")
+				//					Neo.delete(bmn)
+				//					None
+				//				case Some((chapter, page, col, en)) =>
+				//					logger.warn(s"rewire disconnected bookmark $name -> ${col.name}($chapter, $page)")
+				//					bmn.createRelationshipTo(en.self, rel.bookmarks)
+				//					bmn.removeProperty("chapter")
+				//					bmn.removeProperty("page")
+				//					Some(en)
 			}
 		}
 	}
