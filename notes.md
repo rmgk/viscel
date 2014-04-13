@@ -1,8 +1,10 @@
 # comics to look into
 
-|       name       |                    url                    |
-|------------------|-------------------------------------------|
-| Destiny Fails Us | <http://destinyfailsus.com/comics/first/> |
+|        name       |                    url                    |
+| ----------------- | ----------------------------------------- |
+| Destiny Fails Us  | <http://destinyfailsus.com/comics/first/> |
+| Nevermind the Gap | <http://nmg.thecomicseries.com/>          |
+|                   |                                           |
 
 
 
