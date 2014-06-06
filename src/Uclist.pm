@@ -1011,6 +1011,9 @@ GirlGenius => [
 	'Girl Genius',
 	'http://www.girlgeniusonline.com/comic.php?date=20021104',
 	[alt => 'Comic'],
+	url_hack => sub { if ($_[0] eq 'http://www.girlgeniusonline.com/comic.php?date=20091027') {
+						return 'http://www.girlgeniusonline.com/comic.php?date=20091028';
+					} return $_[0] },
 ],
 TheWotch => [
 	'The Wotch',
