@@ -7,14 +7,14 @@ class SearchPage(user: UserNode, text: String) extends HtmlPage {
 	override def Title = "Search"
 	override def bodyId = "search"
 
-	def mainPart = make_fieldset("Search", Seq(form_search(text))).cls("info")
+	def mainPart = make_fieldset("Search", Seq(form_search(text)))(class_info) :: Nil
 
-	def navigation = link_main("index")
+	def navigation = link_main("index") :: Nil
 
 	def sidePart = {
 		val containing = StoreUtil.search(text)
 			.map { cn => link_node(cn, cn.name) }
-		make_fieldset(text, containing).cls("group")
+		make_fieldset(text, containing)(class_group) :: Nil
 	}
 }
 

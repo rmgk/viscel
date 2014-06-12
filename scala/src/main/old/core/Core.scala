@@ -1,6 +1,6 @@
 package viscel.core
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import org.neo4j.graphdb.Node

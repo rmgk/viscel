@@ -1,6 +1,6 @@
 package viscel.store
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
 import scala.language.implicitConversions
 import scala.collection.JavaConversions._
@@ -14,7 +14,7 @@ import scala.collection.JavaConversions._
  * (u) -[:bookmarked]-> (b)
  * (c) -[:bookmark]-> (b) -[:bookmarks]-> (e)
  */
-class UserNode(val self: Node) extends ViscelNode with Logging {
+class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 	def selfLabel = label.User
 
 	def name = Neo.txs { self[String]("name") }

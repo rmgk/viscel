@@ -1,6 +1,6 @@
 package viscel.core
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -24,7 +24,7 @@ case class LegacyCollection(
 	url_hack: Option[String] = None,
 	custom_match: Option[String] = None)
 
-class LegacyCore(val id: String, val name: String, start: String, elementSelector: String, nextSelector: Option[String]) extends Core with Logging with WrapperTools {
+class LegacyCore(val id: String, val name: String, start: String, elementSelector: String, nextSelector: Option[String]) extends Core with StrictLogging with WrapperTools {
 
 	def archive = FullArchive(Seq(LinkedChapter(first = PagePointer(Uri.parseAbsolute(start)), name = "")))
 	def wrapArchive(doc: Document) = ???
@@ -60,7 +60,7 @@ class LegacyCore(val id: String, val name: String, start: String, elementSelecto
 
 }
 
-object LegacyCores extends Logging {
+object LegacyCores extends StrictLogging {
 
 	def criteriaToSelector(crit: Seq[Seq[Any]]) = {
 		def singleTag(tdesc: Seq[Any]) = {

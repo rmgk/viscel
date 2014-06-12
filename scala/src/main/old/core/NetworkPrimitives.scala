@@ -3,7 +3,7 @@ package viscel.core
 import akka.actor.{ ActorSystem, Props, Actor }
 import akka.io.IO
 import com.github.theon.uri.{ Uri => Suri }
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Direction
@@ -28,7 +28,7 @@ import spray.httpx.encoding._
 import viscel._
 import viscel.store._
 
-trait NetworkPrimitives extends Logging {
+trait NetworkPrimitives extends StrictLogging {
 
 	def iopipe: SendReceive
 

@@ -1,11 +1,11 @@
 package viscel.store
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.tooling.GlobalGraphOperations
 import viscel.time
 import scala.collection.JavaConversions._
 
-object Util extends Logging {
+object Util extends StrictLogging {
 
 	def purgeUnreferenced() = {
 		//		val collections = Neo.txs {

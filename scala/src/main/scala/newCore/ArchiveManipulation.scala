@@ -1,10 +1,10 @@
 package viscel.newCore
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import scala.Some
 import viscel.store._
 
-trait ArchiveManipulation extends Logging {
+trait ArchiveManipulation extends StrictLogging {
 
 	def flattenElements(an: ArchiveNode): Seq[ElementNode] = ArchiveNode.foldChildren(Seq[ElementNode](), an) {
 		case (acc, pn: PageNode) => acc

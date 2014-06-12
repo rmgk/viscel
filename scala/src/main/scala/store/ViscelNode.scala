@@ -1,13 +1,13 @@
 package viscel.store
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Label
 import org.neo4j.graphdb.Node
 import util.Try
 import viscel._
 import scala.collection.JavaConversions._
 
-trait ViscelNode extends Logging {
+trait ViscelNode extends StrictLogging {
 	def self: Node
 	def selfLabel: Label
 	def nid = Neo.txs { self.getId }

@@ -3,8 +3,8 @@ package viscel
 import akka.actor.{ ActorSystem, Props, Actor }
 import akka.io.IO
 import akka.util.Timeout
-import com.typesafe.scalalogging.slf4j.Logging
 import java.io.File
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import joptsimple._
 import org.jsoup.Jsoup
 import org.neo4j.graphdb.traversal._
@@ -23,13 +23,13 @@ import spray.http.Uri
 import viscel.newCore._
 import viscel.store._
 
-object Viscel extends Logging {
+object Viscel extends StrictLogging {
 
 	def main(args: Array[String]): Unit = run(args: _*)
 
 	def run(args: String*) = {
 		import Opts._
-		val formatWidth = try { new scala.tools.jline.console.ConsoleReader().getTerminal.getWidth }
+		val formatWidth = try { new jline.console.ConsoleReader().getTerminal.getWidth }
 		catch { case e: Throwable => 80 }
 		formatHelpWith(new BuiltinHelpFormatter(formatWidth, 4))
 		implicit val conf = try {
@@ -117,7 +117,7 @@ object Viscel extends Logging {
 			.relationships(rel.last)
 			.evaluator(Evaluators.excludeStartPosition)
 		Neo.txs {
-			val writer = new GraphvizWriter();
+			val writer = new GraphvizWriter()
 			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(user.self).nodes, rel.bookmarked, rel.bookmarks, rel.bookmark, rel.first, rel.last))
 		}
 	}
@@ -129,7 +129,7 @@ object Viscel extends Logging {
 			.relationships(rel.next)
 			.evaluator(Evaluators.all)
 		Neo.txs {
-			val writer = new GraphvizWriter();
+			val writer = new GraphvizWriter()
 			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.next))
 		}
 	}

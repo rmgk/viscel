@@ -1,6 +1,6 @@
 package viscel.core
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
@@ -14,7 +14,7 @@ import spray.http.Uri
 import com.github.theon.uri.{ Uri => Suri }
 import viscel._
 
-trait WrapperTools extends Logging {
+trait WrapperTools extends StrictLogging {
 	implicit def absuri(uri: String): Uri = Uri.parseAbsolute(Suri.parse(uri).toString)
 
 	def getAttr(e: Element, k: String): Option[(String, String)] = {
@@ -50,7 +50,7 @@ trait WrapperTools extends Logging {
 		else from.parents.find(_.tag.getName == tagname)
 }
 
-object Misfile extends Core with WrapperTools with Logging {
+object Misfile extends Core with WrapperTools with StrictLogging {
 	def archive = ArchivePointer("http://www.misfile.com/archives.php?arc=1&displaymode=wide")
 	def id: String = "AX_Misfile"
 	def name: String = "Misfile"
@@ -72,7 +72,7 @@ object Misfile extends Core with WrapperTools with Logging {
 		}
 }
 
-object SpyingWithLana extends Core with WrapperTools with Logging {
+object SpyingWithLana extends Core with WrapperTools with StrictLogging {
 	def archive = ArchivePointer("http://www.amazingartbros.com/Webcomics")
 	def id: String = "AX_SpyingWithLana"
 	def name: String = "Spying With Lana"
@@ -89,7 +89,7 @@ object SpyingWithLana extends Core with WrapperTools with Logging {
 	}
 }
 
-object AmazingAgentLuna extends Core with WrapperTools with Logging {
+object AmazingAgentLuna extends Core with WrapperTools with StrictLogging {
 	def archive = ArchivePointer("http://www.amazingagentluna.com/archive/volume1")
 	def id: String = "AX_AmazingAgentLuna"
 	def name: String = "Amazing Agent Luna"
@@ -119,7 +119,7 @@ object AmazingAgentLuna extends Core with WrapperTools with Logging {
 	def wrapPage(doc: Document): Try[FullPage] = ???
 }
 
-object FreakAngels extends Core with WrapperTools with Logging {
+object FreakAngels extends Core with WrapperTools with StrictLogging {
 	def id = "X_FreakAngels"
 	def name = "Freak Angels"
 	def archive = ArchivePointer("http://www.freakangels.com/")
@@ -141,7 +141,7 @@ object FreakAngels extends Core with WrapperTools with Logging {
 	}
 }
 
-object Avengelyne extends Core with WrapperTools with Logging {
+object Avengelyne extends Core with WrapperTools with StrictLogging {
 	def archive = ArchivePointer("http://avengelyne.keenspot.com/archive.html")
 	def id: String = "AX_Avengelyne"
 	def name: String = "Avengelyne"
@@ -163,7 +163,7 @@ object Avengelyne extends Core with WrapperTools with Logging {
 		}
 }
 
-object PhoenixRequiem extends Core with WrapperTools with Logging {
+object PhoenixRequiem extends Core with WrapperTools with StrictLogging {
 	def archive = ArchivePointer("http://requiem.seraph-inn.com/archives.html")
 	def id: String = "AX_PhoenixRequiem"
 	def name: String = "Phoenix Requiem"
@@ -188,7 +188,7 @@ object PhoenixRequiem extends Core with WrapperTools with Logging {
 		}
 }
 
-object MarryMe extends Core with WrapperTools with Logging {
+object MarryMe extends Core with WrapperTools with StrictLogging {
 	def archive = FullArchive(Seq(LinkedChapter("Main Story", PagePointer("http://marryme.keenspot.com/d/20120730.html"))))
 	def id: String = "AX_MarryMe"
 	def name: String = "Marry Me"
@@ -200,7 +200,7 @@ object MarryMe extends Core with WrapperTools with Logging {
 		}
 }
 
-object InverlochArchive extends Core with WrapperTools with Logging {
+object InverlochArchive extends Core with WrapperTools with StrictLogging {
 	def archive = ArchivePointer("http://inverloch.seraph-inn.com/volume1.html")
 	def id: String = "AX_Inverloch"
 	def name: String = "Inverloch"
@@ -230,7 +230,7 @@ object InverlochArchive extends Core with WrapperTools with Logging {
 		}
 }
 
-object TwokindsArchive extends Core with WrapperTools with Logging {
+object TwokindsArchive extends Core with WrapperTools with StrictLogging {
 	def archive = ArchivePointer("http://twokinds.keenspot.com/?pageid=3")
 	def id: String = "AX_Twokinds"
 	def name: String = "Twokinds"
@@ -255,7 +255,7 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 		}
 }
 
-// object CarciphonaWrapper extends Core with Logging {
+// object CarciphonaWrapper extends Core with StrictLogging {
 // 	def id = "X_Carciphona"
 // 	def name = "Carciphona"
 
@@ -277,7 +277,7 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 
 // }
 
-// object FlipsideWrapper extends Core with Logging {
+// object FlipsideWrapper extends Core with StrictLogging {
 // 	def id = "X_Flipside"
 // 	def name = "Flipside"
 
@@ -293,7 +293,7 @@ object TwokindsArchive extends Core with WrapperTools with Logging {
 
 // }
 
-// object DrMcNinjaWrapper extends ChapteredCore with Logging {
+// object DrMcNinjaWrapper extends ChapteredCore with StrictLogging {
 // 	def id = "XC_DrMcNinja"
 // 	def name = "Dr. McNinja"
 

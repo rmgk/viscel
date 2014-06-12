@@ -1,6 +1,6 @@
 // package viscel.core
 
-// import com.typesafe.scalalogging.slf4j.Logging
+// import com.typesafe.scalalogging.slf4j.StrictLogging
 // import scala.concurrent.ExecutionContext.Implicits.global
 // import org.jsoup.nodes.Document
 // import org.jsoup.select.Elements
@@ -29,7 +29,7 @@
 // 		new DynamicCoreBuilder(new DynamicCore(s"DX_$id", name, first, img, Option(next)) :: cores)
 // }
 
-// class DynamicCore(val id: String, val name: String, val first: Uri, elementSelector: String, nextSelector: Option[String]) extends Core with Logging {
+// class DynamicCore(val id: String, val name: String, val first: Uri, elementSelector: String, nextSelector: Option[String]) extends Core with StrictLogging {
 
 // 	def wrapper = this
 

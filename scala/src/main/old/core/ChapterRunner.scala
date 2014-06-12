@@ -2,7 +2,7 @@ package viscel.core
 
 import akka.actor.{ ActorSystem, Props, Actor }
 import akka.io.IO
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import scala.concurrent._
@@ -23,7 +23,7 @@ import scalax.io._
 import scala.collection.JavaConversions._
 import org.neo4j.graphdb.Direction
 
-trait ChapterRunner extends Logging {
+trait ChapterRunner extends StrictLogging {
 	outer =>
 
 	def chapterNode: ChapterNode

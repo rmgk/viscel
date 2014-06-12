@@ -1,21 +1,23 @@
 package viscel.server
 
 import viscel.store.UserNode
-import viscel.store.{ Util => StoreUtil }
+
+import scalatags.Node
 
 class SelectionPage(user: UserNode) extends HtmlPage {
 	override def Title = "Select"
+
 	override def bodyId = "select"
 
 	def mainPart = {
-		"nothing to see, move along"
+		"nothing to see, move along" :: Nil
 		//		val known = ConfigNode().legacyCollections
 		//		fieldset.cls("info")(legend("Select Cores"),
 		//			form_post("select", {
 		//				val stored = Neo.txs { viscel.store.Util.list.map { _.id }.toSet }
 		//				viscel.core.Clockwork.availableCores.map { _.id }.toSeq.sorted
 		//					.map { id =>
-		//						Seq[STag](input.ctype("checkbox").name(id).value("select").pipe {
+		//						Seq[Node](input.ctype("checkbox").name(id).value("select").pipe {
 		//							case inp if known.contains(id) => inp.attr("checked" -> "checked")
 		//							case inp => inp
 		//						}, if (stored(id)) b(id) else id, <br/>)
@@ -25,9 +27,9 @@ class SelectionPage(user: UserNode) extends HtmlPage {
 		//				input.ctype("reset").value("reset")))
 	}
 
-	def navigation = link_main("index")
+	def navigation = link_main("index") :: Nil
 
-	def sidePart = ""
+	def sidePart = "" :: Nil
 }
 
 /*<form action="select.htm">

@@ -1,6 +1,7 @@
 package viscel.server
 
 import scalatags._
+import scalatags.all._
 import viscel.store.UserNode
 import viscel.store.{ Util => StoreUtil }
 import scala.collection.JavaConversions._
@@ -9,9 +10,9 @@ class IndexPage(user: UserNode) extends HtmlPage {
 	override def Title = "Index"
 	override def bodyId = "index"
 
-	override def sidePart = make_fieldset("Search", Seq(form_search(""))).cls("info")
+	override def sidePart = make_fieldset("Search", Seq(form_search("")))(class_info) :: Nil
 
-	override def navigation = link_stop("stop")
+	override def navigation = link_stop("stop") :: Nil
 
 	override def mainPart = {
 		val bookmarks = user.bookmarks.toIndexedSeq
@@ -20,14 +21,14 @@ class IndexPage(user: UserNode) extends HtmlPage {
 		val currentTags = current.sortBy { _._2 }.map { case (id, name, unread) => link_node(id, s"$name") }
 
 		Seq(
-			make_fieldset("New Pages", unreadTags).cls("group"),
-			make_fieldset("Bookmarks", currentTags).cls("group"))
+			make_fieldset("New Pages", unreadTags)(class_group),
+			make_fieldset("Bookmarks", currentTags)(class_group))
 	}
 
-	override def content: STag = body.id(bodyId)(
-		div.cls("main")(mainPart),
-		div.cls("side")(sidePart),
-		div.cls("navigation")(navigation))
+	override def content: Node = body(id := bodyId)(
+		div(class_main)(mainPart),
+		div(class_side)(sidePart),
+		div(class_navigation)(navigation))
 }
 
 object IndexPage {

@@ -1,7 +1,6 @@
 package viscel.newCore
 
-import com.github.theon.uri.{ Uri => Suri }
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import scala.language.implicitConversions
@@ -9,7 +8,7 @@ import scala.util._
 import viscel._
 import scala.collection.JavaConversions._
 
-trait WrapperTools extends Logging {
+trait WrapperTools extends StrictLogging {
 
 	def fail(msg: String) = Try { throw new Throwable(msg) }
 
@@ -48,7 +47,7 @@ trait WrapperTools extends Logging {
 			next = next)
 }
 
-object Misfile extends Core with WrapperTools with Logging {
+object Misfile extends Core with WrapperTools with StrictLogging {
 	def archive = PointerDescription("http://www.misfile.com/archives.php?arc=1&displaymode=wide", "archive")
 	def id: String = "NX_Misfile"
 	def name: String = "Misfile"

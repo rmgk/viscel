@@ -1,10 +1,10 @@
 package viscel.server
 
 import scalatags._
+import scalatags.all._
 import spray.http.HttpResponse
 import viscel.store.ElementNode
 import viscel.store.UserNode
-import viscel.store.{ Util => StoreUtil }
 
 class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with MetaNavigation with MaskLocation {
 	lazy val collection = enode.collection
@@ -19,19 +19,19 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with MetaNav
 	override def navNext = enode.next.map { en => path_nid(en.nid) }
 	override def navUp = Some(path_nid(collection.nid))
 
-	def mainPart = div.cls("content")(link_node(enode.next, enodeToImg(enode)))
-	def sidePart = "": STag
+	override def mainPart = div(class_content)(link_node(enode.next, enodeToImg(enode))) :: Nil
+	override def sidePart = "" :: Nil
 
-	def navigation = Seq[STag](
+	override def navigation = Seq[Node](
 		link_node(enode.prev, "prev"),
 		" ",
 		link_node(collection, "front"),
 		" ",
 		form_post(path_nid(collection.nid),
-			input.ctype("hidden").name("bookmark").value(enode.nid),
-			input.ctype("submit").name("submit").value("pause").cls("submit")),
+			input(`type` := "hidden", name := "bookmark", value := enode.nid.toString),
+			input(`type` := "submit", name := "submit", value := "pause", class_submit)),
 		" ",
-		a.href(enode[String]("origin")).cls("extern")("site"),
+		a(href := enode[String]("origin"))(class_extern)("site"),
 		" ",
 		link_node(enode.next, "next"))
 }

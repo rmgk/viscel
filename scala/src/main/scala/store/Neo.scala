@@ -1,6 +1,6 @@
 package viscel.store
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.cypher.ExecutionEngine
 import org.neo4j.graphdb.GraphDatabaseService
 import org.neo4j.graphdb.Label
@@ -11,7 +11,7 @@ import org.neo4j.tooling.GlobalGraphOperations
 import scala.collection.JavaConversions._
 import viscel.time
 
-object Neo extends Logging {
+object Neo extends StrictLogging {
 	val db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("neoViscelStore")
 		.setConfig(Map("keep_logical_logs" -> "false")).newGraphDatabase().asInstanceOf[GraphDatabaseAPI]
 	val ee = new ExecutionEngine(db)

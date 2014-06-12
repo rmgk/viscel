@@ -1,9 +1,9 @@
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.{ StrictLogging }
 import java.security.MessageDigest
 import scala.util._
 import scala.concurrent.Future
 
-package object viscel extends Logging {
+package object viscel extends StrictLogging {
 	def time[T](desc: String = "")(f: => T): T = {
 		val start = System.nanoTime
 		val res = f
@@ -33,3 +33,4 @@ package object viscel extends Logging {
 	}
 
 }
+

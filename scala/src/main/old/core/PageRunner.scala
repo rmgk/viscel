@@ -2,7 +2,7 @@ package viscel.core
 
 import akka.actor.{ ActorSystem, Props, Actor }
 import akka.io.IO
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import scala.concurrent._
@@ -77,7 +77,7 @@ trait FullPageRunner extends PageRunner with NetworkPrimitives {
 
 }
 
-trait PlaceholderPageRunner extends PageRunner with Logging {
+trait PlaceholderPageRunner extends PageRunner with StrictLogging {
 
 	def createElementNodes(page: PageDescription): Seq[ElementNode] = Neo.txs {
 		page match {

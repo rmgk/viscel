@@ -1,29 +1,14 @@
 package viscel.core
 
-import akka.actor.{ ActorSystem, Props, Actor }
-import akka.io.IO
-import com.typesafe.scalalogging.slf4j.Logging
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import scala.concurrent._
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util._
-import spray.can.Http
-import spray.client.pipelining._
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import spray.http.Uri
 import viscel._
 import viscel.store._
-import spray.http.HttpHeaders.`Content-Type`
-import spray.http.HttpHeaders.Location
-import spray.http.HttpRequest
-import spray.http.HttpResponse
-import spray.http.ContentType
-import scalax.io._
-import scala.collection.JavaConversions._
-import org.neo4j.graphdb.Direction
 
-trait ArchiveRunner extends NetworkPrimitives with Logging {
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent._
+
+trait ArchiveRunner extends NetworkPrimitives with StrictLogging {
 
 	def core: Core
 	def collection: CollectionNode

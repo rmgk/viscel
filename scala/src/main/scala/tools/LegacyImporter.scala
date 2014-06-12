@@ -1,6 +1,6 @@
 //package viscel.tools
 //
-//import com.typesafe.scalalogging.slf4j.Logging
+//import com.typesafe.scalalogging.slf4j.StrictLogging
 //import org.neo4j.graphdb.Node
 //import scala.language.implicitConversions
 //import scala.slick.driver.SQLiteDriver.simple._
@@ -29,7 +29,7 @@
 //
 //}
 //
-//class LegacyImporter(dbdir: String) extends Logging {
+//class LegacyImporter(dbdir: String) extends StrictLogging {
 //
 //	val legacyAdapter = new LegacyAdapter(dbdir)
 //
@@ -74,7 +74,7 @@
 //	}
 //}
 //
-//object BookmarkImporter extends Logging {
+//object BookmarkImporter extends StrictLogging {
 //	def apply(user: UserNode, bmdir: String) = {
 //		logger.info(s"importing bookmarks for ${user.name}")
 //		val extract = """(?x) \s+ (\w+) = (\d+)""".r

@@ -4,7 +4,7 @@ import akka.actor.{ ActorSystem, Props, Actor, ActorRef }
 import akka.io.IO
 import akka.pattern.AskTimeoutException
 import akka.util.Timeout
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Direction
@@ -34,7 +34,7 @@ object Clockwork {
 	lazy val availableCores: Seq[Core] = LegacyCores.list ++ Seq(PhoenixRequiem, MarryMe, InverlochArchive, TwokindsArchive, Avengelyne, FreakAngels, AmazingAgentLuna, SpyingWithLana, Misfile)
 }
 
-class Clockwork(ioHttp: ActorRef) extends Actor with Logging {
+class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 	import Clockwork._
 
 	var activeCores = Set[Core]()

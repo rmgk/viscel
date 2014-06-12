@@ -2,7 +2,7 @@ package viscel.newCore
 
 import akka.actor.{ Props, Actor, ActorRef }
 import akka.util.Timeout
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import scala.collection._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -19,7 +19,7 @@ object Clockwork {
 	lazy val availableCores: Seq[Core] = Seq(Misfile)
 }
 
-class Clockwork(ioHttp: ActorRef) extends Actor with Logging {
+class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 
 	import Clockwork._
 

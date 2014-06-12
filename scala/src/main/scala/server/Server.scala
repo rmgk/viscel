@@ -1,10 +1,9 @@
 package viscel.server
 
 import akka.actor.Actor
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.concurrent.future
 import spray.can.Http
 import spray.can.server.Stats
 import spray.http.{ MediaTypes, ContentType }
@@ -19,7 +18,7 @@ import akka.pattern.ask
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
-class Server extends Actor with DefaultRoutes with Logging {
+class Server extends Actor with DefaultRoutes with StrictLogging {
 
 	// the HttpService trait defines only one abstract member, which
 	// connects the services environment to the enclosing actor or test
@@ -42,17 +41,17 @@ trait DefaultRoutes extends HttpService {
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
 	implicit def executionContext = actorRefFactory.dispatcher
 
-	def hashToFilename(h: String): String = (new StringBuilder(h)).insert(2, '/').insert(0, "../cache/").toString
+	def hashToFilename(h: String): String = new StringBuilder(h).insert(2, '/').insert(0, "../cache/").toString()
 
 	var userCache = Map[String, UserNode]()
 
 	def getUserNode(name: String, password: String) =
-		userCache.get(name).getOrElse {
+		userCache.getOrElse(name, {
 			UserNode(name).getOrElse {
 				logger.warn(s"create new user $name $password")
 				UserNode.create(name, password)
 			}.tap(user => userCache += name -> user)
-		}
+		})
 
 	val loginOrCreate = BasicAuth(UserPassAuthenticator[UserNode] {
 		case Some(UserPass(user, password)) =>
@@ -82,7 +81,7 @@ trait DefaultRoutes extends HttpService {
 		} ~
 			path("stop") {
 				complete {
-					future {
+					Future {
 						spray.util.actorSystem.shutdown()
 						viscel.store.Neo.shutdown()
 					}
@@ -146,5 +145,5 @@ trait DefaultRoutes extends HttpService {
 	//				}
 	//			}
 
-	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route(_) }.getOrElse(reject)
+	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)
 }

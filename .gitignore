@@ -9,3 +9,6 @@ error.txt
 export
 user
 zeug
+.SyncArchive/
+.SyncID
+.SyncIgnore

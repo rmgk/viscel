@@ -1,7 +1,7 @@
 package viscel.newCore
 
-import com.github.theon.uri.{ Uri => Suri }
-import com.typesafe.scalalogging.slf4j.Logging
+//import com.github.theon.uri.{ Uri => Suri }
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -20,28 +20,28 @@ import spray.httpx.encoding._
 import viscel._
 import viscel.store._
 
-trait NetworkPrimitives extends Logging {
+trait NetworkPrimitives extends StrictLogging {
 
 	def iopipe: SendReceive
 
 	def getResponse(uri: Uri, referer: Option[Uri] = None): Future[HttpResponse] = {
 		logger.info(s"get $uri ($referer)")
 		val addReferer = referer match {
-			case Some(ref) => addHeader("Referer", ref.toString)
+			case Some(ref) => addHeader("Referer", ref.toString())
 			case None => (x: HttpRequest) => x
 		}
 		Get(uri).pipe {
 			addReferer ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
 		}.andThen {
 			case Success(res) => ConfigNode().download(res.entity.data.length, res.status.isSuccess, res.encoding == HttpEncodings.deflate || res.encoding == HttpEncodings.deflate)
-			case Failure(_) => ConfigNode().download(0, false)
+			case Failure(_) => ConfigNode().download(0, success = false)
 		}.map { decode(Gzip) ~> decode(Deflate) }
 			.flatMap { res =>
 				val headLoc = res.header[Location]
 				res.status.intValue match {
-					case 301 | 302 if !headLoc.isEmpty =>
-						val newLoc = Uri.parseAndResolve(Suri.parse(headLoc.get.uri.toString).toString, uri)
-						logger.info(s"new location ${newLoc} old ($uri)")
+					case 301 | 302 if headLoc.nonEmpty =>
+						val newLoc = Uri.parseAndResolve( /*Suri.parse(*/ headLoc.get.uri.toString() /*).toString*/ , uri)
+						logger.info(s"new location $newLoc old ($uri)")
 						getResponse(newLoc, referer)
 					case 200 => Future.successful(res)
 					case _ => Future.failed(new Throwable(s"invalid response ${res.status}; $uri ($referer)"))
@@ -52,7 +52,7 @@ trait NetworkPrimitives extends Logging {
 	def getDocument(uri: Uri): Future[Document] = getResponse(uri).map { res =>
 		Jsoup.parse(
 			res.entity.asString(HttpCharsets.`UTF-8`),
-			res.header[Location].map { _.uri }.getOrElse(uri).toString)
+			res.header[Location].map { _.uri }.getOrElse(uri).toString())
 	}
 
 	def getElementData(edesc: ElementDescription): Future[ElementData] = {

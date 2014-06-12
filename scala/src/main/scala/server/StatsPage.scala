@@ -1,14 +1,13 @@
 package viscel.server
 
 import scalatags._
+import scalatags.Tags.div
 import spray.can.server.Stats
 import spray.http.HttpResponse
 import viscel.store.ConfigNode
 import viscel.store.Neo
 import viscel.store.UserNode
-import viscel.store.{ Util => StoreUtil }
 import viscel.store.label
-import scala.collection.JavaConversions._
 
 class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {
 
@@ -17,7 +16,7 @@ class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {
 
 	def mainPart = {
 		val cn = ConfigNode()
-		div.cls("info")(make_table(
+		div(class_info)(make_table(
 			"Downloaded :" -> cn.downloaded.toString,
 			"Downloads :" -> cn.downloads.toString,
 			"Compressed Downloads :" -> cn.downloadsCompressed.toString,
@@ -32,12 +31,12 @@ class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {
 			"Total connections     : " -> stats.totalConnections.toString,
 			"Open connections      : " -> stats.openConnections.toString,
 			"Max open connections  : " -> stats.maxOpenConnections.toString,
-			"Requests timed out    : " -> stats.requestTimeouts.toString))
+			"Requests timed out    : " -> stats.requestTimeouts.toString)) :: Nil
 	}
 
-	def navigation = link_main("index")
+	def navigation = link_main("index") :: Nil
 
-	def sidePart = ""
+	def sidePart = "" :: Nil
 }
 
 object StatsPage {
