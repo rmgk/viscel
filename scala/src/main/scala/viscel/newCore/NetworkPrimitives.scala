@@ -52,7 +52,7 @@ trait NetworkPrimitives extends StrictLogging {
 	def getDocument(uri: Uri): Future[Document] = getResponse(uri).map { res =>
 		Jsoup.parse(
 			res.entity.asString(HttpCharsets.`UTF-8`),
-			res.header[Location].map { _.uri }.getOrElse(uri).toString())
+			res.header[Location].fold(ifEmpty = uri)(_.uri).toString())
 	}
 
 	def getElementData(edesc: ElementDescription): Future[ElementData] = {

@@ -5,22 +5,22 @@ import org.neo4j.cypher.ExecutionEngine
 import org.neo4j.graphdb.GraphDatabaseService
 import org.neo4j.graphdb.Label
 import org.neo4j.graphdb.Node
-import org.neo4j.graphdb.factory.GraphDatabaseFactory
-import org.neo4j.kernel.GraphDatabaseAPI
+import org.neo4j.graphdb.factory.{ GraphDatabaseSettings, GraphDatabaseFactory }
+import org.neo4j.helpers.Settings
 import org.neo4j.tooling.GlobalGraphOperations
 import scala.collection.JavaConversions._
 import viscel.time
 
 object Neo extends StrictLogging {
 	val db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("neoViscelStore")
-		.setConfig(Map("keep_logical_logs" -> "false")).newGraphDatabase().asInstanceOf[GraphDatabaseAPI]
+		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE).newGraphDatabase()
 	val ee = new ExecutionEngine(db)
 
-	def execute(query: String, args: Tuple2[String, Any]*) = ee.execute(query.stripMargin.trim, args.toMap[String, Any])
+	def execute(query: String, args: (String, Any)*) = ee.execute(query.stripMargin.trim, args.toMap[String, Any])
 
-	def apply(q: String) = execute(q).dumpToString
+	def apply(q: String) = execute(q).dumpToString()
 
-	def shutdown() = db.shutdown()
+	def shutdown(): Unit = db.shutdown()
 
 	def node(label: Label, property: String, value: Any) = txt(s"query $label($property=$value)") { db =>
 		db.findNodesByLabelAndProperty(label, property, value).toStream match {

@@ -28,7 +28,7 @@ object Viscel extends StrictLogging {
 	def main(args: Array[String]): Unit = run(args: _*)
 
 	def run(args: String*) = {
-		import Opts._
+		import viscel.Opts._
 		val formatWidth = try { new jline.console.ConsoleReader().getTerminal.getWidth }
 		catch { case e: Throwable => 80 }
 		formatHelpWith(new BuiltinHelpFormatter(formatWidth, 4))

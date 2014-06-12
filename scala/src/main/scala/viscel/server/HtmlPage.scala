@@ -1,10 +1,10 @@
 package viscel.server
 
+import spray.http.{ ContentType, HttpCharsets, HttpEntity, HttpResponse, MediaTypes }
+import viscel.store.Neo
+
 import scalatags._
 import scalatags.all._
-import spray.http.{ HttpResponse, HttpEntity, MediaTypes, ContentType, HttpCharsets }
-import viscel.store.Neo
-import viscel.store.{ Util => StoreUtil }
 
 trait HtmlPage extends HtmlPageUtils {
 
@@ -16,14 +16,17 @@ trait HtmlPage extends HtmlPageUtils {
 	def fullHtml = html(header, content)
 
 	def header: HtmlTag = head(
-		"stylesheet".attr := path_css,
+		link(href := path_css, rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
 		title := Title)
 
 	def Title: String
+
 	def bodyId: String
 
 	def mainPart: Seq[Node]
+
 	def navigation: Seq[Node]
+
 	def sidePart: Seq[Node]
 
 	def content: Node = body(id := bodyId)(
