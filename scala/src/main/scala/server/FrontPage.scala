@@ -21,8 +21,8 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 		make_table(
 			"id" -> collection.id,
 			"name" -> collection.name //"chapter" -> collection.size.toString,
-			//"pages" -> collection.totalSize.toString
-			))
+		//"pages" -> collection.totalSize.toString
+		))
 	def navigation = Seq[STag](
 		link_main("index"),
 		" – ",
