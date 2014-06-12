@@ -4,6 +4,7 @@
 | ----------------- | ----------------------------------------- |
 | Destiny Fails Us  | <http://destinyfailsus.com/comics/first/> |
 | Nevermind the Gap | <http://nmg.thecomicseries.com/>          |
+| Cheer?            | <http://imgur.com/a/GTprX/>               |
 |                   |                                           |
 
 
