@@ -1,4 +1,4 @@
-package viscel.newCore
+package viscel.core
 
 //import com.github.theon.uri.{ Uri => Suri }
 import com.typesafe.scalalogging.slf4j.StrictLogging

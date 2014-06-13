@@ -1,4 +1,4 @@
-package viscel.newCore
+package viscel.core
 
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._

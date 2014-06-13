@@ -1,4 +1,4 @@
-package viscel.newCore
+package viscel.core
 
 import akka.actor.Actor
 import akka.pattern.pipe

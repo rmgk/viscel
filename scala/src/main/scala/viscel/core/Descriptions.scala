@@ -1,4 +1,4 @@
-package viscel.newCore
+package viscel.core
 
 import org.scalactic.{ Or, Every, ErrorMessage }
 import spray.http.ContentType

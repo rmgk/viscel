@@ -1,4 +1,4 @@
-package viscel.newCore
+package viscel.core
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.{ Document, Element }

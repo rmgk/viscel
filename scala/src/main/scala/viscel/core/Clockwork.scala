@@ -1,4 +1,4 @@
-package viscel.newCore
+package viscel.core
 
 import akka.actor.{ Props, Actor, ActorRef }
 import akka.util.Timeout

@@ -20,7 +20,7 @@ import scala.util.Try
 import spray.can.Http
 import spray.client.pipelining._
 import spray.http.Uri
-import viscel.newCore._
+import viscel.core._
 import viscel.store._
 
 object Viscel extends StrictLogging {

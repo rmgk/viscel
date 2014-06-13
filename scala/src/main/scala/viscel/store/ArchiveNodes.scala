@@ -1,7 +1,7 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import viscel.newCore._
+import viscel.core._
 import scala.collection.JavaConversions._
 import org.scalactic.TypeCheckedTripleEquals._
 

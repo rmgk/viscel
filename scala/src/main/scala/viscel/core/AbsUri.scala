@@ -1,4 +1,4 @@
-package viscel.newCore
+package viscel.core
 
 //import com.github.theon.uri.{ Uri => Suri }
 import scala.language.implicitConversions
