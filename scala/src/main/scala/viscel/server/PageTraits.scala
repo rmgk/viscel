@@ -10,7 +10,7 @@ import viscel.store.{ Util => StoreUtil }
 trait MaskLocation extends HtmlPage {
 	def maskLocation: String
 
-	override def header: HtmlTag = super.header(script(s"window.history.replaceState('param one?','param two?','${maskLocation}')"))
+	override def header: HtmlTag = super.header(script(s"window.history.replaceState('param one?','param two?','$maskLocation')"))
 }
 
 trait HtmlPageUtils {
@@ -43,7 +43,7 @@ trait HtmlPageUtils {
 	//def link_front(id: String, ts: Node*) = a.href(path_front(id))(ts)
 	//def link_view(id: String, chapter: Int, pos: Int, ts: Node*) = a.href(path_view(id, chapter, pos))(ts)
 	def link_node(vn: ViscelNode, ts: Node*): Node = a(href := path_nid(vn.nid))(ts)
-	def link_node(vn: Option[ViscelNode], ts: Node*): Node = vn.map { link_node(_, ts: _*) }.getOrElse(p(ts: _*))
+	def link_node(vn: Option[ViscelNode], ts: Node*): Node = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))
 	def link_raw(vn: ViscelNode, ts: Node*): Node = a(href := path_raw(vn.nid))(ts)
 	// def link_node(en: Option[ElementNode], ts: Node*): Node = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
 
@@ -81,7 +81,7 @@ trait MetaNavigation extends HtmlPage {
 	def keypress(location: String, keyCodes: Int*) = s"""
 			|if (${keyCodes.map { c => s"ev.keyCode === $c" }.mkString(" || ")}) {
 			|	ev.preventDefault();
-			|	document.location.pathname = "${location}";
+			|	document.location.pathname = "$location";
 			|	return false;
 			|}
 			""".stripMargin

@@ -1,6 +1,7 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
+import scala.annotation.tailrec
 import scala.language.implicitConversions
 
 class ElementNode(val self: Node) extends ViscelNode {
@@ -16,6 +17,7 @@ class ElementNode(val self: Node) extends ViscelNode {
 	def prev_=(en: ElementNode) = Neo.txs { self.from_=(rel.next, en.self) }
 
 	def position: Int = Neo.txs {
+		@tailrec
 		def pos(oen: Option[ElementNode], n: Int): Int = oen match {
 			case None => n
 			case Some(en) => pos(en.prev, n + 1)
@@ -24,6 +26,7 @@ class ElementNode(val self: Node) extends ViscelNode {
 	}
 
 	def distanceToLast: Int = Neo.txs {
+		@tailrec
 		def dist(oen: Option[ElementNode], n: Int): Int = oen match {
 			case None => n
 			case Some(en) => dist(en.next, n + 1)

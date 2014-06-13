@@ -46,7 +46,7 @@ object Util extends StrictLogging {
 		}
 	}
 
-	@tailrec
+  @tailrec
 	def fuzzyMatch(query: List[Char], text: List[Char], score: Long = 0, bestScore: Long = 0): Long = query match {
 		case Nil => bestScore + score * score
 		case q :: qs => text match {

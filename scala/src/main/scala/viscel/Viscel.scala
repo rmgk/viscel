@@ -102,8 +102,8 @@ object Viscel extends StrictLogging {
 		}
 
 		if (shutdown.?) {
-			Neo.shutdown
-			system.shutdown
+			Neo.shutdown()
+			system.shutdown()
 		}
 		(system, ioHttp, clockwork)
 	}
@@ -127,10 +127,13 @@ object Viscel extends StrictLogging {
 			.relationships(rel.first)
 			.relationships(rel.last)
 			.relationships(rel.next)
+			.relationships(rel.archive)
+			.relationships(rel.describes)
+			.relationships(rel.parent)
 			.evaluator(Evaluators.all)
 		Neo.txs {
 			val writer = new GraphvizWriter()
-			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.next))
+			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.next, rel.archive, rel.describes, rel.parent))
 		}
 	}
 

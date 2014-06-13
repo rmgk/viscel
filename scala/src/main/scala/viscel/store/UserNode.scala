@@ -10,7 +10,7 @@ import org.scalactic.TypeCheckedTripleEquals._
  * A user node currently encodes the bookmarks of the user.
  *
  * If a user `u` has a bookmark `b` to the element `e` of collection `c`
- * the graph will look somwhat like this
+ * the graph will look somewhat like this
  *
  * (u) -[:bookmarked]-> (b)
  * (c) -[:bookmark]-> (b) -[:bookmarks]-> (e)
@@ -24,7 +24,7 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 	def getBookmark(cn: CollectionNode) = Neo.txs { getBookmarkNode(cn).flatMap { bookmarkToElement } }
 
 	//def bookmark(pos: Int): Option[ElementNode] = apply(pos).map(bookmark(_))
-	def setBookmark(en: ElementNode) = Neo.txt(s"create bookmark ${en.collection.id}:${en.position} for ${name}") { db =>
+	def setBookmark(en: ElementNode) = Neo.txt(s"create bookmark ${en.collection.id}:${en.position} for $name") { db =>
 		val bmn = getBookmarkNode(en.collection).map { bmn =>
 			bmn.outgoing(rel.bookmarks).foreach { _.delete }
 			bmn
@@ -44,7 +44,7 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 	def bookmarkToElement(bmn: Node): Option[ElementNode] = Neo.txs {
 		bmn.to(rel.bookmarks) match {
 			case Some(n) => Some(ElementNode(n))
-			case None => {
+			case None =>
 				None
 				//				for {
 				//					chapter <- bmn.get[Int]("chapter")
@@ -64,14 +64,13 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 				//					bmn.removeProperty("chapter")
 				//					bmn.removeProperty("page")
 				//					Some(en)
-			}
 		}
 	}
 
-	def deleteBookmark(cn: CollectionNode) = Neo.txts(s"delete bookmark ${cn.id} for ${name}") {
+	def deleteBookmark(cn: CollectionNode) = Neo.txts(s"delete bookmark ${cn.id} for $name") {
 		getBookmarkNode(cn).foreach { bmn =>
-			bmn.getRelationships().foreach { _.delete }
-			bmn.delete
+			bmn.getRelationships.foreach { _.delete }
+			bmn.delete()
 		}
 	}
 

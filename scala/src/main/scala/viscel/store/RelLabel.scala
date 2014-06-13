@@ -3,7 +3,7 @@ package viscel.store
 import org.neo4j.graphdb.Label
 import org.neo4j.graphdb.RelationshipType
 
-package label {
+object label {
 	class SimpleLabel(val name: String) extends Label
 
 	case object Unlabeled extends SimpleLabel("Unlabeled")
@@ -19,7 +19,7 @@ package label {
 
 }
 
-package rel {
+object rel {
 	class SimpleRelationshipType(val name: String) extends RelationshipType
 
 	case object next extends SimpleRelationshipType("next")
