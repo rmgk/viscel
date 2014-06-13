@@ -25,29 +25,33 @@ trait NetworkPrimitives extends StrictLogging {
 
 	def iopipe: SendReceive
 
-	def getResponse(uri: Uri, referer: Option[Uri] = None): Future[HttpResponse] = {
-		logger.info(s"get $uri ($referer)")
-		val addReferer = referer match {
-			case Some(ref) => addHeader("Referer", ref.toString())
+	def handleMoved(future: Future[HttpResponse], uri: Uri, referrer: Option[Uri]): Future[HttpResponse] = future.flatMap { res =>
+		val headLoc = res.header[Location]
+		res.status.intValue match {
+			case 301 | 302 if headLoc.nonEmpty =>
+				val newLoc = headLoc.get.uri.resolvedAgainst(uri)
+				logger.info(s"new location $newLoc old ($uri)")
+				getResponse(newLoc, referrer)
+			case 200 => Future.successful(res)
+			case _ => Future.failed(new Throwable(s"invalid response ${res.status}; $uri ($referrer)"))
+		}
+	}
+
+	def getResponse(uri: Uri, referrer: Option[Uri] = None): Future[HttpResponse] = {
+		logger.info(s"get $uri ($referrer)")
+		val addReferer = referrer match {
+			case Some(ref) => addHeader("Referer" /*[sic, http spec]*/ , ref.toString())
 			case None => (x: HttpRequest) => x
 		}
-		Get(uri).pipe {
-			addReferer ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
-		}.andThen {
+		val pipeline = addReferer ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
+
+		val decodedResponse = pipeline(Get(uri)).andThen {
 			case Success(res) => ConfigNode().download(res.entity.data.length, res.status.isSuccess, res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.deflate)
 			case Failure(_) => ConfigNode().download(0, success = false)
 		}.map { decode(Gzip) ~> decode(Deflate) }
-			.flatMap { res =>
-				val headLoc = res.header[Location]
-				res.status.intValue match {
-					case 301 | 302 if headLoc.nonEmpty =>
-						val newLoc = Uri.parseAndResolve( /*Suri.parse(*/ headLoc.get.uri.toString() /*).toString*/ , uri)
-						logger.info(s"new location $newLoc old ($uri)")
-						getResponse(newLoc, referer)
-					case 200 => Future.successful(res)
-					case _ => Future.failed(new Throwable(s"invalid response ${res.status}; $uri ($referer)"))
-				}
-			}
+
+		handleMoved(decodedResponse, uri, referrer)
+
 	}
 
 	def getDocument(uri: Uri): Future[Document] = getResponse(uri).map { res =>
@@ -69,6 +73,6 @@ trait NetworkPrimitives extends StrictLogging {
 	}
 
 	def getElementsData(elements: Seq[ElementDescription]): Future[Seq[ElementData]] = {
-		elements.map { getElementData }.pipe { Future.sequence(_) }
+		Future.sequence(elements.map { getElementData })
 	}
 }

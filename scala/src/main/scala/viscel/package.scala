@@ -18,19 +18,5 @@ package object viscel extends StrictLogging {
 
 	def failure(x: String) = Failure(new Throwable(x))
 
-	implicit class Identity[T](x: T) {
-		def pipe[R](f: T => R) = f(x)
-		def tap[R](f: T => R) = { f(x); x }
-		def validate(p: T => Boolean, msg: Throwable) = Try { if (p(x)) x else throw msg }
-		def validate(p: T => Boolean) = Try { if (p(x)) x else throw new Throwable(s"could not validate property of $x") }
-	}
-
-	implicit class TryPimps[T](x: Try[T]) {
-		def toFuture = x match {
-			case Success(v) => Future.successful(v)
-			case Failure(e) => Future.failed(e)
-		}
-	}
-
 }
 

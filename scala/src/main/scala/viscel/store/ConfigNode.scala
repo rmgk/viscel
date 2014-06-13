@@ -35,8 +35,12 @@ class ConfigNode(val self: Node) extends ViscelNode {
 }
 
 object ConfigNode {
-	def apply() = Neo.txs {
-		Neo.node(label.Config, "id", "config")
-			.getOrElse { Neo.create(label.Config, "id" -> "config", "version" -> 1) }
-	}.pipe { new ConfigNode(_) }
+	def apply() = {
+		val node = Neo.txs {
+			Neo.node(label.Config, "id", "config").getOrElse {
+				Neo.create(label.Config, "id" -> "config", "version" -> 1)
+			}
+		}
+		new ConfigNode(node)
+	}
 }

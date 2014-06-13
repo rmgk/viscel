@@ -5,7 +5,6 @@ import org.jsoup.nodes.{ Document, Element }
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import org.scalactic.Accumulation._
-import viscel.Identity
 
 import scala.collection.JavaConversions._
 import scala.language.implicitConversions
@@ -80,7 +79,7 @@ object Misfile extends Core with WrapperTools with StrictLogging {
 					StructureDescription(ElementDescription(origin = anchor.attr("abs:href"), source = anchor.select("img").attr("abs:src").replace("/t", "/")))
 				}
 			}
-			val next = doc.select("a.next").pipe {
+			val next = doc.select("a.next") match {
 				case ns if ns.size > 0 => PointerDescription(ns(0).attr("abs:href"), "page")
 				case ns => EmptyDescription
 			}

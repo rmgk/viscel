@@ -46,13 +46,15 @@ trait DefaultRoutes extends HttpService {
 
 	var userCache = Map[String, UserNode]()
 
-	def getUserNode(name: String, password: String) =
-		userCache.getOrElse(name, {
-			UserNode(name).getOrElse {
-				logger.warn(s"create new user $name $password")
-				UserNode.create(name, password)
-			}.tap(user => userCache += name -> user)
-		})
+	def getUserNode(name: String, password: String): UserNode = {
+		val existingUser = userCache.get(name).orElse(UserNode(name))
+		existingUser.getOrElse {
+			logger.warn(s"create new user $name $password")
+			val newUser = UserNode.create(name, password)
+			userCache += name -> newUser
+			newUser
+		}
+	}
 
 	val loginOrCreate = BasicAuth(UserPassAuthenticator[UserNode] {
 		case Some(UserPass(user, password)) =>

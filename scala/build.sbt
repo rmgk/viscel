@@ -39,7 +39,7 @@ javaOptions ++= (
   //"-XX:+PrintTenuringDistribution" ::
   Nil)
 
-scalariformSettings
+defaultScalariformSettings
 
 ScalariformKeys.preferences := ScalariformKeys.preferences.value
   .setPreference(IndentWithTabs, true)
