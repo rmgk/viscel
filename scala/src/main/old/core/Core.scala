@@ -27,7 +27,7 @@ trait Core {
 	def wrapArchive(doc: Document): Try[FullArchive]
 	def wrapPage(doc: Document): Try[FullPage]
 	override def equals(other: Any) = other match {
-		case o: Core => id == o.id
+		case o: Core => id === o.id
 		case _ => false
 	}
 	override def hashCode: Int = id.hashCode

@@ -3,7 +3,6 @@ package viscel.newCore
 import akka.actor.Actor
 import akka.pattern.pipe
 import org.jsoup.nodes.Document
-import scala.Some
 import scala.concurrent.ExecutionContext.Implicits.global
 import spray.client.pipelining.SendReceive
 import viscel.store._
@@ -12,12 +11,12 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 
 	override def preStart() = Neo.txs { append(collection, core.archive) }
 
-	def undescribed: Seq[PageNode] = ArchiveNode(collection).map { an =>
+	def undescribed: Seq[PageNode] = ArchiveNode(collection).fold(ifEmpty = Seq[PageNode]()) { an =>
 		ArchiveNode.foldNext(Seq[PageNode](), an) {
 			case (acc, pn: PageNode) => if (pn.describes.isEmpty) acc :+ pn else acc
 			case (acc, sn: StructureNode) => acc
 		}
-	}.getOrElse(Seq[PageNode]())
+	}
 
 	def next() = Neo.txs {
 		undescribed.headOption match {
@@ -66,4 +65,4 @@ val props = Props(classOf[ActorRunner], iop, Misfile, col)
 
 val runner = sys.actorOf(props)
 
-*/ 
+*/

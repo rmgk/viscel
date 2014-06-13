@@ -15,6 +15,7 @@ import viscel.store.UserNode
 import viscel.store.ViscelNode
 import java.io.File
 import akka.pattern.ask
+import org.scalactic.TypeCheckedTripleEquals._
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -59,7 +60,7 @@ trait DefaultRoutes extends HttpService {
 			// time("login") {
 			if (user.matches("\\w+")) {
 				Future.successful {
-					Some(getUserNode(user, password)).filter(_.password == password)
+					Some(getUserNode(user, password)).filter(_.password === password)
 				}
 			}
 			else { Future.successful(None) }

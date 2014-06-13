@@ -40,7 +40,7 @@ trait FullPageRunner extends PageRunner with NetworkPrimitives {
 				foundPage.next match {
 					case Failure(NormalStatus(_)) => foundPage.copy(next = Try(knownNext))
 					case Failure(_) => foundPage
-					case Success(foundNext) if foundNext.loc == knownNext.loc => foundPage
+					case Success(foundNext) if foundNext.loc === knownNext.loc => foundPage
 					case Success(foundNext) => throw FailRun(s"found next ${foundNext.loc} but expected ${knownNext.loc}")
 				}
 		}

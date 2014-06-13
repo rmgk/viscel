@@ -41,7 +41,7 @@ class LegacyCore(val id: String, val name: String, start: String, elementSelecto
 					case Some(t) => Try(t)
 					case None => Try { throw EndRun("image has no anchor parent") }
 				}.pipe { res =>
-					if (res.isFailure || res.get.attr("href") == "" || res.get.attr("href").matches("""(?i).*\.(jpe?g|gif|png|bmp)(\W|$).*"""))
+					if (res.isFailure || res.get.attr("href") === "" || res.get.attr("href").matches("""(?i).*\.(jpe?g|gif|png|bmp)(\W|$).*"""))
 						Try {
 							val candidates = doc.select("a[rel=next], a:contains(next)") ++ doc.select("a").filter(_.html.matches("""(?im).*next.*"""))
 							if (candidates.isEmpty) throw EndRun("no next found")

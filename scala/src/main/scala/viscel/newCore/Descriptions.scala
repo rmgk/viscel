@@ -1,5 +1,6 @@
 package viscel.newCore
 
+import org.scalactic.{ Or, Every, ErrorMessage }
 import spray.http.ContentType
 import spray.http.HttpResponse
 
@@ -16,5 +17,9 @@ case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte]
 sealed trait Description
 case class PointerDescription(loc: AbsUri, pagetype: String) extends Description
 case object EmptyDescription extends Description with Payload
-case class FailedDescription(reason: Throwable) extends Description
+case class FailedDescription(reason: Every[ErrorMessage]) extends Description
 case class StructureDescription(payload: Payload = EmptyDescription, next: Description = EmptyDescription, children: Seq[Description] = Seq()) extends Description
+
+object Description {
+	def fromOr[T](or: Description Or Every[ErrorMessage]): Description = or.fold(identity, FailedDescription)
+}

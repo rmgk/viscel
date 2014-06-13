@@ -53,7 +53,7 @@ class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 		col
 	}
 
-	def getCore(id: String) = availableCores.find(_.id == id).get
+	def getCore(id: String) = availableCores.find(_.id === id).get
 
 	def keepUpdated: Set[String] = ConfigNode().legacyCollections.toSet
 

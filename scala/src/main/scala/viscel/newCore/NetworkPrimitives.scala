@@ -19,6 +19,7 @@ import spray.http.Uri
 import spray.httpx.encoding._
 import viscel._
 import viscel.store._
+import org.scalactic.TypeCheckedTripleEquals._
 
 trait NetworkPrimitives extends StrictLogging {
 
@@ -33,7 +34,7 @@ trait NetworkPrimitives extends StrictLogging {
 		Get(uri).pipe {
 			addReferer ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
 		}.andThen {
-			case Success(res) => ConfigNode().download(res.entity.data.length, res.status.isSuccess, res.encoding == HttpEncodings.deflate || res.encoding == HttpEncodings.deflate)
+			case Success(res) => ConfigNode().download(res.entity.data.length, res.status.isSuccess, res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.deflate)
 			case Failure(_) => ConfigNode().download(0, success = false)
 		}.map { decode(Gzip) ~> decode(Deflate) }
 			.flatMap { res =>

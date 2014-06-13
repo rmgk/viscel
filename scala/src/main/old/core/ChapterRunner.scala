@@ -74,7 +74,7 @@ trait ChapterRunner extends StrictLogging {
 			case Some(en) => Try { en }
 		}
 		def pointerMatches(pp: PagePointer, en: ElementNode) = {
-			if (en.origin == pp.loc.toString) Try { pp }
+			if (en.origin === pp.loc.toString) Try { pp }
 			else Try { throw FailRun(s"element origin does not match page location (${en.origin}) (${pp.loc})") }
 		}
 		def descriptionMatches(ed: ElementDescription, en: ElementNode) = {
@@ -95,7 +95,7 @@ trait ChapterRunner extends StrictLogging {
 
 	def backtrack(page: PageDescription): Future[Unit] = {
 		chapterNode.last match {
-			case Some(last) if last.origin == page.loc.toString =>
+			case Some(last) if last.origin === page.loc.toString =>
 				chapterNode.dropLast(last.origin)
 				backtrack(page)
 			case _ => copy(allowed = Set(page)).update()
@@ -129,7 +129,7 @@ trait ChapterRunner extends StrictLogging {
 
 	def update(): Future[Unit] = {
 		def eatElements(en: ElementNode, curr: PageDescription, eaten: Boolean = false): Option[PageDescription] = {
-			if (en[String]("origin") == curr.loc.toString) en.next match {
+			if (en[String]("origin") === curr.loc.toString) en.next match {
 				case None => Option(curr)
 				case Some(next) => eatElements(next, curr, true)
 			}

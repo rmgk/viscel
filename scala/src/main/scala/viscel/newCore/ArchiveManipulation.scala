@@ -3,6 +3,7 @@ package viscel.newCore
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import scala.Some
 import viscel.store._
+import org.scalactic.TypeCheckedTripleEquals._
 
 trait ArchiveManipulation extends StrictLogging {
 
@@ -17,14 +18,14 @@ trait ArchiveManipulation extends StrictLogging {
 	def createLinkage(an: ArchiveNode, collection: CollectionNode) = {
 		def link(vns: List[ViscelNode], cn: ChapterNode): Unit = vns match {
 			case Nil => ()
-			case vn :: vns =>
+			case vn :: vntail =>
 				vn match {
 					case cn: ChapterNode =>
 						cn.collection = collection
-						link(vns, cn)
+						link(vntail, cn)
 					case en: ElementNode =>
 						en.chapter = cn
-						link(vns, cn)
+						link(vntail, cn)
 				}
 		}
 		val nodes = an.flatten
@@ -84,10 +85,10 @@ trait ArchiveManipulation extends StrictLogging {
 		case (Some(arch), EmptyDescription | FailedDescription(_)) => replace(archive, description)
 
 		case (Some(pn: PageNode), PointerDescription(loc, pagetype)) =>
-			if (pn.location == loc && pn.pagetype == pagetype) Some(pn)
+			if (pn.location === loc && pn.pagetype === pagetype) Some(pn)
 			else replace(archive, description)
 
-		case (Some(sn: StructureNode), desc @ StructureDescription(payload, next, children)) =>
+		case (Some(sn: StructureNode), StructureDescription(payload, next, children)) =>
 			val newNext = update(sn.next, next)
 			val snChildren = sn.children
 			val newChildren = snChildren.map(Some(_)).zipAll(children, None, EmptyDescription).map {
@@ -109,11 +110,11 @@ trait ArchiveManipulation extends StrictLogging {
 		case (Some(arch), EmptyDescription) => replace(node, payload)
 
 		case (Some(cn: ChapterNode), ChapterDescription(name, props)) =>
-			if (cn.name == name) Some(cn)
+			if (cn.name === name) Some(cn)
 			else replace(node, payload)
 
 		case (Some(en: ElementNode), ElementDescription(source, origin, props)) =>
-			if (en[String]("source") == source.toString && en[String]("origin") == origin.toString) Some(en)
+			if (en[String]("source") === source.toString && en[String]("origin") === origin.toString) Some(en)
 			else replace(node, payload)
 
 		case (_, _) => replace(node, payload)
@@ -132,7 +133,7 @@ trait ArchiveManipulation extends StrictLogging {
 			logger.trace("create failed description $reason")
 			None
 
-		case desc @ StructureDescription(payload, next, children) =>
+		case StructureDescription(payload, next, children) =>
 			val payNode = createPayload(payload)
 			val childNodes = children.flatMap { create }
 			val nextNode = create(next)

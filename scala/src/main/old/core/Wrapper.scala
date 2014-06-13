@@ -46,8 +46,8 @@ trait WrapperTools extends StrictLogging {
 		.flatMap { _.validate(_.size > 0, FailRun(s"query not found ($query) on (${from.baseUri})")) }.map { _(0) }
 
 	def findParentTag(from: Element, tagname: String): Option[Element] =
-		if (from.tag.getName == tagname) Some(from)
-		else from.parents.find(_.tag.getName == tagname)
+		if (from.tag.getName === tagname) Some(from)
+		else from.parents.find(_.tag.getName === tagname)
 }
 
 object Misfile extends Core with WrapperTools with StrictLogging {
@@ -146,7 +146,7 @@ object Avengelyne extends Core with WrapperTools with StrictLogging {
 	def id: String = "AX_Avengelyne"
 	def name: String = "Avengelyne"
 	def wrapArchive(doc: Document): Try[FullArchive] =
-		doc.select("#comicspot > table").validate(_.size == 1, FailRun("main id not found")).map { maintable =>
+		doc.select("#comicspot > table").validate(_.size === 1, FailRun("main id not found")).map { maintable =>
 			val months = maintable.select("table.ks_calendar")
 			val chapters = months.map { month =>
 				val mname = month.select("td.ks_bigcal_title").text.trim
@@ -158,7 +158,7 @@ object Avengelyne extends Core with WrapperTools with StrictLogging {
 		}
 
 	def wrapPage(doc: Document): Try[FullPage] =
-		doc.select("#comicspot img.ksc").validate(_.size == 1, FailRun(s"no image found ${doc.baseUri}")).map { img =>
+		doc.select("#comicspot img.ksc").validate(_.size === 1, FailRun(s"no image found ${doc.baseUri}")).map { img =>
 			FullPage(loc = doc.baseUri, elements = img.map { imgToElement }, next = (selectNext(doc, "a[rel=next]:has(#nexty)")))
 		}
 }
@@ -168,7 +168,7 @@ object PhoenixRequiem extends Core with WrapperTools with StrictLogging {
 	def id: String = "AX_PhoenixRequiem"
 	def name: String = "Phoenix Requiem"
 	def wrapArchive(doc: Document): Try[FullArchive] =
-		doc.select(".main table").validate(_.size == 1, FailRun("main id not found")).map { maintable =>
+		doc.select(".main table").validate(_.size === 1, FailRun("main id not found")).map { maintable =>
 			val volumes = maintable.select("tr:matches(Volume|Chapter)").grouped(6).toSeq
 			val chapters = volumes.flatMap { volumeGroup =>
 				val vname = volumeGroup(0).text
@@ -183,7 +183,7 @@ object PhoenixRequiem extends Core with WrapperTools with StrictLogging {
 		}
 
 	def wrapPage(doc: Document): Try[FullPage] =
-		doc.select(".main img[alt=Page][src~=pages/\\d+\\.\\w+]").validate(_.size == 1, EndRun(s"no image found ${doc.baseUri}")).map { img =>
+		doc.select(".main img[alt=Page][src~=pages/\\d+\\.\\w+]").validate(_.size === 1, EndRun(s"no image found ${doc.baseUri}")).map { img =>
 			FullPage(loc = doc.baseUri, elements = img.map { imgToElement }, next = (selectNext(img(0).parent, "a")))
 		}
 }
@@ -195,7 +195,7 @@ object MarryMe extends Core with WrapperTools with StrictLogging {
 	def wrapArchive(doc: Document): Try[FullArchive] = ???
 
 	def wrapPage(doc: Document): Try[FullPage] =
-		doc.select("#comicspot .ksc , #comicspot > a > img").validate(_.size == 1, FailRun(s"no image found ${doc.baseUri}")).map { img =>
+		doc.select("#comicspot .ksc , #comicspot > a > img").validate(_.size === 1, FailRun(s"no image found ${doc.baseUri}")).map { img =>
 			FullPage(loc = doc.baseUri, elements = img.map { imgToElement }, next = (selectNext(doc, "a[rel=next]")))
 		}
 }
@@ -217,13 +217,13 @@ object InverlochArchive extends Core with WrapperTools with StrictLogging {
 				}
 			}
 			val volumes = doc.select("#nav > ul > li.lisub > a")
-			val nVolInd = volumes.indexWhere { _.text == vol } + 1
+			val nVolInd = volumes.indexWhere { _.text === vol } + 1
 			val nextVol = if (1 until volumes.size contains nVolInd) Some(volumes(nVolInd)) else None
 			FullArchive(cdescs, nextVol.map { _.attr("abs:href") }.map { ArchivePointer(_) })
 		}
 
 	def wrapPage(doc: Document): Try[FullPage] =
-		doc.select("#main").validate(_.size == 1, FailRun(s"no image found ${doc.baseUri}")).map { main =>
+		doc.select("#main").validate(_.size === 1, FailRun(s"no image found ${doc.baseUri}")).map { main =>
 			val ed = main.select("> p > img").map { imgToElement }
 			val next = selectNext(main(0), "a:containsOwn(Next)")
 			FullPage(loc = doc.baseUri, elements = ed, next = (next))
@@ -238,7 +238,7 @@ object TwokindsArchive extends Core with WrapperTools with StrictLogging {
 	def wrapArchive(doc: Document): Try[FullArchive] = {
 
 		def extractChapterDescription(element: Element) = for {
-			name <- element.select("h4").validate(_.size == 1).map { _.text }
+			name <- element.select("h4").validate(_.size === 1).map { _.text }
 			pageAnchors <- element.select("a").validate(_.size > 0)
 			pageUris = pageAnchors.map { _.attr("abs:href") }
 		} yield LinkedChapter(name, urisToPagePointer(pageUris))

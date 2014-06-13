@@ -96,6 +96,7 @@ libraryDependencies ++= {
   "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3" ::
   // "com.twitter" %% "util-eval" % "6.5.0" :: // apache 2
   "commons-lang" % "commons-lang" % "2.6" :: // apache 2
+  "org.scalactic" %% "scalactic" % "2.2.0" ::
   Nil
 }
 

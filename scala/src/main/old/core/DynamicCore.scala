@@ -53,7 +53,7 @@
 
 // 	val next = nextSelector.pipe {
 // 		case None => img.flatMap {
-// 			_.parents.find { _.tag.getName == "a" }.pipe {
+// 			_.parents.find { _.tag.getName === "a" }.pipe {
 // 				case Some(t) => Try(t)
 // 				case None => Try { throw endRun("image has no anchor parent") }
 // 			}

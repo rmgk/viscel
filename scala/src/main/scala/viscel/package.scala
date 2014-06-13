@@ -1,4 +1,4 @@
-import com.typesafe.scalalogging.slf4j.{ StrictLogging }
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import java.security.MessageDigest
 import scala.util._
 import scala.concurrent.Future
@@ -12,9 +12,9 @@ package object viscel extends StrictLogging {
 	}
 
 	val digester = MessageDigest.getInstance("SHA1")
-	def sha1hex(b: Array[Byte]) = digester.digest(b).map { "%02x" format _ }.mkString
+	def sha1hex(b: Array[Byte]) = digester.digest(b).map { h => f"$h%02x" }.mkString
 
-	def hashToFilename(h: String): String = (new StringBuilder(h)).insert(2, '/').insert(0, "../cache/").toString
+	def hashToFilename(h: String): String = new StringBuilder(h).insert(2, '/').insert(0, "../cache/").toString()
 
 	def failure(x: String) = Failure(new Throwable(x))
 

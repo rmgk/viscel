@@ -10,6 +10,7 @@ import scala.util._
 import spray.client.pipelining._
 import viscel._
 import viscel.store._
+import org.scalactic.TypeCheckedTripleEquals._
 
 object Clockwork {
 	case object EnqueueDefault
@@ -39,7 +40,7 @@ class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 		col
 	}
 
-	def getCore(id: String) = availableCores.find(_.id == id).get
+	def getCore(id: String) = availableCores.find(_.id === id).get
 
 	def keepUpdated: String => Boolean = x => true //ConfigNode().legacyCollections.toSet
 
@@ -62,8 +63,8 @@ class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 		case msg => logger.warn(s"received unexpected message: $msg")
 	}
 
-	def fillActive() = while (activeCores.size < maxActive && !waitingCores.isEmpty) {
-		update(waitingCores.dequeue)
+	def fillActive() = while (activeCores.size < maxActive && waitingCores.nonEmpty) {
+		update(waitingCores.dequeue())
 	}
 
 	def update(core: Core): Boolean = {

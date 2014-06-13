@@ -3,8 +3,10 @@ package viscel.newCore
 //import com.github.theon.uri.{ Uri => Suri }
 import scala.language.implicitConversions
 import spray.http.Uri
+import org.scalactic.Requirements._
 
 case class AbsUri(uri: Uri) {
+	require(uri.isAbsolute, s"$uri is not absolute")
 	override def toString = uri.toString()
 }
 

@@ -79,7 +79,7 @@ trait MetaNavigation extends HtmlPage {
 	def navDown: Option[String] = None
 
 	def keypress(location: String, keyCodes: Int*) = s"""
-			|if (${keyCodes.map { c => s"ev.keyCode == $c" }.mkString(" || ")}) {
+			|if (${keyCodes.map { c => s"ev.keyCode === $c" }.mkString(" || ")}) {
 			|	ev.preventDefault();
 			|	document.location.pathname = "${location}";
 			|	return false;

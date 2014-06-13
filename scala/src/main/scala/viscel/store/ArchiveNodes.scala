@@ -3,6 +3,7 @@ package viscel.store
 import org.neo4j.graphdb.Node
 import viscel.newCore._
 import scala.collection.JavaConversions._
+import org.scalactic.TypeCheckedTripleEquals._
 
 trait ArchiveNode extends ViscelNode {
 	def flatten = ArchiveNode.foldChildren(Seq[ViscelNode](), this) {
@@ -16,8 +17,8 @@ trait ArchiveNode extends ViscelNode {
 
 object ArchiveNode {
 	def apply(node: Node): ArchiveNode = Neo.txs { node.getLabels.toList } match {
-		case List(l) if l == label.Page => PageNode(node)
-		case List(l) if l == label.Structure => StructureNode(node)
+		case List(l) if l === label.Page => PageNode(node)
+		case List(l) if l === label.Structure => StructureNode(node)
 	}
 	def apply(id: Long): ArchiveNode = apply(Neo.tx { _.getNodeById(id) })
 	def apply(cn: CollectionNode): Option[ArchiveNode] = Neo.txs { cn.self.to(rel.archive).map { apply } }

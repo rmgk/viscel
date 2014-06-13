@@ -48,7 +48,7 @@ trait ArchiveRunner extends NetworkPrimitives with StrictLogging {
 	}
 
 	def updateChapters(chapters: Seq[LinkedChapter]): Future[Unit] = {
-		def matchChapter(chapter: LinkedChapter, cn: ChapterNode): Boolean = cn.name == chapter.name
+		def matchChapter(chapter: LinkedChapter, cn: ChapterNode): Boolean = cn.name === chapter.name
 
 		val dbChapters = collection.children.sortBy { _.position }
 		if (dbChapters.size > chapters.size) return Future.failed(FailRun("collection knows more chapters than found"))

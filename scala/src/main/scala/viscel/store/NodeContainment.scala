@@ -3,6 +3,7 @@ package viscel.store
 import org.neo4j.graphdb.Node
 import scala.collection.JavaConversions._
 import viscel._
+import org.scalactic.TypeCheckedTripleEquals._
 
 trait NodeContainer[ChildType <: ContainableNode[ChildType]] extends ViscelNode {
 
@@ -13,7 +14,7 @@ trait NodeContainer[ChildType <: ContainableNode[ChildType]] extends ViscelNode 
 	def size: Int = Neo.txs { last.map { _.position }.getOrElse(0) }
 
 	def apply(pos: Int) = Neo.txts(s"query $this($pos)") {
-		children.find { _.position == pos }
+		children.find { _.position === pos }
 	}
 
 	def children = Neo.txs {

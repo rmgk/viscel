@@ -1,10 +1,11 @@
 package viscel.server
 
-import viscel.store.{ Util => StoreUtil, _ }
+import viscel.store._
 
 import scala.collection.immutable.LinearSeq
 import scalatags._
 import scalatags.all._
+import org.scalactic.TypeCheckedTripleEquals._
 
 class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation {
 	override def Title = collection.name
@@ -67,7 +68,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 				case n: ChapterNode => false
 			}
 			val elts = elts_.asInstanceOf[Seq[ElementNode]]
-			if (vol == headline) make_pagelist(c, elts) +: make_chapterlist(next, headline)
+			if (vol === headline) make_pagelist(c, elts) +: make_chapterlist(next, headline)
 			else Seq(vol.map(h3(_)), Some(make_pagelist(c, elts))).flatten ++ make_chapterlist(next, vol)
 	}
 

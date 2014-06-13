@@ -41,18 +41,18 @@ trait NetworkPrimitives extends StrictLogging {
 		Get(uri).pipe {
 			addReferer ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
 		}.andThen {
-			case Success(res) => ConfigNode().download(res.entity.data.length, res.status.isSuccess, res.encoding == HttpEncodings.deflate || res.encoding == HttpEncodings.deflate)
+			case Success(res) => ConfigNode().download(res.entity.data.length, res.status.isSuccess, res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.deflate)
 			case Failure(_) => ConfigNode().download(0, false)
 		}.map { decode(Gzip) ~> decode(Deflate) }
 			.flatMap { res =>
 				val headLoc = res.header[Location]
-				if ((res.status.intValue == 301 || res.status.intValue == 302) && !headLoc.isEmpty) {
+				if ((res.status.intValue === 301 || res.status.intValue === 302) && !headLoc.isEmpty) {
 					val newLoc = Uri.parseAndResolve(Suri.parse(headLoc.get.uri.toString).toString, uri)
 					logger.info(s"new location ${newLoc} old ($uri)")
 					response(newLoc, referer)
 				}
 				else res.validate(
-					_.status.intValue == 200,
+					_.status.intValue === 200,
 					FailRun(s"invalid response ${res.status}; $uri ($referer)")).toFuture
 			}
 	}

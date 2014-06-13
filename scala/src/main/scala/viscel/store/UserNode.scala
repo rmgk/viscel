@@ -4,6 +4,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
 import scala.language.implicitConversions
 import scala.collection.JavaConversions._
+import org.scalactic.TypeCheckedTripleEquals._
 
 /**
  * A user node currently encodes the bookmarks of the user.
@@ -75,7 +76,7 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 	}
 
 	def getBookmarkNode(cn: CollectionNode) = Neo.txs {
-		cn.self.outgoing(rel.bookmark).map { _.getEndNode }.find { bmn => bmn.from(rel.bookmarked).get == this.self }
+		cn.self.outgoing(rel.bookmark).map { _.getEndNode }.find { bmn => bmn.from(rel.bookmarked).get === this.self }
 	}
 
 	//def unread = Neo.txs { for (bm <- bookmark; l <- last) yield l.position - bm.position }
