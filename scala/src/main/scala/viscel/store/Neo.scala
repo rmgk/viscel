@@ -1,15 +1,14 @@
 package viscel.store
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.neo4j.cypher.{ExecutionResult, ExecutionEngine}
-import org.neo4j.graphdb.GraphDatabaseService
-import org.neo4j.graphdb.Label
-import org.neo4j.graphdb.Node
-import org.neo4j.graphdb.factory.{ GraphDatabaseSettings, GraphDatabaseFactory }
+import org.neo4j.cypher.ExecutionEngine
+import org.neo4j.graphdb.factory.{GraphDatabaseFactory, GraphDatabaseSettings}
+import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
 import org.neo4j.helpers.Settings
 import org.neo4j.tooling.GlobalGraphOperations
-import scala.collection.JavaConversions._
 import viscel.time
+
+import scala.collection.JavaConversions._
 
 object Neo extends StrictLogging {
 	val db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("neoViscelStore")

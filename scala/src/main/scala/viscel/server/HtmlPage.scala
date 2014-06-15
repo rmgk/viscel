@@ -1,6 +1,6 @@
 package viscel.server
 
-import spray.http.{ ContentType, HttpCharsets, HttpEntity, HttpResponse, MediaTypes }
+import spray.http.{ContentType, HttpCharsets, HttpEntity, HttpResponse, MediaTypes}
 import viscel.store.Neo
 
 import scalatags._

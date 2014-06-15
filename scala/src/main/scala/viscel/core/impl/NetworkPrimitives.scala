@@ -1,6 +1,5 @@
 package viscel.core.impl
 
-//import com.github.theon.uri.{ Uri => Suri }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -31,7 +30,7 @@ trait NetworkPrimitives extends StrictLogging {
 				logger.info(s"new location $newLoc old ($uri)")
 				getResponse(newLoc, referrer)
 			case 200 => Future.successful(res)
-			case _ => Future.failed(new Throwable(s"invalid response ${res.status}; $uri ($referrer)"))
+			case _ => Future.failed(new Throwable(s"invalid response ${ res.status }; $uri ($referrer)"))
 		}
 	}
 

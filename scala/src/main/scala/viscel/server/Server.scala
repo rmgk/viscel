@@ -1,21 +1,20 @@
 package viscel.server
 
+import java.io.File
+
 import akka.actor.Actor
+import akka.pattern.ask
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import scala.concurrent.Future
-import scala.concurrent.duration._
+import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
 import spray.can.server.Stats
-import spray.http.{ MediaTypes, ContentType }
+import spray.http.{ContentType, MediaTypes}
 import spray.routing.authentication._
-import spray.routing.{ HttpService, Route }
-import viscel.store.CollectionNode
-import viscel.store.ElementNode
-import viscel.store.UserNode
-import viscel.store.ViscelNode
-import java.io.File
-import akka.pattern.ask
-import org.scalactic.TypeCheckedTripleEquals._
+import spray.routing.{HttpService, Route}
+import viscel.store.{CollectionNode, ElementNode, UserNode, ViscelNode}
+
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor

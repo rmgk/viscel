@@ -21,7 +21,7 @@ class CollectionNode(val self: Node) extends ViscelNode {
 	def last_=(en: ElementNode) = Neo.txs { self.to_=(rel.last, en.self) }
 	def first: Option[ElementNode] = Neo.txs { self.to(rel.first).map { ElementNode(_) } }
 	def first_=(en: ElementNode) = Neo.txs { self.to_=(rel.first, en.self) }
-	def size: Int = Neo.txs { last.fold(0){ _.position } }
+	def size: Int = Neo.txs { last.fold(0) { _.position } }
 	def apply(n: Int): Option[ElementNode] = time(s"select $name($n)") {
 		var i = 1
 		var res = first

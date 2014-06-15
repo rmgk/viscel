@@ -1,11 +1,9 @@
 package viscel
 
-import org.neo4j.graphdb.Direction
-import org.neo4j.graphdb.Node
-import org.neo4j.graphdb.Relationship
-import org.neo4j.graphdb.RelationshipType
-import scala.language.implicitConversions
+import org.neo4j.graphdb.{Direction, Node, Relationship, RelationshipType}
+
 import scala.collection.JavaConversions._
+import scala.language.implicitConversions
 
 package object store {
 

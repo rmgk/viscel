@@ -1,17 +1,17 @@
 package viscel.core
 
-import akka.actor.{ Props, Actor, ActorRef }
+import akka.actor.{Actor, ActorRef, Props}
 import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import viscel.wrapper.{Twokinds, Misfile}
-import scala.collection._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.util._
+import org.scalactic.TypeCheckedTripleEquals._
 import spray.client.pipelining._
 import viscel._
 import viscel.store._
-import org.scalactic.TypeCheckedTripleEquals._
+import viscel.wrapper.{Misfile, Twokinds}
+
+import scala.collection._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 object Clockwork {
 	case object EnqueueDefault
@@ -23,7 +23,7 @@ object Clockwork {
 
 class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 
-	import Clockwork._
+	import viscel.core.Clockwork._
 
 	var activeCores = Set[Core]()
 	val maxActive = 2

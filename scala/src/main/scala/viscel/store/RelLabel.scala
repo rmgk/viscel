@@ -1,13 +1,12 @@
 package viscel.store
 
-import org.neo4j.graphdb.Label
-import org.neo4j.graphdb.RelationshipType
+import org.neo4j.graphdb.{Label, RelationshipType}
 
 object label {
+
 	class SimpleLabel(val name: String) extends Label
 
 	case object Unlabeled extends SimpleLabel("Unlabeled")
-
 	case object Collection extends SimpleLabel("Collection")
 	case object Element extends SimpleLabel("Element")
 	case object User extends SimpleLabel("User")
@@ -21,6 +20,7 @@ object label {
 }
 
 object rel {
+
 	class SimpleRelationshipType(val name: String) extends RelationshipType
 
 	case object next extends SimpleRelationshipType("next")

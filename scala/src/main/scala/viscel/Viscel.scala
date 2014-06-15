@@ -1,27 +1,20 @@
 package viscel
 
-import akka.actor.{ ActorSystem, Props, Actor }
-import akka.io.IO
-import akka.util.Timeout
 import java.io.File
+
+import akka.actor.{ActorSystem, Props}
+import akka.io.IO
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import joptsimple._
-import org.jsoup.Jsoup
 import org.neo4j.graphdb.traversal._
-import org.neo4j.graphdb._
 import org.neo4j.kernel._
 import org.neo4j.visualization.graphviz._
 import org.neo4j.walk.Walker
-import scala.collection.JavaConversions._
-import scala.concurrent.duration._
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.language.implicitConversions
-import scala.util.Try
 import spray.can.Http
-import spray.client.pipelining._
-import spray.http.Uri
 import viscel.core._
 import viscel.store._
+
+import scala.language.implicitConversions
 
 object Viscel extends StrictLogging {
 
@@ -55,7 +48,7 @@ object Viscel extends StrictLogging {
 		sys.addShutdownHook { Neo.shutdown() }
 
 		if (!nodbwarmup.?) time("warmup db") { Neo.txs {} }
-		logger.info(s"config version: ${ConfigNode().version}")
+		logger.info(s"config version: ${ ConfigNode().version }")
 
 		if (createIndexes.?) {
 			Neo.execute("create index on :Collection(id)")

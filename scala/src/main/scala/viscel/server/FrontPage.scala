@@ -1,11 +1,11 @@
 package viscel.server
 
+import org.scalactic.TypeCheckedTripleEquals._
 import viscel.store._
 
 import scala.collection.immutable.LinearSeq
 import scalatags._
 import scalatags.all._
-import org.scalactic.TypeCheckedTripleEquals._
 
 class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation {
 	override def Title = collection.name
@@ -26,7 +26,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 		make_table(
 			"id" -> collection.id,
 			"name" -> collection.name //"chapter" -> collection.size.toString,
-		//"pages" -> collection.totalSize.toString
+			//"pages" -> collection.totalSize.toString
 		)) :: Nil
 
 	def navigation = Seq[Node](

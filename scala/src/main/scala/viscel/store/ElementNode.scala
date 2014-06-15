@@ -39,10 +39,10 @@ class ElementNode(val self: Node) extends ViscelNode {
 		dist(next, 0)
 	}
 
-//	@deprecated("use proper accessors", "5.0.0")
-//	def apply[T](k: String) = Neo.txs { self[T](k) }
-//	@deprecated("use proper accessors", "5.0.0")
-//	def get[T](k: String) = Neo.txs { self.get[T](k) }
+	//	@deprecated("use proper accessors", "5.0.0")
+	//	def apply[T](k: String) = Neo.txs { self[T](k) }
+	//	@deprecated("use proper accessors", "5.0.0")
+	//	def get[T](k: String) = Neo.txs { self.get[T](k) }
 	def origin = Neo.txs { AbsUri(self[String]("origin")) }
 	def source = Neo.txs { AbsUri(self[String]("source")) }
 

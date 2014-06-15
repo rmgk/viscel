@@ -45,24 +45,24 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 			case Some(n) => Some(ElementNode(n))
 			case None =>
 				None
-				//				for {
-				//					chapter <- bmn.get[Int]("chapter")
-				//					page <- bmn.get[Int]("page")
-				//					ncol <- bmn.from(rel.bookmark)
-				//					col = CollectionNode(ncol)
-				//					en <- col(chapter).flatMap { cn => cn(page).orElse(cn.last) }.orElse(col.last.flatMap { _.last })
-				//				} yield (chapter, page, col, en)
-				//			} match {
-				//				case None =>
-				//					logger.warn(s"disconnected bookmark has insufficient information, delete")
-				//					Neo.delete(bmn)
-				//					None
-				//				case Some((chapter, page, col, en)) =>
-				//					logger.warn(s"rewire disconnected bookmark $name -> ${col.name}($chapter, $page)")
-				//					bmn.createRelationshipTo(en.self, rel.bookmarks)
-				//					bmn.removeProperty("chapter")
-				//					bmn.removeProperty("page")
-				//					Some(en)
+			//				for {
+			//					chapter <- bmn.get[Int]("chapter")
+			//					page <- bmn.get[Int]("page")
+			//					ncol <- bmn.from(rel.bookmark)
+			//					col = CollectionNode(ncol)
+			//					en <- col(chapter).flatMap { cn => cn(page).orElse(cn.last) }.orElse(col.last.flatMap { _.last })
+			//				} yield (chapter, page, col, en)
+			//			} match {
+			//				case None =>
+			//					logger.warn(s"disconnected bookmark has insufficient information, delete")
+			//					Neo.delete(bmn)
+			//					None
+			//				case Some((chapter, page, col, en)) =>
+			//					logger.warn(s"rewire disconnected bookmark $name -> ${col.name}($chapter, $page)")
+			//					bmn.createRelationshipTo(en.self, rel.bookmarks)
+			//					bmn.removeProperty("chapter")
+			//					bmn.removeProperty("page")
+			//					Some(en)
 		}
 	}
 

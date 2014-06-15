@@ -2,7 +2,7 @@ package viscel.server
 
 import org.neo4j.graphdb.Direction
 import spray.http.HttpResponse
-import viscel.store.{ Neo, UserNode, ViscelNode }
+import viscel.store.{Neo, UserNode, ViscelNode}
 
 import scala.collection.JavaConversions._
 import scalatags._

@@ -1,9 +1,10 @@
 package viscel.server
 
+import spray.http.MediaTypes
+import viscel.store.{Util => StoreUtil, rel => _, _}
+
 import scalatags._
 import scalatags.all._
-import spray.http.MediaTypes
-import viscel.store.{Util => StoreUtil, rel => _,  _}
 
 trait MaskLocation extends HtmlPage {
 	def maskLocation: String
@@ -15,14 +16,14 @@ trait HtmlPageUtils {
 
 	def path_main = "/index"
 	def path_css = "/css"
-	def path_front(collection: CollectionNode) = s"/f/${collection.id}"
-	@deprecated("chapter pages no longer supported", "5.0.0") def path_chapter(chapter: ChapterNode) = s"/c/${chapter.name}"
-	def path_view(collection: CollectionNode, absPos: Int) = s"/v/${collection.id}/$absPos"
-	@deprecated("two tiered access no longer supported", "5.0.0") def path_view(collection: CollectionNode, chapter: Int, pos: Int) = s"/v/${collection.id}/$chapter/$pos"
+	def path_front(collection: CollectionNode) = s"/f/${ collection.id }"
+	@deprecated("chapter pages no longer supported", "5.0.0") def path_chapter(chapter: ChapterNode) = s"/c/${ chapter.name }"
+	def path_view(collection: CollectionNode, absPos: Int) = s"/v/${ collection.id }/$absPos"
+	@deprecated("two tiered access no longer supported", "5.0.0") def path_view(collection: CollectionNode, chapter: Int, pos: Int) = s"/v/${ collection.id }/$chapter/$pos"
 	def path_search = "/s"
-	def path_blob(blob: BlobNode) = s"/b/${blob.sha1}"
-	def path_nid(vn: ViscelNode) = s"/i/${vn.nid}"
-	def path_raw(vn: ViscelNode) = s"/r/${vn.nid}"
+	def path_blob(blob: BlobNode) = s"/b/${ blob.sha1 }"
+	def path_nid(vn: ViscelNode) = s"/i/${ vn.nid }"
+	def path_raw(vn: ViscelNode) = s"/r/${ vn.nid }"
 	def path_stop = "/stop"
 
 	val class_main = "main".cls
@@ -77,7 +78,7 @@ trait MetaNavigation extends HtmlPage {
 	def navDown: Option[String] = None
 
 	def keypress(location: String, keyCodes: Int*) = s"""
-			|if (${keyCodes.map { c => s"ev.keyCode === $c" }.mkString(" || ")}) {
+			|if (${ keyCodes.map { c => s"ev.keyCode === $c" }.mkString(" || ") }) {
 			|	ev.preventDefault();
 			|	document.location.pathname = "$location";
 			|	return false;
@@ -87,10 +88,10 @@ trait MetaNavigation extends HtmlPage {
 	def keyNavigation(prev: Option[String] = None, next: Option[String] = None, up: Option[String] = None, down: Option[String] = None) = s"""
 			|document.onkeydown = function(ev) {
 			|	if (!ev.ctrlKey && !ev.altKey) {
-			|${prev.map { loc => keypress(loc, 37, 65, 188) }.getOrElse("")}
-			|${next.map { loc => keypress(loc, 39, 68, 190) }.getOrElse("")}
-			|${up.map { loc => keypress(loc, 13, 87, 77) }.getOrElse("")}
-			|${down.map { loc => keypress(loc, 40, 83, 66, 78) }.getOrElse("")}
+			|${ prev.map { loc => keypress(loc, 37, 65, 188) }.getOrElse("") }
+			|${ next.map { loc => keypress(loc, 39, 68, 190) }.getOrElse("") }
+			|${ up.map { loc => keypress(loc, 13, 87, 77) }.getOrElse("") }
+			|${ down.map { loc => keypress(loc, 40, 83, 66, 78) }.getOrElse("") }
 			| }
 			|}
 			""".stripMargin

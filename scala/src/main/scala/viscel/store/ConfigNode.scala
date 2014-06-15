@@ -1,9 +1,8 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import scala.collection.JavaConversions._
+
 import scala.language.implicitConversions
-import viscel._
 
 class ConfigNode(val self: Node) extends ViscelNode {
 

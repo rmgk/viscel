@@ -2,8 +2,6 @@ package viscel.server
 
 import viscel.store.UserNode
 
-import scalatags.Node
-
 class SelectionPage(user: UserNode) extends HtmlPage {
 	override def Title = "Select"
 

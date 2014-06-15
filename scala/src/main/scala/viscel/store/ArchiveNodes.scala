@@ -1,9 +1,10 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import viscel.core._
-import scala.collection.JavaConversions._
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.core._
+
+import scala.collection.JavaConversions._
 
 trait ArchiveNode extends ViscelNode {
 	def flatten = ArchiveNode.foldChildren(Seq[ViscelNode](), this) {
@@ -23,8 +24,8 @@ object ArchiveNode {
 	def apply(id: Long): ArchiveNode = apply(Neo.tx { _.getNodeById(id) })
 	def apply(cn: CollectionNode): Option[ArchiveNode] = Neo.txs { cn.self.to(rel.archive).map { apply } }
 
-	def foldChildren[A] = fold[A](nextFirst = false)_
-	def foldNext[A] = fold[A](nextFirst = true)_
+	def foldChildren[A] = fold[A](nextFirst = false) _
+	def foldNext[A] = fold[A](nextFirst = true) _
 
 	def fold[A](nextFirst: Boolean)(acc: A, an: ArchiveNode)(op: (A, ArchiveNode) => A): A = {
 		val res = op(acc, an)
@@ -46,8 +47,8 @@ class PageNode(val self: Node) extends ArchiveNode {
 	def pagetype: String = Neo.txs { self[String]("pagetype") }
 	def pointerDescription: PointerDescription = Neo.txs { PointerDescription(location, pagetype) }
 
-//	def sha1 = Neo.txs { self.get[String]("sha1") }
-//	def sha1_=(sha: String) = Neo.txs { self.setProperty("sha1", sha) }
+	//	def sha1 = Neo.txs { self.get[String]("sha1") }
+	//	def sha1_=(sha: String) = Neo.txs { self.setProperty("sha1", sha) }
 
 	def describes = Neo.txs { self.to { rel.describes }.map { StructureNode(_) } }
 

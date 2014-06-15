@@ -1,7 +1,6 @@
 package viscel.server
 
-import viscel.store.UserNode
-import viscel.store.{ Util => StoreUtil }
+import viscel.store.{UserNode, Util => StoreUtil}
 
 class SearchPage(user: UserNode, text: String) extends HtmlPage {
 	override def Title = "Search"

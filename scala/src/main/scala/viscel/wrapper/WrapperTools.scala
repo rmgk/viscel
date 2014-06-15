@@ -1,8 +1,7 @@
 package viscel.wrapper
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.jsoup.nodes.{Document, Element}
-import org.scalactic.Accumulation._
+import org.jsoup.nodes.Element
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.core._

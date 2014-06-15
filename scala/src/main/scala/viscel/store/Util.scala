@@ -2,10 +2,11 @@ package viscel.store
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.tooling.GlobalGraphOperations
+import org.scalactic.TypeCheckedTripleEquals._
 import viscel.time
+
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
-import org.scalactic.TypeCheckedTripleEquals._
 
 object Util extends StrictLogging {
 
@@ -34,7 +35,7 @@ object Util extends StrictLogging {
 	def list = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).toStream.map { CollectionNode(_) } }
 
 	def search(query: String) = time("search") {
-		val lcql = query.toLowerCase.replaceAll("""\s+""", "").toList
+		val lcql = query.toLowerCase.replaceAll( """\s+""", "").toList
 		Neo.txs {
 			if (lcql.isEmpty) list.toIndexedSeq
 			else
@@ -46,7 +47,7 @@ object Util extends StrictLogging {
 		}
 	}
 
-  @tailrec
+	@tailrec
 	def fuzzyMatch(query: List[Char], text: List[Char], score: Long = 0, bestScore: Long = 0): Long = query match {
 		case Nil => bestScore + score * score
 		case q :: qs => text match {

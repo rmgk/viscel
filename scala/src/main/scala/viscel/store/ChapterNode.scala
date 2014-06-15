@@ -14,7 +14,7 @@ class ChapterNode(val self: Node) extends ViscelNode {
 	def apply(k: String) = Neo.txs { self[String](k) }
 	def get(k: String) = Neo.txs { self.get[String](k) }
 
-	override def toString = s"$selfLabel(${collection.name}, $name)"
+	override def toString = s"$selfLabel(${ collection.name }, $name)"
 }
 
 object ChapterNode {

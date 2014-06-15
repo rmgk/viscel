@@ -1,10 +1,9 @@
 package viscel.server
 
+import viscel.store.{UserNode, Util => StoreUtil}
+
 import scalatags._
 import scalatags.all._
-import viscel.store.UserNode
-import viscel.store.{ Util => StoreUtil }
-import scala.collection.JavaConversions._
 
 class IndexPage(user: UserNode) extends HtmlPage {
 	override def Title = "Index"

@@ -1,13 +1,11 @@
 package viscel.server
 
-import scalatags._
-import scalatags.Tags.div
 import spray.can.server.Stats
 import spray.http.HttpResponse
-import viscel.store.ConfigNode
-import viscel.store.Neo
-import viscel.store.UserNode
-import viscel.store.label
+import viscel.store.{ConfigNode, Neo, UserNode, label}
+
+import scalatags.Tags.div
+import scalatags._
 
 class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {
 

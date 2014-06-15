@@ -1,11 +1,7 @@
 package viscel.core
 
-import org.scalactic.Every
 import org.scalactic.TypeCheckedTripleEquals._
-import org.scalactic.ErrorMessage
-import spray.http.{HttpResponse, MediaType}
 import viscel.store._
-import org.scalactic.Or
 
 sealed trait Content {
 	def matches(node: Option[ViscelNode]): Boolean

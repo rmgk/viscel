@@ -28,7 +28,7 @@ trait ViscelNode extends StrictLogging {
 
 	override def hashCode: Int = self.hashCode
 
-	override def toString: String = s"${selfLabel.name}($nid)"
+	override def toString: String = s"${ selfLabel.name }($nid)"
 }
 
 case class UnlabeledNode(self: Node) extends ViscelNode {

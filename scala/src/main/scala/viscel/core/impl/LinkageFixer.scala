@@ -5,7 +5,6 @@ import viscel.store._
 
 import scala.annotation.tailrec
 
-
 trait LinkageFixer extends StrictLogging {
 
 	/**

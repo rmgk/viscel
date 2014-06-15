@@ -1,11 +1,8 @@
 package viscel.core
 
-import org.scalactic.Every
 import org.scalactic.TypeCheckedTripleEquals._
-import org.scalactic.ErrorMessage
-import spray.http.{HttpResponse, MediaType}
+import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.store._
-import org.scalactic.Or
 
 
 sealed trait Description {
@@ -39,7 +36,7 @@ case class StructureDescription(payload: Content = EmptyContent, next: Descripti
 			def childernCorrespond = {
 				val structureChildren = structureNode.children
 				(children.size === structureChildren.size) &&
-					children.zip(structureChildren).forall{ case(child, structureChild) => child.describes(Some(structureChild)) }
+					children.zip(structureChildren).forall { case (child, structureChild) => child.describes(Some(structureChild)) }
 			}
 			nextCorresponds && payloadCorresponds && childernCorrespond
 		case _ => false

@@ -1,7 +1,7 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import spray.http.{MediaTypes, MediaType}
+import spray.http.{MediaType, MediaTypes}
 import viscel.core.AbsUri
 
 import scala.language.implicitConversions
@@ -24,7 +24,7 @@ object BlobNode {
 	def apply(node: Node) = new BlobNode(node)
 	def apply(nodeId: Long) = new BlobNode(Neo.tx { _.getNodeById(nodeId) })
 
-	def find(source: AbsUri) = Neo.txs{Neo.node(label.Blob, "source", source.toString())}.map{apply}
+	def find(source: AbsUri) = Neo.txs { Neo.node(label.Blob, "source", source.toString()) }.map { apply }
 
 	def create(sha1: String, mediatype: MediaType, source: AbsUri) = BlobNode(
 		Neo.create(label.Blob,

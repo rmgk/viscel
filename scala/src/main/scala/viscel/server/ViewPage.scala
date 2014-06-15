@@ -1,16 +1,16 @@
 package viscel.server
 
+import spray.http.HttpResponse
+import viscel.store.{ElementNode, UserNode}
+
 import scalatags._
 import scalatags.all._
-import spray.http.HttpResponse
-import viscel.store.ElementNode
-import viscel.store.UserNode
 
 class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with MetaNavigation with MaskLocation {
 	lazy val collection = enode.collection
 	lazy val pos = enode.position
 
-	override def Title = s"$pos – ${enode.chapter.name} – ${collection.name}"
+	override def Title = s"$pos – ${ enode.chapter.name } – ${ collection.name }"
 	override def bodyId = "view"
 
 	override def maskLocation = path_view(collection, pos)
