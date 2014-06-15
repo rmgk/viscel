@@ -1,0 +1,190 @@
+/*main layout*/
+body {
+	color : #68e466;
+	background-color : black;
+	margin: 0px;
+}
+
+a {
+	text-decoration:none;
+	color:#3654d9;
+	border-color: #3654d9;
+}
+
+a:visited {
+	color:#404c80;
+	border-color: #404c80;
+}
+
+a:hover {
+	text-decoration:underline;
+}
+.bookmark{
+	color:#367ad9;
+}
+a.bookmark:visited {
+	color:#405b80;
+}
+
+a.extern {
+	color:#7a1818;
+}
+/*collection groups*/
+.group {
+	margin: 2cm 10px;
+	padding: 5px 10px 10px 10px;
+	background-color:#00000b;
+	border-style: solid;
+	border-color: #310000;
+	border-width: 1px;
+}
+legend {
+	margin: 0px;
+	padding: 0px;
+	background-color:#00000b;
+	border-style: none;
+	border-color: #310000;
+	border-width: 1px;
+	display:inline;
+	font-size:large;
+}
+fieldset.group div {
+	column-width: 20em;
+	-webkit-column-width: 20em;
+	-moz-column-width: 20em;
+}
+
+.pages {
+	margin: 20px 10px;
+}
+
+/* comic pages */
+.content {
+	padding: 0;
+	margin: 0;
+	text-align: center;
+}
+.content .element {
+	margin: 5px 5px 0 0;
+	padding: 0;
+	border: none; /*firefox displays a border if a link is on the image */
+}
+#view .content {
+	/* flex display seems buggy in current versions of opera with images larger than the screen */
+	/*display: flex;*/
+	display: block;
+	flex-flow: row wrap;
+	align-items: top;
+	justify-content: center;
+}
+#view .content .element {
+	vertical-align: top;
+}
+
+.element {
+	background-color: white;
+}
+
+
+
+/*
+.content img {
+	display: block;
+	margin: 0 auto;
+}
+
+.content embed {
+	display: block;
+	margin: 0 auto;
+}
+*/
+.info {
+	text-align:left;
+	margin: 2cm auto;
+	max-width: 600px;
+	background-color:#00000b;
+	border-style: solid;
+	border-color: #310000;
+	border-width: 1px;
+	padding: 2em 3em;
+}
+
+fieldset.info {
+	padding: 1.2em 3em 2em 3em;
+}
+
+#searchform input {
+	width: 100%;
+}
+
+#front .content {
+	text-align:left;
+	margin: 2cm 1cm;
+	padding: 0.5cm 0px;
+	background-color:#00000b;
+	border-style: solid;
+	border-color: #310000;
+	border-width: 1px;
+	text-align: center;
+}
+
+#front .element {
+	display:inline;
+	max-width: 32%;
+	height: auto;
+	margin: 0px 0.2%;
+	padding: 0px;
+	vertical-align: top;
+}
+
+#config .info {
+	max-width: 80%;
+}
+
+tbody{
+	 vertical-align:top;
+}
+
+/*navigation placement for frontpage and comic pages*/
+.navigation {
+	text-align:center;
+	clear:both;
+	position:static;
+	border-style: solid none solid none;
+	border-color: #310000;
+	border-width: 1px;
+	padding:0.2cm;
+	margin:0px 0px 0px 0px;
+	background-color:#00000b;
+	color: #808080;
+}
+
+.notification {
+	text-align:center;
+	clear:both;
+	position:static;
+	top:0;
+	left:0;
+	border-style: solid none solid none;
+	border-color: #310000;
+	border-width: 1px;
+	padding:0.2cm;
+	margin:0px 0px 0px 0px;
+	background-color:#00000b;
+}
+
+/* pause form */
+form {
+	display: inline;
+}
+form input.submit {
+	border-style:none;
+	background:transparent;
+	color:#beac0a;
+	padding:0;
+	cursor:pointer;
+}
+
+#chapter h3 {
+	text-align:center;
+}
