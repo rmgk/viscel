@@ -1,37 +1,58 @@
 package viscel.core
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import akka.pattern.pipe
 import org.jsoup.nodes.Document
-import scala.concurrent.ExecutionContext.Implicits.global
 import spray.client.pipelining.SendReceive
 import viscel.store._
 
-class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: CollectionNode) extends Actor with ArchiveManipulation with NetworkPrimitives {
+import scala.concurrent.ExecutionContext.Implicits.global
+import scalax.io.Resource
 
-	override def preStart() = Neo.txs { append(collection, core.archive) }
+class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: CollectionNode, val clockwork: ActorRef) extends Actor with ArchiveManipulation with NetworkPrimitives {
 
-	def undescribed: Seq[PageNode] = ArchiveNode(collection).fold(ifEmpty = Seq[PageNode]()) { an =>
+	override def preStart() = Neo.txs { initialDescription(collection, core.archive) }
+
+	def undescribedPages: Seq[PageNode] = ArchiveNode(collection).fold(ifEmpty = Seq[PageNode]()) { an =>
 		ArchiveNode.foldNext(Seq[PageNode](), an) {
 			case (acc, pn: PageNode) => if (pn.describes.isEmpty) acc :+ pn else acc
 			case (acc, sn: StructureNode) => acc
 		}
 	}
 
-	def next() = Neo.txs {
-		undescribed.headOption match {
-			case Some(pn) =>
-				getDocument(pn.location).map { pn -> _ }.pipeTo(self)
-			case None => self ! "done"
+	def placeholderElements: Seq[ElementNode] = ArchiveNode(collection).fold(ifEmpty = Seq[ElementNode]()) { an =>
+		an.flatten.collect { case en: ElementNode if en.blob.isEmpty => en }
+	}
+
+	def next(): Unit = Neo.txs {
+		placeholderElements.headOption match {
+			case Some(en) => Neo.txs {
+				BlobNode.find(en.source) match {
+					case Some(blob) => en.blob = blob; self ! "next"
+					case None => getBlob(ElementContent(en.source, en.origin)).map { en -> _ }.pipeTo(self)
+				}
+			}
+			case None =>
+				undescribedPages.headOption match {
+					case Some(pn) =>
+						getDocument(pn.location).map { pn -> _ }.pipeTo(self)
+					case None =>
+						clockwork ! Clockwork.Done(core)
+						context.stop(self)
+				}
 		}
 	}
 
 	def always: Receive = {
 		case (pn: PageNode, doc: Document) =>
 			Neo.txs {
-				append(pn, core.wrap(doc, pn.pointerDescription))
-				createLinkage(ArchiveNode(collection).get, collection)
+				applyDescription(pn, core.wrap(doc, pn.pointerDescription))
+				fixLinkage(ArchiveNode(collection).get, collection)
 			}
+			self ! "next"
+		case (en: ElementNode, ed: Blob) =>
+			Resource.fromFile(viscel.hashToFilename(ed.sha1)).write(ed.buffer)
+			Neo.txs { en.blob = BlobNode.create(ed.sha1, ed.mediatype, en.source) }
 			self ! "next"
 		case other => logger.warn(s"unknown message $other")
 	}
@@ -49,20 +70,3 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 
 	def receive: Actor.Receive = idle orElse always
 }
-
-/*
-
-val (sys, ioHttp, _) = Viscel.run("--nocore")
-
-implicit val timeout: Timeout = 30.seconds
-val iop = sendReceive(ioHttp)
-
-import viscel.newCore._
-
-val col = CollectionNode.create("MisfileTest", "MisfileTest")
-
-val props = Props(classOf[ActorRunner], iop, Misfile, col)
-
-val runner = sys.actorOf(props)
-
-*/

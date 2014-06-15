@@ -1,7 +1,7 @@
 package viscel.store
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.neo4j.cypher.ExecutionEngine
+import org.neo4j.cypher.{ExecutionResult, ExecutionEngine}
 import org.neo4j.graphdb.GraphDatabaseService
 import org.neo4j.graphdb.Label
 import org.neo4j.graphdb.Node
@@ -32,8 +32,9 @@ object Neo extends StrictLogging {
 
 	def nodes(label: Label) = txs { GlobalGraphOperations.at(db).getAllNodesWithLabel(label).toIndexedSeq }
 
-	def create(label: Label, attributes: (String, Any)*): Node = Neo.tx { db =>
-		logger.info(s"create node $label($attributes)")
+	def create(label: Label, attributes: (String, Any)*): Node = create(label, attributes.toMap)
+	def create(label: Label, attributes: Map[String, Any]): Node = Neo.tx { db =>
+		logger.debug(s"create node $label($attributes)")
 		val node = db.createNode(label)
 		node.setProperty("created", System.currentTimeMillis)
 		attributes.foreach { case (k, v) => node.setProperty(k, v) }

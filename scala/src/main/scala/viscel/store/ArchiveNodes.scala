@@ -8,7 +8,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 trait ArchiveNode extends ViscelNode {
 	def flatten = ArchiveNode.foldChildren(Seq[ViscelNode](), this) {
 		case (acc, pn: PageNode) => acc
-		case (acc, sn: StructureNode) => sn.describes match {
+		case (acc, sn: StructureNode) => sn.payload match {
 			case Some(vn) => acc :+ vn
 			case None => acc
 		}
@@ -29,7 +29,7 @@ object ArchiveNode {
 	def fold[A](nextFirst: Boolean)(acc: A, an: ArchiveNode)(op: (A, ArchiveNode) => A): A = {
 		val res = op(acc, an)
 		an match {
-			case pn: PageNode => pn.describes.fold(res)(desc => fold(nextFirst)(res, desc)(op))
+			case pn: PageNode => pn.describes.fold(ifEmpty = res)(desc => fold(nextFirst)(res, desc)(op))
 			case sn: StructureNode =>
 				def resChildren(inter: A): A = sn.children.foldLeft(inter)((acc, child) => fold(nextFirst)(acc, child)(op))
 				def resNext(inter: A): A = sn.next.fold(inter)(next => fold(nextFirst)(inter, next)(op))
@@ -46,8 +46,8 @@ class PageNode(val self: Node) extends ArchiveNode {
 	def pagetype: String = Neo.txs { self[String]("pagetype") }
 	def pointerDescription: PointerDescription = Neo.txs { PointerDescription(location, pagetype) }
 
-	def sha1 = Neo.txs { self.get[String]("sha1") }
-	def sha1_=(sha: String) = Neo.txs { self.setProperty("sha1", sha) }
+//	def sha1 = Neo.txs { self.get[String]("sha1") }
+//	def sha1_=(sha: String) = Neo.txs { self.setProperty("sha1", sha) }
 
 	def describes = Neo.txs { self.to { rel.describes }.map { StructureNode(_) } }
 
@@ -68,8 +68,8 @@ class StructureNode(val self: Node) extends ArchiveNode {
 	def selfLabel = label.Structure
 
 	def next = Neo.txs { self.to(rel.next).map { ArchiveNode(_) } }
-	def children = Neo.txs { self.incoming(rel.parent).toIndexedSeq.sortBy(_[Int]("pos")).map { rel => ArchiveNode(rel.getStartNode) } }
-	def describes: Option[ViscelNode] = Neo.txs { self.to(rel.describes).flatMap { ViscelNode(_).toOption } }
+	def children = Neo.txs { self.outgoing(rel.child).toIndexedSeq.sortBy(_[Int]("pos")).map { rel => ArchiveNode(rel.getStartNode) } }
+	def payload: Option[ViscelNode] = Neo.txs { self.to(rel.payload).flatMap { ViscelNode(_).toOption } }
 
 	override def toString = s"Structure($nid)"
 }
@@ -78,5 +78,17 @@ object StructureNode {
 	def apply(node: Node) = new StructureNode(node)
 	def apply(nodeId: Long) = new StructureNode(Neo.tx { _.getNodeById(nodeId) })
 
-	def create() = StructureNode(Neo.create(label.Structure))
+	def create(): StructureNode = StructureNode(Neo.create(label.Structure))
+
+	def create(payloadNodeOption: Option[ViscelNode], nextNodeOption: Option[ArchiveNode], childNodes: Seq[ArchiveNode]): StructureNode = Neo.txs {
+		val newStructureNode = StructureNode.create()
+		payloadNodeOption.foreach(payloadNode => newStructureNode.self.createRelationshipTo(payloadNode.self, rel.payload))
+		nextNodeOption.foreach(nextNode => newStructureNode.self.createRelationshipTo(nextNode.self, rel.next))
+		childNodes.zipWithIndex.foreach {
+			case (childNode, index) =>
+				val parentRelation = newStructureNode.self.createRelationshipTo(childNode.self, rel.child)
+				parentRelation.setProperty("pos", index)
+		}
+		newStructureNode
+	}
 }

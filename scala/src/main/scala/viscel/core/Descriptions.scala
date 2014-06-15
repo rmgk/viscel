@@ -1,25 +1,49 @@
 package viscel.core
 
-import org.scalactic.{ Or, Every, ErrorMessage }
-import spray.http.ContentType
-import spray.http.HttpResponse
+import org.scalactic.Every
+import org.scalactic.TypeCheckedTripleEquals._
+import org.scalactic.ErrorMessage
+import spray.http.{HttpResponse, MediaType}
+import viscel.store._
+import org.scalactic.Or
 
-sealed trait Payload
 
-case class ChapterDescription(name: String, props: Map[String, String] = Map()) extends Payload
-case class ElementDescription(
-	source: AbsUri,
-	origin: AbsUri,
-	props: Map[String, String] = Map()) extends Payload
-
-case class ElementData(mediatype: ContentType, sha1: String, buffer: Array[Byte], response: HttpResponse, description: ElementDescription)
-
-sealed trait Description
-case class PointerDescription(loc: AbsUri, pagetype: String) extends Description
-case object EmptyDescription extends Description with Payload
-case class FailedDescription(reason: Every[ErrorMessage]) extends Description
-case class StructureDescription(payload: Payload = EmptyDescription, next: Description = EmptyDescription, children: Seq[Description] = Seq()) extends Description
+sealed trait Description {
+	def describes(archive: Option[ArchiveNode]): Boolean
+}
 
 object Description {
 	def fromOr[T](or: Description Or Every[ErrorMessage]): Description = or.fold(identity, FailedDescription)
 }
+
+case class PointerDescription(loc: AbsUri, pagetype: String) extends Description {
+	override def describes(archive: Option[ArchiveNode]): Boolean = archive match {
+		case Some(pageNode: PageNode) => pageNode.pointerDescription == this
+		case _ => false
+	}
+}
+
+case object EmptyDescription extends Description {
+	override def describes(archive: Option[ArchiveNode]): Boolean = archive.isEmpty
+}
+
+case class FailedDescription(reason: Every[ErrorMessage]) extends Description {
+	override def describes(archive: Option[ArchiveNode]): Boolean = ???
+}
+
+case class StructureDescription(payload: Content = EmptyContent, next: Description = EmptyDescription, children: Seq[Description] = Seq()) extends Description {
+	override def describes(archive: Option[ArchiveNode]): Boolean = archive match {
+		case Some(structureNode: StructureNode) =>
+			def nextCorresponds = next.describes(structureNode.next)
+			def payloadCorresponds = payload.matches(structureNode.payload)
+			def childernCorrespond = {
+				val structureChildren = structureNode.children
+				(children.size === structureChildren.size) &&
+					children.zip(structureChildren).forall{ case(child, structureChild) => child.describes(Some(structureChild)) }
+			}
+			nextCorresponds && payloadCorresponds && childernCorrespond
+		case _ => false
+	}
+}
+
+

@@ -14,14 +14,17 @@ import spray.http.HttpHeaders.Location
 import spray.http.HttpHeaders.`Accept-Encoding`
 import spray.http.HttpHeaders.`Content-Type`
 import spray.http.HttpRequest
-import spray.http.HttpResponse
 import spray.http.Uri
 import spray.httpx.encoding._
 import viscel._
 import viscel.store._
 import org.scalactic.TypeCheckedTripleEquals._
+import spray.http.HttpResponse
+import spray.http.MediaType
 
 trait NetworkPrimitives extends StrictLogging {
+
+	case class Blob(mediatype: MediaType, sha1: String, buffer: Array[Byte], response: HttpResponse)
 
 	def iopipe: SendReceive
 
@@ -60,19 +63,14 @@ trait NetworkPrimitives extends StrictLogging {
 			res.header[Location].fold(ifEmpty = uri)(_.uri).toString())
 	}
 
-	def getElementData(edesc: ElementDescription): Future[ElementData] = {
+	def getBlob(edesc: ElementContent): Future[Blob] = {
 		getResponse(edesc.source, Some(edesc.origin)).map { res =>
 			val bytes = res.entity.data.toByteArray
-			ElementData(
-				mediatype = res.header[`Content-Type`].get.contentType,
+			Blob(
+				mediatype = res.header[`Content-Type`].get.contentType.mediaType,
 				buffer = bytes,
 				sha1 = sha1hex(bytes),
-				response = res,
-				description = edesc)
+				response = res)
 		}
-	}
-
-	def getElementsData(elements: Seq[ElementDescription]): Future[Seq[ElementData]] = {
-		Future.sequence(elements.map { getElementData })
 	}
 }

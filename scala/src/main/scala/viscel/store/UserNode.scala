@@ -2,9 +2,10 @@ package viscel.store
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
-import scala.language.implicitConversions
-import scala.collection.JavaConversions._
 import org.scalactic.TypeCheckedTripleEquals._
+
+import scala.collection.JavaConversions._
+import scala.language.implicitConversions
 
 /**
  * A user node currently encodes the bookmarks of the user.
@@ -23,17 +24,15 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 
 	def getBookmark(cn: CollectionNode) = Neo.txs { getBookmarkNode(cn).flatMap { bookmarkToElement } }
 
-	//def bookmark(pos: Int): Option[ElementNode] = apply(pos).map(bookmark(_))
-	def setBookmark(en: ElementNode) = Neo.txt(s"create bookmark ${en.collection.id}:${en.position} for $name") { db =>
-		val bmn = getBookmarkNode(en.collection).map { bmn =>
-			bmn.outgoing(rel.bookmarks).foreach { _.delete }
-			bmn
-		}.getOrElse {
+	def setBookmark(en: ElementNode) = Neo.txts(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
+		def createBookmark() = {
 			val bmn = Neo.create(label.Bookmark)
 			self.createRelationshipTo(bmn, rel.bookmarked)
 			en.collection.self.createRelationshipTo(bmn, rel.bookmark)
 			bmn
 		}
+		val bmn = getBookmarkNode(en.collection).getOrElse(createBookmark())
+		bmn.outgoing(rel.bookmarks).foreach { _.delete }
 		bmn.createRelationshipTo(en.self, rel.bookmarks)
 	}
 
@@ -67,7 +66,7 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 		}
 	}
 
-	def deleteBookmark(cn: CollectionNode) = Neo.txts(s"delete bookmark ${cn.id} for $name") {
+	def deleteBookmark(cn: CollectionNode) = Neo.txts(s"delete bookmark ${ cn.id } for $name") {
 		getBookmarkNode(cn).foreach { bmn =>
 			bmn.getRelationships.foreach { _.delete }
 			bmn.delete()
@@ -77,8 +76,6 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 	def getBookmarkNode(cn: CollectionNode) = Neo.txs {
 		cn.self.outgoing(rel.bookmark).map { _.getEndNode }.find { bmn => bmn.from(rel.bookmarked).get === this.self }
 	}
-
-	//def unread = Neo.txs { for (bm <- bookmark; l <- last) yield l.position - bm.position }
 
 }
 

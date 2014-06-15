@@ -55,6 +55,7 @@ object Viscel extends StrictLogging {
 		sys.addShutdownHook { Neo.shutdown() }
 
 		if (!nodbwarmup.?) time("warmup db") { Neo.txs {} }
+		logger.info(s"config version: ${ConfigNode().version}")
 
 		if (createIndexes.?) {
 			Neo.execute("create index on :Collection(id)")
@@ -130,10 +131,11 @@ object Viscel extends StrictLogging {
 			.relationships(rel.archive)
 			.relationships(rel.describes)
 			.relationships(rel.parent)
+			.relationships(rel.child)
 			.evaluator(Evaluators.all)
 		Neo.txs {
 			val writer = new GraphvizWriter()
-			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.next, rel.archive, rel.describes, rel.parent))
+			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.next, rel.archive, rel.describes, rel.parent, rel.child))
 		}
 	}
 

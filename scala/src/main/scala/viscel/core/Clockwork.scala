@@ -16,8 +16,8 @@ object Clockwork {
 	case object EnqueueDefault
 	case class Run(id: String)
 	case class Enqueue(id: String)
-	case class Done(core: Core, status: Try[Unit])
-	lazy val availableCores: Seq[Core] = Seq(Misfile)
+	case class Done(core: Core)
+	lazy val availableCores: Seq[Core] = Seq(Misfile, Twokinds)
 }
 
 class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
@@ -36,7 +36,7 @@ class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 
 	def getCollection(core: Core) = {
 		val col = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, core.name))
-		if (col.name != core.name) col.name = core.name
+		if (col.name !== core.name) col.name = core.name
 		col
 	}
 
@@ -55,7 +55,7 @@ class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 			waitingCores.enqueue(getCore(id))
 			fillActive()
 		case Run(id) => update(getCore(id))
-		case Done(core, status) =>
+		case Done(core) =>
 			val col = getCollection(core)
 			activeCores -= core
 			fillActive()
@@ -78,7 +78,7 @@ class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 
 	def fullArchive(core: Core): Unit = {
 		val col = getCollection(core)
-		val props = Props(classOf[ActorRunner], iopipe, core, col)
+		val props = Props(classOf[ActorRunner], iopipe, core, col, self)
 		val runner = context.actorOf(props, core.name)
 		runner ! "start"
 	}

@@ -16,6 +16,7 @@ object label {
 	case object Chapter extends SimpleLabel("Chapter")
 	case object Page extends SimpleLabel("Archive")
 	case object Structure extends SimpleLabel("Structure")
+	case object Blob extends SimpleLabel("Blob")
 
 }
 
@@ -24,7 +25,9 @@ object rel {
 
 	case object next extends SimpleRelationshipType("next")
 	case object prev extends SimpleRelationshipType("prev")
+	case object payload extends SimpleRelationshipType("payload")
 	case object parent extends SimpleRelationshipType("parent")
+	case object child extends SimpleRelationshipType("child")
 	case object bookmarked extends SimpleRelationshipType("bookmarked")
 	case object bookmarks extends SimpleRelationshipType("bookmarks")
 	case object bookmark extends SimpleRelationshipType("bookmark")
@@ -32,5 +35,6 @@ object rel {
 	case object last extends SimpleRelationshipType("last")
 	case object archive extends SimpleRelationshipType("archive")
 	case object describes extends SimpleRelationshipType("describes")
+	case object blob extends SimpleRelationshipType("blob")
 
 }
