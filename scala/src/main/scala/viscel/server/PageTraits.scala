@@ -62,7 +62,7 @@ trait HtmlPageUtils {
 			tr(td(k), td(v))
 	}))
 
-	def make_fieldset(name: String, entries: Seq[Node]) = fieldset(legend(name), div(entries.flatMap { e => Seq[Node](e, br) }))
+	def make_fieldset(name: String, entries: Seq[Node]) = fieldset(legend(name), div(entries.flatMap { e => List(e, br) }))
 
 }
 
@@ -88,10 +88,10 @@ trait MetaNavigation extends HtmlPage {
 	def keyNavigation(prev: Option[String] = None, next: Option[String] = None, up: Option[String] = None, down: Option[String] = None) = s"""
 			|document.onkeydown = function(ev) {
 			|	if (!ev.ctrlKey && !ev.altKey) {
-			|${ prev.map { loc => keypress(loc, 37, 65, 188) }.getOrElse("") }
-			|${ next.map { loc => keypress(loc, 39, 68, 190) }.getOrElse("") }
-			|${ up.map { loc => keypress(loc, 13, 87, 77) }.getOrElse("") }
-			|${ down.map { loc => keypress(loc, 40, 83, 66, 78) }.getOrElse("") }
+			|${ prev.fold("") { loc => keypress(loc, 37, 65, 188) } }
+			|${ next.fold("") { loc => keypress(loc, 39, 68, 190) } }
+			|${ up.fold("") { loc => keypress(loc, 13, 87, 77) } }
+			|${ down.fold("") { loc => keypress(loc, 40, 83, 66, 78) } }
 			| }
 			|}
 			""".stripMargin

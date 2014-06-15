@@ -72,7 +72,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 			else Seq(vol.map(h3(_)), Some(make_pagelist(c, elts))).flatten ++ make_chapterlist(next, vol)
 	}
 
-	def chapterlist = make_chapterlist(collection.archive.map { _.flatten }.to[LinearSeq].flatten, None)
+	def chapterlist = make_chapterlist(collection.archive.map { _.flatPayload }.to[LinearSeq].flatten, None)
 }
 
 object FrontPage {

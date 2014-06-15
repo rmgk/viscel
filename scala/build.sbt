@@ -29,6 +29,7 @@ javaOptions ++= (
   //"-server" ::
   //"-Xms16m" ::
   //"-Xmx1g" ::
+	//"-Xss1m" ::
   //"-XX:MinHeapFreeRatio=5" ::
   //"-XX:MaxHeapFreeRatio=10" ::
   //"-XX:NewRatio=12" ::

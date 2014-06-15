@@ -103,21 +103,22 @@ object Viscel extends StrictLogging {
 	}
 
 	def visualizeUser(user: UserNode, dotpath: String) = {
-		val td = Traversal.description.depthFirst
+		Neo.tx { db =>
+			val td = db.traversalDescription().depthFirst
 			.relationships(rel.bookmarked)
 			.relationships(rel.bookmarks)
 			.relationships(rel.bookmark)
 			.relationships(rel.first)
 			.relationships(rel.last)
 			.evaluator(Evaluators.excludeStartPosition)
-		Neo.txs {
 			val writer = new GraphvizWriter()
 			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(user.self).nodes, rel.bookmarked, rel.bookmarks, rel.bookmark, rel.first, rel.last))
 		}
 	}
 
 	def visualizeCollection(col: CollectionNode, dotpath: String) = {
-		val td = Traversal.description.depthFirst
+		Neo.tx { db =>
+			val td = db.traversalDescription().depthFirst
 			.relationships(rel.first)
 			.relationships(rel.last)
 			.relationships(rel.next)
@@ -126,7 +127,6 @@ object Viscel extends StrictLogging {
 			.relationships(rel.parent)
 			.relationships(rel.child)
 			.evaluator(Evaluators.all)
-		Neo.txs {
 			val writer = new GraphvizWriter()
 			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.next, rel.archive, rel.describes, rel.parent, rel.child))
 		}

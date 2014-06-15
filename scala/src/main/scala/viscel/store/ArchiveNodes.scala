@@ -1,22 +1,19 @@
 package viscel.store
 
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.core._
+import viscel.core.{AbsUri, PointerDescription}
 
+import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 
-trait ArchiveNode extends ViscelNode {
-	def flatten = ArchiveNode.foldChildren(Seq[ViscelNode](), this) {
-		case (acc, pn: PageNode) => acc
-		case (acc, sn: StructureNode) => sn.payload match {
-			case Some(vn) => acc :+ vn
-			case None => acc
-		}
-	}
+sealed trait ArchiveNode extends ViscelNode {
+	def flatten: List[ArchiveNode] = ArchiveNode.flatten(List[ArchiveNode](), List(this))
+	def flatPayload: List[ViscelNode] = flatten.collect { case sn: StructureNode => sn.payload }.flatten.reverse
 }
 
-object ArchiveNode {
+object ArchiveNode extends StrictLogging {
 	def apply(node: Node): ArchiveNode = Neo.txs { node.getLabels.toList } match {
 		case List(l) if l === label.Page => PageNode(node)
 		case List(l) if l === label.Structure => StructureNode(node)
@@ -24,20 +21,14 @@ object ArchiveNode {
 	def apply(id: Long): ArchiveNode = apply(Neo.tx { _.getNodeById(id) })
 	def apply(cn: CollectionNode): Option[ArchiveNode] = Neo.txs { cn.self.to(rel.archive).map { apply } }
 
-	def foldChildren[A] = fold[A](nextFirst = false) _
-	def foldNext[A] = fold[A](nextFirst = true) _
-
-	def fold[A](nextFirst: Boolean)(acc: A, an: ArchiveNode)(op: (A, ArchiveNode) => A): A = {
-		val res = op(acc, an)
-		an match {
-			case pn: PageNode => pn.describes.fold(ifEmpty = res)(desc => fold(nextFirst)(res, desc)(op))
-			case sn: StructureNode =>
-				def resChildren(inter: A): A = sn.children.foldLeft(inter)((acc, child) => fold(nextFirst)(acc, child)(op))
-				def resNext(inter: A): A = sn.next.fold(inter)(next => fold(nextFirst)(inter, next)(op))
-				if (nextFirst) resChildren(resNext(res))
-				else resNext(resChildren(res))
-		}
+	@tailrec
+	def flatten(acc: List[ArchiveNode], node: List[ArchiveNode], shallow: Boolean = false): List[ArchiveNode] = node match {
+		case Nil => acc
+		case (pn: PageNode) :: rest => flatten(pn :: acc, if (shallow) rest else pn.describes.fold(rest)(rest.::), shallow)
+		case (sn: StructureNode) :: rest =>
+			flatten(sn :: acc, sn.children.toList ::: sn.next.fold(rest)(rest.::), shallow)
 	}
+
 }
 
 class PageNode(val self: Node) extends ArchiveNode {
@@ -47,10 +38,8 @@ class PageNode(val self: Node) extends ArchiveNode {
 	def pagetype: String = Neo.txs { self[String]("pagetype") }
 	def pointerDescription: PointerDescription = Neo.txs { PointerDescription(location, pagetype) }
 
-	//	def sha1 = Neo.txs { self.get[String]("sha1") }
-	//	def sha1_=(sha: String) = Neo.txs { self.setProperty("sha1", sha) }
-
 	def describes = Neo.txs { self.to { rel.describes }.map { StructureNode(_) } }
+	def describes_=(other: ArchiveNode): Unit = Neo.txs { self.createRelationshipTo(other.self, rel.describes) }
 
 	def lastUpdate = Neo.txs { self.get[Long]("last_update").getOrElse(0L) }
 	def lastUpdate_=(time: Long) = Neo.txs { self.setProperty("last_update", time) }
@@ -68,8 +57,8 @@ object PageNode {
 class StructureNode(val self: Node) extends ArchiveNode {
 	def selfLabel = label.Structure
 
-	def next = Neo.txs { self.to(rel.next).map { ArchiveNode(_) } }
-	def children = Neo.txs { self.outgoing(rel.child).toIndexedSeq.sortBy(_[Int]("pos")).map { rel => ArchiveNode(rel.getStartNode) } }
+	def next: Option[ArchiveNode] = Neo.txs { self.to(rel.next).map { ArchiveNode(_) } }
+	def children: Vector[ArchiveNode] = Neo.txs { self.outgoing(rel.child).toVector.sortBy(_[Int]("pos")).map { rel => ArchiveNode(rel.getEndNode) } }
 	def payload: Option[ViscelNode] = Neo.txs { self.to(rel.payload).flatMap { ViscelNode(_).toOption } }
 
 	override def toString = s"Structure($nid)"

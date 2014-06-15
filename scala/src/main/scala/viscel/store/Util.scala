@@ -32,14 +32,14 @@ object Util extends StrictLogging {
 		//		}
 	}
 
-	def list = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).toStream.map { CollectionNode(_) } }
+	def list: IndexedSeq[CollectionNode] = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).map { CollectionNode(_) }.toIndexedSeq }
 
-	def search(query: String) = time("search") {
+	def search(query: String): IndexedSeq[CollectionNode] = time("search") {
 		val lcql = query.toLowerCase.replaceAll( """\s+""", "").toList
 		Neo.txs {
-			if (lcql.isEmpty) list.toIndexedSeq
+			if (lcql.isEmpty) list
 			else
-				list.map { cn => cn -> fuzzyMatch(lcql, cn.name.toLowerCase.toList) }
+				list.view.map { cn => cn -> fuzzyMatch(lcql, cn.name.toLowerCase.toList) }
 					.filter { _._2 > 0 }
 					.sortBy { -_._2 }
 					.map { _._1 }

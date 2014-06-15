@@ -14,20 +14,19 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 
 	override def preStart() = Neo.txs { initialDescription(collection, core.archive) }
 
-	def undescribedPages: Seq[PageNode] = ArchiveNode(collection).fold(ifEmpty = Seq[PageNode]()) { an =>
-		ArchiveNode.foldNext(Seq[PageNode](), an) {
-			case (acc, pn: PageNode) => if (pn.describes.isEmpty) acc :+ pn else acc
-			case (acc, sn: StructureNode) => acc
-		}
-	}
+	def undescribedPages: Seq[PageNode] = ArchiveNode(collection).fold(ifEmpty = List[ArchiveNode]()){ _.flatten }.collect {
+		case pn: PageNode if pn.describes.isEmpty => pn
+	}.reverse
 
 	def placeholderElements: Seq[ElementNode] = ArchiveNode(collection).fold(ifEmpty = Seq[ElementNode]()) { an =>
-		an.flatten.collect { case en: ElementNode if en.blob.isEmpty => en }
-	}
+		an.flatPayload.collect { case en: ElementNode if en.blob.isEmpty => en }
+	}.reverse
 
 	def next(): Unit = Neo.txs {
 		placeholderElements.headOption match {
-			case Some(en) => Neo.txs {
+			case Some(en) =>
+				logger.info(s"$core: found placeholder element, downloading")
+				Neo.txs {
 				BlobNode.find(en.source) match {
 					case Some(blob) => en.blob = blob; self ! "next"
 					case None => getBlob(ElementContent(en.source, en.origin)).map { en -> _ }.pipeTo(self)
@@ -36,6 +35,7 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 			case None =>
 				undescribedPages.headOption match {
 					case Some(pn) =>
+						logger.info(s"$core: undescribed page $pn, downloading")
 						getDocument(pn.location).map { pn -> _ }.pipeTo(self)
 					case None =>
 						clockwork ! Clockwork.Done(core)
@@ -46,12 +46,14 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 
 	def always: Receive = {
 		case (pn: PageNode, doc: Document) =>
+			logger.info(s"$core: received ${doc.baseUri()}, applying to $pn")
 			Neo.txs {
 				applyDescription(pn, core.wrap(doc, pn.pointerDescription))
 				fixLinkage(ArchiveNode(collection).get, collection)
 			}
 			self ! "next"
 		case (en: ElementNode, ed: Blob) =>
+			logger.info(s"$core: received blob, applying to $en")
 			Resource.fromFile(viscel.hashToFilename(ed.sha1)).write(ed.buffer)
 			Neo.txs { en.blob = BlobNode.create(ed.sha1, ed.mediatype, en.source) }
 			self ! "next"

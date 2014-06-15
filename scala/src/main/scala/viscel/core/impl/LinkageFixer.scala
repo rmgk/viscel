@@ -15,7 +15,7 @@ trait LinkageFixer extends StrictLogging {
 	 */
 	def fixLinkage(an: ArchiveNode, collection: CollectionNode) = {
 		@tailrec
-		def link(vns: List[ViscelNode], cn: ChapterNode): Unit = vns match {
+		def link(vns: List[ViscelNode], currentChapter: ChapterNode): Unit = vns match {
 			case Nil => ()
 			case vn :: vntail =>
 				vn match {
@@ -23,11 +23,12 @@ trait LinkageFixer extends StrictLogging {
 						cn.collection = collection
 						link(vntail, cn)
 					case en: ElementNode =>
-						en.chapter = cn
-						link(vntail, cn)
+						en.chapter = currentChapter
+						link(vntail, currentChapter)
 				}
 		}
-		val nodes = an.flatten
+		val nodes = an.flatPayload
+		require(nodes.headOption.fold(true)(_.isInstanceOf[ChapterNode]), "illegal archive, first node is not a chapter")
 		link(nodes.to[List], null)
 		val elements = nodes.collect { case en: ElementNode => en }
 		elements.reduceLeftOption { (prev, next) =>

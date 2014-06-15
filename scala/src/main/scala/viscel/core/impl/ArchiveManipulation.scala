@@ -1,79 +1,73 @@
 package viscel.core.impl
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import org.neo4j.graphdb.Direction
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.core._
 import viscel.store._
 
 trait ArchiveManipulation extends StrictLogging with LinkageFixer with ArchiveCreator {
 
-	def delete(vn: ViscelNode) = vn.deleteNode()
-
-	def replace(archive: Option[ArchiveNode], description: Description): Option[ArchiveNode] = {
-		logger.warn(s"archive $archive does not match description $description")
-		archive.foreach(delete)
-		create(description)
+	def deletePart(archivePart: List[ViscelNode]) = archivePart.foreach {
+		case sn: StructureNode => sn.deleteNode(warn = false)
+		case pn: PageNode => pn.describes.foreach { described =>
+			if (described.self.getDegree(rel.describes, Direction.INCOMING) < 2)
+				described.flatten.foreach { _.deleteNode(warn = false) }
+		}
 	}
 
-	def replace(archive: Option[ViscelNode], description: Content): Option[ViscelNode] = {
-		logger.warn(s"archive $archive does not match description $description")
-		archive.foreach(delete)
-		createPayload(description)
+	def reuseOldDescriptions(newArchivePart: ArchiveNode, oldArchive: List[ArchiveNode]): Unit = {
+		logger.trace(s"collecting old page nodes from $oldArchive")
+		val oldPageNodes = oldArchive.collect { case pn: PageNode => pn }
+
+		def reuseDescriptionFor(page: PageNode) = {
+			logger.trace(s"search reusable description for $page")
+			for {
+				matchingOldPage <- oldPageNodes.find(oldPage => oldPage.pointerDescription === page.pointerDescription)
+				oldDescription <- matchingOldPage.describes
+			} {
+				logger.trace(s"found description $oldDescription for $page")
+				page.describes = oldDescription
+			}
+		}
+
+		logger.trace(s"reusing descriptions for $newArchivePart")
+		newArchivePart.flatten.foreach {
+			case newPage: PageNode => reuseDescriptionFor(newPage)
+			case _ => ()
+		}
+	}
+
+	def replace(oldArchive: Option[ArchiveNode], description: Description): Option[ArchiveNode] = {
+		logger.trace(s"replace $oldArchive with $description")
+		val newArchivePart = create(description)
+		logger.trace(s"extracting relevant parts from $oldArchive")
+		val oldRelevantPart = ArchiveNode.flatten(List[ArchiveNode](), oldArchive.toList, shallow = true)
+		logger.trace(s"reuse descriptions from $oldRelevantPart in $newArchivePart")
+		newArchivePart.foreach(reuseOldDescriptions(_, oldRelevantPart))
+		logger.trace(s"delete $oldRelevantPart")
+		deletePart(oldRelevantPart)
+		logger.trace(s"done replace $oldArchive with $description")
+		newArchivePart
 	}
 
 	def initialDescription(cn: CollectionNode, description: Description): Option[ArchiveNode] = {
 		val archive = ArchiveNode(cn)
-		val newArch = update(archive, description)
-		if (archive !== newArch) newArch.foreach { an => cn.self.createRelationshipTo(an.self, rel.archive) }
-		newArch
+		if (description.describes(archive)) archive
+		else {
+			val newArch = replace(archive, description)
+			newArch.foreach { an => cn.self.createRelationshipTo(an.self, rel.archive) }
+			newArch
+		}
 	}
 
 	def applyDescription(pn: PageNode, description: Description): Option[ArchiveNode] = {
-		val oan = update(pn.describes, description)
-		if (oan !== pn.describes) oan.foreach { an => pn.self.createRelationshipTo(an.self, rel.describes) }
-		oan
+		if (description.describes(pn.describes)) pn.describes
+		else {
+			val newDescription = replace(pn.describes, description)
+			newDescription.foreach { an => pn.describes = an }
+			newDescription
+		}
 	}
-
-	def update(archive: Option[ArchiveNode], description: Description): Option[ArchiveNode] = (archive, description) match {
-		case (None, desc) => create(desc)
-
-		case (Some(arch), EmptyDescription | FailedDescription(_)) => replace(archive, description)
-
-		case (Some(pn: PageNode), desc@PointerDescription(loc, pagetype)) =>
-			if (pn.pointerDescription === desc) Some(pn)
-			else replace(archive, description)
-
-		case (Some(sn: StructureNode), StructureDescription(payload, next, children)) =>
-			val newNext = update(sn.next, next)
-			val snChildren = sn.children
-			val newChildren = snChildren.map(Some(_)).zipAll(children, None, EmptyDescription).map {
-				case (archiveChild, descriptionChild) => update(archiveChild, descriptionChild)
-			}.flatten
-			val newPayload = updatePayload(sn.payload, payload)
-			if ((newNext !== sn.next) || (newPayload !== sn.payload) || (newChildren !== snChildren)) {
-				sn.deleteNode()
-				Some(StructureNode.create(newPayload, newNext, newChildren))
-			}
-			else Some(sn)
-
-		case (Some(arch), desc) => replace(archive, description)
-	}
-
-	def updatePayload(node: Option[ViscelNode], payload: Content): Option[ViscelNode] = (node, payload) match {
-		case (None, pay) => createPayload(pay)
-
-		case (Some(arch), EmptyContent) => replace(node, payload)
-
-		case (Some(cn: ChapterNode), ChapterContent(name, props)) =>
-			if (cn.name === name) Some(cn)
-			else replace(node, payload)
-
-		case (Some(en: ElementNode), ElementContent(source, origin, props)) =>
-			if (en.source === source && en.origin === origin) Some(en)
-			else replace(node, payload)
-
-		case (_, _) => replace(node, payload)
-	}
-
 
 }
