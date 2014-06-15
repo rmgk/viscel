@@ -24,12 +24,12 @@ class RawPage(user: UserNode, vnode: ViscelNode) extends HtmlPage {
 	def sidePart = {
 		val outgoing = Neo.txs {
 			vnode.self.getRelationships(Direction.OUTGOING).map { rel =>
-				rel.getType.name -> ViscelNode(rel.getEndNode).map { n => link_raw(n, n.toString) }.recover { case e => e.getMessage: Node }.get
+				rel.getType.name -> ViscelNode(rel.getEndNode).fold(n => link_raw(n, n.toString), StringNode)
 			}.toIndexedSeq.sortBy(_._1)
 		}
 		val incoming = Neo.txs {
 			vnode.self.getRelationships(Direction.INCOMING).map { rel =>
-				rel.getType.name -> ViscelNode(rel.getStartNode).map { n => link_raw(n, n.toString) }.recover { case e => e.getMessage: Node }.get
+				rel.getType.name -> ViscelNode(rel.getStartNode).fold(n => link_raw(n, n.toString), StringNode)
 			}.toIndexedSeq.sortBy(_._1)
 		}
 		Seq[Node](fieldset(class_info)(legend("Outgoing"), make_table(outgoing: _*)),

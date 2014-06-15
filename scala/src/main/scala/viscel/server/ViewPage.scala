@@ -10,14 +10,14 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with MetaNav
 	lazy val collection = enode.collection
 	lazy val pos = enode.position
 
-	override def Title = s"${pos} – ${enode.chapter.name} – ${collection.name}"
+	override def Title = s"$pos – ${enode.chapter.name} – ${collection.name}"
 	override def bodyId = "view"
 
-	override def maskLocation = path_view(collection.id, pos)
+	override def maskLocation = path_view(collection, pos)
 
-	override def navPrev = enode.prev.map { en => path_nid(en.nid) }
-	override def navNext = enode.next.map { en => path_nid(en.nid) }
-	override def navUp = Some(path_nid(collection.nid))
+	override def navPrev = enode.prev.map { en => path_nid(en) }
+	override def navNext = enode.next.map { en => path_nid(en) }
+	override def navUp = Some(path_nid(collection))
 
 	override def mainPart = div(class_content)(link_node(enode.next, enodeToImg(enode))) :: Nil
 	override def sidePart = "" :: Nil
@@ -27,11 +27,11 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with MetaNav
 		" ",
 		link_node(collection, "front"),
 		" ",
-		form_post(path_nid(collection.nid),
+		form_post(path_nid(collection),
 			input(`type` := "hidden", name := "bookmark", value := enode.nid.toString),
 			input(`type` := "submit", name := "submit", value := "pause", class_submit)),
 		" ",
-		a(href := enode[String]("origin"))(class_extern)("site"),
+		a(href := enode.origin)(class_extern)("site"),
 		" ",
 		link_node(enode.next, "next"))
 }

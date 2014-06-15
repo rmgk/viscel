@@ -42,18 +42,17 @@ trait DefaultRoutes extends HttpService {
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
 	implicit def executionContext = actorRefFactory.dispatcher
 
-	def hashToFilename(h: String): String = new StringBuilder(h).insert(2, '/').insert(0, "../cache/").toString()
-
 	var userCache = Map[String, UserNode]()
 
 	def getUserNode(name: String, password: String): UserNode = {
-		val existingUser = userCache.get(name).orElse(UserNode(name))
-		existingUser.getOrElse {
-			logger.warn(s"create new user $name $password")
-			val newUser = UserNode.create(name, password)
-			userCache += name -> newUser
-			newUser
-		}
+		userCache.getOrElse(name, {
+			val user = UserNode(name).getOrElse {
+				logger.warn(s"create new user $name $password")
+				UserNode.create(name, password)
+			}
+			userCache += name -> user
+			user
+		})
 	}
 
 	val loginOrCreate = BasicAuth(UserPassAuthenticator[UserNode] {
@@ -95,7 +94,7 @@ trait DefaultRoutes extends HttpService {
 				getFromFile("../style.css")
 			} ~
 			path("b" / Segment) { hash =>
-				val filename = hashToFilename(hash)
+				val filename = viscel.hashToFilename(hash)
 				getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
 			} ~
 			path("f" / Segment) { col =>

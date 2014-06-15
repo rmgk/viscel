@@ -12,13 +12,13 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 
 	override def bodyId = "front"
 
-	override def maskLocation = path_front(collection.id)
+	override def maskLocation = path_front(collection)
 
 	val bm = user.getBookmark(collection)
 	val bm1 = bm.flatMap { _.prev }
 	val bm2 = bm1.flatMap { _.prev }
 
-	def bmRemoveForm(bm: ElementNode) = form_post(path_nid(collection.nid),
+	def bmRemoveForm(bm: ElementNode) = form_post(path_nid(collection),
 		input(`type` := "hidden", name := "remove_bookmark", value := collection.nid.toString),
 		input(`type` := "submit", name := "submit", value := "remove", class_submit))
 
@@ -50,9 +50,9 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 				bm.map { e => link_node(Some(e), enodeToImg(e)) }
 			).flatten[Node]: _*)) ++ chapterlist
 
-	override def navPrev = bm2.orElse(bm1).orElse(collection.first).map { en => path_nid(en.nid) }
+	override def navPrev = bm2.orElse(bm1).orElse(collection.first).map { en => path_nid(en) }
 
-	override def navNext = bm.orElse(collection.last).map { en => path_nid(en.nid) }
+	override def navNext = bm.orElse(collection.last).map { en => path_nid(en) }
 
 	override def navUp = Some(path_main)
 
