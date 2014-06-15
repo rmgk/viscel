@@ -1,26 +1,21 @@
-package viscel.core
+package viscel.core.impl
 
 //import com.github.theon.uri.{ Uri => Suri }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.scalactic.TypeCheckedTripleEquals._
+import spray.client.pipelining._
+import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
+import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
+import spray.httpx.encoding._
+import viscel._
+import viscel.core.ElementContent
+import viscel.store._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.util._
-import spray.client.pipelining._
-import spray.http.HttpCharsets
-import spray.http.HttpEncodings
-import spray.http.HttpHeaders.Location
-import spray.http.HttpHeaders.`Accept-Encoding`
-import spray.http.HttpHeaders.`Content-Type`
-import spray.http.HttpRequest
-import spray.http.Uri
-import spray.httpx.encoding._
-import viscel._
-import viscel.store._
-import org.scalactic.TypeCheckedTripleEquals._
-import spray.http.HttpResponse
-import spray.http.MediaType
 
 trait NetworkPrimitives extends StrictLogging {
 

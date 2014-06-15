@@ -1,44 +1,11 @@
-package viscel.core
+package viscel.core.impl
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.core._
 import viscel.store._
 
-import scala.annotation.tailrec
-
-trait ArchiveManipulation extends StrictLogging {
-
-	/**
-	 * this takes an archive links all elements to their chapters,
-	 * all chapters to the collection,
-	 * creates the first and last pointers
-	 * and links the elements in their order
-	 */
-	def fixLinkage(an: ArchiveNode, collection: CollectionNode) = {
-		@tailrec
-		def link(vns: List[ViscelNode], cn: ChapterNode): Unit = vns match {
-			case Nil => ()
-			case vn :: vntail =>
-				vn match {
-					case cn: ChapterNode =>
-						cn.collection = collection
-						link(vntail, cn)
-					case en: ElementNode =>
-						en.chapter = cn
-						link(vntail, cn)
-				}
-		}
-		val nodes = an.flatten
-		link(nodes.to[List], null)
-		val elements = nodes.collect { case en: ElementNode => en }
-		elements.reduceLeftOption { (prev, next) =>
-			prev.next = next
-			next
-		}
-		elements.headOption.foreach(collection.first = _)
-		elements.lastOption.foreach(collection.last = _)
-
-	}
+trait ArchiveManipulation extends StrictLogging with LinkageFixer with ArchiveCreator {
 
 	def delete(vn: ViscelNode) = vn.deleteNode()
 
@@ -108,31 +75,5 @@ trait ArchiveManipulation extends StrictLogging {
 		case (_, _) => replace(node, payload)
 	}
 
-	def create(desc: Description): Option[ArchiveNode] = desc match {
-		case PointerDescription(loc, pagetype) =>
-			logger.debug(s"create: page node for $desc")
-			Some { PageNode.create(loc, pagetype) }
 
-		case EmptyDescription =>
-			logger.debug("create: empty description")
-			None
-
-		case FailedDescription(reason) =>
-			logger.warn(s"create: failed description $reason")
-			None
-
-		case StructureDescription(payload, next, children) =>
-			val payNode = createPayload(payload)
-			val childNodes = children.flatMap { create }
-			val nextNode = create(next)
-			Some(StructureNode.create(payNode, nextNode, childNodes))
-	}
-
-	def createPayload(payload: Content): Option[ViscelNode] = payload match {
-		case ChapterContent(name, props) =>
-			Some(ChapterNode.create(name, props.to[Seq]: _*))
-		case ElementContent(source, origin, props) =>
-			Some(ElementNode.create(source = source, origin = origin, props))
-		case EmptyContent => None
-	}
 }

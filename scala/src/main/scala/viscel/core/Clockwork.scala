@@ -3,6 +3,7 @@ package viscel.core
 import akka.actor.{ Props, Actor, ActorRef }
 import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import viscel.wrapper.{Twokinds, Misfile}
 import scala.collection._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
