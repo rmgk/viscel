@@ -10,10 +10,12 @@ trait ArchiveManipulation extends StrictLogging with LinkageFixer with ArchiveCr
 
 	def deletePart(archivePart: List[ViscelNode]) = archivePart.foreach {
 		case sn: StructureNode => sn.deleteNode(warn = false)
-		case pn: PageNode => pn.describes.foreach { described =>
-			if (described.self.getDegree(rel.describes, Direction.INCOMING) < 2)
-				described.flatten.foreach { _.deleteNode(warn = false) }
-		}
+		case pn: PageNode =>
+			pn.describes.foreach { described =>
+				if (described.self.getDegree(rel.describes, Direction.INCOMING) < 2)
+					described.flatten.foreach { _.deleteNode(warn = false) }
+			}
+			pn.deleteNode(warn = false)
 	}
 
 	def reuseOldDescriptions(newArchivePart: ArchiveNode, oldArchive: List[ArchiveNode]): Unit = {

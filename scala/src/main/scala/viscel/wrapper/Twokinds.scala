@@ -6,8 +6,6 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.core._
 
-import scala.language.implicitConversions
-
 object Twokinds extends Core with WrapperTools with StrictLogging {
 	def archive = StructureDescription(children =
 		PointerDescription("http://twokinds.keenspot.com/?p=archive", "archive") ::

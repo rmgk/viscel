@@ -54,6 +54,7 @@ object Viscel extends StrictLogging {
 			Neo.execute("create index on :Collection(id)")
 			//Neo.execute("create index on :Element(position)")
 			Neo.execute("create index on :User(name)")
+			Neo.execute("create index on :Blob(source)")
 		}
 
 		if (purgeUnreferenced.?) {

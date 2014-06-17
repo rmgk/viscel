@@ -25,7 +25,7 @@ case object EmptyDescription extends Description {
 }
 
 case class FailedDescription(reason: Every[ErrorMessage]) extends Description {
-	override def describes(archive: Option[ArchiveNode]): Boolean = ???
+	override def describes(archive: Option[ArchiveNode]): Boolean = throw new IllegalStateException(reason.toString())
 }
 
 case class StructureDescription(payload: Content = EmptyContent, next: Description = EmptyDescription, children: Seq[Description] = Seq()) extends Description {
