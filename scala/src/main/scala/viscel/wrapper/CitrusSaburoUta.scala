@@ -15,10 +15,6 @@ object CitrusSaburoUta extends Core with WrapperTools with StrictLogging {
 
 	def name: String = "CITRUS (SABURO UTA)"
 
-	def chapterFrom(name: String, first: AbsUri) = StructureDescription(
-		payload = ChapterContent(name),
-		children = PointerDescription(first, "page") :: Nil)
-
 	def wrapArchive(doc: Document, pd: PointerDescription): StructureDescription Or Every[ErrorMessage] = {
 		selectSome(doc, ".chlist li div :has(.tips):has(.title)").flatMap { chapters =>
 			chapters.reverse.validatedBy { chapter =>

@@ -41,11 +41,11 @@ trait ArchiveManipulation extends StrictLogging with LinkageFixer with ArchiveCr
 	}
 
 	def replace(oldArchive: Option[ArchiveNode], description: Description): Option[ArchiveNode] = {
-		logger.trace(s"replace $oldArchive with $description")
+		logger.debug(s"replace $oldArchive with $description")
 		val newArchivePart = create(description)
 		logger.trace(s"extracting relevant parts from $oldArchive")
 		val oldRelevantPart = ArchiveNode.flatten(List[ArchiveNode](), oldArchive.toList, shallow = true)
-		logger.trace(s"reuse descriptions from $oldRelevantPart in $newArchivePart")
+		logger.debug(s"reuse descriptions from $oldRelevantPart in $newArchivePart")
 		newArchivePart.foreach(reuseOldDescriptions(_, oldRelevantPart))
 		logger.trace(s"delete $oldRelevantPart")
 		deletePart(oldRelevantPart)

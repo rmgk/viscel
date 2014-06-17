@@ -7,7 +7,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import spray.client.pipelining._
 import viscel._
 import viscel.store._
-import viscel.wrapper.{CitrusSaburoUta, Misfile, Twokinds}
+import viscel.wrapper.{Everafter, CitrusSaburoUta, Misfile, Twokinds}
 
 import scala.collection._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -18,7 +18,7 @@ object Clockwork {
 	case class Run(id: String)
 	case class Enqueue(id: String)
 	case class Done(core: Core)
-	lazy val availableCores: Seq[Core] = Seq(Misfile, Twokinds, CitrusSaburoUta)
+	lazy val availableCores: Seq[Core] = Seq(Everafter, CitrusSaburoUta, Misfile, Twokinds)
 }
 
 class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
