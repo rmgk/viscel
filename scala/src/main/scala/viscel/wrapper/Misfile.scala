@@ -3,15 +3,14 @@ package viscel.wrapper
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import org.scalactic._
 import viscel.core._
 import viscel.description._
+import viscel.wrapper.Util._
 
-import scala.collection.JavaConversions._
 import scala.language.implicitConversions
 
-object Misfile extends Core with WrapperTools with StrictLogging {
-	def archive = Pointer("http://www.misfile.com/archives.php?arc=1&displaymode=wide", "archive")
+object Misfile extends Core with StrictLogging {
+	def archive = Pointer("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", "archive")
 
 	def id: String = "NX_Misfile"
 
@@ -21,38 +20,35 @@ object Misfile extends Core with WrapperTools with StrictLogging {
 		payload = Chapter(name),
 		children = Pointer(first, "page") :: Nil)
 
-	def wrapArchive(doc: Document, pd: Pointer): Structure Or Every[ErrorMessage] = {
-		val chapters = selectSome(doc, "#comicbody a:matchesOwn(^Book #\\d+$)").map {
-			_.map { anchor =>
-				chapterFrom(name = anchor.ownText, first = anchor.attr("abs:href"))
+	def wrapArchive(doc: Document) = {
+		val chapters_? = Selection(doc).many("#comicbody a:matchesOwn(^Book #\\d+$)").wrapEach { anchor =>
+			withGood(anchorIntoPointer("page")(anchor)) { pointer =>
+				Chapter(anchor.ownText()) :: pointer
 			}
 		}
-		withGood(wrapPage(doc, pd), chapters) { (page, chapters) =>
-			Structure(children =
-				page.copy(payload = Chapter("Book #1"))
-					+: chapters)
+		// the list of chapters is also the first page, wrap this directly
+		val firstPage_? = wrapPage(doc)
+
+		withGood(firstPage_?, chapters_?) { (page, chapters) =>
+			Chapter("Book #1") :: page :: chapters :: EmptyDescription
 		}
 	}
 
-	def wrapPage(doc: Document, pd: Pointer): Structure Or Every[ErrorMessage] = {
-		selectUnique(doc, ".comiclist table.wide_gallery").flatMap { clist =>
-			val elements_? = selectSome(clist, "[id~=^comic_\\d+$] .picture a").flatMap { anchors =>
-				anchors.validatedBy { anchor =>
-					selectUnique(anchor, "img").map { img =>
-						Structure(ElementContent(origin = anchor.attr("abs:href"), source = img.attr("abs:src").replace("/t", "/")))
-					}
-				}
-			}
-			val next = doc.select("a.next") match {
-				case ns if ns.size > 0 => Pointer(ns(0).attr("abs:href"), "page")
-				case ns => EmptyDescription
-			}
-			elements_?.map { elements => Structure(children = elements, next = next) }
+	def wrapPage(doc: Document) = {
+		val elements_? = Selection(doc)
+			.unique(".comiclist table.wide_gallery")
+			.many("[id~=^comic_\\d+$] .picture a")
+			.unique("img").wrapEach { img => imgToElement(img).map { elem =>
+			Structure(elem.copy(source = elem.source.replace("/t", "/")))
 		}
+		}
+		val next_? = Selection(doc).all("a.next").wrap { selectNext("page") }
+
+		withGood(elements_?, next_?) { _ :: _ }
 	}
 
 	def wrap(doc: Document, pd: Pointer): Description = Description.fromOr(pd.pagetype match {
-		case "archive" => wrapArchive(doc, pd)
-		case "page" => wrapPage(doc, pd)
+		case "archive" => wrapArchive(doc)
+		case "page" => wrapPage(doc)
 	})
 }

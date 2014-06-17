@@ -14,6 +14,7 @@ sealed trait Description {
 		case _ => Structure(children = List(other), next = this)
 	}
 	def ::(content: Content): Description = Structure(payload = content, next = this)
+	def ::(others: Seq[Description]): Description = Structure(children = others, next = this)
 }
 
 object Description {
@@ -31,6 +32,7 @@ case object EmptyDescription extends Description {
 	override def describes(archive: Option[ArchiveNode]): Boolean = archive.isEmpty
 	override def ::(other: Description): Description = other
 	override def ::(other: Content): Description = Structure(payload = other)
+	override def ::(others: Seq[Description]): Description = Structure(children = others)
 }
 
 case class FailedDescription(reason: Every[ErrorMessage]) extends Description {
