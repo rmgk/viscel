@@ -26,7 +26,7 @@ object Util {
 
 	def imgIntoStructure(img: Element) = imgToElement(img).map{Structure(_)}
 
-	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(_.getMessage()).accumulating
+	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${err.getMessage} at ($caller)").accumulating
 
 	def extractUri(element: Element): AbsUri Or One[ErrorMessage] = element.tagName() match {
 		case "a" => extract { AbsUri.fromString(element.attr("abs:href")) }
