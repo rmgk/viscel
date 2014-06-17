@@ -6,7 +6,6 @@ import viscel.core.Core
 import viscel.description.{Description, Structure, Chapter, Pointer}
 import viscel.wrapper.Util._
 
-
 object OldBoy extends Core {
 
 	def archive = Pointer("http://www.mangahere.co/manga/old_boy/", "archive")

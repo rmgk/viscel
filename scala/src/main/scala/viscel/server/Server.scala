@@ -136,7 +136,9 @@ trait DefaultRoutes extends HttpService {
 				}
 			} ~
 			path("core" / Segment) { coreId =>
-				actorRefFactory.actorSelection("/user/clockwork") ! Clockwork.Enqueue(coreId)
+				val core = Clockwork.getCore(coreId).foreach { core =>
+					actorRefFactory.actorSelection("/user/clockwork") ! Clockwork.Run(core)
+				}
 				complete(coreId)
 			}
 	//			path("select") {
