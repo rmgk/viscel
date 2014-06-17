@@ -37,11 +37,16 @@ object Misfile extends Core with StrictLogging {
 	def wrapPage(doc: Document) = {
 		val elements_? = Selection(doc)
 			.unique(".comiclist table.wide_gallery")
-			.many("[id~=^comic_\\d+$] .picture a")
-			.unique("img").wrapEach { img => imgToElement(img).map { elem =>
-			Structure(elem.copy(source = elem.source.replace("/t", "/")))
-		}
-		}
+			.many("[id~=^comic_\\d+$] .picture a").wrapEach { anchor =>
+				val element_? = Selection(anchor).unique("img").wrapOne { imgToElement }
+				val origin_? = extractUri(anchor)
+				withGood(element_?, origin_?) { (element, origin) =>
+					Structure(element.copy(
+						source = element.source.replace("/t", "/"),
+						origin = origin,
+						props = element.props - "width" - "height"))
+				}
+			}
 		val next_? = Selection(doc).all("a.next").wrap { selectNext("page") }
 
 		withGood(elements_?, next_?) { _ :: _ }

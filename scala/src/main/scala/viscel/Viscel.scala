@@ -80,20 +80,20 @@ object Viscel extends StrictLogging {
 			cid <- collectionid.get
 			cn <- CollectionNode(cid)
 		} { visualizeCollection(cn, dotpath) }
-
 		implicit val system = ActorSystem()
+
 		val ioHttp = IO(Http)
+
+		val props = Props(classOf[Clockwork], ioHttp)
+		val clockwork = system.actorOf(props, "clockwork")
 
 		if (!noserver.?) {
 			val server = system.actorOf(Props[viscel.server.Server], "viscel-server")
 			ioHttp ! Http.Bind(server, interface = "0", port = port())
 		}
 
-		val props = Props(classOf[Clockwork], ioHttp)
-		val clockwork = system.actorOf(props, "clockwork")
-
 		if (!nocore.?) {
-			clockwork ! Clockwork.EnqueueDefault
+			//clockwork ! Clockwork.EnqueueDefault
 		}
 
 		if (shutdown.?) {

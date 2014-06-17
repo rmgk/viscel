@@ -11,7 +11,8 @@ import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.authentication._
 import spray.routing.{HttpService, Route}
-import viscel.store.{CollectionNode, ElementNode, UserNode, ViscelNode}
+import viscel.store._
+import viscel.core.Clockwork
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -92,9 +93,13 @@ trait DefaultRoutes extends HttpService {
 			path("css") {
 				getFromFile("../style.css")
 			} ~
-			path("b" / Segment) { hash =>
-				val filename = viscel.hashToFilename(hash)
-				getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
+//			path("b" / Segment) { hash =>
+//				val filename = viscel.hashToFilename(hash)
+//				getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
+			path("b" / LongNumber) { nid =>
+				val blob = BlobNode(nid)
+				val filename = viscel.hashToFilename(blob.sha1)
+				getFromFile(new File(filename), ContentType(blob.mediatype))
 			} ~
 			path("f" / Segment) { col =>
 				rejectNone(CollectionNode(col)) { cn =>
@@ -113,10 +118,10 @@ trait DefaultRoutes extends HttpService {
 					}
 				}
 			} ~
-			path("i" / IntNumber) { id =>
+			path("i" / LongNumber) { id =>
 				complete(PageDispatcher(user, ViscelNode(id).get))
 			} ~
-			path("r" / IntNumber) { id =>
+			path("r" / LongNumber) { id =>
 				complete(RawPage(user, ViscelNode(id).get))
 			} ~
 			(path("s") & parameter('q)) { query =>
@@ -129,6 +134,10 @@ trait DefaultRoutes extends HttpService {
 						.mapTo[Stats]
 					stats.map { StatsPage(user, _) }
 				}
+			} ~
+			path("core" / Segment) { coreId =>
+				actorRefFactory.actorSelection("/user/clockwork") ! Clockwork.Enqueue(coreId)
+				complete(coreId)
 			}
 	//			path("select") {
 	//				entity(as[FormData]) { form =>

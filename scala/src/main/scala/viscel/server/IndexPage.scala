@@ -1,5 +1,6 @@
 package viscel.server
 
+import viscel.core.Clockwork
 import viscel.store.{UserNode, Util => StoreUtil}
 
 import scalatags._
@@ -18,10 +19,12 @@ class IndexPage(user: UserNode) extends HtmlPage {
 		val (unread, current) = bookmarks.map { bm => (bm.collection, bm.collection.name, bm.distanceToLast) }.partition { _._3 > 0 }
 		val unreadTags = unread.sortBy { -_._3 }.map { case (id, name, unread) => link_node(id, s"$name ($unread)") }
 		val currentTags = current.sortBy { _._2 }.map { case (id, name, unread) => link_node(id, s"$name") }
+		val availableCores = Clockwork.availableCores.map{ core => link_core(core)}
 
-		Seq(
-			make_fieldset("New Pages", unreadTags)(class_group),
-			make_fieldset("Bookmarks", currentTags)(class_group))
+		make_fieldset("Available Cores", availableCores)(class_group) ::
+		make_fieldset("New Pages", unreadTags)(class_group) ::
+		make_fieldset("Bookmarks", currentTags)(class_group) ::
+		Nil
 	}
 
 	override def content: Node = body(id := bodyId)(

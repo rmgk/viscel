@@ -1,7 +1,8 @@
 package viscel.server
 
 import spray.http.MediaTypes
-import viscel.store.{Util => StoreUtil, rel => _, _}
+import viscel.core.Core
+import viscel.store.{ rel => _, _}
 
 import scalatags._
 import scalatags.all._
@@ -17,14 +18,13 @@ trait HtmlPageUtils {
 	def path_main = "/index"
 	def path_css = "/css"
 	def path_front(collection: CollectionNode) = s"/f/${ collection.id }"
-	@deprecated("chapter pages no longer supported", "5.0.0") def path_chapter(chapter: ChapterNode) = s"/c/${ chapter.name }"
 	def path_view(collection: CollectionNode, absPos: Int) = s"/v/${ collection.id }/$absPos"
-	@deprecated("two tiered access no longer supported", "5.0.0") def path_view(collection: CollectionNode, chapter: Int, pos: Int) = s"/v/${ collection.id }/$chapter/$pos"
 	def path_search = "/s"
-	def path_blob(blob: BlobNode) = s"/b/${ blob.sha1 }"
+	def path_blob(blob: BlobNode) = s"/b/${ blob.nid }"
 	def path_nid(vn: ViscelNode) = s"/i/${ vn.nid }"
 	def path_raw(vn: ViscelNode) = s"/r/${ vn.nid }"
 	def path_stop = "/stop"
+	def path_core(core: Core) = s"/core/${core.id}"
 
 	val class_main = "main".cls
 	val class_navigation = "navigation".cls
@@ -45,6 +45,7 @@ trait HtmlPageUtils {
 	def link_node(vn: Option[ViscelNode], ts: Node*): Node = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))
 	def link_raw(vn: ViscelNode, ts: Node*): Node = a(href := path_raw(vn))(ts)
 	// def link_node(en: Option[ElementNode], ts: Node*): Node = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
+	def link_core(core: Core): Node = a(href := path_core(core))(core.name)
 
 	def form_post(formAction: String, ts: Node*) = form("method".attr := "post", "enctype".attr := MediaTypes.`application/x-www-form-urlencoded`.toString, action := formAction)(ts)
 	def form_get(formAction: String, ts: Node*) = form("method".attr := "get", "enctype".attr := MediaTypes.`application/x-www-form-urlencoded`.toString, action := formAction)(ts)
