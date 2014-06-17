@@ -9,7 +9,7 @@ import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
 import spray.httpx.encoding._
 import viscel._
-import viscel.core.ElementContent
+import viscel.description.ElementContent
 import viscel.store._
 
 import scala.concurrent.ExecutionContext.Implicits.global

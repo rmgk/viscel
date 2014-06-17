@@ -3,7 +3,8 @@ package viscel.store
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.core.{AbsUri, PointerDescription}
+import viscel.core.AbsUri
+import viscel.description.Pointer
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
@@ -36,7 +37,7 @@ class PageNode(val self: Node) extends ArchiveNode {
 
 	def location: AbsUri = Neo.txs { self[String]("location") }
 	def pagetype: String = Neo.txs { self[String]("pagetype") }
-	def pointerDescription: PointerDescription = Neo.txs { PointerDescription(location, pagetype) }
+	def pointerDescription: Pointer = Neo.txs { Pointer(location, pagetype) }
 
 	def describes = Neo.txs { self.to { rel.describes }.map { StructureNode(_) } }
 	def describes_=(other: ArchiveNode): Unit = Neo.txs { self.createRelationshipTo(other.self, rel.describes) }

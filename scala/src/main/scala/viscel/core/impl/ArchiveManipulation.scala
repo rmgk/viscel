@@ -4,6 +4,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Direction
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.core._
+import viscel.description.Description
 import viscel.store._
 
 trait ArchiveManipulation extends StrictLogging with LinkageFixer with ArchiveCreator {

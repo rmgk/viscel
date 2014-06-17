@@ -1,13 +1,14 @@
-package viscel.core
+package viscel.description
 
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.store._
+import viscel.core._
 
 sealed trait Content {
 	def matches(node: Option[ViscelNode]): Boolean
 }
 
-case class ChapterContent(name: String, props: Map[String, String] = Map()) extends Content {
+case class Chapter(name: String, props: Map[String, String] = Map()) extends Content {
 	override def matches(node: Option[ViscelNode]): Boolean = node match {
 		case Some(chapterNode: ChapterNode) => chapterNode.name === name
 		case _ => false

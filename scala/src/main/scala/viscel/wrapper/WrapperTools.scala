@@ -6,6 +6,7 @@ import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.core._
+import viscel.description._
 
 import scala.collection.JavaConversions._
 import scala.language.implicitConversions
@@ -26,15 +27,15 @@ trait WrapperTools extends StrictLogging {
 			getAttr(img, "width") ++
 			getAttr(img, "height")).toMap)
 
-	def imgIntoStructure(img: Element): StructureDescription Or One[ErrorMessage] = {
-		Or.from(Try { StructureDescription(payload = imgToElement(img)) }).badMap(_.getMessage()).accumulating
+	def imgIntoStructure(img: Element): Structure Or One[ErrorMessage] = {
+		Or.from(Try { Structure(payload = imgToElement(img)) }).badMap(_.getMessage()).accumulating
 	}
 
 	def anchorsIntoPointers(pagetype: String)(elements: Seq[Element]): Description Or Every[ErrorMessage] = {
 		val children_? = elements.validatedBy { anchor =>
-			Or.from(Try { PointerDescription(anchor.attr("abs:href"), pagetype) }).badMap(_.getMessage()).accumulating
+			Or.from(Try { Pointer(anchor.attr("abs:href"), pagetype) }).badMap(_.getMessage()).accumulating
 		}
-		withGood(children_?) { children => StructureDescription(children = children) }
+		withGood(children_?) { children => Structure(children = children) }
 	}
 
 	def caller(n: Int) = {
@@ -58,9 +59,9 @@ trait WrapperTools extends StrictLogging {
 			ifEmpty = Bad(One(s"$from has no parent $tagname")): Element Or One[ErrorMessage]
 		)(Good(_))
 
-	def chapter(name: String, children: Seq[Description] = Seq(), next: Description = EmptyDescription, props: Map[String, String] = Map()): StructureDescription =
-		StructureDescription(
-			payload = ChapterContent(name, props),
+	def chapter(name: String, children: Seq[Description] = Seq(), next: Description = EmptyDescription, props: Map[String, String] = Map()): Structure =
+		Structure(
+			payload = Chapter(name, props),
 			children = children,
 			next = next)
 }
