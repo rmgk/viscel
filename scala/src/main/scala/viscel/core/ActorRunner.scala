@@ -7,6 +7,7 @@ import spray.client.pipelining.SendReceive
 import viscel.core.impl.{ArchiveManipulation, NetworkPrimitives}
 import viscel.description.ElementContent
 import viscel.store._
+import akka.actor.Status.Failure
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalax.io.Resource
@@ -56,6 +57,9 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 			Resource.fromFile(viscel.hashToFilename(ed.sha1)).write(ed.buffer)
 			Neo.txs { en.blob = BlobNode.create(ed.sha1, ed.mediatype, en.source) }
 			self ! "next"
+		case Failure(throwable) =>
+			logger.info(s"failed download core ($core): ${throwable}")
+			clockwork ! Clockwork.Done(core)
 		case other => logger.warn(s"unknown message $other")
 	}
 
