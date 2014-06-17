@@ -58,7 +58,7 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 			Neo.txs { en.blob = BlobNode.create(ed.sha1, ed.mediatype, en.source) }
 			self ! "next"
 		case Failure(throwable) =>
-			logger.info(s"failed download core ($core): ${throwable}")
+			logger.info(s"failed download core ($core): $throwable")
 			clockwork ! Clockwork.Done(core)
 		case other => logger.warn(s"unknown message $other")
 	}
