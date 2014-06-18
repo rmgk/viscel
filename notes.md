@@ -13,18 +13,18 @@
 
 |      group       |                     url                      |
 |------------------|----------------------------------------------|
-| Big Head Press   | <http://www.bigheadpress.com/>               |
-| Smack Jeeves     | <http://www.smackjeeves.com>                 |
-| Webcomics Nation | <http://www.webcomicsnation.com/>            |
-| Graphic Smash    | <http://www.graphicsmash.com/>               |
-| transmission-x   | <http://www.transmission-x.com/>             |
-| Clone Manga      | <http://manga.clone-army.org/index.php>      |
-| Petite Symphony  | <http://petitesymphony.com/>                 |
-| Rice Boy         | <http://www.rice-boy.com/>                   |
-| WLP              | <http://www.wlpcomics.com/adult/comics.html> |
-| Moderntales      | <http://www.moderntales.com/>                |
-| Comic Fury       | <http://comicfury.com/index.php>             |
-| Mangamagazine    | <http://www.mangamagazine.net/>              |
+| ♦ Big Head Press   | <http://www.bigheadpress.com/>               |
+| ♦ Smack Jeeves     | <http://www.smackjeeves.com>                 |
+| ♦ Webcomics Nation | <http://www.webcomicsnation.com/>            |
+| ✘ Graphic Smash    | <http://www.graphicsmash.com/>               |
+| ✘ transmission-x   | <http://www.transmission-x.com/>             |
+| ✔ Clone Manga      | <http://manga.clone-army.org/index.php>      |
+| ✔ Petite Symphony  | <http://petitesymphony.com/>                 |
+| ♦ Rice Boy         | <http://www.rice-boy.com/>                   |
+| ♦ WLP              | <http://www.wlpcomics.com/adult/comics.html> |
+| ✘ Moderntales      | <http://www.moderntales.com/>                |
+| ♦ Comic Fury       | <http://comicfury.com/index.php>             |
+| ✘ Mangamagazine    | <http://www.mangamagazine.net/>              |
 
 
 # comics with multiple strips

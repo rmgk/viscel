@@ -24,7 +24,9 @@ object Util {
 			getAttr(img, "width") ++
 			getAttr(img, "height")).toMap))
 
-	def imgIntoStructure(img: Element) = imgToElement(img).map{Structure(_)}
+	def imgIntoStructure(img: Element): Structure Or Every[ErrorMessage] = imgToElement(img).map{Structure(_)}
+
+	def queryImage(from: Element, query: String): Structure Or Every[ErrorMessage] = Selection(from).unique(query).wrapOne(imgIntoStructure)
 
 	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${err.getMessage} at ($caller)").accumulating
 

@@ -21,7 +21,7 @@ object Clockwork {
 			case "MangaHere" => MangaHere.getCore(core)
 		}
 	}.toSet
-	def availableCores: Set[Core] = metaCores ++ Set(MangaHere.MetaCore, CloneManga.MetaClone, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds)
+	def availableCores: Set[Core] = KatBox.cores() ++ PetiteSymphony.cores() ++ metaCores ++ Set(MangaHere.MetaCore, CloneManga.MetaClone, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds)
 	def getCore(id: String) = availableCores.find(_.id === id)
 }
 
