@@ -15,8 +15,13 @@ import scala.concurrent.duration._
 object Clockwork {
 	case class Run(core: Core)
 	case class Done(core: Core)
-	def metaCores: Set[Core] = Neo.nodes(label.Core).map(node => CloneManga.getCore(CoreNode(node))).toSet
-	def availableCores: Set[Core] = metaCores ++ Set(CloneManga.MetaClone, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds)
+	def metaCores: Set[Core] = Neo.nodes(label.Core).map(CoreNode(_)).map { core =>
+		core.kind match {
+			case "CloneManga" => CloneManga.getCore(core)
+			case "MangaHere" => MangaHere.getCore(core)
+		}
+	}.toSet
+	def availableCores: Set[Core] = metaCores ++ Set(MangaHere.MetaCore, CloneManga.MetaClone, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds)
 	def getCore(id: String) = availableCores.find(_.id === id)
 }
 

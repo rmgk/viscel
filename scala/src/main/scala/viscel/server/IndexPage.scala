@@ -1,7 +1,7 @@
 package viscel.server
 
 import viscel.core.Clockwork
-import viscel.store.{UserNode, Util => StoreUtil}
+import viscel.store._
 
 import scalatags._
 import scalatags.all._
@@ -17,20 +17,24 @@ class IndexPage(user: UserNode) extends HtmlPage {
 	override def mainPart = {
 		val bookmarks = user.bookmarks.toIndexedSeq
 		val (unread, current) = bookmarks.map { bm => (bm.collection, bm.collection.name, bm.distanceToLast) }.partition { _._3 > 0 }
-		val unreadTags = unread.sortBy { -_._3 }.map { case (id, name, unread) => link_node(id, s"$name ($unread)") }
-		val currentTags = current.sortBy { _._2 }.map { case (id, name, unread) => link_node(id, s"$name") }
+		val unreadTags = unread.sortBy { -_._3 }.map { case (collection, name, unread) => link_node(collection, s"$name ($unread)") }
+		val currentTags = current.sortBy { _._2 }.map { case (collection, name, unread) => link_node(collection, s"$name") }
 		val availableCores = Clockwork.availableCores.map{ core => link_core(core)}.toSeq
+		val allCollections = Neo.nodes(viscel.store.label.Collection).map(CollectionNode(_)).sortBy(_.name).map { collection =>
+			link_node(collection, s"${collection.name}")
+		}
 
-		make_fieldset("Available Cores", availableCores)(class_group) ::
 		make_fieldset("New Pages", unreadTags)(class_group) ::
 		make_fieldset("Bookmarks", currentTags)(class_group) ::
-		Nil
+		make_fieldset("All Collections", allCollections)(class_group) ::
+		make_fieldset("Available Cores", availableCores)(class_group) ::
+			Nil
 	}
 
 	override def content: Node = body(id := bodyId)(
-		div(class_main)(mainPart),
 		div(class_side)(sidePart),
-		div(class_navigation)(navigation))
+		div(class_navigation)(navigation),
+		div(class_main)(mainPart))
 }
 
 object IndexPage {
