@@ -11,6 +11,7 @@ object label {
 	case object Chapter extends SimpleLabel("Chapter")
 	case object Collection extends SimpleLabel("Collection")
 	case object Config extends SimpleLabel("Config")
+	case object Core extends SimpleLabel("Core")
 	case object Element extends SimpleLabel("Element")
 	case object Page extends SimpleLabel("Archive")
 	case object Structure extends SimpleLabel("Structure")

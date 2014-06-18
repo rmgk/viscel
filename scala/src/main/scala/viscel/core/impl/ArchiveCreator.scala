@@ -27,5 +27,7 @@ trait ArchiveCreator extends StrictLogging {
 		case ElementContent(source, origin, props) =>
 			Some(ElementNode.create(source = source, origin = origin, props))
 		case EmptyContent => None
+		case CoreContent(kind, id, name, props) =>
+			Some(CoreNode.updateOrCreate(kind, id, name, Map(props)))
 	}
 }

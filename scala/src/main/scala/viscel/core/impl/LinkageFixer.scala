@@ -25,6 +25,7 @@ trait LinkageFixer extends StrictLogging {
 					case en: ElementNode =>
 						en.chapter = currentChapter
 						link(vntail, currentChapter)
+					case coreNode: CoreNode => link(vntail, currentChapter)
 				}
 		}
 		val nodes = an.flatPayload

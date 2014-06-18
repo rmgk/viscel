@@ -27,4 +27,9 @@ case object EmptyContent extends Content {
 	override def matches(node: Option[ViscelNode]): Boolean = node.isEmpty
 }
 
-
+case class CoreContent(kind: String, id: String, name: String, props: (String, Any)*) extends Content {
+	override def matches(node: Option[ViscelNode]): Boolean = node match {
+		case Some(coreNode: CoreNode) => (coreNode.kind === kind) && (coreNode.id == id)
+		case _ => false
+	}
+}

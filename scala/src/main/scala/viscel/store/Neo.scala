@@ -21,7 +21,7 @@ object Neo extends StrictLogging {
 
 	def shutdown(): Unit = db.shutdown()
 
-	def node(label: Label, property: String, value: Any) = txt(s"query $label($property=$value)") { db =>
+	def node(label: Label, property: String, value: Any): Option[Node] = txt(s"query $label($property=$value)") { db =>
 		db.findNodesByLabelAndProperty(label, property, value).toStream match {
 			case Stream(node) => Some(node)
 			case Stream() => None
