@@ -6,6 +6,7 @@ import viscel.core._
 
 sealed trait Content {
 	def matches(node: Option[ViscelNode]): Boolean
+	implicit def toDescription: Description = Structure(payload = this)
 }
 
 case class Chapter(name: String, props: Map[String, String] = Map()) extends Content {

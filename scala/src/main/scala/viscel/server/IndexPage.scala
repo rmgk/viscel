@@ -19,7 +19,7 @@ class IndexPage(user: UserNode) extends HtmlPage {
 		val (unread, current) = bookmarks.map { bm => (bm.collection, bm.collection.name, bm.distanceToLast) }.partition { _._3 > 0 }
 		val unreadTags = unread.sortBy { -_._3 }.map { case (id, name, unread) => link_node(id, s"$name ($unread)") }
 		val currentTags = current.sortBy { _._2 }.map { case (id, name, unread) => link_node(id, s"$name") }
-		val availableCores = Clockwork.availableCores.map{ core => link_core(core)}
+		val availableCores = Clockwork.availableCores.map{ core => link_core(core)}.toSeq
 
 		make_fieldset("Available Cores", availableCores)(class_group) ::
 		make_fieldset("New Pages", unreadTags)(class_group) ::

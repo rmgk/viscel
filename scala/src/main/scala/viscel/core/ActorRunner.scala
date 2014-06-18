@@ -14,7 +14,10 @@ import scalax.io.Resource
 
 class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: CollectionNode, val clockwork: ActorRef) extends Actor with ArchiveManipulation with NetworkPrimitives {
 
-	override def preStart() = Neo.txs { initialDescription(collection, core.archive) }
+	override def preStart() = Neo.txs {
+		initialDescription(collection, core.archive)
+		fixLinkage(ArchiveNode(collection).get, collection)
+	}
 
 	def undescribedPages: Seq[PageNode] = ArchiveNode(collection).fold(ifEmpty = List[ArchiveNode]()) { _.flatten }.collect {
 		case pn: PageNode if pn.describes.isEmpty => pn

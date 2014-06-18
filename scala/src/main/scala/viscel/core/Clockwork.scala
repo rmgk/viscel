@@ -5,9 +5,8 @@ import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.scalactic.TypeCheckedTripleEquals._
 import spray.client.pipelining._
-import viscel._
 import viscel.store._
-import viscel.wrapper.{OldBoy, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds}
+import viscel.wrapper._
 
 import scala.collection._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -16,7 +15,7 @@ import scala.concurrent.duration._
 object Clockwork {
 	case class Run(core: Core)
 	case class Done(core: Core)
-	lazy val availableCores: Seq[Core] = Seq(OldBoy, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds)
+	lazy val availableCores: Set[Core] = CloneManga.cores ++ Set(OldBoy, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds)
 	def getCore(id: String) = availableCores.find(_.id === id)
 }
 
