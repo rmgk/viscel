@@ -17,11 +17,7 @@ class CollectionNode(val self: Node) extends ViscelNode with DescribingNode {
 	def lastUpdate = Neo.txs { self.get[Long]("last_update").getOrElse(0L) }
 	def lastUpdate_=(time: Long) = Neo.txs { self.setProperty("last_update", time) }
 
-	def last: Option[AssetNode] = Neo.txs { self.to(rel.last).map { AssetNode(_) } }
-	def last_=(en: AssetNode) = Neo.txs { self.to_=(rel.last, en.self) }
-	def first: Option[AssetNode] = Neo.txs { self.to(rel.first).map { AssetNode(_) } }
-	def first_=(en: AssetNode) = Neo.txs { self.to_=(rel.first, en.self) }
-	def size: Int = Neo.txs { last.fold(0) { _.position } }
+	def first: Option[AssetNode] = Neo.txs { describes.flatMap(_.findForward{case an: AssetNode => an}) }
 	def apply(n: Int): Option[AssetNode] = time(s"select $name($n)") {
 		var i = 1
 		var res = first

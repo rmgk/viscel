@@ -16,9 +16,9 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 
 	override def maskLocation = path_front(collection)
 
-	val bm = user.getBookmark(collection)
-	val bm1 = bm.flatMap { _.prevAsset }
-	val bm2 = bm1.flatMap { _.prevAsset }
+	val previewLeft = user.getBookmark(collection).orElse(collection.first.flatMap(_.nextAsset).flatMap(_.nextAsset))
+	val previewMiddle = previewLeft.flatMap { _.prevAsset }
+	val previewRight = previewMiddle.flatMap { _.prevAsset }
 
 	def bmRemoveForm(bm: AssetNode) = form_post(path_nid(collection),
 		input(`type` := "hidden", name := "remove_bookmark", value := collection.nid.toString),
@@ -34,27 +34,21 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 	def navigation = Seq[Node](
 		link_main("index"),
 		" – ",
-		// link_node(collection.first, "first"),
-		// " chapter ",
-		// link_node(collection.last, "last"),
-		// " – ",
 		link_node(collection.first, "first"),
-		" ",
-		link_node(collection.last, "last"),
 		" – ",
-		bm.map { bmRemoveForm }.getOrElse("remove"))
+		previewLeft.map { bmRemoveForm }.getOrElse("remove"))
 
 	def sidePart = Seq[Node](
 		div(class_content)(
 			Seq[Option[Node]](
-				bm2.map { e => link_node(Some(e), enodeToImg(e)) },
-				bm1.map { e => link_node(Some(e), enodeToImg(e)) },
-				bm.map { e => link_node(Some(e), enodeToImg(e)) }
+				previewRight.map { e => link_node(Some(e), enodeToImg(e)) },
+				previewMiddle.map { e => link_node(Some(e), enodeToImg(e)) },
+				previewLeft.map { e => link_node(Some(e), enodeToImg(e)) }
 			).flatten[Node]: _*)) ++ chapterlist
 
-	override def navPrev = bm2.orElse(bm1).orElse(collection.first).map { en => path_nid(en) }
+	override def navNext = previewLeft.orElse(previewMiddle).orElse(previewRight).map { en => path_nid(en) }
 
-	override def navNext = bm.orElse(collection.last).map { en => path_nid(en) }
+	override def navPrev = None
 
 	override def navUp = Some(path_main)
 
