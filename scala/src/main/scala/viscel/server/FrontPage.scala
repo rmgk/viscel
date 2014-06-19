@@ -72,7 +72,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 					make_nodelist(pos, done, more ::: rest)
 
 				case (chapterNode: ChapterNode) :: _ =>
-					(done, remaining)
+					(done.reverse.drop(1), remaining)
 
 				case (coreNode: CoreNode) :: rest =>
 					make_nodelist(pos, StringNode(s"Core: ${coreNode.id}") :: done, rest)
@@ -107,7 +107,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 				pageList :: makeChapterList(remaining, headline)
 
 			case (coreNode: CoreNode) :: rest =>
-				StringNode(s"Core: ${coreNode.id}") :: b :: makeChapterList(rest, headline)
+				StringNode(s"Core: ${coreNode.id}") :: br :: makeChapterList(rest, headline)
 
 			case _ :: _ => throw new IllegalArgumentException("unknown archive $head")
 		}

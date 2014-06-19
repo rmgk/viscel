@@ -17,7 +17,7 @@ object KatBox {
 		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
 			case "archive" =>
 				Selection(doc).many("[rel=bookmark]").wrapEach(anchorIntoPointer("page")).map { _.reverse }
-			case "page" => queryImage(doc, ".webcomic-image img")
+			case "page" => queryImages(doc, ".webcomic-image img")
 		})
 	}
 

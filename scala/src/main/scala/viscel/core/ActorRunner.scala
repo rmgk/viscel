@@ -13,7 +13,7 @@ import scalax.io.Resource
 
 class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: CollectionNode, val clockwork: ActorRef) extends Actor with NetworkPrimitives {
 
-	override def preStart() = ArchiveNode.applyDescription(collection, core.archive)
+	override def preStart() = ArchiveManipulation.applyDescription(collection, core.archive)
 
 	def undescribedPage: Option[PageNode] = collection.describes.flatMap(_.findForward{case page: PageNode if page.describes.isEmpty => page})
 
@@ -42,7 +42,7 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 	def always: Receive = {
 		case (pn: PageNode, doc: Document) =>
 			logger.info(s"$core: received ${ doc.baseUri() }, applying to $pn")
-			ArchiveNode.applyDescription(pn, core.wrap(doc, pn.description))
+			ArchiveManipulation.applyDescription(pn, core.wrap(doc, pn.description))
 			self ! "next"
 		case (en: AssetNode, ed: Blob) =>
 			logger.info(s"$core: received blob, applying to $en")

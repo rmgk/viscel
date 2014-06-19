@@ -13,10 +13,10 @@ class AssetNode(val self: Node) extends ArchiveNode {
 	def blob: Option[BlobNode] = Neo.txs { self.to(rel.blob).map { BlobNode(_) } }
 	def blob_=(bn: BlobNode) = Neo.txs { self.to_=(rel.blob, bn.self) }
 
-	def nextAsset: Option[AssetNode] = Neo.txs { next.flatMap{ _.findForward { case asset: AssetNode => asset } } }
-	//def nextAsset_=(en: AssetNode) = Neo.txs { self.to_=(rel.skip, en.self) }
-	def prevAsset: Option[AssetNode] = Neo.txs { prev.flatMap{ _.findBackward { case asset: AssetNode => asset } } }
-	//def prevAsset_=(en: AssetNode) = Neo.txs { self.from_=(rel.skip, en.self) }
+//	def nextAsset: Option[AssetNode] = Neo.txs { next.flatMap{ _.findForward { case asset: AssetNode => asset } } }
+	def nextAsset: Option[AssetNode] = Neo.txs { self.to(rel.skip).map{ AssetNode(_) } }
+//	def prevAsset: Option[AssetNode] = Neo.txs { prev.flatMap{ _.findBackward { case asset: AssetNode => asset } } }
+	def prevAsset: Option[AssetNode] = Neo.txs {  self.from(rel.skip).map{ AssetNode(_) } }
 
 	def position: Int = Neo.txs {
 		@tailrec

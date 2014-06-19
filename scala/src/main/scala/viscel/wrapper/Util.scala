@@ -25,6 +25,7 @@ object Util {
 			getAttr(img, "height")).toMap))
 
 	def queryImage(from: Element, query: String): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgToAsset)
+	def queryImages(from: Element, query: String): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgToAsset)
 
 	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${err.getMessage} at ($caller)").accumulating
 
