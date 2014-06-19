@@ -4,7 +4,7 @@ import org.neo4j.graphdb.Direction
 import spray.http.HttpResponse
 import viscel.store.{Neo, UserNode, ViscelNode}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scalatags._
 import scalatags.all._
 
@@ -15,7 +15,7 @@ class RawPage(user: UserNode, vnode: ViscelNode) extends HtmlPage {
 	override def bodyId = "raw"
 
 	def mainPart = {
-		val properties = Neo.txs { vnode.self.getPropertyKeys.toIndexedSeq.sorted.reverse.map { k => k -> (vnode.self.getProperty(k).toString: Node) } }
+		val properties = Neo.txs { vnode.self.getPropertyKeys.asScala.toIndexedSeq.sorted.reverse.map { k => k -> (vnode.self.getProperty(k).toString: Node) } }
 		div(class_info)(make_table(properties: _*)) :: Nil
 	}
 
@@ -23,12 +23,12 @@ class RawPage(user: UserNode, vnode: ViscelNode) extends HtmlPage {
 
 	def sidePart = {
 		val outgoing = Neo.txs {
-			vnode.self.getRelationships(Direction.OUTGOING).map { rel =>
+			vnode.self.getRelationships(Direction.OUTGOING).asScala.map { rel =>
 				rel.getType.name -> ViscelNode(rel.getEndNode).fold(n => link_raw(n, n.toString), StringNode)
 			}.toIndexedSeq.sortBy(_._1)
 		}
 		val incoming = Neo.txs {
-			vnode.self.getRelationships(Direction.INCOMING).map { rel =>
+			vnode.self.getRelationships(Direction.INCOMING).asScala.map { rel =>
 				rel.getType.name -> ViscelNode(rel.getStartNode).fold(n => link_raw(n, n.toString), StringNode)
 			}.toIndexedSeq.sortBy(_._1)
 		}

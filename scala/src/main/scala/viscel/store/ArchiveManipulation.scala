@@ -72,20 +72,20 @@ object ArchiveManipulation {
 	def fixSkiplist(asset: AssetNode): Unit = {
 		val nextAsset_? = asset.next.flatMap(_.findForward{case asset: AssetNode => asset})
 		nextAsset_? match {
-			case None => asset.self.outgoing(rel.skip).asScala.foreach(_.delete())
+			case None => asset.self.outgoing(rel.skip).foreach(_.delete())
 			case Some(nextAsset) => asset.self.to_=(rel.skip, nextAsset.self)
 		}
 		val prevAsset_? = asset.prev.flatMap(_.findBackward{case asset: AssetNode => asset})
 		prevAsset_? match {
-			case None => asset.self.incoming(rel.skip).asScala.foreach(_.delete())
+			case None => asset.self.incoming(rel.skip).foreach(_.delete())
 			case Some(prevAsset) => prevAsset.self.to_=(rel.skip, asset.self)
 		}
 	}
 
 	def connectLayer(layer: List[ArchiveNode]) = {
 		layer.reduceLeftOption { (prev, next) => prev.narc = next; next }
-		layer.lastOption.foreach(_.self.outgoing(rel.narc).asScala.foreach(_.delete()))
-		layer.headOption.foreach(_.self.incoming(rel.narc).asScala.foreach(_.delete()))
+		layer.lastOption.foreach(_.self.outgoing(rel.narc).foreach(_.delete()))
+		layer.headOption.foreach(_.self.incoming(rel.narc).foreach(_.delete()))
 		layer
 	}
 

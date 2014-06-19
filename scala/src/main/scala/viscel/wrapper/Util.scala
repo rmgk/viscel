@@ -7,7 +7,6 @@ import org.scalactic._
 import viscel.core._
 import viscel.description._
 
-import scala.collection.JavaConversions._
 import scala.language.implicitConversions
 
 object Util {

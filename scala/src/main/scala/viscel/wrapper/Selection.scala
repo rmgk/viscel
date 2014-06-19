@@ -8,7 +8,7 @@ import org.scalactic._
 import viscel.core._
 import viscel.wrapper.Util._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.util.Try
 
 trait Selection {
@@ -46,26 +46,26 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 		validateQuery(query) {
 			case rs if rs.size > 2 => Bad("query not unique")
 			case rs if rs.size < 1 => Bad("query not found)")
-			case rs => Good(rs(0))
+			case rs => Good(rs.get(0))
 		}.fold(GoodSelection, BadSelection)
 	}
 
 	override def many(query: String): Selection = {
 		validateQuery(query) {
 			case rs if rs.size < 1 => Bad("query did not match")
-			case rs => Good(rs.toList)
+			case rs => Good(rs.asScala.toList)
 		}.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
 
 	override def all(query: String): Selection = {
-		validateQuery(query) { rs => Good(rs.toList) }
+		validateQuery(query) { rs => Good(rs.asScala.toList) }
 			.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
 
 	override def optional(query: String): Selection = {
 		validateQuery(query) {
 				case rs if rs.size > 2 => Bad(s"query not unique ")
-				case rs => Good(rs.toList)
+				case rs => Good(rs.asScala.toList)
 		}.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
 

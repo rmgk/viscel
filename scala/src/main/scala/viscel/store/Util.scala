@@ -6,7 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.time
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object Util extends StrictLogging {
 
@@ -32,18 +32,17 @@ object Util extends StrictLogging {
 		//		}
 	}
 
-	def list: IndexedSeq[CollectionNode] = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).map { CollectionNode(_) }.toIndexedSeq }
+	def list: Vector[CollectionNode] = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).asScala.map { CollectionNode(_) }.toVector }
 
-	def search(query: String): IndexedSeq[CollectionNode] = time("search") {
+	def search(query: String): Seq[CollectionNode] = time("search") {
 		val lcql = query.toLowerCase.replaceAll( """\s+""", "").toList
 		Neo.txs {
 			if (lcql.isEmpty) list
 			else
 				list.view.map { cn => cn -> fuzzyMatch(lcql, cn.name.toLowerCase.toList) }
-					.filter { _._2 > 0 }
+					.filter { _._2 > 0 }.force
 					.sortBy { -_._2 }
 					.map { _._1 }
-					.toIndexedSeq
 		}
 	}
 

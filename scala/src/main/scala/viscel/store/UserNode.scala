@@ -1,10 +1,10 @@
 package viscel.store
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.neo4j.graphdb.Node
+import org.neo4j.graphdb.{Relationship, Node}
 import org.scalactic.TypeCheckedTripleEquals._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
 /**
@@ -24,7 +24,7 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 
 	def getBookmark(cn: CollectionNode) = Neo.txs { getBookmarkNode(cn).flatMap { bookmarkToElement } }
 
-	def setBookmark(en: AssetNode) = Neo.txts(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
+	def setBookmark(en: AssetNode): Unit = Neo.txts(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
 		def createBookmark() = {
 			val bmn = Neo.create(label.Bookmark)
 			self.createRelationshipTo(bmn, rel.bookmarked)
@@ -36,8 +36,8 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 		bmn.createRelationshipTo(en.self, rel.bookmarks)
 	}
 
-	def bookmarks = Neo.txs {
-		self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { bookmarkToElement }
+	def bookmarks: Vector[AssetNode] = Neo.txs {
+		self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { bookmarkToElement }.toVector
 	}
 
 	def bookmarkToElement(bmn: Node): Option[AssetNode] = Neo.txs {
@@ -68,13 +68,13 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 
 	def deleteBookmark(cn: CollectionNode) = Neo.txts(s"delete bookmark ${ cn.id } for $name") {
 		getBookmarkNode(cn).foreach { bmn =>
-			bmn.getRelationships.foreach { _.delete }
+			bmn.getRelationships.asScala.foreach { _.delete }
 			bmn.delete()
 		}
 	}
 
-	def getBookmarkNode(cn: CollectionNode) = Neo.txs {
-		cn.self.outgoing(rel.bookmark).map { _.getEndNode }.find { bmn => bmn.from(rel.bookmarked).get === this.self }
+	def getBookmarkNode(cn: CollectionNode): Option[Node] = Neo.txs {
+		cn.self.outgoing(rel.bookmark).view.map { _.getEndNode }.find { bmn => bmn.from(rel.bookmarked).get === this.self }
 	}
 
 }

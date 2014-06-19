@@ -1,6 +1,7 @@
 package viscel
 
 import org.neo4j.graphdb.{Direction, Node, Relationship, RelationshipType}
+import scala.collection.JavaConverters._
 
 package object store {
 
@@ -9,18 +10,16 @@ package object store {
 		def get[T](key: String) = { Option(node.getProperty(key, null).asInstanceOf[T]) }
 		def to(rel: RelationshipType) = { Option(node.getSingleRelationship(rel, Direction.OUTGOING)).map { _.getEndNode } }
 		def to_=(rel: RelationshipType, other: Node) = {
-			val iterator = outgoing(rel).iterator()
-			while(iterator.hasNext()) iterator.next().delete()
+			outgoing(rel).foreach(_.delete())
 			node.createRelationshipTo(other, rel)
 		}
 		def from(rel: RelationshipType): Option[Node] = { Option(node.getSingleRelationship(rel, Direction.INCOMING)).map { _.getStartNode } }
 		def from_=(rel: RelationshipType, other: Node) = {
-			val iterator = incoming(rel).iterator()
-			while(iterator.hasNext()) iterator.next().delete()
+			incoming(rel).foreach(_.delete)
 			other.createRelationshipTo(node, rel)
 		}
-		def outgoing(rel: RelationshipType) = { node.getRelationships(rel, Direction.OUTGOING) }
-		def incoming(rel: RelationshipType) = { node.getRelationships(rel, Direction.INCOMING) }
+		def outgoing(rel: RelationshipType): Iterable[Relationship] = node.getRelationships(rel, Direction.OUTGOING).asScala
+		def incoming(rel: RelationshipType): Iterable[Relationship] = node.getRelationships(rel, Direction.INCOMING).asScala
 	}
 
 	implicit class RelationshipOps(rel: Relationship) {

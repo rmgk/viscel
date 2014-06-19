@@ -1,13 +1,8 @@
 package viscel.store
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.neo4j.graphdb.{Direction, Node}
-import org.scalactic.{ErrorMessage, Or}
-import org.scalactic.TypeCheckedTripleEquals._
+import org.neo4j.graphdb.Node
 import viscel.core.AbsUri
-import viscel.description.{Chapter, Description, Pointer}
-
-import scala.collection.JavaConverters._
+import viscel.description.Pointer
 
 object PageNode {
 	def apply(node: Node) = new PageNode(node)
@@ -26,7 +21,7 @@ class PageNode(val self: Node) extends ArchiveNode with DescribingNode {
 	def lastUpdate_=(time: Long) = Neo.txs { self.setProperty("last_update", time) }
 
 	override def deleteRecursive(): Unit = Neo.txs {
-		describes.foreach{_.layer.foreach(_.deleteRecursive())}
+		describes.foreach { _.layer.foreach(_.deleteRecursive()) }
 		deleteNode(warn = false)
 	}
 
