@@ -4,54 +4,17 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.core._
 import viscel.store._
+import scala.language.implicitConversions
 
 
-sealed trait Description {
-	def describes(archive: Option[ArchiveNode]): Boolean
-	def ::(other: Description): Description = other match {
-		case EmptyDescription => this
-		case structure@Structure(_, EmptyDescription, _) => structure.copy(next = this)
-		case _ => Structure(children = List(other), next = this)
-	}
-	def ::(content: Content): Description = Structure(payload = content, next = this)
-	def ::(others: Seq[Description]): Description = Structure(children = others, next = this)
-}
+sealed trait Description
 
 object Description {
-	def fromOr[T](or: Description Or Every[ErrorMessage]): Description = or.fold(identity, FailedDescription)
+	implicit def fromOr(or: List[Description] Or Every[ErrorMessage]): List[Description] = or.fold(identity, FailedDescription(_) :: Nil)
 }
 
-case class Pointer(loc: AbsUri, pagetype: String) extends Description {
-	override def describes(archive: Option[ArchiveNode]): Boolean = archive match {
-		case Some(pageNode: PageNode) => pageNode.pointerDescription == this
-		case _ => false
-	}
-}
-
-case object EmptyDescription extends Description {
-	override def describes(archive: Option[ArchiveNode]): Boolean = archive.isEmpty
-	override def ::(other: Description): Description = other
-	override def ::(other: Content): Description = Structure(payload = other)
-	override def ::(others: Seq[Description]): Description = Structure(children = others)
-}
-
-case class FailedDescription(reason: Every[ErrorMessage]) extends Description {
-	override def describes(archive: Option[ArchiveNode]): Boolean = throw new IllegalStateException(reason.toString())
-}
-
-case class Structure(payload: Content = EmptyContent, next: Description = EmptyDescription, children: Seq[Description] = Seq()) extends Description {
-	override def describes(archive: Option[ArchiveNode]): Boolean = archive match {
-		case Some(structureNode: StructureNode) =>
-			def nextCorresponds = next.describes(structureNode.next)
-			def payloadCorresponds = payload.matches(structureNode.payload)
-			def childernCorrespond = {
-				val structureChildren = structureNode.children
-				(children.size === structureChildren.size) &&
-					children.zip(structureChildren).forall { case (child, structureChild) => child.describes(Some(structureChild)) }
-			}
-			nextCorresponds && payloadCorresponds && childernCorrespond
-		case _ => false
-	}
-}
-
-
+case class Pointer(loc: AbsUri, pagetype: String) extends Description
+case class Chapter(name: String, props: Map[String, String] = Map()) extends Description
+case class Asset(source: AbsUri, origin: AbsUri, props: Map[String, String] = Map()) extends Description
+case class CoreDescription(kind: String, id: String, name: String, props: Map[String, Any]) extends Description
+case class FailedDescription(reason: Every[ErrorMessage]) extends Description

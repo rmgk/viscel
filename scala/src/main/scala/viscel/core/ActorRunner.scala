@@ -4,39 +4,31 @@ import akka.actor.{Actor, ActorRef}
 import akka.pattern.pipe
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
-import viscel.core.impl.{ArchiveManipulation, NetworkPrimitives}
-import viscel.description.ElementContent
+import viscel.description.Asset
 import viscel.store._
 import akka.actor.Status.Failure
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalax.io.Resource
 
-class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: CollectionNode, val clockwork: ActorRef) extends Actor with ArchiveManipulation with NetworkPrimitives {
+class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: CollectionNode, val clockwork: ActorRef) extends Actor with NetworkPrimitives {
 
-	override def preStart() = Neo.txs {
-		initialDescription(collection, core.archive)
-		fixLinkage(ArchiveNode(collection).get, collection)
-	}
+	override def preStart() = ArchiveNode.applyDescription(collection, core.archive)
 
-	def undescribedPages: Seq[PageNode] = ArchiveNode(collection).fold(ifEmpty = List[ArchiveNode]()) { _.flatten }.collect {
-		case pn: PageNode if pn.describes.isEmpty => pn
-	}.reverse
+	def undescribedPage: Option[PageNode] = collection.describes.flatMap(_.findForward{case page: PageNode if page.describes.isEmpty => page})
 
-	def placeholderElements: Seq[ElementNode] = ArchiveNode(collection).fold(ifEmpty = Seq[ElementNode]()) { an =>
-		an.flatPayload.collect { case en: ElementNode if en.blob.isEmpty => en }
-	}.reverse
+	def placeholderElement: Option[AssetNode] = collection.describes.flatMap(_.findForward{case asset: AssetNode if asset.blob.isEmpty => asset})
 
 	def next(): Unit = Neo.txs {
-		placeholderElements.headOption match {
+		placeholderElement match {
 			case Some(en) =>
 				logger.info(s"$core: found placeholder element, downloading")
 				BlobNode.find(en.source) match {
 					case Some(blob) => en.blob = blob; self ! "next"
-					case None => getBlob(ElementContent(en.source, en.origin)).map { en -> _ }.pipeTo(self)
+					case None => getBlob(Asset(en.source, en.origin)).map { en -> _ }.pipeTo(self)
 				}
 			case None =>
-				undescribedPages.headOption match {
+				undescribedPage match {
 					case Some(pn) =>
 						logger.info(s"$core: undescribed page $pn, downloading")
 						getDocument(pn.location).map { pn -> _ }.pipeTo(self)
@@ -50,12 +42,9 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 	def always: Receive = {
 		case (pn: PageNode, doc: Document) =>
 			logger.info(s"$core: received ${ doc.baseUri() }, applying to $pn")
-			Neo.txs {
-				applyDescription(pn, core.wrap(doc, pn.pointerDescription))
-				fixLinkage(ArchiveNode(collection).get, collection)
-			}
+			ArchiveNode.applyDescription(pn, core.wrap(doc, pn.description))
 			self ! "next"
-		case (en: ElementNode, ed: Blob) =>
+		case (en: AssetNode, ed: Blob) =>
 			logger.info(s"$core: received blob, applying to $en")
 			Resource.fromFile(viscel.hashToFilename(ed.sha1)).write(ed.buffer)
 			Neo.txs { en.blob = BlobNode.create(ed.sha1, ed.mediatype, en.source) }

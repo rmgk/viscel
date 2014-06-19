@@ -24,17 +24,17 @@ class DataModel extends FunSuite with BeforeAndAfterAll {
 		outgoingAllowed(user.self, rel.bookmarked)
 	}
 
-	def assertSaneElement(en: ElementNode) = {
-		incomingAllowed(en.self, rel.next, rel.first, rel.last, rel.bookmarks)
-		outgoingAllowed(en.self, rel.next, rel.parent)
+	def assertSaneElement(en: AssetNode) = {
+		incomingAllowed(en.self, rel.skip, rel.first, rel.last, rel.bookmarks)
+		outgoingAllowed(en.self, rel.skip, rel.parent)
 	}
 
 	def assertSaneChapter(ch: ChapterNode) = {
-		incomingAllowed(ch.self, rel.parent, rel.first, rel.last, rel.next)
-		outgoingAllowed(ch.self, rel.parent, rel.first, rel.last, rel.next)
+		incomingAllowed(ch.self, rel.parent, rel.first, rel.last, rel.skip)
+		outgoingAllowed(ch.self, rel.parent, rel.first, rel.last, rel.skip)
 	}
 
-	def assertSaneBookmark(user: UserNode, col: CollectionNode, bm: ElementNode) = {
+	def assertSaneBookmark(user: UserNode, col: CollectionNode, bm: AssetNode) = {
 		val bmn = user.getBookmarkNode(col).get
 		outgoingAllowed(bmn, rel.bookmarks)
 		incomingAllowed(bmn, rel.bookmark, rel.bookmarked)
@@ -66,11 +66,11 @@ class DataModel extends FunSuite with BeforeAndAfterAll {
 
 	}
 
-	def assertSaneElementList(en: ElementNode, ch: ChapterNode, col: CollectionNode): Unit = {
+	def assertSaneElementList(en: AssetNode, ch: ChapterNode, col: CollectionNode): Unit = {
 		assertSaneElement(en)
 		assert(en.collection === col, "element in list has correct collection")
 		assert(en.chapter === ch, "element in list has correct chapter")
-		en.next match {
+		en.nextAsset match {
 			case Some(next) =>
 				assert(next.position === en.position + 1, "position is increasing")
 				assertSaneElementList(next, ch, col)

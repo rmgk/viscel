@@ -1,13 +1,15 @@
 package viscel.server
 
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.store._
 
+import scala.annotation.tailrec
 import scala.collection.immutable.LinearSeq
 import scalatags._
 import scalatags.all._
 
-class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation {
+class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation with StrictLogging {
 	override def Title = collection.name
 
 	override def bodyId = "front"
@@ -15,10 +17,10 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 	override def maskLocation = path_front(collection)
 
 	val bm = user.getBookmark(collection)
-	val bm1 = bm.flatMap { _.prev }
-	val bm2 = bm1.flatMap { _.prev }
+	val bm1 = bm.flatMap { _.prevAsset }
+	val bm2 = bm1.flatMap { _.prevAsset }
 
-	def bmRemoveForm(bm: ElementNode) = form_post(path_nid(collection),
+	def bmRemoveForm(bm: AssetNode) = form_post(path_nid(collection),
 		input(`type` := "hidden", name := "remove_bookmark", value := collection.nid.toString),
 		input(`type` := "submit", name := "submit", value := "remove", class_submit))
 
@@ -56,23 +58,62 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 
 	override def navUp = Some(path_main)
 
-	def make_pagelist(chapter: ChapterNode, elements: Seq[ElementNode]): Node = fieldset(class_group, class_pages)(legend(chapter.name),
-		elements.zipWithIndex.flatMap { case (child, pos) => Seq(link_node(child, (pos + 1).toString), " ": Node) })
+	def makePageList(chapterName: String, nodes: List[ArchiveNode]): (Node, List[ArchiveNode]) = {
+		@tailrec
+		def make_nodelist(pos: Int, done: List[Node], remaining: List[ArchiveNode]): (List[Node], List[ArchiveNode]) = {
+			remaining match {
+				case Nil => (done.reverse.drop(1), Nil)
 
-	def make_chapterlist(nodes: LinearSeq[ViscelNode], headline: Option[String]): Seq[Node] = nodes match {
-		case List() => Seq()
-		case (c: ChapterNode) :: cs =>
-			val vol = c.get("Volume")
-			val (elts_, next) = cs.span {
-				case n: ElementNode => true
-				case n: ChapterNode => false
+				case (assetNode: AssetNode) :: rest =>
+					make_nodelist(pos + 1, link_node(assetNode, pos) :: StringNode(" ") :: done, rest)
+
+				case (pageNode: PageNode) :: rest =>
+					val more = pageNode.describes.fold(List[ArchiveNode]())(_.layer)
+					make_nodelist(pos, done, more ::: rest)
+
+				case (chapterNode: ChapterNode) :: _ =>
+					(done, remaining)
+
+				case (coreNode: CoreNode) :: rest =>
+					make_nodelist(pos, StringNode(s"Core: ${coreNode.id}") :: done, rest)
+
+				case _ :: _ => throw new IllegalArgumentException("unknown archive $head")
 			}
-			val elts = elts_.asInstanceOf[Seq[ElementNode]]
-			if (vol === headline) make_pagelist(c, elts) +: make_chapterlist(next, headline)
-			else Seq(vol.map(h3(_)), Some(make_pagelist(c, elts))).flatten ++ make_chapterlist(next, vol)
+		}
+		val (nodelist, remaining) = make_nodelist(1, Nil, nodes)
+		(fieldset(class_group, class_pages)(legend(chapterName), nodelist), remaining)
 	}
 
-	def chapterlist = make_chapterlist(collection.archive.map { _.flatPayload }.to[LinearSeq].flatten, None)
+	def makeChapterList(nodes: List[ArchiveNode], headline: Option[String]): List[Node] = {
+		nodes match {
+			case List() => List()
+
+			case (pageNode: PageNode) :: rest =>
+				val more = pageNode.describes.map(_.layer).getOrElse(Nil)
+				makeChapterList(more ::: rest, headline)
+
+			case (chapterNode: ChapterNode) :: rest =>
+				val (pagelist, remaining) = makePageList(chapterNode.name, rest)
+				val volume = chapterNode.get("Volume")
+				val result = pagelist :: makeChapterList(remaining, volume)
+				volume match {
+					case None => result
+					case _ if volume === headline => result
+					case Some(volumeName) => h3(volumeName) :: result
+				}
+
+			case (assetNode: AssetNode) :: rest =>
+				val (pageList, remaining) = makePageList("", nodes)
+				pageList :: makeChapterList(remaining, headline)
+
+			case (coreNode: CoreNode) :: rest =>
+				StringNode(s"Core: ${coreNode.id}") :: b :: makeChapterList(rest, headline)
+
+			case _ :: _ => throw new IllegalArgumentException("unknown archive $head")
+		}
+	}
+
+	def chapterlist = makeChapterList(collection.describes.fold(List[ArchiveNode]()){ _.layer}, None)
 }
 
 object FrontPage {

@@ -1,29 +1,29 @@
 package viscel.server
 
 import spray.http.HttpResponse
-import viscel.store.{ElementNode, UserNode}
+import viscel.store.{AssetNode, UserNode}
 
 import scalatags._
 import scalatags.all._
 
-class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with MetaNavigation with MaskLocation {
+class ViewPage(user: UserNode, enode: AssetNode) extends HtmlPage with MetaNavigation with MaskLocation {
 	lazy val collection = enode.collection
 	lazy val pos = enode.position
 
-	override def Title = s"$pos – ${ enode.chapter.name } – ${ collection.name }"
+	override def Title = s"$pos – ${ collection.name }"
 	override def bodyId = "view"
 
 	override def maskLocation = path_view(collection, pos)
 
-	override def navPrev = enode.prev.map { en => path_nid(en) }
-	override def navNext = enode.next.map { en => path_nid(en) }
+	override def navPrev = enode.prevAsset.map { en => path_nid(en) }
+	override def navNext = enode.nextAsset.map { en => path_nid(en) }
 	override def navUp = Some(path_nid(collection))
 
-	override def mainPart = div(class_content)(link_node(enode.next, enodeToImg(enode))) :: Nil
+	override def mainPart = div(class_content)(link_node(enode.nextAsset, enodeToImg(enode))) :: Nil
 	override def sidePart = "" :: Nil
 
 	override def navigation = Seq[Node](
-		link_node(enode.prev, "prev"),
+		link_node(enode.prevAsset, "prev"),
 		" ",
 		link_node(collection, "front"),
 		" ",
@@ -33,9 +33,9 @@ class ViewPage(user: UserNode, enode: ElementNode) extends HtmlPage with MetaNav
 		" ",
 		a(href := enode.origin)(class_extern)("site"),
 		" ",
-		link_node(enode.next, "next"))
+		link_node(enode.nextAsset, "next"))
 }
 
 object ViewPage {
-	def apply(user: UserNode, enode: ElementNode): HttpResponse = new ViewPage(user, enode).response
+	def apply(user: UserNode, enode: AssetNode): HttpResponse = new ViewPage(user, enode).response
 }

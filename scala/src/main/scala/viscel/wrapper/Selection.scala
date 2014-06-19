@@ -16,22 +16,23 @@ trait Selection {
 	def many(query: String): Selection
 	def optional(query: String): Selection
 	def all(query: String): Selection
-	def wrap[R](fun: Seq[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage]
+	def wrap[R](fun: List[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage]
 	def wrapOne[R](fun: Element => R Or Every[ErrorMessage]): R Or Every[ErrorMessage]
-	def wrapEach[R](fun: Element => R Or Every[ErrorMessage]): Seq[R] Or Every[ErrorMessage]
-	def get: Seq[Element] Or Every[ErrorMessage]
+	def wrapEach[R](fun: Element => R Or Every[ErrorMessage]): List[R] Or Every[ErrorMessage]
+	def wrapFlat[R](fun: Element => List[R] Or Every[ErrorMessage]): List[R] Or Every[ErrorMessage]
+	def get: List[Element] Or Every[ErrorMessage]
 	def getOne: Element Or Every[ErrorMessage]
 	def reverse: Selection
 }
 
 object Selection {
-	def apply(element: Element) = new GoodSelection(Vector(element))
-	def apply(elements: Seq[Element]) = new GoodSelection(elements)
+	def apply(element: Element) = new GoodSelection(List(element))
+	def apply(elements: List[Element]) = new GoodSelection(elements)
 }
 
-case class GoodSelection(elements: Seq[Element]) extends Selection {
+case class GoodSelection(elements: List[Element]) extends Selection {
 
-	def validateQuery[R](query: String)(validate: Elements => R Or ErrorMessage): Seq[R] Or Every[ErrorMessage] = {
+	def validateQuery[R](query: String)(validate: Elements => R Or ErrorMessage): List[R] Or Every[ErrorMessage] = {
 		elements.validatedBy { element =>
 			extract { element.select(query) }.flatMap { res =>
 				validate(res).badMap { err =>
@@ -52,23 +53,23 @@ case class GoodSelection(elements: Seq[Element]) extends Selection {
 	override def many(query: String): Selection = {
 		validateQuery(query) {
 			case rs if rs.size < 1 => Bad("query did not match")
-			case rs => Good(rs.toIndexedSeq)
+			case rs => Good(rs.toList)
 		}.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
 
 	override def all(query: String): Selection = {
-		validateQuery(query) { rs => Good(rs.toIndexedSeq) }
+		validateQuery(query) { rs => Good(rs.toList) }
 			.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
 
 	override def optional(query: String): Selection = {
 		validateQuery(query) {
 				case rs if rs.size > 2 => Bad(s"query not unique ")
-				case rs => Good(rs.toIndexedSeq)
+				case rs => Good(rs.toList)
 		}.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
 
-	override def wrap[R](fun: Seq[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = fun(elements)
+	override def wrap[R](fun: List[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = fun(elements)
 
 	override def wrapOne[R](fun: Element => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = {
 		elements match {
@@ -78,9 +79,10 @@ case class GoodSelection(elements: Seq[Element]) extends Selection {
 		}
 	}
 
-	override def get: Or[Seq[Element], Every[ErrorMessage]] = wrap(Good(_))
+	override def get: Or[List[Element], Every[ErrorMessage]] = wrap(Good(_))
 	override def getOne: Or[Element, Every[ErrorMessage]] = wrapOne(Good(_))
-	override def wrapEach[R](fun: (Element) => Or[R, Every[ErrorMessage]]): Or[Seq[R], Every[ErrorMessage]] = elements.validatedBy{fun}
+	override def wrapEach[R](fun: (Element) => Or[R, Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = elements.validatedBy{fun}
+	override def wrapFlat[R](fun: (Element) => Or[List[R], Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = wrapEach(fun).map(_.flatten)
 
 	override def reverse: GoodSelection = GoodSelection(elements.reverse)
 }
@@ -89,11 +91,12 @@ case class BadSelection(errors: Every[ErrorMessage]) extends Selection {
 	override def unique(query: String): BadSelection = this
 	override def many(query: String): BadSelection = this
 	override def all(query: String): Selection = this
-	override def wrap[R](fun: Seq[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = Bad(errors)
+	override def wrap[R](fun: List[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = Bad(errors)
 	override def wrapOne[R](fun: Element => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = Bad(errors)
-	override def wrapEach[R](fun: (Element) => Or[R, Every[ErrorMessage]]): Or[Seq[R], Every[ErrorMessage]] = Bad(errors)
+	override def wrapEach[R](fun: (Element) => Or[R, Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = Bad(errors)
 	override def reverse: BadSelection = this
-	override def get: Or[Seq[Element], Every[ErrorMessage]] = Bad(errors)
+	override def get: Or[List[Element], Every[ErrorMessage]] = Bad(errors)
 	override def getOne: Or[Element, Every[ErrorMessage]] = Bad(errors)
 	override def optional(query: String): Selection = this
+	override def wrapFlat[R](fun: (Element) => Or[List[R], Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = Bad(errors)
 }

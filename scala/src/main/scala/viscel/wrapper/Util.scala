@@ -16,7 +16,7 @@ object Util {
 		if (res.isEmpty) None else Some(k -> res)
 	}
 
-	def imgToElement(img: Element): ElementContent Or Every[ErrorMessage] = extract(ElementContent(
+	def imgToAsset(img: Element): Asset Or Every[ErrorMessage] = extract(Asset(
 		source = img.attr("abs:src"),
 		origin = img.baseUri,
 		props = (getAttr(img, "alt") ++
@@ -24,9 +24,7 @@ object Util {
 			getAttr(img, "width") ++
 			getAttr(img, "height")).toMap))
 
-	def imgIntoStructure(img: Element): Structure Or Every[ErrorMessage] = imgToElement(img).map{Structure(_)}
-
-	def queryImage(from: Element, query: String): Structure Or Every[ErrorMessage] = Selection(from).unique(query).wrapOne(imgIntoStructure)
+	def queryImage(from: Element, query: String): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgToAsset)
 
 	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${err.getMessage} at ($caller)").accumulating
 
@@ -35,9 +33,9 @@ object Util {
 		case _ => Bad(One(s"not an anchor at ($caller): ${show(element)}"))
 	}
 
-	def selectNext(pagetype: String)(elements: Seq[Element]): Description Or Every[ErrorMessage] = elements.validatedBy(anchorIntoPointer(pagetype)).flatMap {
-		case pointers if elements.isEmpty => Good(EmptyDescription)
-		case pointers if pointers.toSet.size == 1 => Good(pointers.head)
+	def selectNext(pagetype: String)(elements: Seq[Element]): List[Pointer] Or Every[ErrorMessage] = elements.validatedBy(anchorIntoPointer(pagetype)).flatMap {
+		case pointers if elements.isEmpty => Good(Nil)
+		case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
 		case pointers => Bad(One(blame("more than one next found", elements: _*)))
 	}
 

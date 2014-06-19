@@ -52,7 +52,7 @@ trait HtmlPageUtils {
 
 	def form_search(init: String) = form_get(path_search, input(`type` := "textfield", name := "q", value := init))(id := "searchform")
 
-	def enodeToImg(en: ElementNode) = en.blob.fold(ifEmpty = div(class_info)("Placeholder")) { blob =>
+	def enodeToImg(en: AssetNode) = en.blob.fold(ifEmpty = div(class_info)("Placeholder")) { blob =>
 		img(src := path_blob(blob), class_element) {
 			Seq("alt", "title", "width", "height").flatMap { k => en.self.get[Any](k).map { v => k.attr := v.toString } }: _*
 		}

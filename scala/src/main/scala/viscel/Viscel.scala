@@ -122,14 +122,13 @@ object Viscel extends StrictLogging {
 			val td = db.traversalDescription().depthFirst
 			.relationships(rel.first)
 			.relationships(rel.last)
-			.relationships(rel.next)
+			.relationships(rel.skip)
 			.relationships(rel.archive)
 			.relationships(rel.describes)
 			.relationships(rel.parent)
-			.relationships(rel.child)
 			.evaluator(Evaluators.all)
 			val writer = new GraphvizWriter()
-			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.next, rel.archive, rel.describes, rel.parent, rel.child))
+			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.skip, rel.archive, rel.describes, rel.parent))
 		}
 	}
 

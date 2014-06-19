@@ -7,8 +7,8 @@ import viscel.description.{Pointer, Description}
 trait Core {
 	def id: String
 	def name: String
-	def archive: Description
-	def wrap(doc: Document, pd: Pointer): Description
+	def archive: List[Description]
+	def wrap(doc: Document, pd: Pointer): List[Description]
 	override def equals(other: Any) = other match {
 		case o: Core => id === o.id
 		case _ => false

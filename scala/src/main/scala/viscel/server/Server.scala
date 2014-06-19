@@ -72,7 +72,7 @@ trait DefaultRoutes extends HttpService {
 
 	def handleFormFields(user: UserNode) =
 		formFields('bookmark.?.as[Option[Long]], 'remove_bookmark.?.as[Option[Long]]) { (bm, remove) =>
-			bm.foreach { bid => user.setBookmark(ElementNode(bid)) }
+			bm.foreach { bid => user.setBookmark(AssetNode(bid)) }
 			remove.foreach { colid => user.deleteBookmark(CollectionNode(colid)) }
 			defaultRoute(user)
 		}

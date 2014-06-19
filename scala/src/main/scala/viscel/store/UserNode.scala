@@ -24,7 +24,7 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 
 	def getBookmark(cn: CollectionNode) = Neo.txs { getBookmarkNode(cn).flatMap { bookmarkToElement } }
 
-	def setBookmark(en: ElementNode) = Neo.txts(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
+	def setBookmark(en: AssetNode) = Neo.txts(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
 		def createBookmark() = {
 			val bmn = Neo.create(label.Bookmark)
 			self.createRelationshipTo(bmn, rel.bookmarked)
@@ -40,9 +40,9 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 		self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { bookmarkToElement }
 	}
 
-	def bookmarkToElement(bmn: Node): Option[ElementNode] = Neo.txs {
+	def bookmarkToElement(bmn: Node): Option[AssetNode] = Neo.txs {
 		bmn.to(rel.bookmarks) match {
-			case Some(n) => Some(ElementNode(n))
+			case Some(n) => Some(AssetNode(n))
 			case None =>
 				None
 			//				for {

@@ -1,4 +1,4 @@
-package viscel.core.impl
+package viscel.core
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
@@ -9,7 +9,7 @@ import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
 import spray.httpx.encoding._
 import viscel._
-import viscel.description.ElementContent
+import viscel.description.Asset
 import viscel.store._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -57,7 +57,7 @@ trait NetworkPrimitives extends StrictLogging {
 			res.header[Location].fold(ifEmpty = uri)(_.uri).toString())
 	}
 
-	def getBlob(edesc: ElementContent): Future[Blob] = {
+	def getBlob(edesc: Asset): Future[Blob] = {
 		getResponse(edesc.source, Some(edesc.origin)).map { res =>
 			val bytes = res.entity.data.toByteArray
 			Blob(

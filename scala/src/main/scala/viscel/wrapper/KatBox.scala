@@ -10,15 +10,13 @@ object KatBox {
 
 	case class Generic(shortId: String, name: String) extends Core {
 
-		def archive = Chapter("") :: Pointer(s"http://$shortId.katbox.net/archive", "archive")
+		def archive = Pointer(s"http://$shortId.katbox.net/archive", "archive") :: Nil
 
 		val id: String = s"KatBox_$shortId"
 
-		def wrap(doc: Document, pd: Pointer): Description = Description.fromOr(pd.pagetype match {
+		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
 			case "archive" =>
-				Selection(doc).many("[rel=bookmark]").wrapEach(anchorIntoPointer("page")).map { pages =>
-					Structure(children = pages.reverse)
-				}
+				Selection(doc).many("[rel=bookmark]").wrapEach(anchorIntoPointer("page")).map { _.reverse }
 			case "page" => queryImage(doc, ".webcomic-image img")
 		})
 	}

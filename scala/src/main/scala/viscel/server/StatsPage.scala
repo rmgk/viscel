@@ -21,7 +21,7 @@ class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {
 			"Failed Downloads :" -> cn.downloadsFailed.toString,
 			"Collections :" -> Neo.nodes(label.Collection).size.toString,
 			"Chapters : " -> Neo.nodes(label.Chapter).size.toString,
-			"Elements : " -> Neo.nodes(label.Element).size.toString,
+			"Elements : " -> Neo.nodes(label.Asset).size.toString,
 			"Uptime                : " -> stats.uptime.toString,
 			"Total requests        : " -> stats.totalRequests.toString,
 			"Open requests         : " -> stats.openRequests.toString,

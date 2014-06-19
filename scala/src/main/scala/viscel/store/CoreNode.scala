@@ -1,11 +1,12 @@
 package viscel.store
 
 import org.neo4j.graphdb.{Label, Node}
+import viscel.description.{Asset, CoreDescription, Description}
 
 import scala.language.implicitConversions
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
-class CoreNode(val self: Node) extends ViscelNode {
+class CoreNode(val self: Node) extends ArchiveNode {
 	override def selfLabel: Label = label.Core
 
 	def kind: String = Neo.txs { self[String]("kind") }
@@ -14,6 +15,11 @@ class CoreNode(val self: Node) extends ViscelNode {
 
 	def apply[R](k: String) = Neo.txs { self[R](k) }
 	def get[R](k: String) = Neo.txs { self.get[R](k) }
+
+	override def description: Description = Neo.txs {
+		val props = self.getPropertyKeys.asScala.map(key => key -> self[String](key)).toMap
+		CoreDescription(props("kind"), props("id"), props("name"), props - "kind" - "id" - "name")
+	}
 }
 
 object CoreNode {
@@ -25,7 +31,7 @@ object CoreNode {
 
 	def updateOrCreate(kind: String, id: String, name: String, attributes: Map[String, Any]) = Neo.txs {
 		Neo.node(label.Core, "id", id).fold{create(kind, id, name, attributes)}{ node: Node =>
-			node.getPropertyKeys.foreach(node.removeProperty)
+			node.getPropertyKeys.asScala.foreach(node.removeProperty)
 			(attributes + ("name" -> name) + ("id" -> id) + ("kind" -> kind)).foreach{ case (k, v) => node.setProperty(k, v) }
 			CoreNode(node)
 		}

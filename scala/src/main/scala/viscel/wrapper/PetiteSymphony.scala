@@ -9,11 +9,11 @@ import org.scalactic.Accumulation._
 object PetiteSymphony {
 
 	case class Generic(id: String, name: String, start: String) extends Core {
-		override def archive: Description = Chapter("") :: Pointer(start, "")
-		override def wrap(doc: Document, pd: Pointer): Description = Description.fromOr {
+		override def archive: List[Description] = Pointer(start, "") :: Nil
+		override def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr {
 			val next_? = Selection(doc).optional("a.navi.navi-next").wrap(selectNext(""))
-			val img_? = Selection(doc).unique("#comic-1 img").wrapOne(imgIntoStructure)
-			withGood(img_?, next_?) { _ :: _}
+			val img_? = Selection(doc).unique("#comic-1 img").wrapEach(imgToAsset)
+			withGood(img_?, next_?) { _ ::: _ }
 		}
 	}
 

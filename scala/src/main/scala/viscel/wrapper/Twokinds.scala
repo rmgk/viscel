@@ -11,26 +11,26 @@ import viscel.wrapper.Util._
 
 object Twokinds extends Core with StrictLogging {
 
-	def archive = Pointer("http://twokinds.keenspot.com/?p=archive", "archive") :: Pointer("http://twokinds.keenspot.com/index.php", "main")
+	def archive = Pointer("http://twokinds.keenspot.com/?p=archive", "archive") :: Pointer("http://twokinds.keenspot.com/index.php", "main") :: Nil
 
 	def id: String = "NX_Twokinds"
 
 	def name: String = "Twokinds"
 
-	def wrapArchive(doc: Document, pd: Pointer): Structure Or Every[ErrorMessage] = {
+	def wrapArchive(doc: Document, pd: Pointer): List[Description] Or Every[ErrorMessage] = {
 		val chapters_? = Selection(doc).many(".archive .chapter").wrapEach { chapter =>
 			val title_? = Selection(chapter).unique("h4").getOne.map(_.ownText())
 			val links_? = Selection(chapter).many("a").wrapEach { anchorIntoPointer("page") }
 			withGood(title_?, links_?) { (title, links) =>
-				Chapter(title) :: links :: EmptyDescription
+				Chapter(title) :: links
 			}
 		}
-		chapters_?.map(chapters => Structure(children = chapters))
+		chapters_?.map(_.flatten)
 	}
 
-	def wrap(doc: Document, pd: Pointer): Description = Description.fromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
 		case "archive" => wrapArchive(doc, pd)
-		case "page" => Selection(doc).unique("#cg_img img").wrapOne { imgIntoStructure }
-		case "main" => Selection(doc).unique(".comic img").wrapOne { imgIntoStructure }
+		case "page" => Selection(doc).unique("#cg_img img").wrapEach { imgToAsset }
+		case "main" => Selection(doc).unique(".comic img").wrapEach { imgToAsset }
 	})
 }

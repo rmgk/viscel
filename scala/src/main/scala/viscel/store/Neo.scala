@@ -8,7 +8,7 @@ import org.neo4j.helpers.Settings
 import org.neo4j.tooling.GlobalGraphOperations
 import viscel.time
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object Neo extends StrictLogging {
 	val db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("neoViscelStore")
@@ -22,14 +22,14 @@ object Neo extends StrictLogging {
 	def shutdown(): Unit = db.shutdown()
 
 	def node(label: Label, property: String, value: Any): Option[Node] = txt(s"query $label($property=$value)") { db =>
-		db.findNodesByLabelAndProperty(label, property, value).toStream match {
-			case Stream(node) => Some(node)
-			case Stream() => None
-			case Stream(_, _) => throw new java.lang.IllegalStateException(s"found more than one entry for $label($property=$value)")
+		db.findNodesByLabelAndProperty(label, property, value).asScala.toList match {
+			case List(node) => Some(node)
+			case Nil => None
+			case _ => throw new java.lang.IllegalStateException(s"found more than one entry for $label($property=$value)")
 		}
 	}
 
-	def nodes(label: Label) = txs { GlobalGraphOperations.at(db).getAllNodesWithLabel(label).toIndexedSeq }
+	def nodes(label: Label) = txs { GlobalGraphOperations.at(db).getAllNodesWithLabel(label).asScala.toList }
 
 	def create(label: Label, attributes: (String, Any)*): Node = create(label, attributes.toMap)
 	def create(label: Label, attributes: Map[String, Any]): Node = Neo.tx { db =>
@@ -41,7 +41,7 @@ object Neo extends StrictLogging {
 	}
 
 	def delete(node: Node) = txs {
-		node.getRelationships.foreach { _.delete() }
+		node.getRelationships.asScala.foreach { _.delete() }
 		node.delete()
 	}
 
