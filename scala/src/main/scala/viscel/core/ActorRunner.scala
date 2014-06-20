@@ -7,6 +7,7 @@ import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
 import viscel.store._
 import viscel.core.Messages._
+import org.scalactic.TypeCheckedTripleEquals._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalax.io.Resource
@@ -16,6 +17,7 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 	var current: Option[ArchiveNode] = None
 	var remaining: Long = 10
 	var processingNext: Boolean = false
+	var mode: Symbol = 'shallow
 
 	override def preStart() = {
 		ArchiveManipulation.applyDescription(collection, core.archive)
@@ -24,7 +26,7 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 
 	def selectNext(from: Option[ArchiveNode]): Option[ArchiveNode] = from.flatMap(_.findForward {
 		case page: PageNode if page.describes.isEmpty => page
-		case asset: AssetNode if asset.blob.isEmpty => asset
+		case asset: AssetNode if (mode !== 'shallow) && asset.blob.isEmpty  => asset
 	})
 
 	def next(): Unit = Neo.txs {
@@ -61,12 +63,14 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 		case ArchiveHint(archiveNode) =>
 			logger.debug(s"$core received user hint $archiveNode")
 			current = Some(archiveNode)
+			mode = 'deep
 			if (remaining < 10) remaining = 10
 			self ! 'next
 
 		case CollectionHint(collectionNode) =>
 			logger.debug(s"$core received user hint $collectionNode")
 			current = collectionNode.describes
+			mode = 'shallow
 			if (remaining < 10) remaining = 10
 			self ! 'next
 
