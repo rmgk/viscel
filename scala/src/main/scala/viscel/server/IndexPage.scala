@@ -3,8 +3,8 @@ package viscel.server
 import viscel.core.Clockwork
 import viscel.store._
 
-import scalatags._
-import scalatags.all._
+import scalatags.Text._
+import scalatags.Text.all._
 
 class IndexPage(user: UserNode) extends HtmlPage {
 	override def Title = "Index"

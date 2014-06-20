@@ -5,8 +5,8 @@ import spray.http.HttpResponse
 import viscel.store.{Neo, UserNode, ViscelNode}
 
 import scala.collection.JavaConverters._
-import scalatags._
-import scalatags.all._
+import scalatags.Text._
+import scalatags.Text.all._
 
 class RawPage(user: UserNode, vnode: ViscelNode) extends HtmlPage {
 

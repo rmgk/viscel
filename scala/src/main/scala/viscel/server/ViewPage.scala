@@ -3,8 +3,8 @@ package viscel.server
 import spray.http.HttpResponse
 import viscel.store.{AssetNode, UserNode}
 
-import scalatags._
-import scalatags.all._
+import scalatags.Text._
+import scalatags.Text.all._
 
 class ViewPage(user: UserNode, enode: AssetNode) extends HtmlPage with MetaNavigation with MaskLocation {
 	lazy val collection = enode.collection
@@ -31,7 +31,7 @@ class ViewPage(user: UserNode, enode: AssetNode) extends HtmlPage with MetaNavig
 			input(`type` := "hidden", name := "bookmark", value := enode.nid.toString),
 			input(`type` := "submit", name := "submit", value := "pause", class_submit)),
 		" ",
-		a(href := enode.origin)(class_extern)("site"),
+		a(href := enode.origin.toString)(class_extern)("site"),
 		" ",
 		link_node(enode.nextAsset, "next"))
 }

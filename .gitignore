@@ -12,3 +12,4 @@ zeug
 .SyncArchive/
 .SyncID
 .SyncIgnore
+scala/viscel.log

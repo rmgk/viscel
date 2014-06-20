@@ -3,8 +3,8 @@ package viscel.server
 import spray.http.{ContentType, HttpCharsets, HttpEntity, HttpResponse, MediaTypes}
 import viscel.store.Neo
 
-import scalatags._
-import scalatags.all._
+import scalatags.Text._
+import scalatags.Text.all._
 
 trait HtmlPage extends HtmlPageUtils {
 
@@ -13,9 +13,9 @@ trait HtmlPage extends HtmlPageUtils {
 			"<!DOCTYPE html>" + fullHtml.toString))
 	}
 
-	def fullHtml = html(header, content)
+	def fullHtml: Tag = html(header, content)
 
-	def header: HtmlTag = head(
+	def header: Tag = head(
 		link(href := path_css, rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
 		title := Title)
 

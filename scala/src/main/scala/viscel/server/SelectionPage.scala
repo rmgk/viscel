@@ -2,6 +2,8 @@ package viscel.server
 
 import viscel.store.UserNode
 
+import scalatags.Text._
+
 class SelectionPage(user: UserNode) extends HtmlPage {
 	override def Title = "Select"
 
@@ -25,22 +27,10 @@ class SelectionPage(user: UserNode) extends HtmlPage {
 		//				input.ctype("reset").value("reset")))
 	}
 
-	def navigation = link_main("index") :: Nil
+	def navigation: Seq[Node] = link_main("index") :: Nil
 
 	def sidePart = "" :: Nil
 }
-
-/*<form action="select.htm">
-  <p>
-    <select name="top5" size="5" multiple>
-      <option>Heino</option>
-      <option>Michael Jackson</option>
-      <option>Tom Waits</option>
-      <option>Nina Hagen</option>
-      <option>Marianne Rosenberg</option>
-    </select>
-  </p>
-  </form>*/
 
 object SelectionPage {
 	def apply(user: UserNode) = new SelectionPage(user).response

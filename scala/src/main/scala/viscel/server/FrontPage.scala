@@ -5,8 +5,8 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.store._
 
 import scala.annotation.tailrec
-import scalatags._
-import scalatags.all._
+import scalatags.Text._
+import scalatags.Text.all._
 
 class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation {
 	override def Title = collection.name
@@ -32,7 +32,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 
 	def navigation = Seq[Node](
 		link_main("index"),
-		" – ",
+		StringNode(" – "),
 		link_node(collection.first, "first"),
 		" – ",
 		previewLeft.map { bmRemoveForm }.getOrElse("remove"))

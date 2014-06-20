@@ -5,12 +5,14 @@ import viscel.core.Core
 import viscel.store.{ rel => _, _}
 
 import scalatags._
-import scalatags.all._
+import scalatags.Text._
+import scalatags.Text.all._
+import scalatags.DataConverters._
 
 trait MaskLocation extends HtmlPage {
 	def maskLocation: String
 
-	override def header: HtmlTag = super.header(script(s"window.history.replaceState('param one?','param two?','$maskLocation')"))
+	override def header: Tag = super.header(script(s"window.history.replaceState('param one?','param two?','$maskLocation')"))
 }
 
 trait HtmlPageUtils {
@@ -26,16 +28,16 @@ trait HtmlPageUtils {
 	def path_stop = "/stop"
 	def path_core(core: Core) = s"/core/${core.id}"
 
-	val class_main = "main".cls
-	val class_navigation = "navigation".cls
-	val class_side = "side".cls
-	val class_element = "element".cls
-	val class_info = "info".cls
-	val class_group = "group".cls
-	val class_submit = "submit".cls
-	val class_content = "content".cls
-	val class_pages = "pages".cls
-	val class_extern = "extern".cls
+	val class_main = cls := "main"
+	val class_navigation = cls := "navigation"
+	val class_side = cls := "side"
+	val class_element = cls := "element"
+	val class_info = cls := "info"
+	val class_group = cls := "group"
+	val class_submit = cls := "submit"
+	val class_content = cls := "content"
+	val class_pages = cls := "pages"
+	val class_extern = cls := "extern"
 
 	def link_main(ts: Node*) = a(href := path_main)(ts)
 	def link_stop(ts: Node*) = a(href := path_stop)(ts)
@@ -68,7 +70,7 @@ trait HtmlPageUtils {
 }
 
 trait MetaNavigation extends HtmlPage {
-	override def header: HtmlTag = super.header(
+	override def header: Tag = super.header(
 		script(RawNode(keyNavigation(up = navUp, down = navDown, prev = navPrev, next = navNext))),
 		navNext.map { n => link(rel := "next", href := n) }.getOrElse(""),
 		navPrev.map { p => link(rel := "prev", href := p) }.getOrElse(""))

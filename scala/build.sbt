@@ -79,17 +79,17 @@ libraryDependencies ++= {
   // HTML
   // "com.netaporter" %% "scala-uri" % "0.4.2" :: // apache 2
   "org.jsoup" % "jsoup" % "1.7.3" :: // mit
-  "com.scalatags" %% "scalatags" % "0.2.5" :: // mit
+  "com.scalatags" %% "scalatags" % "0.3.0" :: // mit
   // "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5" :: // bsd
   // "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1" :: // apache2
   // Logging
   // "org.slf4j" % "slf4j-simple" % "1.7.7" :: // mit
-  "ch.qos.logback" % "logback-classic" % "1.0.13" :: 
+  "ch.qos.logback" % "logback-classic" % "1.1.2" ::
   "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2" :: // apache 2
   // Akka
   "com.typesafe.akka" %% "akka-actor" % "2.3.3" :: // apache 2
   // Commandline
-  "jline" % "jline" % "2.11" ::
+  "jline" % "jline" % "2.12" ::
   "net.sf.jopt-simple" % "jopt-simple" % "4.6" :: // mit
   // "com.github.scopt" %% "scopt" % "3.1.0" :: // mit
   // "org.rogach" %% "scallop" % "0.9.4" :: //mit
