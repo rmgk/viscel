@@ -21,12 +21,16 @@ object Neo extends StrictLogging {
 
 	def shutdown(): Unit = db.shutdown()
 
-	def node(label: Label, property: String, value: Any): Option[Node] = txt(s"query $label($property=$value)") { db =>
-		db.findNodesByLabelAndProperty(label, property, value).asScala.toList match {
-			case List(node) => Some(node)
-			case Nil => None
-			case _ => throw new java.lang.IllegalStateException(s"found more than one entry for $label($property=$value)")
+	def node(label: Label, property: String, value: Any, logTime: Boolean = true): Option[Node] = {
+		def go() = tx { db =>
+			db.findNodesByLabelAndProperty(label, property, value).asScala.toList match {
+				case List(node) => Some(node)
+				case Nil => None
+				case _ => throw new java.lang.IllegalStateException(s"found more than one entry for $label($property=$value)")
+			}
 		}
+		if (logTime) time(s"query $label($property=$value)") { go() }
+		else go()
 	}
 
 	def nodes(label: Label) = txs { GlobalGraphOperations.at(db).getAllNodesWithLabel(label).asScala.toList }

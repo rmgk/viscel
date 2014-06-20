@@ -57,6 +57,7 @@ resolvers ++= (
 libraryDependencies ++= {
   val sprayVersion = "1.3.1"
   val neoVersion = "2.1.2"
+  val akkaVersion = "2.3.3"
   // Database
   "org.neo4j" % "neo4j" % neoVersion :: // gpl3
   "org.neo4j" % "neo4j-graphviz" % neoVersion ::
@@ -71,6 +72,9 @@ libraryDependencies ++= {
   "io.spray" % "spray-httpx" % sprayVersion ::
   "io.spray" % "spray-routing" % sprayVersion ::
   "io.spray" % "spray-util" % sprayVersion ::
+  // akka
+  "com.typesafe.akka" %% "akka-actor" % akkaVersion ::
+  "com.typesafe.akka" %% "akka-slf4j" % akkaVersion ::
   // "io.spray" %% "spray-json" % "1.2.6" ::
   // HTML
   // "com.netaporter" %% "scala-uri" % "0.4.2" :: // apache 2
@@ -79,7 +83,8 @@ libraryDependencies ++= {
   // "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5" :: // bsd
   // "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1" :: // apache2
   // Logging
-  "org.slf4j" % "slf4j-simple" % "1.7.7" :: // mit
+  // "org.slf4j" % "slf4j-simple" % "1.7.7" :: // mit
+  "ch.qos.logback" % "logback-classic" % "1.0.13" :: 
   "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2" :: // apache 2
   // Akka
   "com.typesafe.akka" %% "akka-actor" % "2.3.3" :: // apache 2

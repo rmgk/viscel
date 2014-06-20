@@ -5,11 +5,10 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.store._
 
 import scala.annotation.tailrec
-import scala.collection.immutable.LinearSeq
 import scalatags._
 import scalatags.all._
 
-class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation with StrictLogging {
+class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation {
 	override def Title = collection.name
 
 	override def bodyId = "front"

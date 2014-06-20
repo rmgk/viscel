@@ -24,7 +24,6 @@ class ChapterNode(val self: Node) extends ArchiveNode {
 
 object ChapterNode {
 	def apply(node: Node) = new ChapterNode(node)
-	def apply(id: String) = Neo.node(label.Chapter, "id", id).map { new ChapterNode(_) }
 
 	def create(name: String, props: Map[String, String]): ChapterNode = ChapterNode(Neo.create(label.Chapter, props + ("name" -> name)))
 	def create(name: String, props: (String, String)*): ChapterNode = create(name, props.toMap)

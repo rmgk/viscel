@@ -41,7 +41,7 @@ class AssetNode(val self: Node) extends ArchiveNode {
 
 	override def description: Asset = Neo.txs {
 		val props = self.getPropertyKeys.asScala.map(key => key -> self[String](key)).toMap
-		Asset(props("origin"), props("source"), props - "origin" - "source")
+		Asset(props("source"), props("origin"), props - "origin" - "source")
 	}
 
 	override def toString = s"$selfLabel(${ collection.name })"

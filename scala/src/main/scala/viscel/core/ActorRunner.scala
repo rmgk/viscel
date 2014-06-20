@@ -22,15 +22,15 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 	def next(): Unit = Neo.txs {
 		placeholderElement match {
 			case Some(en) =>
-				logger.info(s"$core: found placeholder element, downloading")
+				logger.debug(s"$core: found placeholder element, downloading")
 				BlobNode.find(en.source) match {
 					case Some(blob) => en.blob = blob; self ! "next"
-					case None => getBlob(Asset(en.source, en.origin)).map { en -> _ }.pipeTo(self)
+					case None => getBlob(en.description).map { en -> _ }.pipeTo(self)
 				}
 			case None =>
 				undescribedPage match {
 					case Some(pn) =>
-						logger.info(s"$core: undescribed page $pn, downloading")
+						logger.debug(s"$core: undescribed page $pn, downloading")
 						getDocument(pn.location).map { pn -> _ }.pipeTo(self)
 					case None =>
 						self ! "stop"
@@ -41,16 +41,16 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 
 	def always: Receive = {
 		case (pn: PageNode, doc: Document) =>
-			logger.info(s"$core: received ${ doc.baseUri() }, applying to $pn")
+			logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pn")
 			ArchiveManipulation.applyDescription(pn, core.wrap(doc, pn.description))
 			self ! "next"
 		case (en: AssetNode, ed: Blob) =>
-			logger.info(s"$core: received blob, applying to $en")
+			logger.debug(s"$core: received blob, applying to $en")
 			Resource.fromFile(viscel.hashToFilename(ed.sha1)).write(ed.buffer)
 			Neo.txs { en.blob = BlobNode.create(ed.sha1, ed.mediatype, en.source) }
 			self ! "next"
 		case Failure(throwable) =>
-			logger.info(s"failed download core ($core): $throwable")
+			logger.warn(s"failed download core ($core): $throwable")
 			clockwork ! Clockwork.Done(core)
 		case other => logger.warn(s"unknown message $other")
 	}
