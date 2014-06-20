@@ -50,7 +50,7 @@ object AssetNode {
 	def apply(nodeId: Long) = new AssetNode(Neo.tx { _.getNodeById(nodeId) })
 
 	def create(asset: Asset) = {
-		AssetNode(Neo.create(label.Asset, Metadata.prefix(asset.props) +
+		AssetNode(Neo.create(label.Asset, Metadata.prefix(asset.metadata) +
 				("source" -> asset.source.toString) + ("origin" -> asset.origin.toString)))
 	}
 }

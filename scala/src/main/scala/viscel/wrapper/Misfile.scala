@@ -41,7 +41,7 @@ object Misfile extends Core with StrictLogging {
 					element.copy(
 						source = element.source.replace("/t", "/"),
 						origin = origin,
-						props = element.props - "width" - "height")
+						metadata = element.metadata - "width" - "height")
 				}
 			}
 		val next_? = Selection(doc).all("a.next").wrap { selectNext("page") }

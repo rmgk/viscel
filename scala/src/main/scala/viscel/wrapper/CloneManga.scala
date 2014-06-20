@@ -19,7 +19,7 @@ object CloneManga {
 		})
 	}
 
-	def getCore(node: CoreNode): Core = Clone(node.name, node.id, node[String]("start"))
+	def getCore(desc: CoreDescription): Core = Clone(desc.name, desc.id, desc.metadata("start"))
 
 	object MetaClone extends Core {
 		override def id: String = "Meta_CloneManga"

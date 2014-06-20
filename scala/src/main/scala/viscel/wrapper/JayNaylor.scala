@@ -23,5 +23,3 @@ object JayNaylor {
 	object BetterDays extends Common("NX_BetterDays", "Better Days", "http://jaynaylor.com/betterdays/archives/chapter-1-honest-girls/")
 	object OriginalLife extends Common("NX_OriginalLife", "Original Life", "http://jaynaylor.com/originallife/")
 }
-
-

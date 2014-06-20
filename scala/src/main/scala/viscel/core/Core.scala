@@ -22,8 +22,8 @@ trait Core {
 object Core {
 	def metaCores: Set[Core] = Neo.nodes(label.Core).map(CoreNode(_)).map { core =>
 		core.kind match {
-			case "CloneManga" => CloneManga.getCore(core)
-			case "MangaHere" => MangaHere.getCore(core)
+			case "CloneManga" => CloneManga.getCore(core.description)
+			case "MangaHere" => MangaHere.getCore(core.description)
 		}
 	}.toSet
 	def availableCores: Set[Core] = KatBox.cores() ++ PetiteSymphony.cores() ++ metaCores ++ staticCores

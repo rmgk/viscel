@@ -91,7 +91,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 
 			case (chapterNode: ChapterNode) :: rest =>
 				val (pagelist, remaining) = makePageList(chapterNode.name, rest)
-				val volume = chapterNode.get("Volume")
+				val volume = chapterNode.metadataOption("Volume")
 				volume match {
 					case None => makeChapterList(remaining, volume, pagelist :: acc)
 					case _ if volume === headline => makeChapterList(remaining, volume, pagelist :: acc)

@@ -18,7 +18,7 @@ object Util {
 	def imgToAsset(img: Element): Asset Or Every[ErrorMessage] = extract(Asset(
 		source = img.attr("abs:src"),
 		origin = img.baseUri,
-		props = (getAttr(img, "alt") ++
+		metadata = (getAttr(img, "alt") ++
 			getAttr(img, "title") ++
 			getAttr(img, "width") ++
 			getAttr(img, "height")).toMap))

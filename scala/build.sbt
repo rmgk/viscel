@@ -28,7 +28,7 @@ javaOptions ++= (
   "-Xverify:none" ::
   //"-server" ::
   //"-Xms16m" ::
-  //"-Xmx1g" ::
+  //"-Xmx256m" ::
 	//"-Xss1m" ::
   //"-XX:MinHeapFreeRatio=5" ::
   //"-XX:MaxHeapFreeRatio=10" ::

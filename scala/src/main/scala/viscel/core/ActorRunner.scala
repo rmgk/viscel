@@ -71,7 +71,7 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 			logger.debug(s"$core received user hint $collectionNode")
 			current = collectionNode.describes
 			mode = 'shallow
-			if (remaining < 10) remaining = 10
+			remaining = Long.MaxValue
 			self ! 'next
 
 		case (pageNode: PageNode, doc: Document) =>

@@ -35,7 +35,7 @@ object MangaHere {
 		})
 	}
 
-	def getCore(node: CoreNode): Core = Generic(id = node.id, name = node.name, archiveUri = node[String]("start"))
+	def getCore(desc: CoreDescription): Core = Generic(id = desc.id, name = desc.name, archiveUri = desc.metadata("start"))
 
 	object MetaCore extends Core {
 		override def id: String = "Meta_MangaHere"
