@@ -36,11 +36,11 @@ trait NetworkPrimitives extends StrictLogging {
 
 	def getResponse(uri: Uri, referrer: Option[Uri] = None): Future[HttpResponse] = {
 		logger.info(s"get $uri ($referrer)")
-		val addReferer = referrer match {
+		val addReferrer = referrer match {
 			case Some(ref) => addHeader("Referer" /*[sic, http spec]*/ , ref.toString())
 			case None => (x: HttpRequest) => x
 		}
-		val pipeline = addReferer ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
+		val pipeline = addReferrer ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
 
 		val decodedResponse = pipeline(Get(uri)).andThen {
 			case Success(res) => ConfigNode().download(res.entity.data.length, res.status.isSuccess, res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.deflate)
@@ -57,8 +57,8 @@ trait NetworkPrimitives extends StrictLogging {
 			res.header[Location].fold(ifEmpty = uri)(_.uri).toString())
 	}
 
-	def getBlob(edesc: Asset): Future[Blob] = {
-		getResponse(edesc.source, Some(edesc.origin)).map { res =>
+	def getBlob(asset: Asset): Future[Blob] = {
+		getResponse(asset.source, Some(asset.origin)).map { res =>
 			val bytes = res.entity.data.toByteArray
 			Blob(
 				mediatype = res.header[`Content-Type`].get.contentType.mediaType,

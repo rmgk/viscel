@@ -3,6 +3,7 @@ package viscel.store
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.tooling.GlobalGraphOperations
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.core.Core
 import viscel.time
 
 import scala.annotation.tailrec
@@ -32,14 +33,16 @@ object Util extends StrictLogging {
 		//		}
 	}
 
-	def list: Vector[CollectionNode] = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).asScala.map { CollectionNode(_) }.toVector }
+	def listCollections: Vector[CollectionNode] = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).asScala.map { CollectionNode(_) }.toVector }
 
-	def search(query: String): Seq[CollectionNode] = time("search") {
+	def listCores: Vector[Core] = Core.availableCores.toVector
+
+	def search(query: String): Seq[Core] = time("search") {
 		val lcql = query.toLowerCase.replaceAll( """\s+""", "").toList
 		Neo.txs {
-			if (lcql.isEmpty) list
+			if (lcql.isEmpty) listCores
 			else
-				list.view.map { cn => cn -> fuzzyMatch(lcql, cn.name.toLowerCase.toList) }
+				listCores.view.map { cn => cn -> fuzzyMatch(lcql, cn.name.toLowerCase.toList) }
 					.filter { _._2 > 0 }.force
 					.sortBy { -_._2 }
 					.map { _._1 }

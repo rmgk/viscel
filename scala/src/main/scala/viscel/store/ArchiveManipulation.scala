@@ -1,18 +1,12 @@
 package viscel.store
 
-import org.neo4j.graphdb.Node
-import org.scalactic._
 import viscel.description._
-import viscel.store._
 
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.neo4j.graphdb.{Label, Node}
+import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import org.scalactic._
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 object ArchiveManipulation {
@@ -93,9 +87,9 @@ object ArchiveManipulation {
 		desc match {
 			case FailedDescription(reason) => throw new IllegalArgumentException(reason.toString())
 			case Pointer(loc, pagetype) => PageNode.create(loc, pagetype)
-			case Chapter(name, props) => ChapterNode.create(name, props)
-			case Asset(source, origin, props) => AssetNode.create(source = source, origin = origin, attributes = props)
-			case CoreDescription(kind, id, name, props) => CoreNode.updateOrCreate(kind, id, name, props)
+			case chap@Chapter(_, _) => ChapterNode.create(chap)
+			case asset@Asset(_, _, _) => AssetNode.create(asset)
+			case core@CoreDescription(_, _, _, _) => CoreNode.updateOrCreate(core)
 		}
 	}
 

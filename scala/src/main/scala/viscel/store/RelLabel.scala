@@ -16,6 +16,7 @@ object label {
 	case object Page extends SimpleLabel("Archive")
 	case object Unlabeled extends SimpleLabel("Unlabeled")
 	case object User extends SimpleLabel("User")
+	case object Metadata extends SimpleLabel("Metadata")
 
 }
 
@@ -34,7 +35,7 @@ object rel {
 	case object narc extends SimpleRelationshipType("narc")
 	case object skip extends SimpleRelationshipType("next")
 	case object parent extends SimpleRelationshipType("parent")
-	case object payload extends SimpleRelationshipType("payload")
+	case object metadata extends SimpleRelationshipType("metadata")
 	case object prev extends SimpleRelationshipType("prev")
 
 }

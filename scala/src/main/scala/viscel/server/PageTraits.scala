@@ -26,7 +26,7 @@ trait HtmlPageUtils {
 	def path_nid(vn: ViscelNode) = s"/i/${ vn.nid }"
 	def path_raw(vn: ViscelNode) = s"/r/${ vn.nid }"
 	def path_stop = "/stop"
-	def path_core(core: Core) = s"/core/${core.id}"
+	def path_core(core: Core) = s"/f/${core.id}"
 
 	val class_main = cls := "main"
 	val class_navigation = cls := "navigation"
@@ -41,7 +41,7 @@ trait HtmlPageUtils {
 
 	def link_main(ts: Node*) = a(href := path_main)(ts)
 	def link_stop(ts: Node*) = a(href := path_stop)(ts)
-	//def link_front(id: String, ts: Node*) = a.href(path_front(id))(ts)
+	//def link_front(collection: CollectionNode, ts: Node*) = a(href := path_front(collection))(ts)
 	//def link_view(id: String, chapter: Int, pos: Int, ts: Node*) = a.href(path_view(id, chapter, pos))(ts)
 	def link_node(vn: ViscelNode, ts: Node*): Node = a(href := path_nid(vn))(ts)
 	def link_node(vn: Option[ViscelNode], ts: Node*): Node = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))

@@ -1,12 +1,12 @@
 package viscel.store
 
 import org.neo4j.graphdb.{Label, Node}
-import viscel.description.{Asset, CoreDescription, Description}
+import viscel.description._
 
 import scala.language.implicitConversions
 import scala.collection.JavaConverters._
 
-class CoreNode(val self: Node) extends ArchiveNode {
+class CoreNode(val self: Node) extends ArchiveNode with Metadata {
 	override def selfLabel: Label = label.Core
 
 	def kind: String = Neo.txs { self[String]("kind") }
@@ -17,8 +17,7 @@ class CoreNode(val self: Node) extends ArchiveNode {
 	def get[R](k: String) = Neo.txs { self.get[R](k) }
 
 	override def description: Description = Neo.txs {
-		val props = self.getPropertyKeys.asScala.map(key => key -> self[String](key)).toMap
-		CoreDescription(props("kind"), props("id"), props("name"), props - "kind" - "id" - "name")
+		CoreDescription(kind, id, name, metadata)
 	}
 }
 
@@ -26,13 +25,13 @@ object CoreNode {
 	def apply(node: Node) = new CoreNode(node)
 	def apply(nodeId: Long) = new CoreNode(Neo.tx { _.getNodeById(nodeId) })
 
-	def create(kind: String, id: String, name: String, attributes: Map[String, Any]) = CoreNode(
-		Neo.create(label.Core,  attributes + ("id" -> id) + ("kind" -> kind) + ("name" -> name)))
+	def create(desc: CoreDescription) = CoreNode(
+		Neo.create(label.Core,  Metadata.prefix(desc.props) + ("id" -> desc.id) + ("kind" -> desc.kind) + ("name" -> desc.name)))
 
-	def updateOrCreate(kind: String, id: String, name: String, attributes: Map[String, Any]) = Neo.txs {
-		Neo.node(label.Core, "id", id).fold{create(kind, id, name, attributes)}{ node: Node =>
+	def updateOrCreate(desc: CoreDescription) = Neo.txs {
+		Neo.node(label.Core, "id", desc.id).fold{create(desc)}{ node: Node =>
 			node.getPropertyKeys.asScala.foreach(node.removeProperty)
-			(attributes + ("name" -> name) + ("id" -> id) + ("kind" -> kind)).foreach{ case (k, v) => node.setProperty(k, v) }
+			(Metadata.prefix(desc.props) + ("name" -> desc.name) + ("id" -> desc.id) + ("kind" -> desc.kind)).foreach{ case (k, v) => node.setProperty(k, v) }
 			CoreNode(node)
 		}
 	}

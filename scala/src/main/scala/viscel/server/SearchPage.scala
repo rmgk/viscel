@@ -14,7 +14,7 @@ class SearchPage(user: UserNode, text: String) extends HtmlPage {
 
 	def sidePart: List[Node] = {
 		val containing = StoreUtil.search(text)
-			.map { cn => link_node(cn, cn.name) }
+			.map { cn => link_core(cn) }
 		make_fieldset(text, containing)(class_group) :: Nil
 	}
 }

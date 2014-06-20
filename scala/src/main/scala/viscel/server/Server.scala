@@ -12,7 +12,7 @@ import spray.http.{ContentType, MediaTypes}
 import spray.routing.authentication._
 import spray.routing.{HttpService, Route}
 import viscel.store._
-import viscel.core.Clockwork
+import viscel.core.{Core, Messages, Clockwork}
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -101,9 +101,11 @@ trait DefaultRoutes extends HttpService {
 				val filename = viscel.hashToFilename(blob.sha1)
 				getFromFile(new File(filename), ContentType(blob.mediatype))
 			} ~
-			path("f" / Segment) { col =>
-				rejectNone(CollectionNode(col)) { cn =>
-					complete(FrontPage(user, cn))
+			path("f" / Segment) { collectionId =>
+				rejectNone(Core.get(collectionId)) { core =>
+					val collection = Core.getCollection(core)
+					actorRefFactory.actorSelection("/user/clockwork") ! Messages.CollectionHint(collection)
+					complete(FrontPage(user, collection))
 				}
 			} ~
 			//			path("c" / Segment) { col =>
@@ -114,12 +116,18 @@ trait DefaultRoutes extends HttpService {
 			path("v" / Segment / IntNumber) { (col, pos) =>
 				rejectNone(CollectionNode(col)) { cn =>
 					rejectNone(cn(pos)) { en =>
+						actorRefFactory.actorSelection("/user/clockwork") ! Messages.ArchiveHint(en)
 						complete(ViewPage(user, en))
 					}
 				}
 			} ~
 			path("i" / LongNumber) { id =>
-				complete(PageDispatcher(user, ViscelNode(id).get))
+				val node = ViscelNode(id).get
+				node match {
+					case archiveNode: ArchiveNode => actorRefFactory.actorSelection("/user/clockwork") ! Messages.ArchiveHint(archiveNode)
+					case collectionNode: CollectionNode => actorRefFactory.actorSelection("/user/clockwork") ! Messages.CollectionHint(collectionNode)
+				}
+				complete(PageDispatcher(user, node))
 			} ~
 			path("r" / LongNumber) { id =>
 				complete(RawPage(user, ViscelNode(id).get))
@@ -136,8 +144,8 @@ trait DefaultRoutes extends HttpService {
 				}
 			} ~
 			path("core" / Segment) { coreId =>
-				val core = Clockwork.getCore(coreId).foreach { core =>
-					actorRefFactory.actorSelection("/user/clockwork") ! Clockwork.Run(core)
+				val core = Core.get(coreId).foreach { core =>
+					actorRefFactory.actorSelection("/user/clockwork") ! Messages.Run(core)
 				}
 				complete(coreId)
 			}

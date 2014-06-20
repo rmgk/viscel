@@ -1,6 +1,7 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
+import viscel.core.Core
 import viscel.time
 
 class CollectionNode(val self: Node) extends ViscelNode with DescribingNode {
@@ -34,7 +35,11 @@ class CollectionNode(val self: Node) extends ViscelNode with DescribingNode {
 object CollectionNode {
 	def apply(node: Node) = new CollectionNode(node)
 	def apply(nodeId: Long) = new CollectionNode(Neo.tx { _.getNodeById(nodeId) })
-	def apply(id: String) = Neo.node(label.Collection, "id", id).map { new CollectionNode(_) }
+	def apply(id: String): Option[CollectionNode] = Neo.node(label.Collection, "id", id).map { new CollectionNode(_) }
 
 	def create(id: String, name: String) = CollectionNode(Neo.create(label.Collection, "id" -> id, "name" -> name))
+
+	def getOrCreate(core: Core): CollectionNode = Neo.txs {
+		apply(core.id).getOrElse { create(core.id, core.name) }
+	}
 }

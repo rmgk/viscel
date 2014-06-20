@@ -16,5 +16,5 @@ object Description {
 case class Pointer(loc: AbsUri, pagetype: String) extends Description
 case class Chapter(name: String, props: Map[String, String] = Map()) extends Description
 case class Asset(source: AbsUri, origin: AbsUri, props: Map[String, String] = Map()) extends Description
-case class CoreDescription(kind: String, id: String, name: String, props: Map[String, Any]) extends Description
+case class CoreDescription(kind: String, id: String, name: String, props: Map[String, String]) extends Description
 case class FailedDescription(reason: Every[ErrorMessage]) extends Description

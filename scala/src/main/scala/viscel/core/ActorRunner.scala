@@ -1,70 +1,90 @@
 package viscel.core
 
+import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.pipe
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
-import viscel.description.Asset
 import viscel.store._
-import akka.actor.Status.Failure
+import viscel.core.Messages._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalax.io.Resource
 
 class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: CollectionNode, val clockwork: ActorRef) extends Actor with NetworkPrimitives {
 
-	override def preStart() = ArchiveManipulation.applyDescription(collection, core.archive)
+	var current: Option[ArchiveNode] = None
+	var remaining: Long = 10
+	var processingNext: Boolean = false
 
-	def undescribedPage: Option[PageNode] = collection.describes.flatMap(_.findForward{case page: PageNode if page.describes.isEmpty => page})
+	override def preStart() = {
+		ArchiveManipulation.applyDescription(collection, core.archive)
+		current = collection.describes
+	}
 
-	def placeholderElement: Option[AssetNode] = collection.describes.flatMap(_.findForward{case asset: AssetNode if asset.blob.isEmpty => asset})
+	def selectNext(from: Option[ArchiveNode]): Option[ArchiveNode] = from.flatMap(_.findForward {
+		case page: PageNode if page.describes.isEmpty => page
+		case asset: AssetNode if asset.blob.isEmpty => asset
+	})
 
 	def next(): Unit = Neo.txs {
-		placeholderElement match {
-			case Some(en) =>
-				logger.debug(s"$core: found placeholder element, downloading")
-				BlobNode.find(en.source) match {
-					case Some(blob) => en.blob = blob; self ! "next"
-					case None => getBlob(en.description).map { en -> _ }.pipeTo(self)
-				}
+		remaining -= 1
+		if (remaining < 0) {
+			processingNext = false
+			clockwork ! Done(core, timeout = true)
+		}
+		else selectNext(current) match {
 			case None =>
-				undescribedPage match {
-					case Some(pn) =>
-						logger.debug(s"$core: undescribed page $pn, downloading")
-						getDocument(pn.location).map { pn -> _ }.pipeTo(self)
-					case None =>
-						self ! "stop"
-						clockwork ! Clockwork.Done(core)
+				current = None
+				clockwork ! Done(core)
+			case found@Some(node) =>
+				logger.debug(s"$core: selected next $node")
+				current = found
+				node match {
+					case page: PageNode => getDocument(page.location).map { page -> _ }.pipeTo(self)
+
+					case asset: AssetNode =>
+						logger.debug(s"$core: found placeholder element, downloading")
+						BlobNode.find(asset.source) match {
+							case Some(blob) => asset.blob = blob; doNext()
+							case None => getBlob(asset.description).map { asset -> _ }.pipeTo(self)
+						}
 				}
 		}
 	}
 
-	def always: Receive = {
-		case (pn: PageNode, doc: Document) =>
-			logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pn")
-			ArchiveManipulation.applyDescription(pn, core.wrap(doc, pn.description))
-			self ! "next"
-		case (en: AssetNode, ed: Blob) =>
-			logger.debug(s"$core: received blob, applying to $en")
-			Resource.fromFile(viscel.hashToFilename(ed.sha1)).write(ed.buffer)
-			Neo.txs { en.blob = BlobNode.create(ed.sha1, ed.mediatype, en.source) }
-			self ! "next"
+	def doNext() = { processingNext = false; self ! 'next }
+
+	def receive: Actor.Receive = {
+		case 'next => if (!processingNext) { processingNext = true; next() }
+
+		case ArchiveHint(archiveNode) =>
+			logger.debug(s"$core received user hint $archiveNode")
+			current = Some(archiveNode)
+			if (remaining < 10) remaining = 10
+			self ! 'next
+
+		case CollectionHint(collectionNode) =>
+			logger.debug(s"$core received user hint $collectionNode")
+			current = collectionNode.describes
+			if (remaining < 10) remaining = 10
+			self ! 'next
+
+		case (pageNode: PageNode, doc: Document) =>
+			logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pageNode")
+			ArchiveManipulation.applyDescription(pageNode, core.wrap(doc, pageNode.description))
+			doNext()
+
+		case (assetNode: AssetNode, blob: Blob) =>
+			logger.debug(s"$core: received blob, applying to $assetNode")
+			Resource.fromFile(viscel.hashToFilename(blob.sha1)).write(blob.buffer)
+			Neo.txs { assetNode.blob = BlobNode.create(blob.sha1, blob.mediatype, assetNode.source) }
+			doNext()
+
 		case Failure(throwable) =>
 			logger.warn(s"failed download core ($core): $throwable")
-			clockwork ! Clockwork.Done(core)
+			processingNext = false
+			clockwork ! Done(core, failed = true)
 		case other => logger.warn(s"unknown message $other")
 	}
-
-	def idle: Receive = {
-		case "start" =>
-			context.become(running orElse always)
-			next()
-	}
-
-	def running: Receive = {
-		case "stop" => context.become(idle orElse always)
-		case "next" => next()
-	}
-
-	def receive: Actor.Receive = idle orElse always
 }

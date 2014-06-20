@@ -2,7 +2,9 @@ package viscel.core
 
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.description.{Pointer, Description}
+import viscel.description._
+import viscel.store._
+import viscel.wrapper._
 
 trait Core {
 	def id: String
@@ -15,4 +17,25 @@ trait Core {
 	}
 	override def hashCode: Int = id.hashCode
 	override def toString: String = s"$id($name)"
+}
+
+object Core {
+	def metaCores: Set[Core] = Neo.nodes(label.Core).map(CoreNode(_)).map { core =>
+		core.kind match {
+			case "CloneManga" => CloneManga.getCore(core)
+			case "MangaHere" => MangaHere.getCore(core)
+		}
+	}.toSet
+	def availableCores: Set[Core] = KatBox.cores() ++ PetiteSymphony.cores() ++ metaCores ++ staticCores
+	def get(id: String) = availableCores.find(_.id === id)
+
+	val collectionCache = scala.collection.concurrent.TrieMap[String, CollectionNode]()
+
+	def getCollection(core: Core): CollectionNode = collectionCache.getOrElseUpdate(core.id, {
+		val collection = CollectionNode.getOrCreate(core)
+		if (collection.name !== core.name) collection.name = core.name
+		collection
+	})
+
+	val staticCores = Set(MangaHere.MetaCore, CloneManga.MetaClone, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds, BetterDays)
 }

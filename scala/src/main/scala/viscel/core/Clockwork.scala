@@ -6,68 +6,60 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.scalactic.TypeCheckedTripleEquals._
 import spray.client.pipelining._
 import viscel.store._
-import viscel.wrapper._
+import viscel.core.Messages._
 
 import scala.collection._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-object Clockwork {
-	case class Run(core: Core)
-	case class Done(core: Core)
-	def metaCores: Set[Core] = Neo.nodes(label.Core).map(CoreNode(_)).map { core =>
-		core.kind match {
-			case "CloneManga" => CloneManga.getCore(core)
-			case "MangaHere" => MangaHere.getCore(core)
-		}
-	}.toSet
-	def availableCores: Set[Core] = KatBox.cores() ++ PetiteSymphony.cores() ++ metaCores ++ Set(MangaHere.MetaCore, CloneManga.MetaClone, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds)
-	def getCore(id: String) = availableCores.find(_.id === id)
-}
-
 class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
-
-	import viscel.core.Clockwork._
 
 	var activeCores = Map[Core, ActorRef]()
 
 	val iopipe = {
-		implicit val timeout: Timeout = 30.seconds
+		implicit val timeout: Timeout = 300.seconds
 		//import system.dispatcher
 		sendReceive(ioHttp)
-	}
-
-	def getCollection(core: Core) = Neo.txs {
-		val col = CollectionNode(core.id).getOrElse(CollectionNode.create(core.id, core.name))
-		if (col.name !== core.name) col.name = core.name
-		col
 	}
 
 	def receive = {
 		case Run(core) =>
 			logger.info(s"starting runner for $core")
-			update(core)
-		case Done(core) => activeCores.get(core).fold(ifEmpty = logger.warn(s"got Done from unknown core $core")){ actor =>
+			runnerFor(core)
+		case Done(core, timeout, failure) => activeCores.get(core).fold(ifEmpty = logger.warn(s"got Done from unknown core $core")){ actor =>
 			logger.info(s"core $core is done. stopping")
 			context.stop(actor)
 			activeCores -= core
 		}
+		case hint@ArchiveHint(archiveNode) =>
+			val col = archiveNode.collection
+			Core.get(col.id) match {
+				case None => logger.warn(s"unkonwn core ${col.id}")
+				case Some(core) => runnerFor(core) ! hint
+			}
+
+		case hint@CollectionHint(collectionNode) =>
+			Core.get(collectionNode.id) match {
+				case None => logger.warn(s"unkonwn core ${collectionNode.id}")
+				case Some(core) => runnerFor(core) ! hint
+			}
+
+
 		case msg => logger.warn(s"received unexpected message: $msg")
 	}
 
-	def update(core: Core): ActorRef = {
+	def runnerFor(core: Core): ActorRef = {
 		activeCores.getOrElse(core, {
-			val actor = run(core)
+			val actor = makeRunner(core)
 			activeCores += core -> actor
 			actor
 		})
 	}
 
-	def run(core: Core): ActorRef = {
-		val col = getCollection(core)
+	def makeRunner(core: Core): ActorRef = {
+		val col = Core.getCollection(core)
 		val props = Props(classOf[ActorRunner], iopipe, core, col, self)
 		val runner = context.actorOf(props, core.id)
-		runner ! "start"
 		runner
 	}
 }
