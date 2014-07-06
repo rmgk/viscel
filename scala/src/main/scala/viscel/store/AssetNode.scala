@@ -39,7 +39,7 @@ class AssetNode(val self: Node) extends ArchiveNode with Metadata {
 	def source = Neo.txs { AbsUri(self[String]("source")) }
 
 	override def description: Asset = Neo.txs {
-		Asset(source, origin, metadata)
+		Asset(source, origin, metadata())
 	}
 
 	override def toString = s"$selfLabel(${ collection.name })"

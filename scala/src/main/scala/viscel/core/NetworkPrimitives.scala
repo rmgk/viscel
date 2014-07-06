@@ -43,7 +43,10 @@ trait NetworkPrimitives extends StrictLogging {
 		val pipeline = addReferrer ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
 
 		val decodedResponse = pipeline(Get(uri)).andThen {
-			case Success(res) => ConfigNode().download(res.entity.data.length, res.status.isSuccess, res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.deflate)
+			case Success(res) => ConfigNode().download(
+				size = res.entity.data.length,
+				success = res.status.isSuccess,
+				compressed = res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.gzip)
 			case Failure(_) => ConfigNode().download(0, success = false)
 		}.map { decode(Gzip) ~> decode(Deflate) }
 
@@ -53,7 +56,7 @@ trait NetworkPrimitives extends StrictLogging {
 
 	def getDocument(uri: Uri): Future[Document] = getResponse(uri).map { res =>
 		Jsoup.parse(
-			res.entity.asString(HttpCharsets.`UTF-8`),
+			res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
 			res.header[Location].fold(ifEmpty = uri)(_.uri).toString())
 	}
 
