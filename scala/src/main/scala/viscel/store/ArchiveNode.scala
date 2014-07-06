@@ -50,6 +50,13 @@ trait ArchiveNode extends ViscelNode {
 		CollectionNode(rewind(self))
 	}
 
+	def setChecked() = Neo.txs { self.setProperty("checked", System.currentTimeMillis()) }
+	def lastCheck(difference: scala.concurrent.duration.Duration) = Neo.txs {
+		val checked = self.get[Long]("checked").getOrElse(0L)
+		val now = System.currentTimeMillis()
+		now - checked > difference.toMillis
+	}
+
 	@tailrec
 	final def findBackward[R](p: PartialFunction[ArchiveNode, R]): Option[R] = {
 		if (p.isDefinedAt(this)) Some(p(this))
