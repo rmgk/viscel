@@ -2,7 +2,7 @@ package viscel.server
 
 import viscel.store.UserNode
 
-import scalatags.Text._
+import scalatags.Text.all._
 
 class SelectionPage(user: UserNode) extends HtmlPage {
 	override def Title = "Select"
@@ -17,7 +17,7 @@ class SelectionPage(user: UserNode) extends HtmlPage {
 		//				val stored = Neo.txs { viscel.store.Util.list.map { _.id }.toSet }
 		//				viscel.core.Clockwork.availableCores.map { _.id }.toSeq.sorted
 		//					.map { id =>
-		//						Seq[Node](input.ctype("checkbox").name(id).value("select").pipe {
+		//						Seq[Frag](input.ctype("checkbox").name(id).value("select").pipe {
 		//							case inp if known.contains(id) => inp.attr("checked" -> "checked")
 		//							case inp => inp
 		//						}, if (stored(id)) b(id) else id, <br/>)
@@ -27,7 +27,7 @@ class SelectionPage(user: UserNode) extends HtmlPage {
 		//				input.ctype("reset").value("reset")))
 	}
 
-	def navigation: Seq[Node] = link_main("index") :: Nil
+	def navigation: Seq[Frag] = link_main("index") :: Nil
 
 	def sidePart = "" :: Nil
 }

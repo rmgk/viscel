@@ -4,7 +4,6 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.core.Core
 import viscel.description.{Pointer, Description}
-import viscel.wrapper.Selection
 import viscel.wrapper.Util._
 
 

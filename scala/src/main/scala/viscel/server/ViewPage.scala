@@ -22,7 +22,7 @@ class ViewPage(user: UserNode, enode: AssetNode) extends HtmlPage with MetaNavig
 	override def mainPart = div(class_content)(link_node(enode.nextAsset, enodeToImg(enode))) :: Nil
 	override def sidePart = "" :: Nil
 
-	override def navigation = Seq[Node](
+	override def navigation = Seq[Frag](
 		link_node(enode.prevAsset, "prev"),
 		" ",
 		link_node(collection, "front"),

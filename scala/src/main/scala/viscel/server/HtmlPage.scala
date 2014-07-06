@@ -3,8 +3,8 @@ package viscel.server
 import spray.http.{ContentType, HttpCharsets, HttpEntity, HttpResponse, MediaTypes}
 import viscel.store.Neo
 
-import scalatags.Text._
 import scalatags.Text.all._
+import scalatags.Text.Tag
 
 trait HtmlPage extends HtmlPageUtils {
 
@@ -23,13 +23,13 @@ trait HtmlPage extends HtmlPageUtils {
 
 	def bodyId: String
 
-	def mainPart: Seq[Node]
+	def mainPart: Seq[Frag]
 
-	def navigation: Seq[Node]
+	def navigation: Seq[Frag]
 
-	def sidePart: Seq[Node]
+	def sidePart: Seq[Frag]
 
-	def content: Node = body(id := bodyId)(
+	def content: Tag = body(id := bodyId)(
 		div(class_main)(mainPart: _*),
 		div(class_navigation)(navigation: _*),
 		div(class_side)(sidePart: _*))

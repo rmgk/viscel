@@ -57,13 +57,13 @@ resolvers ++= (
 libraryDependencies ++= {
   val sprayVersion = "1.3.1"
   val neoVersion = "2.1.2"
-  val akkaVersion = "2.3.3"
+  val akkaVersion = "2.3.4"
   // Database
   "org.neo4j" % "neo4j" % neoVersion :: // gpl3
   "org.neo4j" % "neo4j-graphviz" % neoVersion ::
   ("org.neo4j" % "neo4j-kernel" % neoVersion % "test" classifier "tests") ::
-  "com.typesafe.slick" %% "slick" % "2.1.0-M2" :: // bsdish
-  "org.xerial" % "sqlite-jdbc" % "3.7.2" :: // apache2
+  //"com.typesafe.slick" %% "slick" % "2.1.0-M2" :: // bsdish
+  //"org.xerial" % "sqlite-jdbc" % "3.7.2" :: // apache2
   // Webserver
   "io.spray" % "spray-caching" % sprayVersion :: // apache 2
   "io.spray" % "spray-can" % sprayVersion ::
@@ -79,15 +79,13 @@ libraryDependencies ++= {
   // HTML
   // "com.netaporter" %% "scala-uri" % "0.4.2" :: // apache 2
   "org.jsoup" % "jsoup" % "1.7.3" :: // mit
-  "com.scalatags" %% "scalatags" % "0.3.0" :: // mit
+  "com.scalatags" %% "scalatags" % "0.3.8" :: // mit
   // "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.5" :: // bsd
   // "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1" :: // apache2
   // Logging
   // "org.slf4j" % "slf4j-simple" % "1.7.7" :: // mit
   "ch.qos.logback" % "logback-classic" % "1.1.2" ::
   "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2" :: // apache 2
-  // Akka
-  "com.typesafe.akka" %% "akka-actor" % "2.3.3" :: // apache 2
   // Commandline
   "jline" % "jline" % "2.12" ::
   "net.sf.jopt-simple" % "jopt-simple" % "4.6" :: // mit
@@ -101,7 +99,7 @@ libraryDependencies ++= {
   "com.github.scala-incubator.io" %% "scala-io-core" % "0.4.3" :: // scala license (bsdish)
   "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3" ::
   // "com.twitter" %% "util-eval" % "6.5.0" :: // apache 2
-  "commons-lang" % "commons-lang" % "2.6" :: // apache 2
+  //"commons-lang" % "commons-lang" % "2.6" :: // apache 2
   "org.scalactic" %% "scalactic" % "2.2.0" ::
   Nil
 }

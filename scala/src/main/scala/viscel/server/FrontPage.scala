@@ -5,7 +5,6 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.store._
 
 import scala.annotation.tailrec
-import scalatags.Text._
 import scalatags.Text.all._
 
 class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation {
@@ -33,20 +32,20 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 			//"pages" -> collection.totalSize.toString
 		)) :: Nil
 
-	def navigation = Seq[Node](
+	def navigation = Seq(
 		link_main("index"),
-		StringNode(" – "),
+		StringFrag(" – "),
 		link_node(collection.first, "first"),
-		" – ",
+		StringFrag(" – "),
 		previewLeft.map { bmRemoveForm }.getOrElse("remove"))
 
-	def sidePart = Seq[Node](
+	def sidePart = Seq[Frag](
 		div(class_content)(
-			Seq[Option[Node]](
+			Seq[Option[Frag]](
 				previewRight.map { e => link_node(Some(e), enodeToImg(e)) },
 				previewMiddle.map { e => link_node(Some(e), enodeToImg(e)) },
 				previewLeft.map { e => link_node(Some(e), enodeToImg(e)) }
-			).flatten[Node]: _*)) ++ chapterlist
+			).flatten[Frag]: _*)) ++ chapterlist
 
 	override def navNext = previewLeft.orElse(previewMiddle).orElse(previewRight).map { en => path_nid(en) }
 
@@ -54,14 +53,14 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 
 	override def navUp = Some(path_main)
 
-	def makePageList(chapterName: String, nodes: List[ArchiveNode]): (Node, List[ArchiveNode]) = {
+	def makePageList(chapterName: String, nodes: List[ArchiveNode]): (Frag, List[ArchiveNode]) = {
 		@tailrec
-		def make_nodelist(pos: Int, done: List[Node], remaining: List[ArchiveNode]): (List[Node], List[ArchiveNode]) = {
+		def make_nodelist(pos: Int, done: List[Frag], remaining: List[ArchiveNode]): (List[Frag], List[ArchiveNode]) = {
 			remaining match {
 				case Nil => (done.reverse.drop(1), Nil)
 
 				case (assetNode: AssetNode) :: rest =>
-					make_nodelist(pos + 1, link_node(assetNode, pos) :: StringNode(" ") :: done, rest)
+					make_nodelist(pos + 1, link_node(assetNode, pos) :: StringFrag(" ") :: done, rest)
 
 				case (pageNode: PageNode) :: rest =>
 					val more = pageNode.describes.fold(List[ArchiveNode]())(_.layer)
@@ -71,7 +70,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 					(done.reverse.drop(1), remaining)
 
 				case (coreNode: CoreNode) :: rest =>
-					make_nodelist(pos, StringNode(s"Core: ${coreNode.id}") :: br :: done, rest)
+					make_nodelist(pos, StringFrag(s"Core: ${coreNode.id}") :: br :: done, rest)
 
 				case _ :: _ => throw new IllegalArgumentException("unknown archive $head")
 			}
@@ -81,7 +80,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 	}
 
 	@tailrec
-	final def makeChapterList(nodes: List[ArchiveNode], headline: Option[String], acc: List[Node]): List[Node] = {
+	final def makeChapterList(nodes: List[ArchiveNode], headline: Option[String], acc: List[Frag]): List[Frag] = {
 		nodes match {
 			case Nil => acc
 
@@ -103,7 +102,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 				 makeChapterList(remaining, headline, pageList :: acc)
 
 			case (coreNode: CoreNode) :: rest =>
-				makeChapterList(rest, headline, StringNode(s"Core: ${coreNode.id}") :: br :: acc)
+				makeChapterList(rest, headline, StringFrag(s"Core: ${coreNode.id}") :: br :: acc)
 
 			case _ :: _ => throw new IllegalArgumentException("unknown archive $head")
 		}

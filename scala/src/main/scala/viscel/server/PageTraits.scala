@@ -4,10 +4,8 @@ import spray.http.MediaTypes
 import viscel.core.Core
 import viscel.store.{ rel => _, _}
 
-import scalatags._
-import scalatags.Text._
+import scalatags.Text.Tag
 import scalatags.Text.all._
-import scalatags.DataConverters._
 
 trait MaskLocation extends HtmlPage {
 	def maskLocation: String
@@ -39,39 +37,39 @@ trait HtmlPageUtils {
 	val class_pages = cls := "pages"
 	val class_extern = cls := "extern"
 
-	def link_main(ts: Node*) = a(href := path_main)(ts)
-	def link_stop(ts: Node*) = a(href := path_stop)(ts)
-	//def link_front(collection: CollectionNode, ts: Node*) = a(href := path_front(collection))(ts)
-	//def link_view(id: String, chapter: Int, pos: Int, ts: Node*) = a.href(path_view(id, chapter, pos))(ts)
-	def link_node(vn: ViscelNode, ts: Node*): Node = a(href := path_nid(vn))(ts)
-	def link_node(vn: Option[ViscelNode], ts: Node*): Node = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))
-	def link_raw(vn: ViscelNode, ts: Node*): Node = a(href := path_raw(vn))(ts)
-	// def link_node(en: Option[ElementNode], ts: Node*): Node = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
-	def link_core(core: Core): Node = a(href := path_core(core))(core.name)
+	def link_main(ts: Frag*) = a(href := path_main)(ts)
+	def link_stop(ts: Frag*) = a(href := path_stop)(ts)
+	//def link_front(collection: CollectionNode, ts: Frag*) = a(href := path_front(collection))(ts)
+	//def link_view(id: String, chapter: Int, pos: Int, ts: Frag*) = a.href(path_view(id, chapter, pos))(ts)
+	def link_node(vn: ViscelNode, ts: Frag*): Frag = a(href := path_nid(vn))(ts)
+	def link_node(vn: Option[ViscelNode], ts: Frag*): Frag = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))
+	def link_raw(vn: ViscelNode, ts: Frag*): Frag = a(href := path_raw(vn))(ts)
+	// def link_node(en: Option[ElementNode], ts: Frag*): Frag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
+	def link_core(core: Core): Frag = a(href := path_core(core))(core.name)
 
-	def form_post(formAction: String, ts: Node*) = form("method".attr := "post", "enctype".attr := MediaTypes.`application/x-www-form-urlencoded`.toString, action := formAction)(ts)
-	def form_get(formAction: String, ts: Node*) = form("method".attr := "get", "enctype".attr := MediaTypes.`application/x-www-form-urlencoded`.toString, action := formAction)(ts)
+	def form_post(formAction: String, ts: Frag*) = form("method".attr := "post", "enctype".attr := MediaTypes.`application/x-www-form-urlencoded`.toString, action := formAction)(ts)
+	def form_get(formAction: String, ts: Frag*) = form("method".attr := "get", "enctype".attr := MediaTypes.`application/x-www-form-urlencoded`.toString, action := formAction)(ts)
 
 	def form_search(init: String) = form_get(path_search, input(`type` := "textfield", name := "q", value := init))(id := "searchform")
 
 	def enodeToImg(en: AssetNode) = en.blob.fold(ifEmpty = div(class_info)("Placeholder")) { blob =>
 		img(src := path_blob(blob), class_element) {
-			Seq("alt", "title", "width", "height").flatMap { k => en.self.get[Any](k).map { v => k.attr := v.toString } }: _*
+			SeqNode(Seq("alt", "title", "width", "height").flatMap { k => en.self.get[Any](k).map { v => k.attr := v.toString } })
 		}
 	}
 
-	def make_table(entry: (String, Node)*) = table(tbody(entry.map {
+	def make_table(entry: (String, Frag)*) = table(tbody(SeqNode(entry.map {
 		case (k, v) =>
 			tr(td(k), td(v))
-	}))
+	})))
 
-	def make_fieldset(name: String, entries: Seq[Node]) = fieldset(legend(name), div(entries.flatMap { e => List(e, br) }))
+	def make_fieldset(name: String, entries: Seq[Frag]) = fieldset(legend(name), div(entries.flatMap { e => List(e, br) }))
 
 }
 
 trait MetaNavigation extends HtmlPage {
 	override def header: Tag = super.header(
-		script(RawNode(keyNavigation(up = navUp, down = navDown, prev = navPrev, next = navNext))),
+		script(RawFrag(keyNavigation(up = navUp, down = navDown, prev = navPrev, next = navNext))),
 		navNext.map { n => link(rel := "next", href := n) }.getOrElse(""),
 		navPrev.map { p => link(rel := "prev", href := p) }.getOrElse(""))
 

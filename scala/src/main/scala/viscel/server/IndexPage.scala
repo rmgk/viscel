@@ -1,9 +1,8 @@
 package viscel.server
 
-import viscel.core.Core
 import viscel.store._
 
-import scalatags.Text._
+import scalatags.Text.Tag
 import scalatags.Text.all._
 
 class IndexPage(user: UserNode) extends HtmlPage {
@@ -31,7 +30,7 @@ class IndexPage(user: UserNode) extends HtmlPage {
 		Nil
 	}
 
-	override def content: Node = body(id := bodyId)(
+	override def content: Tag = body(id := bodyId)(
 		div(class_main)(mainPart),
 		div(class_side)(sidePart),
 		div(class_navigation)(navigation))
