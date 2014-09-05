@@ -7,7 +7,6 @@ import akka.io.IO
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import joptsimple._
 import org.neo4j.graphdb.traversal._
-import org.neo4j.kernel._
 import org.neo4j.visualization.graphviz._
 import org.neo4j.walk.Walker
 import spray.can.Http
@@ -31,8 +30,8 @@ object Viscel extends StrictLogging {
 		catch {
 			case oe: OptionException =>
 				printHelpOn(System.out)
-				println()
-				println(s"$oe")
+				Console.println()
+				Console.println(s"$oe")
 				sys.exit(0)
 		}
 
@@ -84,7 +83,7 @@ object Viscel extends StrictLogging {
 
 		val ioHttp = IO(Http)
 
-		val props = Props(classOf[Clockwork], ioHttp)
+		val props = Props(Predef.classOf[Clockwork], ioHttp)
 		val clockwork = system.actorOf(props, "clockwork")
 
 		if (!noserver.?) {
@@ -138,15 +137,15 @@ object Opts extends OptionParser {
 	val loglevel = accepts("loglevel", "set the loglevel")
 		.withRequiredArg().describedAs("loglevel").defaultsTo("INFO")
 	val port = accepts("port", "server listening port")
-		.withRequiredArg().ofType(classOf[Int]).defaultsTo(8080).describedAs("port")
+		.withRequiredArg().ofType(Predef.classOf[Int]).defaultsTo(8080).describedAs("port")
 	val noserver = accepts("noserver", "do not start the server")
 	val nocore = accepts("nocore", "do not start the core downloader")
 	val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
 	val shutdown = accepts("shutdown", "shutdown after main")
 	val importdb = accepts("importdb", "import a viscel 4 database")
-		.withRequiredArg().ofType(classOf[File]).describedAs("data/collections.db")
+		.withRequiredArg().ofType(Predef.classOf[File]).describedAs("data/collections.db")
 	val importbookmarks = accepts("importbookmarks", "imports viscel 4 bookmark file for given username")
-		.withRequiredArg().ofType(classOf[File]).describedAs("user/user.ini")
+		.withRequiredArg().ofType(Predef.classOf[File]).describedAs("user/user.ini")
 	val createIndexes = accepts("create-indexes", "create database indexes")
 	val username = accepts("username", "name of the user for other commands")
 		.requiredIf("importbookmarks").withRequiredArg().describedAs("name")

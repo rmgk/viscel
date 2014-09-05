@@ -5,15 +5,17 @@ import java.io.File
 import akka.actor.Actor
 import akka.pattern.ask
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
 import spray.can.server.Stats
-import spray.http.{ContentType, MediaTypes}
+import spray.http.ContentType
 import spray.routing.authentication._
 import spray.routing.{HttpService, Route}
+import viscel.core.{Core, Messages}
 import viscel.store._
-import viscel.core.{Core, Messages, Clockwork}
+import org.scalactic.TypeCheckedTripleEquals._
 
+import scala.Predef.{any2ArrowAssoc, conforms}
+import scala.collection.immutable.Map
 import scala.concurrent.Future
 import scala.concurrent.duration._
 

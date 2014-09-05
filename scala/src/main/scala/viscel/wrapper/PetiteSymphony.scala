@@ -1,10 +1,12 @@
 package viscel.wrapper
 
 import org.jsoup.nodes.Document
+import org.scalactic.Accumulation._
 import viscel.core._
 import viscel.description._
 import viscel.wrapper.Util._
-import org.scalactic.Accumulation._
+
+import scala.collection.immutable.Set
 
 object PetiteSymphony {
 

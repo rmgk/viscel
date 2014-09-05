@@ -1,9 +1,10 @@
 package viscel.store
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.neo4j.graphdb.{Relationship, Node}
+import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 
+import scala.Predef.any2ArrowAssoc
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 

@@ -2,8 +2,9 @@ package viscel.server
 
 import viscel.store._
 
-import scalatags.Text.Tag
+import scala.Predef.conforms
 import scalatags.Text.all._
+import scalatags.Text.{Tag, TypedTag}
 
 class IndexPage(user: UserNode) extends HtmlPage {
 	override def Title = "Index"
@@ -13,7 +14,7 @@ class IndexPage(user: UserNode) extends HtmlPage {
 
 	override def navigation = link_stop("stop") :: Nil
 
-	override def mainPart = {
+	override def mainPart: List[TypedTag[Nothing]] = {
 		val bookmarks = user.bookmarks
 		val (unread, current) = bookmarks.map { bm => (bm.collection, bm.collection.name, bm.distanceToLast) }.partition { _._3 > 0 }
 		val unreadTags = unread.sortBy { -_._3 }.map { case (collection, name, unread) => link_node(collection, s"$name ($unread)") }

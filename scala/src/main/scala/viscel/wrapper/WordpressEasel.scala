@@ -3,8 +3,10 @@ package viscel.wrapper
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.core.Core
-import viscel.description.{Pointer, Description}
+import viscel.description.{Description, Pointer}
 import viscel.wrapper.Util._
+
+import scala.collection.immutable.Set
 
 
 object WordpressEasel {

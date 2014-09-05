@@ -1,19 +1,11 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import org.scalactic._
-import viscel.description._
-import viscel.store._
-
-
-import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.neo4j.graphdb.{Label, Node}
 import org.scalactic.TypeCheckedTripleEquals._
-import org.scalactic._
+import viscel.description._
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 
 trait ArchiveNode extends ViscelNode {

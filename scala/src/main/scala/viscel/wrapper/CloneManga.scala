@@ -5,8 +5,11 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.core.Core
 import viscel.description._
-import viscel.store.CoreNode
 import viscel.wrapper.Util._
+
+import scala.Predef.any2ArrowAssoc
+import scala.Predef.wrapString
+import scala.collection.immutable.Map
 
 object CloneManga {
 

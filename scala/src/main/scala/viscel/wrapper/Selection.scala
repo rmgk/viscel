@@ -1,15 +1,13 @@
 package viscel.wrapper
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.jsoup.nodes.{Element, Document}
+import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.core._
 import viscel.wrapper.Util._
 
+import scala.Predef.conforms
 import scala.collection.JavaConverters._
-import scala.util.Try
 
 trait Selection {
 	def unique(query: String): Selection

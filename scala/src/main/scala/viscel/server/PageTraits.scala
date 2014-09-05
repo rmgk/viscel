@@ -2,8 +2,9 @@ package viscel.server
 
 import spray.http.MediaTypes
 import viscel.core.Core
-import viscel.store.{ rel => _, _}
+import viscel.store.{rel => _, _}
 
+import scala.Predef._
 import scalatags.Text.Tag
 import scalatags.Text.all._
 

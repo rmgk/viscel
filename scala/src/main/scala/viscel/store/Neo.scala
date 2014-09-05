@@ -9,13 +9,14 @@ import org.neo4j.tooling.GlobalGraphOperations
 import viscel.time
 
 import scala.collection.JavaConverters._
+import scala.collection.Map
 
 object Neo extends StrictLogging {
 	val db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("neoViscelStore")
 		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE).newGraphDatabase()
 	val ee = new ExecutionEngine(db)
 
-	def execute(query: String, args: (String, Any)*) = ee.execute(query.stripMargin.trim, args.toMap[String, Any])
+	def execute(query: String, args: (String, Any)*) = ee.execute(Predef.wrapString(query).stripMargin.trim, args.toMap[String, Any])
 
 	def apply(q: String) = execute(q).dumpToString()
 

@@ -6,6 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.core.Core
 import viscel.time
 
+import scala.Predef.any2ArrowAssoc
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
@@ -38,11 +39,11 @@ object Util extends StrictLogging {
 	def listCores: Vector[Core] = Core.availableCores.toVector
 
 	def search(query: String): Seq[Core] = time("search") {
-		val lcql = query.toLowerCase.replaceAll( """\s+""", "").toList
+		val lcql = Predef.wrapString(query.toLowerCase.replaceAll( """\s+""", "")).toList
 		Neo.txs {
 			if (lcql.isEmpty) listCores
 			else
-				listCores.view.map { cn => cn -> fuzzyMatch(lcql, cn.name.toLowerCase.toList) }
+				listCores.view.map { cn => cn -> fuzzyMatch(lcql, Predef.wrapString(cn.name.toLowerCase).toList) }
 					.filter { _._2 > 0 }.force
 					.sortBy { -_._2 }
 					.map { _._1 }

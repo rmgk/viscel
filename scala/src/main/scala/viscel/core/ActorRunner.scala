@@ -4,11 +4,12 @@ import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.pipe
 import org.jsoup.nodes.Document
-import spray.client.pipelining.SendReceive
-import viscel.store._
-import viscel.core.Messages._
 import org.scalactic.TypeCheckedTripleEquals._
+import spray.client.pipelining.SendReceive
+import viscel.core.Messages._
+import viscel.store._
 
+import scala.Predef.any2ArrowAssoc
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalax.io.Resource
 

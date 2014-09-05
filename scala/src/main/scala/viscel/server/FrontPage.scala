@@ -1,11 +1,12 @@
 package viscel.server
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.store._
 
+import scala.Predef.{any2ArrowAssoc, _}
 import scala.annotation.tailrec
 import scalatags.Text.all._
+
 
 class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation {
 	override def Title = collection.name
@@ -76,7 +77,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 			}
 		}
 		val (nodelist, remaining) = make_nodelist(1, Nil, nodes)
-		(fieldset(class_group, class_pages)(legend(chapterName), nodelist), remaining)
+		(fieldset(class_group, class_pages).apply(legend(chapterName), nodelist), remaining)
 	}
 
 	@tailrec

@@ -1,6 +1,6 @@
 package viscel.core
 
-import viscel.store.{CollectionNode, ArchiveNode}
+import viscel.store.{ArchiveNode, CollectionNode}
 
 object Messages {
 	case class Run(core: Core)

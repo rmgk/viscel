@@ -4,6 +4,7 @@ import org.neo4j.graphdb.Node
 import viscel.core.AbsUri
 import viscel.description.Asset
 
+import scala.Predef.any2ArrowAssoc
 import scala.annotation.tailrec
 
 class AssetNode(val self: Node) extends ArchiveNode with Metadata {

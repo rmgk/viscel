@@ -4,6 +4,8 @@ import org.neo4j.graphdb.Node
 import viscel.core.Core
 import viscel.time
 
+import scala.Predef.any2ArrowAssoc
+
 class CollectionNode(val self: Node) extends ViscelNode with DescribingNode {
 	def selfLabel = label.Collection
 

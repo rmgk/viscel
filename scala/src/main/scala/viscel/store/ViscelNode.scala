@@ -14,7 +14,7 @@ trait ViscelNode extends StrictLogging {
 	def nid = Neo.txs { self.getId }
 	def created = Neo.txs { self[Long]("created") }
 
-	if (selfLabel !== label.Unlabeled) require(Neo.txs { self.getLabels.asScala.exists(_ === selfLabel) }, s"node label did not match $selfLabel")
+	if (selfLabel !== label.Unlabeled) Predef.require(Neo.txs { self.getLabels.asScala.exists(_ === selfLabel) }, s"node label did not match $selfLabel")
 
 	def deleteNode(warn: Boolean = true): Unit = {
 		if (warn) logger.warn(s"deleting node $this")

@@ -3,7 +3,6 @@ package viscel.server
 import spray.http.HttpResponse
 import viscel.store.{AssetNode, UserNode}
 
-import scalatags.Text._
 import scalatags.Text.all._
 
 class ViewPage(user: UserNode, enode: AssetNode) extends HtmlPage with MetaNavigation with MaskLocation {

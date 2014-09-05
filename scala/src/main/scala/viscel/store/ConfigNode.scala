@@ -2,7 +2,7 @@ package viscel.store
 
 import org.neo4j.graphdb.Node
 
-import scala.language.implicitConversions
+import scala.Predef.any2ArrowAssoc
 
 class ConfigNode(val self: Node) extends ViscelNode {
 
@@ -27,7 +27,7 @@ class ConfigNode(val self: Node) extends ViscelNode {
 	}
 
 	def legacyCollections: Seq[String] = Neo.txs {
-		self.get[Array[String]]("selected_legacy_collections").toSeq.flatten
+		self.get[Array[String]]("selected_legacy_collections").toSeq.flatten(Predef.wrapRefArray)
 	}
 
 }

@@ -1,16 +1,15 @@
 package viscel.description
 
-import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.core._
-import viscel.store._
-import scala.language.implicitConversions
 
+import scala.collection.immutable.Map
+import scala.language.implicitConversions
 
 sealed trait Description
 
 object Description {
-	implicit def fromOr(or: List[Description] Or Every[ErrorMessage]): List[Description] = or.fold(identity, FailedDescription(_) :: Nil)
+	implicit def fromOr(or: List[Description] Or Every[ErrorMessage]): List[Description] = or.fold(Predef.identity, FailedDescription(_) :: Nil)
 }
 
 case class Pointer(loc: AbsUri, pagetype: String) extends Description

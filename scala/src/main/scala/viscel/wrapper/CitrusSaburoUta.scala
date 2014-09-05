@@ -8,6 +8,8 @@ import viscel.core._
 import viscel.description._
 import viscel.wrapper.Util._
 
+import scala.Predef.conforms
+
 object CitrusSaburoUta extends Core with StrictLogging {
 
 	def archive = Pointer("http://mangafox.me/manga/citrus_saburo_uta/", "archive") :: Nil

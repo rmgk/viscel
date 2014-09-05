@@ -3,12 +3,11 @@ package viscel.core
 import akka.actor.{Actor, ActorRef, Props}
 import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.scalactic.TypeCheckedTripleEquals._
 import spray.client.pipelining._
-import viscel.store._
 import viscel.core.Messages._
 
-import scala.collection._
+import scala.Predef.any2ArrowAssoc
+import scala.collection.immutable._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
@@ -58,7 +57,7 @@ class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 
 	def makeRunner(core: Core): ActorRef = {
 		val col = Core.getCollection(core)
-		val props = Props(classOf[ActorRunner], iopipe, core, col, self)
+		val props = Props(Predef.classOf[ActorRunner], iopipe, core, col, self)
 		val runner = context.actorOf(props, core.id)
 		runner
 	}

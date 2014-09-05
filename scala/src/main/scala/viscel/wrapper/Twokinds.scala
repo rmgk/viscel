@@ -25,7 +25,7 @@ object Twokinds extends Core with StrictLogging {
 				Chapter(title) :: links
 			}
 		}
-		chapters_?.map(_.flatten)
+		chapters_?.map(_.flatten(Predef.conforms))
 	}
 
 	def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {

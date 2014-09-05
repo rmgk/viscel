@@ -3,8 +3,8 @@ package viscel.server
 import spray.http.{ContentType, HttpCharsets, HttpEntity, HttpResponse, MediaTypes}
 import viscel.store.Neo
 
-import scalatags.Text.all._
 import scalatags.Text.Tag
+import scalatags.Text.all._
 
 trait HtmlPage extends HtmlPageUtils {
 

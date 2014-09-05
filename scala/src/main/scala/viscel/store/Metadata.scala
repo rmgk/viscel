@@ -1,6 +1,8 @@
 package viscel.store
 
+import scala.Predef.any2ArrowAssoc
 import scala.collection.JavaConverters._
+import scala.collection.immutable.Map
 
 trait Metadata {
 	this: ViscelNode =>

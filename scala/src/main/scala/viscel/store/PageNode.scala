@@ -4,6 +4,8 @@ import org.neo4j.graphdb.Node
 import viscel.core.AbsUri
 import viscel.description.Pointer
 
+import scala.Predef.any2ArrowAssoc
+
 object PageNode {
 	def apply(node: Node) = new PageNode(node)
 	def apply(nodeId: Long) = new PageNode(Neo.tx { _.getNodeById(nodeId) })

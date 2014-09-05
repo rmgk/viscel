@@ -6,6 +6,8 @@ import viscel.description._
 import viscel.store._
 import viscel.wrapper._
 
+import scala.collection.immutable.Set
+
 trait Core {
 	def id: String
 	def name: String

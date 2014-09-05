@@ -1,12 +1,13 @@
 package viscel.wrapper
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.core._
 import viscel.description._
 
+import scala.Predef.any2ArrowAssoc
+import scala.collection.immutable.Set
 import scala.language.implicitConversions
 
 object Util {
@@ -44,7 +45,7 @@ object Util {
 
 	val ignoredClasses = Set("viscel.wrapper.Selection", "java.lang.Thread", "viscel.wrapper.GoodSelection", "org.scalactic", "scala", "viscel.wrapper.Util")
 	def caller: String = {
-		val stackTraceOption = Thread.currentThread().getStackTrace().find { ste =>
+		val stackTraceOption = Predef.wrapRefArray(Thread.currentThread().getStackTrace()).find { ste =>
 			val cname = ste.getClassName
 			!ignoredClasses.exists(cname.startsWith)
 		}

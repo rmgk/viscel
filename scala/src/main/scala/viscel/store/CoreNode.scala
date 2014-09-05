@@ -3,8 +3,9 @@ package viscel.store
 import org.neo4j.graphdb.{Label, Node}
 import viscel.description._
 
-import scala.language.implicitConversions
+import scala.Predef.any2ArrowAssoc
 import scala.collection.JavaConverters._
+import scala.language.implicitConversions
 
 class CoreNode(val self: Node) extends ArchiveNode with Metadata {
 	override def selfLabel: Label = label.Core

@@ -1,10 +1,8 @@
 package viscel.store
 
-import viscel.description._
-
-
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.description._
 
 import scala.annotation.tailrec
 import scala.collection.mutable

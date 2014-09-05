@@ -3,7 +3,7 @@ package viscel.store
 import org.neo4j.graphdb.Node
 import viscel.description._
 
-import scala.collection.JavaConverters._
+import scala.Predef.any2ArrowAssoc
 
 class ChapterNode(val self: Node) extends ArchiveNode with Metadata {
 

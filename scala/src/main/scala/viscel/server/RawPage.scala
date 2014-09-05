@@ -4,8 +4,8 @@ import org.neo4j.graphdb.Direction
 import spray.http.HttpResponse
 import viscel.store.{Neo, UserNode, ViscelNode}
 
+import scala.Predef.any2ArrowAssoc
 import scala.collection.JavaConverters._
-import scalatags.Text.Tag
 import scalatags.Text.all._
 
 class RawPage(user: UserNode, vnode: ViscelNode) extends HtmlPage {

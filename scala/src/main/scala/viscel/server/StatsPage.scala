@@ -4,7 +4,7 @@ import spray.can.server.Stats
 import spray.http.HttpResponse
 import viscel.store.{ConfigNode, Neo, UserNode, label}
 
-import scalatags.Text._
+import scala.Predef.any2ArrowAssoc
 import scalatags.Text.all._
 
 class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {

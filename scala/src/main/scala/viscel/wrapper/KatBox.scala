@@ -5,6 +5,8 @@ import viscel.core.Core
 import viscel.description._
 import viscel.wrapper.Util._
 
+import scala.collection.immutable.Set
+
 
 object KatBox {
 
