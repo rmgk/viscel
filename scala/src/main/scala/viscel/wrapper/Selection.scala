@@ -9,17 +9,28 @@ import viscel.wrapper.Util._
 import scala.Predef.conforms
 import scala.collection.JavaConverters._
 
-trait Selection {
+sealed trait Selection {
+	/** select exactly one element */
 	def unique(query: String): Selection
+	/** select one ore more elements */
 	def many(query: String): Selection
+	/** select zero or one element */
 	def optional(query: String): Selection
+	/** select any number of elements */
 	def all(query: String): Selection
+	/** wrap the list of elements into a result */
 	def wrap[R](fun: List[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage]
+	/** wrap the single selected element into a result */
 	def wrapOne[R](fun: Element => R Or Every[ErrorMessage]): R Or Every[ErrorMessage]
+	/** wrap each element into a result and return a list of these results */
 	def wrapEach[R](fun: Element => R Or Every[ErrorMessage]): List[R] Or Every[ErrorMessage]
+	/** wrap each element into a list of results, return the concatenation of these lists */
 	def wrapFlat[R](fun: Element => List[R] Or Every[ErrorMessage]): List[R] Or Every[ErrorMessage]
+	/** get the elements */
 	def get: List[Element] Or Every[ErrorMessage]
+	/** get the single element */
 	def getOne: Element Or Every[ErrorMessage]
+	/** reverse the list of elements */
 	def reverse: Selection
 }
 
@@ -42,7 +53,7 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 
 	override def unique(query: String): Selection = {
 		validateQuery(query) {
-			case rs if rs.size > 2 => Bad("query not unique")
+			case rs if rs.size > 1 => Bad("query not unique")
 			case rs if rs.size < 1 => Bad("query not found)")
 			case rs => Good(rs.get(0))
 		}.fold(GoodSelection, BadSelection)
@@ -62,7 +73,7 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 
 	override def optional(query: String): Selection = {
 		validateQuery(query) {
-				case rs if rs.size > 2 => Bad(s"query not unique ")
+				case rs if rs.size > 1 => Bad(s"query not unique ")
 				case rs => Good(rs.asScala.toList)
 		}.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
