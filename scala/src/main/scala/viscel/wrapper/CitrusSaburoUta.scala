@@ -32,7 +32,7 @@ object CitrusSaburoUta extends Core with StrictLogging {
 
 	def wrapPage(doc: Document) = {
 		val next_? = Selection(doc).optional("#top_bar .next_page:not([onclick])").wrap { selectNext("page") }
-		val img_? = Selection(doc).unique("#viewer img").wrapEach(imgToAsset)
+		val img_? = Selection(doc).unique("#viewer img").wrapEach(imgIntoAsset)
 		withGood(img_?, next_?) { _ ::: _ }
 	}
 

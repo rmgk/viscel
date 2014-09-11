@@ -17,7 +17,7 @@ object CloneManga {
 		override def archive = Pointer(start, "page") :: Nil
 		override def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(Selection(doc).unique(".subsectionContainer").wrapOne { container =>
 			val next_? = Selection(container).optional("> a:first-child").wrap(selectNext("page"))
-			val img_? = Selection(container).unique("img").wrapOne(imgToAsset)
+			val img_? = Selection(container).unique("img").wrapOne(imgIntoAsset)
 			withGood(img_?, next_?)(_ :: _)
 		})
 	}

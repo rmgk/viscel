@@ -28,7 +28,7 @@ object Core {
 			case "MangaHere" => MangaHere.getCore(core.description)
 		}
 	}.toSet
-	def availableCores: Set[Core] = KatBox.cores() ++ PetiteSymphony.cores() ++ WordpressEasel.cores() ++ metaCores ++ staticCores
+	def availableCores: Set[Core] = KatBox.cores ++ PetiteSymphony.cores ++ WordpressEasel.cores ++ Batoto.cores ++ metaCores ++ staticCores
 	def get(id: String) = availableCores.find(_.id === id)
 
 	val collectionCache = scala.collection.concurrent.TrieMap[String, CollectionNode]()

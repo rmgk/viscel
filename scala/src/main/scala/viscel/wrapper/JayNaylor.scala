@@ -14,9 +14,9 @@ object JayNaylor {
 		def wrap(doc: Document, pd: Pointer): List[Description] = pd.pagetype match {
 			case "archive" => Selection(doc).many("#chapters li > a").wrapFlat { anchor =>
 				val chap = Chapter(anchor.ownText())
-				anchorIntoPointer("chapter")(anchor).map { List(chap, _) }
+				elementIntoPointer("chapter")(anchor).map { List(chap, _) }
 			}
-			case "chapter" => Selection(doc).many("#comicentry .content img").wrapEach(imgToAsset)
+			case "chapter" => Selection(doc).many("#comicentry .content img").wrapEach(imgIntoAsset)
 		}
 	}
 		

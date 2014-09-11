@@ -18,6 +18,8 @@ sealed trait Selection {
 	def optional(query: String): Selection
 	/** select any number of elements */
 	def all(query: String): Selection
+	/** selects the first matching element */
+	def first(query: String): Selection
 	/** wrap the list of elements into a result */
 	def wrap[R](fun: List[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage]
 	/** wrap the single selected element into a result */
@@ -78,6 +80,13 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 		}.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
 
+	/** selects the first matching element */
+	override def first(query: String): Selection = many(query) match {
+		case GoodSelection(elem) => GoodSelection(elem.take(1))
+		case b @ BadSelection(errors) => b
+	}
+
+
 	override def wrap[R](fun: List[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = fun(elements)
 
 	override def wrapOne[R](fun: Element => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = {
@@ -100,6 +109,7 @@ case class BadSelection(errors: Every[ErrorMessage]) extends Selection {
 	override def unique(query: String): BadSelection = this
 	override def many(query: String): BadSelection = this
 	override def all(query: String): Selection = this
+	override def first(query: String): Selection = this
 	override def wrap[R](fun: List[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = Bad(errors)
 	override def wrapOne[R](fun: Element => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = Bad(errors)
 	override def wrapEach[R](fun: (Element) => Or[R, Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = Bad(errors)

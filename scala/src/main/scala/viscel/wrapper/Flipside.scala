@@ -16,7 +16,7 @@ object Flipside extends Core {
 
 	def wrapArchive(doc: Document) = {
 		Selection(doc).many("td:matches(Chapter|Intermission)").wrapFlat { data =>
-			val pages_? = Selection(data).many("a").wrapEach(anchorIntoPointer("page")).map{ _.distinct }
+			val pages_? = Selection(data).many("a").wrapEach(elementIntoPointer("page")).map{ _.distinct }
 			val name_? = if (data.text.contains("Chapter"))
 				Selection(data).unique("td:root > div:first-child").getOne.map{_.text()}
 			else
@@ -30,6 +30,6 @@ object Flipside extends Core {
 
 	def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
 		case "archive" => wrapArchive(doc)
-		case "page" => Selection(doc).unique("img.ksc").wrapEach(imgToAsset)
+		case "page" => Selection(doc).unique("img.ksc").wrapEach(imgIntoAsset)
 	})
 }

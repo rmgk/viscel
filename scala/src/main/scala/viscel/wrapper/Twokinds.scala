@@ -20,7 +20,7 @@ object Twokinds extends Core with StrictLogging {
 	def wrapArchive(doc: Document, pd: Pointer): List[Description] Or Every[ErrorMessage] = {
 		val chapters_? = Selection(doc).many(".archive .chapter").wrapEach { chapter =>
 			val title_? = Selection(chapter).unique("h4").getOne.map(_.ownText())
-			val links_? = Selection(chapter).many("a").wrapEach { anchorIntoPointer("page") }
+			val links_? = Selection(chapter).many("a").wrapEach { elementIntoPointer("page") }
 			withGood(title_?, links_?) { (title, links) =>
 				Chapter(title) :: links
 			}
@@ -30,7 +30,7 @@ object Twokinds extends Core with StrictLogging {
 
 	def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
 		case "archive" => wrapArchive(doc, pd)
-		case "page" => Selection(doc).unique("#cg_img img").wrapEach { imgToAsset }
-		case "main" => Selection(doc).unique(".comic img").wrapEach { imgToAsset }
+		case "page" => Selection(doc).unique("#cg_img img").wrapEach { imgIntoAsset }
+		case "main" => Selection(doc).unique(".comic img").wrapEach { imgIntoAsset }
 	})
 }

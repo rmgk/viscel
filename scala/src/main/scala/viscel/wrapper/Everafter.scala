@@ -16,8 +16,8 @@ object Everafter extends Core with StrictLogging {
 
 	def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
 		case "archive" => Selection(doc).unique(".pagecontentbox").many("a").wrap { anchors =>
-			anchors.reverse.validatedBy(anchorIntoPointer("page"))
+			anchors.reverse.validatedBy(elementIntoPointer("page"))
 		}
-		case "page" => Selection(doc).unique("img[src~=comics/\\d{6}]").wrapEach(imgToAsset)
+		case "page" => Selection(doc).unique("img[src~=comics/\\d{6}]").wrapEach(imgIntoAsset)
 	})
 }

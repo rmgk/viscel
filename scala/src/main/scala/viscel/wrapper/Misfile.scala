@@ -19,7 +19,7 @@ object Misfile extends Core with StrictLogging {
 
 	def wrapArchive(doc: Document): Or[List[Description], Every[ErrorMessage]] = {
 		val chapters_? = Selection(doc).many("#comicbody a:matchesOwn(^Book #\\d+$)").wrapFlat { anchor =>
-			withGood(anchorIntoPointer("page")(anchor)) { pointer =>
+			withGood(elementIntoPointer("page")(anchor)) { pointer =>
 				Chapter(anchor.ownText()) :: pointer :: Nil
 			}
 		}
@@ -35,7 +35,7 @@ object Misfile extends Core with StrictLogging {
 		val elements_? = Selection(doc)
 			.unique(".comiclist table.wide_gallery")
 			.many("[id~=^comic_\\d+$] .picture a").wrapEach { anchor =>
-				val element_? = Selection(anchor).unique("img").wrapOne { imgToAsset }
+				val element_? = Selection(anchor).unique("img").wrapOne { imgIntoAsset }
 				val origin_? = extractUri(anchor)
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(

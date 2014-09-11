@@ -18,12 +18,12 @@ object KatBox {
 
 		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
 			case "archive" =>
-				Selection(doc).many("[rel=bookmark]").wrapEach(anchorIntoPointer("page")).map { _.reverse }
+				Selection(doc).many("[rel=bookmark]").wrapEach(elementIntoPointer("page")).map { _.reverse }
 			case "page" => queryImages(doc, ".webcomic-image img")
 		})
 	}
 
-	def cores(): Set[Core] = Set (
+	val cores: Set[Core] = Set (
 		("laslindas", "Las Lindas!"),
 		("cblue", "Caribbean Blue!"),
 		("yosh", "Yosh!"),

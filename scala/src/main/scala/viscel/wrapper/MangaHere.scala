@@ -17,17 +17,12 @@ object MangaHere {
 		def archive = Pointer(archiveUri, "archive") :: Nil
 
 		def wrapArchive(doc: Document): Or[List[Description], Every[ErrorMessage]] = {
-			Selection(doc).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { chapter =>
-				val pointer_? = anchorIntoPointer("page")(chapter)
-				withGood(pointer_?) { (pointer) =>
-					Chapter(chapter.text()) :: pointer :: Nil
-				}
-			}
+			Selection(doc).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { elementIntoChapterPointer("page") }
 		}
 
 		def wrapPage(doc: Document): Or[List[Description], Every[ErrorMessage]] = {
 			val next_? = Selection(doc).optional(".next_page:not([onclick])").wrap { selectNext("page") }
-			val img_? = Selection(doc).unique("#image").wrapEach(imgToAsset)
+			val img_? = Selection(doc).unique("#image").wrapEach(imgIntoAsset)
 			withGood(img_?, next_?) { _ ::: _ }
 		}
 
