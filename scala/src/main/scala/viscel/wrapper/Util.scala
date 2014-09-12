@@ -8,6 +8,7 @@ import viscel.description._
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Set
+import scala.collection.immutable.Seq
 import scala.language.implicitConversions
 
 object Util {

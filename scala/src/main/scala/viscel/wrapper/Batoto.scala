@@ -4,6 +4,8 @@ import org.jsoup.nodes.Document
 import viscel.core.{AbsUri, Core}
 import viscel.description._
 import viscel.wrapper.Util._
+import org.scalactic.Accumulation._
+import org.scalactic.Good
 
 import scala.collection.immutable.Set
 
@@ -12,22 +14,27 @@ import scala.collection.immutable.Map
 
 object Batoto {
 
-	case class Generic(id: String, name: String, archiveUri: AbsUri) extends Core {
+	case class Generic(id: String, name: String, first: AbsUri) extends Core {
 
-		def archive = Pointer(archiveUri, "archive") :: Nil
+		def archive = Pointer(first, "page") :: Nil
 
-		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
-			case "archive" =>
-				Selection(doc).many(".lang_English.chapter_row > :first-child a").reverse.wrapFlat { elementIntoChapterPointer("front")	}
-			case "page" =>
-				Selection(doc).unique("#comic_page").wrapEach(imgIntoAsset)
-			case "front" =>
-				Selection(doc).first("#page_select").many("option").wrapEach { elementIntoPointer("page") }
-		})
+		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr {
+			val nextElement = Selection(doc).unique("#comic_wrap a:has(#comic_page)")
+			val next_? = nextElement.wrapOne(elementIntoPointer("page")).map { pointer =>
+				if (pointer.loc.matches("http://bato.to/read/_/.*")) List(pointer) else List[Description]()
+			}
+			val img_? = nextElement.unique("#comic_page").wrapOne(imgIntoAsset)
+			val chapter_? =
+				if (doc.baseUri().matches(".*/\\d+$")) Good(Nil)
+				else Selection(doc).first("select[name=chapter_select]").unique("option[selected=selected]").getOne.map(e => Chapter(e.text) :: Nil)
+			withGood(next_?, img_?, chapter_?) {(next, img, chapter) => chapter ::: img :: next }
+		}
 	}
 
 	val cores: Set[Core] = Set(
-		Generic("Batoto_mangaka-san-to-assistant-san-to-2", "Mangaka-san to Assistant-san to 2", "http://bato.to/comic/_/comics/mangaka-san-to-assistant-san-to-2-r9702")
+		Generic("Batoto_mangaka-san-to-assistant-san-to-2", "Mangaka-san to Assistant-san to 2", "http://bato.to/read/_/185677/mangaka-san-to-assistant-san-to-2_ch1_by_madman-scans"),
+		Generic("Batoto_kimi-no-iru-machi", "Kimi no Iru Machi", "http://bato.to/read/_/46885/kimi-no-iru-machi_v1_ch1_by_red-hawk-scans"),
+		Generic("Batoto_nisekoi", "Nisekoi", "http://bato.to/read/_/20464/nisekoi_by_cxc-scans")
 	)
 
 //	def getCore(desc: CoreDescription): Core = Generic(id = desc.id, name = desc.name, archiveUri = desc.metadata("start"))
