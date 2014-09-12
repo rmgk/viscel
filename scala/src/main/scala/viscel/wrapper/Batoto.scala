@@ -5,7 +5,7 @@ import viscel.core.{AbsUri, Core}
 import viscel.description._
 import viscel.wrapper.Util._
 import org.scalactic.Accumulation._
-import org.scalactic.Good
+import org.scalactic._
 
 import scala.collection.immutable.Set
 
@@ -16,20 +16,25 @@ object Batoto {
 
 	case class Generic(id: String, name: String, first: AbsUri) extends Core {
 
-		def archive = Pointer(first, "page") :: Nil
+		def archive = Pointer(first, "chapter") :: Nil
 
-		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr {
-			val nextElement = Selection(doc).unique("#comic_wrap a:has(#comic_page)")
-			val next_? = nextElement.wrapOne(elementIntoPointer("page")).map { pointer =>
-				if (pointer.loc.matches("http://bato.to/read/_/.*")) List(pointer) else List[Description]()
-			}
-			val img_? = nextElement.unique("#comic_page").wrapOne(imgIntoAsset)
-			val chapter_? =
-				if (doc.baseUri().matches(".*/\\d+$")) Good(Nil)
-				else Selection(doc).first("select[name=chapter_select]").unique("option[selected=selected]").getOne.map(e => Chapter(e.text) :: Nil)
-			withGood(next_?, img_?, chapter_?) {(next, img, chapter) => chapter ::: img :: next }
+		def wrapPage(doc: Document): Or[List[Description], Every[ErrorMessage]] =
+			Selection(doc).unique("#comic_page").wrapEach(imgIntoAsset)
+
+		def wrapChapter(doc: Document): Or[List[Description], Every[ErrorMessage]] = {
+			val pages_? = Selection(doc).first("#page_select").many("option:not([selected=selected])").wrapEach { elementIntoPointer("page") }
+			val currentPage_? = wrapPage(doc)
+			val nextChapter_? = Selection(doc).first(".moderation_bar").optional("a:has(img[title=Next Chapter])").wrap(selectNext("chapter"))
+			val chapter_? = Selection(doc).first("select[name=chapter_select]").unique("option[selected=selected]").getOne.map(e => Chapter(e.text) :: Nil)
+			withGood(chapter_?, currentPage_?, pages_?, nextChapter_?){ _ ::: _ ::: _ ::: _ }
 		}
+
+		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
+			case "page" => wrapPage(doc)
+			case "chapter" => wrapChapter(doc)
+		})
 	}
+
 
 	val cores: Set[Core] = Set(
 		Generic("Batoto_mangaka-san-to-assistant-san-to-2", "Mangaka-san to Assistant-san to 2", "http://bato.to/read/_/185677/mangaka-san-to-assistant-san-to-2_ch1_by_madman-scans"),

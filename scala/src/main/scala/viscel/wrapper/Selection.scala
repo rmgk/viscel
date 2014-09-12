@@ -81,9 +81,11 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 	}
 
 	/** selects the first matching element */
-	override def first(query: String): Selection = many(query) match {
-		case GoodSelection(elem) => GoodSelection(elem.take(1))
-		case b @ BadSelection(errors) => b
+	override def first(query: String): Selection = {
+		validateQuery(query) {
+			case rs if rs.size < 1 => Bad("query did not match")
+			case rs => Good(rs.get(0))
+		}.fold(GoodSelection, BadSelection)
 	}
 
 

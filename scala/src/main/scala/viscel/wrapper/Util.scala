@@ -8,7 +8,6 @@ import viscel.description._
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Set
-import scala.collection.immutable.Seq
 import scala.language.implicitConversions
 
 object Util {
@@ -34,10 +33,10 @@ object Util {
 	def extractUri(element: Element): AbsUri Or One[ErrorMessage] = element.tagName() match {
 		case "a" => extract { AbsUri.fromString(element.attr("abs:href")) }
 		case "option" => extract { AbsUri.fromString(element.attr("abs:value")) }
-		case tag => Bad(One(s"does not know how to extract from '$tag' at ($caller): ${show(element)}"))
+		case tag => Bad(One(s"can not extract uri from '$tag' at ($caller): ${show(element)}"))
 	}
 
-	def selectNext(pagetype: String)(elements: Seq[Element]): List[Pointer] Or Every[ErrorMessage] = elements.validatedBy(elementIntoPointer(pagetype)).flatMap {
+	def selectNext(pagetype: String)(elements: List[Element]): List[Pointer] Or Every[ErrorMessage] = elements.validatedBy(elementIntoPointer(pagetype)).flatMap {
 		case pointers if elements.isEmpty => Good(Nil)
 		case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
 		case pointers => Bad(One(blame("more than one next found", elements: _*)))
