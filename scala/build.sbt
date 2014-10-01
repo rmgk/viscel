@@ -94,6 +94,7 @@ val otherDependencies =
   "org.scalatest" %% "scalatest" % "2.2.2" % "test" ::
 	// Misc
   "org.scalactic" %% "scalactic" % "2.2.2" ::
+	"org.scalaz" %% "scalaz-core" % "7.1.0" ::
   Nil
 
 libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ ioDependencies ++ otherDependencies

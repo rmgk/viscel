@@ -34,7 +34,9 @@ object Util extends StrictLogging {
 		//		}
 	}
 
-	def listCollections: Vector[CollectionNode] = Neo.tx { db => GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).asScala.map { CollectionNode(_) }.toVector }
+	def listCollections: Vector[CollectionNode] = Neo.tx { db =>
+		GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).asScala.map { CollectionNode(_) }.toVector
+	}
 
 	def listCores: Vector[Core] = Core.availableCores.toVector
 

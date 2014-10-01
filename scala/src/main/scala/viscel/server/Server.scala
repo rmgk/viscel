@@ -2,21 +2,21 @@ package viscel.server
 
 import java.io.File
 
-import akka.actor.Actor
+import akka.actor.{ActorRefFactory, Actor}
 import akka.pattern.ask
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import spray.can.Http
 import spray.can.server.Stats
 import spray.http.ContentType
-import spray.routing.authentication._
+import spray.routing.authentication.{BasicAuth, UserPassAuthenticator, UserPass}
 import spray.routing.{HttpService, Route}
 import viscel.core.{Core, Messages}
-import viscel.store._
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.store._
 
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.collection.immutable.Map
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.concurrent.duration._
 
 // we don't implement our route structure directly in the service actor because
@@ -25,12 +25,12 @@ class Server extends Actor with DefaultRoutes with StrictLogging {
 
 	// the HttpService trait defines only one abstract member, which
 	// connects the services environment to the enclosing actor or test
-	def actorRefFactory = context
+	def actorRefFactory: ActorRefFactory = context
 
 	// this actor only runs our route, but you could add
 	// other things here, like request stream processing,
 	// timeout handling or alternative handler registration
-	override def receive = runRoute {
+	override def receive: Receive = runRoute {
 		//(encodeResponse(Gzip) | encodeResponse(Deflate) | encodeResponse(NoEncoding)) {
 		authenticate(loginOrCreate) { user => handleFormFields(user) }
 		//}
@@ -42,7 +42,7 @@ trait DefaultRoutes extends HttpService {
 	this: Server =>
 
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
-	implicit def executionContext = actorRefFactory.dispatcher
+	implicit def executionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 
 	var userCache = Map[String, UserNode]()
 
