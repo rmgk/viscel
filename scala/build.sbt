@@ -16,46 +16,49 @@ scalacOptions ++= (
 	"-Xlint" ::
 	"-Xfuture" ::
 	//"-Xlog-implicits" ::
-	"-Xfatal-warnings" ::
-	"-Yno-adapted-args" ::
-	//"-Ywarn-numeric-widen" ::
-	//"-Ywarn-value-discard" ::
-	"-Ywarn-dead-code" ::
 	"-Yno-predef" ::
 	//"-Yno-imports" ::
+	"-Xfatal-warnings" ::
+	"-Yinline-warnings" ::
+	"-Yno-adapted-args" ::
+	"-Ywarn-dead-code" ::
+	"-Ywarn-nullary-override" ::
+	"-Ywarn-nullary-unit" ::
+	//"-Ywarn-numeric-widen" ::
+	//"-Ywarn-value-discard" ::
 	Nil)
 
 javaOptions ++= (
-  "-verbose:gc" ::
-  "-XX:+PrintGCDetails" ::
-  //"-Xverify:none" ::
-  //"-server" ::
-  //"-Xms16m" ::
-  //"-Xmx256m" ::
+	"-verbose:gc" ::
+	"-XX:+PrintGCDetails" ::
+	//"-Xverify:none" ::
+	//"-server" ::
+	//"-Xms16m" ::
+	//"-Xmx256m" ::
 	//"-Xss1m" ::
-  //"-XX:MinHeapFreeRatio=5" ::
-  //"-XX:MaxHeapFreeRatio=10" ::
-  //"-XX:NewRatio=12" ::
-  //"-XX:+UseSerialGC" ::
-  //"-XX:+UseParallelGC" ::
-  //"-XX:+UseParallelOldGC" ::
-  //"-XX:+UseConcMarkSweepGC" ::
-  //"-XX:+PrintTenuringDistribution" ::
-  Nil)
+	//"-XX:MinHeapFreeRatio=5" ::
+	//"-XX:MaxHeapFreeRatio=10" ::
+	//"-XX:NewRatio=12" ::
+	//"-XX:+UseSerialGC" ::
+	//"-XX:+UseParallelGC" ::
+	//"-XX:+UseParallelOldGC" ::
+	//"-XX:+UseConcMarkSweepGC" ::
+	//"-XX:+PrintTenuringDistribution" ::
+	Nil)
 
 defaultScalariformSettings
 
 ScalariformKeys.preferences := ScalariformKeys.preferences.value
-  .setPreference(IndentWithTabs, true)
-  .setPreference(CompactControlReadability, true)
+	.setPreference(IndentWithTabs, true)
+	.setPreference(CompactControlReadability, true)
 
 resolvers ++= (
-  ("Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/") ::
-  ("Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/") ::
-  // ("spray nightlies repo" at "http://nightlies.spray.io") ::
-  ("spray repo" at "http://repo.spray.io") ::
-  ("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/") ::
-  Nil)
+	("Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/") ::
+	("Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/") ::
+	// ("spray nightlies repo" at "http://nightlies.spray.io") ::
+	("spray repo" at "http://repo.spray.io") ::
+	("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/") ::
+	Nil)
 
 // gpl3
 val neoDependencies = {
@@ -81,21 +84,21 @@ val ioDependencies =
 		.map(n => "com.github.scala-incubator.io" %% n % "0.4.3")
 
 val otherDependencies =
-  // HTML
-  "org.jsoup" % "jsoup" % "1.8.1" :: // mit
-  "com.scalatags" %% "scalatags" % "0.4.1" :: // mit
-  // Logging
-  "ch.qos.logback" % "logback-classic" % "1.1.2" ::
-  "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2" :: // apache 2
-  // Commandline
-  "jline" % "jline" % "2.12" ::
-  "net.sf.jopt-simple" % "jopt-simple" % "4.7" :: // mit
-  // Tests
-  "org.scalatest" %% "scalatest" % "2.2.2" % "test" ::
+	// HTML
+	"org.jsoup" % "jsoup" % "1.8.1" :: // mit
+	"com.scalatags" %% "scalatags" % "0.4.1" :: // mit
+	// Logging
+	"ch.qos.logback" % "logback-classic" % "1.1.2" ::
+	"com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2" :: // apache 2
+	// Commandline
+	"jline" % "jline" % "2.12" ::
+	"net.sf.jopt-simple" % "jopt-simple" % "4.7" :: // mit
+	// Tests
+	"org.scalatest" %% "scalatest" % "2.2.2" % "test" ::
 	// Misc
-  "org.scalactic" %% "scalactic" % "2.2.2" ::
+	"org.scalactic" %% "scalactic" % "2.2.2" ::
 	"org.scalaz" %% "scalaz-core" % "7.1.0" ::
-  Nil
+	Nil
 
 libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ ioDependencies ++ otherDependencies
 
