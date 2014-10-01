@@ -10,6 +10,7 @@ import scala.collection.immutable.Set
 
 
 object WordpressEasel {
+
 	case class Generic(id: String, name: String, start: String) extends Core {
 		override def archive: List[Description] = Pointer(start, "") :: Nil
 		override def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr {

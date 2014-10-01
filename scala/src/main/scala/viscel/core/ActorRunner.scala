@@ -27,7 +27,7 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 
 	def selectNext(from: Option[ArchiveNode]): Option[ArchiveNode] = from.flatMap(_.findForward {
 		case page: PageNode if page.describes.isEmpty => page
-		case asset: AssetNode if (mode !== 'shallow) && asset.blob.isEmpty  => asset
+		case asset: AssetNode if (mode !== 'shallow) && asset.blob.isEmpty => asset
 	})
 
 	def next(): Unit = Neo.txs {

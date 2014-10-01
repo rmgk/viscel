@@ -105,12 +105,12 @@ object Viscel extends StrictLogging {
 	def visualizeUser(user: UserNode, dotpath: String) = {
 		Neo.tx { db =>
 			val td = db.traversalDescription().depthFirst
-			.relationships(rel.bookmarked)
-			.relationships(rel.bookmarks)
-			.relationships(rel.bookmark)
-			.relationships(rel.first)
-			.relationships(rel.last)
-			.evaluator(Evaluators.excludeStartPosition)
+				.relationships(rel.bookmarked)
+				.relationships(rel.bookmarks)
+				.relationships(rel.bookmark)
+				.relationships(rel.first)
+				.relationships(rel.last)
+				.evaluator(Evaluators.excludeStartPosition)
 			val writer = new GraphvizWriter()
 			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(user.self).nodes, rel.bookmarked, rel.bookmarks, rel.bookmark, rel.first, rel.last))
 		}
@@ -119,13 +119,13 @@ object Viscel extends StrictLogging {
 	def visualizeCollection(col: CollectionNode, dotpath: String) = {
 		Neo.tx { db =>
 			val td = db.traversalDescription().depthFirst
-			.relationships(rel.first)
-			.relationships(rel.last)
-			.relationships(rel.skip)
-			.relationships(rel.archive)
-			.relationships(rel.describes)
-			.relationships(rel.parent)
-			.evaluator(Evaluators.all)
+				.relationships(rel.first)
+				.relationships(rel.last)
+				.relationships(rel.skip)
+				.relationships(rel.archive)
+				.relationships(rel.describes)
+				.relationships(rel.parent)
+				.evaluator(Evaluators.all)
 			val writer = new GraphvizWriter()
 			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.skip, rel.archive, rel.describes, rel.parent))
 		}
@@ -160,7 +160,7 @@ object Opts extends OptionParser {
 
 	implicit class OptEnhancer[T](opt: OptionSpec[T]) {
 		def ?(implicit oset: OptionSet): Boolean = oset.has(opt)
-		def get(implicit oset: OptionSet): Option[T] = if (! ?) None else Some(apply())
+		def get(implicit oset: OptionSet): Option[T] = if (!oset.has(opt)) None else Some(apply())
 		def apply()(implicit oset: OptionSet): T = oset.valueOf(opt)
 	}
 

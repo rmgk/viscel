@@ -35,15 +35,15 @@ object Misfile extends Core with StrictLogging {
 		val elements_? = Selection(doc)
 			.unique(".comiclist table.wide_gallery")
 			.many("[id~=^comic_\\d+$] .picture a").wrapEach { anchor =>
-				val element_? = Selection(anchor).unique("img").wrapOne { imgIntoAsset }
-				val origin_? = extractUri(anchor)
-				withGood(element_?, origin_?) { (element, origin) =>
-					element.copy(
-						source = element.source.replace("/t", "/"),
-						origin = origin,
-						metadata = element.metadata - "width" - "height")
-				}
+			val element_? = Selection(anchor).unique("img").wrapOne { imgIntoAsset }
+			val origin_? = extractUri(anchor)
+			withGood(element_?, origin_?) { (element, origin) =>
+				element.copy(
+					source = element.source.replace("/t", "/"),
+					origin = origin,
+					metadata = element.metadata - "width" - "height")
 			}
+		}
 		val next_? = Selection(doc).all("a.next").wrap { selectNext("page") }
 
 		withGood(elements_?, next_?) { _ ::: _ }

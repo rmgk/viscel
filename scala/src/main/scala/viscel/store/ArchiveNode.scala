@@ -23,10 +23,10 @@ trait ArchiveNode extends ViscelNode {
 
 	def narc: Option[ArchiveNode] = self.to(rel.narc).map { ArchiveNode(_) }
 	def narc_=(en: ArchiveNode) = self.to_=(rel.narc, en.self)
-	def parc: Option[ArchiveNode] =self.from(rel.narc).map { ArchiveNode(_) }
+	def parc: Option[ArchiveNode] = self.from(rel.narc).map { ArchiveNode(_) }
 	def parc_=(en: ArchiveNode) = self.from_=(rel.narc, en.self)
 
-	def prev: Option[ArchiveNode] = Neo.txs { ArchiveManipulation.prev(self).map(ArchiveNode(_))	}
+	def prev: Option[ArchiveNode] = Neo.txs { ArchiveManipulation.prev(self).map(ArchiveNode(_)) }
 
 	def next: Option[ArchiveNode] = Neo.txs { ArchiveManipulation.next(self).map(ArchiveNode(_)) }
 

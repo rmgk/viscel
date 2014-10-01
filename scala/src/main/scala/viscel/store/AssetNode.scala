@@ -52,6 +52,6 @@ object AssetNode {
 
 	def create(asset: Asset) = {
 		AssetNode(Neo.create(label.Asset, Metadata.prefix(asset.metadata) +
-				("source" -> asset.source.toString) + ("origin" -> asset.origin.toString)))
+			("source" -> asset.source.toString) + ("origin" -> asset.origin.toString)))
 	}
 }

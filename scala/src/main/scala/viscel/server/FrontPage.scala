@@ -71,7 +71,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 					(done.reverse.drop(1), remaining)
 
 				case (coreNode: CoreNode) :: rest =>
-					make_nodelist(pos, StringFrag(s"Core: ${coreNode.id}") :: br :: done, rest)
+					make_nodelist(pos, StringFrag(s"Core: ${ coreNode.id }") :: br :: done, rest)
 
 				case _ :: _ => throw new IllegalArgumentException("unknown archive $head")
 			}
@@ -95,21 +95,21 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 				volume match {
 					case None => makeChapterList(remaining, volume, pagelist :: acc)
 					case _ if volume === headline => makeChapterList(remaining, volume, pagelist :: acc)
-					case Some(volumeName) =>  makeChapterList(remaining, volume, h3(volumeName) :: pagelist :: acc)
+					case Some(volumeName) => makeChapterList(remaining, volume, h3(volumeName) :: pagelist :: acc)
 				}
 
 			case (assetNode: AssetNode) :: rest =>
 				val (pageList, remaining) = makePageList("", nodes)
-				 makeChapterList(remaining, headline, pageList :: acc)
+				makeChapterList(remaining, headline, pageList :: acc)
 
 			case (coreNode: CoreNode) :: rest =>
-				makeChapterList(rest, headline, StringFrag(s"Core: ${coreNode.id}") :: br :: acc)
+				makeChapterList(rest, headline, StringFrag(s"Core: ${ coreNode.id }") :: br :: acc)
 
 			case _ :: _ => throw new IllegalArgumentException("unknown archive $head")
 		}
 	}
 
-	def chapterlist = makeChapterList(collection.describes.fold(List[ArchiveNode]()){ _.layer}, None, Nil).reverse
+	def chapterlist = makeChapterList(collection.describes.fold(List[ArchiveNode]()) { _.layer }, None, Nil).reverse
 }
 
 object FrontPage {

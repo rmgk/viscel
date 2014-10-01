@@ -95,9 +95,9 @@ trait DefaultRoutes extends HttpService {
 			path("css") {
 				getFromResource("style.css")
 			} ~
-//			path("b" / Segment) { hash =>
-//				val filename = viscel.hashToFilename(hash)
-//				getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
+			//			path("b" / Segment) { hash =>
+			//				val filename = viscel.hashToFilename(hash)
+			//				getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
 			path("b" / LongNumber) { nid =>
 				val blob = BlobNode(nid)
 				val filename = viscel.hashToFilename(blob.sha1)

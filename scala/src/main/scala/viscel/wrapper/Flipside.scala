@@ -16,13 +16,13 @@ object Flipside extends Core {
 
 	def wrapArchive(doc: Document) = {
 		Selection(doc).many("td:matches(Chapter|Intermission)").wrapFlat { data =>
-			val pages_? = Selection(data).many("a").wrapEach(elementIntoPointer("page")).map{ _.distinct }
+			val pages_? = Selection(data).many("a").wrapEach(elementIntoPointer("page")).map { _.distinct }
 			val name_? = if (data.text.contains("Chapter"))
-				Selection(data).unique("td:root > div:first-child").getOne.map{_.text()}
+				Selection(data).unique("td:root > div:first-child").getOne.map { _.text() }
 			else
-				Selection(data).unique("p > b").getOne.map{_.text}
+				Selection(data).unique("p > b").getOne.map { _.text }
 
-			withGood(pages_?, name_?) {(pages, name) =>
+			withGood(pages_?, name_?) { (pages, name) =>
 				Chapter(name) :: pages
 			}
 		}

@@ -23,7 +23,7 @@ object KatBox {
 		})
 	}
 
-	val cores: Set[Core] = Set (
+	val cores: Set[Core] = Set(
 		("laslindas", "Las Lindas!"),
 		("cblue", "Caribbean Blue!"),
 		("yosh", "Yosh!"),

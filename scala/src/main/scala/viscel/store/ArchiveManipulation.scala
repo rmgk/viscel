@@ -62,12 +62,12 @@ object ArchiveManipulation {
 	}
 
 	def fixSkiplist(asset: AssetNode): Unit = {
-		val nextAsset_? = asset.next.flatMap(_.findForward{case asset: AssetNode => asset})
+		val nextAsset_? = asset.next.flatMap(_.findForward { case asset: AssetNode => asset })
 		nextAsset_? match {
 			case None => asset.self.outgoing(rel.skip).foreach(_.delete())
 			case Some(nextAsset) => asset.self.to_=(rel.skip, nextAsset.self)
 		}
-		val prevAsset_? = asset.prev.flatMap(_.findBackward{case asset: AssetNode => asset})
+		val prevAsset_? = asset.prev.flatMap(_.findBackward { case asset: AssetNode => asset })
 		prevAsset_? match {
 			case None => asset.self.incoming(rel.skip).foreach(_.delete())
 			case Some(prevAsset) => prevAsset.self.to_=(rel.skip, asset.self)

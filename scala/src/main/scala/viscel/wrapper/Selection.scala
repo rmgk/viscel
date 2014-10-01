@@ -75,8 +75,8 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 
 	override def optional(query: String): Selection = {
 		validateQuery(query) {
-				case rs if rs.size > 1 => Bad(s"query not unique ")
-				case rs => Good(rs.asScala.toList)
+			case rs if rs.size > 1 => Bad(s"query not unique ")
+			case rs => Good(rs.asScala.toList)
 		}.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
 
@@ -101,7 +101,7 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 
 	override def get: Or[List[Element], Every[ErrorMessage]] = wrap(Good(_))
 	override def getOne: Or[Element, Every[ErrorMessage]] = wrapOne(Good(_))
-	override def wrapEach[R](fun: (Element) => Or[R, Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = elements.validatedBy{fun}
+	override def wrapEach[R](fun: (Element) => Or[R, Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = elements.validatedBy { fun }
 	override def wrapFlat[R](fun: (Element) => Or[List[R], Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = wrapEach(fun).map(_.flatten)
 
 	override def reverse: GoodSelection = GoodSelection(elements.reverse)

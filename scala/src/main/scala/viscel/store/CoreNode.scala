@@ -24,12 +24,12 @@ object CoreNode {
 	def apply(nodeId: Long) = new CoreNode(Neo.tx { _.getNodeById(nodeId) })
 
 	def create(desc: CoreDescription) = CoreNode(
-		Neo.create(label.Core,  Metadata.prefix(desc.metadata) + ("id" -> desc.id) + ("kind" -> desc.kind) + ("name" -> desc.name)))
+		Neo.create(label.Core, Metadata.prefix(desc.metadata) + ("id" -> desc.id) + ("kind" -> desc.kind) + ("name" -> desc.name)))
 
 	def updateOrCreate(desc: CoreDescription) = Neo.txs {
-		Neo.node(label.Core, "id", desc.id).fold{create(desc)}{ node: Node =>
+		Neo.node(label.Core, "id", desc.id).fold { create(desc) } { node: Node =>
 			node.getPropertyKeys.asScala.foreach(node.removeProperty)
-			(Metadata.prefix(desc.metadata) + ("name" -> desc.name) + ("id" -> desc.id) + ("kind" -> desc.kind)).foreach{ case (k, v) => node.setProperty(k, v) }
+			(Metadata.prefix(desc.metadata) + ("name" -> desc.name) + ("id" -> desc.id) + ("kind" -> desc.kind)).foreach { case (k, v) => node.setProperty(k, v) }
 			CoreNode(node)
 		}
 	}

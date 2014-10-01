@@ -25,7 +25,7 @@ class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 		case Run(core) =>
 			logger.info(s"starting runner for $core")
 			runnerFor(core)
-		case Done(core, timeout, failure) => activeCores.get(core).fold(ifEmpty = logger.warn(s"got Done from unknown core $core")){ actor =>
+		case Done(core, timeout, failure) => activeCores.get(core).fold(ifEmpty = logger.warn(s"got Done from unknown core $core")) { actor =>
 			logger.info(s"core $core is done. stopping")
 			context.stop(actor)
 			activeCores -= core
@@ -33,13 +33,13 @@ class Clockwork(ioHttp: ActorRef) extends Actor with StrictLogging {
 		case hint@ArchiveHint(archiveNode) =>
 			val col = archiveNode.collection
 			Core.get(col.id) match {
-				case None => logger.warn(s"unkonwn core ${col.id}")
+				case None => logger.warn(s"unkonwn core ${ col.id }")
 				case Some(core) => runnerFor(core) ! hint
 			}
 
 		case hint@CollectionHint(collectionNode) =>
 			Core.get(collectionNode.id) match {
-				case None => logger.warn(s"unkonwn core ${collectionNode.id}")
+				case None => logger.warn(s"unkonwn core ${ collectionNode.id }")
 				case Some(core) => runnerFor(core) ! hint
 			}
 

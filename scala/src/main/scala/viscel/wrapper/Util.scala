@@ -27,13 +27,13 @@ object Util {
 	def queryImage(from: Element, query: String): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgIntoAsset)
 	def queryImages(from: Element, query: String): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)
 
-	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${err.getMessage} at ($caller)").accumulating
+	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${ err.getMessage } at ($caller)").accumulating
 
 	/** tries to extract an absolute uri from an element, extraction depends on type of tag */
 	def extractUri(element: Element): AbsUri Or One[ErrorMessage] = element.tagName() match {
 		case "a" => extract { AbsUri.fromString(element.attr("abs:href")) }
 		case "option" => extract { AbsUri.fromString(element.attr("abs:value")) }
-		case tag => Bad(One(s"can not extract uri from '$tag' at ($caller): ${show(element)}"))
+		case tag => Bad(One(s"can not extract uri from '$tag' at ($caller): ${ show(element) }"))
 	}
 
 	def selectNext(pagetype: String)(elements: List[Element]): List[Pointer] Or Every[ErrorMessage] = elements.validatedBy(elementIntoPointer(pagetype)).flatMap {
@@ -57,11 +57,11 @@ object Util {
 			val cname = ste.getClassName
 			!ignoredClasses.exists(cname.startsWith)
 		}
-		stackTraceOption.fold("invalid stacktrace"){ste => s"${ ste.getClassName }#${ ste.getMethodName }:${ ste.getLineNumber }" }
+		stackTraceOption.fold("invalid stacktrace") { ste => s"${ ste.getClassName }#${ ste.getMethodName }:${ ste.getLineNumber }" }
 	}
 
 	def show(element: Element) = s"${ element.tag }, #${ element.id }, .${ element.classNames }"
 
 	def blame(text: String, cause: Element*): String =
-		s"""$text at ($caller) on (${cause.head.baseUri}) elements (${cause.map{show}})"""
+		s"""$text at ($caller) on (${ cause.head.baseUri }) elements (${ cause.map { show } })"""
 }

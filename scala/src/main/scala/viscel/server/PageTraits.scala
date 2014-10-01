@@ -25,7 +25,7 @@ trait HtmlPageUtils {
 	def path_nid(vn: ViscelNode) = s"/i/${ vn.nid }"
 	def path_raw(vn: ViscelNode) = s"/r/${ vn.nid }"
 	def path_stop = "/stop"
-	def path_core(core: Core) = s"/f/${core.id}"
+	def path_core(core: Core) = s"/f/${ core.id }"
 
 	val class_main = cls := "main"
 	val class_navigation = cls := "navigation"
@@ -79,7 +79,7 @@ trait MetaNavigation extends HtmlPage {
 	def navPrev: Option[String] = None
 	def navDown: Option[String] = None
 
-	def keypress(location: String, keyCodes: Int*) = Predef.augmentString(s"""
+	def keypress(location: String, keyCodes: Int*) = Predef.augmentString( s"""
 		|if (${ keyCodes.map { c => s"ev.keyCode === $c" }.mkString(" || ") }) {
 		|	ev.preventDefault();
 		|	document.location.pathname = "$location";
@@ -88,7 +88,7 @@ trait MetaNavigation extends HtmlPage {
 		""").stripMargin
 
 	def keyNavigation(prev: Option[String] = None, next: Option[String] = None, up: Option[String] = None, down: Option[String] = None) =
-		Predef.augmentString(s"""
+		Predef.augmentString( s"""
 			|document.onkeydown = function(ev) {
 			|	if (!ev.ctrlKey && !ev.altKey) {
 			|${ prev.fold("") { loc => keypress(loc, 37, 65, 188) } }
