@@ -20,15 +20,15 @@ scalacOptions ++= (
 	"-Yno-adapted-args" ::
 	//"-Ywarn-numeric-widen" ::
 	//"-Ywarn-value-discard" ::
-	"-Ywarn-dead-code" ::        // N.B. doesn't work well with the ??? hole
-	"-Yno-predef" ::   // no automatic import of Predef (removes irritating implicits)
-	//"-Yno-imports" ::  // no automatic imports at all; all symbols must be imported explicitly
+	"-Ywarn-dead-code" ::
+	"-Yno-predef" ::
+	//"-Yno-imports" ::
 	Nil)
 
 javaOptions ++= (
   "-verbose:gc" ::
   "-XX:+PrintGCDetails" ::
-  "-Xverify:none" ::
+  //"-Xverify:none" ::
   //"-server" ::
   //"-Xms16m" ::
   //"-Xmx256m" ::
@@ -59,7 +59,7 @@ resolvers ++= (
 
 // gpl3
 val neoDependencies = {
-	val neoVersion = "2.1.4"
+	val neoVersion = "2.1.5"
 	"org.neo4j" % "neo4j" % neoVersion ::
 	"org.neo4j" % "neo4j-graphviz" % neoVersion ::
 	("org.neo4j" % "neo4j-kernel" % neoVersion % "test" classifier "tests") ::
@@ -82,8 +82,8 @@ val ioDependencies =
 
 val otherDependencies =
   // HTML
-  "org.jsoup" % "jsoup" % "1.7.3" :: // mit
-  "com.scalatags" %% "scalatags" % "0.4.0" :: // mit
+  "org.jsoup" % "jsoup" % "1.8.1" :: // mit
+  "com.scalatags" %% "scalatags" % "0.4.1" :: // mit
   // Logging
   "ch.qos.logback" % "logback-classic" % "1.1.2" ::
   "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2" :: // apache 2

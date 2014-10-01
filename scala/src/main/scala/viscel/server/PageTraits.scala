@@ -2,9 +2,9 @@ package viscel.server
 
 import spray.http.MediaTypes
 import viscel.core.Core
-import viscel.store.{rel => _, _}
+import viscel.store.{AssetNode, ViscelNode, BlobNode, CollectionNode, NodeOps}
 
-import scala.Predef._
+import Predef.conforms
 import scalatags.Text.Tag
 import scalatags.Text.all._
 
@@ -79,15 +79,16 @@ trait MetaNavigation extends HtmlPage {
 	def navPrev: Option[String] = None
 	def navDown: Option[String] = None
 
-	def keypress(location: String, keyCodes: Int*) = s"""
-			|if (${ keyCodes.map { c => s"ev.keyCode === $c" }.mkString(" || ") }) {
-			|	ev.preventDefault();
-			|	document.location.pathname = "$location";
-			|	return false;
-			|}
-			""".stripMargin
+	def keypress(location: String, keyCodes: Int*) = Predef.augmentString(s"""
+		|if (${ keyCodes.map { c => s"ev.keyCode === $c" }.mkString(" || ") }) {
+		|	ev.preventDefault();
+		|	document.location.pathname = "$location";
+		|	return false;
+		|}
+		""").stripMargin
 
-	def keyNavigation(prev: Option[String] = None, next: Option[String] = None, up: Option[String] = None, down: Option[String] = None) = s"""
+	def keyNavigation(prev: Option[String] = None, next: Option[String] = None, up: Option[String] = None, down: Option[String] = None) =
+		Predef.augmentString(s"""
 			|document.onkeydown = function(ev) {
 			|	if (!ev.ctrlKey && !ev.altKey) {
 			|${ prev.fold("") { loc => keypress(loc, 37, 65, 188) } }
@@ -96,6 +97,6 @@ trait MetaNavigation extends HtmlPage {
 			|${ down.fold("") { loc => keypress(loc, 40, 83, 66, 78) } }
 			| }
 			|}
-			""".stripMargin
+			""").stripMargin
 
 }
