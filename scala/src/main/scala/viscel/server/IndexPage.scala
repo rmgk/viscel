@@ -1,9 +1,12 @@
 package viscel.server
 
-import viscel.store._
+import viscel.store.UserNode
 
 import scala.Predef.conforms
-import scalatags.Text.all._
+import scalatags.Text.all.SeqFrag
+import scalatags.Text.attrs.id
+import scalatags.Text.implicits.{stringAttr, stringFrag}
+import scalatags.Text.tags.{body, div}
 import scalatags.Text.{Tag, TypedTag}
 
 class IndexPage(user: UserNode) extends HtmlPage {
