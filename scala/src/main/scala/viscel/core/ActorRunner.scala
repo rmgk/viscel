@@ -1,5 +1,7 @@
 package viscel.core
 
+import java.nio.file.{Paths, Files}
+
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.pipe
@@ -11,7 +13,6 @@ import viscel.store._
 
 import scala.Predef.any2ArrowAssoc
 import scala.concurrent.ExecutionContext.Implicits.global
-import scalax.io.Resource
 
 class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: CollectionNode, val clockwork: ActorRef) extends Actor with NetworkPrimitives {
 
@@ -82,7 +83,7 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 
 		case (assetNode: AssetNode, blob: Blob) =>
 			logger.debug(s"$core: received blob, applying to $assetNode")
-			Resource.fromFile(viscel.hashToFilename(blob.sha1)).write(blob.buffer)
+			Files.write(Paths.get(viscel.hashToFilename(blob.sha1)), blob.buffer)
 			Neo.txs { assetNode.blob = BlobNode.create(blob.sha1, blob.mediatype, assetNode.source) }
 			doNext()
 

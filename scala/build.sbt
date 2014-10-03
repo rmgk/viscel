@@ -100,7 +100,7 @@ val otherDependencies =
 	"org.scalaz" %% "scalaz-core" % "7.1.0" ::
 	Nil
 
-libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ ioDependencies ++ otherDependencies
+libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ otherDependencies
 
 
 initialCommands in console := """
