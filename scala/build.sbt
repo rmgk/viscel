@@ -98,6 +98,7 @@ val otherDependencies =
 	// Misc
 	"org.scalactic" %% "scalactic" % "2.2.2" ::
 	"org.scalaz" %% "scalaz-core" % "7.1.0" ::
+  "de.tuda.stg" %% "rescala" % "0.2.0" ::
 	Nil
 
 libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ otherDependencies
