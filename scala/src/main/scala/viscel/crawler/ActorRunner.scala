@@ -5,6 +5,7 @@ import java.nio.file.{Paths, Files}
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.pipe
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import spray.client.pipelining.SendReceive
@@ -15,7 +16,7 @@ import viscel.cores.Core
 import scala.Predef.any2ArrowAssoc
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: CollectionNode, val clockwork: ActorRef) extends Actor with NetworkPrimitives {
+class ActorRunner(iopipe: SendReceive, val core: Core, val collection: CollectionNode, val clockwork: ActorRef) extends Actor with StrictLogging {
 
 	var current: Option[ArchiveNode] = None
 	var remaining: Long = 10
@@ -46,13 +47,13 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 				logger.debug(s"$core: selected next $node")
 				current = found
 				node match {
-					case page: PageNode => getDocument(page.location).map { page -> _ }.pipeTo(self)
+					case page: PageNode => Network.getDocument(page.location)(iopipe).map { page -> _ }.pipeTo(self)
 
 					case asset: AssetNode =>
 						logger.debug(s"$core: found placeholder element, downloading")
 						BlobNode.find(asset.source) match {
 							case Some(blob) => asset.blob = blob; doNext()
-							case None => getBlob(asset.description).map { asset -> _ }.pipeTo(self)
+							case None =>  Network.getBlob(asset.description)(iopipe).map { asset -> _ }.pipeTo(self)
 						}
 				}
 		}
@@ -82,7 +83,7 @@ class ActorRunner(val iopipe: SendReceive, val core: Core, val collection: Colle
 			ArchiveManipulation.applyDescription(pageNode, core.wrap(doc, pageNode.description))
 			doNext()
 
-		case (assetNode: AssetNode, blob: Blob) =>
+		case (assetNode: AssetNode, blob: Network.Blob) =>
 			logger.debug(s"$core: received blob, applying to $assetNode")
 			Files.write(Paths.get(viscel.hashToFilename(blob.sha1)), blob.buffer)
 			Neo.txs { assetNode.blob = BlobNode.create(blob.sha1, blob.mediatype, assetNode.source) }
