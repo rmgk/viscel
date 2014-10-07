@@ -1,7 +1,7 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import viscel.core.AbsUri
+import viscel.crawler.AbsUri
 import viscel.description.Pointer
 
 import scala.Predef.any2ArrowAssoc

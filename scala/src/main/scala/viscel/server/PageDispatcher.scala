@@ -1,5 +1,6 @@
 package viscel.server
 
+import viscel.server.pages.{ViewPage, FrontPage}
 import viscel.store._
 
 object PageDispatcher {

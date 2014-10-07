@@ -10,7 +10,7 @@ import org.neo4j.graphdb.traversal._
 import org.neo4j.visualization.graphviz._
 import org.neo4j.walk.Walker
 import spray.can.Http
-import viscel.core._
+import viscel.crawler._
 import viscel.store._
 
 import scala.language.implicitConversions

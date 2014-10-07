@@ -1,8 +1,8 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import viscel.core.Core
 import viscel.time
+import viscel.cores.Core
 
 import scala.Predef.any2ArrowAssoc
 

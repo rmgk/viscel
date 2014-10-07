@@ -1,7 +1,7 @@
 package viscel.description
 
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.core._
+import viscel.crawler._
 
 import scala.collection.immutable.Map
 import scala.language.implicitConversions

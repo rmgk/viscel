@@ -7,6 +7,7 @@ import scala.Predef.wrapString
 
 package object viscel extends StrictLogging {
 	val digester = MessageDigest.getInstance("SHA1")
+
 	def time[T](desc: String = "")(f: => T): T = {
 		val start = System.nanoTime
 		val res = f
@@ -16,8 +17,6 @@ package object viscel extends StrictLogging {
 	def sha1hex(b: Array[Byte]) = Predef.wrapByteArray(digester.digest(b)).map { h => f"$h%02x" }.mkString
 
 	def hashToFilename(h: String): String = new StringBuilder(h).insert(2, '/').insert(0, "./cache/").toString()
-
-	def failure(x: String) = Failure(new Throwable(x))
 
 }
 

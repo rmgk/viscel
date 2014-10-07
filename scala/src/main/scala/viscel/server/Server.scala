@@ -10,9 +10,11 @@ import spray.can.server.Stats
 import spray.http.ContentType
 import spray.routing.authentication.{BasicAuth, UserPassAuthenticator, UserPass}
 import spray.routing.{HttpService, Route}
-import viscel.core.{Core, Messages}
+import viscel.crawler.Messages
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.server.pages._
 import viscel.store._
+import viscel.cores.Core
 
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.collection.immutable.Map

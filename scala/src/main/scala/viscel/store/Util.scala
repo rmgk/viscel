@@ -3,8 +3,8 @@ package viscel.store
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.tooling.GlobalGraphOperations
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.core.Core
 import viscel.time
+import viscel.cores.Core
 
 import scala.Predef.any2ArrowAssoc
 import scala.annotation.tailrec

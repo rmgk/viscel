@@ -1,7 +1,7 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import viscel.core.AbsUri
+import viscel.crawler.AbsUri
 import viscel.description.Asset
 
 import scala.Predef.any2ArrowAssoc
@@ -36,8 +36,8 @@ class AssetNode(val self: Node) extends ArchiveNode with Metadata {
 		dist(nextAsset, 0)
 	}
 
-	def origin = Neo.txs { AbsUri(self[String]("origin")) }
-	def source = Neo.txs { AbsUri(self[String]("source")) }
+	def origin: AbsUri = Neo.txs { AbsUri.fromString(self[String]("origin")) }
+	def source: AbsUri = Neo.txs { AbsUri.fromString(self[String]("source")) }
 
 	override def description: Asset = Neo.txs {
 		Asset(source, origin, metadata())
