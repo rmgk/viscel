@@ -10,7 +10,7 @@ import spray.can.server.Stats
 import spray.http.ContentType
 import spray.routing.authentication.{BasicAuth, UserPassAuthenticator, UserPass}
 import spray.routing.{HttpService, Route}
-import viscel.crawler.Messages
+import viscel.crawler.{Clockwork, Messages}
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.server.pages._
 import viscel.store._
@@ -108,7 +108,7 @@ trait DefaultRoutes extends HttpService {
 			path("f" / Segment) { collectionId =>
 				rejectNone(Core.get(collectionId)) { core =>
 					val collection = Core.getCollection(core)
-					actorRefFactory.actorSelection("/user/clockwork") ! Messages.CollectionHint(collection)
+          Clockwork.collectionHint(collection)
 					complete(FrontPage(user, collection))
 				}
 			} ~
@@ -120,7 +120,7 @@ trait DefaultRoutes extends HttpService {
 			path("v" / Segment / IntNumber) { (col, pos) =>
 				rejectNone(CollectionNode(col)) { cn =>
 					rejectNone(cn(pos)) { en =>
-						actorRefFactory.actorSelection("/user/clockwork") ! Messages.ArchiveHint(en)
+						Clockwork.archiveHint(en)
 						complete(ViewPage(user, en))
 					}
 				}
@@ -128,8 +128,8 @@ trait DefaultRoutes extends HttpService {
 			path("i" / LongNumber) { id =>
 				val node = ViscelNode(id).get
 				node match {
-					case archiveNode: ArchiveNode => actorRefFactory.actorSelection("/user/clockwork") ! Messages.ArchiveHint(archiveNode)
-					case collectionNode: CollectionNode => actorRefFactory.actorSelection("/user/clockwork") ! Messages.CollectionHint(collectionNode)
+					case archiveNode: ArchiveNode => Clockwork.archiveHint(archiveNode)
+					case collectionNode: CollectionNode => Clockwork.collectionHint(collectionNode)
 				}
 				complete(PageDispatcher(user, node))
 			} ~

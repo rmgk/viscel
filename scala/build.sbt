@@ -120,7 +120,7 @@ import spray.can._
 import spray.client.pipelining._
 import spray.http._
 import viscel._
-import viscel.core._
+import viscel.crawler._
 import viscel.server._
 import viscel.store._
 """

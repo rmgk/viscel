@@ -1,6 +1,7 @@
 package viscel
 
 import java.io.File
+import java.util.concurrent.Executors
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
@@ -10,8 +11,12 @@ import org.neo4j.graphdb.traversal._
 import org.neo4j.visualization.graphviz._
 import org.neo4j.walk.Walker
 import spray.can.Http
-import viscel.crawler._
+import spray.client.pipelining
+import viscel.crawler.Clockwork
 import viscel.store._
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
+
 
 import scala.language.implicitConversions
 
@@ -79,12 +84,11 @@ object Viscel extends StrictLogging {
 			cid <- collectionid.get
 			cn <- CollectionNode(cid)
 		} { visualizeCollection(cn, dotpath) }
+
 		implicit val system = ActorSystem()
 
 		val ioHttp = IO(Http)
-
-		val props = Props(Predef.classOf[Clockwork], ioHttp)
-		val clockwork = system.actorOf(props, "clockwork")
+    val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
 		if (!noserver.?) {
 			val server = system.actorOf(Props[viscel.server.Server], "viscel-server")
@@ -92,14 +96,14 @@ object Viscel extends StrictLogging {
 		}
 
 		if (!nocore.?) {
-			//clockwork ! Clockwork.EnqueueDefault
+			Clockwork.handleHints(ExecutionContext.Implicits.global, iopipe, Neo)
 		}
 
 		if (shutdown.?) {
 			Neo.shutdown()
 			system.shutdown()
 		}
-		(system, ioHttp, clockwork)
+		(system, ioHttp)
 	}
 
 	def visualizeUser(user: UserNode, dotpath: String) = {

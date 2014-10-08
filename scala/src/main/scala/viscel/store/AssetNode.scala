@@ -54,4 +54,6 @@ object AssetNode {
 		AssetNode(Neo.create(label.Asset, Metadata.prefix(asset.metadata) +
 			("source" -> asset.source.toString) + ("origin" -> asset.origin.toString)))
 	}
+
+  def unapply(an: AssetNode): Some[AssetNode] = Some(an)
 }

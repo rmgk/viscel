@@ -11,7 +11,22 @@ import viscel.time
 import scala.collection.JavaConverters._
 import scala.collection.Map
 
-object Neo extends StrictLogging {
+trait Neo {
+  def node(label: Label, property: String, value: Any, logTime: Boolean = true): Option[Node]
+  def nodes(label: Label): List[Node]
+
+  def create(label: Label, attributes: (String, Any)*): Node
+  def create(label: Label, attributes: Map[String, Any]): Node
+
+  def delete(node: Node): Unit
+
+  def tx[R](f: GraphDatabaseService => R): R
+  def txt[R](desc: String)(f: GraphDatabaseService => R): R
+  def txs[R](f: => R): R
+  def txts[R](desc: String)(f: => R): R
+}
+
+object Neo extends Neo with StrictLogging {
 	val db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("neoViscelStore")
 		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE).newGraphDatabase()
 	val ee = new ExecutionEngine(db)
@@ -34,7 +49,7 @@ object Neo extends StrictLogging {
 		else go()
 	}
 
-	def nodes(label: Label) = txs { GlobalGraphOperations.at(db).getAllNodesWithLabel(label).asScala.toList }
+	def nodes(label: Label): List[Node] = txs { GlobalGraphOperations.at(db).getAllNodesWithLabel(label).asScala.toList }
 
 	def create(label: Label, attributes: (String, Any)*): Node = create(label, attributes.toMap)
 	def create(label: Label, attributes: Map[String, Any]): Node = Neo.tx { db =>
