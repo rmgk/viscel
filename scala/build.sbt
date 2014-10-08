@@ -7,6 +7,8 @@ version := "5.0.0-Beta"
 
 scalaVersion := "2.10.4"
 
+fork := true
+
 scalacOptions ++= (
 	"-deprecation" ::
 	"-encoding" :: "UTF-8" ::
@@ -72,7 +74,7 @@ val neoDependencies = {
 // apache 2
 val sprayDependencies =
 	List("spray-caching", "spray-can", "spray-client", "spray-http", "spray-httpx", "spray-routing", "spray-util")
-		.map(n => "io.spray" %% n % "1.3.1")
+		.map(n => "io.spray" %% n % "1.3.2")
 
 val akkaDependencies =
 	List("akka-actor", "akka-slf4j")
@@ -98,7 +100,7 @@ val otherDependencies =
 	// Misc
 	"org.scalactic" %% "scalactic" % "2.2.2" ::
 	"org.scalaz" %% "scalaz-core" % "7.1.0" ::
-  "de.tuda.stg" %% "rescala" % "0.2.0" ::
+  "de.tuda.stg" %% "rescala" % "0.3.0" ::
 	Nil
 
 libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ otherDependencies
