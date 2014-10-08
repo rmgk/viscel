@@ -10,7 +10,7 @@ import spray.can.server.Stats
 import spray.http.ContentType
 import spray.routing.authentication.{BasicAuth, UserPassAuthenticator, UserPass}
 import spray.routing.{HttpService, Route}
-import viscel.crawler.{Clockwork, Messages}
+import viscel.crawler.Clockwork
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.server.pages._
 import viscel.store._
@@ -65,7 +65,7 @@ trait DefaultRoutes extends HttpService {
 			// time("login") {
 			if (user.matches("\\w+")) {
 				Future.successful {
-					Some(getUserNode(user, password)).filter(_.password === password)
+          Some(getUserNode(user, password)).filter(_.password === password)
 				}
 			}
 			else { Future.successful(None) }
@@ -149,7 +149,7 @@ trait DefaultRoutes extends HttpService {
 			} ~
 			path("core" / Segment) { coreId =>
 				val core = Core.get(coreId).foreach { core =>
-					actorRefFactory.actorSelection("/user/clockwork") ! Messages.Run(core)
+					//actorRefFactory.actorSelection("/user/clockwork") ! Messages.Run(core)
 				}
 				complete(coreId)
 			}

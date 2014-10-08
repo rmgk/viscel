@@ -20,10 +20,10 @@ import scala.language.implicitConversions
 class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 	def selfLabel = label.User
 
-	def name = Neo.txs { self[String]("name") }
-	def password = Neo.txs { self[String]("password") }
+	def name: String = Neo.txs { self[String]("name") }
+	def password: String = Neo.txs { self[String]("password") }
 
-	def getBookmark(cn: CollectionNode) = Neo.txs { getBookmarkNode(cn).flatMap { bookmarkToElement } }
+	def getBookmark(cn: CollectionNode): Option[AssetNode] = Neo.txs { getBookmarkNode(cn).flatMap { bookmarkToElement } }
 
 	def setBookmark(en: AssetNode): Unit = Neo.txts(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
 		def createBookmark() = {

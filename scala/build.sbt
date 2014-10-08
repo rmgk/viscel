@@ -85,6 +85,10 @@ val ioDependencies =
 	List("scala-io-core", "scala-io-file")
 		.map(n => "com.github.scala-incubator.io" %% n % "0.4.3")
 
+val scalazDependecnies =
+  List("scalaz-core", "scalaz-concurrent")
+    .map(n => "org.scalaz" %% n % "7.1.0")
+
 val otherDependencies =
 	// HTML
 	"org.jsoup" % "jsoup" % "1.8.1" :: // mit
@@ -99,11 +103,10 @@ val otherDependencies =
 	"org.scalatest" %% "scalatest" % "2.2.2" % "test" ::
 	// Misc
 	"org.scalactic" %% "scalactic" % "2.2.2" ::
-	"org.scalaz" %% "scalaz-core" % "7.1.0" ::
   "de.tuda.stg" %% "rescala" % "0.3.0" ::
 	Nil
 
-libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ otherDependencies
+libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ scalazDependecnies ++ otherDependencies
 
 
 initialCommands in console := """
