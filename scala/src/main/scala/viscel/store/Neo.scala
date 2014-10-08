@@ -12,18 +12,18 @@ import scala.collection.JavaConverters._
 import scala.collection.Map
 
 trait Neo {
-  def node(label: Label, property: String, value: Any, logTime: Boolean = true): Option[Node]
-  def nodes(label: Label): List[Node]
+	def node(label: Label, property: String, value: Any, logTime: Boolean = true): Option[Node]
+	def nodes(label: Label): List[Node]
 
-  def create(label: Label, attributes: (String, Any)*): Node
-  def create(label: Label, attributes: Map[String, Any]): Node
+	def create(label: Label, attributes: (String, Any)*): Node
+	def create(label: Label, attributes: Map[String, Any]): Node
 
-  def delete(node: Node): Unit
+	def delete(node: Node): Unit
 
-  def tx[R](f: GraphDatabaseService => R): R
-  def txt[R](desc: String)(f: GraphDatabaseService => R): R
-  def txs[R](f: => R): R
-  def txts[R](desc: String)(f: => R): R
+	def tx[R](f: GraphDatabaseService => R): R
+	def txt[R](desc: String)(f: GraphDatabaseService => R): R
+	def txs[R](f: => R): R
+	def txts[R](desc: String)(f: => R): R
 }
 
 object Neo extends Neo with StrictLogging {

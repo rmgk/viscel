@@ -105,7 +105,7 @@ object ArchiveManipulation {
 		connectLayer(newLayer)
 	}
 
-	def applyDescription(target: DescribingNode, descriptions: List[Description]): List[ArchiveNode] = Neo.txs {
+	def applyDescription(target: DescribingNode, descriptions: List[Description])(implicit neo: Neo): List[ArchiveNode] = neo.txs {
 		val oldLayer = target.describes.toList.flatMap(_.layer)
 		val oldDescriptions = oldLayer.map(_.description)
 		if (oldDescriptions === descriptions) oldLayer

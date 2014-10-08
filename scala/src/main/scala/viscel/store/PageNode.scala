@@ -12,7 +12,7 @@ object PageNode {
 
 	def create(location: AbsUri, pagetype: String) = PageNode(Neo.create(label.Page, "location" -> location.toString, "pagetype" -> pagetype))
 
-  def unapply(pn: PageNode): Some[PageNode] = Some(pn)
+	def unapply(pn: PageNode): Some[PageNode] = Some(pn)
 }
 
 class PageNode(val self: Node) extends ArchiveNode with DescribingNode {

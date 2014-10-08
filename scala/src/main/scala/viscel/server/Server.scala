@@ -65,7 +65,7 @@ trait DefaultRoutes extends HttpService {
 			// time("login") {
 			if (user.matches("\\w+")) {
 				Future.successful {
-          Some(getUserNode(user, password)).filter(_.password === password)
+					Some(getUserNode(user, password)).filter(_.password === password)
 				}
 			}
 			else { Future.successful(None) }
@@ -108,7 +108,7 @@ trait DefaultRoutes extends HttpService {
 			path("f" / Segment) { collectionId =>
 				rejectNone(Core.get(collectionId)) { core =>
 					val collection = Core.getCollection(core)
-          Clockwork.collectionHint(collection)
+					Clockwork.collectionHint(collection)
 					complete(FrontPage(user, collection))
 				}
 			} ~

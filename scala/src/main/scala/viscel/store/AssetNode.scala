@@ -55,5 +55,5 @@ object AssetNode {
 			("source" -> asset.source.toString) + ("origin" -> asset.origin.toString)))
 	}
 
-  def unapply(an: AssetNode): Some[AssetNode] = Some(an)
+	def unapply(an: AssetNode): Some[AssetNode] = Some(an)
 }

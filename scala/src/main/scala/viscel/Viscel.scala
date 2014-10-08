@@ -88,7 +88,7 @@ object Viscel extends StrictLogging {
 		implicit val system = ActorSystem()
 
 		val ioHttp = IO(Http)
-    val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
+		val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
 		if (!noserver.?) {
 			val server = system.actorOf(Props[viscel.server.Server], "viscel-server")
