@@ -9,7 +9,7 @@ import scala.collection.mutable
 
 object ArchiveManipulation {
 
-	def fixSkiplist(asset: coin.Asset): Unit = {
+	private def fixSkiplist(asset: coin.Asset): Unit = {
 		val nextAsset_? = asset.next.flatMap(_.findForward { case asset: coin.Asset => asset })
 		nextAsset_? match {
 			case None => asset.self.outgoing(rel.skip).foreach(_.delete())
@@ -22,7 +22,7 @@ object ArchiveManipulation {
 		}
 	}
 
-	def connectLayer(layer: List[Node]) = {
+	private def connectLayer(layer: List[Node]) = {
 		layer.reduceLeftOption { (prev, next) => prev.to_=(rel.narc, next); next }
 		layer.lastOption.foreach(_.outgoing(rel.narc).foreach(_.delete()))
 		layer.headOption.foreach(_.incoming(rel.narc).foreach(_.delete()))
@@ -30,7 +30,7 @@ object ArchiveManipulation {
 	}
 
 	@tailrec
-	def deleteRecursive(nodes: List[Node])(implicit neo: Neo): Unit = nodes match {
+	private def deleteRecursive(nodes: List[Node])(implicit neo: Neo): Unit = nodes match {
 		case Nil => ()
 		case list =>
 			val below = list.flatMap(_.to(rel.describes)).flatMap { Traversal.layer }
@@ -38,7 +38,7 @@ object ArchiveManipulation {
 			deleteRecursive(below)
 	}
 
-	def replaceLayer(oldLayer: List[Node], oldNarration: List[Story], newNarration: List[Story])(implicit neo: Neo): List[Node] = {
+	private def replaceLayer(oldLayer: List[Node], oldNarration: List[Story], newNarration: List[Story])(implicit neo: Neo): List[Node] = {
 		val oldMap: mutable.Map[Story, Node] = mutable.Map(oldNarration zip oldLayer: _*)
 		val newLayer: List[Node] = newNarration.map { story =>
 			oldMap.get(story) match {

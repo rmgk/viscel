@@ -26,7 +26,7 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 
 class Server extends Actor with HttpService with StrictLogging {
 
-	implicit val neo = Neo
+	implicit def neo = Neo
 
 	def actorRefFactory: ActorRefFactory = context
 
@@ -84,16 +84,18 @@ class Server extends Actor with HttpService with StrictLogging {
 			defaultRoute(user)
 		}
 
-	def defaultRoute(user: User) =
+	def defaultRoute(user: User): Route =
 		(path("") | path("index")) {
 			complete(Pages.index(user))
 		} ~
 			path("stop") {
-				Future {
-					spray.util.actorSystem.shutdown()
-					viscel.store.Neo.shutdown()
+				complete {
+					Future {
+						spray.util.actorSystem.shutdown()
+						viscel.store.Neo.shutdown()
+					}
+					"shutdown"
 				}
-				complete { "shutdown" }
 			} ~
 			path("css") {
 				getFromResource("style.css")
@@ -125,10 +127,10 @@ class Server extends Actor with HttpService with StrictLogging {
 			path("i" / LongNumber) { id =>
 				neo.txs {
 					Vault.byID(id) match {
-						case Good(asset @ Asset(_)) =>
+						case Good(asset@Asset(_)) =>
 							Clockwork.archiveHint(asset)
 							complete(Pages.view(user, asset))
-						case Good(collection @ Collection(_)) =>
+						case Good(collection@Collection(_)) =>
 							Clockwork.collectionHint(collection)
 							complete(Pages.front(user, collection))
 						case other => complete(other.toString)

@@ -74,7 +74,7 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 
 	private def request(node: ArchiveNode): Network.DelayedRequest[Unit] = node match {
 		case page@Page(_) => Network.documentRequest(page.location).map { writePage(page) }
-		case asset@Asset(_) => Network.blobRequest(asset.story).map { writeAsset(asset) }
+		case asset@Asset(_) => Network.blobRequest(asset.source, asset.origin).map { writeAsset(asset) }
 	}
 
 }

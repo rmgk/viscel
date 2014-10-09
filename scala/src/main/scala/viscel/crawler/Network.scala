@@ -22,7 +22,7 @@ object Network extends StrictLogging {
 		def map[S](f: R => S): DelayedRequest[S] = copy(continue = continue.andThen(f))
 	}
 
-	final case class Blob(mediatype: MediaType, sha1: String, buffer: Array[Byte], response: HttpResponse)
+	final case class Blob(mediatype: MediaType, sha1: String, buffer: Array[Byte])
 
 	private def addReferrer(referrer: Uri): (HttpRequest) => HttpRequest = addHeader("Referer" /*[sic, http spec]*/ , referrer.toString())
 
@@ -50,16 +50,15 @@ object Network extends StrictLogging {
 				res.header[Location].fold(ifEmpty = uri)(_.uri).toString())
 		)
 
-	def blobRequest(asset: Asset): DelayedRequest[Blob] =
+	def blobRequest(source: AbsUri, origin: AbsUri): DelayedRequest[Blob] =
 		DelayedRequest(
-			request = Get(asset.source) ~> addReferrer(asset.origin),
+			request = Get(source) ~> addReferrer(origin),
 			continue = { res =>
 				val bytes = res.entity.data.toByteArray
 				Blob(
 					mediatype = res.header[`Content-Type`].get.contentType.mediaType,
 					buffer = bytes,
-					sha1 = sha1hex(bytes),
-					response = res)
+					sha1 = sha1hex(bytes))
 			}
 		)
 

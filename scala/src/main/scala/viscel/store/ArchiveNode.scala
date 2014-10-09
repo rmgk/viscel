@@ -15,26 +15,16 @@ abstract class ArchiveNode extends Coin {
 
 	def story: Story
 
-	def narc: Option[ArchiveNode] = self.to(rel.narc).map { ArchiveNode(_) }
-	def narc_=(en: ArchiveNode) = self.to_=(rel.narc, en.self)
-	def parc: Option[ArchiveNode] = self.from(rel.narc).map { ArchiveNode(_) }
-	def parc_=(en: ArchiveNode) = self.from_=(rel.narc, en.self)
+//	def narc: Option[ArchiveNode] = self.to(rel.narc).map { ArchiveNode(_) }
+//	def narc_=(en: ArchiveNode) = self.to_=(rel.narc, en.self)
+//	def parc: Option[ArchiveNode] = self.from(rel.narc).map { ArchiveNode(_) }
+//	def parc_=(en: ArchiveNode) = self.from_=(rel.narc, en.self)
 
-	def prev: Option[ArchiveNode] = Neo.txs { Traversal.prev(self).map(ArchiveNode(_)) }
+	def prev: Option[ArchiveNode] = Traversal.prev(self).map(ArchiveNode.apply)
 
-	def next: Option[ArchiveNode] = Neo.txs { Traversal.next(self).map(ArchiveNode(_)) }
+	def next: Option[ArchiveNode] = Traversal.next(self).map(ArchiveNode.apply)
 
-	def collection: Collection = Neo.txs {
-		@tailrec
-		def rewind(node: Node): Node = {
-			val begin = Traversal.layerBegin(node)
-			begin.from(rel.describes) match {
-				case None => begin
-				case Some(upper) => rewind(upper)
-			}
-		}
-		Collection(rewind(self))
-	}
+	def collection: Collection = Collection(Traversal.origin(self))
 
 	@tailrec
 	final def findBackward[R](p: PartialFunction[ArchiveNode, R]): Option[R] = {

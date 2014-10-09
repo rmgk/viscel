@@ -1,25 +1,26 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
+import viscel.store.coin.Collection
 
 import scala.annotation.tailrec
 
 object Traversal {
 
 	@tailrec
-	def layerBegin(node: Node): Node = node.from(rel.narc) match {
+	private def layerBegin(node: Node): Node = node.from(rel.narc) match {
 		case None => node
 		case Some(prev) => layerBegin(prev)
 	}
 
 	@tailrec
-	def layerEnd(node: Node): Node = node.to(rel.narc) match {
+	private def layerEnd(node: Node): Node = node.to(rel.narc) match {
 		case None => node
 		case Some(next) => layerEnd(next)
 	}
 
 	@tailrec
-	def uppernext(node: Node): Option[Node] = {
+	private def uppernext(node: Node): Option[Node] = {
 		layerBegin(node).from(rel.describes) match {
 			case None => None
 			case Some(upper) => upper.to(rel.narc) match {
@@ -30,13 +31,24 @@ object Traversal {
 	}
 
 	@tailrec
-	def rightmost(node: Node): Node = {
+	private def rightmost(node: Node): Node = {
 		val end = layerEnd(node)
 		end.to(rel.describes) match {
 			case None => end
 			case Some(lower) => rightmost(lower)
 		}
 	}
+
+
+	@tailrec
+	def origin(node: Node): Node = {
+		val begin = Traversal.layerBegin(node)
+		begin.from(rel.describes) match {
+			case None => begin
+			case Some(upper) => origin(upper)
+		}
+	}
+
 
 	def prev(node: Node): Option[Node] = {
 		node.from(rel.narc) match {
@@ -53,10 +65,9 @@ object Traversal {
 		}
 	}
 
-	def next(node: Node): Option[Node] = {
-		if (node.hasLabel(label.Page)) node.to(rel.describes).orElse(node.to(rel.narc)).orElse(uppernext(node))
-		else node.to(rel.narc).orElse(uppernext(node))
-	}
+	def next(node: Node): Option[Node] =
+		node.to(rel.describes).orElse(node.to(rel.narc)).orElse(uppernext(node))
+
 
 
 	def layer(start: Node): List[Node] = {
