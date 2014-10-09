@@ -21,7 +21,7 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 
 	def selectNext(from: ArchiveNode): Option[ArchiveNode] = {
 		from.findForward {
-			case page@Page(_) if page.describes.isEmpty => page
+			case page@Page(_) if page.self.to(rel.describes).isEmpty => page
 			case asset@Asset(_) if (!shallow) && asset.blob.isEmpty => asset
 		}
 	}
@@ -36,14 +36,14 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 
 	def writePage(pageNode: Page)(doc: Document): Unit = {
 		logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pageNode")
-		ArchiveManipulation.applyNarration(pageNode, core.wrap(doc, pageNode.story))(neo)
+		ArchiveManipulation.applyNarration(pageNode.self, core.wrap(doc, pageNode.story))(neo)
 	}
 
 	def start(collection: Collection): Future[Unit] = neo.txs {
-		ArchiveManipulation.applyNarration(collection, core.archive)(neo)
-		collection.describes match {
+		val res = ArchiveManipulation.applyNarration(collection.self, core.archive)(neo)
+		res.headOption match {
 			case None => Future.successful(Unit)
-			case Some(archive) => run(archive)
+			case Some(archive) => run(ArchiveNode(archive))
 		}
 	}
 

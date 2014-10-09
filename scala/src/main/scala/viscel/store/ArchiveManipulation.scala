@@ -4,6 +4,7 @@ import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.description.Story
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 object ArchiveManipulation {
@@ -21,49 +22,44 @@ object ArchiveManipulation {
 		}
 	}
 
-	def connectLayer(layer: List[ArchiveNode]) = {
-		layer.reduceLeftOption { (prev, next) => prev.narc = next; next }
-		layer.lastOption.foreach(_.self.outgoing(rel.narc).foreach(_.delete()))
-		layer.headOption.foreach(_.self.incoming(rel.narc).foreach(_.delete()))
+	def connectLayer(layer: List[Node]) = {
+		layer.reduceLeftOption { (prev, next) => prev.to_=(rel.narc, next); next }
+		layer.lastOption.foreach(_.outgoing(rel.narc).foreach(_.delete()))
+		layer.headOption.foreach(_.incoming(rel.narc).foreach(_.delete()))
 		layer
 	}
 
-	def create(desc: Story)(implicit neo: Neo): ArchiveNode = {
-		desc match {
-			case Story.Failed(reason) => throw new IllegalArgumentException(reason.toString())
-			case pointer@Story.More(_, _) => Vault.create.page(pointer)
-			case chap@Story.Chapter(_, _) => Vault.create.chapter(chap)
-			case asset@Story.Asset(_, _, _) => Vault.create.asset(asset)
-			case core@Story.Core(_, _, _, _) => Vault.create.core(core)
-		}
+	@tailrec
+	def deleteRecursive(nodes: List[Node])(implicit neo: Neo): Unit = nodes match {
+		case Nil => ()
+		case list =>
+			val below = list.flatMap(_.to(rel.describes)).flatMap { Traversal.layer }
+			list.foreach(Neo.delete)
+			deleteRecursive(below)
 	}
 
-	def deleteRecursive(node: Node)(implicit neo: Neo): Unit = {
-
-	}
-
-	def replaceLayer(oldLayer: List[ArchiveNode], oldNarration: List[Story], newNarration: List[Story])(implicit neo: Neo): List[ArchiveNode] = {
-		val oldMap = mutable.Map(oldNarration zip oldLayer: _*)
-		val newLayer = newNarration.map { story =>
+	def replaceLayer(oldLayer: List[Node], oldNarration: List[Story], newNarration: List[Story])(implicit neo: Neo): List[Node] = {
+		val oldMap: mutable.Map[Story, Node] = mutable.Map(oldNarration zip oldLayer: _*)
+		val newLayer: List[Node] = newNarration.map { story =>
 			oldMap.get(story) match {
-				case None => create(story)
+				case None => Vault.create.fromStory(story).self
 				case Some(oldCoin) =>
 					oldMap.remove(story)
 					oldCoin
 			}
 		}
-		oldMap.mapValues(_.deleteRecursive())
+		deleteRecursive(oldMap.values.toList)
 		connectLayer(newLayer)
 	}
 
-	def applyNarration(target: DescribingNode, narration: List[Story])(implicit neo: Neo): List[ArchiveNode] = neo.txs {
-		val oldLayer = target.describes.toList.flatMap(_.layer)
-		val oldNarration = oldLayer.map(_.story)
+	def applyNarration(target: Node, narration: List[Story])(implicit neo: Neo): List[Node] = neo.txs {
+		val oldLayer = target.to(rel.describes).toList.flatMap(Traversal.layer)
+		val oldNarration = oldLayer.map(ArchiveNode(_).story)
 		if (oldNarration === narration) oldLayer
 		else {
 			val newLayer = replaceLayer(oldLayer, oldNarration, narration)
-			target.describes = newLayer.headOption
-			newLayer.collect { case asset: coin.Asset => fixSkiplist(asset) }
+			newLayer.headOption.foreach{ head => target.to_=(rel.describes, head) }
+			newLayer.map(ArchiveNode.apply).collect { case asset @ coin.Asset(_) => fixSkiplist(asset) }
 			newLayer
 		}
 	}

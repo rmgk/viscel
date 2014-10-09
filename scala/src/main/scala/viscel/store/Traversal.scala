@@ -58,4 +58,16 @@ object Traversal {
 		else node.to(rel.narc).orElse(uppernext(node))
 	}
 
+
+	def layer(start: Node): List[Node] = {
+		@tailrec
+		def layerAcc(current: Node, acc: List[Node]): List[Node] = current.to(rel.narc) match {
+			case None => current :: acc
+			case Some(next) => layerAcc(next, current :: acc)
+		}
+		layerAcc(start, Nil).reverse
+	}
+	
+	def layerBelow(above: Node): List[Node] = above.to(rel.describes).fold[List[Node]](Nil)(layer)
+
 }

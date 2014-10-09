@@ -15,13 +15,6 @@ abstract class ArchiveNode extends Coin {
 
 	def story: Story
 
-	@tailrec
-	private def layerAcc(acc: List[ArchiveNode]): List[ArchiveNode] = narc match {
-		case None => this :: acc
-		case Some(next) => next.layerAcc(this :: acc)
-	}
-	def layer: List[ArchiveNode] = Neo.txs { layerAcc(Nil).reverse }
-
 	def narc: Option[ArchiveNode] = self.to(rel.narc).map { ArchiveNode(_) }
 	def narc_=(en: ArchiveNode) = self.to_=(rel.narc, en.self)
 	def parc: Option[ArchiveNode] = self.from(rel.narc).map { ArchiveNode(_) }
@@ -60,7 +53,6 @@ abstract class ArchiveNode extends Coin {
 			case Some(nextNode) => nextNode.findForward(p)
 		}
 	}
-	def deleteRecursive()(implicit neo: Neo): Unit = Neo.delete(self)
 }
 
 object ArchiveNode {

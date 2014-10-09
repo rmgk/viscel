@@ -82,18 +82,19 @@ object Vault {
 		def blob(sha1: String, mediatype: MediaType, source: AbsUri)(implicit neo: Neo): Blob =
 			Blob(Neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediatype.value, "source" -> source.toString()))
 
+		def fromStory(desc: Story)(implicit neo: Neo): ArchiveNode = {
+			desc match {
+				case Story.Failed(reason) => throw new IllegalArgumentException(reason.toString())
+				case pointer@Story.More(_, _) => page(pointer)
+				case chap@Story.Chapter(_, _) => chapter(chap)
+				case asset@Story.Asset(_, _, _) => Vault.create.asset(asset)
+				case core@Story.Core(_, _, _, _) => Vault.create.core(core)
+			}
+		}
+		
 	}
 
 	object update {
-		def core(desc: Story.Core)(implicit neo: Neo): coin.Core = neo.txs {
-			neo.node(label.Core, "id", desc.id) match {
-				case None => create.core(desc)
-				case Some(node) =>
-					node.getPropertyKeys.asScala.foreach(node.removeProperty)
-					(Metadata.prefix(desc.metadata) + ("name" -> desc.name) + ("id" -> desc.id) + ("kind" -> desc.kind)).foreach { case (k, v) => node.setProperty(k, v) }
-					Core(node)
-			}
-		}
 
 		def collection(narrator: Narrator)(implicit neo: Neo): Collection = neo.txs {
 			val col = Vault.find.collection(narrator.id)

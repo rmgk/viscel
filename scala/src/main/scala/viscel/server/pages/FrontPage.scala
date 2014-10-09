@@ -66,7 +66,7 @@ class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLo
 					make_nodelist(pos + 1, link_node(assetNode, pos) :: StringFrag(" ") :: done, rest)
 
 				case (pageNode: Page) :: rest =>
-					val more = pageNode.describes.fold(List[ArchiveNode]())(_.layer)
+					val more = Traversal.layerBelow(pageNode.self).map(ArchiveNode.apply)
 					make_nodelist(pos, done, more ::: rest)
 
 				case (chapterNode: Chapter) :: _ =>
@@ -88,7 +88,7 @@ class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLo
 			case Nil => acc
 
 			case (pageNode: Page) :: rest =>
-				val more = pageNode.describes.map(_.layer).getOrElse(Nil)
+				val more = Traversal.layerBelow(pageNode.self).map(ArchiveNode.apply)
 				makeChapterList(more ::: rest, headline, acc)
 
 			case (chapterNode: Chapter) :: rest =>
@@ -111,5 +111,5 @@ class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLo
 		}
 	}
 
-	def chapterlist = makeChapterList(collection.describes.fold(List[ArchiveNode]()) { _.layer }, None, Nil).reverse
+	def chapterlist = makeChapterList(Traversal.layerBelow(collection.self).map(ArchiveNode.apply), None, Nil).reverse
 }
