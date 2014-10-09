@@ -8,7 +8,8 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
 import spray.httpx.encoding._
-import viscel.description.Story.Asset
+import viscel.narration.Story
+import Story.Asset
 import viscel.sha1hex
 import viscel.store.{Neo, Vault}
 

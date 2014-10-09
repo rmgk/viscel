@@ -3,9 +3,8 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.narration.Util._
-import viscel.narration.{Narrator, Selection}
-import viscel.description.Story.{Chapter, More}
-import viscel.description.Story
+import viscel.narration.{Story, Narrator, Selection}
+import Story.{Chapter, More}
 
 object Flipside extends Narrator {
 

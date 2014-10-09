@@ -5,9 +5,8 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.narration.Util._
-import viscel.narration.{Narrator, Selection}
-import viscel.description.Story
-import viscel.description.Story.{More, Chapter}
+import viscel.narration.{Story, Narrator, Selection}
+import Story.{More, Chapter}
 
 import scala.language.implicitConversions
 

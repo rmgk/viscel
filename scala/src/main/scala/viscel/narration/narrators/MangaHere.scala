@@ -4,9 +4,8 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.Util._
-import viscel.narration.{Narrator, Selection}
+import viscel.narration.{Story, Narrator, Selection}
 import viscel.crawler.AbsUri
-import viscel.description.Story
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map

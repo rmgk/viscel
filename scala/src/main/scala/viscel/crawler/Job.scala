@@ -17,16 +17,16 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 
 	val shallow = false
 
-	override def toString: String = core.toString
+	override def toString: String = s"Job(${core.toString})"
 
-	def selectNext(from: Node): Option[StoryCoin] =
+	private def selectNext(from: Node): Option[StoryCoin] =
 		Traversal.findForward {
 			case Coin.isPage(page) if page.self.to(rel.describes).isEmpty => Some(page)
 			case Coin.isAsset(asset) if (!shallow) && asset.blob.isEmpty => Some(asset)
 			case _ => None
 		}(from)
 
-	def writeAsset(assetNode: Asset)(blob: Network.Blob): Unit = {
+	private def writeAsset(assetNode: Asset)(blob: Network.Blob): Unit = {
 		logger.debug(s"$core: received blob, applying to $assetNode")
 		val path = Paths.get(viscel.hashToFilename(blob.sha1))
 		Files.createDirectories(path.getParent())
@@ -34,7 +34,7 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 		neo.txs { assetNode.blob = Vault.create.blob(blob.sha1, blob.mediatype, assetNode.source)(neo) }
 	}
 
-	def writePage(pageNode: Page)(doc: Document): Unit = {
+	private def writePage(pageNode: Page)(doc: Document): Unit = {
 		logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pageNode")
 		ArchiveManipulation.applyNarration(pageNode.self, core.wrap(doc, pageNode.story))(neo)
 	}
@@ -47,8 +47,7 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 		}
 	}
 
-
-	def run(node: Node): Future[Unit] = nextRequest(node) match {
+	private def run(node: Node): Future[Unit] = nextRequest(node) match {
 		case None => Future.successful(Unit)
 		case Some(Network.DelayedRequest(request, continue)) =>
 			Network.getResponse(request, iopipe).flatMap { res =>
@@ -59,7 +58,7 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 			}(ec)
 	}
 
-	def nextRequest(node: Node): Option[Network.DelayedRequest[Node]] = neo.txs {
+	private def nextRequest(node: Node): Option[Network.DelayedRequest[Node]] = neo.txs {
 		selectNext(node) match {
 			case None => None
 			case Some(asset@Asset(_)) => Vault.find.blob(asset.source)(neo) match {

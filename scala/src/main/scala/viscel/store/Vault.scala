@@ -3,9 +3,8 @@ package viscel.store
 import org.neo4j.graphdb.Node
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import spray.http.MediaType
-import viscel.narration.Narrator
+import viscel.narration.{Story, Narrator}
 import viscel.crawler.AbsUri
-import viscel.description.Story
 import viscel.store.coin.{Asset, Blob, Chapter, Collection, Config, Core, Page, User}
 
 import scala.Predef.any2ArrowAssoc

@@ -2,7 +2,7 @@ package viscel.store
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.description.Story
+import viscel.narration.Story
 import viscel.store.Traversal.{findBackward, findForward}
 
 import scala.annotation.tailrec

@@ -3,12 +3,8 @@ package viscel.narration
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.narrators._
-import viscel.description.Story
-import viscel.store.{Neo, label, Vault, coin}
+import viscel.store.{Neo, label, coin}
 
-import viscel.store.coin.Collection
-
-import scala.collection.concurrent
 import scala.collection.immutable.Set
 
 trait Narrator {

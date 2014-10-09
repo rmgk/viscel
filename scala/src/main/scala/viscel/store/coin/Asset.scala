@@ -2,7 +2,7 @@ package viscel.store.coin
 
 import org.neo4j.graphdb.Node
 import viscel.crawler.AbsUri
-import viscel.description.Story
+import viscel.narration.Story
 import viscel.store.{label, rel, Metadata, StoryCoin, NodeOps}
 
 import scala.annotation.tailrec
