@@ -4,9 +4,9 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.description._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
+import viscel.description._
 
 import scala.Predef.conforms
 

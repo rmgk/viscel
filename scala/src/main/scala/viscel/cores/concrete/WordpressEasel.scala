@@ -2,9 +2,9 @@ package viscel.cores.concrete
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.description.{Description, Pointer}
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
+import viscel.description.{Description, Pointer}
 
 import scala.collection.immutable.Set
 

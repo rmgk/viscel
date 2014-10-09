@@ -3,9 +3,9 @@ package viscel.cores.concrete
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.description._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
+import viscel.description._
 
 object Everafter extends Core with StrictLogging {
 	def archive = Pointer("http://ea.snafu-comics.com/archive.php", "archive") :: Nil

@@ -1,4 +1,4 @@
-package viscel.server.pages
+package viscel.server
 
 import spray.http.{ContentType, HttpCharsets, HttpEntity, HttpResponse, MediaTypes}
 import viscel.store.Neo
@@ -8,7 +8,7 @@ import scalatags.Text.all._
 
 trait HtmlPage extends HtmlPageUtils {
 
-	def response: HttpResponse = Neo.txts(s"create response $Title") {
+	def response(implicit neo: Neo): HttpResponse = neo.txts(s"create response $Title") {
 		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
 			"<!DOCTYPE html>" + fullHtml.toString))
 	}

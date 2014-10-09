@@ -2,9 +2,9 @@ package viscel.cores.concrete
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.description._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
+import viscel.description._
 
 object Flipside extends Core {
 

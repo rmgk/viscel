@@ -1,6 +1,8 @@
 package viscel.server.pages
 
-import viscel.store.{UserNode, Util => StoreUtil}
+import viscel.server.HtmlPage
+import viscel.store.nodes.UserNode
+import viscel.store.{Util => StoreUtil}
 
 import scalatags.Text.all._
 
@@ -17,8 +19,4 @@ class SearchPage(user: UserNode, text: String) extends HtmlPage {
 			.map { cn => link_core(cn) }
 		make_fieldset(text, containing)(class_group) :: Nil
 	}
-}
-
-object SearchPage {
-	def apply(user: UserNode, text: String) = new SearchPage(user, text).response
 }

@@ -4,9 +4,9 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.description._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
+import viscel.description._
 
 
 object Twokinds extends Core with StrictLogging {

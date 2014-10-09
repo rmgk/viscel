@@ -1,10 +1,10 @@
 package viscel.cores.concrete
 
 import org.jsoup.nodes.Document
-import viscel.crawler.AbsUri
-import viscel.description._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
+import viscel.crawler.AbsUri
+import viscel.description._
 
 
 object JayNaylor {

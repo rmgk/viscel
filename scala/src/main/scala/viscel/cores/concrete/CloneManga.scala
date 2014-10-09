@@ -3,12 +3,11 @@ package viscel.cores.concrete
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.description._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
+import viscel.description._
 
-import scala.Predef.any2ArrowAssoc
-import scala.Predef.augmentString
+import scala.Predef.{any2ArrowAssoc, augmentString}
 import scala.collection.immutable.Map
 
 object CloneManga {

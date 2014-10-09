@@ -2,7 +2,9 @@ package viscel.server.pages
 
 import spray.can.server.Stats
 import spray.http.HttpResponse
-import viscel.store.{ConfigNode, Neo, UserNode, label}
+import viscel.server.HtmlPage
+import viscel.store.nodes.UserNode
+import viscel.store.{Neo, Nodes, label}
 
 import scala.Predef.any2ArrowAssoc
 import scalatags.Text.all._
@@ -13,7 +15,7 @@ class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {
 	override def bodyId = "stats"
 
 	def mainPart = {
-		val cn = ConfigNode()
+		val cn = Nodes.config()(Neo)
 		div(class_info)(make_table(
 			"Downloaded :" -> cn.downloaded.toString,
 			"Downloads :" -> cn.downloads.toString,
@@ -35,8 +37,4 @@ class StatsPage(user: UserNode, stats: Stats) extends HtmlPage {
 	def navigation = link_main("index") :: Nil
 
 	def sidePart = "" :: Nil
-}
-
-object StatsPage {
-	def apply(user: UserNode, stats: Stats): HttpResponse = new StatsPage(user, stats).response
 }

@@ -3,10 +3,10 @@ package viscel.cores.concrete
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.crawler.AbsUri
-import viscel.description._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
+import viscel.crawler.AbsUri
+import viscel.description._
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map

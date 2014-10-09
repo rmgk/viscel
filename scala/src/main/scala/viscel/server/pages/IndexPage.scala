@@ -1,6 +1,7 @@
 package viscel.server.pages
 
-import viscel.store.UserNode
+import viscel.server.HtmlPage
+import viscel.store.nodes.UserNode
 
 import scala.Predef.conforms
 import scalatags.Text.all.SeqFrag
@@ -38,8 +39,4 @@ class IndexPage(user: UserNode) extends HtmlPage {
 		div(class_main)(mainPart),
 		div(class_side)(sidePart),
 		div(class_navigation)(navigation))
-}
-
-object IndexPage {
-	def apply(user: UserNode) = new IndexPage(user).response
 }

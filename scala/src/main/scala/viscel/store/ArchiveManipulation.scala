@@ -3,6 +3,7 @@ package viscel.store
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.description._
+import viscel.store.nodes.AssetNode
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -81,17 +82,17 @@ object ArchiveManipulation {
 		layer
 	}
 
-	def create(desc: Description): ArchiveNode = {
+	def create(desc: Description)(implicit neo: Neo): ArchiveNode = {
 		desc match {
 			case FailedDescription(reason) => throw new IllegalArgumentException(reason.toString())
-			case Pointer(loc, pagetype) => PageNode.create(loc, pagetype)
-			case chap@Chapter(_, _) => ChapterNode.create(chap)
-			case asset@Asset(_, _, _) => AssetNode.create(asset)
-			case core@CoreDescription(_, _, _, _) => CoreNode.updateOrCreate(core)
+			case pointer@Pointer(_, _) => Nodes.create.page(pointer)
+			case chap@Chapter(_, _) => Nodes.create.chapter(chap)
+			case asset@Asset(_, _, _) => Nodes.create.asset(asset)
+			case core@CoreDescription(_, _, _, _) => Nodes.create.core(core)
 		}
 	}
 
-	def replaceLayer(oldLayer: List[ArchiveNode], oldDescriptions: List[Description], descriptions: List[Description]): List[ArchiveNode] = {
+	def replaceLayer(oldLayer: List[ArchiveNode], oldDescriptions: List[Description], descriptions: List[Description])(implicit neo: Neo): List[ArchiveNode] = {
 		val oldMap = mutable.Map(oldDescriptions zip oldLayer: _*)
 		val newLayer = descriptions.map { desc =>
 			oldMap.get(desc) match {

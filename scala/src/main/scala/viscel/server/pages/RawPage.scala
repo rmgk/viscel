@@ -2,7 +2,9 @@ package viscel.server.pages
 
 import org.neo4j.graphdb.Direction
 import spray.http.HttpResponse
-import viscel.store.{Neo, UserNode, ViscelNode}
+import viscel.server.HtmlPage
+import viscel.store.nodes.UserNode
+import viscel.store.{Neo, Nodes, ViscelNode}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.JavaConverters._
@@ -24,19 +26,15 @@ class RawPage(user: UserNode, vnode: ViscelNode) extends HtmlPage {
 	def sidePart = {
 		val outgoing = Neo.txs {
 			vnode.self.getRelationships(Direction.OUTGOING).asScala.map { rel =>
-				rel.getType.name -> ViscelNode(rel.getEndNode).fold(n => link_raw(n, n.toString), StringFrag)
+				rel.getType.name -> Nodes.wrap(rel.getEndNode).fold(n => link_raw(n, n.toString), StringFrag)
 			}.toIndexedSeq.sortBy(_._1)
 		}
 		val incoming = Neo.txs {
 			vnode.self.getRelationships(Direction.INCOMING).asScala.map { rel =>
-				rel.getType.name -> ViscelNode(rel.getStartNode).fold(n => link_raw(n, n.toString), StringFrag)
+				rel.getType.name -> Nodes.wrap(rel.getStartNode).fold(n => link_raw(n, n.toString), StringFrag)
 			}.toIndexedSeq.sortBy(_._1)
 		}
 		Seq[Frag](fieldset(class_info)(legend("Outgoing"), make_table(outgoing: _*)),
 			fieldset(class_info)(legend("Incoming"), make_table(incoming: _*)))
 	}
-}
-
-object RawPage {
-	def apply(user: UserNode, vnode: ViscelNode): HttpResponse = new RawPage(user, vnode).response
 }

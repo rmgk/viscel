@@ -1,8 +1,9 @@
-package viscel.server.pages
+package viscel.server
 
 import spray.http.MediaTypes
 import viscel.cores.Core
-import viscel.store.{AssetNode, BlobNode, CollectionNode, NodeOps, ViscelNode}
+import viscel.store.nodes.{AssetNode, BlobNode, CollectionNode}
+import viscel.store.{NodeOps, ViscelNode}
 
 import scala.Predef.conforms
 import scalatags.Text.Tag
@@ -92,7 +93,7 @@ trait MetaNavigation extends HtmlPage {
 		|	document.location.pathname = "$location";
 		|	return false;
 		|}
-		""").stripMargin
+		|""").stripMargin
 
 	def keyNavigation(prev: Option[String] = None, next: Option[String] = None, up: Option[String] = None, down: Option[String] = None) =
 		Predef.augmentString( s"""
@@ -104,6 +105,6 @@ trait MetaNavigation extends HtmlPage {
 			|${ down.fold("") { loc => keypress(loc, 40, 83, 66, 78) } }
 			| }
 			|}
-			""").stripMargin
+			|""").stripMargin
 
 }

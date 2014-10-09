@@ -1,9 +1,9 @@
 package viscel.cores.concrete
 
 import org.jsoup.nodes.Document
-import viscel.description._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
+import viscel.description._
 
 import scala.collection.immutable.Set
 

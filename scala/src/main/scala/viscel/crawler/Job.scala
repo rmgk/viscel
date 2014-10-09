@@ -7,7 +7,9 @@ import org.jsoup.nodes.Document
 import spray.client.pipelining._
 import viscel.cores.Core
 import viscel.store._
+import viscel.store.nodes.{AssetNode, CollectionNode, PageNode}
 
+import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -17,10 +19,10 @@ class Job(val core: Core, neo: Neo, iopipe: SendReceive, ec: ExecutionContext) e
 
 	override def toString: String = core.toString
 
-	def selectNext(from: ArchiveNode): Option[ArchiveNode] = neo.txs {
+	def selectNext(from: ArchiveNode): Option[ArchiveNode] = {
 		from.findForward {
-			case PageNode(page) if page.describes.isEmpty => page
-			case AssetNode(asset) if (!shallow) && asset.blob.isEmpty => asset
+			case page@PageNode(_) if page.describes.isEmpty => page
+			case asset@AssetNode(_) if (!shallow) && asset.blob.isEmpty => asset
 		}
 	}
 
@@ -29,7 +31,7 @@ class Job(val core: Core, neo: Neo, iopipe: SendReceive, ec: ExecutionContext) e
 		val path = Paths.get(viscel.hashToFilename(blob.sha1))
 		Files.createDirectories(path.getParent())
 		Files.write(path, blob.buffer)
-		neo.txs { assetNode.blob = BlobNode.create(blob.sha1, blob.mediatype, assetNode.source) }
+		neo.txs { assetNode.blob = Nodes.create.blob(blob.sha1, blob.mediatype, assetNode.source)(neo) }
 	}
 
 	def writePage(pageNode: PageNode)(doc: Document): Unit = {
@@ -37,7 +39,7 @@ class Job(val core: Core, neo: Neo, iopipe: SendReceive, ec: ExecutionContext) e
 		ArchiveManipulation.applyDescription(pageNode, core.wrap(doc, pageNode.description))(neo)
 	}
 
-	def start(collection: CollectionNode): Future[Unit] = {
+	def start(collection: CollectionNode): Future[Unit] = neo.txs {
 		ArchiveManipulation.applyDescription(collection, core.archive)(neo)
 		collection.describes match {
 			case None => Future.successful(Unit)
@@ -49,15 +51,17 @@ class Job(val core: Core, neo: Neo, iopipe: SendReceive, ec: ExecutionContext) e
 		case None => Future.successful(Unit)
 		case Some(Network.DelayedRequest(request, continue)) =>
 			Network.getResponse(request)(iopipe).flatMap { res =>
-				val next = continue(res)
-				run(next)
+				neo.txs {
+					val next = continue(res)
+					run(next)
+				}
 			}(ec)
 	}
 
-	def next(node: ArchiveNode): Option[Network.DelayedRequest[ArchiveNode]] = {
+	def next(node: ArchiveNode): Option[Network.DelayedRequest[ArchiveNode]] = neo.txs {
 		selectNext(node) match {
 			case None => None
-			case Some(AssetNode(asset)) => BlobNode.find(asset.source) match {
+			case Some(asset@AssetNode(_)) => Nodes.find.blob(asset.source)(neo) match {
 				case Some(blob) =>
 					logger.info(s"use cached ${ blob.sha1 } for ${ asset.source }")
 					asset.blob = blob
@@ -69,8 +73,8 @@ class Job(val core: Core, neo: Neo, iopipe: SendReceive, ec: ExecutionContext) e
 	}
 
 	private def request(node: ArchiveNode): Network.DelayedRequest[Unit] = node match {
-		case PageNode(page) => Network.documentRequest(page.location).map { writePage(page) }
-		case AssetNode(asset) => Network.blobRequest(asset.description).map { writeAsset(asset) }
+		case page@PageNode(_) => Network.documentRequest(page.location).map { writePage(page) }
+		case asset@AssetNode(_) => Network.blobRequest(asset.description).map { writeAsset(asset) }
 	}
 
 }

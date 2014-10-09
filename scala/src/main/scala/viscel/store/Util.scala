@@ -3,8 +3,9 @@ package viscel.store
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.tooling.GlobalGraphOperations
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.time
 import viscel.cores.Core
+import viscel.store.nodes.CollectionNode
+import viscel.time
 
 import scala.Predef.any2ArrowAssoc
 import scala.annotation.tailrec
@@ -12,30 +13,8 @@ import scala.collection.JavaConverters._
 
 object Util extends StrictLogging {
 
-	def purgeUnreferenced() = {
-		//		val collections = Neo.txs {
-		//			list.filter { col =>
-		//				!col.self.outgoing(rel.bookmark).exists { r =>
-		//					!Option(r.getEndNode).flatMap { _.from(rel.bookmarked) }.isEmpty
-		//				}
-		//			}.toIndexedSeq
-		//		}
-		//		collections.foreach { col =>
-		//			Neo.txs {
-		//				logger.info(s"deleting ${col.name}")
-		//				col.children.foreach { ch =>
-		//					ch.children.foreach { el =>
-		//						el.deleteNode(warn = false)
-		//					}
-		//					ch.deleteNode()
-		//				}
-		//				col.deleteNode()
-		//			}
-		//		}
-	}
-
 	def listCollections: Vector[CollectionNode] = Neo.tx { db =>
-		GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).asScala.map { CollectionNode(_) }.toVector
+		GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).asScala.map { CollectionNode.apply }.toVector
 	}
 
 	def listCores: Vector[Core] = Core.availableCores.toVector

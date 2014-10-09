@@ -1,7 +1,9 @@
 package viscel.server.pages
 
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.server.{MetaNavigation, MaskLocation, HtmlPage}
 import viscel.store._
+import viscel.store.nodes._
 
 import scala.Predef.{any2ArrowAssoc, _}
 import scala.annotation.tailrec
@@ -15,12 +17,12 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 
 	override def maskLocation = path_front(collection)
 
-	val first = collection.first
-	val second = first.flatMap(_.nextAsset)
-	val third = second.flatMap(_.nextAsset)
-	val previewLeft = user.getBookmark(collection).orElse(third).orElse(second).orElse(first)
-	val previewMiddle = previewLeft.flatMap { _.prevAsset }
-	val previewRight = previewMiddle.flatMap { _.prevAsset }
+	lazy val first = collection.first
+	lazy val second = first.flatMap(_.nextAsset)
+	lazy val third = second.flatMap(_.nextAsset)
+	lazy val previewLeft = user.getBookmark(collection).orElse(third).orElse(second).orElse(first)
+	lazy val previewMiddle = previewLeft.flatMap { _.prevAsset }
+	lazy val previewRight = previewMiddle.flatMap { _.prevAsset }
 
 	def bmRemoveForm(bm: AssetNode) = form_post(path_nid(collection),
 		input(`type` := "hidden", name := "remove_bookmark", value := collection.nid.toString),
@@ -110,8 +112,4 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 	}
 
 	def chapterlist = makeChapterList(collection.describes.fold(List[ArchiveNode]()) { _.layer }, None, Nil).reverse
-}
-
-object FrontPage {
-	def apply(user: UserNode, collection: CollectionNode) = new FrontPage(user, collection).response
 }

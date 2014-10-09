@@ -1,10 +1,9 @@
-package viscel.store
+package viscel.store.nodes
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.store._
 
-import scala.Predef.any2ArrowAssoc
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
@@ -17,13 +16,11 @@ import scala.language.implicitConversions
  * (u) -[:bookmarked]-> (b)
  * (c) -[:bookmark]-> (b) -[:bookmarks]-> (e)
  */
-class UserNode(val self: Node) extends ViscelNode with StrictLogging {
-	def selfLabel = label.User
-
+final case class UserNode(self: Node) extends ViscelNode {
 	def name: String = Neo.txs { self[String]("name") }
 	def password: String = Neo.txs { self[String]("password") }
 
-	def getBookmark(cn: CollectionNode): Option[AssetNode] = Neo.txs { getBookmarkNode(cn).flatMap { bookmarkToElement } }
+	def getBookmark(cn: CollectionNode): Option[AssetNode] = Neo.txs { getBookmarkNode(cn).flatMap { bookmarkToAsset } }
 
 	def setBookmark(en: AssetNode): Unit = Neo.txts(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
 		def createBookmark() = {
@@ -38,10 +35,10 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 	}
 
 	def bookmarks: Vector[AssetNode] = Neo.txs {
-		self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { bookmarkToElement }.toVector
+		self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { bookmarkToAsset }.toVector
 	}
 
-	def bookmarkToElement(bmn: Node): Option[AssetNode] = Neo.txs {
+	def bookmarkToAsset(bmn: Node): Option[AssetNode] = Neo.txs {
 		bmn.to(rel.bookmarks) match {
 			case Some(n) => Some(AssetNode(n))
 			case None =>
@@ -78,11 +75,4 @@ class UserNode(val self: Node) extends ViscelNode with StrictLogging {
 		cn.self.outgoing(rel.bookmark).view.map { _.getEndNode }.find { bmn => bmn.from(rel.bookmarked).get === this.self }
 	}
 
-}
-
-object UserNode {
-	def apply(node: Node) = new UserNode(node)
-	def apply(name: String) = Neo.node(label.User, "name", name).map { new UserNode(_) }
-
-	def create(name: String, password: String) = UserNode(Neo.create(label.User, "name" -> name, "password" -> password))
 }

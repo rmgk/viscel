@@ -1,16 +1,17 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import org.scalactic.TypeCheckedTripleEquals._
 import viscel.description._
+import viscel.store.label.SimpleLabel
+import viscel.store.nodes._
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 
-trait ArchiveNode extends ViscelNode {
 
-	import viscel.store.ArchiveManipulation._
+abstract class ArchiveNode extends ViscelNode {
+
 
 	def description: Description
 
@@ -33,7 +34,7 @@ trait ArchiveNode extends ViscelNode {
 	def collection: CollectionNode = Neo.txs {
 		@tailrec
 		def rewind(node: Node): Node = {
-			val begin = layerBegin(node)
+			val begin = ArchiveManipulation.layerBegin(node)
 			begin.from(rel.describes) match {
 				case None => begin
 				case Some(upper) => rewind(upper)
@@ -66,16 +67,18 @@ trait ArchiveNode extends ViscelNode {
 			case Some(nextNode) => nextNode.findForward(p)
 		}
 	}
-	def deleteRecursive(): Unit = deleteNode(warn = false)
+	def deleteRecursive()(implicit neo: Neo): Unit = Neo.delete(self)
 }
 
 object ArchiveNode {
 
 	def apply(node: Node): ArchiveNode = Neo.txs { node.getLabels.asScala.toList } match {
-		case List(l) if l === label.Chapter => ChapterNode(node)
-		case List(l) if l === label.Asset => AssetNode(node)
-		case List(l) if l === label.Page => PageNode(node)
-		case List(l) if l === label.Core => CoreNode(node)
+		case List(l) => SimpleLabel(l) match {
+			case label.Chapter => ChapterNode(node)
+			case label.Asset => AssetNode(node)
+			case label.Page => PageNode(node)
+			case label.Core => CoreNode(node)
+		}
 		case List(l) => throw new IllegalArgumentException(s"unhandled label $l for $node")
 		case list: List[_] => throw new IllegalArgumentException(s"to many labels $list for $node")
 	}

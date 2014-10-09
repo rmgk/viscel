@@ -1,6 +1,7 @@
 package viscel.server.pages
 
-import viscel.store.UserNode
+import viscel.server.HtmlPage
+import viscel.store.nodes.UserNode
 
 import scalatags.Text.all._
 
@@ -30,8 +31,4 @@ class SelectionPage(user: UserNode) extends HtmlPage {
 	def navigation: Seq[Frag] = link_main("index") :: Nil
 
 	def sidePart = "" :: Nil
-}
-
-object SelectionPage {
-	def apply(user: UserNode) = new SelectionPage(user).response
 }

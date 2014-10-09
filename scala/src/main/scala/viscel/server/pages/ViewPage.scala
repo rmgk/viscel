@@ -1,7 +1,8 @@
 package viscel.server.pages
 
 import spray.http.HttpResponse
-import viscel.store.{AssetNode, UserNode}
+import viscel.server.{MetaNavigation, MaskLocation, HtmlPage}
+import viscel.store.nodes.{AssetNode, UserNode}
 
 import scalatags.Text.all._
 
@@ -33,8 +34,4 @@ class ViewPage(user: UserNode, enode: AssetNode) extends HtmlPage with MetaNavig
 		a(href := enode.origin.toString)(class_extern)("site"),
 		" ",
 		link_node(enode.nextAsset, "next"))
-}
-
-object ViewPage {
-	def apply(user: UserNode, enode: AssetNode): HttpResponse = new ViewPage(user, enode).response
 }

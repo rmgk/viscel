@@ -1,7 +1,7 @@
 package viscel
 
 import java.io.File
-import java.util.concurrent.Executors
+import java.util.concurrent.{TimeUnit, _}
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
@@ -14,10 +14,10 @@ import spray.can.Http
 import spray.client.pipelining
 import viscel.crawler.Clockwork
 import viscel.store._
+import viscel.store.nodes.{CollectionNode, UserNode}
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-
-
 import scala.language.implicitConversions
 
 object Viscel extends StrictLogging {
@@ -52,7 +52,7 @@ object Viscel extends StrictLogging {
 		sys.addShutdownHook { Neo.shutdown() }
 
 		if (!nodbwarmup.?) time("warmup db") { Neo.txs {} }
-		logger.info(s"config version: ${ ConfigNode().version }")
+		logger.info(s"config version: ${ Nodes.config()(Neo).version }")
 
 		if (createIndexes.?) {
 			Neo.execute("create index on :Collection(id)")
@@ -62,7 +62,7 @@ object Viscel extends StrictLogging {
 		}
 
 		if (purgeUnreferenced.?) {
-			viscel.store.Util.purgeUnreferenced()
+			//viscel.store.Util.purgeUnreferenced()
 		}
 
 		//		importdb.get.foreach(dbdir => new tools.LegacyImporter(dbdir.toString).importAll)
@@ -76,13 +76,13 @@ object Viscel extends StrictLogging {
 		for {
 			dotpath <- makedot.get
 			uname <- username.get
-			un <- UserNode(uname)
+			un <- Nodes.find.user(uname)(Neo)
 		} { visualizeUser(un, dotpath) }
 
 		for {
 			dotpath <- makedot.get
 			cid <- collectionid.get
-			cn <- CollectionNode(cid)
+			cn <- Nodes.find.collection(cid)(Neo)
 		} { visualizeCollection(cn, dotpath) }
 
 		implicit val system = ActorSystem()
@@ -96,7 +96,9 @@ object Viscel extends StrictLogging {
 		}
 
 		if (!nocore.?) {
-			Clockwork.handleHints(ExecutionContext.Implicits.global, iopipe, Neo)
+			Clockwork.handleHints(ExecutionContext.fromExecutor(new ThreadPoolExecutor(
+				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])),
+				iopipe, Neo)
 		}
 
 		if (shutdown.?) {

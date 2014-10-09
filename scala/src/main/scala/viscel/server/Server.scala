@@ -2,57 +2,50 @@ package viscel.server
 
 import java.io.File
 
-import akka.actor.{ActorRefFactory, Actor}
+import akka.actor.{Actor, ActorRefFactory}
 import akka.pattern.ask
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import org.scalactic.Good
+import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
 import spray.can.server.Stats
 import spray.http.ContentType
-import spray.routing.authentication.{BasicAuth, UserPassAuthenticator, UserPass}
+import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
+import viscel.cores.Core
 import viscel.crawler.Clockwork
-import org.scalactic.TypeCheckedTripleEquals._
 import viscel.server.pages._
 import viscel.store._
-import viscel.cores.Core
+import viscel.store.nodes._
 
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.collection.immutable.Map
-import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
-// we don't implement our route structure directly in the service actor because
-// we want to be able to test it independently, without having to spin up an actor
-class Server extends Actor with DefaultRoutes with StrictLogging {
 
-	// the HttpService trait defines only one abstract member, which
-	// connects the services environment to the enclosing actor or test
+class Server extends Actor with HttpService with StrictLogging {
+
+	implicit val neo = Neo
+
 	def actorRefFactory: ActorRefFactory = context
 
-	// this actor only runs our route, but you could add
-	// other things here, like request stream processing,
-	// timeout handling or alternative handler registration
 	override def receive: Receive = runRoute {
 		//(encodeResponse(Gzip) | encodeResponse(Deflate) | encodeResponse(NoEncoding)) {
 		authenticate(loginOrCreate) { user => handleFormFields(user) }
 		//}
 	}
 
-}
-
-trait DefaultRoutes extends HttpService {
-	this: Server =>
-
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
-	implicit def executionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
+	implicit def implicitExecutionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 
 	var userCache = Map[String, UserNode]()
 
 	def getUserNode(name: String, password: String): UserNode = {
 		userCache.getOrElse(name, {
-			val user = UserNode(name).getOrElse {
+			val user = Nodes.find.user(name).getOrElse {
 				logger.warn(s"create new user $name $password")
-				UserNode.create(name, password)
+				Nodes.create.user(name, password)
 			}
 			userCache += name -> user
 			user
@@ -76,14 +69,24 @@ trait DefaultRoutes extends HttpService {
 
 	def handleFormFields(user: UserNode) =
 		formFields('bookmark.?.as[Option[Long]], 'remove_bookmark.?.as[Option[Long]]) { (bm, remove) =>
-			bm.foreach { bid => user.setBookmark(AssetNode(bid)) }
-			remove.foreach { colid => user.deleteBookmark(CollectionNode(colid)) }
+			bm.foreach { bid =>
+				Nodes.byID(bid) match {
+					case Good(asset@AssetNode(_)) => user.setBookmark(asset)
+					case other => logger.warn(s"not an asset: $other")
+				}
+			}
+			remove.foreach { colid =>
+				Nodes.byID(colid) match {
+					case Good(col@CollectionNode(_)) => user.deleteBookmark(col)
+					case other => logger.warn(s"not a collection: $other")
+				}
+			}
 			defaultRoute(user)
 		}
 
 	def defaultRoute(user: UserNode) =
 		(path("") | path("index")) {
-			complete(IndexPage(user))
+			complete(Pages.index(user))
 		} ~
 			path("stop") {
 				complete {
@@ -101,15 +104,17 @@ trait DefaultRoutes extends HttpService {
 			//				val filename = viscel.hashToFilename(hash)
 			//				getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
 			path("b" / LongNumber) { nid =>
-				val blob = BlobNode(nid)
-				val filename = viscel.hashToFilename(blob.sha1)
-				getFromFile(new File(filename), ContentType(blob.mediatype))
+				neo.txs {
+					val blob = Nodes.byID(nid).get.asInstanceOf[BlobNode]
+					val filename = viscel.hashToFilename(blob.sha1)
+					getFromFile(new File(filename), ContentType(blob.mediatype))
+				}
 			} ~
 			path("f" / Segment) { collectionId =>
 				rejectNone(Core.get(collectionId)) { core =>
 					val collection = Core.getCollection(core)
 					Clockwork.collectionHint(collection)
-					complete(FrontPage(user, collection))
+					complete(Pages.front(user, collection))
 				}
 			} ~
 			//			path("c" / Segment) { col =>
@@ -118,33 +123,37 @@ trait DefaultRoutes extends HttpService {
 			//				}
 			//			} ~
 			path("v" / Segment / IntNumber) { (col, pos) =>
-				rejectNone(CollectionNode(col)) { cn =>
-					rejectNone(cn(pos)) { en =>
-						Clockwork.archiveHint(en)
-						complete(ViewPage(user, en))
+				neo.txs {
+					rejectNone(Nodes.find.collection(col)) { cn =>
+						rejectNone(cn(pos)) { en =>
+							Clockwork.archiveHint(en)
+							complete(Pages.view(user, en))
+						}
 					}
 				}
 			} ~
 			path("i" / LongNumber) { id =>
-				val node = ViscelNode(id).get
-				node match {
-					case archiveNode: ArchiveNode => Clockwork.archiveHint(archiveNode)
-					case collectionNode: CollectionNode => Clockwork.collectionHint(collectionNode)
+				neo.txs {
+					val node = Nodes.byID(id).get
+					node match {
+						case archiveNode: ArchiveNode => Clockwork.archiveHint(archiveNode)
+						case collectionNode: CollectionNode => Clockwork.collectionHint(collectionNode)
+					}
+					complete(Pages(user, node))
 				}
-				complete(PageDispatcher(user, node))
 			} ~
 			path("r" / LongNumber) { id =>
-				complete(RawPage(user, ViscelNode(id).get))
+				complete(Pages.raw(user, Nodes.byID(id).get))
 			} ~
 			(path("s") & parameter('q)) { query =>
-				complete(SearchPage(user, query))
+				complete(Pages.search(user, query))
 			} ~
 			path("stats") {
 				complete {
 					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
 						.ask(Http.GetStats)(1.second)
 						.mapTo[Stats]
-					stats.map { StatsPage(user, _) }
+					stats.map { Pages.stats(user, _) }
 				}
 			} ~
 			path("core" / Segment) { coreId =>
