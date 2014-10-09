@@ -7,7 +7,7 @@ import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
 import viscel.crawler.AbsUri
 import viscel.description.Description
-import viscel.description.Description.{CoreDescription, Pointer}
+import viscel.description.Description.{Core, Pointer}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map
@@ -34,7 +34,7 @@ object MangaHere {
 		})
 	}
 
-	def getCore(desc: CoreDescription): Core = Generic(id = desc.id, name = desc.name, archiveUri = desc.metadata("start"))
+	def getCore(desc: Core): Core = Generic(id = desc.id, name = desc.name, archiveUri = desc.metadata("start"))
 
 	object MetaCore extends Core {
 		override def id: String = "Meta_MangaHere"
@@ -48,7 +48,7 @@ object MangaHere {
 					.fold(Bad(One("match error")): String Or One[ErrorMessage])(m => Good(m.group(1)))
 				}
 				withGood(uri_?, id_?) { (uri, id) =>
-					CoreDescription("MangaHere", s"MangaHere_$id", name, Map("start" -> uri.toString))
+					Core("MangaHere", s"MangaHere_$id", name, Map("start" -> uri.toString))
 				}
 			})
 	}

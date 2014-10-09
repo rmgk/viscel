@@ -12,6 +12,6 @@ final case class CoreNode(self: Node) extends ArchiveNode with Metadata {
 	def id: String = self[String]("id")
 	def name: String = self[String]("name")
 
-	override def description: CoreDescription = CoreDescription(kind, id, name, metadata())
+	override def description: Core = Core(kind, id, name, metadata())
 }
 

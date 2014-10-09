@@ -5,7 +5,7 @@ import org.scalactic._
 import spray.http.MediaType
 import viscel.cores.Core
 import viscel.crawler.AbsUri
-import viscel.description.Description.{Asset, Chapter, CoreDescription, Pointer}
+import viscel.description.Description.{Asset, Chapter, Core, Pointer}
 import viscel.store.nodes._
 
 import scala.Predef.any2ArrowAssoc
@@ -70,7 +70,7 @@ object Nodes {
 		def page(desc: Pointer)(implicit neo: Neo): PageNode =
 			PageNode(Neo.create(label.Page, "location" -> desc.loc.toString, "pagetype" -> desc.pagetype))
 
-		def core(desc: CoreDescription)(implicit neo: Neo): CoreNode =
+		def core(desc: Core)(implicit neo: Neo): CoreNode =
 			CoreNode(Neo.create(label.Core, Metadata.prefix(desc.metadata) + ("id" -> desc.id) + ("kind" -> desc.kind) + ("name" -> desc.name)))
 
 		def chapter(desc: Chapter)(implicit neo: Neo): ChapterNode =
@@ -85,7 +85,7 @@ object Nodes {
 	}
 
 	object update {
-		def core(desc: CoreDescription)(implicit neo: Neo): CoreNode = neo.txs {
+		def core(desc: Core)(implicit neo: Neo): CoreNode = neo.txs {
 			neo.node(label.Core, "id", desc.id) match {
 				case None => create.core(desc)
 				case Some(node) =>

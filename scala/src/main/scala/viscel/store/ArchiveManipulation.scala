@@ -3,7 +3,7 @@ package viscel.store
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.description.Description
-import viscel.description.Description.{CoreDescription, Asset, Chapter, Pointer, FailedDescription}
+import viscel.description.Description.{Core, Asset, Chapter, Pointer, Failed}
 import viscel.store.nodes.AssetNode
 
 import scala.annotation.tailrec
@@ -85,11 +85,11 @@ object ArchiveManipulation {
 
 	def create(desc: Description)(implicit neo: Neo): ArchiveNode = {
 		desc match {
-			case FailedDescription(reason) => throw new IllegalArgumentException(reason.toString())
+			case Failed(reason) => throw new IllegalArgumentException(reason.toString())
 			case pointer@Pointer(_, _) => Nodes.create.page(pointer)
 			case chap@Chapter(_, _) => Nodes.create.chapter(chap)
 			case asset@Asset(_, _, _) => Nodes.create.asset(asset)
-			case core@CoreDescription(_, _, _, _) => Nodes.create.core(core)
+			case core@Core(_, _, _, _) => Nodes.create.core(core)
 		}
 	}
 
