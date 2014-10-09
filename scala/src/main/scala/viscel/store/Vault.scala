@@ -82,7 +82,7 @@ object Vault {
 		def blob(sha1: String, mediatype: MediaType, source: AbsUri)(implicit neo: Neo): Blob =
 			Blob(Neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediatype.value, "source" -> source.toString()))
 
-		def fromStory(desc: Story)(implicit neo: Neo): ArchiveNode = {
+		def fromStory(desc: Story)(implicit neo: Neo): StoryCoin = {
 			desc match {
 				case Story.Failed(reason) => throw new IllegalArgumentException(reason.toString())
 				case pointer@Story.More(_, _) => page(pointer)

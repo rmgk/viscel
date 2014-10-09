@@ -1,14 +1,18 @@
 package viscel.server.pages
 
+import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.server.{MetaNavigation, MaskLocation, HtmlPage}
+import viscel.server.{HtmlPage, MaskLocation, MetaNavigation}
 import viscel.store._
 import viscel.store.coin._
 
-import scala.Predef.{any2ArrowAssoc, _}
+import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.annotation.tailrec
-import scalatags.Text.all._
-
+import scalatags.Text.Frag
+import scalatags.Text.attrs._
+import scalatags.Text.implicits.{intFrag, stringAttr, stringFrag}
+import scalatags.Text.tags.{SeqFrag, _}
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLocation with MetaNavigation {
 	override def Title = collection.name
@@ -37,9 +41,9 @@ class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLo
 
 	def navigation = Seq(
 		link_main("index"),
-		StringFrag(" – "),
+		stringFrag(" – "),
 		link_node(collection.first, "first"),
-		StringFrag(" – "),
+		stringFrag(" – "),
 		previewLeft.map { bmRemoveForm }.getOrElse("remove"))
 
 	def sidePart = Seq[Frag](
@@ -56,24 +60,24 @@ class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLo
 
 	override def navUp = Some(path_main)
 
-	def makePageList(chapterName: String, nodes: List[ArchiveNode]): (Frag, List[ArchiveNode]) = {
+	def makePageList(chapterName: String, nodes: List[Node]): (Frag, List[Node]) = {
 		@tailrec
-		def make_nodelist(pos: Int, done: List[Frag], remaining: List[ArchiveNode]): (List[Frag], List[ArchiveNode]) = {
+		def make_nodelist(pos: Int, done: List[Frag], remaining: List[Node]): (List[Frag], List[Node]) = {
 			remaining match {
 				case Nil => (done.reverse.drop(1), Nil)
 
-				case (assetNode: Asset) :: rest =>
-					make_nodelist(pos + 1, link_node(assetNode, pos) :: StringFrag(" ") :: done, rest)
+				case Coin.isAsset(assetNode) :: rest =>
+					make_nodelist(pos + 1, link_node(assetNode, pos) :: stringFrag(" ") :: done, rest)
 
-				case (pageNode: Page) :: rest =>
-					val more = Traversal.layerBelow(pageNode.self).map(ArchiveNode.apply)
+				case Coin.isPage(pageNode) :: rest =>
+					val more = Traversal.layerBelow(pageNode.self)
 					make_nodelist(pos, done, more ::: rest)
 
-				case (chapterNode: Chapter) :: _ =>
+				case Coin.isChapter(_) :: _ =>
 					(done.reverse.drop(1), remaining)
 
-				case (coreNode: Core) :: rest =>
-					make_nodelist(pos, StringFrag(s"Core: ${ coreNode.id }") :: br :: done, rest)
+				case Coin.isCore(coreNode) :: rest =>
+					make_nodelist(pos, stringFrag(s"Core: ${ coreNode.id }") :: br :: done, rest)
 
 				case _ :: _ => throw new IllegalArgumentException("unknown archive $head")
 			}
@@ -83,15 +87,15 @@ class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLo
 	}
 
 	@tailrec
-	final def makeChapterList(nodes: List[ArchiveNode], headline: Option[String], acc: List[Frag]): List[Frag] = {
+	final def makeChapterList(nodes: List[Node], headline: Option[String], acc: List[Frag]): List[Frag] = {
 		nodes match {
 			case Nil => acc
 
-			case (pageNode: Page) :: rest =>
-				val more = Traversal.layerBelow(pageNode.self).map(ArchiveNode.apply)
+			case Coin.isPage(pageNode) :: rest =>
+				val more = Traversal.layerBelow(pageNode.self)
 				makeChapterList(more ::: rest, headline, acc)
 
-			case (chapterNode: Chapter) :: rest =>
+			case Coin.isChapter(chapterNode) :: rest =>
 				val (pagelist, remaining) = makePageList(chapterNode.name, rest)
 				val volume = chapterNode.metadataOption("Volume")
 				volume match {
@@ -100,16 +104,16 @@ class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLo
 					case Some(volumeName) => makeChapterList(remaining, volume, h3(volumeName) :: pagelist :: acc)
 				}
 
-			case (assetNode: Asset) :: rest =>
+			case Coin.isAsset(assetNode) :: rest =>
 				val (pageList, remaining) = makePageList("", nodes)
 				makeChapterList(remaining, headline, pageList :: acc)
 
-			case (coreNode: Core) :: rest =>
-				makeChapterList(rest, headline, StringFrag(s"Core: ${ coreNode.id }") :: br :: acc)
+			case Coin.isCore(coreNode) :: rest =>
+				makeChapterList(rest, headline, stringFrag(s"Core: ${ coreNode.id }") :: br :: acc)
 
-			case _ :: _ => throw new IllegalArgumentException("unknown archive $head")
+			case other :: _ => throw new IllegalArgumentException(s"unknown archive ${other.getLabels.asScala.toList}")
 		}
 	}
 
-	def chapterlist = makeChapterList(Traversal.layerBelow(collection.self).map(ArchiveNode.apply), None, Nil).reverse
+	def chapterlist = makeChapterList(Traversal.layerBelow(collection.self), None, Nil).reverse
 }

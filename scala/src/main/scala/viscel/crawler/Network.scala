@@ -36,19 +36,17 @@ object Network extends StrictLogging {
 		case Failure(_) => Neo.txs { Vault.config()(Neo).download(0, success = false) }
 	}
 
-	def getResponse(request: HttpRequest): SendReceive => Future[HttpResponse] = iopipe => {
+	def getResponse(request: HttpRequest, iopipe: SendReceive): Future[HttpResponse] = {
 		val result = request ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
 		logger.info(s"get ${ request.uri } (${ request.headers })")
 		grabStats(result).map { decode(Gzip) ~> decode(Deflate) }
 	}
 
-	def documentRequest(uri: Uri): DelayedRequest[Document] =
-		DelayedRequest(
+	def documentRequest(uri: Uri): DelayedRequest[Document] = DelayedRequest(
 			request = Get(uri),
 			continue = res => Jsoup.parse(
 				res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
-				res.header[Location].fold(ifEmpty = uri)(_.uri).toString())
-		)
+				res.header[Location].fold(ifEmpty = uri)(_.uri).toString()))
 
 	def blobRequest(source: AbsUri, origin: AbsUri): DelayedRequest[Blob] =
 		DelayedRequest(
@@ -59,8 +57,6 @@ object Network extends StrictLogging {
 					mediatype = res.header[`Content-Type`].get.contentType.mediaType,
 					buffer = bytes,
 					sha1 = sha1hex(bytes))
-			}
-		)
-
+			})
 
 }

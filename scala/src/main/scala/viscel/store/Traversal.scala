@@ -39,7 +39,6 @@ object Traversal {
 		}
 	}
 
-
 	@tailrec
 	def origin(node: Node): Node = {
 		val begin = Traversal.layerBegin(node)
@@ -48,7 +47,6 @@ object Traversal {
 			case Some(upper) => origin(upper)
 		}
 	}
-
 
 	def prev(node: Node): Option[Node] = {
 		node.from(rel.narc) match {
@@ -68,7 +66,23 @@ object Traversal {
 	def next(node: Node): Option[Node] =
 		node.to(rel.describes).orElse(node.to(rel.narc)).orElse(uppernext(node))
 
+	@tailrec
+	final def findBackward[R](p: Node => Option[R])(node: Node): Option[R] = p(node) match {
+		case None => prev(node) match {
+			case None => None
+			case Some(prevNode) => findBackward(p)(prevNode)
+		}
+		case found@Some(_) => found
+	}
 
+	@tailrec
+	final def findForward[R](p: Node => Option[R])(node: Node): Option[R] = p(node) match {
+		case None => next(node) match {
+			case None => None
+			case Some(nextNode) => findForward(p)(nextNode)
+		}
+		case found@Some(_) => found
+	}
 
 	def layer(start: Node): List[Node] = {
 		@tailrec
@@ -78,7 +92,7 @@ object Traversal {
 		}
 		layerAcc(start, Nil).reverse
 	}
-	
+
 	def layerBelow(above: Node): List[Node] = above.to(rel.describes).fold[List[Node]](Nil)(layer)
 
 }

@@ -5,7 +5,7 @@ import viscel.description.Story
 import viscel.store._
 
 
-final case class Chapter(self: Node) extends ArchiveNode with Metadata {
+final case class Chapter(self: Node) extends StoryCoin with Metadata {
 
 	def name: String = self[String]("name")
 

@@ -4,12 +4,12 @@ import java.nio.file.{Files, Paths}
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
+import org.neo4j.graphdb.Node
 import spray.client.pipelining._
 import viscel.narration.Narrator
 import viscel.store._
 import viscel.store.coin.{Asset, Collection, Page}
 
-import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -19,12 +19,12 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 
 	override def toString: String = core.toString
 
-	def selectNext(from: ArchiveNode): Option[ArchiveNode] = {
-		from.findForward {
-			case page@Page(_) if page.self.to(rel.describes).isEmpty => page
-			case asset@Asset(_) if (!shallow) && asset.blob.isEmpty => asset
-		}
-	}
+	def selectNext(from: Node): Option[StoryCoin] =
+		Traversal.findForward {
+			case Coin.isPage(page) if page.self.to(rel.describes).isEmpty => Some(page)
+			case Coin.isAsset(asset) if (!shallow) && asset.blob.isEmpty => Some(asset)
+			case _ => None
+		}(from)
 
 	def writeAsset(assetNode: Asset)(blob: Network.Blob): Unit = {
 		logger.debug(s"$core: received blob, applying to $assetNode")
@@ -39,18 +39,19 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 		ArchiveManipulation.applyNarration(pageNode.self, core.wrap(doc, pageNode.story))(neo)
 	}
 
-	def start(collection: Collection): Future[Unit] = neo.txs {
+	def start(collection: Collection): Future[Unit] = {
 		val res = ArchiveManipulation.applyNarration(collection.self, core.archive)(neo)
 		res.headOption match {
 			case None => Future.successful(Unit)
-			case Some(archive) => run(ArchiveNode(archive))
+			case Some(archive) => run(archive)
 		}
 	}
 
-	def run(node: ArchiveNode): Future[Unit] = next(node) match {
+
+	def run(node: Node): Future[Unit] = nextRequest(node) match {
 		case None => Future.successful(Unit)
 		case Some(Network.DelayedRequest(request, continue)) =>
-			Network.getResponse(request)(iopipe).flatMap { res =>
+			Network.getResponse(request, iopipe).flatMap { res =>
 				neo.txs {
 					val next = continue(res)
 					run(next)
@@ -58,23 +59,23 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 			}(ec)
 	}
 
-	def next(node: ArchiveNode): Option[Network.DelayedRequest[ArchiveNode]] = neo.txs {
+	def nextRequest(node: Node): Option[Network.DelayedRequest[Node]] = neo.txs {
 		selectNext(node) match {
 			case None => None
 			case Some(asset@Asset(_)) => Vault.find.blob(asset.source)(neo) match {
 				case Some(blob) =>
 					logger.info(s"use cached ${ blob.sha1 } for ${ asset.source }")
 					asset.blob = blob
-					next(asset)
-				case None => Some(request(node).map { _ => asset })
+					nextRequest(asset.self)
+				case None => Some(request(asset.self).map { _ => asset.self })
 			}
-			case Some(next) => Some(request(next).map { _ => next })
+			case Some(next) => Some(request(next.self).map { _ => next.self })
 		}
 	}
 
-	private def request(node: ArchiveNode): Network.DelayedRequest[Unit] = node match {
-		case page@Page(_) => Network.documentRequest(page.location).map { writePage(page) }
-		case asset@Asset(_) => Network.blobRequest(asset.source, asset.origin).map { writeAsset(asset) }
+	private def request(node: Node): Network.DelayedRequest[Unit] = node match {
+		case Coin.isPage(page) => Network.documentRequest(page.location).map { writePage(page) }
+		case Coin.isAsset(asset) => Network.blobRequest(asset.source, asset.origin).map { writeAsset(asset) }
 	}
 
 }

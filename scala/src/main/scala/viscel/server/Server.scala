@@ -71,7 +71,7 @@ class Server extends Actor with HttpService with StrictLogging {
 		formFields('bookmark.?.as[Option[Long]], 'remove_bookmark.?.as[Option[Long]]) { (bm, remove) =>
 			bm.foreach { bid =>
 				Vault.byID(bid) match {
-					case Good(asset@Asset(_)) => user.setBookmark(asset)
+					case Good(asset : Asset) => user.setBookmark(asset)
 					case other => logger.warn(s"not an asset: $other")
 				}
 			}

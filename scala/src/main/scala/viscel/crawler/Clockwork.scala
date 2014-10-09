@@ -16,7 +16,7 @@ object Clockwork extends StrictLogging {
 
 	val jobs: concurrent.Map[String, Job] = concurrent.TrieMap[String, Job]()
 
-	val archiveHint = new ImperativeEvent[ArchiveNode]()
+	val archiveHint = new ImperativeEvent[StoryCoin]()
 	val collectionHint = new ImperativeEvent[Collection]()
 
 	val hints: Event[Collection] = archiveHint.map(_.collection) || collectionHint

@@ -2,11 +2,11 @@ package viscel.store.coin
 
 import org.neo4j.graphdb.Node
 import viscel.description.Story
-import viscel.store.{Metadata, ArchiveNode, NodeOps}
+import viscel.store.{Metadata, StoryCoin, NodeOps}
 
 import scala.language.implicitConversions
 
-final case class Core(self: Node) extends ArchiveNode with Metadata {
+final case class Core(self: Node) extends StoryCoin with Metadata {
 
 	def kind: String = self[String]("kind")
 	def id: String = self[String]("id")

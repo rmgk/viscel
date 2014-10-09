@@ -10,14 +10,14 @@ object label {
 		def apply(l: Label): SimpleLabel = apply(l.name)
 	}
 
-	val Asset = SimpleLabel("Element")
+	val Asset = SimpleLabel("Asset")
 	val Blob = SimpleLabel("Blob")
 	val Bookmark = SimpleLabel("Bookmark")
 	val Chapter = SimpleLabel("Chapter")
 	val Collection = SimpleLabel("Collection")
 	val Config = SimpleLabel("Config")
 	val Core = SimpleLabel("Core")
-	val Page = SimpleLabel("Archive")
+	val Page = SimpleLabel("Page")
 	val Unlabeled = SimpleLabel("Unlabeled")
 	val User = SimpleLabel("User")
 }
@@ -38,6 +38,5 @@ object rel {
 	val describes = SimpleRel("describes")
 	val metadata = SimpleRel("metadata")
 	val narc = SimpleRel("narc")
-	val prev = SimpleRel("prev")
 	val skip = SimpleRel("skip")
 }

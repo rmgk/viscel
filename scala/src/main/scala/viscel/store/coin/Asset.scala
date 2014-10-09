@@ -3,11 +3,11 @@ package viscel.store.coin
 import org.neo4j.graphdb.Node
 import viscel.crawler.AbsUri
 import viscel.description.Story
-import viscel.store.{rel, Metadata, ArchiveNode, NodeOps}
+import viscel.store.{label, rel, Metadata, StoryCoin, NodeOps}
 
 import scala.annotation.tailrec
 
-final case class Asset(self: Node) extends ArchiveNode with Metadata {
+final case class Asset(self: Node) extends StoryCoin with Metadata {
 
 	def blob: Option[Blob] = self.to(rel.blob).map { Blob.apply }
 	def blob_=(bn: Blob) = self.to_=(rel.blob, bn.self)
