@@ -7,7 +7,7 @@ import scalatags.Text.Tag
 import scalatags.Text.tags._
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.attrs._
-import scalatags.text.Frag
+import scalatags.Text.Frag
 
 trait HtmlPage extends HtmlPageUtils {
 

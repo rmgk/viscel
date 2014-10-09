@@ -6,7 +6,7 @@ import org.scalactic._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
 import viscel.description.Description
-import viscel.description.Description.{Core, Pointer}
+import viscel.description.Description.Pointer
 
 import scala.Predef.{any2ArrowAssoc, augmentString}
 import scala.collection.immutable.Map
@@ -22,7 +22,7 @@ object CloneManga {
 		})
 	}
 
-	def getCore(desc: Core): Core = Clone(desc.name, desc.id, desc.metadata("start"))
+	def getCore(desc: Description.Core): Core = Clone(desc.name, desc.id, desc.metadata("start"))
 
 	object MetaClone extends Core {
 		override def id: String = "Meta_CloneManga"
@@ -36,7 +36,7 @@ object CloneManga {
 					.fold(Bad(One("match error")): String Or One[ErrorMessage])(m => Good(m.group(1)))
 				}
 				withGood(name_?, uri_?, id_?) { (name, uri, id) =>
-					Core("CloneManga", s"CloneManga_$id", name, Map("start" -> s"$uri&start=1"))
+					Description.Core("CloneManga", s"CloneManga_$id", name, Map("start" -> s"$uri&start=1"))
 				}
 			})
 	}
