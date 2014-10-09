@@ -4,7 +4,10 @@ import spray.http.{ContentType, HttpCharsets, HttpEntity, HttpResponse, MediaTyp
 import viscel.store.Neo
 
 import scalatags.Text.Tag
-import scalatags.Text.all._
+import scalatags.Text.tags._
+import scalatags.Text.implicits.stringAttr
+import scalatags.Text.attrs._
+import scalatags.text.Frag
 
 trait HtmlPage extends HtmlPageUtils {
 
