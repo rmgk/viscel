@@ -1,15 +1,15 @@
-package viscel.cores.concrete
+package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.cores.Util._
-import viscel.cores.{Core, Selection}
-import viscel.description.Description.{Chapter, Pointer}
-import viscel.description.Description
+import viscel.narration.Util._
+import viscel.narration.{Narrator, Selection}
+import viscel.description.Story.{Chapter, More}
+import viscel.description.Story
 
-object Flipside extends Core {
+object Flipside extends Narrator {
 
-	def archive = Pointer("http://flipside.keenspot.com/chapters.php", "archive") :: Nil
+	def archive = More("http://flipside.keenspot.com/chapters.php", "archive") :: Nil
 
 	def id: String = "NX_Flipside"
 
@@ -29,7 +29,7 @@ object Flipside extends Core {
 		}
 	}
 
-	def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
 		case "archive" => wrapArchive(doc)
 		case "page" => Selection(doc).unique("img.ksc").wrapEach(imgIntoAsset)
 	})

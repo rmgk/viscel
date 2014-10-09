@@ -14,7 +14,7 @@ import spray.can.Http
 import spray.client.pipelining
 import viscel.crawler.Clockwork
 import viscel.store._
-import viscel.store.nodes.{CollectionNode, UserNode}
+import viscel.store.coin.{Collection, User}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -52,7 +52,7 @@ object Viscel extends StrictLogging {
 		sys.addShutdownHook { Neo.shutdown() }
 
 		if (!nodbwarmup.?) time("warmup db") { Neo.txs {} }
-		logger.info(s"config version: ${ Nodes.config()(Neo).version }")
+		logger.info(s"config version: ${ Vault.config()(Neo).version }")
 
 		if (createIndexes.?) {
 			Neo.execute("create index on :Collection(id)")
@@ -76,13 +76,13 @@ object Viscel extends StrictLogging {
 		for {
 			dotpath <- makedot.get
 			uname <- username.get
-			un <- Nodes.find.user(uname)(Neo)
+			un <- Vault.find.user(uname)(Neo)
 		} { visualizeUser(un, dotpath) }
 
 		for {
 			dotpath <- makedot.get
 			cid <- collectionid.get
-			cn <- Nodes.find.collection(cid)(Neo)
+			cn <- Vault.find.collection(cid)(Neo)
 		} { visualizeCollection(cn, dotpath) }
 
 		implicit val system = ActorSystem()
@@ -108,32 +108,27 @@ object Viscel extends StrictLogging {
 		(system, ioHttp)
 	}
 
-	def visualizeUser(user: UserNode, dotpath: String) = {
+	def visualizeUser(user: User, dotpath: String) = {
 		Neo.tx { db =>
 			val td = db.traversalDescription().depthFirst
 				.relationships(rel.bookmarked)
 				.relationships(rel.bookmarks)
 				.relationships(rel.bookmark)
-				.relationships(rel.first)
-				.relationships(rel.last)
 				.evaluator(Evaluators.excludeStartPosition)
 			val writer = new GraphvizWriter()
-			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(user.self).nodes, rel.bookmarked, rel.bookmarks, rel.bookmark, rel.first, rel.last))
+			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(user.self).nodes, rel.bookmarked, rel.bookmarks, rel.bookmark))
 		}
 	}
 
-	def visualizeCollection(col: CollectionNode, dotpath: String) = {
+	def visualizeCollection(col: Collection, dotpath: String) = {
 		Neo.tx { db =>
 			val td = db.traversalDescription().depthFirst
-				.relationships(rel.first)
-				.relationships(rel.last)
 				.relationships(rel.skip)
 				.relationships(rel.archive)
 				.relationships(rel.describes)
-				.relationships(rel.parent)
 				.evaluator(Evaluators.all)
 			val writer = new GraphvizWriter()
-			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.first, rel.last, rel.skip, rel.archive, rel.describes, rel.parent))
+			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.skip, rel.archive, rel.describes))
 		}
 	}
 

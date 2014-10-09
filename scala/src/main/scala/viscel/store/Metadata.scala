@@ -5,7 +5,7 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable.Map
 
 trait Metadata {
-	this: ViscelNode =>
+	this: Coin =>
 	def metadata(): Map[String, String] = Neo.txs {
 		self.getPropertyKeys().asScala.collect {
 			case k if k.startsWith("metadata_") => k.substring("metadata_".length) -> self[String](k)

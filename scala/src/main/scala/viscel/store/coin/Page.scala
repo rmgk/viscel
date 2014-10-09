@@ -1,12 +1,12 @@
-package viscel.store.nodes
+package viscel.store.coin
 
 import org.neo4j.graphdb.Node
 import viscel.crawler.AbsUri
-import viscel.description.Description.Pointer
+import viscel.description.Story
 import viscel.store.{ArchiveNode, DescribingNode, Neo, NodeOps}
 
 
-final case class PageNode(self: Node) extends ArchiveNode with DescribingNode {
+final case class Page(self: Node) extends ArchiveNode with DescribingNode {
   def location: AbsUri = self.apply[String]("location")
   def pagetype: String = self[String]("pagetype")
 
@@ -15,7 +15,7 @@ final case class PageNode(self: Node) extends ArchiveNode with DescribingNode {
     Neo.delete(self)
   }
 
-  override def description: Pointer = Pointer(location, pagetype)
+  override def story: Story.More = Story.More(location, pagetype)
 
   override def toString = s"Page($location)"
 }

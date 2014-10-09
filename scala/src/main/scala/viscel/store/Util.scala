@@ -3,8 +3,8 @@ package viscel.store
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.tooling.GlobalGraphOperations
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.cores.Core
-import viscel.store.nodes.CollectionNode
+import viscel.narration.Narrator
+import viscel.store.coin.Collection
 import viscel.time
 
 import scala.Predef.any2ArrowAssoc
@@ -13,13 +13,13 @@ import scala.collection.JavaConverters._
 
 object Util extends StrictLogging {
 
-	def listCollections: Vector[CollectionNode] = Neo.tx { db =>
-		GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).asScala.map { CollectionNode.apply }.toVector
+	def listCollections: Vector[Collection] = Neo.tx { db =>
+		GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply }.toVector
 	}
 
-	def listCores: Vector[Core] = Core.availableCores.toVector
+	def listCores: Vector[Narrator] = Narrator.availableCores.toVector
 
-	def search(query: String): Seq[Core] = time("search") {
+	def search(query: String): Seq[Narrator] = time("search") {
 		val lcql = Predef.wrapString(query.toLowerCase.replaceAll( """\s+""", "")).toList
 		Neo.txs {
 			if (lcql.isEmpty) listCores

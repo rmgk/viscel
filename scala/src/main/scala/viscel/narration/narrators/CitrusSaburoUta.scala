@@ -1,32 +1,32 @@
-package viscel.cores.concrete
+package viscel.narration.narrators
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.cores.Util._
-import viscel.cores.{Core, Selection}
-import viscel.description.Description
-import viscel.description.Description.{Chapter, Pointer}
+import viscel.narration.Util._
+import viscel.narration.{Narrator, Selection}
+import viscel.description.Story
+import viscel.description.Story.{Chapter, More}
 
 import scala.Predef.conforms
 
-object CitrusSaburoUta extends Core with StrictLogging {
+object CitrusSaburoUta extends Narrator with StrictLogging {
 
-	def archive = Pointer("http://mangafox.me/manga/citrus_saburo_uta/", "archive") :: Nil
+	def archive = More("http://mangafox.me/manga/citrus_saburo_uta/", "archive") :: Nil
 
 	def id: String = "Mangafox_Citrus"
 
 	def name: String = "CITRUS (SABURO UTA)"
 
-	def wrapArchive(doc: Document): List[Description] Or Every[ErrorMessage] = {
+	def wrapArchive(doc: Document): List[Story] Or Every[ErrorMessage] = {
 		Selection(doc).many(".chlist li div :has(.tips):has(.title)").reverse.wrapEach { chapter =>
 			val title_? = Selection(chapter).unique(".title").getOne.map(_.ownText())
 			val anchor_? = Selection(chapter).unique("a.tips")
 			val uri_? = anchor_?.wrapOne { extractUri }
 			val text_? = anchor_?.getOne.map { _.ownText() }
 			withGood(title_?, uri_?, text_?) { (title, uri, text) =>
-				Chapter(s"$text $title") :: Pointer(uri, "page") :: Nil
+				Chapter(s"$text $title") :: More(uri, "page") :: Nil
 			}
 		}.map(_.flatten)
 	}
@@ -37,7 +37,7 @@ object CitrusSaburoUta extends Core with StrictLogging {
 		withGood(img_?, next_?) { _ ::: _ }
 	}
 
-	def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
 		case "archive" => wrapArchive(doc)
 		case "page" => wrapPage(doc)
 	})

@@ -1,12 +1,12 @@
 package viscel.server.pages
 
 import viscel.server.HtmlPage
-import viscel.store.nodes.UserNode
+import viscel.store.coin.User
 import viscel.store.{Util => StoreUtil}
 
 import scalatags.Text.all._
 
-class SearchPage(user: UserNode, text: String) extends HtmlPage {
+class SearchPage(user: User, text: String) extends HtmlPage {
 	override def Title = "Search"
 	override def bodyId = "search"
 

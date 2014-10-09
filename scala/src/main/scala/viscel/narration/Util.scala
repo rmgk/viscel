@@ -1,10 +1,10 @@
-package viscel.cores
+package viscel.narration
 
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.crawler._
-import viscel.description.Description.{Chapter, Pointer, Asset}
+import viscel.description.Story.{Chapter, More, Asset}
 import viscel.description._
 
 import scala.Predef.any2ArrowAssoc
@@ -37,17 +37,17 @@ object Util {
 		case tag => Bad(One(s"can not extract uri from '$tag' at ($caller): ${ show(element) }"))
 	}
 
-	def selectNext(pagetype: String)(elements: List[Element]): List[Pointer] Or Every[ErrorMessage] = elements.validatedBy(elementIntoPointer(pagetype)).flatMap {
+	def selectNext(pagetype: String)(elements: List[Element]): List[More] Or Every[ErrorMessage] = elements.validatedBy(elementIntoPointer(pagetype)).flatMap {
 		case pointers if elements.isEmpty => Good(Nil)
 		case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
 		case pointers => Bad(One(blame("more than one next found", elements: _*)))
 	}
 
-	def elementIntoPointer(pagetype: String)(element: Element): Pointer Or Every[ErrorMessage] =
-		extractUri(element).map(uri => Pointer(uri, pagetype))
+	def elementIntoPointer(pagetype: String)(element: Element): More Or Every[ErrorMessage] =
+		extractUri(element).map(uri => More(uri, pagetype))
 
 	/** takes an element, extracts its uri and text and generates a description pointing to that chapter */
-	def elementIntoChapterPointer(pagetype: String)(chapter: Element): List[Description] Or Every[ErrorMessage] =
+	def elementIntoChapterPointer(pagetype: String)(chapter: Element): List[Story] Or Every[ErrorMessage] =
 		withGood(elementIntoPointer(pagetype)(chapter)) { (pointer) =>
 			Chapter(chapter.text()) :: pointer :: Nil
 		}

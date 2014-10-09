@@ -3,7 +3,7 @@ package viscel.store
 import org.neo4j.graphdb.Direction
 
 trait DescribingNode {
-	this: ViscelNode =>
+	this: Coin =>
 
 	def describes: Option[ArchiveNode] = self.to { rel.describes }.map { ArchiveNode(_) }
 	def describes_=(archive: Option[ArchiveNode]): Unit =

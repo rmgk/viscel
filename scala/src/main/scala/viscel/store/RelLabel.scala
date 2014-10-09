@@ -36,11 +36,8 @@ object rel {
 	val bookmarked = SimpleRel("bookmarked")
 	val bookmarks = SimpleRel("bookmarks")
 	val describes = SimpleRel("describes")
-	val first = SimpleRel("first")
-	val last = SimpleRel("last")
 	val metadata = SimpleRel("metadata")
 	val narc = SimpleRel("narc")
-	val parent = SimpleRel("parent")
 	val prev = SimpleRel("prev")
-	val skip = SimpleRel("next")
+	val skip = SimpleRel("skip")
 }

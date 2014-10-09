@@ -1,21 +1,21 @@
-package viscel.cores.concrete
+package viscel.narration.narrators
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.cores.Util._
-import viscel.cores.{Core, Selection}
-import viscel.description.Description
-import viscel.description.Description.Pointer
+import viscel.narration.Util._
+import viscel.narration.{Narrator, Selection}
+import viscel.description.Story
+import viscel.description.Story.More
 
-object Everafter extends Core with StrictLogging {
-	def archive = Pointer("http://ea.snafu-comics.com/archive.php", "archive") :: Nil
+object Everafter extends Narrator with StrictLogging {
+	def archive = More("http://ea.snafu-comics.com/archive.php", "archive") :: Nil
 
 	def id: String = "Snafu_Everafter"
 
 	def name: String = "Everafter"
 
-	def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
 		case "archive" => Selection(doc).unique(".pagecontentbox").many("a").wrap { anchors =>
 			anchors.reverse.validatedBy(elementIntoPointer("page"))
 		}

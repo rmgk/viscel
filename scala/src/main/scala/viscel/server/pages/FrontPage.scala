@@ -3,14 +3,14 @@ package viscel.server.pages
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.server.{MetaNavigation, MaskLocation, HtmlPage}
 import viscel.store._
-import viscel.store.nodes._
+import viscel.store.coin._
 
 import scala.Predef.{any2ArrowAssoc, _}
 import scala.annotation.tailrec
 import scalatags.Text.all._
 
 
-class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage with MaskLocation with MetaNavigation {
+class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLocation with MetaNavigation {
 	override def Title = collection.name
 
 	override def bodyId = "front"
@@ -24,7 +24,7 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 	lazy val previewMiddle = previewLeft.flatMap { _.prevAsset }
 	lazy val previewRight = previewMiddle.flatMap { _.prevAsset }
 
-	def bmRemoveForm(bm: AssetNode) = form_post(path_nid(collection),
+	def bmRemoveForm(bm: Asset) = form_post(path_nid(collection),
 		input(`type` := "hidden", name := "remove_bookmark", value := collection.nid.toString),
 		input(`type` := "submit", name := "submit", value := "remove", class_submit))
 
@@ -62,17 +62,17 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 			remaining match {
 				case Nil => (done.reverse.drop(1), Nil)
 
-				case (assetNode: AssetNode) :: rest =>
+				case (assetNode: Asset) :: rest =>
 					make_nodelist(pos + 1, link_node(assetNode, pos) :: StringFrag(" ") :: done, rest)
 
-				case (pageNode: PageNode) :: rest =>
+				case (pageNode: Page) :: rest =>
 					val more = pageNode.describes.fold(List[ArchiveNode]())(_.layer)
 					make_nodelist(pos, done, more ::: rest)
 
-				case (chapterNode: ChapterNode) :: _ =>
+				case (chapterNode: Chapter) :: _ =>
 					(done.reverse.drop(1), remaining)
 
-				case (coreNode: CoreNode) :: rest =>
+				case (coreNode: Core) :: rest =>
 					make_nodelist(pos, StringFrag(s"Core: ${ coreNode.id }") :: br :: done, rest)
 
 				case _ :: _ => throw new IllegalArgumentException("unknown archive $head")
@@ -87,11 +87,11 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 		nodes match {
 			case Nil => acc
 
-			case (pageNode: PageNode) :: rest =>
+			case (pageNode: Page) :: rest =>
 				val more = pageNode.describes.map(_.layer).getOrElse(Nil)
 				makeChapterList(more ::: rest, headline, acc)
 
-			case (chapterNode: ChapterNode) :: rest =>
+			case (chapterNode: Chapter) :: rest =>
 				val (pagelist, remaining) = makePageList(chapterNode.name, rest)
 				val volume = chapterNode.metadataOption("Volume")
 				volume match {
@@ -100,11 +100,11 @@ class FrontPage(user: UserNode, collection: CollectionNode) extends HtmlPage wit
 					case Some(volumeName) => makeChapterList(remaining, volume, h3(volumeName) :: pagelist :: acc)
 				}
 
-			case (assetNode: AssetNode) :: rest =>
+			case (assetNode: Asset) :: rest =>
 				val (pageList, remaining) = makePageList("", nodes)
 				makeChapterList(remaining, headline, pageList :: acc)
 
-			case (coreNode: CoreNode) :: rest =>
+			case (coreNode: Core) :: rest =>
 				makeChapterList(rest, headline, StringFrag(s"Core: ${ coreNode.id }") :: br :: acc)
 
 			case _ :: _ => throw new IllegalArgumentException("unknown archive $head")

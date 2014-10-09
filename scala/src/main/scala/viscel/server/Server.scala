@@ -12,11 +12,11 @@ import spray.can.server.Stats
 import spray.http.ContentType
 import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
-import viscel.cores.Core
+import viscel.narration.Narrator
 import viscel.crawler.Clockwork
 import viscel.server.pages._
 import viscel.store._
-import viscel.store.nodes._
+import viscel.store.coin._
 
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.collection.immutable.Map
@@ -39,20 +39,20 @@ class Server extends Actor with HttpService with StrictLogging {
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
 	implicit def implicitExecutionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 
-	var userCache = Map[String, UserNode]()
+	var userCache = Map[String, User]()
 
-	def getUserNode(name: String, password: String): UserNode = {
+	def getUserNode(name: String, password: String): User = {
 		userCache.getOrElse(name, {
-			val user = Nodes.find.user(name).getOrElse {
+			val user = Vault.find.user(name).getOrElse {
 				logger.warn(s"create new user $name $password")
-				Nodes.create.user(name, password)
+				Vault.create.user(name, password)
 			}
 			userCache += name -> user
 			user
 		})
 	}
 
-	val loginOrCreate = BasicAuth(UserPassAuthenticator[UserNode] {
+	val loginOrCreate = BasicAuth(UserPassAuthenticator[User] {
 		case Some(UserPass(user, password)) =>
 			logger.trace(s"login: $user $password")
 			// time("login") {
@@ -67,64 +67,54 @@ class Server extends Actor with HttpService with StrictLogging {
 			Future.successful(None)
 	}, "Username is used to store configuration; Passwords are saved in plain text; User is created on first login")
 
-	def handleFormFields(user: UserNode) =
+	def handleFormFields(user: User) =
 		formFields('bookmark.?.as[Option[Long]], 'remove_bookmark.?.as[Option[Long]]) { (bm, remove) =>
 			bm.foreach { bid =>
-				Nodes.byID(bid) match {
-					case Good(asset@AssetNode(_)) => user.setBookmark(asset)
+				Vault.byID(bid) match {
+					case Good(asset@Asset(_)) => user.setBookmark(asset)
 					case other => logger.warn(s"not an asset: $other")
 				}
 			}
 			remove.foreach { colid =>
-				Nodes.byID(colid) match {
-					case Good(col@CollectionNode(_)) => user.deleteBookmark(col)
+				Vault.byID(colid) match {
+					case Good(col@Collection(_)) => user.deleteBookmark(col)
 					case other => logger.warn(s"not a collection: $other")
 				}
 			}
 			defaultRoute(user)
 		}
 
-	def defaultRoute(user: UserNode) =
+	def defaultRoute(user: User) =
 		(path("") | path("index")) {
 			complete(Pages.index(user))
 		} ~
 			path("stop") {
-				complete {
-					Future {
-						spray.util.actorSystem.shutdown()
-						viscel.store.Neo.shutdown()
-					}
-					"shutdown"
+				Future {
+					spray.util.actorSystem.shutdown()
+					viscel.store.Neo.shutdown()
 				}
+				complete { "shutdown" }
 			} ~
 			path("css") {
 				getFromResource("style.css")
 			} ~
-			//			path("b" / Segment) { hash =>
-			//				val filename = viscel.hashToFilename(hash)
-			//				getFromFile(new File(filename), ContentType(MediaTypes.`image/jpeg`))
 			path("b" / LongNumber) { nid =>
 				neo.txs {
-					val blob = Nodes.byID(nid).get.asInstanceOf[BlobNode]
+					val blob = Vault.byID(nid).get.asInstanceOf[Blob]
 					val filename = viscel.hashToFilename(blob.sha1)
 					getFromFile(new File(filename), ContentType(blob.mediatype))
 				}
 			} ~
 			path("f" / Segment) { collectionId =>
-				rejectNone(Core.get(collectionId)) { core =>
-					val collection = Core.getCollection(core)
+				rejectNone(Narrator.get(collectionId)) { core =>
+					val collection = Vault.update.collection(core)
 					Clockwork.collectionHint(collection)
 					complete(Pages.front(user, collection))
 				}
 			} ~
-			//			path("c" / Segment) { col =>
-			//				rejectNone(CollectionNode(col)) { cn =>
-			//					complete(ChapterPage(user, cn))
-			//				}
-			//			} ~
 			path("v" / Segment / IntNumber) { (col, pos) =>
 				neo.txs {
-					rejectNone(Nodes.find.collection(col)) { cn =>
+					rejectNone(Vault.find.collection(col)) { cn =>
 						rejectNone(cn(pos)) { en =>
 							Clockwork.archiveHint(en)
 							complete(Pages.view(user, en))
@@ -134,16 +124,16 @@ class Server extends Actor with HttpService with StrictLogging {
 			} ~
 			path("i" / LongNumber) { id =>
 				neo.txs {
-					val node = Nodes.byID(id).get
-					node match {
-						case archiveNode: ArchiveNode => Clockwork.archiveHint(archiveNode)
-						case collectionNode: CollectionNode => Clockwork.collectionHint(collectionNode)
+					Vault.byID(id) match {
+						case Good(asset @ Asset(_)) =>
+							Clockwork.archiveHint(asset)
+							complete(Pages.view(user, asset))
+						case Good(collection @ Collection(_)) =>
+							Clockwork.collectionHint(collection)
+							complete(Pages.front(user, collection))
+						case other => complete(other.toString)
 					}
-					complete(Pages(user, node))
 				}
-			} ~
-			path("r" / LongNumber) { id =>
-				complete(Pages.raw(user, Nodes.byID(id).get))
 			} ~
 			(path("s") & parameter('q)) { query =>
 				complete(Pages.search(user, query))
@@ -155,28 +145,7 @@ class Server extends Actor with HttpService with StrictLogging {
 						.mapTo[Stats]
 					stats.map { Pages.stats(user, _) }
 				}
-			} ~
-			path("core" / Segment) { coreId =>
-				val core = Core.get(coreId).foreach { core =>
-					//actorRefFactory.actorSelection("/user/clockwork") ! Messages.Run(core)
-				}
-				complete(coreId)
 			}
-	//			path("select") {
-	//				entity(as[FormData]) { form =>
-	//					if (form.fields.contains(("select_cores", "apply"))) {
-	//						val applied = form.fields.collect { case (col, "select") => col }.toSeq
-	//						val config = ConfigNode()
-	//						logger.info(s"selecting $applied")
-	//						val before = config.legacyCollections
-	//						config.legacyCollections = applied
-	//						val added: Set[String] = applied.toSet -- before
-	//						logger.info(s"adding $added")
-	//						added.foreach(id => context.actorSelection("/user/clockwork") ! viscel.core.Clockwork.Enqueue(id))
-	//					}
-	//					complete { SelectionPage(user) }
-	//				}
-	//			}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)
 }

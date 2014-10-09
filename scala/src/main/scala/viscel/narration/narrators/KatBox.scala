@@ -1,30 +1,30 @@
-package viscel.cores.concrete
+package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
-import viscel.cores.Util._
-import viscel.cores.{Core, Selection}
-import viscel.description.Description.Pointer
-import viscel.description.Description
+import viscel.narration.Util._
+import viscel.narration.{Narrator, Selection}
+import viscel.description.Story.More
+import viscel.description.Story
 
 import scala.collection.immutable.Set
 
 
 object KatBox {
 
-	case class Generic(shortId: String, name: String) extends Core {
+	case class Generic(shortId: String, name: String) extends Narrator {
 
-		def archive = Pointer(s"http://$shortId.katbox.net/archive", "archive") :: Nil
+		def archive = More(s"http://$shortId.katbox.net/archive", "archive") :: Nil
 
 		val id: String = s"KatBox_$shortId"
 
-		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
+		def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
 			case "archive" =>
 				Selection(doc).many("[rel=bookmark]").wrapEach(elementIntoPointer("page")).map { _.reverse }
 			case "page" => queryImages(doc, ".webcomic-image img")
 		})
 	}
 
-	val cores: Set[Core] = Set(
+	val cores: Set[Narrator] = Set(
 		("laslindas", "Las Lindas!"),
 		("cblue", "Caribbean Blue!"),
 		("yosh", "Yosh!"),

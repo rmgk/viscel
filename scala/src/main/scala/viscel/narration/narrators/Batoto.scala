@@ -1,26 +1,26 @@
-package viscel.cores.concrete
+package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.cores.Util._
-import viscel.cores.{Core, Selection}
+import viscel.narration.Util._
+import viscel.narration.{Narrator, Selection}
 import viscel.crawler.AbsUri
-import viscel.description.Description
-import viscel.description.Description.{Chapter, Pointer}
+import viscel.description.Story
+import viscel.description.Story.{Chapter, More}
 
 import scala.collection.immutable.Set
 
 object Batoto {
 
-	case class Generic(id: String, name: String, first: AbsUri) extends Core {
+	case class Generic(id: String, name: String, first: AbsUri) extends Narrator {
 
-		def archive = Pointer(first, "chapter") :: Nil
+		def archive = More(first, "chapter") :: Nil
 
-		def wrapPage(doc: Document): Or[List[Description], Every[ErrorMessage]] =
+		def wrapPage(doc: Document): Or[List[Story], Every[ErrorMessage]] =
 			Selection(doc).unique("#comic_page").wrapEach(imgIntoAsset)
 
-		def wrapChapter(doc: Document): Or[List[Description], Every[ErrorMessage]] = {
+		def wrapChapter(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
 			val pages_? = Selection(doc).first("#page_select").many("option:not([selected=selected])").wrapEach { elementIntoPointer("page") }
 			val currentPage_? = wrapPage(doc)
 			val nextChapter_? = Selection(doc).first(".moderation_bar").optional("a:has(img[title=Next Chapter])").wrap(selectNext("chapter"))
@@ -28,14 +28,14 @@ object Batoto {
 			withGood(chapter_?, currentPage_?, pages_?, nextChapter_?) { _ ::: _ ::: _ ::: _ }
 		}
 
-		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
+		def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
 			case "page" => wrapPage(doc)
 			case "chapter" => wrapChapter(doc)
 		})
 	}
 
 
-	val cores: Set[Core] = Set(
+	val cores: Set[Narrator] = Set(
 		Generic("Batoto_mangaka-san-to-assistant-san-to-2", "Mangaka-san to Assistant-san to 2", "http://bato.to/read/_/185677/mangaka-san-to-assistant-san-to-2_ch1_by_madman-scans"),
 		Generic("Batoto_kimi-no-iru-machi", "Kimi no Iru Machi", "http://bato.to/read/_/46885/kimi-no-iru-machi_v1_ch1_by_red-hawk-scans"),
 		Generic("Batoto_nisekoi", "Nisekoi", "http://bato.to/read/_/20464/nisekoi_by_cxc-scans"),

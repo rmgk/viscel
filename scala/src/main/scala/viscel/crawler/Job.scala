@@ -5,15 +5,15 @@ import java.nio.file.{Files, Paths}
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import spray.client.pipelining._
-import viscel.cores.Core
+import viscel.narration.Narrator
 import viscel.store._
-import viscel.store.nodes.{AssetNode, CollectionNode, PageNode}
+import viscel.store.coin.{Asset, Collection, Page}
 
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class Job(val core: Core, neo: Neo, iopipe: SendReceive, ec: ExecutionContext) extends StrictLogging {
+class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContext) extends StrictLogging {
 
 	val shallow = false
 
@@ -21,26 +21,26 @@ class Job(val core: Core, neo: Neo, iopipe: SendReceive, ec: ExecutionContext) e
 
 	def selectNext(from: ArchiveNode): Option[ArchiveNode] = {
 		from.findForward {
-			case page@PageNode(_) if page.describes.isEmpty => page
-			case asset@AssetNode(_) if (!shallow) && asset.blob.isEmpty => asset
+			case page@Page(_) if page.describes.isEmpty => page
+			case asset@Asset(_) if (!shallow) && asset.blob.isEmpty => asset
 		}
 	}
 
-	def writeAsset(assetNode: AssetNode)(blob: Network.Blob): Unit = {
+	def writeAsset(assetNode: Asset)(blob: Network.Blob): Unit = {
 		logger.debug(s"$core: received blob, applying to $assetNode")
 		val path = Paths.get(viscel.hashToFilename(blob.sha1))
 		Files.createDirectories(path.getParent())
 		Files.write(path, blob.buffer)
-		neo.txs { assetNode.blob = Nodes.create.blob(blob.sha1, blob.mediatype, assetNode.source)(neo) }
+		neo.txs { assetNode.blob = Vault.create.blob(blob.sha1, blob.mediatype, assetNode.source)(neo) }
 	}
 
-	def writePage(pageNode: PageNode)(doc: Document): Unit = {
+	def writePage(pageNode: Page)(doc: Document): Unit = {
 		logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pageNode")
-		ArchiveManipulation.applyDescription(pageNode, core.wrap(doc, pageNode.description))(neo)
+		ArchiveManipulation.applyNarration(pageNode, core.wrap(doc, pageNode.story))(neo)
 	}
 
-	def start(collection: CollectionNode): Future[Unit] = neo.txs {
-		ArchiveManipulation.applyDescription(collection, core.archive)(neo)
+	def start(collection: Collection): Future[Unit] = neo.txs {
+		ArchiveManipulation.applyNarration(collection, core.archive)(neo)
 		collection.describes match {
 			case None => Future.successful(Unit)
 			case Some(archive) => run(archive)
@@ -61,7 +61,7 @@ class Job(val core: Core, neo: Neo, iopipe: SendReceive, ec: ExecutionContext) e
 	def next(node: ArchiveNode): Option[Network.DelayedRequest[ArchiveNode]] = neo.txs {
 		selectNext(node) match {
 			case None => None
-			case Some(asset@AssetNode(_)) => Nodes.find.blob(asset.source)(neo) match {
+			case Some(asset@Asset(_)) => Vault.find.blob(asset.source)(neo) match {
 				case Some(blob) =>
 					logger.info(s"use cached ${ blob.sha1 } for ${ asset.source }")
 					asset.blob = blob
@@ -73,8 +73,8 @@ class Job(val core: Core, neo: Neo, iopipe: SendReceive, ec: ExecutionContext) e
 	}
 
 	private def request(node: ArchiveNode): Network.DelayedRequest[Unit] = node match {
-		case page@PageNode(_) => Network.documentRequest(page.location).map { writePage(page) }
-		case asset@AssetNode(_) => Network.blobRequest(asset.description).map { writeAsset(asset) }
+		case page@Page(_) => Network.documentRequest(page.location).map { writePage(page) }
+		case asset@Asset(_) => Network.blobRequest(asset.story).map { writeAsset(asset) }
 	}
 
 }

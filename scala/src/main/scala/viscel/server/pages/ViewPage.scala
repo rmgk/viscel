@@ -2,11 +2,11 @@ package viscel.server.pages
 
 import spray.http.HttpResponse
 import viscel.server.{MetaNavigation, MaskLocation, HtmlPage}
-import viscel.store.nodes.{AssetNode, UserNode}
+import viscel.store.coin.{Asset, User}
 
 import scalatags.Text.all._
 
-class ViewPage(user: UserNode, enode: AssetNode) extends HtmlPage with MetaNavigation with MaskLocation {
+class ViewPage(user: User, enode: Asset) extends HtmlPage with MetaNavigation with MaskLocation {
 	lazy val collection = enode.collection
 	lazy val pos = enode.position
 

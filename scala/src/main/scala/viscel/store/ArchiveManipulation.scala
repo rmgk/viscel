@@ -2,74 +2,19 @@ package viscel.store
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.description.Description
-import viscel.description.Description.{Core, Asset, Chapter, Pointer, Failed}
-import viscel.store.nodes.AssetNode
+import viscel.description.Story
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 
 object ArchiveManipulation {
 
-	@tailrec
-	def layerBegin(node: Node): Node = node.from(rel.narc) match {
-		case None => node
-		case Some(prev) => layerBegin(prev)
-	}
-
-	@tailrec
-	def layerEnd(node: Node): Node = node.to(rel.narc) match {
-		case None => node
-		case Some(next) => layerEnd(next)
-	}
-
-	@tailrec
-	def uppernext(node: Node): Option[Node] = {
-		layerBegin(node).from(rel.describes) match {
-			case None => None
-			case Some(upper) => upper.to(rel.narc) match {
-				case None => uppernext(upper)
-				case result@Some(_) => result
-			}
-		}
-	}
-
-	@tailrec
-	def rightmost(node: Node): Node = {
-		val end = layerEnd(node)
-		end.to(rel.describes) match {
-			case None => end
-			case Some(lower) => rightmost(lower)
-		}
-	}
-
-	def prev(node: Node): Option[Node] = {
-		node.from(rel.narc) match {
-			case None =>
-				node.from(rel.describes).flatMap { upper =>
-					if (upper.hasLabel(label.Collection)) None
-					else Some(upper)
-				}
-			case somePrev@Some(prev) =>
-				prev.to(rel.describes) match {
-					case None => somePrev
-					case Some(lower) => Some(rightmost(lower))
-				}
-		}
-	}
-
-	def next(node: Node): Option[Node] = {
-		if (node.hasLabel(label.Page)) node.to(rel.describes).orElse(node.to(rel.narc)).orElse(uppernext(node))
-		else node.to(rel.narc).orElse(uppernext(node))
-	}
-
-	def fixSkiplist(asset: AssetNode): Unit = {
-		val nextAsset_? = asset.next.flatMap(_.findForward { case asset: AssetNode => asset })
+	def fixSkiplist(asset: coin.Asset): Unit = {
+		val nextAsset_? = asset.next.flatMap(_.findForward { case asset: coin.Asset => asset })
 		nextAsset_? match {
 			case None => asset.self.outgoing(rel.skip).foreach(_.delete())
 			case Some(nextAsset) => asset.self.to_=(rel.skip, nextAsset.self)
 		}
-		val prevAsset_? = asset.prev.flatMap(_.findBackward { case asset: AssetNode => asset })
+		val prevAsset_? = asset.prev.flatMap(_.findBackward { case asset: coin.Asset => asset })
 		prevAsset_? match {
 			case None => asset.self.incoming(rel.skip).foreach(_.delete())
 			case Some(prevAsset) => prevAsset.self.to_=(rel.skip, asset.self)
@@ -83,38 +28,42 @@ object ArchiveManipulation {
 		layer
 	}
 
-	def create(desc: Description)(implicit neo: Neo): ArchiveNode = {
+	def create(desc: Story)(implicit neo: Neo): ArchiveNode = {
 		desc match {
-			case Failed(reason) => throw new IllegalArgumentException(reason.toString())
-			case pointer@Pointer(_, _) => Nodes.create.page(pointer)
-			case chap@Chapter(_, _) => Nodes.create.chapter(chap)
-			case asset@Asset(_, _, _) => Nodes.create.asset(asset)
-			case core@Core(_, _, _, _) => Nodes.create.core(core)
+			case Story.Failed(reason) => throw new IllegalArgumentException(reason.toString())
+			case pointer@Story.More(_, _) => Vault.create.page(pointer)
+			case chap@Story.Chapter(_, _) => Vault.create.chapter(chap)
+			case asset@Story.Asset(_, _, _) => Vault.create.asset(asset)
+			case core@Story.Core(_, _, _, _) => Vault.create.core(core)
 		}
 	}
 
-	def replaceLayer(oldLayer: List[ArchiveNode], oldDescriptions: List[Description], descriptions: List[Description])(implicit neo: Neo): List[ArchiveNode] = {
-		val oldMap = mutable.Map(oldDescriptions zip oldLayer: _*)
-		val newLayer = descriptions.map { desc =>
-			oldMap.get(desc) match {
-				case None => create(desc)
-				case Some(oldNode) =>
-					oldMap.remove(desc)
-					oldNode
+	def deleteRecursive(node: Node)(implicit neo: Neo): Unit = {
+
+	}
+
+	def replaceLayer(oldLayer: List[ArchiveNode], oldNarration: List[Story], newNarration: List[Story])(implicit neo: Neo): List[ArchiveNode] = {
+		val oldMap = mutable.Map(oldNarration zip oldLayer: _*)
+		val newLayer = newNarration.map { story =>
+			oldMap.get(story) match {
+				case None => create(story)
+				case Some(oldCoin) =>
+					oldMap.remove(story)
+					oldCoin
 			}
 		}
 		oldMap.mapValues(_.deleteRecursive())
 		connectLayer(newLayer)
 	}
 
-	def applyDescription(target: DescribingNode, descriptions: List[Description])(implicit neo: Neo): List[ArchiveNode] = neo.txs {
+	def applyNarration(target: DescribingNode, narration: List[Story])(implicit neo: Neo): List[ArchiveNode] = neo.txs {
 		val oldLayer = target.describes.toList.flatMap(_.layer)
-		val oldDescriptions = oldLayer.map(_.description)
-		if (oldDescriptions === descriptions) oldLayer
+		val oldNarration = oldLayer.map(_.story)
+		if (oldNarration === narration) oldLayer
 		else {
-			val newLayer = replaceLayer(oldLayer, oldDescriptions, descriptions)
+			val newLayer = replaceLayer(oldLayer, oldNarration, narration)
 			target.describes = newLayer.headOption
-			newLayer.collect { case asset: AssetNode => fixSkiplist(asset) }
+			newLayer.collect { case asset: coin.Asset => fixSkiplist(asset) }
 			newLayer
 		}
 	}

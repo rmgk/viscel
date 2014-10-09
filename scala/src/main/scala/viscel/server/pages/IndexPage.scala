@@ -1,7 +1,7 @@
 package viscel.server.pages
 
 import viscel.server.HtmlPage
-import viscel.store.nodes.UserNode
+import viscel.store.coin.User
 
 import scala.Predef.conforms
 import scalatags.Text.all.SeqFrag
@@ -10,7 +10,7 @@ import scalatags.Text.implicits.{stringAttr, stringFrag}
 import scalatags.Text.tags.{body, div}
 import scalatags.Text.{Tag, TypedTag}
 
-class IndexPage(user: UserNode) extends HtmlPage {
+class IndexPage(user: User) extends HtmlPage {
 	override def Title = "Index"
 	override def bodyId = "index"
 

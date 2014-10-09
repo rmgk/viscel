@@ -1,10 +1,10 @@
-package viscel.cores
+package viscel.narration
 
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.cores.Util._
+import viscel.narration.Util._
 
 import scala.Predef.conforms
 import scala.collection.JavaConverters._

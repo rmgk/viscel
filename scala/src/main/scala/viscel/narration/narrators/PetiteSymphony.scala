@@ -1,26 +1,26 @@
-package viscel.cores.concrete
+package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.cores.Util._
-import viscel.cores.{Core, Selection}
-import viscel.description.Description
-import viscel.description.Description.Pointer
+import viscel.narration.Util._
+import viscel.narration.{Narrator, Selection}
+import viscel.description.Story
+import viscel.description.Story.More
 
 import scala.collection.immutable.Set
 
 object PetiteSymphony {
 
-	case class Generic(id: String, name: String, start: String) extends Core {
-		override def archive: List[Description] = Pointer(start, "") :: Nil
-		override def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr {
+	case class Generic(id: String, name: String, start: String) extends Narrator {
+		override def archive: List[Story] = More(start, "") :: Nil
+		override def wrap(doc: Document, pd: More): List[Story] = Story.fromOr {
 			val next_? = Selection(doc).optional("a.navi.navi-next").wrap(selectNext(""))
 			val img_? = Selection(doc).unique("#comic-1 img").wrapEach(imgIntoAsset)
 			withGood(img_?, next_?) { _ ::: _ }
 		}
 	}
 
-	val cores: Set[Core] = Set(
+	val cores: Set[Narrator] = Set(
 		("goyoku", "Rascals Goyoku", "http://goyoku.petitesymphony.com/comic/goyoku-prologue1/"),
 		("generation17", "Generation 17", "http://generation17.petitesymphony.com/comic/cover"),
 		("seed", "Seed", "http://seed.petitesymphony.com/comic/seedchapter1"),

@@ -1,9 +1,9 @@
-package viscel.store.nodes
+package viscel.store.coin
 
 import org.neo4j.graphdb.Node
 import viscel.store._
 
-final case class ConfigNode(self: Node) extends ViscelNode {
+final case class Config(self: Node) extends Coin {
 
 	def version = Neo.txs { self[Int]("version") }
 

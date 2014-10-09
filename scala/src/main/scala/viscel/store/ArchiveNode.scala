@@ -1,19 +1,19 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import viscel.description.Description
+import viscel.description.Story
 import viscel.store.label.SimpleLabel
-import viscel.store.nodes.{CoreNode, PageNode, AssetNode, ChapterNode, CollectionNode}
+import viscel.store.coin.{Core, Page, Asset, Chapter, Collection}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 
 
-abstract class ArchiveNode extends ViscelNode {
+abstract class ArchiveNode extends Coin {
 
 
-	def description: Description
+	def story: Story
 
 	@tailrec
 	private def layerAcc(acc: List[ArchiveNode]): List[ArchiveNode] = narc match {
@@ -27,20 +27,20 @@ abstract class ArchiveNode extends ViscelNode {
 	def parc: Option[ArchiveNode] = self.from(rel.narc).map { ArchiveNode(_) }
 	def parc_=(en: ArchiveNode) = self.from_=(rel.narc, en.self)
 
-	def prev: Option[ArchiveNode] = Neo.txs { ArchiveManipulation.prev(self).map(ArchiveNode(_)) }
+	def prev: Option[ArchiveNode] = Neo.txs { Traversal.prev(self).map(ArchiveNode(_)) }
 
-	def next: Option[ArchiveNode] = Neo.txs { ArchiveManipulation.next(self).map(ArchiveNode(_)) }
+	def next: Option[ArchiveNode] = Neo.txs { Traversal.next(self).map(ArchiveNode(_)) }
 
-	def collection: CollectionNode = Neo.txs {
+	def collection: Collection = Neo.txs {
 		@tailrec
 		def rewind(node: Node): Node = {
-			val begin = ArchiveManipulation.layerBegin(node)
+			val begin = Traversal.layerBegin(node)
 			begin.from(rel.describes) match {
 				case None => begin
 				case Some(upper) => rewind(upper)
 			}
 		}
-		CollectionNode(rewind(self))
+		Collection(rewind(self))
 	}
 
 	@tailrec
@@ -67,10 +67,10 @@ object ArchiveNode {
 
 	def apply(node: Node): ArchiveNode = Neo.txs { node.getLabels.asScala.toList } match {
 		case List(l) => SimpleLabel(l) match {
-			case label.Chapter => ChapterNode(node)
-			case label.Asset => AssetNode(node)
-			case label.Page => PageNode(node)
-			case label.Core => CoreNode(node)
+			case label.Chapter => Chapter(node)
+			case label.Asset => Asset(node)
+			case label.Page => Page(node)
+			case label.Core => Core(node)
 		}
 		case List(l) => throw new IllegalArgumentException(s"unhandled archive label $l for $node")
 		case list @ _ :: _ => throw new IllegalArgumentException(s"to many labels $list for $node")

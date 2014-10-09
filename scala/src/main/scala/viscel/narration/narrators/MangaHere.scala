@@ -1,45 +1,45 @@
-package viscel.cores.concrete
+package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.cores.Util._
-import viscel.cores.{Core, Selection}
+import viscel.narration.Util._
+import viscel.narration.{Narrator, Selection}
 import viscel.crawler.AbsUri
-import viscel.description.Description
+import viscel.description.Story
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map
 
 object MangaHere {
 
-	case class Generic(id: String, name: String, archiveUri: AbsUri) extends Core {
+	case class Generic(id: String, name: String, archiveUri: AbsUri) extends Narrator {
 
-		def archive = Description.Pointer(archiveUri, "archive") :: Nil
+		def archive = Story.More(archiveUri, "archive") :: Nil
 
-		def wrapArchive(doc: Document): Or[List[Description], Every[ErrorMessage]] = {
+		def wrapArchive(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
 			Selection(doc).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { elementIntoChapterPointer("page") }
 		}
 
-		def wrapPage(doc: Document): Or[List[Description], Every[ErrorMessage]] = {
+		def wrapPage(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
 			val next_? = Selection(doc).optional(".next_page:not([onclick])").wrap { selectNext("page") }
 			val img_? = Selection(doc).unique("#image").wrapEach(imgIntoAsset)
 			withGood(img_?, next_?) { _ ::: _ }
 		}
 
-		def wrap(doc: Document, pd: Description.Pointer): List[Description] = Description.fromOr(pd.pagetype match {
+		def wrap(doc: Document, pd: Story.More): List[Story] = Story.fromOr(pd.pagetype match {
 			case "archive" => wrapArchive(doc)
 			case "page" => wrapPage(doc)
 		})
 	}
 
-	def getCore(desc: Description.Core): Core = Generic(id = desc.id, name = desc.name, archiveUri = desc.metadata("start"))
+	def getCore(desc: Story.Core): Narrator = Generic(id = desc.id, name = desc.name, archiveUri = desc.metadata("start"))
 
-	object MetaCore extends Core {
+	object MetaCore extends Narrator {
 		override def id: String = "Meta_MangaHere"
 		override def name: String = "Metacore MangaHere"
-		override def archive: List[Description] = Description.Pointer("http://www.mangahere.co/mangalist/", "") :: Nil
-		override def wrap(doc: Document, pd: Description.Pointer): List[Description] = Description.fromOr(
+		override def archive: List[Story] = Story.More("http://www.mangahere.co/mangalist/", "") :: Nil
+		override def wrap(doc: Document, pd: Story.More): List[Story] = Story.fromOr(
 			Selection(doc).many("a.manga_info").wrapEach { anchor =>
 				val name = anchor.attr("rel")
 				val uri_? = extractUri(anchor)
@@ -47,7 +47,7 @@ object MangaHere {
 					.fold(Bad(One("match error")): String Or One[ErrorMessage])(m => Good(m.group(1)))
 				}
 				withGood(uri_?, id_?) { (uri, id) =>
-					Description.Core("MangaHere", s"MangaHere_$id", name, Map("start" -> uri.toString))
+					Story.Core("MangaHere", s"MangaHere_$id", name, Map("start" -> uri.toString))
 				}
 			})
 	}

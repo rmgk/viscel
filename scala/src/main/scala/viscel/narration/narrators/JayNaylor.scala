@@ -1,19 +1,19 @@
-package viscel.cores.concrete
+package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
-import viscel.cores.Util.{elementIntoPointer, imgIntoAsset}
-import viscel.cores.{Core, Selection}
+import viscel.narration.Util.{elementIntoPointer, imgIntoAsset}
+import viscel.narration.{Narrator, Selection}
 import viscel.crawler.AbsUri
-import viscel.description.Description
-import viscel.description.Description.{Chapter, Pointer}
+import viscel.description.Story
+import viscel.description.Story.{Chapter, More}
 
 
 object JayNaylor {
 
-	class Common(val id: String, val name: String, val archiveUri: AbsUri) extends Core {
-		override def archive: List[Description] = Pointer(archiveUri, "archive") :: Nil
+	class Common(val id: String, val name: String, val archiveUri: AbsUri) extends Narrator {
+		override def archive: List[Story] = More(archiveUri, "archive") :: Nil
 
-		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
+		def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
 			case "archive" => Selection(doc).many("#chapters li > a").wrapFlat { anchor =>
 				val chap = Chapter(anchor.ownText())
 				elementIntoPointer("chapter")(anchor).map { List(chap, _) }

@@ -3,14 +3,14 @@ package viscel.server.pages
 import org.neo4j.graphdb.Direction
 import spray.http.HttpResponse
 import viscel.server.HtmlPage
-import viscel.store.nodes.UserNode
-import viscel.store.{Neo, Nodes, ViscelNode}
+import viscel.store.coin.User
+import viscel.store.{Coin, Neo, Vault}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.JavaConverters._
 import scalatags.Text.all._
 
-class RawPage(user: UserNode, vnode: ViscelNode) extends HtmlPage {
+class RawPage(user: User, vnode: Coin) extends HtmlPage {
 
 	override def Title = vnode.toString
 
@@ -26,12 +26,12 @@ class RawPage(user: UserNode, vnode: ViscelNode) extends HtmlPage {
 	def sidePart = {
 		val outgoing = Neo.txs {
 			vnode.self.getRelationships(Direction.OUTGOING).asScala.map { rel =>
-				rel.getType.name -> Nodes.wrap(rel.getEndNode).fold(n => link_raw(n, n.toString), StringFrag)
+				rel.getType.name -> Vault.wrap(rel.getEndNode).fold(n => link_raw(n, n.toString), StringFrag)
 			}.toIndexedSeq.sortBy(_._1)
 		}
 		val incoming = Neo.txs {
 			vnode.self.getRelationships(Direction.INCOMING).asScala.map { rel =>
-				rel.getType.name -> Nodes.wrap(rel.getStartNode).fold(n => link_raw(n, n.toString), StringFrag)
+				rel.getType.name -> Vault.wrap(rel.getStartNode).fold(n => link_raw(n, n.toString), StringFrag)
 			}.toIndexedSeq.sortBy(_._1)
 		}
 		Seq[Frag](fieldset(class_info)(legend("Outgoing"), make_table(outgoing: _*)),

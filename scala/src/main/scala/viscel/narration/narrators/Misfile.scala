@@ -1,24 +1,24 @@
-package viscel.cores.concrete
+package viscel.narration.narrators
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.cores.Util._
-import viscel.cores.{Core, Selection}
-import viscel.description.Description
-import viscel.description.Description.{Pointer, Chapter}
+import viscel.narration.Util._
+import viscel.narration.{Narrator, Selection}
+import viscel.description.Story
+import viscel.description.Story.{More, Chapter}
 
 import scala.language.implicitConversions
 
-object Misfile extends Core with StrictLogging {
-	def archive = Pointer("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", "archive") :: Nil
+object Misfile extends Narrator with StrictLogging {
+	def archive = More("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", "archive") :: Nil
 
 	def id: String = "NX_Misfile"
 
 	def name: String = "Misfile"
 
-	def wrapArchive(doc: Document): Or[List[Description], Every[ErrorMessage]] = {
+	def wrapArchive(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
 		val chapters_? = Selection(doc).many("#comicbody a:matchesOwn(^Book #\\d+$)").wrapFlat { anchor =>
 			withGood(elementIntoPointer("page")(anchor)) { pointer =>
 				Chapter(anchor.ownText()) :: pointer :: Nil
@@ -32,7 +32,7 @@ object Misfile extends Core with StrictLogging {
 		}
 	}
 
-	def wrapPage(doc: Document): Or[List[Description], Every[ErrorMessage]] = {
+	def wrapPage(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
 		val elements_? = Selection(doc)
 			.unique(".comiclist table.wide_gallery")
 			.many("[id~=^comic_\\d+$] .picture a").wrapEach { anchor =>
@@ -50,7 +50,7 @@ object Misfile extends Core with StrictLogging {
 		withGood(elements_?, next_?) { _ ::: _ }
 	}
 
-	def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
 		case "archive" => wrapArchive(doc)
 		case "page" => wrapPage(doc)
 	})
