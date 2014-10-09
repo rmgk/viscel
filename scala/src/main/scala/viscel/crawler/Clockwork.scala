@@ -19,7 +19,7 @@ object Clockwork extends StrictLogging {
 	val archiveHint = new ImperativeEvent[ArchiveNode]()
 	val collectionHint = new ImperativeEvent[CollectionNode]()
 
-	val hints: Event[CollectionNode] = archiveHint.map((_: ArchiveNode).collection) || collectionHint
+	val hints: Event[CollectionNode] = archiveHint.map(_.collection) || collectionHint
 
 	def ensureJob(core: Core, collection: CollectionNode, ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = {
 		val job = new Job(core, neo, iopipe, ec)

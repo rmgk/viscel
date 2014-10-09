@@ -6,7 +6,8 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
-import viscel.description._
+import viscel.description.Description.{Chapter, Pointer}
+import viscel.description.Description
 
 
 object Twokinds extends Core with StrictLogging {

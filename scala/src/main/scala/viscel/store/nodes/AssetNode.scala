@@ -2,8 +2,8 @@ package viscel.store.nodes
 
 import org.neo4j.graphdb.Node
 import viscel.crawler.AbsUri
-import viscel.description.Asset
-import viscel.store._
+import viscel.description.Description.Asset
+import viscel.store.{rel, Metadata, ArchiveNode, NodeOps}
 
 import scala.annotation.tailrec
 

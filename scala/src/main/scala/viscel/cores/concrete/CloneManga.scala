@@ -5,7 +5,8 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
-import viscel.description._
+import viscel.description.Description
+import viscel.description.Description.{CoreDescription, Pointer}
 
 import scala.Predef.{any2ArrowAssoc, augmentString}
 import scala.collection.immutable.Map

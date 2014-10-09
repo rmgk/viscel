@@ -3,8 +3,9 @@ package viscel.cores
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.cores.concrete._
-import viscel.description._
-import viscel.store._
+import viscel.description.Description
+import viscel.store.{Neo, label, Nodes}
+
 import viscel.store.nodes.{CollectionNode, CoreNode}
 
 import scala.collection.concurrent
@@ -14,7 +15,7 @@ trait Core {
 	def id: String
 	def name: String
 	def archive: List[Description]
-	def wrap(doc: Document, pd: Pointer): List[Description]
+	def wrap(doc: Document, pd: Description.Pointer): List[Description]
 	override def equals(other: Any) = other match {
 		case o: Core => id === o.id
 		case _ => false

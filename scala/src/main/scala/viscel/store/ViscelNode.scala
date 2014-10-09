@@ -6,6 +6,6 @@ import org.neo4j.graphdb.Node
 
 trait ViscelNode extends StrictLogging {
 	def self: Node
-	def nid = self.getId
+	def nid: Long = self.getId
 }
 

@@ -6,7 +6,8 @@ import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
-import viscel.description._
+import viscel.description.Description
+import viscel.description.Description.{Chapter, Pointer}
 
 import scala.Predef.conforms
 

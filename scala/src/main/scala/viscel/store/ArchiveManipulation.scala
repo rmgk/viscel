@@ -2,7 +2,8 @@ package viscel.store
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.description._
+import viscel.description.Description
+import viscel.description.Description.{CoreDescription, Asset, Chapter, Pointer, FailedDescription}
 import viscel.store.nodes.AssetNode
 
 import scala.annotation.tailrec

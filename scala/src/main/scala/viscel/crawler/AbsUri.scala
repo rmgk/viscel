@@ -5,7 +5,7 @@ import spray.http.Uri
 
 import scala.language.implicitConversions
 
-class AbsUri(val uri: Uri) extends AnyVal {
+class AbsUri private(val uri: Uri) extends AnyVal {
 	override def toString = uri.toString()
 }
 

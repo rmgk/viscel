@@ -10,9 +10,6 @@ final case class CollectionNode(self: Node) extends ViscelNode with DescribingNo
   def name: String = self.get[String]("name").getOrElse(id)
   def name_=(value: String) = self.setProperty("name", value)
 
-  def lastUpdate = self.get[Long]("last_update").getOrElse(0L)
-  def lastUpdate_=(time: Long) = self.setProperty("last_update", time)
-
   def first: Option[AssetNode] = describes.flatMap(_.findForward { case an: AssetNode => an })
   def apply(n: Int): Option[AssetNode] = time(s"select $name($n)") {
     var i = 1

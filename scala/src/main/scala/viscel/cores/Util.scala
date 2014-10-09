@@ -4,6 +4,7 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.crawler._
+import viscel.description.Description.{Chapter, Pointer, Asset}
 import viscel.description._
 
 import scala.Predef.any2ArrowAssoc

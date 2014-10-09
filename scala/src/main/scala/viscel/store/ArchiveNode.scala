@@ -1,9 +1,9 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import viscel.description._
+import viscel.description.Description
 import viscel.store.label.SimpleLabel
-import viscel.store.nodes._
+import viscel.store.nodes.{CoreNode, PageNode, AssetNode, ChapterNode, CollectionNode}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -43,13 +43,6 @@ abstract class ArchiveNode extends ViscelNode {
 		CollectionNode(rewind(self))
 	}
 
-	def setChecked() = Neo.txs { self.setProperty("checked", System.currentTimeMillis()) }
-	def lastCheck(difference: scala.concurrent.duration.Duration) = Neo.txs {
-		val checked = self.get[Long]("checked").getOrElse(0L)
-		val now = System.currentTimeMillis()
-		now - checked > difference.toMillis
-	}
-
 	@tailrec
 	final def findBackward[R](p: PartialFunction[ArchiveNode, R]): Option[R] = {
 		if (p.isDefinedAt(this)) Some(p(this))
@@ -79,10 +72,8 @@ object ArchiveNode {
 			case label.Page => PageNode(node)
 			case label.Core => CoreNode(node)
 		}
-		case List(l) => throw new IllegalArgumentException(s"unhandled label $l for $node")
-		case list: List[_] => throw new IllegalArgumentException(s"to many labels $list for $node")
+		case List(l) => throw new IllegalArgumentException(s"unhandled archive label $l for $node")
+		case list @ _ :: _ => throw new IllegalArgumentException(s"to many labels $list for $node")
 	}
-
-	def apply(id: Long): ArchiveNode = apply(Neo.tx { _.getNodeById(id) })
 
 }

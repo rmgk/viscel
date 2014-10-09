@@ -5,7 +5,7 @@ import org.scalactic._
 import spray.http.MediaType
 import viscel.cores.Core
 import viscel.crawler.AbsUri
-import viscel.description.{Asset, Chapter, CoreDescription, Pointer}
+import viscel.description.Description.{Asset, Chapter, CoreDescription, Pointer}
 import viscel.store.nodes._
 
 import scala.Predef.any2ArrowAssoc

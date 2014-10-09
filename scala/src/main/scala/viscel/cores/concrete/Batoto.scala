@@ -6,7 +6,8 @@ import org.scalactic._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
 import viscel.crawler.AbsUri
-import viscel.description._
+import viscel.description.Description
+import viscel.description.Description.{Chapter, Pointer}
 
 import scala.collection.immutable.Set
 

@@ -1,10 +1,11 @@
 package viscel.cores.concrete
 
 import org.jsoup.nodes.Document
-import viscel.cores.Util._
+import viscel.cores.Util.{elementIntoPointer, imgIntoAsset}
 import viscel.cores.{Core, Selection}
 import viscel.crawler.AbsUri
-import viscel.description._
+import viscel.description.Description
+import viscel.description.Description.{Chapter, Pointer}
 
 
 object JayNaylor {
@@ -12,13 +13,13 @@ object JayNaylor {
 	class Common(val id: String, val name: String, val archiveUri: AbsUri) extends Core {
 		override def archive: List[Description] = Pointer(archiveUri, "archive") :: Nil
 
-		def wrap(doc: Document, pd: Pointer): List[Description] = pd.pagetype match {
+		def wrap(doc: Document, pd: Pointer): List[Description] = Description.fromOr(pd.pagetype match {
 			case "archive" => Selection(doc).many("#chapters li > a").wrapFlat { anchor =>
 				val chap = Chapter(anchor.ownText())
 				elementIntoPointer("chapter")(anchor).map { List(chap, _) }
 			}
 			case "chapter" => Selection(doc).many("#comicentry .content img").wrapEach(imgIntoAsset)
-		}
+		})
 	}
 
 	object BetterDays extends Common("NX_BetterDays", "Better Days", "http://jaynaylor.com/betterdays/archives/chapter-1-honest-girls/")

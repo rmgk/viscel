@@ -1,7 +1,7 @@
 package viscel.store.nodes
 
 import org.neo4j.graphdb.Node
-import viscel.description._
+import viscel.description.Description.Chapter
 import viscel.store._
 
 

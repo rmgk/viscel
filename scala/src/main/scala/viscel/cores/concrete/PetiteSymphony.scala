@@ -4,7 +4,8 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
-import viscel.description._
+import viscel.description.Description
+import viscel.description.Description.Pointer
 
 import scala.collection.immutable.Set
 

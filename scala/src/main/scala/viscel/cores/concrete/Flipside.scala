@@ -4,7 +4,8 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.cores.Util._
 import viscel.cores.{Core, Selection}
-import viscel.description._
+import viscel.description.Description.{Chapter, Pointer}
+import viscel.description.Description
 
 object Flipside extends Core {
 

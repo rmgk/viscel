@@ -2,7 +2,7 @@ package viscel.store.nodes
 
 import org.neo4j.graphdb.Node
 import viscel.crawler.AbsUri
-import viscel.description.Pointer
+import viscel.description.Description.Pointer
 import viscel.store.{ArchiveNode, DescribingNode, Neo, NodeOps}
 
 
@@ -19,6 +19,3 @@ final case class PageNode(self: Node) extends ArchiveNode with DescribingNode {
 
   override def toString = s"Page($location)"
 }
-
-
-

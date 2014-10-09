@@ -4,17 +4,17 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
-import spray.client.pipelining._
+import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
 import spray.httpx.encoding._
-import viscel._
-import viscel.description.Asset
-import viscel.store._
+import viscel.description.Description.Asset
+import viscel.sha1hex
+import viscel.store.{Neo, Nodes}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent._
-import scala.util._
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 object Network extends StrictLogging {
 
