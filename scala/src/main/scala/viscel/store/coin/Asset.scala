@@ -19,18 +19,18 @@ final case class Asset(self: Node) extends ArchiveNode with Metadata {
 		@tailrec
 		def pos(oen: Option[Node], n: Int): Int = oen match {
 			case None => n
-			case Some(en) => pos(en.to(rel.skip), n + 1)
+			case Some(en) => pos(en.from(rel.skip), n + 1)
 		}
-		pos(self.to(rel.skip), 1)
+		pos(self.from(rel.skip), 1)
 	}
 
 	def distanceToLast: Int = {
 		@tailrec
 		def dist(oen: Option[Node], n: Int): Int = oen match {
 			case None => n
-			case Some(en) => dist(en.from(rel.skip), n + 1)
+			case Some(en) => dist(en.to(rel.skip), n + 1)
 		}
-		dist(self.from(rel.skip), 0)
+		dist(self.to(rel.skip), 0)
 	}
 
 	def origin: AbsUri = AbsUri.fromString(self[String]("origin"))
