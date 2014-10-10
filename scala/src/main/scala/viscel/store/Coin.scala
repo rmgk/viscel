@@ -2,8 +2,9 @@ package viscel.store
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
-import viscel.store.coin.{Core, Chapter, Page, Asset, Collection, Blob}
-import viscel.store.label.SimpleLabel
+import viscel.store.archive.label
+import viscel.store.archive.label.SimpleLabel
+import viscel.store.coin.{Asset, Blob, Chapter, Collection, Core, Page}
 
 
 trait Coin extends StrictLogging {

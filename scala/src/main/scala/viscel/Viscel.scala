@@ -14,6 +14,7 @@ import spray.can.Http
 import spray.client.pipelining
 import viscel.crawler.Clockwork
 import viscel.store._
+import viscel.store.archive.{Neo, rel}
 import viscel.store.coin.{Collection, User}
 
 import scala.concurrent.ExecutionContext

@@ -3,9 +3,9 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
+import viscel.narration.Story.More
 import viscel.narration.Util._
-import viscel.narration.{Story, Narrator, Selection}
-import Story.More
+import viscel.narration.{Narrator, Selection, Story}
 
 import scala.Predef.{any2ArrowAssoc, augmentString}
 import scala.collection.immutable.Map

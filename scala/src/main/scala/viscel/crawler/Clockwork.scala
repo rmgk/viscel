@@ -5,6 +5,7 @@ import rescala.events.{Event, ImperativeEvent}
 import spray.client.pipelining._
 import viscel.narration.Narrator
 import viscel.store._
+import viscel.store.archive.Neo
 import viscel.store.coin.Collection
 
 import scala.collection.concurrent

@@ -4,15 +4,16 @@ import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.server.{HtmlPage, MaskLocation, MetaNavigation}
 import viscel.store._
+import viscel.store.archive.Traversal
 import viscel.store.coin._
 
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.annotation.tailrec
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scalatags.Text.Frag
 import scalatags.Text.attrs._
 import scalatags.Text.implicits.{intFrag, stringAttr, stringFrag}
 import scalatags.Text.tags.{SeqFrag, _}
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLocation with MetaNavigation {
 	override def Title = collection.name

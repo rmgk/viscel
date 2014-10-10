@@ -4,9 +4,9 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
+import viscel.narration.Story.{Chapter, More}
 import viscel.narration.Util._
-import viscel.narration.{Story, Narrator, Selection}
-import Story.{Chapter, More}
+import viscel.narration.{Narrator, Selection, Story}
 
 import scala.Predef.conforms
 

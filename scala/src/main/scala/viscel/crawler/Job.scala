@@ -7,8 +7,9 @@ import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import spray.client.pipelining._
 import viscel.narration.Narrator
-import viscel.store._
+import viscel.store.archive.{ArchiveManipulation, Neo, NodeOps, Traversal, rel}
 import viscel.store.coin.{Asset, Collection, Page}
+import viscel.store.{Coin, StoryCoin, Vault}
 
 import scala.concurrent.{ExecutionContext, Future}
 

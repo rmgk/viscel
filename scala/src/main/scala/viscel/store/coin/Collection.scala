@@ -1,8 +1,9 @@
 package viscel.store.coin
 
 import org.neo4j.graphdb.Node
-import viscel.store.Traversal.findForward
-import viscel.store.{Coin, NodeOps, rel, label}
+import viscel.store.Coin
+import viscel.store.archive.{NodeOps, Traversal}
+import viscel.store.archive.Traversal.findForward
 import viscel.time
 
 final case class Collection(self: Node) extends Coin {

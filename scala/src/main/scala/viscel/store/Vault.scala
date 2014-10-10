@@ -5,7 +5,8 @@ import spray.http.MediaType
 import viscel.crawler.AbsUri
 import viscel.narration.Story.{Failed, More}
 import viscel.narration.{Narrator, Story}
-import viscel.store.coin.{Asset, Blob, Chapter, Collection, Config, Core, Page, User}
+import viscel.store.archive.{Neo, label}
+import viscel.store.coin.{Blob, Collection, Config, User}
 
 import scala.Predef.any2ArrowAssoc
 

@@ -1,9 +1,10 @@
-package viscel.store
+package viscel.store.archive
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Story
-import viscel.store.Traversal.{findBackward, findForward}
+import viscel.store.archive.Traversal.{findBackward, findForward}
+import viscel.store.{Coin, Vault}
 
 import scala.annotation.tailrec
 import scala.collection.mutable

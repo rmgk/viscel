@@ -2,7 +2,7 @@ import java.security.MessageDigest
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import scala.Predef.wrapString
+import scala.Predef.augmentString
 
 package object viscel extends StrictLogging {
 	val digester = MessageDigest.getInstance("SHA1")

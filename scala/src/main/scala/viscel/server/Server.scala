@@ -5,17 +5,16 @@ import java.io.File
 import akka.actor.{Actor, ActorRefFactory}
 import akka.pattern.ask
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.scalactic.Good
 import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
 import spray.can.server.Stats
 import spray.http.ContentType
 import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
-import viscel.narration.Narrator
 import viscel.crawler.Clockwork
-import viscel.server.pages._
+import viscel.narration.Narrator
 import viscel.store._
+import viscel.store.archive.Neo
 import viscel.store.coin._
 
 import scala.Predef.{any2ArrowAssoc, conforms}
@@ -92,7 +91,7 @@ class Server extends Actor with HttpService with StrictLogging {
 				complete {
 					Future {
 						spray.util.actorSystem.shutdown()
-						viscel.store.Neo.shutdown()
+						Neo.shutdown()
 					}
 					"shutdown"
 				}

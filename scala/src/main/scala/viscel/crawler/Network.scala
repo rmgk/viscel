@@ -8,10 +8,9 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
 import spray.httpx.encoding._
-import viscel.narration.Story
-import Story.Asset
 import viscel.sha1hex
-import viscel.store.{Neo, Vault}
+import viscel.store.Vault
+import viscel.store.archive.Neo
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

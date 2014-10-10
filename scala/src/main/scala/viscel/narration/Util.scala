@@ -4,7 +4,7 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.crawler._
-import Story.{Chapter, More, Asset}
+import viscel.narration.Story.{Asset, Chapter, More}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Set

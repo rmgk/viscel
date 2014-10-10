@@ -1,7 +1,6 @@
-package viscel.store
+package viscel.store.archive
 
 import org.neo4j.graphdb.Node
-import viscel.store.coin.Collection
 
 import scala.annotation.tailrec
 

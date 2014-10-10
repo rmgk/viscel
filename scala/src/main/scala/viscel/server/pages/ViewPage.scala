@@ -1,7 +1,6 @@
 package viscel.server.pages
 
-import spray.http.HttpResponse
-import viscel.server.{MetaNavigation, MaskLocation, HtmlPage}
+import viscel.server.{HtmlPage, MaskLocation, MetaNavigation}
 import viscel.store.coin.{Asset, User}
 
 import scalatags.Text.all._

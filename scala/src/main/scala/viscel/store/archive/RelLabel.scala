@@ -1,4 +1,4 @@
-package viscel.store
+package viscel.store.archive
 
 import org.neo4j.graphdb.{Label, RelationshipType}
 

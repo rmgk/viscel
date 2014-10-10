@@ -3,6 +3,7 @@ package viscel.store.coin
 import org.neo4j.graphdb.Node
 import viscel.narration.Story
 import viscel.store._
+import viscel.store.archive.NodeOps
 
 
 final case class Chapter(self: Node) extends StoryCoin with Metadata {

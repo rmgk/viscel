@@ -1,4 +1,4 @@
-package viscel.store
+package viscel.store.archive
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.cypher.ExecutionEngine

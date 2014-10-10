@@ -3,7 +3,8 @@ package viscel.narration
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.narrators._
-import viscel.store.{Neo, label, coin}
+import viscel.store.archive.{Neo, label}
+import viscel.store.coin
 
 import scala.collection.immutable.Set
 

@@ -2,8 +2,9 @@ package viscel.server
 
 import spray.http.MediaTypes
 import viscel.narration.Narrator
+import viscel.store.Coin
+import viscel.store.archive.NodeOps
 import viscel.store.coin.{Asset, Blob, Collection}
-import viscel.store.{Coin, NodeOps}
 
 import scala.Predef.conforms
 import scalatags.Text.Tag

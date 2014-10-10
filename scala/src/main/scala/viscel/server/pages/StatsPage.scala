@@ -2,8 +2,9 @@ package viscel.server.pages
 
 import spray.can.server.Stats
 import viscel.server.HtmlPage
+import viscel.store.archive.Neo
 import viscel.store.coin.User
-import viscel.store.{Neo, Vault, label}
+import viscel.store.{Vault, archive}
 
 import scala.Predef.any2ArrowAssoc
 import scalatags.Text.all._
@@ -20,9 +21,9 @@ class StatsPage(user: User, stats: Stats) extends HtmlPage {
 			"Downloads :" -> cn.downloads.toString,
 			"Compressed Downloads :" -> cn.downloadsCompressed.toString,
 			"Failed Downloads :" -> cn.downloadsFailed.toString,
-			"Collections :" -> Neo.nodes(label.Collection).size.toString,
-			"Chapters : " -> Neo.nodes(label.Chapter).size.toString,
-			"Elements : " -> Neo.nodes(label.Asset).size.toString,
+			"Collections :" -> Neo.nodes(archive.label.Collection).size.toString,
+			"Chapters : " -> Neo.nodes(archive.label.Chapter).size.toString,
+			"Elements : " -> Neo.nodes(archive.label.Asset).size.toString,
 			"Uptime                : " -> stats.uptime.toString,
 			"Total requests        : " -> stats.totalRequests.toString,
 			"Open requests         : " -> stats.openRequests.toString,

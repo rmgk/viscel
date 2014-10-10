@@ -3,7 +3,7 @@ package viscel.server
 import spray.can.server.Stats
 import spray.http.HttpResponse
 import viscel.server.pages._
-import viscel.store._
+import viscel.store.archive.Neo
 import viscel.store.coin.{Asset, Collection, User}
 
 object Pages {

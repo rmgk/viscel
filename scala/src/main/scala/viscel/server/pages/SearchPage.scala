@@ -1,8 +1,8 @@
 package viscel.server.pages
 
 import viscel.server.HtmlPage
+import viscel.store.archive.Util.search
 import viscel.store.coin.User
-import viscel.store.{Util => StoreUtil}
 
 import scalatags.Text.all._
 
@@ -15,7 +15,7 @@ class SearchPage(user: User, text: String) extends HtmlPage {
 	def navigation: Seq[Frag] = link_main("index") :: Nil
 
 	def sidePart: List[Frag] = {
-		val containing = StoreUtil.search(text)
+		val containing = search(text)
 			.map { cn => link_core(cn) }
 		make_fieldset(text, containing)(class_group) :: Nil
 	}

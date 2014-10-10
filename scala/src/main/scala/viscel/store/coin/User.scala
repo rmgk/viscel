@@ -3,6 +3,7 @@ package viscel.store.coin
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.store._
+import viscel.store.archive.{Neo, NodeOps, label, rel}
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions

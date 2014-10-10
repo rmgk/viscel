@@ -1,10 +1,10 @@
-package viscel
+package viscel.store
 
 import org.neo4j.graphdb.{Direction, Node, Relationship, RelationshipType}
 
 import scala.collection.JavaConverters._
 
-package object store {
+package object archive {
 
 	implicit class NodeOps(node: Node) {
 		def apply[T](key: String): T = node.getProperty(key).asInstanceOf[T]
