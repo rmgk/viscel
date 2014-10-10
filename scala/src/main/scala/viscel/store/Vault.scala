@@ -1,33 +1,14 @@
 package viscel.store
 
-import org.neo4j.graphdb.Node
-import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import spray.http.MediaType
 import viscel.narration.{Story, Narrator}
 import viscel.crawler.AbsUri
 import viscel.store.coin.{Asset, Blob, Chapter, Collection, Config, Core, Page, User}
 
 import scala.Predef.any2ArrowAssoc
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 
 object Vault {
-
-	def wrap(node: Node): Coin Or ErrorMessage = node.getLabels.asScala.to[List] match {
-		case Nil => Bad(s"unlabeled node: $node")
-		case List(l) => label.SimpleLabel(l) match {
-			case label.Asset => Good(Asset(node))
-			case label.Chapter => Good(Chapter(node))
-			case label.Collection => Good(Collection(node))
-			case label.Config => Good(Config(node))
-			case label.Blob => Good(Blob(node))
-			case label.Core => Good(Core(node))
-			case label.Page => Good(Page(node))
-			case label.User => Good(User(node))
-			case label.Unlabeled => Bad(s"explicit unlabeled nodes are not allowed in database: $node")
-		}
-		case list@_ :: _ => Bad(s"to many labels $list for $node")
-	}
 
 	@volatile private var configCache: Config = _
 	def config()(implicit neo: Neo): Config = {
@@ -42,9 +23,6 @@ object Vault {
 		}
 		configCache
 	}
-
-	def byID(id: Long)(implicit neo: Neo): Coin Or ErrorMessage =
-		attempt { neo.db.getNodeById(id) }.fold(wrap, t => Bad(t.toString))
 
 	object find {
 		def user(name: String)(implicit neo: Neo): Option[User] =

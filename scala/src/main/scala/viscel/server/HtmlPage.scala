@@ -11,7 +11,7 @@ import scalatags.Text.Frag
 
 trait HtmlPage extends HtmlPageUtils {
 
-	def response(implicit neo: Neo): HttpResponse = neo.txts(s"create response $Title") {
+	def response(implicit neo: Neo): HttpResponse = neo.txts(s"create response $bodyId") {
 		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
 			"<!DOCTYPE html>" + fullHtml.toString))
 	}

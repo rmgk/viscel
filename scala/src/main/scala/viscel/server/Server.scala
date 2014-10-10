@@ -70,14 +70,14 @@ class Server extends Actor with HttpService with StrictLogging {
 	def handleFormFields(user: User) =
 		formFields('bookmark.?.as[Option[Long]], 'remove_bookmark.?.as[Option[Long]]) { (bm, remove) =>
 			bm.foreach { bid =>
-				Vault.byID(bid) match {
-					case Good(asset : Asset) => user.setBookmark(asset)
+				neo.db.getNodeById(bid) match {
+					case Coin.isAsset(asset) => user.setBookmark(asset)
 					case other => logger.warn(s"not an asset: $other")
 				}
 			}
 			remove.foreach { colid =>
-				Vault.byID(colid) match {
-					case Good(col@Collection(_)) => user.deleteBookmark(col)
+				neo.db.getNodeById(colid) match {
+					case Coin.isCollection(col) => user.deleteBookmark(col)
 					case other => logger.warn(s"not a collection: $other")
 				}
 			}
@@ -102,7 +102,7 @@ class Server extends Actor with HttpService with StrictLogging {
 			} ~
 			path("b" / LongNumber) { nid =>
 				neo.txs {
-					val blob = Vault.byID(nid).get.asInstanceOf[Blob]
+					val blob = Coin.isBlob(neo.db.getNodeById(nid)).get
 					val filename = viscel.hashToFilename(blob.sha1)
 					getFromFile(new File(filename), ContentType(blob.mediatype))
 				}
@@ -126,11 +126,11 @@ class Server extends Actor with HttpService with StrictLogging {
 			} ~
 			path("i" / LongNumber) { id =>
 				neo.txs {
-					Vault.byID(id) match {
-						case Good(asset@Asset(_)) =>
+					neo.db.getNodeById(id) match {
+						case Coin.isAsset(asset) =>
 							Clockwork.archiveHint(asset)
 							complete(Pages.view(user, asset))
-						case Good(collection@Collection(_)) =>
+						case Coin.isCollection(collection) =>
 							Clockwork.collectionHint(collection)
 							complete(Pages.front(user, collection))
 						case other => complete(other.toString)

@@ -2,7 +2,7 @@ package viscel.store
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
-import viscel.store.coin.{Core, Chapter, Page, Asset}
+import viscel.store.coin.{Core, Chapter, Page, Asset, Collection, Blob}
 import viscel.store.label.SimpleLabel
 
 
@@ -21,6 +21,9 @@ object Coin {
 	object isPage extends CheckNode(label.Page, Page.apply)
 	object isChapter extends CheckNode(label.Chapter, Chapter.apply)
 	object isCore extends CheckNode(label.Core, Core.apply)
+	object isCollection extends CheckNode(label.Collection, Collection.apply)
+	object isBlob extends CheckNode(label.Blob, Blob.apply)
+
 	object hasStory extends (Node => Option[StoryCoin]) {
 		def unapply(node: Node): Option[StoryCoin] = isAsset(node).orElse(isPage(node)).orElse(isChapter(node)).orElse(isCore(node))
 		def apply(node: Node): Option[StoryCoin] = unapply(node)

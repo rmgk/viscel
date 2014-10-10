@@ -79,7 +79,7 @@ object Neo extends Neo with StrictLogging {
     }
   }
 
-  def txt[R](desc: => String)(f: GraphDatabaseService => R): R = tx { db => time(desc) { f(db) } }
+  def txt[R](desc: => String)(f: GraphDatabaseService => R): R = time(desc)(tx(f))
 
   def txs[R](f: => R): R = tx(_ => f)
 

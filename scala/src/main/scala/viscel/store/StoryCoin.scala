@@ -1,15 +1,9 @@
 package viscel.store
 
-import org.neo4j.graphdb.Node
 import viscel.narration.Story
-import viscel.store.label.SimpleLabel
-import viscel.store.coin.{Core, Page, Asset, Chapter, Collection}
+import viscel.store.coin.Collection
 
-import scala.collection.JavaConverters._
-
-
-
-abstract class StoryCoin extends Coin {
+trait StoryCoin extends Coin {
 	def story: Story
 	def collection: Collection = Collection(Traversal.origin(self))
 }
