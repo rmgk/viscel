@@ -1,8 +1,10 @@
 package viscel.store
 
+import org.neo4j.graphdb.Node
 import spray.http.MediaType
-import viscel.narration.{Story, Narrator}
 import viscel.crawler.AbsUri
+import viscel.narration.Story.{Failed, More}
+import viscel.narration.{Narrator, Story}
 import viscel.store.coin.{Asset, Blob, Chapter, Collection, Config, Core, Page, User}
 
 import scala.Predef.any2ArrowAssoc
@@ -36,7 +38,6 @@ object Vault {
 
 	}
 
-
 	object create {
 		def user(name: String, password: String)(implicit neo: Neo): User =
 			User(neo.create(label.User, "name" -> name, "password" -> password))
@@ -44,35 +45,20 @@ object Vault {
 		def collection(id: String, name: String)(implicit neo: Neo): Collection =
 			Collection(neo.create(label.Collection, "id" -> id, "name" -> name))
 
-		def page(desc: Story.More)(implicit neo: Neo): Page =
-			Page(Neo.create(label.Page, "location" -> desc.loc.toString, "pagetype" -> desc.pagetype))
-
-		def core(desc: Story.Core)(implicit neo: Neo): coin.Core =
-			Core(Neo.create(label.Core, Metadata.prefix(desc.metadata) + ("id" -> desc.id) + ("kind" -> desc.kind) + ("name" -> desc.name)))
-
-		def chapter(desc: Story.Chapter)(implicit neo: Neo): Chapter =
-			Chapter(Neo.create(label.Chapter, Metadata.prefix(desc.metadata) + ("name" -> desc.name)))
-
-		def asset(asset: Story.Asset)(implicit neo: Neo): Asset =
-			Asset(Neo.create(label.Asset, Metadata.prefix(asset.metadata) + ("source" -> asset.source.toString) + ("origin" -> asset.origin.toString)))
-
 		def blob(sha1: String, mediatype: MediaType, source: AbsUri)(implicit neo: Neo): Blob =
 			Blob(Neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediatype.value, "source" -> source.toString()))
 
-		def fromStory(desc: Story)(implicit neo: Neo): StoryCoin = {
-			desc match {
-				case Story.Failed(reason) => throw new IllegalArgumentException(reason.toString())
-				case pointer@Story.More(_, _) => page(pointer)
-				case chap@Story.Chapter(_, _) => chapter(chap)
-				case asset@Story.Asset(_, _, _) => Vault.create.asset(asset)
-				case core@Story.Core(_, _, _, _) => Vault.create.core(core)
-			}
+		def fromStory(desc: Story)(implicit neo: Neo): Node = desc match {
+			case More(loc, pagetype) => neo.create(label.Page, "location" -> loc.toString, "pagetype" -> pagetype)
+			case Story.Chapter(name, metadata) => neo.create(label.Chapter, Metadata.prefix(metadata) + ("name" -> name))
+			case Story.Asset(source, origin, metadata) => neo.create(label.Asset, Metadata.prefix(metadata) + ("source" -> source.toString) + ("origin" -> origin.toString))
+			case Story.Core(kind, id, name, metadata) => neo.create(label.Core, Metadata.prefix(metadata) + ("id" -> id) + ("kind" -> kind) + ("name" -> name))
+			case Failed(reason) => throw new IllegalArgumentException(reason.toString())
 		}
-		
+
 	}
 
 	object update {
-
 		def collection(narrator: Narrator)(implicit neo: Neo): Collection = neo.txs {
 			val col = Vault.find.collection(narrator.id)
 			col.foreach(_.name = narrator.name)
