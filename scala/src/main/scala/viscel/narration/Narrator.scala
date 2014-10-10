@@ -22,12 +22,14 @@ trait Narrator {
 }
 
 object Narrator {
-	def metaCores: Set[Narrator] = Neo.nodes(label.Core).map(coin.Core.apply).map { core =>
-		core.kind match {
-			case "CloneManga" => CloneManga.getCore(core.story)
-			case "MangaHere" => MangaHere.getCore(core.story)
-		}
-	}.toSet
+	def metaCores: Set[Narrator] = Neo.txs {
+		Neo.nodes(label.Core).map(coin.Core.apply).map { core =>
+			core.kind match {
+				case "CloneManga" => CloneManga.getCore(core.story)
+				case "MangaHere" => MangaHere.getCore(core.story)
+			}
+		}.toSet
+	}
 	def availableCores: Set[Narrator] = KatBox.cores ++ PetiteSymphony.cores ++ WordpressEasel.cores ++ Batoto.cores ++ metaCores ++ staticCores
 	def get(id: String) = viscel.time(s"get core $id") { availableCores.find(_.id === id) }
 

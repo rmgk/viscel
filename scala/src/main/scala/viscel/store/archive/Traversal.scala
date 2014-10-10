@@ -94,4 +94,13 @@ object Traversal {
 
 	def layerBelow(above: Node): List[Node] = above.to(rel.describes).fold[List[Node]](Nil)(layer)
 
+	@tailrec
+	def fold[S](state: S, node: Node)(f: (S, Node) => S): S = {
+		val nextState = f(state, node)
+		next(node) match {
+			case None => nextState
+			case Some(nextNode) => fold(nextState, nextNode)(f)
+		}
+	}
+
 }
