@@ -85,7 +85,7 @@ class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLo
 							headline = newVolume,
 							fragments = Nil,
 							finished =
-								if (counter == 0) Nil
+								if (counter == 0 && chapterName == "No Chapter") Nil
 								else {
 									val group = makeChapter(chapterName, fragments)
 									if (newVolume != headline && newVolume.isDefined) group :: h3(newVolume.get) :: finished
