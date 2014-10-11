@@ -25,7 +25,7 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 
 class Server extends Actor with HttpService with StrictLogging {
 
-	implicit def neo = Neo
+	implicit def neo: Neo = Neo
 
 	def actorRefFactory: ActorRefFactory = context
 
