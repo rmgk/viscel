@@ -12,7 +12,6 @@ import spray.http.ContentType
 import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
 import viscel.Deeds
-import viscel.crawler.Clockwork
 import viscel.narration.Narrator
 import viscel.store._
 import viscel.database.{NeoSingleton, Neo, Ntx}

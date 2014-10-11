@@ -13,15 +13,10 @@ import scala.Predef.any2ArrowAssoc
 
 object Vault {
 
-	private var configCache: Config = _
 	def config()(implicit neo: Ntx): Config = synchronized {
-		if (configCache == null) {
-			configCache =
-				Config(neo.node(label.Config, "id", "config").getOrElse {
-					neo.create(label.Config, "id" -> "config", "version" -> 1)
-				})
-		}
-		configCache
+		Config(neo.node(label.Config, "id", "config").getOrElse {
+			neo.create(label.Config, "id" -> "config", "version" -> 1)
+		})
 	}
 
 	object find {

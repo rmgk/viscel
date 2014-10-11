@@ -12,14 +12,17 @@ import org.neo4j.visualization.graphviz._
 import org.neo4j.walk.Walker
 import spray.can.Http
 import spray.client.pipelining
+import spray.http.{HttpEncodings, HttpResponse}
 import viscel.crawler.Clockwork
 import viscel.store._
 import viscel.database.{NeoSingleton, Ntx, rel}
 import viscel.store.coin.{Collection, User}
+import org.scalactic.TypeCheckedTripleEquals._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.duration._
 import scala.language.implicitConversions
+import scala.util.{Failure, Success}
 
 object Viscel extends StrictLogging {
 
@@ -53,7 +56,10 @@ object Viscel extends StrictLogging {
 		sys.addShutdownHook { NeoSingleton.shutdown() }
 
 		if (!nodbwarmup.?) time("warmup db") { NeoSingleton.txs {} }
-		logger.info(s"config version: ${ NeoSingleton.tx { ntx => Vault.config()(ntx).version(ntx) } }")
+
+		val configNode = NeoSingleton.tx { ntx => Vault.config()(ntx) }
+
+		logger.info(s"config version: ${ NeoSingleton.tx { ntx => configNode.version(ntx) } }")
 
 		if (createIndexes.?) {
 			NeoSingleton.execute("create index on :Collection(id)")
@@ -109,6 +115,18 @@ object Viscel extends StrictLogging {
 			NeoSingleton.shutdown()
 			system.shutdown()
 		}
+
+
+		Deeds.responses += {
+			case Success(res) => NeoSingleton.tx { ntx =>
+				Vault.config()(ntx).download(
+					size = res.entity.data.length,
+					success = res.status.isSuccess,
+					compressed = res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.gzip)(ntx)
+			}
+			case Failure(_) => NeoSingleton.tx { ntx => configNode.download(0, success = false)(ntx) }
+		}
+
 		(system, ioHttp)
 	}
 

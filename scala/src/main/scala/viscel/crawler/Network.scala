@@ -8,9 +8,8 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
 import spray.httpx.encoding._
-import viscel.sha1hex
+import viscel.{Deeds, sha1hex}
 import viscel.store.Vault
-import viscel.database.{NeoSingleton, Ntx}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -26,20 +25,10 @@ object Network extends StrictLogging {
 
 	private def addReferrer(referrer: Uri): (HttpRequest) => HttpRequest = addHeader("Referer" /*[sic, http spec]*/ , referrer.toString())
 
-	private def grabStats(response: Future[HttpResponse]): Future[HttpResponse] = response.andThen {
-		case Success(res) => NeoSingleton.tx { ntx =>
-			Vault.config()(ntx).download(
-				size = res.entity.data.length,
-				success = res.status.isSuccess,
-				compressed = res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.gzip)(ntx)
-		}
-		case Failure(_) => NeoSingleton.tx { ntx => Vault.config()(ntx).download(0, success = false)(ntx) }
-	}
-
 	def getResponse(request: HttpRequest, iopipe: SendReceive): Future[HttpResponse] = {
 		val result = request ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
 		logger.info(s"get ${ request.uri } (${ request.headers })")
-		grabStats(result).map { decode(Gzip) ~> decode(Deflate) }
+		result.andThen(PartialFunction(Deeds.responses.apply)).map { decode(Gzip) ~> decode(Deflate) }
 	}
 
 	def documentRequest(uri: Uri): DelayedRequest[Document] = DelayedRequest(
