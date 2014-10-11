@@ -11,12 +11,12 @@ trait Metadata {
 	this: Coin =>
 	import viscel.store.Metadata.prefix
 
-	def metadata(): Map[String, String] = Neo.txs {
+	def metadata(): Map[String, String] =
 		self.getPropertyKeys().asScala.collect {
 			case k if k.startsWith(prefix) => k.substring(prefix.length) -> self[String](k)
 		}.toMap
-	}
-	def metadataOption(key: String): Option[String] = Neo.txs { self.get[String](prefix + key) }
+
+	def metadataOption(key: String): Option[String] = self.get[String](prefix + key)
 }
 
 object Metadata {

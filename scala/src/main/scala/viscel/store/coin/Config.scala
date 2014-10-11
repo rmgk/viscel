@@ -7,7 +7,7 @@ import viscel.store.archive.{Neo, NodeOps}
 
 final case class Config(self: Node) extends Coin {
 
-	def version = Neo.txs { self[Int]("version") }
+	def version = self[Int]("version")
 
 	def download(size: Long, success: Boolean = true, compressed: Boolean = false): Unit = {
 		self.setProperty("stat_download_size", downloaded + size)

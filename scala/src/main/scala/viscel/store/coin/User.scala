@@ -18,14 +18,14 @@ import scala.language.implicitConversions
  * (c) -[:bookmark]-> (b) -[:bookmarks]-> (e)
  */
 final case class User(self: Node) extends Coin {
-	def name: String = Neo.txs { self[String]("name") }
-	def password: String = Neo.txs { self[String]("password") }
+	def name: String = self[String]("name")
+	def password: String = self[String]("password")
 
-	def getBookmark(cn: Collection): Option[Asset] = Neo.txs { getBookmarkNode(cn).flatMap { bookmarkToAsset } }
+	def getBookmark(cn: Collection): Option[Asset] = getBookmarkNode(cn).flatMap { bookmarkToAsset }
 
-	def setBookmark(en: Asset): Unit = Neo.txts(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
+	def setBookmark(en: Asset)(implicit neo: Neo): Unit = viscel.time(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
 		def createBookmark() = {
-			val bmn = Neo.create(label.Bookmark)
+			val bmn = neo.create(label.Bookmark)
 			self.createRelationshipTo(bmn, rel.bookmarked)
 			en.collection.self.createRelationshipTo(bmn, rel.bookmark)
 			bmn
@@ -35,27 +35,23 @@ final case class User(self: Node) extends Coin {
 		bmn.createRelationshipTo(en.self, rel.bookmarks)
 	}
 
-	def bookmarks: Vector[Asset] = Neo.txs {
-		self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { bookmarkToAsset }.toVector
-	}
+	def bookmarks: Vector[Asset] = self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { bookmarkToAsset }.toVector
 
-	def bookmarkToAsset(bmn: Node): Option[Asset] = Neo.txs {
+	def bookmarkToAsset(bmn: Node): Option[Asset] =
 		bmn.to(rel.bookmarks) match {
 			case Some(n) => Some(Asset(n))
 			case None =>
 				None
 		}
-	}
 
-	def deleteBookmark(cn: Collection) = Neo.txts(s"delete bookmark ${ cn.id } for $name") {
+	def deleteBookmark(cn: Collection) = viscel.time(s"delete bookmark ${ cn.id } for $name") {
 		getBookmarkNode(cn).foreach { bmn =>
 			bmn.getRelationships.asScala.foreach { _.delete }
 			bmn.delete()
 		}
 	}
 
-	def getBookmarkNode(cn: Collection): Option[Node] = Neo.txs {
+	def getBookmarkNode(cn: Collection): Option[Node] =
 		cn.self.outgoing(rel.bookmark).view.map { _.getEndNode }.find { bmn => bmn.from(rel.bookmarked).get === this.self }
-	}
 
 }

@@ -92,7 +92,7 @@ object Viscel extends StrictLogging {
 		val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
 		if (!noserver.?) {
-			val server = system.actorOf(Props[viscel.server.Server], "viscel-server")
+			val server = system.actorOf(Props(Predef.classOf[viscel.server.Server], Neo), "viscel-server")
 			ioHttp ! Http.Bind(server, interface = "0", port = port())
 		}
 

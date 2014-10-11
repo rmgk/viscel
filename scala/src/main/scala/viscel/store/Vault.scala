@@ -47,7 +47,7 @@ object Vault {
 			Collection(neo.create(label.Collection, "id" -> id, "name" -> name))
 
 		def blob(sha1: String, mediatype: MediaType, source: AbsUri)(implicit neo: Neo): Blob =
-			Blob(Neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediatype.value, "source" -> source.toString()))
+			Blob(neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediatype.value, "source" -> source.toString()))
 
 		def fromStory(desc: Story)(implicit neo: Neo): Node = desc match {
 			case More(loc, pagetype) => neo.create(label.Page, "location" -> loc.toString, "pagetype" -> pagetype)

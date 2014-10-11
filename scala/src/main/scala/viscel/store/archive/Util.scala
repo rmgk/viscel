@@ -13,22 +13,19 @@ import scala.collection.JavaConverters._
 
 object Util extends StrictLogging {
 
-	def listCollections: Vector[Collection] = Neo.tx { db =>
-		GlobalGraphOperations.at(db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply }.toVector
-	}
+	def listCollections(implicit neo: Neo): Vector[Collection] =
+		GlobalGraphOperations.at(neo.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply }.toVector
 
 	def listCores: Vector[Narrator] = Narrator.availableCores.toVector
 
 	def search(query: String): Seq[Narrator] = time("search") {
 		val lcql = Predef.wrapString(query.toLowerCase.replaceAll( """\s+""", "")).toList
-		Neo.txs {
-			if (lcql.isEmpty) listCores
-			else
-				listCores.view.map { cn => cn -> fuzzyMatch(lcql, Predef.wrapString(cn.name.toLowerCase).toList) }
-					.filter { _._2 > 0 }.force
-					.sortBy { -_._2 }
-					.map { _._1 }
-		}
+		if (lcql.isEmpty) listCores
+		else
+			listCores.view.map { cn => cn -> fuzzyMatch(lcql, Predef.wrapString(cn.name.toLowerCase).toList) }
+				.filter { _._2 > 0 }.force
+				.sortBy { -_._2 }
+				.map { _._1 }
 	}
 
 	@tailrec

@@ -54,7 +54,7 @@ object Neo extends Neo with StrictLogging {
   def nodes(label: Label): List[Node] = txs { GlobalGraphOperations.at(db).getAllNodesWithLabel(label).asScala.toList }
 
   def create(label: Label, attributes: (String, Any)*): Node = create(label, attributes.toMap)
-  def create(label: Label, attributes: Map[String, Any]): Node = Neo.tx { db =>
+  def create(label: Label, attributes: Map[String, Any]): Node = tx { db =>
     logger.debug(s"create node $label($attributes)")
     val node = db.createNode(label)
     node.setProperty("created", System.currentTimeMillis)
