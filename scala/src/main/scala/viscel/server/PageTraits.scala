@@ -10,12 +10,11 @@ import scala.Predef.conforms
 import scalatags.Text.Tag
 import scalatags.Text.all._
 
-trait MaskLocation {
-	self: HtmlPage =>
+trait MaskLocation extends HtmlPage {
 
 	def maskLocation: String
 
-	abstract override def header: Tag = self.header(script(s"window.history.replaceState('param one?','param two?','$maskLocation')"))
+	override def header: Tag = super.header(script(s"window.history.replaceState('param one?','param two?','$maskLocation')"))
 }
 
 class HtmlPageUtils(implicit ntx: Ntx) {

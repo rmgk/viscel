@@ -119,7 +119,7 @@ object Viscel extends StrictLogging {
 
 		Deeds.responses += {
 			case Success(res) => NeoSingleton.tx { ntx =>
-				Vault.config()(ntx).download(
+				configNode.download(
 					size = res.entity.data.length,
 					success = res.status.isSuccess,
 					compressed = res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.gzip)(ntx)
@@ -127,7 +127,7 @@ object Viscel extends StrictLogging {
 			case Failure(_) => NeoSingleton.tx { ntx => configNode.download(0, success = false)(ntx) }
 		}
 
-		(system, ioHttp)
+		(system, ioHttp, iopipe)
 	}
 
 	def visualizeUser(user: User, dotpath: String) = {

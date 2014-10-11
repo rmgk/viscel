@@ -10,16 +10,13 @@ import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Media
 import spray.httpx.encoding._
 import viscel.{Deeds, sha1hex}
 import viscel.store.Vault
+import viscel.crawler.Result.DelayedRequest
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object Network extends StrictLogging {
-
-	final case class DelayedRequest[R](request: HttpRequest, continue: HttpResponse => R) {
-		def map[S](f: R => S): DelayedRequest[S] = copy(continue = continue.andThen(f))
-	}
 
 	final case class Blob(mediatype: MediaType, sha1: String, buffer: Array[Byte])
 

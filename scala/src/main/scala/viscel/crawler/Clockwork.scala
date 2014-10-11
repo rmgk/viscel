@@ -1,13 +1,16 @@
 package viscel.crawler
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import org.neo4j.graphdb.Node
 import rescala.events.ImperativeEvent
 import spray.client.pipelining._
+import viscel.Deeds
 import viscel.database.Traversal.origin
 import viscel.narration.Narrator
-import viscel.store.Coin
-import viscel.database.Neo
+import viscel.store.{StoryCoin, Coin}
 import viscel.store.coin.Collection
+import viscel.database.{Neo, Ntx, NodeOps, Traversal, rel}
+
 
 import scala.collection.concurrent
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,15 +22,27 @@ object Clockwork extends StrictLogging {
 
 	val jobs: concurrent.Map[String, Job] = concurrent.TrieMap[String, Job]()
 
-	def ensureJob(core: Narrator, collection: Collection, ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = {
-		val job = new Job(core, neo, iopipe, ec)
-		jobs.putIfAbsent(core.id, job) match {
-			case Some(x) => logger.info(s"$core race on job creation")
+	def unseenNext(shallow: Boolean)(from: Node)(ntx: Ntx): Option[Node] =
+		Traversal.findForward {
+			case n@Coin.isPage(page) if page.self.to(rel.describes)(ntx).isEmpty => Some(n)
+			case n@Coin.isAsset(asset) if (!shallow) && asset.blob(ntx).isEmpty => Some(n)
+			case _ => None
+		}(from)(ntx)
+
+	def recheckOld(time: Long)(from: Node)(ntx: Ntx): Option[Node] =
+		Traversal.findForward {
+			case n@Coin.isPage(page) if page.self.get[Long]("last_update")(ntx).filter(System.currentTimeMillis() - _ < time).isEmpty => Some(n)
+			case _ => None
+		}(from)(ntx)
+
+	def ensureJob(id: String, job: Job, collection: Collection, ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = {
+		jobs.putIfAbsent(id, job) match {
+			case Some(x) => logger.info(s"$id race on job creation")
 			case None =>
 				logger.info(s"add new job $job")
 				job.start(collection).onComplete {
-					case Success(_) => logger.info(s"$job completed successfully")
-					case Failure(t) => logger.warn(s"$job failed with $t")
+					case Success(res) => Deeds.jobResult(res)
+					case Failure(t) => Deeds.jobResult(Result.Failed(t.getMessage))
 				}(ec)
 		}
 	}
@@ -42,7 +57,9 @@ object Clockwork extends StrictLogging {
 					logger.info(s"got hint $id")
 					Narrator.get(id) match {
 						case None => logger.warn(s"unkonwn core $id")
-						case Some(core) => ensureJob(core, col, ec, iopipe, neo)
+						case Some(core) =>
+							val job = new Job(core, neo, iopipe, ec)(unseenNext(shallow = false))
+							ensureJob(core.id, job, col, ec, iopipe, neo)
 					}
 				}(ec)
 			case None =>
