@@ -20,11 +20,11 @@ class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLo
 	override def maskLocation = path_front(collection)
 
 	lazy val first = collection.first
-	lazy val second = first.flatMap(_.nextAsset)
-	lazy val third = second.flatMap(_.nextAsset)
+	lazy val second = first.flatMap(_.next)
+	lazy val third = second.flatMap(_.next)
 	lazy val previewLeft = user.getBookmark(collection).orElse(third).orElse(second).orElse(first)
-	lazy val previewMiddle = previewLeft.flatMap { _.prevAsset }
-	lazy val previewRight = previewMiddle.flatMap { _.prevAsset }
+	lazy val previewMiddle = previewLeft.flatMap { _.prev }
+	lazy val previewRight = previewMiddle.flatMap { _.prev }
 
 	def bmRemoveForm(bm: Asset) = form_post(path_nid(collection),
 		input(`type` := "hidden", name := "remove_bookmark", value := collection.nid.toString),

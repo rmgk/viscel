@@ -14,15 +14,15 @@ class ViewPage(user: User, enode: Asset) extends HtmlPage with MetaNavigation wi
 
 	override def maskLocation = path_view(collection, pos)
 
-	override def navPrev = enode.prevAsset.map { en => path_nid(en) }
-	override def navNext = enode.nextAsset.map { en => path_nid(en) }
+	override def navPrev = enode.prev.map { en => path_nid(en) }
+	override def navNext = enode.next.map { en => path_nid(en) }
 	override def navUp = Some(path_nid(collection))
 
-	override def mainPart = div(class_content)(link_node(enode.nextAsset, enodeToImg(enode))) :: Nil
+	override def mainPart = div(class_content)(link_node(enode.next, enodeToImg(enode))) :: Nil
 	override def sidePart = "" :: Nil
 
 	override def navigation = Seq[Frag](
-		link_node(enode.prevAsset, "prev"),
+		link_node(enode.prev, "prev"),
 		" ",
 		link_node(collection, "front"),
 		" ",
@@ -32,5 +32,5 @@ class ViewPage(user: User, enode: Asset) extends HtmlPage with MetaNavigation wi
 		" ",
 		a(href := enode.origin.toString)(class_extern)("site"),
 		" ",
-		link_node(enode.nextAsset, "next"))
+		link_node(enode.next, "next"))
 }

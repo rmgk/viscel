@@ -18,7 +18,7 @@ final case class Collection(self: Node) extends Coin {
 		var i = 1
 		var res = first
 		while (i < n) {
-			res = res.flatMap(_.nextAsset)
+			res = res.flatMap(_.next)
 			i += 1
 		}
 		res

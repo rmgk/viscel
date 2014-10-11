@@ -13,8 +13,8 @@ final case class Asset(self: Node) extends StoryCoin with Metadata {
 	def blob: Option[Blob] = self.to(rel.blob).map { Blob.apply }
 	def blob_=(bn: Blob) = self.to_=(rel.blob, bn.self)
 
-	def nextAsset: Option[Asset] = self.to(rel.skip).map { Asset.apply }
-	def prevAsset: Option[Asset] = self.from(rel.skip).map { Asset.apply }
+	def next: Option[Asset] = self.to(rel.skip).map { Asset.apply }
+	def prev: Option[Asset] = self.from(rel.skip).map { Asset.apply }
 
 	def position: Int = {
 		@tailrec
