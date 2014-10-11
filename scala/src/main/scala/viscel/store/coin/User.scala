@@ -3,7 +3,7 @@ package viscel.store.coin
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.store._
-import viscel.store.archive.{Neo, NodeOps, label, rel}
+import viscel.database.{Ntx, NodeOps, label, rel}
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
@@ -23,7 +23,7 @@ final case class User(self: Node) extends Coin {
 
 	def getBookmark(cn: Collection): Option[Asset] = getBookmarkNode(cn).flatMap { bookmarkToAsset }
 
-	def setBookmark(en: Asset)(implicit neo: Neo): Unit = viscel.time(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
+	def setBookmark(en: Asset)(implicit neo: Ntx): Unit = viscel.time(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
 		def createBookmark() = {
 			val bmn = neo.create(label.Bookmark)
 			self.createRelationshipTo(bmn, rel.bookmarked)

@@ -2,9 +2,9 @@ package viscel.server.pages
 
 import spray.can.server.Stats
 import viscel.server.HtmlPage
-import viscel.store.archive.Neo
-import viscel.store.coin.{Config, User}
-import viscel.store.{Vault, archive}
+import viscel.database.{Neo, Ntx, label}
+import viscel.store.coin.User
+import viscel.store.Vault
 
 import scala.Predef.any2ArrowAssoc
 import scalatags.Text.all._
@@ -14,16 +14,16 @@ class StatsPage(user: User, stats: Stats, neo: Neo) extends HtmlPage {
 	override def Title = "Statistics"
 	override def bodyId = "stats"
 
-	def mainPart = {
-		val cn = Vault.config()(neo)
+	def mainPart = neo.tx { ntx =>
+		val cn = Vault.config()(ntx)
 		div(class_info)(make_table(
 			"Downloaded :" -> cn.downloaded.toString,
 			"Downloads :" -> cn.downloads.toString,
 			"Compressed Downloads :" -> cn.downloadsCompressed.toString,
 			"Failed Downloads :" -> cn.downloadsFailed.toString,
-			"Collections :" -> neo.nodes(archive.label.Collection).size.toString,
-			"Chapters : " -> neo.nodes(archive.label.Chapter).size.toString,
-			"Elements : " -> neo.nodes(archive.label.Asset).size.toString,
+			"Collections :" -> ntx.nodes(label.Collection).size.toString,
+			"Chapters : " -> ntx.nodes(label.Chapter).size.toString,
+			"Elements : " -> ntx.nodes(label.Asset).size.toString,
 			"Uptime                : " -> stats.uptime.toString,
 			"Total requests        : " -> stats.totalRequests.toString,
 			"Open requests         : " -> stats.openRequests.toString,

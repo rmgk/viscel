@@ -1,7 +1,7 @@
 package viscel.server.pages
 
 import viscel.server.HtmlPage
-import viscel.store.archive.Util.search
+import viscel.database.Util.search
 import viscel.store.coin.User
 
 import scalatags.Text.all._

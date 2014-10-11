@@ -2,7 +2,7 @@ package viscel.store.coin
 
 import org.neo4j.graphdb.Node
 import viscel.store.Coin
-import viscel.store.archive.{Neo, NodeOps}
+import viscel.database.{Ntx, NodeOps}
 
 
 final case class Config(self: Node) extends Coin {

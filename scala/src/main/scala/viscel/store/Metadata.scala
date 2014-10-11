@@ -1,6 +1,6 @@
 package viscel.store
 
-import viscel.store.archive.{Neo, NodeOps}
+import viscel.database.{Ntx, NodeOps}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.JavaConverters._
@@ -9,6 +9,7 @@ import scala.collection.immutable.Map
 
 trait Metadata {
 	this: Coin =>
+
 	import viscel.store.Metadata.prefix
 
 	def metadata(): Map[String, String] =

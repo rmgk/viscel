@@ -14,7 +14,7 @@ import spray.can.Http
 import spray.client.pipelining
 import viscel.crawler.Clockwork
 import viscel.store._
-import viscel.store.archive.{Neo, rel}
+import viscel.database.{NeoSingleton, Ntx, rel}
 import viscel.store.coin.{Collection, User}
 
 import scala.concurrent.ExecutionContext
@@ -50,16 +50,16 @@ object Viscel extends StrictLogging {
 		//System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_THREAD_NAME_KEY, "false")
 		//System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_LOG_NAME_KEY, "false")
 
-		sys.addShutdownHook { Neo.shutdown() }
+		sys.addShutdownHook { NeoSingleton.shutdown() }
 
-		if (!nodbwarmup.?) time("warmup db") { Neo.txs {} }
-		logger.info(s"config version: ${ Vault.config()(Neo).version }")
+		if (!nodbwarmup.?) time("warmup db") { NeoSingleton.txs {} }
+		logger.info(s"config version: ${ Vault.config()(NeoSingleton).version }")
 
 		if (createIndexes.?) {
-			Neo.execute("create index on :Collection(id)")
+			NeoSingleton.execute("create index on :Collection(id)")
 			//Neo.execute("create index on :Element(position)")
-			Neo.execute("create index on :User(name)")
-			Neo.execute("create index on :Blob(source)")
+			NeoSingleton.execute("create index on :User(name)")
+			NeoSingleton.execute("create index on :Blob(source)")
 		}
 
 		if (purgeUnreferenced.?) {
@@ -77,13 +77,13 @@ object Viscel extends StrictLogging {
 		for {
 			dotpath <- makedot.get
 			uname <- username.get
-			un <- Vault.find.user(uname)(Neo)
+			un <- Vault.find.user(uname)(NeoSingleton)
 		} { visualizeUser(un, dotpath) }
 
 		for {
 			dotpath <- makedot.get
 			cid <- collectionid.get
-			cn <- Vault.find.collection(cid)(Neo)
+			cn <- Vault.find.collection(cid)(NeoSingleton)
 		} { visualizeCollection(cn, dotpath) }
 
 		implicit val system = ActorSystem()
@@ -92,26 +92,26 @@ object Viscel extends StrictLogging {
 		val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
 		if (!noserver.?) {
-			val server = system.actorOf(Props(Predef.classOf[viscel.server.Server], Neo), "viscel-server")
+			val server = system.actorOf(Props(Predef.classOf[viscel.server.Server], NeoSingleton), "viscel-server")
 			ioHttp ! Http.Bind(server, interface = "0", port = port())
 		}
 
 		if (!nocore.?) {
 			Clockwork.handleHints(ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])),
-				iopipe, Neo)
+				iopipe, NeoSingleton)
 		}
 
 		if (shutdown.?) {
-			Neo.shutdown()
+			NeoSingleton.shutdown()
 			system.shutdown()
 		}
 		(system, ioHttp)
 	}
 
 	def visualizeUser(user: User, dotpath: String) = {
-		Neo.tx { db =>
-			val td = db.traversalDescription().depthFirst
+		NeoSingleton.txs {
+			val td = NeoSingleton.db.traversalDescription().depthFirst
 				.relationships(rel.bookmarked)
 				.relationships(rel.bookmarks)
 				.relationships(rel.bookmark)
@@ -122,8 +122,8 @@ object Viscel extends StrictLogging {
 	}
 
 	def visualizeCollection(col: Collection, dotpath: String) = {
-		Neo.tx { db =>
-			val td = db.traversalDescription().depthFirst
+		NeoSingleton.txs {
+			val td = NeoSingleton.db.traversalDescription().depthFirst
 				.relationships(rel.skip)
 				.relationships(rel.archive)
 				.relationships(rel.describes)

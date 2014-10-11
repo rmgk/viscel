@@ -14,7 +14,7 @@ import spray.routing.{HttpService, Route}
 import viscel.crawler.Clockwork
 import viscel.narration.Narrator
 import viscel.store._
-import viscel.store.archive.Neo
+import viscel.database.{NeoSingleton, Neo, Ntx}
 import viscel.store.coin._
 
 import scala.Predef.{any2ArrowAssoc, conforms}
@@ -41,7 +41,7 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 	var userCache = Map[String, User]()
 
 	def getUserNode(name: String, password: String): User = {
-		userCache.getOrElse(name, {
+		userCache.getOrElse(name, neo.tx { implicit ntx =>
 			val user = Vault.find.user(name).getOrElse {
 				logger.warn(s"create new user $name $password")
 				Vault.create.user(name, password)
@@ -69,15 +69,19 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 	def handleFormFields(user: User) =
 		formFields('bookmark.?.as[Option[Long]], 'remove_bookmark.?.as[Option[Long]]) { (bm, remove) =>
 			bm.foreach { bid =>
-				neo.db.getNodeById(bid) match {
-					case Coin.isAsset(asset) => user.setBookmark(asset)
-					case other => logger.warn(s"not an asset: $other")
+				neo.tx { implicit ntx =>
+					ntx.db.getNodeById(bid) match {
+						case Coin.isAsset(asset) => user.setBookmark(asset)
+						case other => logger.warn(s"not an asset: $other")
+					}
 				}
 			}
 			remove.foreach { colid =>
-				neo.db.getNodeById(colid) match {
-					case Coin.isCollection(col) => user.deleteBookmark(col)
-					case other => logger.warn(s"not a collection: $other")
+				neo.tx { implicit ntx =>
+					ntx.db.getNodeById(colid) match {
+						case Coin.isCollection(col) => user.deleteBookmark(col)
+						case other => logger.warn(s"not a collection: $other")
+					}
 				}
 			}
 			defaultRoute(user)
@@ -91,7 +95,7 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 				complete {
 					Future {
 						spray.util.actorSystem.shutdown()
-						Neo.shutdown()
+						NeoSingleton.shutdown()
 					}
 					"shutdown"
 				}
@@ -100,22 +104,22 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 				getFromResource("style.css")
 			} ~
 			path("b" / LongNumber) { nid =>
-				neo.txs {
-					val blob = Coin.isBlob(neo.db.getNodeById(nid)).get
+				neo.tx { ntx =>
+					val blob = Coin.isBlob(ntx.db.getNodeById(nid)).get
 					val filename = viscel.hashToFilename(blob.sha1)
 					getFromFile(new File(filename), ContentType(blob.mediatype))
 				}
 			} ~
 			path("f" / Segment) { collectionId =>
 				rejectNone(Narrator.get(collectionId)) { core =>
-					val collection = Vault.update.collection(core)
-					Clockwork.collectionHint(collection)
-					complete(Pages.front(user, collection))
+						val collection = neo.tx { Vault.update.collection(core)(_) }
+						Clockwork.collectionHint(collection)
+						complete(Pages.front(user, collection))
 				}
 			} ~
 			path("v" / Segment / IntNumber) { (col, pos) =>
-				neo.txs {
-					rejectNone(Vault.find.collection(col)) { cn =>
+				neo.tx { ntx =>
+					rejectNone(Vault.find.collection(col)(ntx)) { cn =>
 						rejectNone(cn(pos)) { en =>
 							Clockwork.archiveHint(en)
 							complete(Pages.view(user, en))
@@ -124,8 +128,8 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 				}
 			} ~
 			path("i" / LongNumber) { id =>
-				neo.txs {
-					neo.db.getNodeById(id) match {
+				neo.tx { ntx =>
+					ntx.db.getNodeById(id) match {
 						case Coin.isAsset(asset) =>
 							Clockwork.archiveHint(asset)
 							complete(Pages.view(user, asset))

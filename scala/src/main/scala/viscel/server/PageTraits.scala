@@ -3,7 +3,7 @@ package viscel.server
 import spray.http.MediaTypes
 import viscel.narration.Narrator
 import viscel.store.Coin
-import viscel.store.archive.NodeOps
+import viscel.database.NodeOps
 import viscel.store.coin.{Asset, Blob, Collection}
 
 import scala.Predef.conforms

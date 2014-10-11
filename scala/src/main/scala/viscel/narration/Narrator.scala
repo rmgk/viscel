@@ -3,7 +3,7 @@ package viscel.narration
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.narrators._
-import viscel.store.archive.{Neo, label}
+import viscel.database.{NeoSingleton, Ntx, label}
 import viscel.store.coin
 
 import scala.collection.immutable.Set
@@ -22,8 +22,8 @@ trait Narrator {
 }
 
 object Narrator {
-	def metaCores: Set[Narrator] = Neo.txs {
-		Neo.nodes(label.Core).map(coin.Core.apply).map { core =>
+	def metaCores: Set[Narrator] = NeoSingleton.txs {
+		NeoSingleton.nodes(label.Core).map(coin.Core.apply).map { core =>
 			core.kind match {
 				case "CloneManga" => CloneManga.getCore(core.story)
 				case "MangaHere" => MangaHere.getCore(core.story)

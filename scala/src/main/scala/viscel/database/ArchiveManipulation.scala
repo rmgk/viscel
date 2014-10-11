@@ -1,9 +1,9 @@
-package viscel.store.archive
+package viscel.database
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Story
-import viscel.store.archive.Traversal.{findBackward, findForward}
+import viscel.database.Traversal.{findBackward, findForward}
 import viscel.store.{Coin, Vault}
 
 import scala.annotation.tailrec
@@ -32,7 +32,7 @@ object ArchiveManipulation {
 	}
 
 	@tailrec
-	private def deleteRecursive(nodes: List[Node])(implicit neo: Neo): Unit = nodes match {
+	private def deleteRecursive(nodes: List[Node])(implicit neo: Ntx): Unit = nodes match {
 		case Nil => ()
 		case list =>
 			val below = list.flatMap(_.to(rel.describes)).flatMap { Traversal.layer }
@@ -40,7 +40,7 @@ object ArchiveManipulation {
 			deleteRecursive(below)
 	}
 
-	private def replaceLayer(oldLayer: List[Node], oldNarration: List[Story], newNarration: List[Story])(implicit neo: Neo): List[Node] = {
+	private def replaceLayer(oldLayer: List[Node], oldNarration: List[Story], newNarration: List[Story])(implicit neo: Ntx): List[Node] = {
 		val oldMap: mutable.Map[Story, Node] = mutable.Map(oldNarration zip oldLayer: _*)
 		val newLayer: List[Node] = newNarration.map { story =>
 			oldMap.get(story) match {
@@ -54,7 +54,7 @@ object ArchiveManipulation {
 		connectLayer(newLayer)
 	}
 
-	def applyNarration(target: Node, narration: List[Story])(implicit neo: Neo): List[Node] = neo.txs {
+	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[Node] = {
 		val oldLayer = Traversal.layerBelow(target)
 		val oldNarration = oldLayer.map(Coin.hasStory).flatten.map(_.story)
 		if (oldNarration === narration) oldLayer

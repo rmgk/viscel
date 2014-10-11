@@ -10,7 +10,7 @@ import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Media
 import spray.httpx.encoding._
 import viscel.sha1hex
 import viscel.store.Vault
-import viscel.store.archive.Neo
+import viscel.database.{NeoSingleton, Ntx}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -27,13 +27,13 @@ object Network extends StrictLogging {
 	private def addReferrer(referrer: Uri): (HttpRequest) => HttpRequest = addHeader("Referer" /*[sic, http spec]*/ , referrer.toString())
 
 	private def grabStats(response: Future[HttpResponse]): Future[HttpResponse] = response.andThen {
-		case Success(res) => Neo.txs {
-			Vault.config()(Neo).download(
+		case Success(res) => NeoSingleton.txs {
+			Vault.config()(NeoSingleton).download(
 				size = res.entity.data.length,
 				success = res.status.isSuccess,
 				compressed = res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.gzip)
 		}
-		case Failure(_) => Neo.txs { Vault.config()(Neo).download(0, success = false) }
+		case Failure(_) => NeoSingleton.txs { Vault.config()(NeoSingleton).download(0, success = false) }
 	}
 
 	def getResponse(request: HttpRequest, iopipe: SendReceive): Future[HttpResponse] = {
@@ -43,10 +43,10 @@ object Network extends StrictLogging {
 	}
 
 	def documentRequest(uri: Uri): DelayedRequest[Document] = DelayedRequest(
-			request = Get(uri),
-			continue = res => Jsoup.parse(
-				res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
-				res.header[Location].fold(ifEmpty = uri)(_.uri).toString()))
+		request = Get(uri),
+		continue = res => Jsoup.parse(
+			res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
+			res.header[Location].fold(ifEmpty = uri)(_.uri).toString()))
 
 	def blobRequest(source: AbsUri, origin: AbsUri): DelayedRequest[Blob] =
 		DelayedRequest(

@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import spray.client.pipelining._
 import viscel.narration.Narrator
-import viscel.store.archive.{ArchiveManipulation, Neo, NodeOps, Traversal, rel}
+import viscel.database.{Neo, ArchiveManipulation, Ntx, NodeOps, Traversal, rel}
 import viscel.store.coin.{Asset, Collection, Page}
 import viscel.store.{Coin, StoryCoin, Vault}
 
@@ -18,7 +18,7 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 
 	val shallow = false
 
-	override def toString: String = s"Job(${core.toString})"
+	override def toString: String = s"Job(${ core.toString })"
 
 	private def selectNext(from: Node): Option[StoryCoin] =
 		Traversal.findForward {
@@ -32,16 +32,16 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 		val path = Paths.get(viscel.hashToFilename(blob.sha1))
 		Files.createDirectories(path.getParent())
 		Files.write(path, blob.buffer)
-		neo.txs { assetNode.blob = Vault.create.blob(blob.sha1, blob.mediatype, assetNode.source)(neo) }
+		neo.tx { tx => assetNode.blob = Vault.create.blob(blob.sha1, blob.mediatype, assetNode.source)(tx) }
 	}
 
 	private def writePage(pageNode: Page)(doc: Document): Unit = {
 		logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pageNode")
-		ArchiveManipulation.applyNarration(pageNode.self, core.wrap(doc, pageNode.story))(neo)
+		neo.tx { ArchiveManipulation.applyNarration(pageNode.self, core.wrap(doc, pageNode.story))(_) }
 	}
 
 	def start(collection: Collection): Future[Unit] = {
-		val res = ArchiveManipulation.applyNarration(collection.self, core.archive)(neo)
+		val res = neo.tx { ArchiveManipulation.applyNarration(collection.self, core.archive)(_) }
 		res.headOption match {
 			case None => Future.successful(Unit)
 			case Some(archive) => run(archive)
@@ -59,10 +59,10 @@ class Job(val core: Narrator, neo: Neo, iopipe: SendReceive, ec: ExecutionContex
 			}(ec)
 	}
 
-	private def nextRequest(node: Node): Option[Network.DelayedRequest[Node]] = neo.txs {
+	private def nextRequest(node: Node): Option[Network.DelayedRequest[Node]] = neo.tx { nxt =>
 		selectNext(node) match {
 			case None => None
-			case Some(asset@Asset(_)) => Vault.find.blob(asset.source)(neo) match {
+			case Some(asset@Asset(_)) => Vault.find.blob(asset.source)(nxt) match {
 				case Some(blob) =>
 					logger.info(s"use cached ${ blob.sha1 } for ${ asset.source }")
 					asset.blob = blob

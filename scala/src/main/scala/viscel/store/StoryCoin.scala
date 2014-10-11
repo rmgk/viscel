@@ -1,7 +1,7 @@
 package viscel.store
 
 import viscel.narration.Story
-import viscel.store.archive.Traversal
+import viscel.database.Traversal
 import viscel.store.coin.Collection
 
 trait StoryCoin extends Coin {
