@@ -12,12 +12,12 @@ trait Metadata {
 
 	import viscel.store.Metadata.prefix
 
-	def metadata(): Map[String, String] =
+	def metadata()(implicit neo: Ntx): Map[String, String] =
 		self.getPropertyKeys().asScala.collect {
 			case k if k.startsWith(prefix) => k.substring(prefix.length) -> self[String](k)
 		}.toMap
 
-	def metadataOption(key: String): Option[String] = self.get[String](prefix + key)
+	def metadataOption(key: String)(implicit ntx: Ntx): Option[String] = self.get[String](prefix + key)
 }
 
 object Metadata {

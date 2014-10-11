@@ -9,12 +9,12 @@ import viscel.store.Vault
 import scala.Predef.any2ArrowAssoc
 import scalatags.Text.all._
 
-class StatsPage(user: User, stats: Stats, neo: Neo) extends HtmlPage {
+class StatsPage(user: User, stats: Stats, neo: Neo)(implicit ntx: Ntx) extends HtmlPage {
 
 	override def Title = "Statistics"
 	override def bodyId = "stats"
 
-	def mainPart = neo.tx { ntx =>
+	def mainPart = neo.tx { implicit ntx =>
 		val cn = Vault.config()(ntx)
 		div(class_info)(make_table(
 			"Downloaded :" -> cn.downloaded.toString,

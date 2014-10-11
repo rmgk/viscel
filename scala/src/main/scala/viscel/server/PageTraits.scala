@@ -3,20 +3,22 @@ package viscel.server
 import spray.http.MediaTypes
 import viscel.narration.Narrator
 import viscel.store.Coin
-import viscel.database.NodeOps
+import viscel.database.{Ntx, NodeOps}
 import viscel.store.coin.{Asset, Blob, Collection}
 
 import scala.Predef.conforms
 import scalatags.Text.Tag
 import scalatags.Text.all._
 
-trait MaskLocation extends HtmlPage {
+trait MaskLocation {
+	self: HtmlPage =>
+
 	def maskLocation: String
 
-	override def header: Tag = super.header(script(s"window.history.replaceState('param one?','param two?','$maskLocation')"))
+	abstract override def header: Tag = self.header(script(s"window.history.replaceState('param one?','param two?','$maskLocation')"))
 }
 
-trait HtmlPageUtils {
+class HtmlPageUtils(implicit ntx: Ntx) {
 
 	def path_main = "/index"
 	def path_css = "/css"

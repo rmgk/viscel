@@ -11,7 +11,7 @@ import scala.collection.mutable
 
 object ArchiveManipulation {
 
-	private def fixSkiplist(currentAsset: Node): Unit = {
+	private def fixSkiplist(currentAsset: Node)(implicit neo: Ntx): Unit = {
 		val nextAsset_? = Traversal.next(currentAsset).flatMap(findForward(Coin.isAsset))
 		nextAsset_? match {
 			case None => currentAsset.outgoing(rel.skip).foreach(_.delete())
@@ -24,7 +24,7 @@ object ArchiveManipulation {
 		}
 	}
 
-	private def connectLayer(layer: List[Node]) = {
+	private def connectLayer(layer: List[Node])(implicit neo: Ntx): List[Node] = {
 		layer.reduceLeftOption { (prev, next) => prev.to_=(rel.narc, next); next }
 		layer.lastOption.foreach(_.outgoing(rel.narc).foreach(_.delete()))
 		layer.headOption.foreach(_.incoming(rel.narc).foreach(_.delete()))

@@ -22,16 +22,16 @@ trait Narrator {
 }
 
 object Narrator {
-	def metaCores: Set[Narrator] = NeoSingleton.txs {
-		NeoSingleton.nodes(label.Core).map(coin.Core.apply).map { core =>
+	def metaCores(implicit ntx: Ntx): Set[Narrator] =
+		ntx.nodes(label.Core).map(coin.Core.apply).map { core =>
 			core.kind match {
 				case "CloneManga" => CloneManga.getCore(core.story)
 				case "MangaHere" => MangaHere.getCore(core.story)
 			}
 		}.toSet
-	}
-	def availableCores: Set[Narrator] = KatBox.cores ++ PetiteSymphony.cores ++ WordpressEasel.cores ++ Batoto.cores ++ metaCores ++ staticCores
-	def get(id: String) = viscel.time(s"get core $id") { availableCores.find(_.id === id) }
+
+	def availableCores: Set[Narrator] = KatBox.cores ++ PetiteSymphony.cores ++ WordpressEasel.cores ++ Batoto.cores ++ staticCores
+	def get(id: String): Option[Narrator] = viscel.time(s"get core $id") { availableCores.find(_.id === id) }
 
 	val staticCores = Set(MangaHere.MetaCore, CloneManga.MetaClone, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife)
 }

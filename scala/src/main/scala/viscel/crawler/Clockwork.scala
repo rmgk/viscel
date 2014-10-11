@@ -20,7 +20,7 @@ object Clockwork extends StrictLogging {
 	val archiveHint = new ImperativeEvent[StoryCoin]()
 	val collectionHint = new ImperativeEvent[Collection]()
 
-	val hints: Event[Collection] = archiveHint.map(_.collection) || collectionHint
+	val hints: Event[Collection] = collectionHint
 
 	def ensureJob(core: Narrator, collection: Collection, ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = {
 		val job = new Job(core, neo, iopipe, ec)
@@ -36,7 +36,7 @@ object Clockwork extends StrictLogging {
 	}
 
 	def handleHints(ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { collection =>
-		val id = neo.txs { collection.id }
+		val id = neo.tx { collection.id(_) }
 		if (jobs.contains(id)) logger.trace(s"$id has running job")
 		else Future {
 			logger.info(s"got hint $id")

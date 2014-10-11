@@ -57,7 +57,9 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			// time("login") {
 			if (user.matches("\\w+")) {
 				Future.successful {
-					Some(getUserNode(user, password)).filter(_.password === password)
+					neo.tx { ntx =>
+						Some(getUserNode(user, password)).filter(_.password(ntx) === password)
+					}
 				}
 			}
 			else { Future.successful(None) }
@@ -106,21 +108,21 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			path("b" / LongNumber) { nid =>
 				neo.tx { ntx =>
 					val blob = Coin.isBlob(ntx.db.getNodeById(nid)).get
-					val filename = viscel.hashToFilename(blob.sha1)
-					getFromFile(new File(filename), ContentType(blob.mediatype))
+					val filename = viscel.hashToFilename(blob.sha1(ntx))
+					getFromFile(new File(filename), ContentType(blob.mediatype(ntx)))
 				}
 			} ~
 			path("f" / Segment) { collectionId =>
 				rejectNone(Narrator.get(collectionId)) { core =>
-						val collection = neo.tx { Vault.update.collection(core)(_) }
-						Clockwork.collectionHint(collection)
-						complete(Pages.front(user, collection))
+					val collection = neo.tx { Vault.update.collection(core)(_) }
+					Clockwork.collectionHint(collection)
+					complete(Pages.front(user, collection))
 				}
 			} ~
 			path("v" / Segment / IntNumber) { (col, pos) =>
 				neo.tx { ntx =>
 					rejectNone(Vault.find.collection(col)(ntx)) { cn =>
-						rejectNone(cn(pos)) { en =>
+						rejectNone(cn(pos)(ntx)) { en =>
 							Clockwork.archiveHint(en)
 							complete(Pages.view(user, en))
 						}

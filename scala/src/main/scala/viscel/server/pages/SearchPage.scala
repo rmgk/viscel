@@ -1,12 +1,13 @@
 package viscel.server.pages
 
+import viscel.database.Ntx
 import viscel.server.HtmlPage
 import viscel.database.Util.search
 import viscel.store.coin.User
 
 import scalatags.Text.all._
 
-class SearchPage(user: User, text: String) extends HtmlPage {
+class SearchPage(user: User, text: String)(implicit ntx: Ntx) extends HtmlPage {
 	override def Title = "Search"
 	override def bodyId = "search"
 

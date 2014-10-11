@@ -53,7 +53,7 @@ object Viscel extends StrictLogging {
 		sys.addShutdownHook { NeoSingleton.shutdown() }
 
 		if (!nodbwarmup.?) time("warmup db") { NeoSingleton.txs {} }
-		logger.info(s"config version: ${ Vault.config()(NeoSingleton).version }")
+		logger.info(s"config version: ${ NeoSingleton.tx { ntx => Vault.config()(ntx).version(ntx) } }")
 
 		if (createIndexes.?) {
 			NeoSingleton.execute("create index on :Collection(id)")

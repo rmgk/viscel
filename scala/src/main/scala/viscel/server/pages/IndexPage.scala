@@ -1,5 +1,6 @@
 package viscel.server.pages
 
+import viscel.database.Ntx
 import viscel.server.HtmlPage
 import viscel.store.coin.User
 
@@ -10,7 +11,7 @@ import scalatags.Text.implicits.{stringAttr, stringFrag}
 import scalatags.Text.tags.{body, div}
 import scalatags.Text.{Tag, TypedTag}
 
-class IndexPage(user: User) extends HtmlPage {
+class IndexPage(user: User)(implicit ntx: Ntx) extends HtmlPage {
 	override def Title = "Index"
 	override def bodyId = "index"
 

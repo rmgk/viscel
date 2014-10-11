@@ -7,19 +7,19 @@ import scala.annotation.tailrec
 object Traversal {
 
 	@tailrec
-	private def layerBegin(node: Node): Node = node.from(rel.narc) match {
+	private def layerBegin(node: Node)(implicit neo: Ntx): Node = node.from(rel.narc) match {
 		case None => node
 		case Some(prev) => layerBegin(prev)
 	}
 
 	@tailrec
-	private def layerEnd(node: Node): Node = node.to(rel.narc) match {
+	private def layerEnd(node: Node)(implicit neo: Ntx): Node = node.to(rel.narc) match {
 		case None => node
 		case Some(next) => layerEnd(next)
 	}
 
 	@tailrec
-	private def uppernext(node: Node): Option[Node] = {
+	private def uppernext(node: Node)(implicit neo: Ntx): Option[Node] = {
 		layerBegin(node).from(rel.describes) match {
 			case None => None
 			case Some(upper) => upper.to(rel.narc) match {
@@ -30,7 +30,7 @@ object Traversal {
 	}
 
 	@tailrec
-	private def rightmost(node: Node): Node = {
+	private def rightmost(node: Node)(implicit neo: Ntx): Node = {
 		val end = layerEnd(node)
 		end.to(rel.describes) match {
 			case None => end
@@ -39,7 +39,7 @@ object Traversal {
 	}
 
 	@tailrec
-	def origin(node: Node): Node = {
+	def origin(node: Node)(implicit neo: Ntx): Node = {
 		val begin = Traversal.layerBegin(node)
 		begin.from(rel.describes) match {
 			case None => begin
@@ -47,7 +47,7 @@ object Traversal {
 		}
 	}
 
-	def prev(node: Node): Option[Node] = {
+	def prev(node: Node)(implicit neo: Ntx): Option[Node] = {
 		node.from(rel.narc) match {
 			case None =>
 				node.from(rel.describes).flatMap { upper =>
@@ -62,11 +62,11 @@ object Traversal {
 		}
 	}
 
-	def next(node: Node): Option[Node] =
+	def next(node: Node)(implicit neo: Ntx): Option[Node] =
 		node.to(rel.describes).orElse(node.to(rel.narc)).orElse(uppernext(node))
 
 	@tailrec
-	final def findBackward[R](p: Node => Option[R])(node: Node): Option[R] = p(node) match {
+	final def findBackward[R](p: Node => Option[R])(node: Node)(implicit neo: Ntx): Option[R] = p(node) match {
 		case None => prev(node) match {
 			case None => None
 			case Some(prevNode) => findBackward(p)(prevNode)
@@ -75,7 +75,7 @@ object Traversal {
 	}
 
 	@tailrec
-	final def findForward[R](p: Node => Option[R])(node: Node): Option[R] = p(node) match {
+	final def findForward[R](p: Node => Option[R])(node: Node)(implicit neo: Ntx): Option[R] = p(node) match {
 		case None => next(node) match {
 			case None => None
 			case Some(nextNode) => findForward(p)(nextNode)
@@ -83,7 +83,7 @@ object Traversal {
 		case found@Some(_) => found
 	}
 
-	def layer(start: Node): List[Node] = {
+	def layer(start: Node)(implicit neo: Ntx): List[Node] = {
 		@tailrec
 		def layerAcc(current: Node, acc: List[Node]): List[Node] = current.to(rel.narc) match {
 			case None => current :: acc
@@ -92,10 +92,10 @@ object Traversal {
 		layerAcc(start, Nil).reverse
 	}
 
-	def layerBelow(above: Node): List[Node] = above.to(rel.describes).fold[List[Node]](Nil)(layer)
+	def layerBelow(above: Node)(implicit neo: Ntx): List[Node] = above.to(rel.describes).fold[List[Node]](Nil)(layer)
 
 	@tailrec
-	def fold[S](state: S, node: Node)(f: (S, Node) => S): S = {
+	def fold[S](state: S, node: Node)(f: (S, Node) => S)(implicit neo: Ntx): S = {
 		val nextState = f(state, node)
 		next(node) match {
 			case None => nextState

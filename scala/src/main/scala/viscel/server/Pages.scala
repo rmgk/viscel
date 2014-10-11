@@ -8,9 +8,9 @@ import viscel.database.{Neo, Ntx}
 import viscel.store.coin.{Asset, Collection, User}
 
 object Pages {
-	def index(user: User)(implicit neo: Neo): HttpResponse = new IndexPage(user).response
-	def search(user: User, query: String)(implicit neo: Neo): HttpResponse = new SearchPage(user, query).response
-	def front(user: User, collection: Collection)(implicit neo: Neo): HttpResponse = new FrontPage(user, collection).response
-	def view(user: User, asset: Asset)(implicit neo: Neo): HttpResponse = new ViewPage(user, asset).response
-	def stats(user: User, stats: Stats)(implicit neo: Neo): HttpResponse = new StatsPage(user, stats, neo).response
+	def index(user: User)(implicit neo: Neo): HttpResponse = neo.txt(s"create response index") { new IndexPage(user)(_).response  }
+	def search(user: User, query: String)(implicit neo: Neo): HttpResponse = neo.txt(s"create response index") { new SearchPage(user, query)(_).response }
+	def front(user: User, collection: Collection)(implicit neo: Neo): HttpResponse = neo.txt(s"create response index") { new FrontPage(user, collection)(_).response }
+	def view(user: User, asset: Asset)(implicit neo: Neo): HttpResponse = neo.txt(s"create response index") { new ViewPage(user, asset)(_).response }
+	def stats(user: User, stats: Stats)(implicit neo: Neo): HttpResponse = neo.txt(s"create response index") { new StatsPage(user, stats, neo)(_).response }
 }

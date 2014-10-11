@@ -8,12 +8,11 @@ import scalatags.Text.attrs._
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags._
 
-trait HtmlPage extends HtmlPageUtils {
+abstract class HtmlPage(implicit ntx: Ntx) extends HtmlPageUtils {
 
-	def response(implicit neo: Neo): HttpResponse = neo.txts(s"create response $bodyId") {
+	def response: HttpResponse =
 		HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
 			"<!DOCTYPE html>" + fullHtml.toString))
-	}
 
 	def fullHtml: Tag = html(header, content)
 

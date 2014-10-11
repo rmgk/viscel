@@ -3,7 +3,7 @@ package viscel.server.pages
 import org.neo4j.graphdb.Node
 import viscel.server.{HtmlPage, MaskLocation, MetaNavigation}
 import viscel.store._
-import viscel.database.Traversal
+import viscel.database.{Ntx, Traversal}
 import viscel.store.coin._
 
 import scala.Predef.{any2ArrowAssoc, conforms}
@@ -12,7 +12,7 @@ import scalatags.Text.attrs._
 import scalatags.Text.implicits.{intFrag, stringAttr, stringFrag}
 import scalatags.Text.tags.{SeqFrag, _}
 
-class FrontPage(user: User, collection: Collection) extends HtmlPage with MaskLocation with MetaNavigation {
+class FrontPage(user: User, collection: Collection)(implicit ntx: Ntx) extends HtmlPage with MaskLocation with MetaNavigation {
 	override def Title = collection.name
 
 	override def bodyId = "front"

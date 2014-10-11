@@ -27,13 +27,13 @@ object Network extends StrictLogging {
 	private def addReferrer(referrer: Uri): (HttpRequest) => HttpRequest = addHeader("Referer" /*[sic, http spec]*/ , referrer.toString())
 
 	private def grabStats(response: Future[HttpResponse]): Future[HttpResponse] = response.andThen {
-		case Success(res) => NeoSingleton.txs {
-			Vault.config()(NeoSingleton).download(
+		case Success(res) => NeoSingleton.tx { ntx =>
+			Vault.config()(ntx).download(
 				size = res.entity.data.length,
 				success = res.status.isSuccess,
-				compressed = res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.gzip)
+				compressed = res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.gzip)(ntx)
 		}
-		case Failure(_) => NeoSingleton.txs { Vault.config()(NeoSingleton).download(0, success = false) }
+		case Failure(_) => NeoSingleton.tx { ntx => Vault.config()(ntx).download(0, success = false)(ntx) }
 	}
 
 	def getResponse(request: HttpRequest, iopipe: SendReceive): Future[HttpResponse] = {

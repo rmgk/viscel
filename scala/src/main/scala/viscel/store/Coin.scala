@@ -2,14 +2,14 @@ package viscel.store
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
-import viscel.database.label
+import viscel.database.{Ntx, label}
 import viscel.database.label.SimpleLabel
 import viscel.store.coin.{Asset, Blob, Chapter, Collection, Core, Page}
 
 
 trait Coin extends StrictLogging {
 	def self: Node
-	def nid: Long = self.getId
+	def nid(implicit neo: Ntx): Long = self.getId
 }
 
 object Coin {

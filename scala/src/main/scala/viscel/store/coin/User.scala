@@ -18,10 +18,10 @@ import scala.language.implicitConversions
  * (c) -[:bookmark]-> (b) -[:bookmarks]-> (e)
  */
 final case class User(self: Node) extends Coin {
-	def name: String = self[String]("name")
-	def password: String = self[String]("password")
+	def name(implicit neo: Ntx): String = self[String]("name")
+	def password(implicit neo: Ntx): String = self[String]("password")
 
-	def getBookmark(cn: Collection): Option[Asset] = getBookmarkNode(cn).flatMap { bookmarkToAsset }
+	def getBookmark(cn: Collection)(implicit neo: Ntx): Option[Asset] = getBookmarkNode(cn).flatMap { bookmarkToAsset }
 
 	def setBookmark(en: Asset)(implicit neo: Ntx): Unit = viscel.time(s"create bookmark ${ en.collection.id }:${ en.position } for $name") {
 		def createBookmark() = {
@@ -35,23 +35,23 @@ final case class User(self: Node) extends Coin {
 		bmn.createRelationshipTo(en.self, rel.bookmarks)
 	}
 
-	def bookmarks: Vector[Asset] = self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { bookmarkToAsset }.toVector
+	def bookmarks(implicit neo: Ntx): Vector[Asset] = self.outgoing(rel.bookmarked).map { _.getEndNode }.flatMap { bookmarkToAsset }.toVector
 
-	def bookmarkToAsset(bmn: Node): Option[Asset] =
+	def bookmarkToAsset(bmn: Node)(implicit neo: Ntx): Option[Asset] =
 		bmn.to(rel.bookmarks) match {
 			case Some(n) => Some(Asset(n))
 			case None =>
 				None
 		}
 
-	def deleteBookmark(cn: Collection) = viscel.time(s"delete bookmark ${ cn.id } for $name") {
+	def deleteBookmark(cn: Collection)(implicit neo: Ntx): Unit = viscel.time(s"delete bookmark ${ cn.id } for $name") {
 		getBookmarkNode(cn).foreach { bmn =>
 			bmn.getRelationships.asScala.foreach { _.delete }
 			bmn.delete()
 		}
 	}
 
-	def getBookmarkNode(cn: Collection): Option[Node] =
+	def getBookmarkNode(cn: Collection)(implicit neo: Ntx): Option[Node] =
 		cn.self.outgoing(rel.bookmark).view.map { _.getEndNode }.find { bmn => bmn.from(rel.bookmarked).get === this.self }
 
 }
