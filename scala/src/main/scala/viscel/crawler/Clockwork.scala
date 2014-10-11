@@ -1,26 +1,23 @@
 package viscel.crawler
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import rescala.events.{Event, ImperativeEvent}
+import rescala.events.ImperativeEvent
 import spray.client.pipelining._
+import viscel.database.Traversal.origin
 import viscel.narration.Narrator
-import viscel.store._
-import viscel.database.{Neo, Ntx}
+import viscel.store.Coin
+import viscel.database.Neo
 import viscel.store.coin.Collection
 
 import scala.collection.concurrent
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
+import scala.Predef.any2ArrowAssoc
 
 
 object Clockwork extends StrictLogging {
 
 	val jobs: concurrent.Map[String, Job] = concurrent.TrieMap[String, Job]()
-
-	val archiveHint = new ImperativeEvent[StoryCoin]()
-	val collectionHint = new ImperativeEvent[Collection]()
-
-	val hints: Event[Collection] = collectionHint
 
 	def ensureJob(core: Narrator, collection: Collection, ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = {
 		val job = new Job(core, neo, iopipe, ec)
@@ -35,16 +32,22 @@ object Clockwork extends StrictLogging {
 		}
 	}
 
-	def handleHints(ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { collection =>
-		val id = neo.tx { collection.id(_) }
-		if (jobs.contains(id)) logger.trace(s"$id has running job")
-		else Future {
-			logger.info(s"got hint $id")
-			Narrator.get(id) match {
-				case None => logger.warn(s"unkonwn core $id")
-				case Some(core) => ensureJob(core, collection, ec, iopipe, neo)
-			}
-		}(ec)
+	def handleHints(hints: ImperativeEvent[Coin], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { coin =>
+		neo.tx { implicit ntx =>
+			Coin.isCollection(origin(coin.self)).map(col => col -> col.id)
+		} match {
+			case Some((col, id)) =>
+				if (jobs.contains(id)) logger.trace(s"$id has running job")
+				else Future {
+					logger.info(s"got hint $id")
+					Narrator.get(id) match {
+						case None => logger.warn(s"unkonwn core $id")
+						case Some(core) => ensureJob(core, col, ec, iopipe, neo)
+					}
+				}(ec)
+			case None =>
+		}
+
 	}
 
 }

@@ -97,9 +97,12 @@ object Viscel extends StrictLogging {
 		}
 
 		if (!nocore.?) {
-			Clockwork.handleHints(ExecutionContext.fromExecutor(new ThreadPoolExecutor(
-				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])),
-				iopipe, NeoSingleton)
+			Clockwork.handleHints(
+				Deeds.uiCoin,
+				ExecutionContext.fromExecutor(new ThreadPoolExecutor(
+					0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])),
+				iopipe,
+				NeoSingleton)
 		}
 
 		if (shutdown.?) {

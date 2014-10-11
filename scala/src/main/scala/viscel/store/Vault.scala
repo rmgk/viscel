@@ -13,10 +13,8 @@ import scala.Predef.any2ArrowAssoc
 
 object Vault {
 
-	@volatile private var configCache: Config = _
-	def config()(implicit neo: Ntx): Config = {
-		// yes, this has a race condition, but the database transaction guarantees, that only one config is generated
-		// and the worst that could happen is an unnecessary lookup (also config is probably accessed on startup, before any multithreading nonsense)
+	private var configCache: Config = _
+	def config()(implicit neo: Ntx): Config = synchronized {
 		if (configCache == null) {
 			configCache =
 				Config(neo.node(label.Config, "id", "config").getOrElse {
@@ -42,9 +40,6 @@ object Vault {
 		def user(name: String, password: String)(implicit neo: Ntx): User =
 			User(neo.create(label.User, "name" -> name, "password" -> password))
 
-		def collection(id: String, name: String)(implicit neo: Ntx): Collection =
-			Collection(neo.create(label.Collection, "id" -> id, "name" -> name))
-
 		def blob(sha1: String, mediatype: MediaType, source: AbsUri)(implicit neo: Ntx): Blob =
 			Blob(neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediatype.value, "source" -> source.toString()))
 
@@ -62,7 +57,7 @@ object Vault {
 		def collection(narrator: Narrator)(implicit ntx: Ntx): Collection = {
 			val col = Vault.find.collection(narrator.id)
 			col.foreach(_.name = narrator.name)
-			col.getOrElse { create.collection(narrator.id, narrator.name) }
+			col.getOrElse { Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name)) }
 		}
 
 	}

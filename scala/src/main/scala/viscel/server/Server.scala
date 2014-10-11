@@ -11,6 +11,7 @@ import spray.can.server.Stats
 import spray.http.ContentType
 import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
+import viscel.Deeds
 import viscel.crawler.Clockwork
 import viscel.narration.Narrator
 import viscel.store._
@@ -115,7 +116,7 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			path("f" / Segment) { collectionId =>
 				rejectNone(Narrator.get(collectionId)) { core =>
 					val collection = neo.tx { Vault.update.collection(core)(_) }
-					Clockwork.collectionHint(collection)
+					Deeds.uiCoin(collection)
 					complete(Pages.front(user, collection))
 				}
 			} ~
@@ -123,7 +124,7 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 				neo.tx { ntx =>
 					rejectNone(Vault.find.collection(col)(ntx)) { cn =>
 						rejectNone(cn(pos)(ntx)) { en =>
-							Clockwork.archiveHint(en)
+							Deeds.uiCoin(en)
 							complete(Pages.view(user, en))
 						}
 					}
@@ -133,10 +134,10 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 				neo.tx { ntx =>
 					ntx.db.getNodeById(id) match {
 						case Coin.isAsset(asset) =>
-							Clockwork.archiveHint(asset)
+							Deeds.uiCoin(asset)
 							complete(Pages.view(user, asset))
 						case Coin.isCollection(collection) =>
-							Clockwork.collectionHint(collection)
+							Deeds.uiCoin(collection)
 							complete(Pages.front(user, collection))
 						case other => complete(other.toString)
 					}
