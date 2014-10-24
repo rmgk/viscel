@@ -41,7 +41,14 @@ object Batoto {
 		Generic("Batoto_bokura-wa-minna-kawaisou", "Bokura wa Minna Kawaisou", "http://bato.to/read/_/253606/bokura-wa-minna-kawaisou_v1_ch1_by_kuudere-scans"),
 		Generic("Batoto_sankarea", "Sankarea", "http://bato.to/read/_/2015/sankarea_v1_ch1_by_milky-translation"),
 		Generic("Batoto_suzuka", "Suzuka", "http://bato.to/read/_/189133/suzuka_v1_by_anime-waves"),
-		Generic("Batoto_kiss-x-sis", "Kiss x Sis", "http://bato.to/read/_/8293/kiss-x-sis_by_lemon-inc/1")
+		Generic("Batoto_kiss-x-sis", "Kiss x Sis", "http://bato.to/read/_/8293/kiss-x-sis_by_lemon-inc/1"),
+		Generic("Batoto_fuuka", "Fuuka", "http://bato.to/read/_/270324/fuuka_by_red-hawk-scans"),
+		Generic("Batoto_princess-lucia", "Princess Lucia", "http://bato.to/read/_/275/princess-lucia_v1_by_red-hawk-scans"),
+		Generic("Batoto_half-half", "Half and Half", "http://bato.to/read/_/130232/half-half_ch1_by_red-hawk-scans"),
+		Generic("Batoto_love-letter-seo-kouji", "Love Letter (SEO Kouji)", "http://bato.to/read/_/30376/love-letter-seo-kouji_ch1_by_red-hawk-scans"),
+		Generic("Batoto_loveplus-rinko-days", "LovePlus - Rinko Days", "http://bato.to/read/_/14567/loveplus-rinko-days_by_red-hawk-scans"),
+		Generic("Batoto_ws-doubles", "W's - Doubles", "http://bato.to/read/_/122380/ws-doubles_v1_ch1_by_manga-fiends"),
+		Generic("Batoto_cross-over", "Cross Over", "http://bato.to/read/_/87120/cross-over_v1_by_scx-scans")
 	)
 
 	//	def getCore(desc: CoreDescription): Core = Generic(id = desc.id, name = desc.name, archiveUri = desc.metadata("start"))
