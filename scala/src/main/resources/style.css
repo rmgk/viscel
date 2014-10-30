@@ -65,9 +65,10 @@ fieldset.group div {
 	text-align: center;
 }
 .content .element {
-	margin: 5px 5px 0 0;
+	margin: 0px 0px 0 0;
 	padding: 0;
 	border: none; /*firefox displays a border if a link is on the image */
+	max-width: 100%;
 }
 #view .content {
 	/* flex display seems buggy in current versions of opera with images larger than the screen */

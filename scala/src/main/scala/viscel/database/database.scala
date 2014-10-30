@@ -2,7 +2,7 @@ package viscel
 
 import org.neo4j.graphdb.{Direction, Node, Relationship, RelationshipType}
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 package object database {
 
@@ -11,16 +11,16 @@ package object database {
 		def get[T](key: String)(implicit neo: Ntx): Option[T] = Option(node.getProperty(key, null).asInstanceOf[T])
 		def to(rel: RelationshipType)(implicit neo: Ntx): Option[Node] = Option(node.getSingleRelationship(rel, Direction.OUTGOING)).map { _.getEndNode }
 		def to_=(rel: RelationshipType, other: Node)(implicit neo: Ntx): Relationship = {
-			outgoing(rel).foreach(_.delete())
+			outgoing(rel).foreach((r: Relationship) => r.delete())
 			node.createRelationshipTo(other, rel)
 		}
 		def from(rel: RelationshipType)(implicit neo: Ntx): Option[Node] = Option(node.getSingleRelationship(rel, Direction.INCOMING)).map { _.getStartNode }
 		def from_=(rel: RelationshipType, other: Node)(implicit neo: Ntx): Relationship = {
-			incoming(rel).foreach(_.delete)
+			incoming(rel).foreach((r: Relationship) => r.delete())
 			other.createRelationshipTo(node, rel)
 		}
-		def outgoing(rel: RelationshipType)(implicit neo: Ntx): Iterable[Relationship] = node.getRelationships(rel, Direction.OUTGOING).asScala
-		def incoming(rel: RelationshipType)(implicit neo: Ntx): Iterable[Relationship] = node.getRelationships(rel, Direction.INCOMING).asScala
+		def outgoing(rel: RelationshipType)(implicit neo: Ntx): Iterable[Relationship] = iterableAsScalaIterableConverter(node.getRelationships(rel, Direction.OUTGOING)).asScala
+		def incoming(rel: RelationshipType)(implicit neo: Ntx): Iterable[Relationship] = iterableAsScalaIterableConverter(node.getRelationships(rel, Direction.INCOMING)).asScala
 	}
 
 	implicit class RelationshipOps(rel: Relationship) {

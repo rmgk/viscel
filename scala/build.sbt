@@ -100,9 +100,9 @@ val otherDependencies =
 	"jline" % "jline" % "2.12" ::
 	"net.sf.jopt-simple" % "jopt-simple" % "4.7" :: // mit
 	// Tests
-	"org.scalatest" %% "scalatest" % "2.2.2" % "test" ::
+	"org.scalatest" %% "scalatest" % "2.2.1" % "test" ::
 	// Misc
-	"org.scalactic" %% "scalactic" % "2.2.2" ::
+	"org.scalactic" %% "scalactic" % "2.2.1" ::
   "de.tuda.stg" %% "rescala" % "0.3.0" ::
 	Nil
 
