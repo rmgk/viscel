@@ -3,13 +3,13 @@ package viscel.crawler
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
 import rescala.events.ImperativeEvent
-import spray.client.pipelining._
+import spray.client.pipelining.SendReceive
 import viscel.Deeds
 import viscel.database.Traversal.origin
 import viscel.narration.Narrator
 import viscel.store.{StoryCoin, Coin}
 import viscel.store.coin.Collection
-import viscel.database.{Neo, Ntx, NodeOps, Traversal, rel}
+import viscel.database._
 
 
 import scala.collection.concurrent
@@ -29,9 +29,10 @@ object Clockwork extends StrictLogging {
 			case _ => None
 		}(from)(ntx)
 
-	def recheckOld(time: Long)(from: Node)(ntx: Ntx): Option[Node] =
+	def recheckOld(from: Node)(ntx: Ntx): Option[Node] =
 		Traversal.findForward {
-			case n@Coin.isPage(page) if page.self.get[Long]("last_update")(ntx).filter(System.currentTimeMillis() - _ < time).isEmpty => Some(n)
+			case n@Coin.isPage(_) if Util.needsRecheck(n)(ntx) => Some(n)
+			case n@Coin.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
 			case _ => None
 		}(from)(ntx)
 
@@ -58,7 +59,7 @@ object Clockwork extends StrictLogging {
 					Narrator.get(id) match {
 						case None => logger.warn(s"unkonwn core $id")
 						case Some(core) =>
-							val job = new Job(core, neo, iopipe, ec)(unseenNext(shallow = false))
+							val job = new Job(core, neo, iopipe, ec)(recheckOld)
 							ensureJob(core.id, job, col, ec, iopipe, neo)
 					}
 				}(ec)

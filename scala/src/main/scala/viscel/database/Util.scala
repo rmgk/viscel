@@ -1,6 +1,7 @@
 package viscel.database
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import org.neo4j.graphdb.Node
 import org.neo4j.tooling.GlobalGraphOperations
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Narrator
@@ -36,6 +37,43 @@ object Util extends StrictLogging {
 			case t :: ts =>
 				if (t === q) fuzzyMatch(qs, ts, score + 1, bestScore)
 				else fuzzyMatch(query, ts, 0, score * score + bestScore)
+		}
+	}
+
+
+	def updateDates(target: Node, changed: Boolean)(implicit ntx: Ntx): Unit = {
+		val time = System.currentTimeMillis()
+		val dayInMillis = 24L * 60L * 60L * 1000L
+		val newCheckInterval: Long = (for {
+			lastCheck <- target.get[Long]("last_check")
+			lastUpdate <- target.get[Long]("last_update")
+			checkInterval <- target.get[Long]("check_interval")
+		} yield {
+			val lowerBound = lastCheck - lastUpdate
+			val upperBound = time - lastUpdate
+			val averageBound = (lowerBound + upperBound) / 2
+			math.round(checkInterval * 0.8 + averageBound * 0.2)
+		}).getOrElse(dayInMillis)
+		logger.trace(s"update dates on $target: time: $time, interval: $newCheckInterval")
+		target.setProperty("last_check", time)
+		if (changed) target.setProperty("last_update", time)
+		target.setProperty("check_interval", newCheckInterval)
+	}
+
+	def needsRecheck(target: Node)(implicit ntx: Ntx): Boolean = {
+		logger.trace(s"calculating recheck for $target")
+		val res = for {
+			lastCheck <- target.get[Long]("last_check")
+			lastUpdate <- target.get[Long]("last_update")
+			checkInterval <- target.get[Long]("check_interval")
+		} yield {
+			val time = System.currentTimeMillis()
+			logger.trace(s"recheck $target: $time - $lastCheck > $checkInterval")
+			time - lastCheck > checkInterval
+		}
+		res.getOrElse {
+			logger.debug(s"defaulting to recheck because of missing data on $target")
+			true
 		}
 	}
 

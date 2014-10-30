@@ -8,6 +8,7 @@ import viscel.store.{Coin, Vault}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.Predef.identity
 
 object ArchiveManipulation {
 
@@ -57,9 +58,12 @@ object ArchiveManipulation {
 	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[Node] = {
 		val oldLayer = Traversal.layerBelow(target)
 		val oldNarration = oldLayer.map(Coin.hasStory).flatten.map(_.story)
-		target.setProperty("last_update", System.currentTimeMillis())
-		if (oldNarration === narration) oldLayer
+		if (oldNarration === narration) {
+			Util.updateDates(target, changed = false)
+			oldLayer
+		}
 		else {
+			Util.updateDates(target, changed = true)
 			val newLayer = replaceLayer(oldLayer, oldNarration, narration)
 			newLayer.headOption.foreach { head => target.to_=(rel.describes, head) }
 			newLayer.filter { _.hasLabel(label.Asset) }.foreach(fixSkiplist)
