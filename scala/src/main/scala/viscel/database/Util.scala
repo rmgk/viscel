@@ -44,9 +44,10 @@ object Util extends StrictLogging {
 	def updateDates(target: Node, changed: Boolean)(implicit ntx: Ntx): Unit = {
 		val time = System.currentTimeMillis()
 		val dayInMillis = 24L * 60L * 60L * 1000L
+		val lastUpdateOption = target.get[Long]("last_update")
 		val newCheckInterval: Long = (for {
 			lastCheck <- target.get[Long]("last_check")
-			lastUpdate <- target.get[Long]("last_update")
+			lastUpdate <- lastUpdateOption
 			checkInterval <- target.get[Long]("check_interval")
 		} yield {
 			val lowerBound = lastCheck - lastUpdate
@@ -56,7 +57,7 @@ object Util extends StrictLogging {
 		}).getOrElse(dayInMillis)
 		logger.trace(s"update dates on $target: time: $time, interval: $newCheckInterval")
 		target.setProperty("last_check", time)
-		if (changed) target.setProperty("last_update", time)
+		if (changed || lastUpdateOption.isEmpty) target.setProperty("last_update", time)
 		target.setProperty("check_interval", newCheckInterval)
 	}
 
