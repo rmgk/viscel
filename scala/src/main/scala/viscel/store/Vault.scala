@@ -5,7 +5,7 @@ import spray.http.MediaType
 import viscel.crawler.AbsUri
 import viscel.narration.Story.{Failed, More}
 import viscel.narration.{Narrator, Story}
-import viscel.database.{Ntx, label}
+import viscel.database.{ArchiveManipulation, Ntx, label}
 import viscel.store.coin.{Blob, Collection, Config, User}
 
 import scala.Predef.any2ArrowAssoc
@@ -39,11 +39,11 @@ object Vault {
 			Blob(neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediatype.value, "source" -> source.toString()))
 
 		def fromStory(desc: Story)(implicit neo: Ntx): Node = desc match {
-			case More(loc, pagetype) => neo.create(label.Page, "location" -> loc.toString, "pagetype" -> pagetype)
 			case Story.Chapter(name, metadata) => neo.create(label.Chapter, Metadata.prefix(metadata) + ("name" -> name))
-			case Story.Asset(source, origin, metadata) => neo.create(label.Asset, Metadata.prefix(metadata) + ("source" -> source.toString) + ("origin" -> origin.toString))
+			case Story.Asset(source, origin, metadata, blob) => neo.create(label.Asset, Metadata.prefix(metadata) + ("source" -> source.toString) + ("origin" -> origin.toString))
 			case Story.Core(kind, id, name, metadata) => neo.create(label.Core, Metadata.prefix(metadata) + ("id" -> id) + ("kind" -> kind) + ("name" -> name))
 			case Failed(reason) => throw new IllegalArgumentException(reason.toString())
+			case More(loc, pagetype, narration) => neo.create(label.Page, "location" -> loc.toString, "pagetype" -> pagetype)
 		}
 
 	}

@@ -12,9 +12,10 @@ final case class Blob(self: Node) extends Coin {
 
 	def sha1(implicit neo: Ntx): String = self[String]("sha1")
 
+	def mediastring(implicit ntx: Ntx): String = self[String]("mediatype")
+
 	def mediatype(implicit neo: Ntx): MediaType = {
-		val mstring: String = self[String]("mediatype")
-		val split = mstring.split("/")
+		val split = mediastring.split("/")
 		MediaTypes.getForKey(split(0) -> split(1)).get
 	}
 

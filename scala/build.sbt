@@ -87,7 +87,7 @@ val ioDependencies =
 
 val scalazDependecnies =
   List("scalaz-core", "scalaz-concurrent")
-    .map(n => "org.scalaz" %% n % "7.1.0")
+    .map(n => "org.scalaz" %% n % "7.0.6")
 
 val otherDependencies =
 	// HTML
@@ -104,7 +104,9 @@ val otherDependencies =
 	// Misc
 	"org.scalactic" %% "scalactic" % "2.2.1" ::
   "de.tuda.stg" %% "rescala" % "0.3.0" ::
-	Nil
+	"org.scala-lang" %% "scala-pickling" % "0.9.0" ::
+	"io.argonaut" %% "argonaut" % "6.0.4" ::
+  Nil
 
 libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ scalazDependecnies ++ otherDependencies
 
@@ -128,4 +130,6 @@ import viscel._
 import viscel.crawler._
 import viscel.server._
 import viscel.store._
+import viscel.database._
+import scala.Predef._
 """

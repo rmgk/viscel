@@ -3,8 +3,8 @@ package viscel.store.coin
 import org.neo4j.graphdb.Node
 import viscel.crawler.AbsUri
 import viscel.narration.Story
-import viscel.store.StoryCoin
-import viscel.database.{Ntx, NodeOps}
+import viscel.store.{Coin, StoryCoin}
+import viscel.database.{Traversal, Ntx, NodeOps}
 
 
 final case class Page(self: Node) extends StoryCoin {
