@@ -71,6 +71,7 @@ object NeoSingleton extends Neo with Ntx with StrictLogging {
 	}
 
 	def delete(node: Node) = {
+		logger.trace(s"delete node $node")
 		node.getRelationships.asScala.foreach { _.delete() }
 		node.delete()
 	}

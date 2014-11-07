@@ -31,7 +31,7 @@ object Clockwork extends StrictLogging {
 
 	def recheckOld(from: Node)(ntx: Ntx): Option[Node] =
 		Traversal.findForward {
-			case n@Coin.isPage(_) if Util.needsRecheck(n)(ntx) => Some(n)
+			case n@Coin.isPage(page) if Util.needsRecheck(n)(ntx) || page.self.to(rel.describes)(ntx).isEmpty => Some(n)
 			case n@Coin.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
 			case _ => None
 		}(from)(ntx)
@@ -41,7 +41,7 @@ object Clockwork extends StrictLogging {
 			case Some(x) => logger.info(s"$id race on job creation")
 			case None =>
 				logger.info(s"add new job $job")
-				job.start(collection).onComplete {
+				job.start(collection)(neo).onComplete {
 					case Success(res) => Deeds.jobResult(res)
 					case Failure(t) => Deeds.jobResult(Result.Failed(t.getMessage))
 				}(ec)
@@ -59,7 +59,7 @@ object Clockwork extends StrictLogging {
 					Narrator.get(id) match {
 						case None => logger.warn(s"unkonwn core $id")
 						case Some(core) =>
-							val job = new Job(core, neo, iopipe, ec)(recheckOld)
+							val job = new Job(core, iopipe, ec)(recheckOld)
 							ensureJob(core.id, job, col, ec, iopipe, neo)
 					}
 				}(ec)
