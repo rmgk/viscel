@@ -7,11 +7,10 @@ import java.nio.file.{Path, Paths, Files}
 import argonaut.Argonaut._
 import argonaut.{CodecJson, Parse}
 import scala.collection.JavaConverters._
-import scalaz.{Failure, Success}
 import org.scalactic._
 import scala.collection.immutable.Map
 
-case class User(id: String, password: String, bookmarks: Map[String, Int]) {
+final case class User(id: String, password: String, bookmarks: Map[String, Int]) {
 	def setBookmark(collection: String, position: Int): User = copy(bookmarks = bookmarks.updated(collection, position))
 	def removeBookmark(collection: String): User = copy(bookmarks = bookmarks.-(collection))
 }

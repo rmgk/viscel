@@ -12,14 +12,11 @@ object label {
 
 	val Asset = SimpleLabel("Asset")
 	val Blob = SimpleLabel("Blob")
-	val Bookmark = SimpleLabel("Bookmark")
 	val Chapter = SimpleLabel("Chapter")
 	val Collection = SimpleLabel("Collection")
 	val Config = SimpleLabel("Config")
 	val Core = SimpleLabel("Core")
 	val Page = SimpleLabel("Page")
-	val Unlabeled = SimpleLabel("Unlabeled")
-	val User = SimpleLabel("User")
 }
 
 object rel {
@@ -30,13 +27,8 @@ object rel {
 		def apply(r: RelationshipType): SimpleRel = apply(r.name)
 	}
 
-	val archive = SimpleRel("archive")
 	val blob = SimpleRel("blob")
-	val bookmark = SimpleRel("bookmark")
-	val bookmarked = SimpleRel("bookmarked")
-	val bookmarks = SimpleRel("bookmarks")
 	val describes = SimpleRel("describes")
-	val metadata = SimpleRel("metadata")
 	val narc = SimpleRel("narc")
 	val skip = SimpleRel("skip")
 }

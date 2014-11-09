@@ -146,11 +146,10 @@ object Viscel extends StrictLogging {
 		NeoSingleton.txs {
 			val td = NeoSingleton.db.traversalDescription().depthFirst
 				.relationships(rel.skip)
-				.relationships(rel.archive)
 				.relationships(rel.describes)
 				.evaluator(Evaluators.all)
 			val writer = new GraphvizWriter()
-			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.skip, rel.archive, rel.describes))
+			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.skip, rel.describes))
 		}
 	}
 
