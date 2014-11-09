@@ -3,8 +3,7 @@ package viscel.server.pages
 import spray.can.server.Stats
 import viscel.server.HtmlPage
 import viscel.database.{Neo, Ntx, label}
-import viscel.store.coin.User
-import viscel.store.Vault
+import viscel.store.{User, Vault}
 
 import scala.Predef.any2ArrowAssoc
 import scalatags.Text.all._

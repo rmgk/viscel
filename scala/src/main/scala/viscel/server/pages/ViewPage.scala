@@ -2,7 +2,8 @@ package viscel.server.pages
 
 import viscel.database.Ntx
 import viscel.server.{HtmlPage, MaskLocation, MetaNavigation}
-import viscel.store.coin.{Asset, User}
+import viscel.store.User
+import viscel.store.coin.Asset
 
 import scalatags.Text.all._
 
@@ -28,7 +29,8 @@ class ViewPage(user: User, enode: Asset)(implicit ntx: Ntx) extends HtmlPage wit
 		link_node(collection, "front"),
 		" ",
 		form_post(path_nid(collection),
-			input(`type` := "hidden", name := "bookmark", value := enode.nid.toString),
+			input(`type` := "hidden", name := "collection", value := collection.id),
+			input(`type` := "hidden", name := "bookmark", value := pos),
 			input(`type` := "submit", name := "submit", value := "pause", class_submit)),
 		" ",
 		a(href := enode.origin.toString)(class_extern)("site"),

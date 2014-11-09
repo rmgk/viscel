@@ -2,9 +2,11 @@ package viscel.store.coin
 
 import org.neo4j.graphdb.Node
 import viscel.store.Coin
-import viscel.database.{Ntx, NodeOps, Traversal}
+import viscel.database.{rel, Ntx, NodeOps, Traversal}
 import viscel.database.Traversal.findForward
 import viscel.time
+
+import scala.annotation.tailrec
 
 final case class Collection(self: Node) extends Coin {
 
@@ -15,13 +17,15 @@ final case class Collection(self: Node) extends Coin {
 	def first(implicit neo: Ntx): Option[Asset] = findForward(Coin.isAsset)(self)
 
 	def apply(n: Int)(implicit neo: Ntx): Option[Asset] = time(s"select $name($n)") {
-		var i = 1
-		var res = first
-		while (i < n) {
-			res = res.flatMap(_.next)
-			i += 1
-		}
-		res
+		@tailrec
+		def nth(curr: Node, i: Int): Node =
+			if (i > 0) curr.to(rel.skip) match {
+				case None => curr
+				case Some(node) => nth(node, i - 1)
+			}
+			else curr
+
+		first.flatMap(node => Coin.isAsset(nth(node.self, n - 1)))
 	}
 
 	override def toString = s"Collection($self)"

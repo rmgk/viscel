@@ -5,12 +5,8 @@ import java.nio.file.{Files, Paths}
 import org.neo4j.graphdb.Node
 import viscel.crawler.AbsUri
 import viscel.narration.Story.{Blob, Asset, Chapter, More}
-import viscel.narration.{Narrator, Story}
+import viscel.narration.Story
 import viscel.store.{Vault, Coin}
-import scala.pickling._
-import scala.pickling.json._
-import scala.Predef.implicitly
-import scala.Predef.classOf
 
 object ArchiveExport {
 

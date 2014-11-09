@@ -5,6 +5,7 @@ import java.io.File
 import akka.actor.{Actor, ActorRefFactory}
 import akka.pattern.ask
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import org.scalactic.{Bad, Good}
 import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
 import spray.can.server.Stats
@@ -40,11 +41,18 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 
 	var userCache = Map[String, User]()
 
+	def userUpdate(user: User): Unit = {
+		userCache += user.id -> user
+		User.store(user)
+	}
+
 	def getUserNode(name: String, password: String): User = {
-		userCache.getOrElse(name, neo.tx { implicit ntx =>
-			val user = Vault.find.user(name).getOrElse {
-				logger.warn(s"create new user $name $password")
-				Vault.create.user(name, password)
+		userCache.getOrElse(name, {
+			val user = User.load(name) match {
+				case Good(g) => g
+				case Bad(e) =>
+					logger.warn(s"could not open user $name: $e")
+					User(name, password, Map())
 			}
 			userCache += name -> user
 			user
@@ -56,11 +64,7 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			logger.trace(s"login: $user $password")
 			// time("login") {
 			if (user.matches("\\w+")) {
-				Future.successful {
-					neo.tx { ntx =>
-						Some(getUserNode(user, password)).filter(_.password(ntx) === password)
-					}
-				}
+				Future.successful { Some(getUserNode(user, password)).filter(_.password === password) }
 			}
 			else { Future.successful(None) }
 		// }
@@ -69,22 +73,12 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 	}, "Username is used to store configuration; Passwords are saved in plain text; User is created on first login")
 
 	def handleFormFields(user: User) =
-		formFields('bookmark.?.as[Option[Long]], 'remove_bookmark.?.as[Option[Long]]) { (bm, remove) =>
-			bm.foreach { bid =>
-				neo.tx { implicit ntx =>
-					ntx.db.getNodeById(bid) match {
-						case Coin.isAsset(asset) => user.setBookmark(asset)
-						case other => logger.warn(s"not an asset: $other")
-					}
-				}
+		formFields('collection.?.as[Option[String]], 'bookmark.?.as[Option[Int]], 'remove_bookmark.?.as[Option[String]]) { (colidOption, bmposOption, removeOption) =>
+			for (bmpos <- bmposOption; colid <- colidOption) {
+				userUpdate(user.setBookmark(colid, bmpos))
 			}
-			remove.foreach { colid =>
-				neo.tx { implicit ntx =>
-					ntx.db.getNodeById(colid) match {
-						case Coin.isCollection(col) => user.deleteBookmark(col)
-						case other => logger.warn(s"not a collection: $other")
-					}
-				}
+			for (colid <- removeOption) {
+				userUpdate(user.removeBookmark(colid))
 			}
 			defaultRoute(user)
 		}

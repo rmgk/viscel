@@ -16,7 +16,7 @@ import spray.http.{HttpEncodings, HttpResponse}
 import viscel.crawler.Clockwork
 import viscel.store._
 import viscel.database.{NeoSingleton, Ntx, rel}
-import viscel.store.coin.{Collection, User}
+import viscel.store.coin.{Collection}
 import org.scalactic.TypeCheckedTripleEquals._
 
 import scala.concurrent.{Future, ExecutionContext}
@@ -80,11 +80,11 @@ object Viscel extends StrictLogging {
 		//			un <- UserNode(uname)
 		//		} { tools.BookmarkImporter(un, userpath.toString) }
 
-		for {
-			dotpath <- makedot.get
-			uname <- username.get
-			un <- Vault.find.user(uname)(NeoSingleton)
-		} { visualizeUser(un, dotpath) }
+//		for {
+//			dotpath <- makedot.get
+//			uname <- username.get
+//			un <- Vault.find.user(uname)(NeoSingleton)
+//		} { visualizeUser(un, dotpath) }
 
 		for {
 			dotpath <- makedot.get
@@ -130,17 +130,17 @@ object Viscel extends StrictLogging {
 		(system, ioHttp, iopipe)
 	}
 
-	def visualizeUser(user: User, dotpath: String) = {
-		NeoSingleton.txs {
-			val td = NeoSingleton.db.traversalDescription().depthFirst
-				.relationships(rel.bookmarked)
-				.relationships(rel.bookmarks)
-				.relationships(rel.bookmark)
-				.evaluator(Evaluators.excludeStartPosition)
-			val writer = new GraphvizWriter()
-			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(user.self).nodes, rel.bookmarked, rel.bookmarks, rel.bookmark))
-		}
-	}
+//	def visualizeUser(user: User, dotpath: String) = {
+//		NeoSingleton.txs {
+//			val td = NeoSingleton.db.traversalDescription().depthFirst
+//				.relationships(rel.bookmarked)
+//				.relationships(rel.bookmarks)
+//				.relationships(rel.bookmark)
+//				.evaluator(Evaluators.excludeStartPosition)
+//			val writer = new GraphvizWriter()
+//			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(user.self).nodes, rel.bookmarked, rel.bookmarks, rel.bookmark))
+//		}
+//	}
 
 	def visualizeCollection(col: Collection, dotpath: String) = {
 		NeoSingleton.txs {

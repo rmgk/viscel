@@ -3,7 +3,7 @@ package viscel.server.pages
 import viscel.database.Ntx
 import viscel.server.HtmlPage
 import viscel.database.Util.search
-import viscel.store.coin.User
+import viscel.store.User
 
 import scalatags.Text.all._
 

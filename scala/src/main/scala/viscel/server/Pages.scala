@@ -3,9 +3,9 @@ package viscel.server
 import spray.can.server.Stats
 import spray.http.HttpResponse
 import viscel.server.pages._
-import viscel.store.Vault
+import viscel.store.{User, Vault}
 import viscel.database.{Neo, Ntx}
-import viscel.store.coin.{Asset, Collection, User}
+import viscel.store.coin.{Asset, Collection}
 
 object Pages {
 	def index(user: User)(implicit neo: Neo): HttpResponse = neo.txt(s"create response index") { new IndexPage(user)(_).response  }

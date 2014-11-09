@@ -6,7 +6,7 @@ import viscel.crawler.AbsUri
 import viscel.narration.Story.{Failed, More}
 import viscel.narration.{Narrator, Story}
 import viscel.database.{ArchiveManipulation, Ntx, label}
-import viscel.store.coin.{Blob, Collection, Config, User}
+import viscel.store.coin.{Blob, Collection, Config}
 
 import scala.Predef.any2ArrowAssoc
 
@@ -20,9 +20,6 @@ object Vault {
 	}
 
 	object find {
-		def user(name: String)(implicit neo: Ntx): Option[User] =
-			neo.node(label.User, "name", name).map { User.apply }
-
 		def collection(id: String)(implicit neo: Ntx): Option[Collection] =
 			neo.node(label.Collection, "id", id).map { Collection.apply }
 
@@ -32,9 +29,6 @@ object Vault {
 	}
 
 	object create {
-		def user(name: String, password: String)(implicit neo: Ntx): User =
-			User(neo.create(label.User, "name" -> name, "password" -> password))
-
 		def blob(sha1: String, mediatype: MediaType, source: AbsUri)(implicit neo: Ntx): Blob =
 			Blob(neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediatype.value, "source" -> source.toString()))
 

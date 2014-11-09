@@ -22,12 +22,12 @@ class FrontPage(user: User, collection: Collection)(implicit ntx: Ntx) extends H
 	lazy val first = collection.first
 	lazy val second = first.flatMap(_.next)
 	lazy val third = second.flatMap(_.next)
-	lazy val previewLeft = user.getBookmark(collection).orElse(third).orElse(second).orElse(first)
+	lazy val previewLeft = user.bookmarks.get(collection.id).flatMap(collection.apply).orElse(third).orElse(second).orElse(first)
 	lazy val previewMiddle = previewLeft.flatMap { _.prev }
 	lazy val previewRight = previewMiddle.flatMap { _.prev }
 
 	def bmRemoveForm(bm: Asset) = form_post(path_nid(collection),
-		input(`type` := "hidden", name := "remove_bookmark", value := collection.nid.toString),
+		input(`type` := "hidden", name := "remove_bookmark", value := collection.id),
 		input(`type` := "submit", name := "submit", value := "remove", class_submit))
 
 	def mainPart = div(class_info)(
