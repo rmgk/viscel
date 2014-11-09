@@ -20,7 +20,7 @@ import scala.Predef.any2ArrowAssoc
 
 object Clockwork extends StrictLogging {
 
-	val jobs: concurrent.Map[String, Job] = concurrent.TrieMap[String, Job]()
+	val jobs: concurrent.Map[String, Runner] = concurrent.TrieMap[String, Runner]()
 
 	def unseenNext(shallow: Boolean)(from: Node)(ntx: Ntx): Option[Node] =
 		Traversal.findForward {
@@ -29,21 +29,26 @@ object Clockwork extends StrictLogging {
 			case _ => None
 		}(from)(ntx)
 
-	def recheckOld(from: Node)(ntx: Ntx): Option[Node] =
-		Traversal.findForward {
-			case n@Coin.isPage(page) if Util.needsRecheck(n)(ntx) || page.self.to(rel.describes)(ntx).isEmpty => Some(n)
-			case n@Coin.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
-			case _ => None
-		}(from)(ntx)
+	def forwardStrategy(start: Node)(select: Ntx => Node => Option[Node]): Strategy = new Strategy {
+		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] =
+			Traversal.findForward(select(ntx))(start)(ntx).map(n => n -> forwardStrategy(n)(select))
+	}
 
-	def ensureJob(id: String, job: Job, collection: Collection, ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = {
-		jobs.putIfAbsent(id, job) match {
+	def recheckOld(collection: Collection): Strategy = forwardStrategy(collection.self)(ntx => {
+		case n@Coin.isPage(page) if Util.needsRecheck(n)(ntx) || page.self.to(rel.describes)(ntx).isEmpty => Some(n)
+		case n@Coin.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
+		case _ => None
+	})
+
+
+	def ensureJob(id: String, runner: Runner, collection: Collection, ec: ExecutionContext, iopipe: SendReceive, neo: Neo)(strategy: Collection => Strategy): Unit = {
+		jobs.putIfAbsent(id, runner) match {
 			case Some(x) => logger.info(s"$id race on job creation")
 			case None =>
-				logger.info(s"add new job $job")
-				job.start(collection)(neo).onComplete {
+				logger.info(s"add new job $runner")
+				runner.start(collection, neo)(strategy).onComplete {
 					case Success(res) => Deeds.jobResult(res)
-					case Failure(t) => Deeds.jobResult(Result.Failed(t.getMessage))
+					case Failure(t) => Deeds.jobResult(Some(t.getMessage))
 				}(ec)
 		}
 	}
@@ -59,8 +64,8 @@ object Clockwork extends StrictLogging {
 					Narrator.get(id) match {
 						case None => logger.warn(s"unkonwn core $id")
 						case Some(core) =>
-							val job = new Job(core, iopipe, ec)(recheckOld)
-							ensureJob(core.id, job, col, ec, iopipe, neo)
+							val job = new Runner(core, iopipe, ec)
+							ensureJob(core.id, job, col, ec, iopipe, neo)(recheckOld)
 					}
 				}(ec)
 			case None =>

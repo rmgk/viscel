@@ -1,5 +1,7 @@
 package viscel.crawler
 
+import java.nio.file.{Files, Paths}
+
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -8,6 +10,9 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
 import spray.httpx.encoding._
+import viscel.database.{ArchiveManipulation, Ntx}
+import viscel.narration.Narrator
+import viscel.store.coin.{Page, Asset}
 import viscel.{Deeds, sha1hex}
 import viscel.store.Vault
 import viscel.crawler.Result.DelayedRequest
@@ -16,7 +21,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-object Network extends StrictLogging {
+object IOUtil extends StrictLogging {
 
 	final case class Blob(mediatype: MediaType, sha1: String, buffer: Array[Byte])
 
@@ -44,5 +49,21 @@ object Network extends StrictLogging {
 					buffer = bytes,
 					sha1 = sha1hex(bytes))
 			})
+
+
+	def writeAsset(core: Narrator, assetNode: Asset)(blob: IOUtil.Blob)(ntx: Ntx): Unit = {
+		logger.debug(s"$core: received blob, applying to $assetNode")
+		val path = Paths.get(viscel.hashToFilename(blob.sha1))
+		Files.createDirectories(path.getParent())
+		Files.write(path, blob.buffer)
+		implicit def tx: Ntx = ntx
+		assetNode.blob = Vault.create.blob(blob.sha1, blob.mediatype, assetNode.source)
+	}
+
+	def writePage(core: Narrator, pageNode: Page)(doc: Document)(ntx: Ntx): Unit = {
+		logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pageNode")
+		implicit def tx: Ntx = ntx
+		ArchiveManipulation.applyNarration(pageNode.self, core.wrap(doc, pageNode.story))
+	}
 
 }

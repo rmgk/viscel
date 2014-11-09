@@ -13,11 +13,11 @@ trait Narrator {
 	def name: String
 	def archive: List[Story]
 	def wrap(doc: Document, pd: Story.More): List[Story]
-	override def equals(other: Any) = other match {
+	final override def equals(other: Any) = other match {
 		case o: Narrator => id === o.id
 		case _ => false
 	}
-	override def hashCode: Int = id.hashCode
+	final override def hashCode: Int = id.hashCode
 	override def toString: String = s"$id($name)"
 }
 
