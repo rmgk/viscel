@@ -2,6 +2,7 @@ import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.{JSExportNamed, JSExport}
 import org.scalajs.dom
 import dom.document
+import Predef.any2ArrowAssoc
 
 @JSExport
 object Keycontrols {

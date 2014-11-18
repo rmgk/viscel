@@ -51,12 +51,6 @@ javaOptions ++= (
 	//"-XX:+PrintTenuringDistribution" ::
 	Nil)
 
-defaultScalariformSettings
-
-ScalariformKeys.preferences := ScalariformKeys.preferences.value
-	.setPreference(IndentWithTabs, true)
-	.setPreference(CompactControlReadability, true)
-
 resolvers ++= (
 	("Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/") ::
 	("Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/") ::
@@ -112,18 +106,12 @@ val otherDependencies =
 
 libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ scalazDependecnies ++ otherDependencies
 
+lazy val js = project.in("js")
 
-lazy val jssnippets = Project(
-	id = "jssnippets",
-	base = file("jssnippets"),
-	settings =
-		(libraryDependencies += ("org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6")) ::
-		List(scalaJSSettings: _*))
-
-compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in (jssnippets, Compile))
+compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in (js, Compile))
 
 (resources in Compile) += {
-	artifactPath.in(jssnippets, Compile, fullOptJS).value
+	artifactPath.in(js, Compile, fullOptJS).value
 }
 
 
