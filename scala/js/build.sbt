@@ -1,5 +1,5 @@
 import scala.scalajs.sbtplugin.ScalaJSPlugin._
-import ScalaJSKeys._
+import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys._
 
 scalaJSSettings
 
@@ -30,5 +30,8 @@ scalacOptions ++= (
 		//"-Ywarn-value-discard" ::
 		Nil)
 
-libraryDependencies += "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6"
+libraryDependencies ++=
+	("org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6") ::
+	("com.scalatags" %%% "scalatags" % "0.4.2") ::
+	Nil
 

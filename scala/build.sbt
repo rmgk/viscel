@@ -106,7 +106,7 @@ val otherDependencies =
 
 libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ scalazDependecnies ++ otherDependencies
 
-lazy val js = project.in("js")
+lazy val js = project.in(file("js"))
 
 compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in (js, Compile))
 

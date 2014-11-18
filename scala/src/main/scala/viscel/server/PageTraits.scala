@@ -30,7 +30,7 @@ class HtmlPageUtils(implicit ntx: Ntx) {
 	def path_raw(vn: Coin) = s"/r/${ vn.nid }"
 	def path_stop = "/stop"
 	def path_core(core: Narrator) = s"/f/${ core.id }"
-	def path_scripts = "/snippets.js"
+	def path_scripts = "/viscel.js"
 
 	val class_main = cls := "main"
 	val class_navigation = cls := "navigation"

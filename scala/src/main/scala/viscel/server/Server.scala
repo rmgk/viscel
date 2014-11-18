@@ -99,7 +99,7 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			path("css") {
 				getFromResource("style.css")
 			} ~
-			path("snippets.js") {
+			path("viscel.js") {
 				getFromResource("viscel-js-opt.js")
 			} ~
 			path("b" / LongNumber) { nid =>
