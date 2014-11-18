@@ -99,6 +99,9 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			path("css") {
 				getFromResource("style.css")
 			} ~
+			path("snippets.js") {
+				getFromResource("jssnippets-opt.js")
+			} ~
 			path("b" / LongNumber) { nid =>
 				neo.tx { ntx =>
 					val blob = Coin.isBlob(ntx.db.getNodeById(nid)).get

@@ -7,6 +7,7 @@ import viscel.database.{Ntx, NodeOps}
 import viscel.store.coin.{Asset, Blob, Collection}
 
 import scala.Predef.conforms
+import scala.Predef.augmentString
 import scalatags.Text.Tag
 import scalatags.Text.all._
 
@@ -29,6 +30,7 @@ class HtmlPageUtils(implicit ntx: Ntx) {
 	def path_raw(vn: Coin) = s"/r/${ vn.nid }"
 	def path_stop = "/stop"
 	def path_core(core: Narrator) = s"/f/${ core.id }"
+	def path_scripts = "/snippets.js"
 
 	val class_main = cls := "main"
 	val class_navigation = cls := "navigation"
@@ -80,7 +82,8 @@ class HtmlPageUtils(implicit ntx: Ntx) {
 
 trait MetaNavigation extends HtmlPage {
 	override def header: Tag = super.header(
-		script(RawFrag(keyNavigation(up = navUp, down = navDown, prev = navPrev, next = navNext))),
+		script(src := path_scripts),
+		script(RawFrag(keyNavigation())),
 		navNext.map { n => link(rel := "next", href := n) }.getOrElse(""),
 		navPrev.map { p => link(rel := "prev", href := p) }.getOrElse(""))
 
@@ -89,24 +92,11 @@ trait MetaNavigation extends HtmlPage {
 	def navPrev: Option[String] = None
 	def navDown: Option[String] = None
 
-	def keypress(location: String, keyCodes: Int*) = Predef.augmentString( s"""
-		|if (${ keyCodes.map { c => s"ev.keyCode === $c" }.mkString(" || ") }) {
-		|	ev.preventDefault();
-		|	document.location.pathname = "$location";
-		|	return false;
-		|}
-		|""").stripMargin
 
-	def keyNavigation(prev: Option[String] = None, next: Option[String] = None, up: Option[String] = None, down: Option[String] = None) =
-		Predef.augmentString( s"""
-			|document.onkeydown = function(ev) {
-			|	if (!ev.ctrlKey && !ev.altKey) {
-			|${ prev.fold("") { loc => keypress(loc, 37, 65, 188) } }
-			|${ next.fold("") { loc => keypress(loc, 39, 68, 190) } }
-			|${ up.fold("") { loc => keypress(loc, 13, 87, 77) } }
-			|${ down.fold("") { loc => keypress(loc, 40, 83, 66, 78) } }
-			| }
-			|}
-			|""").stripMargin
-
+	def keyNavigation() =
+		s"""Keycontrols().next = "${navNext.getOrElse("")}";
+			 |Keycontrols().prev = "${navPrev.getOrElse("")}";
+			 |Keycontrols().up = "${navUp.getOrElse("")}";
+			 |Keycontrols().down = "${navDown.getOrElse("")}";
+			 |Keycontrols().addKeyhandlers()""".stripMargin
 }

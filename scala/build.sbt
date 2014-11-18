@@ -1,5 +1,8 @@
 import scalariform.formatter.preferences._
 import com.typesafe.sbt.SbtScalariform._
+import sbt.Keys._
+import scala.scalajs.sbtplugin.ScalaJSPlugin._
+import ScalaJSKeys._
 
 name := "viscel"
 
@@ -104,11 +107,24 @@ val otherDependencies =
 	// Misc
 	"org.scalactic" %% "scalactic" % "2.2.1" ::
   "de.tuda.stg" %% "rescala" % "0.3.0" ::
-	"org.scala-lang" %% "scala-pickling" % "0.9.0" ::
 	"io.argonaut" %% "argonaut" % "6.0.4" ::
   Nil
 
 libraryDependencies ++= neoDependencies ++ sprayDependencies ++ akkaDependencies ++ scalazDependecnies ++ otherDependencies
+
+
+lazy val jssnippets = Project(
+	id = "jssnippets",
+	base = file("jssnippets"),
+	settings =
+		(libraryDependencies += ("org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6")) ::
+		List(scalaJSSettings: _*))
+
+compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in (jssnippets, Compile))
+
+(resources in Compile) += {
+	artifactPath.in(jssnippets, Compile, fullOptJS).value
+}
 
 
 initialCommands in console := """
