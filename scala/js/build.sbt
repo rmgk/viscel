@@ -23,7 +23,7 @@ scalacOptions ++= (
 		"-Xfatal-warnings" ::
 		"-Yinline-warnings" ::
 		"-Yno-adapted-args" ::
-		"-Ywarn-dead-code" ::
+		//"-Ywarn-dead-code" ::
 		"-Ywarn-nullary-override" ::
 		"-Ywarn-nullary-unit" ::
 		//"-Ywarn-numeric-widen" ::
@@ -32,6 +32,7 @@ scalacOptions ++= (
 
 libraryDependencies ++=
 	("org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6") ::
+	("org.scala-lang.modules.scalajs" %%% "scalajs-jquery" % "0.6") ::
 	("com.scalatags" %%% "scalatags" % "0.4.2") ::
 	Nil
 
