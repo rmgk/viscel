@@ -43,7 +43,7 @@ object NeoSingleton extends Neo with Ntx with StrictLogging {
 	def apply(q: String) = execute(q).dumpToString()
 
 	def shutdown(): Unit = {
-		txt("export") { ArchiveExport.exportAll(_) }
+		//txt("export") { ArchiveExport.exportAll(_) }
 		db.shutdown()
 	}
 
