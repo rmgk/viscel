@@ -1,22 +1,23 @@
+package visceljs
+
 import org.scalajs.dom.{Element, Event}
 import scala.scalajs.js
-import org.scalajs.{dom => jsdom}
 import org.scalajs.dom
+import org.scalajs.dom.document
 import scala.Predef.any2ArrowAssoc
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.all._
 import scala.scalajs.js.Dynamic.global
 import scalajs.concurrent.JSExecutionContext.Implicits.runNow
 
+@JSExport(name = "Viscel")
+object Viscel {
 
-@JSExport
-object CollectionPage {
-
-	import HtmlPageUtils._
+	import visceljs.HtmlPageUtils._
 
 	// workaround because intellijs package object import logic fails me
 	//object dom extends org.scalajs.dom.Window with scalajs.js.GlobalScope
-	import dom.document
+
 
 
 	@JSExport var up: String = "↑"
@@ -87,7 +88,7 @@ object CollectionPage {
 
 		updatePosition(getPos())
 
-		val handleKeypress = (ev: jsdom.KeyboardEvent) => {
+		val handleKeypress = (ev: dom.KeyboardEvent) => {
 			val target = map.getOrElse(ev.keyCode, "")
 			if (!target.isEmpty && !ev.altKey && !ev.ctrlKey && !ev.shiftKey) {
 				ev.preventDefault()

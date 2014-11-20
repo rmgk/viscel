@@ -1,3 +1,5 @@
+package visceljs
+
 import scala.Predef.conforms
 import scala.Predef.augmentString
 import scalatags.JsDom.Tag
