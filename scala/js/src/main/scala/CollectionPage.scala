@@ -1,10 +1,12 @@
 import org.scalajs.dom.{Element, Event}
 import scala.scalajs.js
 import org.scalajs.{dom => jsdom}
+import org.scalajs.dom
 import scala.Predef.any2ArrowAssoc
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.all._
 import scala.scalajs.js.Dynamic.global
+import scalajs.concurrent.JSExecutionContext.Implicits.runNow
 
 
 @JSExport
@@ -13,7 +15,7 @@ object CollectionPage {
 	import HtmlPageUtils._
 
 	// workaround because intellijs package object import logic fails me
-	object dom extends org.scalajs.dom.Window with scalajs.js.GlobalScope
+	//object dom extends org.scalajs.dom.Window with scalajs.js.GlobalScope
 	import dom.document
 
 
@@ -63,7 +65,10 @@ object CollectionPage {
 	def sidePart = Seq[Frag](
 		div(class_content))
 
-
+	def ajax() =     dom.extensions.Ajax.post(
+		url = "/someurl",
+		data = "some_data"
+	).map(_.responseText)
 
 	@JSExport
 	def main(): Unit = {
