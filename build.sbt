@@ -2,7 +2,7 @@ import scalariform.formatter.preferences._
 import com.typesafe.sbt.SbtScalariform._
 import sbt.Keys._
 import scala.scalajs.sbtplugin.ScalaJSPlugin._
-import ScalaJSKeys._
+import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys._
 
 name := "viscel"
 
@@ -23,6 +23,7 @@ scalacOptions ++= (
 	//"-Xlog-implicits" ::
 	"-Yno-predef" ::
 	//"-Yno-imports" ::
+	"-Ywarn-all" ::
 	"-Xfatal-warnings" ::
 	"-Yinline-warnings" ::
 	"-Yno-adapted-args" ::
