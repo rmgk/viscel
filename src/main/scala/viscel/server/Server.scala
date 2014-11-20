@@ -84,8 +84,8 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 		}
 
 	def defaultRoute(user: User): Route =
-		(path("") | path("index")) {
-			complete(Pages.index(user))
+		path("") {
+			complete(ServerPages.landing)
 		} ~
 			path("stop") {
 				complete {
@@ -99,9 +99,15 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			path("css") {
 				getFromResource("style.css")
 			} ~
-			path("viscel.js") {
+			path("js") {
 				getFromResource("viscel-js-opt.js")
 			} ~
+			path("bookmarks") {
+				complete(ServerPages.bookmarks(user))
+			} ~
+			path("collections") {
+				complete(ServerPages.collections())
+			}
 			path("b" / LongNumber) { nid =>
 				neo.tx { ntx =>
 					val blob = Coin.isBlob(ntx.db.getNodeById(nid)).get
