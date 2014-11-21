@@ -3,10 +3,9 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.crawler.AbsUri
-import viscel.narration.Util._
+import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
-import viscel.shared.Story
+import viscel.shared.{AbsUri, Story}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map
@@ -27,7 +26,7 @@ object MangaHere {
 			withGood(img_?, next_?) { _ ::: _ }
 		}
 
-		def wrap(doc: Document, pd: Story.More): List[Story] = Story.fromOr(pd.pagetype match {
+		def wrap(doc: Document, pd: Story.More): List[Story] = storyFromOr(pd.pagetype match {
 			case "archive" => wrapArchive(doc)
 			case "page" => wrapPage(doc)
 		})
@@ -39,7 +38,7 @@ object MangaHere {
 		override def id: String = "Meta_MangaHere"
 		override def name: String = "Metacore MangaHere"
 		override def archive: List[Story] = Story.More("http://www.mangahere.co/mangalist/", "") :: Nil
-		override def wrap(doc: Document, pd: Story.More): List[Story] = Story.fromOr(
+		override def wrap(doc: Document, pd: Story.More): List[Story] = storyFromOr(
 			Selection(doc).many("a.manga_info").wrapEach { anchor =>
 				val name = anchor.attr("rel")
 				val uri_? = extractUri(anchor)

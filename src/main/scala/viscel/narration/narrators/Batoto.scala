@@ -1,12 +1,11 @@
 package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
-import viscel.crawler.AbsUri
 import org.scalactic.{Or, Every, ErrorMessage}
 import org.scalactic.Accumulation.withGood
-import viscel.shared.Story
+import viscel.shared.{AbsUri, Story}
 import Story.{Chapter, More}
-import viscel.narration.Util.{imgIntoAsset, elementIntoPointer, selectNext}
+import viscel.narration.SelectUtil.{imgIntoAsset, elementIntoPointer, selectNext, storyFromOr}
 import viscel.narration.{Narrator, Selection}
 
 import scala.collection.immutable.Set
@@ -28,7 +27,7 @@ object Batoto {
 			withGood(chapter_?, currentPage_?, pages_?, nextChapter_?) { _ ::: _ ::: _ ::: _ }
 		}
 
-		def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
+		def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {
 			case "page" => wrapPage(doc)
 			case "chapter" => wrapChapter(doc)
 		})

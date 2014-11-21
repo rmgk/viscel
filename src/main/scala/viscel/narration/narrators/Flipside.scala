@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.shared.Story
 import Story.{Chapter, More}
-import viscel.narration.Util._
+import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 
 object Flipside extends Narrator {
@@ -29,7 +29,7 @@ object Flipside extends Narrator {
 		}
 	}
 
-	def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {
 		case "archive" => wrapArchive(doc)
 		case "page" => Selection(doc).unique("img.ksc").wrapEach(imgIntoAsset)
 	})

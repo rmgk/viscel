@@ -6,7 +6,7 @@ import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.shared.Story
 import Story.{Chapter, More}
-import viscel.narration.Util._
+import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 
 import scala.language.implicitConversions
@@ -50,7 +50,7 @@ object Misfile extends Narrator with StrictLogging {
 		withGood(elements_?, next_?) { _ ::: _ }
 	}
 
-	def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {
 		case "archive" => wrapArchive(doc)
 		case "page" => wrapPage(doc)
 	})

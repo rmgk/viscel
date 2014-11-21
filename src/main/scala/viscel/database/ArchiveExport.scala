@@ -3,10 +3,8 @@ package viscel.database
 import java.nio.file.{Files, Paths}
 
 import org.neo4j.graphdb.Node
-import viscel.crawler.AbsUri
-import viscel.shared.Story
+import viscel.shared.{AbsUri, Story}
 import Story.{Blob, Asset, Chapter, More}
-import viscel.shared.Story
 import viscel.store.{Vault, Coin}
 
 object ArchiveExport {

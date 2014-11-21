@@ -4,14 +4,14 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.crawler._
-import viscel.shared.Story
+import viscel.shared.{AbsUri, Story}
 import Story.{Asset, Chapter, More}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Set
 import scala.language.implicitConversions
 
-object Util {
+object SelectUtil {
 	def getAttr(e: Element, k: String): Option[(String, String)] = {
 		val res = e.attr(k)
 		if (res.isEmpty) None else Some(k -> res)
@@ -65,4 +65,9 @@ object Util {
 
 	def blame(text: String, cause: Element*): String =
 		s"""$text at ($caller) on (${ cause.head.baseUri }) elements (${ cause.map { show } })"""
+
+
+	def storyFromOr(or: List[Story] Or Every[ErrorMessage]): List[Story] = or.fold(Predef.identity, err => Story.Failed(err.toList) :: Nil)
+
+
 }

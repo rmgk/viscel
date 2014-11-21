@@ -6,7 +6,7 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.shared.Story
 import Story.{Chapter, More}
-import viscel.narration.Util._
+import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 
 
@@ -29,7 +29,7 @@ object Twokinds extends Narrator with StrictLogging {
 		chapters_?.map(_.flatten(Predef.conforms))
 	}
 
-	def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {
 		case "archive" => wrapArchive(doc, pd)
 		case "page" => Selection(doc).unique("#cg_img img").wrapEach { imgIntoAsset }
 		case "main" => Selection(doc).unique(".comic img").wrapEach { imgIntoAsset }

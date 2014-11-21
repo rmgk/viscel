@@ -5,7 +5,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.shared.Story
 import Story.More
-import viscel.narration.Util._
+import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 
 object Everafter extends Narrator with StrictLogging {
@@ -15,7 +15,7 @@ object Everafter extends Narrator with StrictLogging {
 
 	def name: String = "Everafter"
 
-	def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {
 		case "archive" => Selection(doc).unique(".pagecontentbox").many("a").wrap { anchors =>
 			anchors.reverse.validatedBy(elementIntoPointer("page"))
 		}

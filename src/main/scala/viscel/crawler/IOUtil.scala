@@ -8,10 +8,12 @@ import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
+import spray.http.Uri.Query
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
 import spray.httpx.encoding._
 import viscel.database.{ArchiveManipulation, Ntx}
 import viscel.narration.Narrator
+import viscel.shared.AbsUri
 import viscel.store.coin.{Page, Asset}
 import viscel.{Deeds, sha1hex}
 import viscel.store.Vault
@@ -25,6 +27,8 @@ object IOUtil extends StrictLogging {
 
 	final case class Blob(mediatype: MediaType, sha1: String, buffer: Array[Byte])
 
+	def uriToUri(in: java.net.URI): Uri = Uri.from(in.getScheme, in.getUserInfo, in.getHost, in.getPort, in.getPath, Query.apply(in.getQuery), Option(in.getFragment))
+
 	private def addReferrer(referrer: Uri): (HttpRequest) => HttpRequest = addHeader("Referer" /*[sic, http spec]*/ , referrer.toString())
 
 	def getResponse(request: HttpRequest, iopipe: SendReceive): Future[HttpResponse] = {
@@ -33,15 +37,18 @@ object IOUtil extends StrictLogging {
 		result.andThen(PartialFunction(Deeds.responses.apply)).map { decode(Gzip) ~> decode(Deflate) }
 	}
 
-	def documentRequest(uri: Uri): DelayedRequest[Document] = DelayedRequest(
-		request = Get(uri),
-		continue = res => Jsoup.parse(
-			res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
-			res.header[Location].fold(ifEmpty = uri)(_.uri).toString()))
+	def documentRequest(absuri: AbsUri): DelayedRequest[Document] = {
+		val uri = uriToUri(absuri)
+		DelayedRequest(
+			request = Get(uri),
+			continue = res => Jsoup.parse(
+				res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
+				res.header[Location].fold(ifEmpty = uri)(_.uri).toString()))
+	}
 
 	def blobRequest(source: AbsUri, origin: AbsUri): DelayedRequest[Blob] =
 		DelayedRequest(
-			request = Get(source) ~> addReferrer(origin),
+			request = Get(source) ~> addReferrer(uriToUri(origin)),
 			continue = { res =>
 				val bytes = res.entity.data.toByteArray
 				Blob(

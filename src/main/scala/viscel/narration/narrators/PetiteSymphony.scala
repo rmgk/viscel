@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.shared.Story
 import Story.More
-import viscel.narration.Util._
+import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 
 import scala.collection.immutable.Set
@@ -13,7 +13,7 @@ object PetiteSymphony {
 
 	case class Generic(id: String, name: String, start: String) extends Narrator {
 		override def archive: List[Story] = More(start, "") :: Nil
-		override def wrap(doc: Document, pd: More): List[Story] = Story.fromOr {
+		override def wrap(doc: Document, pd: More): List[Story] = storyFromOr {
 			val next_? = Selection(doc).optional("a.navi.navi-next").wrap(selectNext(""))
 			val img_? = Selection(doc).unique("#comic-1 img").wrapEach(imgIntoAsset)
 			withGood(img_?, next_?) { _ ::: _ }

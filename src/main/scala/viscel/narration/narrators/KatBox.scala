@@ -3,7 +3,7 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import viscel.shared.Story
 import Story.More
-import viscel.narration.Util._
+import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 
 import scala.collection.immutable.Set
@@ -17,7 +17,7 @@ object KatBox {
 
 		val id: String = s"KatBox_$shortId"
 
-		def wrap(doc: Document, pd: More): List[Story] = Story.fromOr(pd.pagetype match {
+		def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {
 			case "archive" =>
 				Selection(doc).many("[rel=bookmark]").wrapEach(elementIntoPointer("page")).map { _.reverse }
 			case "page" => queryImages(doc, ".webcomic-image img")
