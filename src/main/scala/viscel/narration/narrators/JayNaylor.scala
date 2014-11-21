@@ -2,9 +2,10 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import viscel.crawler.AbsUri
-import viscel.narration.Story.{Chapter, More}
+import viscel.shared.Story
+import Story.{Chapter, More}
 import viscel.narration.Util.{elementIntoPointer, imgIntoAsset}
-import viscel.narration.{Narrator, Selection, Story}
+import viscel.narration.{Narrator, Selection}
 
 
 object JayNaylor {

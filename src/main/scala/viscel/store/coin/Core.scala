@@ -1,8 +1,8 @@
 package viscel.store.coin
 
 import org.neo4j.graphdb.Node
-import viscel.narration.Story
 import viscel.database.{Ntx, NodeOps}
+import viscel.shared.Story
 import viscel.store.{Metadata, StoryCoin}
 
 import scala.language.implicitConversions

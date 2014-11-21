@@ -2,8 +2,8 @@ package viscel.store.coin
 
 import org.neo4j.graphdb.{Relationship, Node}
 import viscel.crawler.AbsUri
-import viscel.narration.Story
 import viscel.database.{Ntx, NodeOps, rel}
+import viscel.shared.Story
 import viscel.store.{Metadata, StoryCoin}
 
 import scala.annotation.tailrec

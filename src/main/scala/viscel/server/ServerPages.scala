@@ -4,8 +4,9 @@ import org.neo4j.graphdb.Node
 import spray.http._
 import viscel.database.{Traversal, Ntx}
 import viscel.database.Util.listCollections
-import viscel.narration.Story
-import viscel.narration.Story.Asset
+import viscel.shared.Story
+import Story.Asset
+import viscel.shared.Story
 import viscel.store.coin.Collection
 import viscel.store.{Coin, User}
 

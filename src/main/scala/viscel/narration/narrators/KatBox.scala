@@ -1,9 +1,10 @@
 package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
-import viscel.narration.Story.More
+import viscel.shared.Story
+import Story.More
 import viscel.narration.Util._
-import viscel.narration.{Narrator, Selection, Story}
+import viscel.narration.{Narrator, Selection}
 
 import scala.collection.immutable.Set
 

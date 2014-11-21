@@ -1,7 +1,7 @@
 package viscel.store.coin
 
 import org.neo4j.graphdb.Node
-import viscel.narration.Story
+import viscel.shared.Story
 import viscel.store._
 import viscel.database.{Ntx, NodeOps}
 

@@ -2,7 +2,7 @@ package viscel.store.coin
 
 import org.neo4j.graphdb.Node
 import viscel.crawler.AbsUri
-import viscel.narration.Story
+import viscel.shared.Story
 import viscel.store.{Coin, StoryCoin}
 import viscel.database.{Traversal, Ntx, NodeOps}
 

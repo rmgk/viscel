@@ -4,6 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.narrators._
 import viscel.database.{NeoSingleton, Ntx, label}
+import viscel.shared.Story
 import viscel.store.coin
 
 import scala.collection.immutable.Set

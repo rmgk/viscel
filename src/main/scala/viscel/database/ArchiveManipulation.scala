@@ -2,8 +2,8 @@ package viscel.database
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.narration.Story
 import viscel.database.Traversal.{findBackward, findForward}
+import viscel.shared.Story
 import viscel.store.{Coin, Vault}
 
 import scala.annotation.tailrec

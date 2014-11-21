@@ -5,7 +5,8 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.crawler.AbsUri
 import viscel.narration.Util._
-import viscel.narration.{Narrator, Selection, Story}
+import viscel.narration.{Narrator, Selection}
+import viscel.shared.Story
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map

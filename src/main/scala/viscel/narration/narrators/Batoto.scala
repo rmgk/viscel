@@ -4,9 +4,10 @@ import org.jsoup.nodes.Document
 import viscel.crawler.AbsUri
 import org.scalactic.{Or, Every, ErrorMessage}
 import org.scalactic.Accumulation.withGood
-import viscel.narration.Story.{Chapter, More}
+import viscel.shared.Story
+import Story.{Chapter, More}
 import viscel.narration.Util.{imgIntoAsset, elementIntoPointer, selectNext}
-import viscel.narration.{Narrator, Selection, Story}
+import viscel.narration.{Narrator, Selection}
 
 import scala.collection.immutable.Set
 

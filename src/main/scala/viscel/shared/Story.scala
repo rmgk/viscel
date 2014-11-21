@@ -1,4 +1,4 @@
-package viscel.narration
+package viscel.shared
 
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.crawler.AbsUri

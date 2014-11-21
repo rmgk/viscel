@@ -3,8 +3,9 @@ package viscel.store
 import org.neo4j.graphdb.Node
 import spray.http.MediaType
 import viscel.crawler.AbsUri
-import viscel.narration.Story.{Failed, More}
-import viscel.narration.{Narrator, Story}
+import viscel.shared.Story
+import Story.{Failed, More}
+import viscel.narration.Narrator
 import viscel.database.{ArchiveManipulation, Ntx, label}
 import viscel.store.coin.{Blob, Collection, Config}
 
