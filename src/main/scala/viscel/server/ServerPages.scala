@@ -1,6 +1,8 @@
 package viscel.server
 
 import spray.http._
+import viscel.database.Ntx
+import viscel.database.Util.listCollections
 import viscel.store.User
 
 import scalatags.Text.{TypedTag, RawFrag}
@@ -9,6 +11,8 @@ import scalatags.Text.tags.{script, link, head, html, body}
 import scalatags.Text.implicits.stringAttr
 import argonaut.Json
 import argonaut.JsonIdentity.ToJsonIdentity
+import scala.Predef.any2ArrowAssoc
+import scala.collection.immutable.Map
 
 object ServerPages {
 	val path_css: String = "/css"
@@ -33,7 +37,9 @@ object ServerPages {
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks.asJson)
 
-	def collections() = jsonResponse()
+	def collections(implicit ntx: Ntx) = jsonResponse(listCollections.map{c =>
+		c.id -> Map("name" -> c.name, "size" -> c.size.toString, "node" -> c.nid.toString)
+	}.toMap.asJson)
 
 
 }

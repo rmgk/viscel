@@ -6,104 +6,44 @@ import org.scalajs.dom
 import org.scalajs.dom.document
 import scala.Predef.any2ArrowAssoc
 import scala.scalajs.js.annotation.JSExport
-import scalatags.JsDom.all._
 import scala.scalajs.js.Dynamic.global
 import scalajs.concurrent.JSExecutionContext.Implicits.runNow
+import scala.concurrent.Future
+import scalatags.JsDom.attrs.id
+import scalatags.JsDom.short.HtmlTag
+import scalatags.JsDom.implicits.{stringFrag, stringAttr}
+import scalatags.JsDom.tags.{div, body}
+import scalatags.JsDom.Frag
 
 @JSExport(name = "Viscel")
 object Viscel {
 
-	import visceljs.HtmlPageUtils._
+	import visceljs.Util._
 
-	// workaround because intellijs package object import logic fails me
-	//object dom extends org.scalajs.dom.Window with scalajs.js.GlobalScope
+	def ajax(path: String): Future[js.Dynamic] = dom.extensions.Ajax.get(
+		url = path
+	).map{ res => js.JSON.parse(res.responseText)}
 
+	def fetchBookmarks(): Future[js.Dictionary[Int]] = ajax("/bookmarks").asInstanceOf[Future[js.Dictionary[Int]]]
+	def fetchCollections(): Future[js.Dictionary[js.Dictionary[String]]] = ajax("/collections").asInstanceOf[Future[js.Dictionary[js.Dictionary[String]]]]
 
+	def setBody(id: String, fragment: Frag): Unit = {
+		dom.document.body.innerHTML = ""
+		dom.document.body.setAttribute("id", id)
+		dom.document.body.appendChild(fragment.render)
 
-	@JSExport var up: String = "↑"
-	@JSExport var down: String = "↓"
-	@JSExport var next: String = "→"
-	@JSExport var prev: String = "←"
-
-	@JSExport var assets: js.Array[String] = null
-
-//	{
-//		val children = document.getElementById("element_list").children
-//		(for (i <- Range(0, children.length)) yield {
-//			children.apply(i).asInstanceOf[Element].getAttribute("blob")
-//		}).toArray
-//	}
-
-	def getPos(): Int = global.parseInt(document.location.hash.substring(1)).asInstanceOf[Int]
-
-	var pos: Int = _
-
-	def bindings = List(13, 87, 77).map(_ -> up) :::
-		List(40, 83, 66, 78).map(_ -> down) :::
-		List(37, 65, 188).map(_ -> prev) :::
-		List(39, 68, 190).map(_ -> next)
-
-	def bodyId = "front"
-
-	def content: Tag = body(id := bodyId)(
-		div(class_main)(mainPart: _*),
-		div(class_navigation)(navigation: _*),
-		div(class_side)(sidePart: _*))
-
-	def mainPart = div(class_info)(
-		make_table(
-			"id" -> "ID",
-			"name" -> "NAME" //"chapter" -> collection.size.toString,
-			//"pages" -> collection.totalSize.toString
-		)) :: Nil
-
-	def navigation = Seq(
-		link_main("index"),
-		stringFrag(" – "),
-		stringFrag("FIRST"),
-		stringFrag(" – "))
-
-	def sidePart = Seq[Frag](
-		div(class_content))
-
-	def ajax() =     dom.extensions.Ajax.post(
-		url = "/someurl",
-		data = "some_data"
-	).map(_.responseText)
+	}
 
 	@JSExport
 	def main(): Unit = {
-		val map = bindings.toMap
 
-		val mainImg = img(class_element).render
-		val preload = new Image()
-		document.body.appendChild(div(class_content)(mainImg).render)
+		setBody("index", div(class_main)("loading"))
 
-		def updatePosition(p: Int) = {
-			pos = p
-			document.location.hash = pos.toString
-			mainImg.setAttribute("src", path_blob(assets(pos)))
-			preload.src = path_blob(assets(pos + 1))
-		}
-
-		updatePosition(getPos())
-
-		val handleKeypress = (ev: dom.KeyboardEvent) => {
-			val target = map.getOrElse(ev.keyCode, "")
-			if (!target.isEmpty && !ev.altKey && !ev.ctrlKey && !ev.shiftKey) {
-				ev.preventDefault()
-				target match {
-					case "→" => updatePosition(pos + 1)
-					case "←" => updatePosition(pos - 1)
-					case _ =>
-				}
-				false
-			}
-			else true
-		}
-		document.onkeydown = handleKeypress
-
-		dom.window.onhashchange = (e: Event) => updatePosition(getPos())
+		val fbm = fetchBookmarks()
+		val fcol = fetchCollections()
+		for (bm <- fbm; col <- fcol) { setBody("index", IndexPage.genIndex(bm, col)) }
 	}
+
+
 
 }

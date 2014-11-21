@@ -4,8 +4,10 @@ import scala.Predef.conforms
 import scala.Predef.augmentString
 import scalatags.JsDom.Tag
 import scalatags.JsDom.all._
+import scala.scalajs.js
+import scala.scalajs.js.Dynamic.global
 
-object HtmlPageUtils {
+object Util {
 
 	def path_main = "/index"
 	def path_css = "/css"
@@ -13,9 +15,9 @@ object HtmlPageUtils {
 //	def path_view(collection: Collection, absPos: Int) = s"/v/${ collection.id }/$absPos"
 	def path_search = "/s"
 	def path_blob(blob: String) = s"/b/${ blob }"
-//	def path_nid(vn: Coin) = s"/i/${ vn.nid }"
+	def path_nid(vn: String) = s"/i/$vn"
 //	def path_raw(vn: Coin) = s"/r/${ vn.nid }"
-//	def path_stop = "/stop"
+	def path_stop = "/stop"
 //	def path_core(core: Narrator) = s"/f/${ core.id }"
 	def path_scripts = "/viscel.js"
 
@@ -31,10 +33,10 @@ object HtmlPageUtils {
 	val class_extern = cls := "extern"
 
 	def link_main(ts: Frag*) = a(href := path_main)(ts)
-//	def link_stop(ts: Frag*) = a(href := path_stop)(ts)
+	def link_stop(ts: Frag*) = a(href := path_stop)(ts)
 //	//def link_front(collection: CollectionNode, ts: Frag*) = a(href := path_front(collection))(ts)
 //	//def link_view(id: String, chapter: Int, pos: Int, ts: Frag*) = a.href(path_view(id, chapter, pos))(ts)
-//	def link_node(vn: Coin, ts: Frag*): Frag = a(href := path_nid(vn))(ts)
+	def link_node(vn: String, ts: Frag*): Frag = a(href := path_nid(vn))(ts)
 //	def link_node(vn: Option[Coin], ts: Frag*): Frag = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))
 //	def link_raw(vn: Coin, ts: Frag*): Frag = a(href := path_raw(vn))(ts)
 //	// def link_node(en: Option[ElementNode], ts: Frag*): Frag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
@@ -62,5 +64,14 @@ object HtmlPageUtils {
 	})))
 
 	def make_fieldset(name: String, entries: Seq[Frag]) = fieldset(legend(name), div(entries.flatMap { e => List(e, br) }))
+
+	def keys(obj: js.Object): List[String] = {
+		var res = List[String]()
+		js.Object.keys(obj).map[Unit]{(s: String) => res ::= s}
+		res.reverse
+	}
+
+	def parseInt(int: js.Any): Int = global.parseInt(int).asInstanceOf[Int]
+
 
 }

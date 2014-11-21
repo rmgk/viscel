@@ -28,5 +28,7 @@ final case class Collection(self: Node) extends Coin {
 		first.flatMap(node => Coin.isAsset(nth(node.self, n - 1)))
 	}
 
+	def size(implicit neo: Ntx): Int = first.fold(0)(_.distanceToLast)
+
 	override def toString = s"Collection($self)"
 }
