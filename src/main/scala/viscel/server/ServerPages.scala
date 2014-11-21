@@ -6,7 +6,7 @@ import upickle.Writer
 import viscel.database.{Traversal, Ntx}
 import viscel.database.Util.listCollections
 import viscel.shared.{AbsUri, Story}
-import Story.Asset
+import viscel.shared.Story.{Narration, Asset}
 import viscel.store.coin.Collection
 import viscel.store.{Coin, User}
 
@@ -43,9 +43,7 @@ object ServerPages {
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-	def collections(implicit ntx: Ntx) = jsonResponse(listCollections.map { c =>
-		c.id -> Map("name" -> c.name, "size" -> c.size.toString, "node" -> c.nid.toString)
-	}.toMap)
+	def collections(implicit ntx: Ntx): HttpResponse = jsonResponse(listCollections.map { c => Narration(c.id, c.name, c.size) })
 
 
 	def collection(collection: Collection)(implicit ntx: Ntx) = {
@@ -61,8 +59,7 @@ object ServerPages {
 
 			Traversal.next(collection.self).fold[List[Story.Asset]](Nil)(innerAssets).reverse
 		}
-		implicit def acodec: CodecJson[Asset] = viscel.database.ArchiveExport.AssetCodec
-		jsonResponse(assetList)
+		jsonResponse(Narration(collection.id, collection.name, collection.size))
 	}
 
 }

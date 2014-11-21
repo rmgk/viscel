@@ -39,7 +39,6 @@ object Settings {
 			//"-Xlog-implicits" ::
 			"-Yno-predef" ::
 			//"-Yno-imports" ::
-			"-Ywarn-all" ::
 			"-Xfatal-warnings" ::
 			"-Yinline-warnings" ::
 			"-Yno-adapted-args" ::
@@ -155,7 +154,7 @@ object Libraries {
 		"net.sf.jopt-simple" % "jopt-simple" % "4.8" :: // mit
 		Nil
 
-	val scalamacros = "org.scalamacros" %% s"quasiquotes" % "2.0.0" % "provided" :: Nil
+	val scalamacros = "org.scalamacros" %% s"quasiquotes" % "2.0.1" % "provided" :: Nil
 
 	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.1" % "test") :: Nil
 	val scalactic = "org.scalactic" %% "scalactic" % "2.2.1" :: Nil

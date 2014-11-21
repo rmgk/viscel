@@ -19,7 +19,7 @@ object FrontPage {
 
 	def genIndex(bookmark: Int, collection: String, collectionName: String, narration: Narration): Frag = {
 
-		val assetList = narration.narration.asInstanceOf[List[Asset]]
+		val assetList = null.asInstanceOf[List[Asset]]
 
 		lazy val first = assetList(0)
 		lazy val second = assetList(1)

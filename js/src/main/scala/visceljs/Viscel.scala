@@ -2,7 +2,7 @@ package visceljs
 
 import org.scalajs.dom.{Element, Event}
 import viscel.shared.Story
-import viscel.shared.Story.Narration
+import viscel.shared.Story.{Asset, Narration}
 import scala.scalajs.js
 import org.scalajs.dom
 import org.scalajs.dom.document
@@ -28,6 +28,8 @@ object Viscel {
 	def ajax[R: Reader](path: String): Future[R] = dom.extensions.Ajax.get(
 		url = path
 	).map{ res => upickle.read[R](res.responseText) }
+
+	implicit val readAssets: Reader[List[Asset]] = Predef.implicitly[Reader[List[Asset]]]
 
 	def fetchBookmarks(): Future[Map[String, Int]] = ajax[Map[String, Int]]("/bookmarks")
 	def fetchCollections(): Future[List[Narration]] = ajax[List[Narration]]("/narrations")
