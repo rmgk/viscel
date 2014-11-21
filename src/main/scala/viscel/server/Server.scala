@@ -108,6 +108,12 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			path("collections") {
 				complete(neo.tx(ServerPages.collections(_)))
 			} ~
+			path("collection"/ Segment) { collectionId =>
+				rejectNone(Narrator.get(collectionId)) { core =>
+					val collection = neo.tx { Vault.update.collection(core)(_) }
+					complete(neo.tx{ServerPages.collection(collection)(_)})
+				}
+			} ~
 			path("b" / LongNumber) { nid =>
 				neo.tx { ntx =>
 					val blob = Coin.isBlob(ntx.db.getNodeById(nid)).get
