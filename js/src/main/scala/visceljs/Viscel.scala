@@ -18,6 +18,7 @@ import scalatags.JsDom.Frag
 @JSExport(name = "Viscel")
 object Viscel {
 
+
 	import visceljs.Util._
 
 	def ajax(path: String): Future[js.Dynamic] = dom.extensions.Ajax.get(
@@ -26,6 +27,8 @@ object Viscel {
 
 	def fetchBookmarks(): Future[js.Dictionary[Int]] = ajax("/bookmarks").asInstanceOf[Future[js.Dictionary[Int]]]
 	def fetchCollections(): Future[js.Dictionary[js.Dictionary[String]]] = ajax("/collections").asInstanceOf[Future[js.Dictionary[js.Dictionary[String]]]]
+	def fetchAssetList(col: String): Future[js.Array[AssetStory]] = ajax(s"/collection/$col").asInstanceOf[Future[js.Array[AssetStory]]]
+
 
 	def setBody(id: String, fragment: Frag): Unit = {
 		dom.document.body.innerHTML = ""
@@ -37,7 +40,7 @@ object Viscel {
 	@JSExport
 	def main(): Unit = {
 
-		setBody("index", div(class_main)("loading"))
+		setBody("index", div("loading"))
 
 		val fbm = fetchBookmarks()
 		val fcol = fetchCollections()

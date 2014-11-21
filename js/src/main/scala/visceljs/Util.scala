@@ -6,16 +6,17 @@ import scalatags.JsDom.Tag
 import scalatags.JsDom.all._
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.global
+import scalajs.concurrent.JSExecutionContext.Implicits.runNow
+
 
 object Util {
 
 	def path_main = "/index"
 	def path_css = "/css"
-//	def path_front(collection: Collection) = s"/f/${ collection.id }"
-//	def path_view(collection: Collection, absPos: Int) = s"/v/${ collection.id }/$absPos"
+	def path_asset(absPos: Int) = s"#$absPos"
 	def path_search = "/s"
-	def path_blob(blob: String) = s"/b/${ blob }"
-	def path_nid(vn: String) = s"/i/$vn"
+	def path_blob(blob: String) = s"/blob/${ blob }"
+	def path_front(vn: String) = s"#$vn"
 //	def path_raw(vn: Coin) = s"/r/${ vn.nid }"
 	def path_stop = "/stop"
 //	def path_core(core: Narrator) = s"/f/${ core.id }"
@@ -35,8 +36,10 @@ object Util {
 	def link_main(ts: Frag*) = a(href := path_main)(ts)
 	def link_stop(ts: Frag*) = a(href := path_stop)(ts)
 //	//def link_front(collection: CollectionNode, ts: Frag*) = a(href := path_front(collection))(ts)
-//	//def link_view(id: String, chapter: Int, pos: Int, ts: Frag*) = a.href(path_view(id, chapter, pos))(ts)
-	def link_node(vn: String, ts: Frag*): Frag = a(href := path_nid(vn))(ts)
+	def link_asset(collection: String, pos: Int, ts: Frag*) = a(href := (path_front(collection) + path_asset(pos)))(ts)
+	def link_front(collection: String, name: String, ts: Frag*): Frag = a(href := path_front(collection), onclick := {() =>
+		val (bmf, assetf) = (Viscel.fetchBookmarks(), Viscel.fetchAssetList(collection))
+		for (bm <- bmf; assets <- assetf) Viscel.setBody("front", FrontPage.genIndex(bm(collection), collection, name, assets))})(ts)
 //	def link_node(vn: Option[Coin], ts: Frag*): Frag = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))
 //	def link_raw(vn: Coin, ts: Frag*): Frag = a(href := path_raw(vn))(ts)
 //	// def link_node(en: Option[ElementNode], ts: Frag*): Frag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
@@ -54,8 +57,8 @@ object Util {
 
 	def form_search(init: String) = form_get(path_search, input(`type` := "textfield", name := "q", value := init))(id := "searchform")
 
-	def blobToImg(blob: String) = {
-		img(src := path_blob(blob), class_element)
+	def blobToImg(blob: AssetStory) = {
+		img(src := path_blob(blob.blob.sha1), class_element)
 	}
 
 	def make_table(entry: (String, Frag)*) = table(tbody(SeqNode(entry.map {

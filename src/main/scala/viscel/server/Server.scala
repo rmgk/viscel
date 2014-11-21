@@ -114,6 +114,10 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 					complete(neo.tx{ServerPages.collection(collection)(_)})
 				}
 			} ~
+			path("blob" / Segment) { sha1 =>
+					val filename = viscel.hashToFilename(sha1)
+					getFromFile(new File(filename))
+			} ~
 			path("b" / LongNumber) { nid =>
 				neo.tx { ntx =>
 					val blob = Coin.isBlob(ntx.db.getNodeById(nid)).get

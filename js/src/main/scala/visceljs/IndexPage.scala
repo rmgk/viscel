@@ -31,8 +31,8 @@ object IndexPage {
 
 			val (hasNewPages, isCurrent) = result.partition(cs => cs.bm < cs.size)
 
-			val unreadTags = hasNewPages.sortBy(cs => cs.bm - cs.size).map { cs => link_node(cs.node, s"${cs.name} (${cs.size - cs.bm})") }
-			val currentTags = isCurrent.sortBy(_.name).map { cs => link_node(cs.node, s"${cs.name}") }
+			val unreadTags = hasNewPages.sortBy(cs => cs.bm - cs.size).map { cs => link_front(cs.id, cs.name, s"${cs.name} (${cs.size - cs.bm})") }
+			val currentTags = isCurrent.sortBy(_.name).map { cs => link_front(cs.id, cs.name, s"${cs.name}") }
 			//val availableCores = Core.availableCores.map { core => link_core(core) }.toSeq
 			//		val allCollections = Neo.nodes(viscel.store.label.Collection).map(CollectionNode(_)).sortBy(_.name).map { collection =>
 			//			link_node(collection, s"${ collection.name }")
