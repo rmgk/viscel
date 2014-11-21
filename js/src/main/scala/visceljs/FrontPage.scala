@@ -1,6 +1,8 @@
 package visceljs
 
 
+import viscel.shared.Story.{Asset, Narration}
+
 import scala.scalajs.js
 import scalatags.JsDom.attrs.id
 import scalatags.JsDom.Frag
@@ -12,22 +14,12 @@ import scalatags.JsDom.implicits.{stringFrag, stringAttr}
 import scala.Predef.???
 import scala.Predef.any2ArrowAssoc
 
-
-class BlobStory extends js.Object {
-	def sha1: String = ???
-	def mediatype: String = ???
-}
-class AssetStory extends js.Object {
-	def source: String = ???
-	def origin: String = ???
-	def metadata: js.Dictionary[String] = ???
-	def blob: BlobStory = ???
-}
-
 object FrontPage {
 	import Util._
 
-	def genIndex(bookmark: Int, collection: String, collectionName: String, assetList: js.Array[AssetStory]): Frag = {
+	def genIndex(bookmark: Int, collection: String, collectionName: String, narration: Narration): Frag = {
+
+		val assetList = narration.narration.asInstanceOf[List[Asset]]
 
 		lazy val first = assetList(0)
 		lazy val second = assetList(1)
@@ -50,8 +42,8 @@ object FrontPage {
 			"TODO: remove")
 
 		def sidePart = div(class_content)(
-					link_asset(collection, (bookmark - 2), blobToImg(previewLeft)),
-					link_asset(collection, (bookmark - 1), blobToImg(previewMiddle)),
+					link_asset(collection, bookmark - 2, blobToImg(previewLeft)),
+					link_asset(collection, bookmark - 1, blobToImg(previewMiddle)),
 					link_asset(collection, bookmark, blobToImg(previewRight)))
 
 		def content: Frag = List(

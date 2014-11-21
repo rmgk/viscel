@@ -43,7 +43,7 @@ object Settings {
 			"-Xfatal-warnings" ::
 			"-Yinline-warnings" ::
 			"-Yno-adapted-args" ::
-			"-Ywarn-dead-code" ::
+			//"-Ywarn-dead-code" ::
 			"-Ywarn-nullary-override" ::
 			"-Ywarn-nullary-unit" ::
 			//"-Ywarn-numeric-widen" ::

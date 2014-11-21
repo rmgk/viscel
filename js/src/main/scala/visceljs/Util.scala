@@ -1,5 +1,7 @@
 package visceljs
 
+import viscel.shared.Story.Asset
+
 import scala.Predef.conforms
 import scala.Predef.augmentString
 import scalatags.JsDom.Tag
@@ -57,8 +59,8 @@ object Util {
 
 	def form_search(init: String) = form_get(path_search, input(`type` := "textfield", name := "q", value := init))(id := "searchform")
 
-	def blobToImg(blob: AssetStory) = {
-		img(src := path_blob(blob.blob.sha1), class_element)
+	def blobToImg(asset: Asset) = {
+		img(src := path_blob(asset.blob.get.sha1), class_element)
 	}
 
 	def make_table(entry: (String, Frag)*) = table(tbody(SeqNode(entry.map {

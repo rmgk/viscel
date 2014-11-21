@@ -15,9 +15,10 @@ import scalatags.Text.attrs.{href, rel, `type`, title, src, id, cls}
 import scalatags.Text.tags.{script, link, head, html, body, div}
 import scalatags.Text.implicits.{stringAttr, stringFrag}
 import argonaut.{CodecJson, Json}
-import argonaut.JsonIdentity.ToJsonIdentity
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map
+
+
 
 object ServerPages {
 	val path_css: String = "/css"

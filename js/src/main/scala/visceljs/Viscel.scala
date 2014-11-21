@@ -1,6 +1,8 @@
 package visceljs
 
 import org.scalajs.dom.{Element, Event}
+import viscel.shared.Story
+import viscel.shared.Story.Narration
 import scala.scalajs.js
 import org.scalajs.dom
 import org.scalajs.dom.document
@@ -14,6 +16,8 @@ import scalatags.JsDom.short.HtmlTag
 import scalatags.JsDom.implicits.{stringFrag, stringAttr}
 import scalatags.JsDom.tags.{div, body}
 import scalatags.JsDom.Frag
+import scala.collection.immutable.Map
+import upickle._
 
 @JSExport(name = "Viscel")
 object Viscel {
@@ -21,13 +25,13 @@ object Viscel {
 
 	import visceljs.Util._
 
-	def ajax(path: String): Future[js.Dynamic] = dom.extensions.Ajax.get(
+	def ajax[R: Reader](path: String): Future[R] = dom.extensions.Ajax.get(
 		url = path
-	).map{ res => js.JSON.parse(res.responseText)}
+	).map{ res => upickle.read[R](res.responseText) }
 
-	def fetchBookmarks(): Future[js.Dictionary[Int]] = ajax("/bookmarks").asInstanceOf[Future[js.Dictionary[Int]]]
-	def fetchCollections(): Future[js.Dictionary[js.Dictionary[String]]] = ajax("/collections").asInstanceOf[Future[js.Dictionary[js.Dictionary[String]]]]
-	def fetchAssetList(col: String): Future[js.Array[AssetStory]] = ajax(s"/collection/$col").asInstanceOf[Future[js.Array[AssetStory]]]
+	def fetchBookmarks(): Future[Map[String, Int]] = ajax[Map[String, Int]]("/bookmarks")
+	def fetchCollections(): Future[List[Narration]] = ajax[List[Narration]]("/narrations")
+	def fetchAssetList(col: String): Future[Narration] = ajax[Narration](s"/narration/$col")
 
 
 	def setBody(id: String, fragment: Frag): Unit = {
