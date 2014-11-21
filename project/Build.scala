@@ -108,7 +108,7 @@ object Settings {
 
 object Libraries {
 
-	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++ scalaz ++ logging ++
+	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++ logging ++
 		commandline ++ scalatest ++ scalactic ++ jsoup ++ scalatags.value ++ rescala ++ argonaut)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++= scalatags.value ++ scalajsdom.value)
@@ -129,7 +129,7 @@ object Libraries {
 
 	val akka =
 		List("akka-actor", "akka-slf4j")
-			.map(n => "com.typesafe.akka" %% n % "2.3.6")
+			.map(n => "com.typesafe.akka" %% n % "2.3.7")
 
 	// scala license (bsdish)
 	val scalaIO =
@@ -147,13 +147,13 @@ object Libraries {
 
 	val commandline =
 		"jline" % "jline" % "2.12" ::
-		"net.sf.jopt-simple" % "jopt-simple" % "4.7" :: // mit
+		"net.sf.jopt-simple" % "jopt-simple" % "4.8" :: // mit
 		Nil
 
 	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.1" % "test") :: Nil
 	val scalactic = "org.scalactic" %% "scalactic" % "2.2.1" :: Nil
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
-	val scalatags = Def.setting("com.scalatags" %%% "scalatags" % "0.4.1" :: Nil) // mit
+	val scalatags = Def.setting("com.scalatags" %%% "scalatags" % "0.4.2" :: Nil) // mit
 	val rescala = "de.tuda.stg" %% "rescala" % "0.3.0" :: Nil
 	val argonaut = "io.argonaut" %% "argonaut" % "6.0.4" :: Nil
 
