@@ -108,10 +108,15 @@ object Settings {
 
 object Libraries {
 
-	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++ logging ++
-		commandline ++ scalatest ++ scalactic ++ jsoup ++ scalatags.value ++ rescala ++ argonaut)
 
-	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++= scalatags.value ++ scalajsdom.value)
+
+	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++ logging ++
+		commandline ++ scalatest ++ scalactic ++ jsoup ++ rescala ++ argonaut ++ shared.value)
+
+	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++= scalajsdom.value ++ shared.value)
+
+	lazy val shared = Def.setting(scalatags.value ++ upickle.value ++ scalamacros)
+
 
 	// gpl3
 	val neo = {
@@ -150,12 +155,15 @@ object Libraries {
 		"net.sf.jopt-simple" % "jopt-simple" % "4.8" :: // mit
 		Nil
 
+	val scalamacros = "org.scalamacros" %% s"quasiquotes" % "2.0.0" % "provided" :: Nil
+
 	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.1" % "test") :: Nil
 	val scalactic = "org.scalactic" %% "scalactic" % "2.2.1" :: Nil
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 	val scalatags = Def.setting("com.scalatags" %%% "scalatags" % "0.4.2" :: Nil) // mit
 	val rescala = "de.tuda.stg" %% "rescala" % "0.3.0" :: Nil
 	val argonaut = "io.argonaut" %% "argonaut" % "6.0.4" :: Nil
+	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.5" :: Nil)
 
 	val scalajsdom = Def.setting(
 		("org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6") ::

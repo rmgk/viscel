@@ -2,11 +2,11 @@ package viscel.server
 
 import org.neo4j.graphdb.Node
 import spray.http._
+import upickle.Writer
 import viscel.database.{Traversal, Ntx}
 import viscel.database.Util.listCollections
-import viscel.shared.Story
+import viscel.shared.{AbsUri, Story}
 import Story.Asset
-import viscel.shared.Story
 import viscel.store.coin.Collection
 import viscel.store.{Coin, User}
 
@@ -36,15 +36,15 @@ object ServerPages {
 		ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
 		"<!DOCTYPE html>" + fullHtml.render))
 
-	def jsonResponse(json: Json): HttpResponse = HttpResponse(entity = HttpEntity(
+	def jsonResponse[T: Writer](value: T): HttpResponse = HttpResponse(entity = HttpEntity(
 		ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-8`),
-		json.nospaces))
+		upickle.write(value)))
 
-	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks.asJson)
+	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-	def collections(implicit ntx: Ntx) = jsonResponse(listCollections.map{c =>
+	def collections(implicit ntx: Ntx) = jsonResponse(listCollections.map { c =>
 		c.id -> Map("name" -> c.name, "size" -> c.size.toString, "node" -> c.nid.toString)
-	}.toMap.asJson)
+	}.toMap)
 
 
 	def collection(collection: Collection)(implicit ntx: Ntx) = {
@@ -61,8 +61,7 @@ object ServerPages {
 			Traversal.next(collection.self).fold[List[Story.Asset]](Nil)(innerAssets).reverse
 		}
 		implicit def acodec: CodecJson[Asset] = viscel.database.ArchiveExport.AssetCodec
-		jsonResponse(assetList.asJson)
+		jsonResponse(assetList)
 	}
-
 
 }
