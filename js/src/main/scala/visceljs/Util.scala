@@ -39,13 +39,15 @@ object Util {
 	def link_main(ts: Frag*) = a(href := path_main)(ts)
 	def link_stop(ts: Frag*) = a(href := path_stop)(ts)
 	//	//def link_front(collection: CollectionNode, ts: Frag*) = a(href := path_front(collection))(ts)
-	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*) = a(href := path_asset(nar, gallery.pos + 1))(ts)(onclick := { () =>
-		Viscel.setBody("view", ViewPage.gen(gallery, nar))
-	})
+	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*) = a(href := path_asset(nar, gallery.pos + 1))(ts)(onclick := go_view(gallery, nar))
 
-	def go_front(nar: Narration) = { () =>
+	def go_front(nar: Narration): () => Unit = { () =>
 		for (bm <- Viscel.bookmarks; fullNarration <- Viscel.completeNarration(nar))
 			Viscel.setBody("front", FrontPage.genIndex(bm.getOrElse(nar.id, 0), fullNarration))
+	}
+
+	def go_view(gallery: Gallery[Asset], nar: Narration): () => Unit = { () =>
+		Viscel.setBody("view", ViewPage.gen(gallery, nar))
 	}
 
 	def link_front(nar: Narration, ts: Frag*): Frag = a(href := path_front(nar))(ts)(onclick := go_front(nar))

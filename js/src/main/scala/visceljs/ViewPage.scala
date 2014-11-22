@@ -1,5 +1,6 @@
 package visceljs
 
+import org.scalajs.dom
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 
@@ -8,11 +9,23 @@ import scalatags.JsDom.Frag
 import scalatags.JsDom.attrs.{href, src}
 import scalatags.JsDom.implicits.{stringAttr, stringFrag}
 import scalatags.JsDom.tags.{SeqFrag, a, div, img}
+import org.scalajs.dom
 
 object ViewPage {
 	import visceljs.Util._
 
 	def gen(gallery: Gallery[Asset], narration: Narration): Frag = {
+
+		val handleKeypress = (ev: dom.KeyboardEvent) => {
+			if (!ev.altKey && !ev.ctrlKey && !ev.shiftKey && (ev.keyCode match {
+					case 37 | 65 | 188 => go_view(gallery.prev(1), narration)(); true
+					case 39 | 68 | 190 => go_view(gallery.next(1), narration)(); true
+					case _ => false
+				})) {ev.preventDefault(); true}
+			else false
+		}
+
+		dom.document.onkeydown = handleKeypress
 
 		gallery.next(1).get.map(a => blobToImg(a).render)
 
