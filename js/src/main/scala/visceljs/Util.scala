@@ -1,16 +1,13 @@
 package visceljs
 
-import org.scalajs.dom.HTMLImageElement
 import viscel.shared.Gallery
-import viscel.shared.Story.{Narration, Asset}
+import viscel.shared.Story.{Asset, Narration}
 
 import scala.Predef.conforms
-import scala.Predef.augmentString
-import scalatags.JsDom.{TypedTag, Tag}
-import scalatags.JsDom.all._
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.global
-import scalajs.concurrent.JSExecutionContext.Implicits.runNow
+import scalatags.JsDom.all._
 
 
 object Util {

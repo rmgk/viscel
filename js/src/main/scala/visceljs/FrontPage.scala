@@ -1,21 +1,15 @@
 package visceljs
 
 
-import viscel.shared.Story.{Asset, Narration}
+import viscel.shared.Story.Narration
 
-import scala.scalajs.js
-import scalatags.JsDom.attrs.id
+import scala.Predef.{any2ArrowAssoc, conforms}
 import scalatags.JsDom.Frag
-import scala.Predef.conforms
-import scalatags.JsDom.short.{HtmlTag}
-import scalatags.JsDom.tags.{div, body, SeqFrag, input}
-import scalatags.JsDom.attrs.{`type`, name, value}
-import scalatags.JsDom.implicits.{stringFrag, stringAttr}
-import scala.Predef.???
-import scala.Predef.any2ArrowAssoc
+import scalatags.JsDom.implicits.stringFrag
+import scalatags.JsDom.tags.{SeqFrag, div}
 
 object FrontPage {
-	import Util._
+	import visceljs.Util._
 
 	def genIndex(bookmark: Int, narration: Narration): Frag = {
 

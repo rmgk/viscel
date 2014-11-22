@@ -3,19 +3,14 @@ package visceljs
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 
-import scala.scalajs.js
-import scalatags.JsDom.attrs.id
-import scalatags.JsDom.Frag
 import scala.Predef.conforms
-import scalatags.JsDom.short.{HtmlTag}
-import scalatags.JsDom.tags.{div, body, SeqFrag, input, a}
-import scalatags.JsDom.attrs.{`type`, name, value, href}
-import scalatags.JsDom.implicits.{stringFrag, stringAttr}
-import scala.Predef.???
-import scala.Predef.any2ArrowAssoc
+import scalatags.JsDom.Frag
+import scalatags.JsDom.attrs.href
+import scalatags.JsDom.implicits.{stringAttr, stringFrag}
+import scalatags.JsDom.tags.{SeqFrag, a, div}
 
 object ViewPage {
-	import Util._
+	import visceljs.Util._
 
 	def gen(gallery: Gallery[Asset], narration: Narration): Frag = {
 

@@ -1,14 +1,14 @@
 package visceljs
 
-import org.scalajs.dom.{Element, Event}
-import scala.scalajs.js
 import org.scalajs.dom
-import org.scalajs.dom.document
+import org.scalajs.dom.{Event, document}
+
 import scala.Predef.any2ArrowAssoc
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
+import scala.scalajs.js
+import scala.scalajs.js.Dynamic.global
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.all._
-import scala.scalajs.js.Dynamic.global
-import scalajs.concurrent.JSExecutionContext.Implicits.runNow
 
 object Snippets {
 
