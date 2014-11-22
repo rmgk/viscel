@@ -10,6 +10,8 @@ import viscel.shared.{Story, AbsUri}
 trait Coin extends Any {
 	def self: Node
 	def nid(implicit neo: Ntx): Long = self.getId
+	def story(implicit neo: Ntx): Story
+
 }
 
 object Coin {
@@ -76,4 +78,6 @@ object Coin {
 
 
 
+}
+trait StoryCoin extends Any with Coin {
 }
