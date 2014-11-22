@@ -14,18 +14,17 @@ import spray.httpx.encoding._
 import viscel.database.{rel, ArchiveManipulation, Ntx, NodeOps}
 import viscel.narration.Narrator
 import viscel.shared.{Story, AbsUri}
-import viscel.store.coin.{Page, Asset}
+import viscel.store.coin.{Page, Asset, Blob}
 import viscel.{Deeds, sha1hex}
 import viscel.store.Vault
 import viscel.crawler.Result.DelayedRequest
 
+import scala.Predef.any2ArrowAssoc
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object IOUtil extends StrictLogging {
-
-	final case class Blob(mediatype: MediaType, sha1: String, buffer: Array[Byte])
 
 	def uriToUri(in: java.net.URI): Uri = Uri.from(in.getScheme, in.getUserInfo, in.getHost, in.getPort, in.getPath, Query.apply(in.getQuery), Option(in.getFragment))
 
@@ -46,25 +45,23 @@ object IOUtil extends StrictLogging {
 				res.header[Location].fold(ifEmpty = uri)(_.uri).toString()))
 	}
 
-	def blobRequest(source: AbsUri, origin: AbsUri): DelayedRequest[Blob] =
+	def blobRequest(source: AbsUri, origin: AbsUri): DelayedRequest[(Story.Blob, Array[Byte])] =
 		DelayedRequest(
 			request = Get(source) ~> addReferrer(uriToUri(origin)),
 			continue = { res =>
 				val bytes = res.entity.data.toByteArray
-				Blob(
-					mediatype = res.header[`Content-Type`].get.contentType.mediaType,
-					buffer = bytes,
-					sha1 = sha1hex(bytes))
+				Story.Blob(
+					sha1 = sha1hex(bytes),
+					mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString())) -> bytes
 			})
 
 
-	def writeAsset(core: Narrator, assetNode: Asset)(blob: IOUtil.Blob)(ntx: Ntx): Unit = {
+	def writeAsset(core: Narrator, assetNode: Asset)(blob: (Story.Blob, Array[Byte]))(ntx: Ntx): Unit = {
 		logger.debug(s"$core: received blob, applying to $assetNode")
-		val path = Paths.get(viscel.hashToFilename(blob.sha1))
+		val path = Paths.get(viscel.hashToFilename(blob._1.sha1))
 		Files.createDirectories(path.getParent)
-		Files.write(path, blob.buffer)
-		val blobStory = Story.Blob(blob.sha1, blob.mediatype.toString())
-		assetNode.self.to_=(rel.blob, Vault.create.fromStory(blobStory)(ntx))(ntx)
+		Files.write(path, blob._2)
+		assetNode.blob_=(Blob(Vault.create.fromStory(blob._1)(ntx)))(ntx)
 	}
 
 	def writePage(core: Narrator, pageNode: Page)(doc: Document)(ntx: Ntx): Unit = {
