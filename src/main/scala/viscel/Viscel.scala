@@ -124,7 +124,7 @@ object Opts extends OptionParser {
 //	val loglevel = accepts("loglevel", "set the loglevel")
 //		.withRequiredArg().describedAs("loglevel").defaultsTo("INFO")
 	val port = accepts("port", "server listening port")
-		.withRequiredArg().ofType(Predef.classOf[Int]).defaultsTo(4242).describedAs("port")
+		.withRequiredArg().ofType(Predef.classOf[Int]).defaultsTo(2358).describedAs("port")
 	val noserver = accepts("noserver", "do not start the server")
 	val nocore = accepts("nocore", "do not start the core downloader")
 	val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
