@@ -4,6 +4,9 @@ import org.neo4j.graphdb.{Node, Relationship}
 import viscel.database.label.SimpleLabel
 import viscel.database.{NodeOps, Ntx, label, rel}
 import viscel.shared.{AbsUri, Story}
+import scala.Predef.any2ArrowAssoc
+import scala.collection.JavaConverters._
+import scala.collection.immutable.Map
 
 
 trait Coin extends Any {
@@ -73,6 +76,30 @@ object Coin {
 		def pagetype(implicit neo: Ntx): String = self[String]("pagetype")
 
 		override def story(implicit neo: Ntx): Story.More = Story.More(location, pagetype)
+	}
+
+
+	private val metadataPrefix = "metadata_"
+	def addMetadataPrefix(data: Map[String, String]): Map[String, String] = data.map { case (k, v) => (metadataPrefix + k) -> v }.toMap
+
+	trait Metadata extends Any {
+		this: Coin =>
+
+		def metadata()(implicit neo: Ntx): Map[String, String] =
+			self.getPropertyKeys().asScala.collect {
+				case k if k.startsWith(metadataPrefix) => k.substring(metadataPrefix.length) -> self[String](k)
+			}.toMap
+
+		def metadataOption(key: String)(implicit ntx: Ntx): Option[String] = self.get[String](metadataPrefix + key)
+	}
+
+	def create(desc: Story)(implicit neo: Ntx): Node = desc match {
+		case Story.Chapter(name, metadata) => neo.create(label.Chapter, addMetadataPrefix(metadata) + ("name" -> name))
+		case Story.Asset(source, origin, metadata, blob) => neo.create(label.Asset, addMetadataPrefix(metadata) + ("source" -> source.toString) + ("origin" -> origin.toString))
+		case Story.Core(kind, id, name, metadata) => neo.create(label.Core, addMetadataPrefix(metadata) + ("id" -> id) + ("kind" -> kind) + ("name" -> name))
+		case Story.Failed(reason) => throw new IllegalArgumentException(reason.toString())
+		case Story.More(loc, pagetype, layer) => neo.create(label.Page, "location" -> loc.toString, "pagetype" -> pagetype)
+		case Story.Blob(sha1, mediastring) => neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediastring)
 	}
 
 

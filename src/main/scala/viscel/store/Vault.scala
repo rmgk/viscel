@@ -4,6 +4,7 @@ import org.neo4j.graphdb.Node
 import viscel.database.{Ntx, label}
 import viscel.narration.Narrator
 import viscel.shared.Story
+import viscel.store.Coin.Metadata
 
 import scala.Predef.any2ArrowAssoc
 
@@ -19,19 +20,6 @@ object Vault {
 	object find {
 		def collection(id: String)(implicit neo: Ntx): Option[Collection] =
 			neo.node(label.Collection, "id", id).map { Collection.apply }
-
-	}
-
-	object create {
-
-		def fromStory(desc: Story)(implicit neo: Ntx): Node = desc match {
-			case Story.Chapter(name, metadata) => neo.create(label.Chapter, Metadata.prefix(metadata) + ("name" -> name))
-			case Story.Asset(source, origin, metadata, blob) => neo.create(label.Asset, Metadata.prefix(metadata) + ("source" -> source.toString) + ("origin" -> origin.toString))
-			case Story.Core(kind, id, name, metadata) => neo.create(label.Core, Metadata.prefix(metadata) + ("id" -> id) + ("kind" -> kind) + ("name" -> name))
-			case Story.Failed(reason) => throw new IllegalArgumentException(reason.toString())
-			case Story.More(loc, pagetype, layer) => neo.create(label.Page, "location" -> loc.toString, "pagetype" -> pagetype)
-			case Story.Blob(sha1, mediastring) => neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediastring)
-		}
 
 	}
 

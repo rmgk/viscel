@@ -16,7 +16,7 @@ import viscel.narration.Narrator
 import viscel.shared.{Story, AbsUri}
 import viscel.store.Coin.{Page, Asset, Blob}
 import viscel.{Deeds, sha1hex}
-import viscel.store.Vault
+import viscel.store.{Coin, Vault}
 import viscel.crawler.Result.DelayedRequest
 
 import scala.Predef.any2ArrowAssoc
@@ -61,7 +61,7 @@ object IOUtil extends StrictLogging {
 		val path = Paths.get(viscel.hashToFilename(blob._1.sha1))
 		Files.createDirectories(path.getParent)
 		Files.write(path, blob._2)
-		assetNode.blob_=(Blob(Vault.create.fromStory(blob._1)(ntx)))(ntx)
+		assetNode.blob_=(Blob(Coin.create(blob._1)(ntx)))(ntx)
 	}
 
 	def writePage(core: Narrator, pageNode: Page)(doc: Document)(ntx: Ntx): Unit = {

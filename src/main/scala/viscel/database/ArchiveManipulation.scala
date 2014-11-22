@@ -45,7 +45,7 @@ object ArchiveManipulation {
 		val oldMap: mutable.Map[Story, Node] = mutable.Map(oldNarration zip oldLayer: _*)
 		val newLayer: List[Node] = newNarration.map { story =>
 			oldMap.get(story) match {
-				case None => Vault.create.fromStory(story)
+				case None => Coin.create(story)
 				case Some(oldCoin) =>
 					oldMap.remove(story)
 					oldCoin
