@@ -30,7 +30,7 @@ object FrontPage {
 			stringFrag(" – "),
 			link_asset(narration, gallery.first, "first"),
 			stringFrag(" – "),
-			"TODO: remove")
+			set_bookmark(narration, 0, "remove"))
 
 		def sidePart = div(class_content)( List(
 			preview1.get.map(a => link_asset(narration, preview1, blobToImg(a))),

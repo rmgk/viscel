@@ -39,9 +39,10 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 
 	var userCache = Map[String, User]()
 
-	def userUpdate(user: User): Unit = {
+	def userUpdate(user: User): User = {
 		userCache += user.id -> user
 		User.store(user)
+		user
 	}
 
 	def getUserNode(name: String, password: String): User = {
@@ -72,11 +73,11 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 
 	def handleFormFields(user: User) =
 		formFields(('narration.?.as[Option[String]], 'bookmark.?.as[Option[Int]])) { (colidOption, bmposOption) =>
-			for (bmpos <- bmposOption; colid <- colidOption) {
+			val newUser = for (bmpos <- bmposOption; colid <- colidOption) yield {
 				if (bmpos > 0) userUpdate(user.setBookmark(colid, bmpos))
 				else userUpdate(user.removeBookmark(colid))
 			}
-			defaultRoute(user)
+			defaultRoute(newUser.getOrElse(user))
 		}
 
 	def defaultRoute(user: User): Route =
