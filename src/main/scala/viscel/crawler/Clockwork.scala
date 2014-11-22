@@ -7,7 +7,7 @@ import spray.client.pipelining.SendReceive
 import viscel.Deeds
 import viscel.database.Traversal.origin
 import viscel.narration.Narrator
-import viscel.store.{StoryCoin, Coin}
+import viscel.store.Coin
 import viscel.store.Collection
 import viscel.database._
 

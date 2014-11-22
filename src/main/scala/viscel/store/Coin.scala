@@ -27,13 +27,13 @@ object Coin {
 	object isCollection extends CheckNode(label.Collection, Collection.apply)
 	object isBlob extends CheckNode(label.Blob, Blob.apply)
 
-	object hasStory extends (Node => Option[StoryCoin]) {
-		def unapply(node: Node): Option[StoryCoin] = isAsset(node).orElse(isPage(node)).orElse(isChapter(node)).orElse(isCore(node))
-		def apply(node: Node): Option[StoryCoin] = unapply(node)
+	object hasStory extends (Node => Option[Coin]) {
+		def unapply(node: Node): Option[Coin] = isAsset(node).orElse(isPage(node)).orElse(isChapter(node)).orElse(isCore(node))
+		def apply(node: Node): Option[Coin] = unapply(node)
 	}
 
 
-	final case class Asset(self: Node) extends AnyVal with StoryCoin with Metadata {
+	final case class Asset(self: Node) extends AnyVal with Metadata with Coin{
 
 		def blob(implicit neo: Ntx): Option[Blob] = self.to(rel.blob).map { Blob.apply }
 		def blob_=(bn: Blob)(implicit neo: Ntx): Relationship = self.to_=(rel.blob, bn.self)
@@ -44,7 +44,7 @@ object Coin {
 		override def story(implicit neo: Ntx): Story.Asset = Story.Asset(source, origin, metadata())
 	}
 
-	final case class Blob(self: Node) extends AnyVal with StoryCoin with Coin {
+	final case class Blob(self: Node) extends AnyVal with Coin {
 
 		def sha1(implicit neo: Ntx): String = self[String]("sha1")
 		def mediatype(implicit ntx: Ntx): String = self[String]("mediatype")
@@ -52,7 +52,7 @@ object Coin {
 		override def story(implicit neo: Ntx): Story = Story.Blob(sha1, mediatype)
 	}
 
-	final case class Chapter(self: Node) extends AnyVal with StoryCoin with Metadata {
+	final case class Chapter(self: Node) extends AnyVal with Metadata with Coin {
 
 		def name(implicit neo: Ntx): String = self[String]("name")
 
@@ -60,7 +60,7 @@ object Coin {
 
 	}
 
-	final case class Core(self: Node) extends AnyVal with StoryCoin with Metadata {
+	final case class Core(self: Node) extends AnyVal with Metadata with Coin {
 
 		def kind(implicit neo: Ntx): String = self[String]("kind")
 		def id(implicit neo: Ntx): String = self[String]("id")
@@ -69,7 +69,7 @@ object Coin {
 		override def story(implicit neo: Ntx): Story.Core = Story.Core(kind, id, name, metadata())
 	}
 
-	final case class Page(self: Node) extends AnyVal with StoryCoin {
+	final case class Page(self: Node) extends AnyVal with Coin {
 		def location(implicit neo: Ntx): AbsUri = self[String]("location")
 		def pagetype(implicit neo: Ntx): String = self[String]("pagetype")
 
@@ -78,6 +78,4 @@ object Coin {
 
 
 
-}
-trait StoryCoin extends Any with Coin {
 }
