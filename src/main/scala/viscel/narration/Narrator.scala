@@ -2,10 +2,10 @@ package viscel.narration
 
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.narration.narrators._
 import viscel.database.{Ntx, label}
+import viscel.narration.narrators._
 import viscel.shared.Story
-import viscel.store.{Coin}
+import viscel.store.Coin
 
 import scala.collection.immutable.Set
 

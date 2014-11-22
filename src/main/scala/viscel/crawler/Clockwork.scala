@@ -6,16 +6,14 @@ import rescala.events.ImperativeEvent
 import spray.client.pipelining.SendReceive
 import viscel.Deeds
 import viscel.database.Traversal.origin
-import viscel.narration.Narrator
-import viscel.store.Coin
-import viscel.store.Collection
 import viscel.database._
+import viscel.narration.Narrator
+import viscel.store.{Coin, Collection}
 
-
+import scala.Predef.any2ArrowAssoc
 import scala.collection.concurrent
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
-import scala.Predef.any2ArrowAssoc
 
 
 object Clockwork extends StrictLogging {

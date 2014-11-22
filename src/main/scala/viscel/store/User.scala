@@ -2,12 +2,13 @@ package viscel.store
 
 import java.io.IOException
 import java.nio.charset.Charset
-import java.nio.file.{Path, Paths, Files}
+import java.nio.file.{Files, Path, Paths}
 
 import argonaut.Argonaut._
 import argonaut.{CodecJson, Parse}
-import scala.collection.JavaConverters._
 import org.scalactic._
+
+import scala.collection.JavaConverters._
 import scala.collection.immutable.Map
 
 final case class User(id: String, password: String, bookmarks: Map[String, Int]) {

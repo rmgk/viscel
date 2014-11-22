@@ -1,11 +1,10 @@
 package viscel.shared
 
+import upickle.{Js, Reader, Writer, _}
+
+import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map
 import scala.language.implicitConversions
-import upickle.{Writer, Reader, Js, key}
-import scala.Predef.any2ArrowAssoc
-import scala.Predef.implicitly
-import upickle._
 
 sealed trait Story
 
@@ -44,9 +43,6 @@ object Story {
 		case Js.Arr(Js.Str("Failed"), s @ Js.Obj(_*)) => readJs[Failed](s)
 		case Js.Arr(Js.Str("Blob"), s @ Js.Obj(_*)) => readJs[Blob](s)
 	}
-
-	implicitly[Reader[List[Narration]]](SeqishR[Narration,List])
-	implicitly[Reader[Story]]
 
 }
 

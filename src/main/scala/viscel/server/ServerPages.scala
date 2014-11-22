@@ -8,7 +8,7 @@ import viscel.database.Util.listCollections
 import viscel.database.{Ntx, Traversal, label}
 import viscel.shared.Story
 import viscel.shared.Story.Narration
-import viscel.store.{Config, Collection, Coin, User}
+import viscel.store.{Coin, Collection, Config, User}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map

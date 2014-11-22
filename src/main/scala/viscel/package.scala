@@ -1,7 +1,6 @@
 import java.security.MessageDigest
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-
 import scala.Predef.augmentString
 
 package object viscel extends StrictLogging {

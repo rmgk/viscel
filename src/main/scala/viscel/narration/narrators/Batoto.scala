@@ -1,12 +1,12 @@
 package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
-import org.scalactic.{Or, Every, ErrorMessage}
 import org.scalactic.Accumulation.withGood
-import viscel.shared.{AbsUri, Story}
-import Story.{Chapter, More}
-import viscel.narration.SelectUtil.{imgIntoAsset, elementIntoPointer, selectNext, storyFromOr}
+import org.scalactic.{ErrorMessage, Every, Or}
+import viscel.narration.SelectUtil.{elementIntoPointer, imgIntoAsset, selectNext, storyFromOr}
 import viscel.narration.{Narrator, Selection}
+import viscel.shared.Story.{Chapter, More}
+import viscel.shared.{AbsUri, Story}
 
 import scala.collection.immutable.Set
 

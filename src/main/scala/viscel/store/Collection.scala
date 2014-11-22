@@ -2,9 +2,10 @@ package viscel.store
 
 import org.neo4j.graphdb.Node
 import viscel.database.Traversal.findForward
-import viscel.database.{label, NodeOps, Ntx, Traversal}
+import viscel.database.{NodeOps, Ntx, Traversal, label}
 import viscel.narration.Narrator
 import viscel.store.Coin.CheckNode
+
 import scala.Predef.any2ArrowAssoc
 
 final case class Collection(self: Node) extends AnyVal {

@@ -1,6 +1,6 @@
 package viscel.crawler
 
-import spray.http.{HttpResponse, HttpRequest}
+import spray.http.{HttpRequest, HttpResponse}
 
 sealed trait Result[+R] {
 	def map[S](f: R => S): Result[S]

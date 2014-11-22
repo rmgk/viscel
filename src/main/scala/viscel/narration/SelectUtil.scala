@@ -3,9 +3,8 @@ package viscel.narration
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.crawler._
+import viscel.shared.Story.{Asset, Chapter, More}
 import viscel.shared.{AbsUri, Story}
-import Story.{Asset, Chapter, More}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Set

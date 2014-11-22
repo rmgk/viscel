@@ -1,6 +1,7 @@
 package viscel.shared
 
 import java.net.URI
+
 import upickle.Js
 
 import scala.language.implicitConversions

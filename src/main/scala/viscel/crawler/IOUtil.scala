@@ -5,24 +5,22 @@ import java.nio.file.{Files, Paths}
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.scalactic.TypeCheckedTripleEquals._
 import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.Uri.Query
-import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
+import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding._
-import viscel.database.{rel, ArchiveManipulation, Ntx, NodeOps}
-import viscel.narration.Narrator
-import viscel.shared.{Story, AbsUri}
-import viscel.store.Coin.{Page, Asset, Blob}
-import viscel.{Deeds, sha1hex}
-import viscel.store.{Coin}
 import viscel.crawler.Result.DelayedRequest
+import viscel.database.{ArchiveManipulation, Ntx}
+import viscel.narration.Narrator
+import viscel.shared.{AbsUri, Story}
+import viscel.store.Coin
+import viscel.store.Coin.{Asset, Blob, Page}
+import viscel.{Deeds, sha1hex}
 
 import scala.Predef.any2ArrowAssoc
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 
 object IOUtil extends StrictLogging {
 

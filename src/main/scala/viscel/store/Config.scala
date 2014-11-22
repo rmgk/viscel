@@ -1,7 +1,8 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import viscel.database.{label, NodeOps, Ntx}
+import viscel.database.{NodeOps, Ntx, label}
+
 import scala.Predef.any2ArrowAssoc
 
 

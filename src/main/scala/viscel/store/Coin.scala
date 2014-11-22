@@ -4,6 +4,7 @@ import org.neo4j.graphdb.{Node, Relationship}
 import viscel.database.label.SimpleLabel
 import viscel.database.{NodeOps, Ntx, label, rel}
 import viscel.shared.{AbsUri, Story}
+
 import scala.Predef.any2ArrowAssoc
 import scala.collection.JavaConverters._
 import scala.collection.immutable.Map
