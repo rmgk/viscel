@@ -19,9 +19,11 @@ object FrontPage {
 
 	def genIndex(bookmark: Int, narration: Narration): Frag = {
 
-		val assets = narration.narrates
+		val gallery = narration.narrates
 
-		val preview = assets.drop(bookmark - 3) ::: assets
+		val preview3 = gallery.next(bookmark - 1)
+		val preview2 = preview3.prev(1)
+		val preview1 = preview2.prev(1)
 
 		def mainPart = div(class_info)(
 			make_table(
@@ -32,14 +34,14 @@ object FrontPage {
 		def navigation = Seq[Frag](
 			link_main("index"),
 			stringFrag(" – "),
-			link_asset(narration, 1, "first"),
+			link_asset(narration, gallery.first, "first"),
 			stringFrag(" – "),
 			"TODO: remove")
 
 		def sidePart = div(class_content)( List(
-			preview.headOption.map(a => link_asset(narration, bookmark - 2, blobToImg(a))),
-			preview.drop(1).headOption.map(a => link_asset(narration, bookmark - 1, blobToImg(a))),
-			preview.drop(2).headOption.map(a => link_asset(narration, bookmark - 0, blobToImg(a)))
+			preview1.get.map(a => link_asset(narration, preview1, blobToImg(a))),
+			preview2.get.map(a => link_asset(narration, preview2, blobToImg(a))),
+			preview3.get.map(a => link_asset(narration, preview3, blobToImg(a)))
 		).flatten: _*)
 
 		def content: Frag = List(

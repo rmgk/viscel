@@ -1,5 +1,6 @@
 package visceljs
 
+import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 
 import scala.scalajs.js
@@ -16,14 +17,12 @@ import scala.Predef.any2ArrowAssoc
 object ViewPage {
 	import Util._
 
-	def gen(i: Int, narration: Narration): Frag = {
+	def gen(gallery: Gallery[Asset], narration: Narration): Frag = {
 
-		val current: Asset = narration.narrates(i - 1)
+		def mainPart = div(class_content)(link_asset(narration, gallery.next(1), blobToImg(gallery.get.get))) :: Nil
 
-		def mainPart = div(class_content)(link_asset(narration, i + 1, blobToImg(current))) :: Nil
-
-		def navigation = Seq[Frag](
-			link_asset(narration, i - 1, "prev"),
+		val navigation = Seq[Frag](
+			link_asset(narration, gallery.prev(1), "prev"),
 			" ",
 			link_front(narration, "front"),
 			" ",
@@ -32,9 +31,9 @@ object ViewPage {
 //				input(`type` := "hidden", name := "bookmark", value := pos),
 //				input(`type` := "submit", name := "submit", value := "pause", class_submit)),
 			" ",
-			a(href := current.origin.toString)(class_extern)("site"),
+			a(href := gallery.get.get.origin.toString)(class_extern)("site"),
 			" ",
-			link_asset(narration, i + 1,  "next"))
+			link_asset(narration, gallery.next(1), "next"))
 
 		List(
 			div(class_main)(mainPart),

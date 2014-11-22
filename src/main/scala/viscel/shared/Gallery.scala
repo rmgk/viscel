@@ -9,6 +9,8 @@ case class Gallery[A](left: List[A], right: List[A]) {
 	def get: Option[A] = right.headOption
 	def next(n: Int): Gallery[A] = Gallery(right.take(n) reverse_::: left, right.drop(n))
 	def prev(n: Int): Gallery[A] = Gallery(left.drop(n), left.take(n) reverse_::: right)
+	def size: Int = left.size + right.size
+	def pos: Int = left.size
 	override def toString: String = s"Gallery(${left.reverse.mkString(", ")} | ${right.mkString(", ")})"
 }
 

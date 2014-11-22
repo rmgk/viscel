@@ -42,10 +42,10 @@ object ServerPages {
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-	def collections(implicit ntx: Ntx): HttpResponse = jsonResponse(listCollections.map { c => Narration(c.id, c.name, c.size, Nil) })
+	def collections(implicit ntx: Ntx): HttpResponse = jsonResponse(listCollections.map { _.narration(nested = false)})
 
 
-	def collection(collection: Collection)(implicit ntx: Ntx) = {	jsonResponse(collection.narration) }
+	def collection(collection: Collection)(implicit ntx: Ntx) = {	jsonResponse(collection.narration(nested = true)) }
 
 	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse{
 			val cn = Config.get()

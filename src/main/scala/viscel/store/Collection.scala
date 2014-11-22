@@ -4,7 +4,7 @@ import org.neo4j.graphdb.Node
 import viscel.database.Traversal.findForward
 import viscel.database.{NodeOps, Ntx, Traversal, label}
 import viscel.narration.Narrator
-import viscel.shared.Story
+import viscel.shared.{Gallery, Story}
 import viscel.shared.Story.Narration
 import viscel.store.Coin.CheckNode
 
@@ -23,7 +23,7 @@ final case class Collection(self: Node) extends AnyVal {
 		case _ => count
 	})
 
-	def narration(implicit neo: Ntx): Narration = {
+	def narration(nested: Boolean)(implicit neo: Ntx): Narration = {
 		def allAssets(node: Node): List[Story.Asset] = {
 			Traversal.fold(List[Story.Asset](), node) { state => {
 				case Coin.isAsset(asset) => asset.story(nested = true) :: state
@@ -31,9 +31,14 @@ final case class Collection(self: Node) extends AnyVal {
 			}
 			}
 		}
-		val assets = allAssets(self)
 
-		Narration(id, name, assets.size, assets)
+		if (nested) {
+			val assets = allAssets(self).reverse
+			Narration(id, name, assets.size, Gallery.fromList(assets))
+		}
+		else {
+			Narration(id, name, size, Gallery.fromList(Nil))
+		}
 	}
 
 }

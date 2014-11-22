@@ -16,7 +16,7 @@ object Story {
 	final case class Core(kind: String, id: String, name: String, metadata: Map[String, String]) extends Story
 	final case class Failed(reason: List[String]) extends Story
 	final case class Blob(sha1: String, mediatype: String) extends Story
-	final case class Narration(id: String, name: String, size: Int, narrates: List[Asset])
+	final case class Narration(id: String, name: String, size: Int, narrates: Gallery[Asset])
 
 	implicit val (moreR, moreW): (Reader[More], Writer[More]) = case3RW("loc", "pagetype", "layer", More.apply, More.unapply)
 	implicit val (chapterR, chapterW): (Reader[Chapter], Writer[Chapter]) = case2RW("name", "metadata", Chapter.apply, Chapter.unapply)
