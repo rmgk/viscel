@@ -42,10 +42,13 @@ object Util {
 	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*) = a(href := path_asset(nar, gallery.pos + 1))(ts)(onclick := {() =>
 		Viscel.setBody("view", ViewPage.gen(gallery, nar))
 	})
-	
-	def link_front(nar: Narration, ts: Frag*): Frag = a(href := path_front(nar))(ts)(onclick := {() =>
+
+	def go_front(nar: Narration) = {() =>
 		for (bm <- Viscel.bookmarks; fullNarration <- Viscel.completeNarration(nar))
-			Viscel.setBody("front", FrontPage.genIndex(bm(nar.id), fullNarration))})
+			Viscel.setBody("front", FrontPage.genIndex(bm(nar.id), fullNarration))
+	}
+
+	def link_front(nar: Narration, ts: Frag*): Frag = a(href := path_front(nar))(ts)(onclick := go_front(nar))
 //	def link_node(vn: Option[Coin], ts: Frag*): Frag = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))
 //	def link_raw(vn: Coin, ts: Frag*): Frag = a(href := path_raw(vn))(ts)
 //	// def link_node(en: Option[ElementNode], ts: Frag*): Frag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
@@ -66,17 +69,18 @@ object Util {
 		action := formAction)(ts)
 
 	def form_search(narrations: List[Narration], results: HTMLElement): HtmlTag = {
+		var filtered = Seq[Narration]()
 		lazy val inputField: HTMLInputElement = input(`type` := "textfield", onkeyup := {() =>
 			results.innerHTML = ""
 			val query = inputField.value.toString.toLowerCase
 			if (!query.isEmpty) {
-				val filtered = SearchUtil.search(query, narrations.map(n => n.name -> n))
+				filtered = SearchUtil.search(query, narrations.map(n => n.name -> n))
 				val mapped = filtered.map(a => link_front(a, a.name))
 				results.appendChild(make_fieldset("", mapped)(class_group).render)
 				()
 			}
 		}).render
-		div(inputField)(id := "searchform")
+		form(inputField, action := "")(onsubmit := {() => filtered.headOption.foreach(go_front(_)()); false})(id := "searchform")
 	}
 
 	def blobToImg(asset: Asset): HtmlTag = {
