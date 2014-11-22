@@ -94,13 +94,4 @@ object Util {
 
 	def make_fieldset(name: String, entries: Seq[Frag]) = fieldset(legend(name), div(entries.flatMap { e => List(e, br) }))
 
-	def keys(obj: js.Object): List[String] = {
-		var res = List[String]()
-		js.Object.keys(obj).map[Unit] { (s: String) => res ::= s }
-		res.reverse
-	}
-
-	def parseInt(int: js.Any): Int = global.parseInt(int).asInstanceOf[Int]
-
-
 }
