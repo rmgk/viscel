@@ -14,7 +14,7 @@ import spray.httpx.encoding._
 import viscel.database.{rel, ArchiveManipulation, Ntx, NodeOps}
 import viscel.narration.Narrator
 import viscel.shared.{Story, AbsUri}
-import viscel.store.coin.{Page, Asset, Blob}
+import viscel.store.Coin.{Page, Asset, Blob}
 import viscel.{Deeds, sha1hex}
 import viscel.store.Vault
 import viscel.crawler.Result.DelayedRequest

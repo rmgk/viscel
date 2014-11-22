@@ -5,7 +5,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.narrators._
 import viscel.database.{NeoSingleton, Ntx, label}
 import viscel.shared.Story
-import viscel.store.coin
+import viscel.store.{Coin, coin}
 
 import scala.collection.immutable.Set
 
@@ -24,7 +24,7 @@ trait Narrator {
 
 object Narrator {
 	def metaCores(implicit ntx: Ntx): Set[Narrator] =
-		ntx.nodes(label.Core).map(coin.Core.apply).map { core =>
+		ntx.nodes(label.Core).map(Coin.Core.apply).map { core =>
 			core.kind match {
 				case "CloneManga" => CloneManga.getCore(core.story)
 				case "MangaHere" => MangaHere.getCore(core.story)

@@ -18,7 +18,6 @@ import viscel.crawler.Clockwork
 import viscel.database.{NeoSingleton, rel}
 import viscel.server.Server
 import viscel.store._
-import viscel.store.coin.Collection
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -108,7 +107,7 @@ object Viscel extends StrictLogging {
 	}
 
 
-	def visualizeCollection(col: Collection, dotpath: String) = {
+	def visualizeCollection(col: Coin.Collection, dotpath: String) = {
 		NeoSingleton.txs {
 			val td = NeoSingleton.db.traversalDescription().depthFirst
 				.relationships(rel.narc)

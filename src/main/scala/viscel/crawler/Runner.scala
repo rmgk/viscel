@@ -7,7 +7,7 @@ import spray.client.pipelining.SendReceive
 import viscel.database.{ArchiveManipulation, Neo, Ntx}
 import viscel.narration.Narrator
 import viscel.store.Coin
-import viscel.store.coin.Collection
+import viscel.store.Coin.Collection
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
