@@ -58,21 +58,6 @@ object Coin {
 
 	}
 
-	final case class Collection(self: Node) extends AnyVal with Coin {
-
-		def id(implicit neo: Ntx): String = self[String]("id")
-		def name(implicit neo: Ntx): String = self.get[String]("name").getOrElse(id)
-		def name_=(value: String)(implicit neo: Ntx) = self.setProperty("name", value)
-
-		def first(implicit neo: Ntx): Option[Asset] = findForward(Coin.isAsset)(self)
-
-		def size(implicit neo: Ntx): Int = Traversal.fold(0, self)(count => {
-			case Coin.isAsset(a) => count + 1
-			case _ => count
-		})
-
-	}
-
 	final case class Core(self: Node) extends AnyVal with StoryCoin with Metadata {
 
 		def kind(implicit neo: Ntx): String = self[String]("kind")

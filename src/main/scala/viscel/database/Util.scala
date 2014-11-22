@@ -5,7 +5,7 @@ import org.neo4j.graphdb.Node
 import org.neo4j.tooling.GlobalGraphOperations
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Narrator
-import viscel.store.Coin.Collection
+import viscel.store.Collection
 import viscel.time
 
 import scala.Predef.any2ArrowAssoc

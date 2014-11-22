@@ -4,7 +4,6 @@ import org.neo4j.graphdb.Node
 import viscel.database.{Ntx, label}
 import viscel.narration.Narrator
 import viscel.shared.Story
-import viscel.store.Coin.Collection
 
 import scala.Predef.any2ArrowAssoc
 

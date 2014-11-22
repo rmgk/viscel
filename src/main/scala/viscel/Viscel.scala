@@ -107,7 +107,7 @@ object Viscel extends StrictLogging {
 	}
 
 
-	def visualizeCollection(col: Coin.Collection, dotpath: String) = {
+	def visualizeCollection(col: Collection, dotpath: String) = {
 		NeoSingleton.txs {
 			val td = NeoSingleton.db.traversalDescription().depthFirst
 				.relationships(rel.narc)

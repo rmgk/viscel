@@ -8,7 +8,7 @@ import viscel.database.Util.listCollections
 import viscel.database.{Ntx, Traversal, label}
 import viscel.shared.Story
 import viscel.shared.Story.Narration
-import viscel.store.{Coin, User, Vault}
+import viscel.store.{Collection, Coin, User, Vault}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map
@@ -45,7 +45,7 @@ object ServerPages {
 	def collections(implicit ntx: Ntx): HttpResponse = jsonResponse(listCollections.map { c => Narration(c.id, c.name, c.size, Nil) })
 
 
-	def collection(collection: Coin.Collection)(implicit ntx: Ntx) = {
+	def collection(collection: Collection)(implicit ntx: Ntx) = {
 		def assetList: List[Story.Asset] = {
 			def innerAssets(node: Node): List[Story.Asset] = {
 				Traversal.fold(List[Story.Asset](), node) { state => {

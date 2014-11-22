@@ -8,7 +8,7 @@ import viscel.Deeds
 import viscel.database.Traversal.origin
 import viscel.narration.Narrator
 import viscel.store.{StoryCoin, Coin}
-import viscel.store.Coin.Collection
+import viscel.store.Collection
 import viscel.database._
 
 
