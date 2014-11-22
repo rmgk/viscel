@@ -13,7 +13,7 @@ class StatsPage(user: User, stats: Stats, neo: Neo)(implicit ntx: Ntx) extends H
 	override def Title = "Statistics"
 	override def bodyId = "stats"
 
-	def mainPart = neo.tx { implicit ntx =>
+	def mainPart = {
 		val cn = Vault.config()(ntx)
 		div(class_info)(make_table(
 			"Downloaded :" -> cn.downloaded.toString,
