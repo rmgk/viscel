@@ -1,21 +1,17 @@
 package viscel.crawler
 
-import java.nio.file.{Files, Paths}
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import org.scalactic.ErrorMessage
-import spray.client.pipelining._
-import viscel.crawler.Result.Done
+import spray.client.pipelining.SendReceive
+import viscel.database.{ArchiveManipulation, Neo, Ntx}
 import viscel.narration.Narrator
-import viscel.database.{Neo, ArchiveManipulation, Ntx, NodeOps, Traversal, rel}
-import viscel.store.coin.{Asset, Collection, Page}
-import viscel.store.{Coin, StoryCoin, Vault}
+import viscel.store.Coin
+import viscel.store.coin.Collection
 
 import scala.annotation.tailrec
-import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class Runner(val core: Narrator, iopipe: SendReceive, ec: ExecutionContext) extends StrictLogging {
