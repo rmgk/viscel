@@ -4,6 +4,8 @@ import org.neo4j.graphdb.Node
 import viscel.database.Traversal.findForward
 import viscel.database.{NodeOps, Ntx, Traversal, label}
 import viscel.narration.Narrator
+import viscel.shared.Story
+import viscel.shared.Story.Narration
 import viscel.store.Coin.CheckNode
 
 import scala.Predef.any2ArrowAssoc
@@ -21,18 +23,31 @@ final case class Collection(self: Node) extends AnyVal {
 		case _ => count
 	})
 
+	def narration(implicit neo: Ntx): Narration = {
+		def allAssets(node: Node): List[Story.Asset] = {
+			Traversal.fold(List[Story.Asset](), node) { state => {
+				case Coin.isAsset(asset) => asset.story(nested = true) :: state
+				case _ => state
+			}
+			}
+		}
+		val assets = allAssets(self)
+
+		Narration(id, name, assets.size, assets)
+	}
+
 }
 
 object Collection {
 	object isCollection extends CheckNode(label.Collection, Collection.apply)
 
-		def find(id: String)(implicit neo: Ntx): Option[Collection] =
-			neo.node(label.Collection, "id", id).map { Collection.apply }
+	def find(id: String)(implicit neo: Ntx): Option[Collection] =
+		neo.node(label.Collection, "id", id).map { Collection.apply }
 
 
-		def findAndUpdate(narrator: Narrator)(implicit ntx: Ntx): Collection = {
-			val col = find(narrator.id)
-			col.foreach(_.name = narrator.name)
-			col.getOrElse { Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name)) }
-		}
+	def findAndUpdate(narrator: Narrator)(implicit ntx: Ntx): Collection = {
+		val col = find(narrator.id)
+		col.foreach(_.name = narrator.name)
+		col.getOrElse { Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name)) }
+	}
 }

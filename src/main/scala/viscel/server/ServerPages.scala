@@ -45,20 +45,7 @@ object ServerPages {
 	def collections(implicit ntx: Ntx): HttpResponse = jsonResponse(listCollections.map { c => Narration(c.id, c.name, c.size, Nil) })
 
 
-	def collection(collection: Collection)(implicit ntx: Ntx) = {
-		def assetList: List[Story.Asset] = {
-			def innerAssets(node: Node): List[Story.Asset] = {
-				Traversal.fold(List[Story.Asset](), node) { state => {
-						case Coin.isAsset(asset) => asset.story(nested = true) :: state
-						case _ => state
-					}
-				}
-			}
-
-			Traversal.next(collection.self).fold[List[Story.Asset]](Nil)(innerAssets).reverse
-		}
-		jsonResponse(Narration(collection.id, collection.name, collection.size, assetList))
-	}
+	def collection(collection: Collection)(implicit ntx: Ntx) = {	jsonResponse(collection.narration) }
 
 	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse{
 			val cn = Config.get()
