@@ -22,7 +22,6 @@ object Coin {
 	object isPage extends CheckNode(label.Page, Page.apply)
 	object isChapter extends CheckNode(label.Chapter, Chapter.apply)
 	object isCore extends CheckNode(label.Core, Core.apply)
-	object isCollection extends CheckNode(label.Collection, Collection.apply)
 	object isBlob extends CheckNode(label.Blob, Blob.apply)
 
 	def apply(node: Node): Coin = node match {

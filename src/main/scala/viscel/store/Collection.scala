@@ -2,7 +2,8 @@ package viscel.store
 
 import org.neo4j.graphdb.Node
 import viscel.database.Traversal.findForward
-import viscel.database.{NodeOps, Ntx, Traversal}
+import viscel.database.{label, NodeOps, Ntx, Traversal}
+import viscel.store.Coin.CheckNode
 
 final case class Collection(self: Node) extends AnyVal {
 
@@ -17,4 +18,8 @@ final case class Collection(self: Node) extends AnyVal {
 		case _ => count
 	})
 
+}
+
+object Collection {
+	object isCollection extends CheckNode(label.Collection, Collection.apply)
 }

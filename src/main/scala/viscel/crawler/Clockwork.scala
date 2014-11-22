@@ -55,7 +55,7 @@ object Clockwork extends StrictLogging {
 
 	def handleHints(hints: ImperativeEvent[Coin], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { coin =>
 		neo.tx { implicit ntx =>
-			Coin.isCollection(origin(coin.self)).map(col => col -> col.id)
+			Collection.isCollection(origin(coin.self)).map(col => col -> col.id)
 		} match {
 			case Some((col, id)) =>
 				if (jobs.contains(id)) logger.trace(s"$id has running job")
