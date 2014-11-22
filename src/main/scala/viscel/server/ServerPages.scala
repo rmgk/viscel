@@ -1,14 +1,15 @@
 package viscel.server
 
 import org.neo4j.graphdb.Node
+import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
-import viscel.database.{Traversal, Ntx}
+import viscel.database.{label, Traversal, Ntx}
 import viscel.database.Util.listCollections
 import viscel.shared.{AbsUri, Story}
 import viscel.shared.Story.{Narration, Asset}
 import viscel.store.coin.Collection
-import viscel.store.{Coin, User}
+import viscel.store.{Vault, Coin, User}
 
 import scalatags.Text.{TypedTag, RawFrag}
 import scalatags.Text.attrs.{href, rel, `type`, title, src, id, cls}
@@ -61,5 +62,25 @@ object ServerPages {
 		}
 		jsonResponse(Narration(collection.id, collection.name, collection.size, assetList))
 	}
+
+	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse{
+			val cn = Vault.config()
+			Map(
+				"Downloaded" -> cn.downloaded.toString,
+				"Downloads" -> cn.downloads.toString,
+				"Compressed Downloads" -> cn.downloadsCompressed.toString,
+				"Failed Downloads" -> cn.downloadsFailed.toString,
+				"Narrations" -> ntx.nodes(label.Collection).size.toString,
+				"Chapters" -> ntx.nodes(label.Chapter).size.toString,
+				"Assets" -> ntx.nodes(label.Asset).size.toString,
+				"Uptime" -> stats.uptime.toString,
+				"Total requests" -> stats.totalRequests.toString,
+				"Open requests" -> stats.openRequests.toString,
+				"Max open requests" -> stats.maxOpenRequests.toString,
+				"Total connections" -> stats.totalConnections.toString,
+				"Open connections" -> stats.openConnections.toString,
+				"Max open connections" -> stats.maxOpenConnections.toString,
+				"Requests timed out" -> stats.requestTimeouts.toString)
+		}
 
 }
