@@ -45,7 +45,7 @@ object Util {
 
 	def go_front(nar: Narration) = { () =>
 		for (bm <- Viscel.bookmarks; fullNarration <- Viscel.completeNarration(nar))
-			Viscel.setBody("front", FrontPage.genIndex(bm(nar.id), fullNarration))
+			Viscel.setBody("front", FrontPage.genIndex(bm.getOrElse(nar.id, 0), fullNarration))
 	}
 
 	def link_front(nar: Narration, ts: Frag*): Frag = a(href := path_front(nar))(ts)(onclick := go_front(nar))
@@ -70,7 +70,7 @@ object Util {
 
 	def form_search(narrations: List[Narration], results: HTMLElement): HtmlTag = {
 		var filtered = Seq[Narration]()
-		lazy val inputField: HTMLInputElement = input(`type` := "textfield", onkeyup := { () =>
+		lazy val inputField: HTMLInputElement = input(`type` := "textfield", autofocus := true, onkeyup := { () =>
 			results.innerHTML = ""
 			val query = inputField.value.toString.toLowerCase
 			if (!query.isEmpty) {
