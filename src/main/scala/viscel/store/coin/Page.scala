@@ -1,9 +1,9 @@
 package viscel.store.coin
 
 import org.neo4j.graphdb.Node
+import viscel.database.{NodeOps, Ntx}
 import viscel.shared.{AbsUri, Story}
-import viscel.store.{Coin, StoryCoin}
-import viscel.database.{Traversal, Ntx, NodeOps}
+import viscel.store.StoryCoin
 
 
 final case class Page(self: Node) extends AnyVal with StoryCoin {

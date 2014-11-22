@@ -1,8 +1,8 @@
 package viscel.store.coin
 
 import org.neo4j.graphdb.Node
+import viscel.database.{NodeOps, Ntx}
 import viscel.store.Coin
-import viscel.database.{Ntx, NodeOps}
 
 
 final case class Config(self: Node) extends AnyVal with Coin {

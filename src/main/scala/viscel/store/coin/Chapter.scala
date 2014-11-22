@@ -1,9 +1,9 @@
 package viscel.store.coin
 
 import org.neo4j.graphdb.Node
+import viscel.database.{NodeOps, Ntx}
 import viscel.shared.Story
 import viscel.store._
-import viscel.database.{Ntx, NodeOps}
 
 
 final case class Chapter(self: Node) extends AnyVal with StoryCoin with Metadata {
