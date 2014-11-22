@@ -16,7 +16,7 @@ import viscel.narration.Narrator
 import viscel.shared.{Story, AbsUri}
 import viscel.store.Coin.{Page, Asset, Blob}
 import viscel.{Deeds, sha1hex}
-import viscel.store.{Coin, Vault}
+import viscel.store.{Coin}
 import viscel.crawler.Result.DelayedRequest
 
 import scala.Predef.any2ArrowAssoc

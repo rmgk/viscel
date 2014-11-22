@@ -8,7 +8,7 @@ import viscel.database.Util.listCollections
 import viscel.database.{Ntx, Traversal, label}
 import viscel.shared.Story
 import viscel.shared.Story.Narration
-import viscel.store.{Collection, Coin, User, Vault}
+import viscel.store.{Config, Collection, Coin, User}
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map
@@ -61,7 +61,7 @@ object ServerPages {
 	}
 
 	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse{
-			val cn = Vault.config()
+			val cn = Config.get()
 			Map(
 				"Downloaded" -> cn.downloaded.toString,
 				"Downloads" -> cn.downloads.toString,

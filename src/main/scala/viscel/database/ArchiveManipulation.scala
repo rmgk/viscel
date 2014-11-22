@@ -4,7 +4,7 @@ import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.database.Traversal.{findBackward, findForward}
 import viscel.shared.Story
-import viscel.store.{Coin, Vault}
+import viscel.store.{Coin}
 
 import scala.annotation.tailrec
 import scala.collection.mutable

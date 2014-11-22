@@ -1,7 +1,8 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import viscel.database.{NodeOps, Ntx}
+import viscel.database.{label, NodeOps, Ntx}
+import scala.Predef.any2ArrowAssoc
 
 
 final case class Config(self: Node) extends AnyVal {
@@ -19,5 +20,15 @@ final case class Config(self: Node) extends AnyVal {
 	def downloads(implicit neo: Ntx): Long = self.get[Long]("stat_download_count").getOrElse(0L)
 	def downloadsFailed(implicit neo: Ntx): Long = self.get[Long]("stat_download_failed").getOrElse(0L)
 	def downloadsCompressed(implicit neo: Ntx): Long = self.get[Long]("stat_download_count_compressed").getOrElse(0L)
+
+}
+
+object Config {
+
+	def get()(implicit neo: Ntx): Config = synchronized {
+		Config(neo.node(label.Config, "id", "config").getOrElse {
+			neo.create(label.Config, "id" -> "config", "version" -> 1)
+		})
+	}
 
 }

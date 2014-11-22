@@ -53,7 +53,7 @@ object Viscel extends StrictLogging {
 
 		if (!nodbwarmup.?) time("warmup db") { NeoSingleton.txs {} }
 
-		val configNode = NeoSingleton.tx { ntx => Vault.config()(ntx) }
+		val configNode = NeoSingleton.tx { ntx => Config.get()(ntx) }
 
 		logger.info(s"config version: ${ NeoSingleton.tx { ntx => configNode.version(ntx) } }")
 
