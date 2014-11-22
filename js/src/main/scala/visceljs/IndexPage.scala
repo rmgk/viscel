@@ -1,11 +1,13 @@
 package visceljs
 
 
+import org.scalajs.dom.HTMLElement
 import viscel.shared.Story.Narration
 
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.collection.immutable.Map
 import scalatags.JsDom.Frag
+import scalatags.JsDom.all.bindNode
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{SeqFrag, div}
 
@@ -19,7 +21,9 @@ object IndexPage {
 
 		val collections = narrations.map(n => n.id -> n).toMap
 
-		def sidePart = make_fieldset("Search", Seq(form_search("")))(class_info) :: Nil
+		val searchResultDiv: HTMLElement = div().render
+
+		def sidePart = make_fieldset("Search", Seq(form_search(narrations, searchResultDiv)))(class_info)
 
 		def navigation = link_stop("stop") :: Nil
 
@@ -50,6 +54,7 @@ object IndexPage {
 		List(
 			div(class_main)(mainPart),
 			div(class_side)(sidePart),
+			div(searchResultDiv),
 			div(class_navigation)(navigation))
 
 

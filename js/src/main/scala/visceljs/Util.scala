@@ -1,12 +1,14 @@
 package visceljs
 
+import org.scalajs.dom.{HTMLInputElement, HTMLElement}
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 
-import scala.Predef.conforms
+import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.global
+import scalatags.JsDom.Frag
 import scalatags.JsDom.all._
 
 
@@ -63,7 +65,19 @@ object Util {
 		"enctype".attr := "application/x-www-form-urlencoded",
 		action := formAction)(ts)
 
-	def form_search(init: String) = form_get(path_search, input(`type` := "textfield", name := "q", value := init))(id := "searchform")
+	def form_search(narrations: List[Narration], results: HTMLElement): HtmlTag = {
+		lazy val inputField: HTMLInputElement = input(`type` := "textfield", onkeyup := {() =>
+			results.innerHTML = ""
+			val query = inputField.value.toString.toLowerCase
+			if (!query.isEmpty) {
+				val filtered = SearchUtil.search(query, narrations.map(n => n.name -> n))
+				val mapped = filtered.map(a => link_front(a, a.name))
+				results.appendChild(make_fieldset("", mapped)(class_group).render)
+				()
+			}
+		}).render
+		div(inputField)(id := "searchform")
+	}
 
 	def blobToImg(asset: Asset): HtmlTag = {
 		img(src := path_blob(asset.blob.get.sha1), class_element)
