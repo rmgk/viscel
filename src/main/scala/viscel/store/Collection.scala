@@ -3,7 +3,9 @@ package viscel.store
 import org.neo4j.graphdb.Node
 import viscel.database.Traversal.findForward
 import viscel.database.{label, NodeOps, Ntx, Traversal}
+import viscel.narration.Narrator
 import viscel.store.Coin.CheckNode
+import scala.Predef.any2ArrowAssoc
 
 final case class Collection(self: Node) extends AnyVal {
 
@@ -22,4 +24,14 @@ final case class Collection(self: Node) extends AnyVal {
 
 object Collection {
 	object isCollection extends CheckNode(label.Collection, Collection.apply)
+
+		def find(id: String)(implicit neo: Ntx): Option[Collection] =
+			neo.node(label.Collection, "id", id).map { Collection.apply }
+
+
+		def findAndUpdate(narrator: Narrator)(implicit ntx: Ntx): Collection = {
+			val col = find(narrator.id)
+			col.foreach(_.name = narrator.name)
+			col.getOrElse { Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name)) }
+		}
 }

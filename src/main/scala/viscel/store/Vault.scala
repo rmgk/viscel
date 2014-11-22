@@ -17,18 +17,5 @@ object Vault {
 		})
 	}
 
-	object find {
-		def collection(id: String)(implicit neo: Ntx): Option[Collection] =
-			neo.node(label.Collection, "id", id).map { Collection.apply }
 
-	}
-
-	object update {
-		def collection(narrator: Narrator)(implicit ntx: Ntx): Collection = {
-			val col = Vault.find.collection(narrator.id)
-			col.foreach(_.name = narrator.name)
-			col.getOrElse { Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name)) }
-		}
-
-	}
 }

@@ -65,7 +65,7 @@ object Viscel extends StrictLogging {
 		for {
 			dotpath <- makedot.get
 			cid <- collectionid.get
-			cn <- Vault.find.collection(cid)(NeoSingleton)
+			cn <- Collection.find(cid)(NeoSingleton)
 		} { visualizeCollection(cn, dotpath) }
 
 		implicit val system = ActorSystem()
