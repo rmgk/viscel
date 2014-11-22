@@ -18,13 +18,13 @@ object Story {
 	final case class Blob(sha1: String, mediatype: String) extends Story
 	final case class Narration(id: String, name: String, size: Int, narrates: List[Asset])
 
-	implicit val (moreR, moreW): (Reader[More], Writer[More]) = case3ReadWrite("loc", "pagetype", "layer", More.apply, More.unapply)
-	implicit val (chapterR, chapterW): (Reader[Chapter], Writer[Chapter]) = case2ReadWrite("name", "metadata", Chapter.apply, Chapter.unapply)
-	implicit val (blobR, blobW): (Reader[Blob], Writer[Blob]) = case2ReadWrite("sha1", "mediatype", Blob.apply, Blob.unapply)
-	implicit val (assetR, assetW): (Reader[Asset], Writer[Asset]) = case4ReadWrite("source", "origin", "metadata", "blob", Asset.apply, Asset.unapply)
-	implicit val (coreR, coreW): (Reader[Core], Writer[Core]) = case4ReadWrite("kind", "id", "name", "metadata", Core.apply, Core.unapply)
-	implicit val (failedR, failedW): (Reader[Failed], Writer[Failed]) = case1ReadWrite("reason", Failed.apply, Failed.unapply)
-	implicit val (narrationR, narrationW): (Reader[Narration], Writer[Narration]) = case4ReadWrite("id", "name", "size", "narrates", Narration.apply, Narration.unapply)
+	implicit val (moreR, moreW): (Reader[More], Writer[More]) = case3RW("loc", "pagetype", "layer", More.apply, More.unapply)
+	implicit val (chapterR, chapterW): (Reader[Chapter], Writer[Chapter]) = case2RW("name", "metadata", Chapter.apply, Chapter.unapply)
+	implicit val (blobR, blobW): (Reader[Blob], Writer[Blob]) = case2RW("sha1", "mediatype", Blob.apply, Blob.unapply)
+	implicit val (assetR, assetW): (Reader[Asset], Writer[Asset]) = case4RW("source", "origin", "metadata", "blob", Asset.apply, Asset.unapply)
+	implicit val (coreR, coreW): (Reader[Core], Writer[Core]) = case4RW("kind", "id", "name", "metadata", Core.apply, Core.unapply)
+	implicit val (failedR, failedW): (Reader[Failed], Writer[Failed]) = case1RW("reason", Failed.apply, Failed.unapply)
+	implicit val (narrationR, narrationW): (Reader[Narration], Writer[Narration]) = case4RW("id", "name", "size", "narrates", Narration.apply, Narration.unapply)
 
 	implicit val storyWriter: Writer[Story] = Writer[Story] {
 		case s @ More(_, _, _) => writeJs(("More", s))

@@ -1,24 +1,24 @@
 package viscel.store
 
-import java.io.IOException
 import java.nio.charset.Charset
 import java.nio.file.{Files, Path, Paths}
 
-import argonaut.Argonaut._
-import argonaut.{CodecJson, Parse}
-import org.scalactic._
+import org.scalactic.{Bad, ErrorMessage, Good, Or}
+import upickle.{Reader, Writer}
+import viscel.shared.JsonCodecs.{case3RW, stringMapR, stringMapW}
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.immutable.Map
 
 final case class User(id: String, password: String, bookmarks: Map[String, Int]) {
 	def setBookmark(collection: String, position: Int): User = copy(bookmarks = bookmarks.updated(collection, position))
-	def removeBookmark(collection: String): User = copy(bookmarks = bookmarks.-(collection))
+	def removeBookmark(collection: String): User = copy(bookmarks = bookmarks - collection)
 }
 
 object User {
 
-	implicit def userCodec: CodecJson[User] = casecodec3(User.apply, User.unapply)("id", "password", "bookmarks")
+
+	implicit val (userR, userW): (Reader[User], Writer[User]) = case3RW("id", "password", "bookmarks", User.apply, User.unapply)
 
 	val charset = Charset.forName("UTF-8")
 
@@ -27,13 +27,13 @@ object User {
 	def load(id: String): User Or ErrorMessage = synchronized {
 		try {
 			val jsonString = Files.readAllLines(path(id), charset).asScala.mkString("\n")
-			Or.from(Parse.decodeEither[User](jsonString).toEither)
+			Good(upickle.read[User](jsonString))
 		}
-		catch { case e: IOException => Bad(e.getMessage) }
+		catch { case e: Exception => Bad(e.getMessage) }
 	}
 
 	def store(user: User): Unit = synchronized {
-		val jsonBytes = user.asJson.spaces2.getBytes(charset)
+		val jsonBytes = upickle.write(user).getBytes(charset)
 		val p = path(user.id)
 		Files.createDirectories(p.getParent)
 		Files.write(p, jsonBytes)
