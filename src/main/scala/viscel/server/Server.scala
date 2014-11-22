@@ -9,7 +9,7 @@ import org.scalactic.{Bad, Good}
 import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
 import spray.can.server.Stats
-import spray.http.ContentType
+import spray.http.{MediaTypes, MediaType, ContentType}
 import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
 import viscel.Deeds
@@ -73,12 +73,10 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 	}, "Username is used to store configuration; Passwords are saved in plain text; User is created on first login")
 
 	def handleFormFields(user: User) =
-		formFields('collection.?.as[Option[String]], 'bookmark.?.as[Option[Int]], 'remove_bookmark.?.as[Option[String]]) { (colidOption, bmposOption, removeOption) =>
+		formFields(('narration.?.as[Option[String]], 'bookmark.?.as[Option[Int]])) { (colidOption, bmposOption) =>
 			for (bmpos <- bmposOption; colid <- colidOption) {
-				userUpdate(user.setBookmark(colid, bmpos))
-			}
-			for (colid <- removeOption) {
-				userUpdate(user.removeBookmark(colid))
+				if (bmpos > 0) userUpdate(user.setBookmark(colid, bmpos))
+				else userUpdate(user.removeBookmark(colid))
 			}
 			defaultRoute(user)
 		}
@@ -114,49 +112,12 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 					complete(neo.tx{ServerPages.collection(collection)(_)})
 				}
 			} ~
-			path("blob" / Segment) { sha1 =>
-					val filename = viscel.hashToFilename(sha1)
-					getFromFile(new File(filename))
-			} ~
-			path("b" / LongNumber) { nid =>
-				neo.tx { ntx =>
-					val blob = Coin.isBlob(ntx.db.getNodeById(nid)).get
-					val filename = viscel.hashToFilename(blob.sha1(ntx))
-					getFromFile(new File(filename), ContentType(blob.mediatype(ntx)))
+			pathPrefix("blob" / Segment) { (sha1) =>
+				val filename = viscel.hashToFilename(sha1)
+				pathEnd { getFromFile(new File(filename)) } ~
+				path(Segment / Segment) { (part1, part2) =>
+					getFromFile(new File(filename), ContentType(MediaTypes.getForKey(part1 -> part2).get))
 				}
-			} ~
-			path("f" / Segment) { collectionId =>
-				rejectNone(Narrator.get(collectionId)) { core =>
-					val collection = neo.tx { Vault.update.collection(core)(_) }
-					Deeds.uiCoin(collection)
-					complete(Pages.front(user, collection))
-				}
-			} ~
-			path("v" / Segment / IntNumber) { (col, pos) =>
-				neo.tx { ntx =>
-					rejectNone(Vault.find.collection(col)(ntx)) { cn =>
-						rejectNone(cn(pos)(ntx)) { en =>
-							Deeds.uiCoin(en)
-							complete(Pages.view(user, en))
-						}
-					}
-				}
-			} ~
-			path("i" / LongNumber) { id =>
-				neo.tx { ntx =>
-					ntx.db.getNodeById(id) match {
-						case Coin.isAsset(asset) =>
-							Deeds.uiCoin(asset)
-							complete(Pages.view(user, asset))
-						case Coin.isCollection(collection) =>
-							Deeds.uiCoin(collection)
-							complete(Pages.front(user, collection))
-						case other => complete(other.toString)
-					}
-				}
-			} ~
-			(path("s") & parameter('q)) { query =>
-				complete(Pages.search(user, query))
 			} ~
 			path("stats") {
 				complete {
