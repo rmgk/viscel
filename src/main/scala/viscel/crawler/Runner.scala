@@ -48,20 +48,7 @@ class Runner(val core: Narrator, iopipe: SendReceive, ec: ExecutionContext) exte
 		go(initialStrategy, neo)
 	}
 
-	private def explore(node: Node)(implicit ntx: Ntx): Result[Ntx => Unit] = {
-		val shortcut = for {
-			asset <- Coin.isAsset(node)
-			blob <- Vault.find.blob(asset.source)
-		} yield {
-			logger.info(s"use cached ${ blob.sha1 } for ${ asset.source }")
-			asset.blob = blob
-			Result.Continue
-		}
-
-		shortcut.getOrElse(requestAndStore(node)(ntx))
-	}
-
-	private def requestAndStore(node: Node)(ntx: Ntx): Result[Ntx => Unit] = node match {
+	private def explore(node: Node)(ntx: Ntx): Result[Ntx => Unit] = node match {
 		case Coin.isPage(page) => IOUtil.documentRequest(page.location(ntx)).map { IOUtil.writePage(core, page) }
 		case Coin.isAsset(asset) => IOUtil.blobRequest(asset.source(ntx), asset.origin(ntx)).map { IOUtil.writeAsset(core, asset) }
 		case other => Result.Failed(s"can only request pages and assets not ${ other.getLabels.asScala.toList }")

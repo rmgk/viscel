@@ -21,9 +21,6 @@ object Vault {
 		def collection(id: String)(implicit neo: Ntx): Option[Collection] =
 			neo.node(label.Collection, "id", id).map { Collection.apply }
 
-		def blob(source: AbsUri)(implicit neo: Ntx): Option[Blob] =
-			neo.node(label.Blob, "source", source.toString(), logTime = false).map { Blob.apply }
-
 	}
 
 	object create {
