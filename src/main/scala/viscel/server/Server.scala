@@ -14,7 +14,6 @@ import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
 import viscel.database.{Neo, NeoSingleton}
 import viscel.narration.Narrator
-import viscel.serverStaticPages.Pages
 import viscel.store._
 
 import scala.Predef.{any2ArrowAssoc, conforms}
@@ -123,7 +122,7 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
 						.ask(Http.GetStats)(1.second)
 						.mapTo[Stats]
-					stats.map { Pages.stats(user, _) }
+					stats.map { s => neo.tx { ServerPages.stats(s)(_) } }
 				}
 			}
 

@@ -95,8 +95,8 @@ object Traversal {
 	def layerBelow(above: Node)(implicit neo: Ntx): List[Node] = above.to(rel.describes).fold[List[Node]](Nil)(layer)
 
 	@tailrec
-	def fold[S](state: S, node: Node)(f: (S, Node) => S)(implicit neo: Ntx): S = {
-		val nextState = f(state, node)
+	def fold[S](state: S, node: Node)(f: S => Node => S)(implicit neo: Ntx): S = {
+		val nextState = f(state)(node)
 		next(node) match {
 			case None => nextState
 			case Some(nextNode) => fold(nextState, nextNode)(f)

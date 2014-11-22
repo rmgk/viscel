@@ -16,18 +16,9 @@ final case class Collection(self: Node) extends AnyVal with Coin {
 
 	def first(implicit neo: Ntx): Option[Asset] = findForward(Coin.isAsset)(self)
 
-	def apply(n: Int)(implicit neo: Ntx): Option[Asset] = time(s"select $name($n)") {
-		@tailrec
-		def nth(curr: Node, i: Int): Node =
-			if (i > 0) curr.to(rel.skip) match {
-				case None => curr
-				case Some(node) => nth(node, i - 1)
-			}
-			else curr
-
-		first.flatMap(node => Coin.isAsset(nth(node.self, n - 1)))
-	}
-
-	def size(implicit neo: Ntx): Int = first.fold(0)(_.distanceToLast)
+	def size(implicit neo: Ntx): Int = Traversal.fold(0, self)(count => {
+		case Coin.isAsset(a) => count + 1
+		case _ => count
+	})
 
 }

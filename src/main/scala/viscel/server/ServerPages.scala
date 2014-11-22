@@ -49,8 +49,7 @@ object ServerPages {
 	def collection(collection: Collection)(implicit ntx: Ntx) = {
 		def assetList: List[Story.Asset] = {
 			def innerAssets(node: Node): List[Story.Asset] = {
-				Traversal.fold(List[Story.Asset](), node) { (state, node) =>
-					node match {
+				Traversal.fold(List[Story.Asset](), node) { state => {
 						case Coin.isAsset(asset) => asset.story.copy(blob = asset.blob.map(b => Story.Blob(b.sha1, b.mediastring))) :: state
 						case _ => state
 					}
