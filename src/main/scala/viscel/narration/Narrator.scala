@@ -26,8 +26,8 @@ object Narrator {
 	def metaCores(implicit ntx: Ntx): Set[Narrator] =
 		ntx.nodes(label.Core).map(Coin.Core.apply).map { core =>
 			core.kind match {
-				case "CloneManga" => CloneManga.getCore(core.story)
-				case "MangaHere" => MangaHere.getCore(core.story)
+				case "CloneManga" => CloneManga.getCore(core.story())
+				case "MangaHere" => MangaHere.getCore(core.story())
 			}
 		}.toSet
 

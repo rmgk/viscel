@@ -65,7 +65,7 @@ object IOUtil extends StrictLogging {
 	def writePage(core: Narrator, pageNode: Page)(doc: Document)(ntx: Ntx): Unit = {
 		logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pageNode")
 		implicit def tx: Ntx = ntx
-		ArchiveManipulation.applyNarration(pageNode.self, core.wrap(doc, pageNode.story))
+		ArchiveManipulation.applyNarration(pageNode.self, core.wrap(doc, pageNode.story()))
 	}
 
 }
