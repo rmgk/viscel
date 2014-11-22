@@ -27,11 +27,13 @@ object Coin {
 	object isCollection extends CheckNode(label.Collection, Collection.apply)
 	object isBlob extends CheckNode(label.Blob, Blob.apply)
 
-	object hasStory extends (Node => Option[Coin]) {
-		def unapply(node: Node): Option[Coin] = isAsset(node).orElse(isPage(node)).orElse(isChapter(node)).orElse(isCore(node))
-		def apply(node: Node): Option[Coin] = unapply(node)
-	}
-
+	def apply(node: Node): Coin = node match {
+			case isAsset(n) => n
+			case isPage(n) => n
+			case isChapter(n) => n
+			case isCore(n) => n
+			case isBlob(n) => n
+		}
 
 	final case class Asset(self: Node) extends AnyVal with Metadata with Coin{
 
