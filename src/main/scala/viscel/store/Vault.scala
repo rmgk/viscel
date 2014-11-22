@@ -1,11 +1,9 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import spray.http.MediaType
-import viscel.shared.{AbsUri, Story}
-import Story.{Failed, More}
+import viscel.database.{Ntx, label}
 import viscel.narration.Narrator
-import viscel.database.{ArchiveManipulation, Ntx, label}
+import viscel.shared.{AbsUri, Story}
 import viscel.store.coin.{Blob, Collection, Config}
 
 import scala.Predef.any2ArrowAssoc
@@ -29,15 +27,14 @@ object Vault {
 	}
 
 	object create {
-		def blob(sha1: String, mediatype: MediaType, source: AbsUri)(implicit neo: Ntx): Blob =
-			Blob(neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediatype.value, "source" -> source.toString()))
 
 		def fromStory(desc: Story)(implicit neo: Ntx): Node = desc match {
 			case Story.Chapter(name, metadata) => neo.create(label.Chapter, Metadata.prefix(metadata) + ("name" -> name))
 			case Story.Asset(source, origin, metadata, blob) => neo.create(label.Asset, Metadata.prefix(metadata) + ("source" -> source.toString) + ("origin" -> origin.toString))
 			case Story.Core(kind, id, name, metadata) => neo.create(label.Core, Metadata.prefix(metadata) + ("id" -> id) + ("kind" -> kind) + ("name" -> name))
-			case Failed(reason) => throw new IllegalArgumentException(reason.toString())
-			case More(loc, pagetype, layer) => neo.create(label.Page, "location" -> loc.toString, "pagetype" -> pagetype)
+			case Story.Failed(reason) => throw new IllegalArgumentException(reason.toString())
+			case Story.More(loc, pagetype, layer) => neo.create(label.Page, "location" -> loc.toString, "pagetype" -> pagetype)
+			case Story.Blob(sha1, mediastring) => neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediastring)
 		}
 
 	}

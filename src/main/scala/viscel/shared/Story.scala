@@ -17,8 +17,8 @@ object Story {
 	final case class Asset(source: AbsUri, origin: AbsUri, metadata: Map[String, String] = Map(), blob: Option[Blob] = None) extends Story
 	final case class Core(kind: String, id: String, name: String, metadata: Map[String, String]) extends Story
 	final case class Failed(reason: List[String]) extends Story
+	final case class Blob(sha1: String, mediatype: String) extends Story
 	final case class Narration(id: String, name: String, size: Int, narrates: List[Asset])
-	final case class Blob(sha1: String, mediatype: String)
 
 	implicit val (moreR, moreW): (Reader[More], Writer[More]) = case3ReadWrite("loc", "pagetype", "layer", More.apply, More.unapply)
 	implicit val (chapterR, chapterW): (Reader[Chapter], Writer[Chapter]) = case2ReadWrite("name", "metadata", Chapter.apply, Chapter.unapply)
@@ -28,14 +28,13 @@ object Story {
 	implicit val (failedR, failedW): (Reader[Failed], Writer[Failed]) = case1ReadWrite("reason", Failed.apply, Failed.unapply)
 	implicit val (narrationR, narrationW): (Reader[Narration], Writer[Narration]) = case4ReadWrite("id", "name", "size", "narrates", Narration.apply, Narration.unapply)
 
-	val testReader: Reader[(Int, Int)] = upickle.Tuple2R
-
 	implicit val storyWriter: Writer[Story] = Writer[Story] {
 		case s @ More(_, _, _) => writeJs(("More", s))
 		case s @ Chapter(_, _) => writeJs(("Chapter", s))
 		case s @ Asset(_, _, _, _) => writeJs(("Asset", s))
 		case s @ Core(_, _, _, _) => writeJs(("Core", s))
 		case s @ Failed(_) => writeJs(("Failed", s))
+		case s @ Blob(_, _) => writeJs(("Blob", s))
 	}
 	implicit val storyReader: Reader[Story] = Reader[Story] {
 		case Js.Arr(Js.Str("More"), s @ Js.Obj(_*)) => readJs[More](s)
@@ -43,6 +42,7 @@ object Story {
 		case Js.Arr(Js.Str("Asset"), s @ Js.Obj(_*)) => readJs[Asset](s)
 		case Js.Arr(Js.Str("Core"), s @ Js.Obj(_*)) => readJs[Core](s)
 		case Js.Arr(Js.Str("Failed"), s @ Js.Obj(_*)) => readJs[Failed](s)
+		case Js.Arr(Js.Str("Blob"), s @ Js.Obj(_*)) => readJs[Blob](s)
 	}
 
 	implicitly[Reader[List[Narration]]](SeqishR[Narration,List])

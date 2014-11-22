@@ -11,9 +11,9 @@ import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.Uri.Query
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, MediaType, Uri}
 import spray.httpx.encoding._
-import viscel.database.{ArchiveManipulation, Ntx}
+import viscel.database.{rel, ArchiveManipulation, Ntx, NodeOps}
 import viscel.narration.Narrator
-import viscel.shared.AbsUri
+import viscel.shared.{Story, AbsUri}
 import viscel.store.coin.{Page, Asset}
 import viscel.{Deeds, sha1hex}
 import viscel.store.Vault
@@ -61,10 +61,10 @@ object IOUtil extends StrictLogging {
 	def writeAsset(core: Narrator, assetNode: Asset)(blob: IOUtil.Blob)(ntx: Ntx): Unit = {
 		logger.debug(s"$core: received blob, applying to $assetNode")
 		val path = Paths.get(viscel.hashToFilename(blob.sha1))
-		Files.createDirectories(path.getParent())
+		Files.createDirectories(path.getParent)
 		Files.write(path, blob.buffer)
-		implicit def tx: Ntx = ntx
-		assetNode.blob = Vault.create.blob(blob.sha1, blob.mediatype, assetNode.source)
+		val blobStory = Story.Blob(blob.sha1, blob.mediatype.toString())
+		assetNode.self.to_=(rel.blob, Vault.create.fromStory(blobStory)(ntx))(ntx)
 	}
 
 	def writePage(core: Narrator, pageNode: Page)(doc: Document)(ntx: Ntx): Unit = {
