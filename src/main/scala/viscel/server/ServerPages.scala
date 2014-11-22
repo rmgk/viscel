@@ -6,6 +6,7 @@ import spray.http._
 import upickle.Writer
 import viscel.database.Util.listCollections
 import viscel.database.{Ntx, Traversal, label}
+import viscel.shared.JsonCodecs.stringMapW
 import viscel.shared.Story
 import viscel.shared.Story.Narration
 import viscel.store.{Coin, Collection, Config, User}
@@ -16,7 +17,6 @@ import scalatags.Text.attrs.{`type`, href, id, rel, src, title}
 import scalatags.Text.implicits.{stringAttr, stringFrag}
 import scalatags.Text.tags.{body, div, head, html, link, script}
 import scalatags.Text.{RawFrag, TypedTag}
-
 
 
 object ServerPages {

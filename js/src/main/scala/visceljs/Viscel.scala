@@ -1,29 +1,21 @@
 package visceljs
 
-import org.scalajs.dom.{Element, Event}
-import viscel.shared.Story
-import viscel.shared.Story._
-import scala.scalajs.js
 import org.scalajs.dom
-import org.scalajs.dom.document
-import scala.Predef.any2ArrowAssoc
-import scala.scalajs.js.annotation.JSExport
-import scala.scalajs.js.Dynamic.global
-import scalajs.concurrent.JSExecutionContext.Implicits.runNow
-import scala.concurrent.Future
-import scalatags.JsDom.attrs.id
-import scalatags.JsDom.short.HtmlTag
-import scalatags.JsDom.implicits.{stringFrag, stringAttr}
-import scalatags.JsDom.tags.{div, body}
-import scalatags.JsDom.Frag
-import scala.collection.immutable.Map
 import upickle._
+import viscel.shared.JsonCodecs.stringMapR
+import viscel.shared.Story._
+
+import scala.collection.immutable.Map
+import scala.concurrent.Future
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
+import scala.scalajs.js.annotation.JSExport
+import scalatags.JsDom.Frag
+import scalatags.JsDom.implicits.stringFrag
+import scalatags.JsDom.tags.div
+
 
 @JSExport(name = "Viscel")
 object Viscel {
-
-
-	import visceljs.Util._
 
 	def ajax[R: Reader](path: String): Future[R] = dom.extensions.Ajax.get(
 		url = path
