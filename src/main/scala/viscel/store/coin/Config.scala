@@ -5,7 +5,7 @@ import viscel.store.Coin
 import viscel.database.{Ntx, NodeOps}
 
 
-final case class Config(self: Node) extends Coin {
+final case class Config(self: Node) extends AnyVal with Coin {
 
 	def version(implicit neo: Ntx) = self[Int]("version")
 

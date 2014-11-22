@@ -7,7 +7,7 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable.Map
 
 
-trait Metadata {
+trait Metadata extends Any {
 	this: Coin =>
 
 	import viscel.store.Metadata.prefix

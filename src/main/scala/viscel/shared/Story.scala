@@ -28,7 +28,7 @@ object Story {
 	implicit val (failedR, failedW): (Reader[Failed], Writer[Failed]) = case1ReadWrite("reason", Failed.apply, Failed.unapply)
 	implicit val (narrationR, narrationW): (Reader[Narration], Writer[Narration]) = case4ReadWrite("id", "name", "size", "narrates", Narration.apply, Narration.unapply)
 
-
+	val testReader: Reader[(Int, Int)] = upickle.Tuple2R
 
 	implicit val storyWriter: Writer[Story] = Writer[Story] {
 		case s @ More(_, _, _) => writeJs(("More", s))

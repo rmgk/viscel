@@ -3,12 +3,12 @@ package viscel.serverStaticPages.pages
 import viscel.database.Ntx
 import viscel.serverStaticPages.{HtmlPage, MaskLocation, MetaNavigation}
 import viscel.store.User
-import viscel.store.coin.Asset
+import viscel.store.coin.{Collection, Asset}
 
 import scalatags.Text.all._
 
 class ViewPage(user: User, enode: Asset)(implicit ntx: Ntx) extends HtmlPage with MetaNavigation with MaskLocation {
-	lazy val collection = enode.collection
+	lazy val collection: Collection = Predef.??? //enode.collection
 	lazy val pos = enode.position
 
 	override def Title = s"$pos – ${ collection.name }"

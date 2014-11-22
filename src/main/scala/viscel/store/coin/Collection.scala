@@ -8,7 +8,7 @@ import viscel.time
 
 import scala.annotation.tailrec
 
-final case class Collection(self: Node) extends Coin {
+final case class Collection(self: Node) extends AnyVal with Coin {
 
 	def id(implicit neo: Ntx): String = self[String]("id")
 	def name(implicit neo: Ntx): String = self.get[String]("name").getOrElse(id)

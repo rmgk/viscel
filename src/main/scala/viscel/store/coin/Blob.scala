@@ -8,7 +8,7 @@ import viscel.database.{Ntx, NodeOps}
 import scala.Predef.any2ArrowAssoc
 import scala.language.implicitConversions
 
-final case class Blob(self: Node) extends Coin {
+final case class Blob(self: Node) extends AnyVal with Coin {
 
 	def sha1(implicit neo: Ntx): String = self[String]("sha1")
 

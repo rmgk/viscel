@@ -6,7 +6,7 @@ import viscel.store.{Coin, StoryCoin}
 import viscel.database.{Traversal, Ntx, NodeOps}
 
 
-final case class Page(self: Node) extends StoryCoin {
+final case class Page(self: Node) extends AnyVal with StoryCoin {
 	def location(implicit neo: Ntx): AbsUri = self[String]("location")
 	def pagetype(implicit neo: Ntx): String = self[String]("pagetype")
 

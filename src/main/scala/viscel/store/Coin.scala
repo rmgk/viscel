@@ -7,7 +7,7 @@ import viscel.database.label.SimpleLabel
 import viscel.store.coin.{Asset, Blob, Chapter, Collection, Core, Page}
 
 
-trait Coin extends StrictLogging {
+trait Coin extends Any {
 	def self: Node
 	def nid(implicit neo: Ntx): Long = self.getId
 }

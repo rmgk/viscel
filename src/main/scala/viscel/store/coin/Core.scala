@@ -7,7 +7,7 @@ import viscel.store.{Metadata, StoryCoin}
 
 import scala.language.implicitConversions
 
-final case class Core(self: Node) extends StoryCoin with Metadata {
+final case class Core(self: Node) extends AnyVal with StoryCoin with Metadata {
 
 	def kind(implicit neo: Ntx): String = self[String]("kind")
 	def id(implicit neo: Ntx): String = self[String]("id")
