@@ -114,7 +114,7 @@ object Libraries {
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++= scalajsdom.value ++ shared.value)
 
-	lazy val shared = Def.setting(scalatags.value ++ upickle.value ++ scalamacros)
+	lazy val shared = Def.setting(scalatags.value ++ upickle.value)
 
 
 	// gpl3

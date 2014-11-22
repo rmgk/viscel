@@ -2,7 +2,7 @@ package visceljs
 
 import org.scalajs.dom.{Element, Event}
 import viscel.shared.Story
-import viscel.shared.Story.{Asset, Narration}
+import viscel.shared.Story._
 import scala.scalajs.js
 import org.scalajs.dom
 import org.scalajs.dom.document

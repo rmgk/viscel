@@ -43,7 +43,7 @@ object ServerPages {
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-	def collections(implicit ntx: Ntx): HttpResponse = jsonResponse(listCollections.map { c => Narration(c.id, c.name, c.size) })
+	def collections(implicit ntx: Ntx): HttpResponse = jsonResponse(listCollections.map { c => Narration(c.id, c.name, c.size, Nil) })
 
 
 	def collection(collection: Collection)(implicit ntx: Ntx) = {
@@ -59,7 +59,7 @@ object ServerPages {
 
 			Traversal.next(collection.self).fold[List[Story.Asset]](Nil)(innerAssets).reverse
 		}
-		jsonResponse(Narration(collection.id, collection.name, collection.size))
+		jsonResponse(Narration(collection.id, collection.name, collection.size, assetList))
 	}
 
 }
