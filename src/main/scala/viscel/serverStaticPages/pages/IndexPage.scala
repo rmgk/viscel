@@ -1,7 +1,7 @@
-package viscel.server.pages
+package viscel.serverStaticPages.pages
 
 import viscel.database.Ntx
-import viscel.server.HtmlPage
+import viscel.serverStaticPages.HtmlPage
 import viscel.store.{Vault, User}
 
 import scala.Predef.conforms

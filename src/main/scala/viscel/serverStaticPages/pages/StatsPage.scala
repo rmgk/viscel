@@ -1,7 +1,7 @@
-package viscel.server.pages
+package viscel.serverStaticPages.pages
 
 import spray.can.server.Stats
-import viscel.server.HtmlPage
+import viscel.serverStaticPages.HtmlPage
 import viscel.database.{Neo, Ntx, label}
 import viscel.store.{User, Vault}
 

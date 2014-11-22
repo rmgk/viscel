@@ -1,4 +1,4 @@
-package viscel.server
+package viscel.serverStaticPages
 
 import spray.http.MediaTypes
 import viscel.narration.Narrator

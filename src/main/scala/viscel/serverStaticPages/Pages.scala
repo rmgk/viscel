@@ -1,8 +1,8 @@
-package viscel.server
+package viscel.serverStaticPages
 
 import spray.can.server.Stats
 import spray.http.HttpResponse
-import viscel.server.pages._
+import viscel.serverStaticPages.pages._
 import viscel.store.{User, Vault}
 import viscel.database.{Neo, Ntx}
 import viscel.store.coin.{Asset, Collection}

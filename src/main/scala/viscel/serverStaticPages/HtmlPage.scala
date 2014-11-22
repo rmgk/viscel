@@ -1,4 +1,4 @@
-package viscel.server
+package viscel.serverStaticPages
 
 import spray.http.{ContentType, HttpCharsets, HttpEntity, HttpResponse, MediaTypes}
 import viscel.database.{Neo, Ntx}

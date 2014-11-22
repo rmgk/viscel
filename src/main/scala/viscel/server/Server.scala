@@ -5,18 +5,17 @@ import java.io.File
 import akka.actor.{Actor, ActorRefFactory}
 import akka.pattern.ask
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.scalactic.{Bad, Good}
 import org.scalactic.TypeCheckedTripleEquals._
+import org.scalactic.{Bad, Good}
 import spray.can.Http
 import spray.can.server.Stats
-import spray.http.{MediaTypes, MediaType, ContentType}
+import spray.http.{ContentType, MediaTypes}
 import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
-import viscel.Deeds
+import viscel.database.{Neo, NeoSingleton}
 import viscel.narration.Narrator
+import viscel.serverStaticPages.Pages
 import viscel.store._
-import viscel.database.{NeoSingleton, Neo, Ntx}
-import viscel.store.coin._
 
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.collection.immutable.Map

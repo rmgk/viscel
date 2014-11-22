@@ -4,20 +4,19 @@ import org.neo4j.graphdb.Node
 import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
-import viscel.database.{label, Traversal, Ntx}
 import viscel.database.Util.listCollections
-import viscel.shared.{AbsUri, Story}
-import viscel.shared.Story.{Narration, Asset}
+import viscel.database.{Ntx, Traversal, label}
+import viscel.shared.Story
+import viscel.shared.Story.Narration
 import viscel.store.coin.Collection
-import viscel.store.{Vault, Coin, User}
+import viscel.store.{Coin, User, Vault}
 
-import scalatags.Text.{TypedTag, RawFrag}
-import scalatags.Text.attrs.{href, rel, `type`, title, src, id, cls}
-import scalatags.Text.tags.{script, link, head, html, body, div}
-import scalatags.Text.implicits.{stringAttr, stringFrag}
-import argonaut.{CodecJson, Json}
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map
+import scalatags.Text.attrs.{`type`, href, id, rel, src, title}
+import scalatags.Text.implicits.{stringAttr, stringFrag}
+import scalatags.Text.tags.{body, div, head, html, link, script}
+import scalatags.Text.{RawFrag, TypedTag}
 
 
 

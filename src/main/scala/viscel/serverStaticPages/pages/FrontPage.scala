@@ -1,7 +1,7 @@
-package viscel.server.pages
+package viscel.serverStaticPages.pages
 
 import org.neo4j.graphdb.Node
-import viscel.server.{HtmlPage, MaskLocation, MetaNavigation}
+import viscel.serverStaticPages.{HtmlPage, MaskLocation, MetaNavigation}
 import viscel.store._
 import viscel.database.{Ntx, Traversal}
 import viscel.store.coin._

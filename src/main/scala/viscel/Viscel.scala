@@ -16,6 +16,7 @@ import spray.client.pipelining
 import spray.http.HttpEncodings
 import viscel.crawler.Clockwork
 import viscel.database.{NeoSingleton, rel}
+import viscel.server.Server
 import viscel.store._
 import viscel.store.coin.Collection
 
@@ -74,7 +75,7 @@ object Viscel extends StrictLogging {
 		val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
 		if (!noserver.?) {
-			val server = system.actorOf(Props(Predef.classOf[viscel.server.Server], NeoSingleton), "viscel-server")
+			val server = system.actorOf(Props(Predef.classOf[Server], NeoSingleton), "viscel-server")
 			ioHttp ! Http.Bind(server, interface = "0", port = port())
 		}
 

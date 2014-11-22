@@ -1,7 +1,7 @@
-package viscel.server.pages
+package viscel.serverStaticPages.pages
 
 import viscel.database.Ntx
-import viscel.server.{HtmlPage, MaskLocation, MetaNavigation}
+import viscel.serverStaticPages.{HtmlPage, MaskLocation, MetaNavigation}
 import viscel.store.User
 import viscel.store.coin.Asset
 
