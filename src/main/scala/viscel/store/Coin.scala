@@ -1,17 +1,15 @@
 package viscel.store
 
-import org.neo4j.graphdb.{Relationship, Node}
-import viscel.database.Traversal.findForward
-import viscel.database.{Traversal, rel, Ntx, label, NodeOps}
+import org.neo4j.graphdb.{Node, Relationship}
 import viscel.database.label.SimpleLabel
-import viscel.shared.{Story, AbsUri}
+import viscel.database.{NodeOps, Ntx, label, rel}
+import viscel.shared.{AbsUri, Story}
 
 
 trait Coin extends Any {
 	def self: Node
 	def nid(implicit neo: Ntx): Long = self.getId
 	def story(implicit neo: Ntx): Story
-
 }
 
 object Coin {
