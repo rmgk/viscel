@@ -30,5 +30,4 @@ final case class Collection(self: Node) extends AnyVal with Coin {
 
 	def size(implicit neo: Ntx): Int = first.fold(0)(_.distanceToLast)
 
-	override def toString = s"Collection($self)"
 }

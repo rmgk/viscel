@@ -20,6 +20,4 @@ final case class Blob(self: Node) extends AnyVal with Coin {
 	}
 
 	def source(implicit neo: Ntx) = self[String]("source")
-
-	override def toString = s"Blob($self)"
 }

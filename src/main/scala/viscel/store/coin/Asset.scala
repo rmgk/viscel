@@ -37,6 +37,4 @@ final case class Asset(self: Node) extends AnyVal with StoryCoin with Metadata {
 	def source(implicit neo: Ntx): AbsUri = AbsUri.fromString(self[String]("source"))
 
 	override def story(implicit neo: Ntx): Story.Asset = Story.Asset(source, origin, metadata())
-
-	override def toString() = s"Asset($self)"
 }

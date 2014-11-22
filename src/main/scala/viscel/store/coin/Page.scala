@@ -11,6 +11,4 @@ final case class Page(self: Node) extends AnyVal with StoryCoin {
 	def pagetype(implicit neo: Ntx): String = self[String]("pagetype")
 
 	override def story(implicit neo: Ntx): Story.More = Story.More(location, pagetype)
-
-	override def toString = s"Page($self)"
 }

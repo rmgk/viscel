@@ -12,6 +12,5 @@ final case class Chapter(self: Node) extends AnyVal with StoryCoin with Metadata
 
 	override def story(implicit neo: Ntx): Story.Chapter = Story.Chapter(name, metadata())
 
-	override def toString: String = s"Chapter($self)"
 }
 
