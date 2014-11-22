@@ -7,7 +7,7 @@ import scala.scalajs.js
 import scalatags.JsDom.attrs.id
 import scalatags.JsDom.Frag
 import scala.Predef.conforms
-import scalatags.JsDom.short.{HtmlTag}
+import scalatags.JsDom.short.HtmlTag
 import scalatags.JsDom.tags.{div, body, SeqFrag}
 import scalatags.JsDom.implicits.{stringFrag, stringAttr}
 import scala.collection.immutable.Map
@@ -15,13 +15,13 @@ import scala.Predef.any2ArrowAssoc
 
 object IndexPage {
 
-	import Util._
+	import visceljs.Util._
 
 	case class ColState(id: String, name: String, size: Int, bm: Int, node: String)
 
-	def genIndex(bookmarks: Map[String, Int], collectionList: List[Narration]): Frag = {
+	def genIndex(bookmarks: Map[String, Int], narrations: List[Narration]): Frag = {
 
-		val collections = collectionList.map(n => n.id -> n).toMap
+		val collections = narrations.map(n => n.id -> n).toMap
 
 		def sidePart = make_fieldset("Search", Seq(form_search("")))(class_info) :: Nil
 
@@ -37,8 +37,8 @@ object IndexPage {
 
 			val (hasNewPages, isCurrent) = result.partition(_._3 > 0)
 
-			val unreadTags = hasNewPages.sortBy(- _._3).map { case(nr, pos, unread) => link_front(nr.id, nr.name, s"${nr.name} ($unread)") }
-			val currentTags = isCurrent.sortBy(_._1.name).map { case(nr, pos, unread) => link_front(nr.id, nr.name, s"${nr.name}") }
+			val unreadTags = hasNewPages.sortBy(- _._3).map { case(nr, pos, unread) => link_front(nr, s"${nr.name} ($unread)") }
+			val currentTags = isCurrent.sortBy(_._1.name).map { case(nr, pos, unread) => link_front(nr, s"${nr.name}") }
 			//val availableCores = Core.availableCores.map { core => link_core(core) }.toSeq
 			//		val allCollections = Neo.nodes(viscel.store.label.Collection).map(CollectionNode(_)).sortBy(_.name).map { collection =>
 			//			link_node(collection, s"${ collection.name }")
@@ -51,13 +51,11 @@ object IndexPage {
 				Nil
 		}
 
-		def content: List[HtmlTag] = List(
+		List(
 			div(class_main)(mainPart),
 			div(class_side)(sidePart),
 			div(class_navigation)(navigation))
 
-
-		content
 
 	}
 }

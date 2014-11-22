@@ -17,38 +17,34 @@ import scala.Predef.any2ArrowAssoc
 object FrontPage {
 	import Util._
 
-	def genIndex(bookmark: Int, collection: String, collectionName: String, narration: Narration): Frag = {
+	def genIndex(bookmark: Int, narration: Narration): Frag = {
 
-		val assetList = narration.narrates
+		val assets = narration.narrates
 
-		lazy val first = assetList(0)
-		lazy val second = assetList(1)
-		lazy val third = assetList(2)
-		lazy val previewLeft = assetList(bookmark - 2)
-		lazy val previewMiddle = assetList(bookmark - 1)
-		lazy val previewRight = assetList(bookmark)
+		val preview = assets.drop(bookmark - 3) ::: assets
 
 		def mainPart = div(class_info)(
 			make_table(
-				"id" -> collection,
-				"name" -> collectionName
+				"id" -> narration.id,
+				"name" -> narration.name
 			)) :: Nil
 
 		def navigation = Seq[Frag](
 			link_main("index"),
 			stringFrag(" – "),
-			link_asset(collection, 0, "first"),
+			link_asset(narration, 1, "first"),
 			stringFrag(" – "),
 			"TODO: remove")
 
-		def sidePart = div(class_content)(
-					link_asset(collection, bookmark - 2, blobToImg(previewLeft)),
-					link_asset(collection, bookmark - 1, blobToImg(previewMiddle)),
-					link_asset(collection, bookmark, blobToImg(previewRight)))
+		def sidePart = div(class_content)( List(
+			preview.headOption.map(a => link_asset(narration, bookmark - 2, blobToImg(a))),
+			preview.drop(1).headOption.map(a => link_asset(narration, bookmark - 1, blobToImg(a))),
+			preview.drop(2).headOption.map(a => link_asset(narration, bookmark - 0, blobToImg(a)))
+		).flatten: _*)
 
 		def content: Frag = List(
 			div(class_main)(mainPart),
-			div(class_navigation)(navigation: _*),
+			div(class_navigation)(navigation),
 			div(class_side)(sidePart))
 
 		content

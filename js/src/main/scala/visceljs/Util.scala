@@ -1,10 +1,11 @@
 package visceljs
 
-import viscel.shared.Story.Asset
+import org.scalajs.dom.HTMLImageElement
+import viscel.shared.Story.{Narration, Asset}
 
 import scala.Predef.conforms
 import scala.Predef.augmentString
-import scalatags.JsDom.Tag
+import scalatags.JsDom.{TypedTag, Tag}
 import scalatags.JsDom.all._
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.global
@@ -13,12 +14,12 @@ import scalajs.concurrent.JSExecutionContext.Implicits.runNow
 
 object Util {
 
-	def path_main = "/index"
+	def path_main = "/"
 	def path_css = "/css"
-	def path_asset(absPos: Int) = s"#$absPos"
+	def path_asset(nr: Narration, absPos: Int) = s"#${nr.id}/$absPos"
 	def path_search = "/s"
 	def path_blob(blob: String) = s"/blob/${ blob }"
-	def path_front(vn: String) = s"#$vn"
+	def path_front(nar: Narration) = s"#${nar.id}"
 //	def path_raw(vn: Coin) = s"/r/${ vn.nid }"
 	def path_stop = "/stop"
 //	def path_core(core: Narrator) = s"/f/${ core.id }"
@@ -38,10 +39,13 @@ object Util {
 	def link_main(ts: Frag*) = a(href := path_main)(ts)
 	def link_stop(ts: Frag*) = a(href := path_stop)(ts)
 //	//def link_front(collection: CollectionNode, ts: Frag*) = a(href := path_front(collection))(ts)
-	def link_asset(collection: String, pos: Int, ts: Frag*) = a(href := (path_front(collection) + path_asset(pos)))(ts)
-	def link_front(collection: String, name: String, ts: Frag*): Frag = a(href := path_front(collection), onclick := {() =>
-		val (bmf, assetf) = (Viscel.fetchBookmarks(), Viscel.fetchAssetList(collection))
-		for (bm <- bmf; assets <- assetf) Viscel.setBody("front", FrontPage.genIndex(bm(collection), collection, name, assets))})(ts)
+	def link_asset(nar: Narration, pos: Int, ts: Frag*) = a(href := path_asset(nar, pos))(ts)(onclick := {() =>
+		Viscel.setBody("view", ViewPage.gen(pos, nar))
+	})
+	
+	def link_front(nar: Narration, ts: Frag*): Frag = a(href := path_front(nar))(ts)(onclick := {() =>
+		for (bm <- Viscel.bookmarks; fullNarration <- Viscel.completeNarration(nar))
+			Viscel.setBody("front", FrontPage.genIndex(bm(nar.id), fullNarration))})
 //	def link_node(vn: Option[Coin], ts: Frag*): Frag = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))
 //	def link_raw(vn: Coin, ts: Frag*): Frag = a(href := path_raw(vn))(ts)
 //	// def link_node(en: Option[ElementNode], ts: Frag*): Frag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
@@ -59,7 +63,7 @@ object Util {
 
 	def form_search(init: String) = form_get(path_search, input(`type` := "textfield", name := "q", value := init))(id := "searchform")
 
-	def blobToImg(asset: Asset) = {
+	def blobToImg(asset: Asset): HtmlTag = {
 		img(src := path_blob(asset.blob.get.sha1), class_element)
 	}
 

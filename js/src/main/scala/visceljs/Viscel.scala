@@ -31,9 +31,9 @@ object Viscel {
 
 	implicit val readAssets: Reader[List[Asset]] = Predef.implicitly[Reader[List[Asset]]]
 
-	def fetchBookmarks(): Future[Map[String, Int]] = ajax[Map[String, Int]]("/bookmarks")
-	def fetchCollections(): Future[List[Narration]] = ajax[List[Narration]]("/narrations")
-	def fetchAssetList(col: String): Future[Narration] = ajax[Narration](s"/narration/$col")
+	val bookmarks: Future[Map[String, Int]] = ajax[Map[String, Int]]("/bookmarks")
+	def narrations: Future[List[Narration]] = ajax[List[Narration]]("/narrations")
+	def completeNarration(nar: Narration): Future[Narration] = ajax[Narration](s"/narration/${nar.id}")
 
 
 	def setBody(id: String, fragment: Frag): Unit = {
@@ -47,10 +47,8 @@ object Viscel {
 	def main(): Unit = {
 
 		setBody("index", div("loading"))
-
-		val fbm = fetchBookmarks()
-		val fcol = fetchCollections()
-		for (bm <- fbm; col <- fcol) { setBody("index", IndexPage.genIndex(bm, col)) }
+		
+		for (bm <- bookmarks; nar <- narrations) { setBody("index", IndexPage.genIndex(bm, nar)) }
 	}
 
 
