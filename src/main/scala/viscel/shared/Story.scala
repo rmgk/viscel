@@ -10,15 +10,15 @@ import upickle._
 sealed trait Story
 
 object Story {
-	import ReadWriteUtil._
+	import viscel.shared.ReadWriteUtil._
 
-	@key("More") final case class More(loc: AbsUri, pagetype: String, layer: List[Story] = Nil) extends Story
-	@key("Chapter") final case class Chapter(name: String, metadata: Map[String, String] = Map()) extends Story
-	@key("Asset") final case class Asset(source: AbsUri, origin: AbsUri, metadata: Map[String, String] = Map(), blob: Option[Blob] = None) extends Story
-	@key("Core") final case class Core(kind: String, id: String, name: String, metadata: Map[String, String]) extends Story
-	@key("Failed") final case class Failed(reason: List[String]) extends Story
-	@key("Narration") final case class Narration(id: String, name: String, size: Int, narrates: List[Asset])
-	@key("Blob") final case class Blob(sha1: String, mediatype: String)
+	final case class More(loc: AbsUri, pagetype: String, layer: List[Story] = Nil) extends Story
+	final case class Chapter(name: String, metadata: Map[String, String] = Map()) extends Story
+	final case class Asset(source: AbsUri, origin: AbsUri, metadata: Map[String, String] = Map(), blob: Option[Blob] = None) extends Story
+	final case class Core(kind: String, id: String, name: String, metadata: Map[String, String]) extends Story
+	final case class Failed(reason: List[String]) extends Story
+	final case class Narration(id: String, name: String, size: Int, narrates: List[Asset])
+	final case class Blob(sha1: String, mediatype: String)
 
 	implicit val (moreR, moreW): (Reader[More], Writer[More]) = case3ReadWrite("loc", "pagetype", "layer", More.apply, More.unapply)
 	implicit val (chapterR, chapterW): (Reader[Chapter], Writer[Chapter]) = case2ReadWrite("name", "metadata", Chapter.apply, Chapter.unapply)
