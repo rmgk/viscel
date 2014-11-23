@@ -56,7 +56,7 @@ object Util {
 	//	// def link_node(en: Option[ElementNode], ts: Frag*): Frag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
 	//	def link_core(core: Narrator): Frag = a(href := path_core(core))(core.name)
 
-	def set_bookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = p(ts)(onclick := { () =>
+	def set_bookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = span(ts)(onclick := { () =>
 		Viscel.setBookmark(nar, pos)
 	})
 
