@@ -30,7 +30,7 @@ object Traversal {
 	}
 
 	@tailrec
-	private def rightmost(node: Node)(implicit neo: Ntx): Node = {
+	def rightmost(node: Node)(implicit neo: Ntx): Node = {
 		val end = layerEnd(node)
 		end.to(rel.describes) match {
 			case None => end

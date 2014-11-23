@@ -6,18 +6,25 @@ import viscel.store.{Collection, Coin}
 import scala.Predef.any2ArrowAssoc
 
 trait Strategy {
+	outer =>
 	def run(implicit ntx: Ntx): Option[(Node, Strategy)]
 	def andThen(other: Strategy): Strategy = new Strategy {
-		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] = Strategy.this.run match {
+		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] = outer.run match {
 			case Some((node, next)) => Some(node -> next.andThen(other))
 			case None => other.run
 		}
+	}
+	def limit(count: Int): Strategy = new Strategy {
+		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] =
+			if (count <= 0) None
+			else outer.run.map{case (node, next) => node -> next.limit(count - 1)}
 	}
 }
 
 object Strategy {
 	lazy val mainStrategy: (Collection) => Strategy = collection =>
 		forwardStrategy(collection.self)(unseenOnly(shallow = false))
+			.andThen(fromEndStrategy(collection.self)(backwardStrategy(_)(recheckOld).limit(4)))
 
 	type Select = Ntx => Node => Option[Node]
 
@@ -25,9 +32,18 @@ object Strategy {
 		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] = None
 	}
 
+	def fromEndStrategy(node: Node)(f: Node => Strategy): Strategy = new Strategy {
+		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] = f(Traversal.rightmost(node)).run
+	}
+
 	def forwardStrategy(start: Node)(select: Select): Strategy = new Strategy {
 		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] =
 			Traversal.findForward(select(ntx))(start)(ntx).map(n => n -> forwardStrategy(n)(select))
+	}
+
+	def backwardStrategy(start: Node)(select: Select): Strategy = new Strategy {
+		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] =
+			Traversal.findBackward(select(ntx))(start)(ntx).map(n => n -> backwardStrategy(n)(select))
 	}
 
 	def unseenOnly(shallow: Boolean): Select = ntx => {
