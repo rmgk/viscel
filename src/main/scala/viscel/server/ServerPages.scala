@@ -1,19 +1,16 @@
 package viscel.server
 
-import org.neo4j.graphdb.Node
 import org.neo4j.tooling.GlobalGraphOperations
 import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
 import viscel.Deeds
-import viscel.database.{Ntx, Traversal, label}
+import viscel.database.{Ntx, label}
 import viscel.shared.JsonCodecs.stringMapW
-import viscel.shared.Story
-import viscel.shared.Story.Narration
-import viscel.store.{Coin, Collection, Config, User}
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import viscel.store.{Collection, Config, User}
 
 import scala.Predef.any2ArrowAssoc
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.immutable.Map
 import scalatags.Text.attrs.{`type`, href, id, rel, src, title}
 import scalatags.Text.implicits.{stringAttr, stringFrag}
