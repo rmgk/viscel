@@ -1,15 +1,16 @@
 package viscel.server
 
 import org.neo4j.graphdb.Node
+import org.neo4j.tooling.GlobalGraphOperations
 import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
-import viscel.database.Util.listCollections
 import viscel.database.{Ntx, Traversal, label}
 import viscel.shared.JsonCodecs.stringMapW
 import viscel.shared.Story
 import viscel.shared.Story.Narration
 import viscel.store.{Coin, Collection, Config, User}
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 import scala.Predef.any2ArrowAssoc
 import scala.collection.immutable.Map
@@ -42,7 +43,10 @@ object ServerPages {
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-	def collections(implicit ntx: Ntx): HttpResponse = jsonResponse(listCollections.map { _.narration(nested = false)})
+	def collections(implicit ntx: Ntx): HttpResponse = {
+		val allCollections = GlobalGraphOperations.at(ntx.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply }
+		jsonResponse(allCollections.map { _.narration(nested = false)})
+	}
 
 
 	def collection(collection: Collection)(implicit ntx: Ntx) = {	jsonResponse(collection.narration(nested = true)) }

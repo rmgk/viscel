@@ -14,11 +14,6 @@ import scala.collection.JavaConverters._
 
 object Util extends StrictLogging {
 
-	def listCollections(implicit neo: Ntx): Vector[Collection] =
-		GlobalGraphOperations.at(neo.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply }.toVector
-
-	def listCores: Vector[Narrator] = Narrator.availableCores.toVector
-
 
 
 
