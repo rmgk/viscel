@@ -7,6 +7,7 @@ import scala.Predef.{any2ArrowAssoc, conforms}
 import scalatags.JsDom.Frag
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{SeqFrag, div}
+import scalatags.JsDom.tags2.{nav}
 
 object FrontPage {
 	import visceljs.Util._
@@ -40,7 +41,7 @@ object FrontPage {
 
 		def content: Frag = List(
 			div(class_main)(mainPart),
-			div(class_navigation)(navigation),
+			nav(class_navigation)(navigation),
 			div(class_side)(sidePart))
 
 		content

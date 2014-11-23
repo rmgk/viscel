@@ -10,6 +10,7 @@ import scalatags.JsDom.Frag
 import scalatags.JsDom.all.bindNode
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{SeqFrag, div}
+import scalatags.JsDom.tags2.{nav}
 
 object IndexPage {
 
@@ -55,7 +56,7 @@ object IndexPage {
 			div(class_main)(mainPart),
 			div(class_side)(sidePart),
 			div(searchResultDiv),
-			div(class_navigation)(navigation))
+			nav(class_navigation)(navigation))
 
 
 	}

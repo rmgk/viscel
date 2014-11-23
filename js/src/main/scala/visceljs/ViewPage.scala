@@ -10,6 +10,7 @@ import scalatags.JsDom.attrs.{href, src}
 import scalatags.JsDom.implicits.{stringAttr, stringFrag}
 import scalatags.JsDom.tags.{SeqFrag, a, div, img}
 import org.scalajs.dom
+import scalatags.JsDom.tags2.{nav, article}
 
 object ViewPage {
 	import visceljs.Util._
@@ -43,8 +44,8 @@ object ViewPage {
 			link_asset(narration, gallery.next(1), "next"))
 
 		List(
-			div(class_main)(mainPart),
-			div(class_navigation)(navigation))
+			article(class_main)(mainPart),
+			nav(class_navigation)(navigation))
 	}
 
 }
