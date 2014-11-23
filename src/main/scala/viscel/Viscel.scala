@@ -85,6 +85,10 @@ object Viscel extends StrictLogging {
 					0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])),
 				iopipe,
 				NeoSingleton)
+			Deeds.jobResult += {
+				case Some(message) => logger.error(s"some job failed: $message")
+				case None =>
+			}
 		}
 
 		if (shutdown.?) {

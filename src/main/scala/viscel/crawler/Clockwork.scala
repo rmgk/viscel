@@ -2,6 +2,7 @@ package viscel.crawler
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
+import org.scalactic.ErrorMessage
 import rescala.events.ImperativeEvent
 import spray.client.pipelining.SendReceive
 import viscel.Deeds
@@ -14,6 +15,7 @@ import scala.Predef.any2ArrowAssoc
 import scala.collection.concurrent
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
+import scala.Predef.exceptionWrapper
 
 
 object Clockwork extends StrictLogging {
@@ -44,9 +46,9 @@ object Clockwork extends StrictLogging {
 			case Some(x) => logger.info(s"$id race on job creation")
 			case None =>
 				logger.info(s"add new job $runner")
-				runner.start(collection, neo)(strategy).onComplete {
+				Future.successful[Option[ErrorMessage]](None).flatMap(_ => runner.start(collection, neo)(strategy))(ec).onComplete {
 					case Success(res) => Deeds.jobResult(res)
-					case Failure(t) => Deeds.jobResult(Some(t.getMessage))
+					case Failure(t) => Deeds.jobResult(Some(t.getMessage + "\n" + t.getStackTraceString))
 				}(ec)
 		}
 	}
@@ -62,7 +64,7 @@ object Clockwork extends StrictLogging {
 					val job = new Runner(core, iopipe, ec)
 					ensureJob(core.id, job, col, ec, iopipe, neo)(recheckOld)
 			}
-		}(ec)
+		}(ec).onFailure{ case e: Throwable => e.printStackTrace() }(ec)
 	}
 
 }

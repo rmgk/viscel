@@ -24,7 +24,7 @@ import scala.concurrent.Future
 
 object IOUtil extends StrictLogging {
 
-	def uriToUri(in: java.net.URI): Uri = Uri.from(in.getScheme, in.getUserInfo, in.getHost, in.getPort, in.getPath, Query.apply(in.getQuery), Option(in.getFragment))
+	def uriToUri(in: java.net.URI): Uri = Uri.parseAbsolute(in.toString)
 
 	private def addReferrer(referrer: Uri): (HttpRequest) => HttpRequest = addHeader("Referer" /*[sic, http spec]*/ , referrer.toString())
 
