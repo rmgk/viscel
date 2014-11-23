@@ -5,6 +5,7 @@ import org.neo4j.tooling.GlobalGraphOperations
 import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
+import viscel.Deeds
 import viscel.database.{Ntx, Traversal, label}
 import viscel.shared.JsonCodecs.stringMapW
 import viscel.shared.Story
@@ -53,11 +54,11 @@ object ServerPages {
 
 	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse{
 			val cn = Config.get()
-			Map(
+			Map[String, String](
 				"Downloaded" -> cn.downloaded.toString,
 				"Downloads" -> cn.downloads.toString,
-				"Compressed Downloads" -> cn.downloadsCompressed.toString,
-				"Failed Downloads" -> cn.downloadsFailed.toString,
+				"Compressed downloads" -> cn.downloadsCompressed.toString,
+				"Failed downloads" -> cn.downloadsFailed.toString,
 				"Narrations" -> ntx.nodes(label.Collection).size.toString,
 				"Chapters" -> ntx.nodes(label.Chapter).size.toString,
 				"Assets" -> ntx.nodes(label.Asset).size.toString,
@@ -68,7 +69,8 @@ object ServerPages {
 				"Total connections" -> stats.totalConnections.toString,
 				"Open connections" -> stats.openConnections.toString,
 				"Max open connections" -> stats.maxOpenConnections.toString,
-				"Requests timed out" -> stats.requestTimeouts.toString)
+				"Requests timed out" -> stats.requestTimeouts.toString,
+				"Session ui requests" -> Deeds.sessionUiRequests.get.toString)
 		}
 
 }
