@@ -51,7 +51,7 @@ object Clockwork extends StrictLogging {
 		}
 	}
 
-	def handleHints(hints: ImperativeEvent[Coin], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { coin =>
+	def handleHints(hints: ImperativeEvent[Collection], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { coin =>
 		neo.tx { implicit ntx =>
 			Collection.isCollection(origin(coin.self)).map(col => col -> col.id)
 		} match {

@@ -80,7 +80,7 @@ object Viscel extends StrictLogging {
 
 		if (!nocore.?) {
 			Clockwork.handleHints(
-				Deeds.uiCoin,
+				Deeds.uiCollection,
 				ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 					0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])),
 				iopipe,
