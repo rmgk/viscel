@@ -51,24 +51,18 @@ object Clockwork extends StrictLogging {
 		}
 	}
 
-	def handleHints(hints: ImperativeEvent[Collection], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { coin =>
-		neo.tx { implicit ntx =>
-			Collection.isCollection(origin(coin.self)).map(col => col -> col.id)
-		} match {
-			case Some((col, id)) =>
-				if (jobs.contains(id)) logger.trace(s"$id has running job")
-				else Future {
-					logger.info(s"got hint $id")
-					Narrator.get(id) match {
-						case None => logger.warn(s"unkonwn core $id")
-						case Some(core) =>
-							val job = new Runner(core, iopipe, ec)
-							ensureJob(core.id, job, col, ec, iopipe, neo)(recheckOld)
-					}
-				}(ec)
-			case None =>
-		}
-
+	def handleHints(hints: ImperativeEvent[Collection], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { col =>
+		val id = neo.tx { col.id(_) }
+		if (jobs.contains(id)) logger.trace(s"$id has running job")
+		else Future {
+			logger.info(s"got hint $id")
+			Narrator.get(id) match {
+				case None => logger.warn(s"unkonwn core $id")
+				case Some(core) =>
+					val job = new Runner(core, iopipe, ec)
+					ensureJob(core.id, job, col, ec, iopipe, neo)(recheckOld)
+			}
+		}(ec)
 	}
 
 }
