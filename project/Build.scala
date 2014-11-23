@@ -37,7 +37,7 @@ object Settings {
 			"-Xlint" ::
 			"-Xfuture" ::
 			//"-Xlog-implicits" ::
-			//"-Yno-predef" ::
+			"-Yno-predef" ::
 			//"-Yno-imports" ::
 			"-Xfatal-warnings" ::
 			"-Yinline-warnings" ::
