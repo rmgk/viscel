@@ -22,7 +22,7 @@ object Clockwork extends StrictLogging {
 
 	val jobs: concurrent.Map[String, Runner] = concurrent.TrieMap[String, Runner]()
 
-	def unseenNext(shallow: Boolean)(from: Node)(ntx: Ntx): Strategy = forwardStrategy(from)(ntx => {
+	def unseenNext(shallow: Boolean)(from: Node): Strategy = forwardStrategy(from)(ntx => {
 		case n@Coin.isPage(page) if page.self.to(rel.describes)(ntx).isEmpty => Some(n)
 		case n@Coin.isAsset(asset) if (!shallow) && asset.blob(ntx).isEmpty => Some(n)
 		case _ => None
@@ -61,7 +61,7 @@ object Clockwork extends StrictLogging {
 				case None => logger.warn(s"unkonwn core $id")
 				case Some(core) =>
 					val job = new Runner(core, iopipe, ec)
-					ensureJob(core.id, job, col, ec, iopipe, neo)(recheckOld)
+					ensureJob(core.id, job, col, ec, iopipe, neo)(col => unseenNext(shallow = false)(col.self).andThen(recheckOld(col)))
 			}
 		}(ec).onFailure{ case e: Throwable => e.printStackTrace() }(ec)
 	}
