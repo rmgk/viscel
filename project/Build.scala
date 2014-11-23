@@ -25,7 +25,7 @@ object Build extends sbt.Build {
 object Settings {
 	lazy val common = List(
 
-		version := "5.0.0-Beta",
+		version := "5.0.0",
 		scalaVersion := "2.10.4",
 
 		scalacOptions ++= (
