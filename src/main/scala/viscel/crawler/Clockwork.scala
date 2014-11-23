@@ -22,12 +22,11 @@ object Clockwork extends StrictLogging {
 
 	val jobs: concurrent.Map[String, Runner] = concurrent.TrieMap[String, Runner]()
 
-	def unseenNext(shallow: Boolean)(from: Node)(ntx: Ntx): Option[Node] =
-		Traversal.findForward {
-			case n@Coin.isPage(page) if page.self.to(rel.describes)(ntx).isEmpty => Some(n)
-			case n@Coin.isAsset(asset) if (!shallow) && asset.blob(ntx).isEmpty => Some(n)
-			case _ => None
-		}(from)(ntx)
+	def unseenNext(shallow: Boolean)(from: Node)(ntx: Ntx): Strategy = forwardStrategy(from)(ntx => {
+		case n@Coin.isPage(page) if page.self.to(rel.describes)(ntx).isEmpty => Some(n)
+		case n@Coin.isAsset(asset) if (!shallow) && asset.blob(ntx).isEmpty => Some(n)
+		case _ => None
+	})
 
 	def forwardStrategy(start: Node)(select: Ntx => Node => Option[Node]): Strategy = new Strategy {
 		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] =
