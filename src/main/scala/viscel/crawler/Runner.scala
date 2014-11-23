@@ -17,25 +17,26 @@ class Runner(val core: Narrator, iopipe: SendReceive, ec: ExecutionContext) exte
 
 	override def toString: String = s"Job(${ core.toString })"
 
-	def start(collection: Collection, neo: Neo)(createStrategy: Collection => Strategy): Future[Option[ErrorMessage]] = {
+	def start(collection: Collection, neo: Neo)(createStrategy: Collection => Strategy): Future[List[ErrorMessage]] = {
 		neo.tx { ArchiveManipulation.applyNarration(collection.self, core.archive)(_) }
 		val strategy = createStrategy(collection)
 		run(strategy, neo)
 	}
 
-	private def run(initialStrategy: Strategy, neo: Neo): Future[Option[ErrorMessage]] = {
+	private def run(initialStrategy: Strategy, neo: Neo): Future[List[ErrorMessage]] = {
 		@tailrec
-		def go(strategy: Strategy, neo: Neo): Future[Option[ErrorMessage]] = {
+		def go(strategy: Strategy, neo: Neo): Future[List[ErrorMessage]] = {
 			neo.tx { strategy.run(_) } match {
-				case None => Future.successful(None)
+				case None => Future.successful(Nil)
 				case Some((node, nextStrategy)) => neo.tx { explore(node)(_) } match {
-					case Result.Done => Future.successful(None)
-					case Result.Failed(message) => Future.successful(Some(message))
+					case Result.Done => Future.successful(Nil)
+					case Result.Failed(message) => Future.successful(List(message))
 					case Result.Continue => go(nextStrategy, neo)
 					case Result.DelayedRequest(request, continue) =>
 						IOUtil.getResponse(request, iopipe).flatMap { res =>
-							neo.tx { continue(res) }
-							run(nextStrategy, neo)
+							val errors = neo.tx { continue(res) }
+							if (errors.isEmpty) run(nextStrategy, neo)
+							else Future.successful(errors)
 						}(ec)
 				}
 			}
@@ -43,7 +44,7 @@ class Runner(val core: Narrator, iopipe: SendReceive, ec: ExecutionContext) exte
 		go(initialStrategy, neo)
 	}
 
-	private def explore(node: Node)(ntx: Ntx): Result[Ntx => Unit] = node match {
+	private def explore(node: Node)(ntx: Ntx): Result[Ntx => List[ErrorMessage]] = node match {
 		case Coin.isPage(page) => IOUtil.documentRequest(page.location(ntx)).map { IOUtil.writePage(core, page) }
 		case Coin.isAsset(asset) => IOUtil.blobRequest(asset.source(ntx), asset.origin(ntx)).map { IOUtil.writeAsset(core, asset) }
 		case other => Result.Failed(s"can only request pages and assets not ${ other.getLabels.asScala.toList }")

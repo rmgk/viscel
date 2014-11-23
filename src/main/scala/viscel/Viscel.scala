@@ -86,8 +86,8 @@ object Viscel extends StrictLogging {
 				iopipe,
 				NeoSingleton)
 			Deeds.jobResult += {
-				case Some(message) => logger.error(s"some job failed: $message")
-				case None =>
+				case messages @ _ :: _ => logger.error(s"some job failed: $messages")
+				case Nil =>
 			}
 		}
 

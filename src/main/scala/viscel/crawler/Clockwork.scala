@@ -29,7 +29,9 @@ object Clockwork extends StrictLogging {
 				logger.info(s"add new job $runner")
 				Future.successful[Option[ErrorMessage]](None).flatMap(_ => runner.start(collection, neo)(strategy))(ec).onComplete {
 					case Success(res) => Deeds.jobResult(res)
-					case Failure(t) => Deeds.jobResult(Some(t.getMessage + "\n" + t.getStackTraceString))
+					case Failure(t) =>
+						t.printStackTrace()
+						Deeds.jobResult(List(t.getMessage))
 				}(ec)
 		}
 	}
