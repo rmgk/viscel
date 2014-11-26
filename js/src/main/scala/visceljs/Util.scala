@@ -1,13 +1,13 @@
 package visceljs
 
-import org.scalajs.dom.{KeyboardEvent, HTMLInputElement, HTMLElement}
+import org.scalajs.dom.{HTMLAnchorElement, KeyboardEvent, HTMLInputElement, HTMLElement}
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import scala.scalajs.js
-import scalatags.JsDom.Frag
+import scalatags.JsDom.{TypedTag, Frag}
 import scalatags.JsDom.all._
 import org.scalajs.dom
 
@@ -36,10 +36,12 @@ object Util {
 	val class_extern = cls := "extern"
 	val class_link = cls := "fakelink"
 
-	def link_index(ts: Frag*) = span(class_link)(onclick := (() => pushIndex()))(ts)
-	def link_stop(ts: Frag*) = a(href := path_stop)(ts)
-	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*) = span(class_link)(ts)(onclick := (() => pushView(gallery, nar)))
-	def link_front(nar: Narration, ts: Frag*): Frag = span(class_link)(ts)(onclick := (() => pushFront(nar)))
+	def link_index(ts: Frag*): Tag = span(class_link)(onclick := (() => pushIndex()))(ts)
+	def link_stop(ts: Frag*): Tag = a(href := path_stop)(ts)
+	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*): Frag =
+		if (gallery.isEnd) ts
+		else span(class_link)(ts)(onclick := (() => pushView(gallery, nar)))
+	def link_front(nar: Narration, ts: Frag*): Tag = span(class_link)(ts)(onclick := (() => pushFront(nar)))
 
 
 	def pushFront(nar: Narration): Unit = {
