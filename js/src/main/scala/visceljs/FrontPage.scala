@@ -52,6 +52,7 @@ object FrontPage {
 					val next = gal.prev(1)
 					(next, link_asset(narration, next, s"$i ") :: acc)
 				}
+				/** for some reason, setting multiple classes does no longer work, keep first to for code refactorings*/
 				fieldset(class_group, class_pages, cls := "group pages").apply(legend(chap.name), links)
 			}
 
