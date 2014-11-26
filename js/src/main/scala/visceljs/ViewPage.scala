@@ -6,27 +6,24 @@ import viscel.shared.Story.{Asset, Narration}
 
 import scala.Predef.conforms
 import scalatags.JsDom.Frag
-import scalatags.JsDom.attrs.{href, src}
+import scalatags.JsDom.attrs.href
 import scalatags.JsDom.implicits.{stringAttr, stringFrag}
-import scalatags.JsDom.tags.{SeqFrag, a, div, img}
-import org.scalajs.dom
-import scalatags.JsDom.tags2.{nav, article}
+import scalatags.JsDom.tags.{SeqFrag, a, div}
+import scalatags.JsDom.tags2.{article, nav}
 
 object ViewPage {
+
 	import visceljs.Util._
 
-	def gen(gallery: Gallery[Asset], narration: Narration): Frag = {
+	def gen(gallery: Gallery[Asset], narration: Narration): Body = {
 
 		val handleKeypress = (ev: dom.KeyboardEvent) => {
-			if (!ev.altKey && !ev.ctrlKey && !ev.shiftKey && (ev.keyCode match {
-					case 37 | 65 | 188 => pushView(gallery.prev(1), narration); true
-					case 39 | 68 | 190 => pushView(gallery.next(1), narration); true
-					case _ => false
-				})) {ev.preventDefault(); true}
-			else false
+			ev.keyCode match {
+				case 37 | 65 | 188 => pushView(gallery.prev(1), narration)
+				case 39 | 68 | 190 => pushView(gallery.next(1), narration)
+				case _ =>
+			}
 		}
-
-		dom.document.onkeydown = handleKeypress
 
 		gallery.next(1).get.map(a => blobToImg(a).render)
 
@@ -43,9 +40,11 @@ object ViewPage {
 			" ",
 			link_asset(narration, gallery.next(1), "next"))
 
-		List(
-			article(class_main)(mainPart),
-			nav(class_navigation)(navigation))
+		Body(id = "view", title = narration.name,
+			frag = List(
+				article(class_main)(mainPart),
+				nav(class_navigation)(navigation)),
+			keypress = handleKeypress)
 	}
 
 }

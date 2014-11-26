@@ -4,13 +4,13 @@ package visceljs
 import org.scalajs.dom.HTMLElement
 import viscel.shared.Story.Narration
 
-import scala.Predef.{any2ArrowAssoc, conforms}
+import scala.Predef.conforms
 import scala.collection.immutable.Map
 import scalatags.JsDom.Frag
 import scalatags.JsDom.all.bindNode
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{SeqFrag, div}
-import scalatags.JsDom.tags2.{nav}
+import scalatags.JsDom.tags2.nav
 
 object IndexPage {
 
@@ -18,7 +18,7 @@ object IndexPage {
 
 	case class ColState(id: String, name: String, size: Int, bm: Int, node: String)
 
-	def genIndex(bookmarks: Map[String, Int], narrations: Map[String, Narration]): Frag = {
+	def gen(bookmarks: Map[String, Int], narrations: Map[String, Narration]): Body = {
 
 		val searchResultDiv: HTMLElement = div().render
 
@@ -36,8 +36,8 @@ object IndexPage {
 
 			val (hasNewPages, isCurrent) = result.partition(_._3 > 0)
 
-			val unreadTags = hasNewPages.sortBy(- _._3).map { case(nr, pos, unread) => link_front(nr, s"${nr.name} ($unread)") }
-			val currentTags = isCurrent.sortBy(_._1.name).map { case(nr, pos, unread) => link_front(nr, s"${nr.name}") }
+			val unreadTags = hasNewPages.sortBy(-_._3).map { case (nr, pos, unread) => link_front(nr, s"${ nr.name } ($unread)") }
+			val currentTags = isCurrent.sortBy(_._1.name).map { case (nr, pos, unread) => link_front(nr, s"${ nr.name }") }
 			//val availableCores = Core.availableCores.map { core => link_core(core) }.toSeq
 			//		val allCollections = Neo.nodes(viscel.store.label.Collection).map(CollectionNode(_)).sortBy(_.name).map { collection =>
 			//			link_node(collection, s"${ collection.name }")
@@ -50,11 +50,12 @@ object IndexPage {
 				Nil
 		}
 
-		List(
-			div(class_main)(mainPart),
-			div(class_side)(sidePart),
-			div(searchResultDiv),
-			nav(class_navigation)(navigation))
+		Body(id = "index", title = "Viscel",
+			frag = List(
+				div(class_main)(mainPart),
+				div(class_side)(sidePart),
+				div(searchResultDiv),
+				nav(class_navigation)(navigation)))
 
 
 	}

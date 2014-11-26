@@ -1,6 +1,6 @@
 package visceljs
 
-import org.scalajs.dom.{HTMLInputElement, HTMLElement}
+import org.scalajs.dom.{KeyboardEvent, HTMLInputElement, HTMLElement}
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 
@@ -12,7 +12,7 @@ import scalatags.JsDom.Frag
 import scalatags.JsDom.all._
 import org.scalajs.dom
 
-
+case class Body(frag: Frag = "", id: String = "", title: String = "", keypress: js.Function1[KeyboardEvent, _] = js.undefined.asInstanceOf[js.Function1[KeyboardEvent, _]])
 
 object Util {
 
@@ -51,7 +51,7 @@ object Util {
 	}
 	def renderFront(nar: Narration): Unit = {
 		for (bm <- Viscel.bookmarks; fullNarration <- Viscel.completeNarration(nar))
-			Viscel.setBody("front", FrontPage.genIndex(bm.getOrElse(nar.id, 0), fullNarration))
+			Viscel.setBody(FrontPage.gen(bm.getOrElse(nar.id, 0), fullNarration))
 	}
 
 	def pushView(gallery: Gallery[Asset], nar: Narration): Unit = {
@@ -59,7 +59,7 @@ object Util {
 		renderView(gallery, nar)
 	}
 	def renderView(gallery: Gallery[Asset], nar: Narration): Unit = {
-		Viscel.setBody("view", ViewPage.gen(gallery, nar))
+		Viscel.setBody( ViewPage.gen(gallery, nar))
 	}
 
 	def pushIndex() = {
@@ -67,7 +67,7 @@ object Util {
 		renderIndex()
 	}
 	def renderIndex() = {
-		for (bm <- Viscel.bookmarks; nar <- Viscel.narrations) { Viscel.setBody("index", IndexPage.genIndex(bm, nar)) }
+		for (bm <- Viscel.bookmarks; nar <- Viscel.narrations) { Viscel.setBody(IndexPage.gen(bm, nar)) }
 	}
 
 	//	def link_node(vn: Option[Coin], ts: Frag*): Frag = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))

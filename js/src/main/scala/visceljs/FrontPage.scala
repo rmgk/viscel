@@ -15,7 +15,7 @@ object FrontPage {
 
 	import visceljs.Util._
 
-	def genIndex(bookmark: Int, narration: Narration): Frag = {
+	def gen(bookmark: Int, narration: Narration): Body = {
 
 		val gallery = narration.narrates
 
@@ -73,6 +73,6 @@ object FrontPage {
 			div(class_side)(sidePart)
 		) ++ chapterlist
 
-		content
+		Body(id = "front", frag = content, title = narration.name)
 	}
 }

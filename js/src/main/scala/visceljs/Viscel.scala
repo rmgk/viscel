@@ -1,7 +1,7 @@
 package visceljs
 
 import org.scalajs.dom
-import org.scalajs.dom.Event
+import org.scalajs.dom.{KeyboardEvent, Event}
 import upickle._
 import viscel.shared.JsonCodecs.stringMapR
 import viscel.shared.Story._
@@ -10,10 +10,11 @@ import scala.collection.immutable.Map
 import scala.Predef.any2ArrowAssoc
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
+import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.Frag
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.div
+import scalatags.JsDom.tags.{div, body}
 
 
 @JSExport(name = "Viscel")
@@ -38,10 +39,12 @@ object Viscel {
 	}
 
 
-	def setBody(id: String, fragment: Frag): Unit = {
+	def setBody(abody: Body): Unit = {
+		dom.document.onkeydown = abody.keypress
 		dom.document.body.innerHTML = ""
-		dom.document.body.setAttribute("id", id)
-		dom.document.body.appendChild(fragment.render)
+		dom.document.title = abody.title
+		dom.document.body.setAttribute("id", abody.id)
+		dom.document.body.appendChild(abody.frag.render)
 	}
 
 	@JSExport
@@ -49,7 +52,6 @@ object Viscel {
 
 		dom.onhashchange = { (ev: Event) =>
 			val paths = List(dom.location.hash.substring(1).split("/"): _*)
-			Predef.println(paths.asInstanceOf[org.scalajs.dom.Event])
 			paths match {
 				case Nil | "" :: Nil=>
 					Util.renderIndex()
@@ -70,9 +72,9 @@ object Viscel {
 			}
 		}
 
-		setBody("index", div("loading"))
+		setBody(Body(frag = div("loading")))
 
-		Util.pushIndex()
+		Util.renderIndex()
 
 	}
 
