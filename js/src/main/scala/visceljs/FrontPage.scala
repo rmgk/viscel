@@ -7,8 +7,9 @@ import viscel.shared.{Gallery, Story}
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scalatags.JsDom
 import scalatags.JsDom.Frag
-import scalatags.JsDom.implicits.stringFrag
+import scalatags.JsDom.implicits.{stringFrag, stringAttr}
 import scalatags.JsDom.tags.{SeqFrag, div, fieldset, legend}
+import scalatags.JsDom.attrs.{cls}
 import scalatags.JsDom.tags2.nav
 
 object FrontPage {
@@ -51,7 +52,7 @@ object FrontPage {
 					val next = gal.prev(1)
 					(next, link_asset(narration, next, s"$i ") :: acc)
 				}
-				fieldset(class_group, class_pages).apply(legend(chap.name), links)
+				fieldset(class_group, class_pages, cls := "group pages").apply(legend(chap.name), links)
 			}
 
 
