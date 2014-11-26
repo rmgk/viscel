@@ -4,8 +4,8 @@ import org.neo4j.graphdb.Node
 import viscel.database.Traversal.findForward
 import viscel.database.{NodeOps, Ntx, Traversal, label}
 import viscel.narration.Narrator
-import viscel.shared.{Gallery, Story}
 import viscel.shared.Story.Narration
+import viscel.shared.{Gallery, Story}
 import viscel.store.Coin.CheckNode
 
 import scala.Predef.any2ArrowAssoc
@@ -24,20 +24,22 @@ final case class Collection(self: Node) extends AnyVal {
 	})
 
 	def narration(nested: Boolean)(implicit neo: Ntx): Narration = {
-		def allAssets(node: Node): List[Story.Asset] = {
-			Traversal.fold(List[Story.Asset](), node) { state => {
-				case Coin.isAsset(asset) => asset.story(nested = true) :: state
-				case _ => state
-			}
+		def allAssets(node: Node): (Int, List[Story.Asset], List[(Int, Story.Chapter)]) = {
+			Traversal.fold((0, List[Story.Asset](), List[(Int, Story.Chapter)]()), node) {
+				case state@(pos, assets, chapters) => {
+					case Coin.isAsset(asset) => (pos + 1, asset.story(nested = true) :: assets, chapters)
+					case Coin.isChapter(chapter) => (pos, assets, (pos, chapter.story()) :: chapters)
+					case _ => state
+				}
 			}
 		}
 
 		if (nested) {
-			val assets = allAssets(self).reverse
-			Narration(id, name, assets.size, Gallery.fromList(assets))
+			val (size, assets, chapters) = allAssets(self)
+			Narration(id, name, size, Gallery.fromList(assets.reverse), chapters.reverse)
 		}
 		else {
-			Narration(id, name, size, Gallery.fromList(Nil))
+			Narration(id, name, size, Gallery.fromList(Nil), Nil)
 		}
 	}
 

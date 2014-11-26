@@ -16,15 +16,15 @@ object Story {
 	final case class Core(kind: String, id: String, name: String, metadata: Map[String, String]) extends Story
 	final case class Failed(reason: List[String]) extends Story
 	final case class Blob(sha1: String, mediatype: String) extends Story
-	final case class Narration(id: String, name: String, size: Int, narrates: Gallery[Asset])
+	final case class Narration(id: String, name: String, size: Int, narrates: Gallery[Asset], chapters: List[(Int, Chapter)])
 
-	implicit val (moreR, moreW): (Reader[More], Writer[More]) = case3RW("loc", "pagetype", "layer", More.apply, More.unapply)
-	implicit val (chapterR, chapterW): (Reader[Chapter], Writer[Chapter]) = case2RW("name", "metadata", Chapter.apply, Chapter.unapply)
-	implicit val (blobR, blobW): (Reader[Blob], Writer[Blob]) = case2RW("sha1", "mediatype", Blob.apply, Blob.unapply)
-	implicit val (assetR, assetW): (Reader[Asset], Writer[Asset]) = case4RW("source", "origin", "metadata", "blob", Asset.apply, Asset.unapply)
-	implicit val (coreR, coreW): (Reader[Core], Writer[Core]) = case4RW("kind", "id", "name", "metadata", Core.apply, Core.unapply)
-	implicit val (failedR, failedW): (Reader[Failed], Writer[Failed]) = case1RW("reason", Failed.apply, Failed.unapply)
-	implicit val (narrationR, narrationW): (Reader[Narration], Writer[Narration]) = case4RW("id", "name", "size", "narrates", Narration.apply, Narration.unapply)
+	implicit val (moreR, moreW): (Reader[More], Writer[More]) = case3RW(More.apply, More.unapply)("loc", "pagetype", "layer")
+	implicit val (chapterR, chapterW): (Reader[Chapter], Writer[Chapter]) = case2RW(Chapter.apply, Chapter.unapply)("name", "metadata")
+	implicit val (blobR, blobW): (Reader[Blob], Writer[Blob]) = case2RW(Blob.apply, Blob.unapply)("sha1", "mediatype")
+	implicit val (assetR, assetW): (Reader[Asset], Writer[Asset]) = case4RW(Asset.apply, Asset.unapply)("source", "origin", "metadata", "blob")
+	implicit val (coreR, coreW): (Reader[Core], Writer[Core]) = case4RW(Core.apply, Core.unapply)("kind", "id", "name", "metadata")
+	implicit val (failedR, failedW): (Reader[Failed], Writer[Failed]) = case1RW(Failed.apply, Failed.unapply)("reason")
+	implicit val (narrationR, narrationW): (Reader[Narration], Writer[Narration]) = case5RW(Narration.apply, Narration.unapply)("id", "name", "size", "narrates", "chapters")
 
 	implicit val storyWriter: Writer[Story] = Writer[Story] {
 		case s @ More(_, _, _) => writeJs(("More", s))

@@ -18,7 +18,7 @@ final case class User(id: String, password: String, bookmarks: Map[String, Int])
 object User {
 
 
-	implicit val (userR, userW): (Reader[User], Writer[User]) = case3RW("id", "password", "bookmarks", User.apply, User.unapply)
+	implicit val (userR, userW): (Reader[User], Writer[User]) = case3RW(User.apply, User.unapply)("id", "password", "bookmarks")
 
 	val charset = Charset.forName("UTF-8")
 
