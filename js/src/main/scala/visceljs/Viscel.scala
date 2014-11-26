@@ -26,7 +26,9 @@ object Viscel {
 
 	var bookmarks: Future[Map[String, Int]] = ajax[Map[String, Int]]("/bookmarks")
 	def narrations: Future[List[Narration]] = ajax[List[Narration]]("/narrations")
-	def completeNarration(nar: Narration): Future[Narration] = ajax[Narration](s"/narration/${nar.id}")
+	def completeNarration(nar: Narration): Future[Narration] =
+		if (nar.narrates.prev(1).get.isDefined) Future.successful(nar)
+		else ajax[Narration](s"/narration/${nar.id}")
 	def setBookmark(nar: Narration, pos: Int): Future[Map[String, Int]] = {
 		val res = dom.extensions.Ajax.post("/bookmarks", s"narration=${nar.id}&bookmark=$pos", headers = List("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
 			.map(res => upickle.read[Map[String, Int]](res.responseText))

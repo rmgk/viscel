@@ -36,7 +36,7 @@ final case class Collection(self: Node) extends AnyVal {
 
 		if (nested) {
 			val (size, assets, chapters) = allAssets(self)
-			Narration(id, name, size, Gallery.fromList(assets.reverse), chapters.reverse)
+			Narration(id, name, size, Gallery.fromList(assets.reverse), chapters)
 		}
 		else {
 			Narration(id, name, size, Gallery.fromList(Nil), Nil)

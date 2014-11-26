@@ -1,15 +1,18 @@
 package visceljs
 
 
-import viscel.shared.Story.Narration
+import viscel.shared.Story.{Chapter, Narration}
+import viscel.shared.{Gallery, Story}
 
 import scala.Predef.{any2ArrowAssoc, conforms}
+import scalatags.JsDom
 import scalatags.JsDom.Frag
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.{SeqFrag, div}
-import scalatags.JsDom.tags2.{nav}
+import scalatags.JsDom.tags.{SeqFrag, div, fieldset, legend}
+import scalatags.JsDom.tags2.nav
 
 object FrontPage {
+
 	import visceljs.Util._
 
 	def genIndex(bookmark: Int, narration: Narration): Frag = {
@@ -33,16 +36,42 @@ object FrontPage {
 			stringFrag(" – "),
 			set_bookmark(narration, 0, "remove"))
 
-		def sidePart = div(class_content)( List(
+		def sidePart = div(class_content)(List(
 			preview1.get.map(a => link_asset(narration, preview1, blobToImg(a))),
 			preview2.get.map(a => link_asset(narration, preview2, blobToImg(a))),
 			preview3.get.map(a => link_asset(narration, preview3, blobToImg(a)))
 		).flatten: _*)
 
+		def chapterlist: List[JsDom.Frag] = {
+			val assets = gallery.end
+			val chapters = narration.chapters
+
+			def makeChapField(chap: Chapter, size: Int, gallery: Gallery[Story.Asset]): Frag = {
+				val (remaining, links) = Range(size, 0, -1).foldLeft((gallery, List[Frag]())) { case ((gal, acc), i) =>
+					val next = gal.prev(1)
+					(next, link_asset(narration, next, s"$i ") :: acc)
+				}
+				fieldset(class_group, class_pages).apply(legend(chap.name), links)
+			}
+
+
+			def build(apos: Int, assets: Gallery[Story.Asset], chapters: List[(Int, Story.Chapter)], acc: List[Frag]): List[Frag] = chapters match {
+				case (cpos, chap) :: ctail =>
+					build(cpos, assets.prev(apos - cpos), ctail, makeChapField(chap, apos - cpos, assets) :: acc)
+				case Nil =>
+					if (assets.pos == 0) acc
+					else makeChapField(Story.Chapter("No Chapter"), assets.pos, assets) :: acc
+			}
+
+			build(assets.pos, assets, chapters, Nil)
+
+		}
+
 		def content: Frag = List(
 			div(class_main)(mainPart),
 			nav(class_navigation)(navigation),
-			div(class_side)(sidePart))
+			div(class_side)(sidePart)
+		) ++ chapterlist
 
 		content
 	}
