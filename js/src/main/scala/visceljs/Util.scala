@@ -7,7 +7,6 @@ import viscel.shared.Story.{Asset, Narration}
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import scala.scalajs.js
-import scala.scalajs.js.Dynamic.global
 import scalatags.JsDom.Frag
 import scalatags.JsDom.all._
 import org.scalajs.dom
@@ -22,9 +21,7 @@ object Util {
 	def path_search = "/s"
 	def path_blob(blob: String) = s"/blob/${ blob }"
 	def path_front(nar: Narration) = s"/#${ nar.id }"
-	//	def path_raw(vn: Coin) = s"/r/${ vn.nid }"
 	def path_stop = "/stop"
-	//	def path_core(core: Narrator) = s"/f/${ core.id }"
 	def path_scripts = "/viscel.js"
 
 	val class_main = cls := "main"
@@ -41,7 +38,6 @@ object Util {
 
 	def link_index(ts: Frag*) = span(class_link)(onclick := (() => pushIndex()))(ts)
 	def link_stop(ts: Frag*) = a(href := path_stop)(ts)
-	//	//def link_front(collection: CollectionNode, ts: Frag*) = a(href := path_front(collection))(ts)
 	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*) = span(class_link)(ts)(onclick := (() => pushView(gallery, nar)))
 	def link_front(nar: Narration, ts: Frag*): Frag = span(class_link)(ts)(onclick := (() => pushFront(nar)))
 
@@ -71,10 +67,6 @@ object Util {
 		for (bm <- Viscel.bookmarks; nar <- Viscel.narrations) { Viscel.setBody(IndexPage.gen(bm, nar)) }
 	}
 
-	//	def link_node(vn: Option[Coin], ts: Frag*): Frag = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))
-	//	def link_raw(vn: Coin, ts: Frag*): Frag = a(href := path_raw(vn))(ts)
-	//	// def link_node(en: Option[ElementNode], ts: Frag*): Frag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
-	//	def link_core(core: Narrator): Frag = a(href := path_core(core))(core.name)
 
 	def set_bookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = span(class_link, class_submit)(ts)(onclick := { () =>
 		Viscel.setBookmark(nar, pos)
