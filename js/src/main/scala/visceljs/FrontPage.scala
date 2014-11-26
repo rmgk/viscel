@@ -30,7 +30,7 @@ object FrontPage {
 			)) :: Nil
 
 		def navigation = Seq[Frag](
-			link_main("index"),
+			link_index("index"),
 			stringFrag(" – "),
 			link_asset(narration, gallery.first, "first"),
 			stringFrag(" – "),

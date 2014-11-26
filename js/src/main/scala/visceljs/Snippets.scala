@@ -57,7 +57,7 @@ object Snippets {
 		)) :: Nil
 
 	def navigation = Seq(
-		link_main("index"),
+		link_index("index"),
 		stringFrag(" – "),
 		stringFrag("FIRST"),
 		stringFrag(" – "))

@@ -18,13 +18,11 @@ object IndexPage {
 
 	case class ColState(id: String, name: String, size: Int, bm: Int, node: String)
 
-	def genIndex(bookmarks: Map[String, Int], narrations: List[Narration]): Frag = {
-
-		val collections = narrations.map(n => n.id -> n).toMap
+	def genIndex(bookmarks: Map[String, Int], narrations: Map[String, Narration]): Frag = {
 
 		val searchResultDiv: HTMLElement = div().render
 
-		def sidePart = make_fieldset("Search", Seq(form_search(narrations, searchResultDiv)))(class_info)
+		def sidePart = make_fieldset("Search", Seq(form_search(narrations.values.toList, searchResultDiv)))(class_info)
 
 		def navigation = link_stop("stop") :: Nil
 
@@ -32,7 +30,7 @@ object IndexPage {
 
 			val result: List[(Narration, Int, Int)] =
 				bookmarks.map { case (id, pos) =>
-					val nr = collections(id)
+					val nr = narrations(id)
 					(nr, pos, nr.size - pos)
 				}.toList
 

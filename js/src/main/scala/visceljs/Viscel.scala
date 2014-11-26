@@ -1,6 +1,7 @@
 package visceljs
 
 import org.scalajs.dom
+import org.scalajs.dom.Event
 import upickle._
 import viscel.shared.JsonCodecs.stringMapR
 import viscel.shared.Story._
@@ -25,7 +26,7 @@ object Viscel {
 	implicit val readAssets: Reader[List[Asset]] = Predef.implicitly[Reader[List[Asset]]]
 
 	var bookmarks: Future[Map[String, Int]] = ajax[Map[String, Int]]("/bookmarks")
-	def narrations: Future[List[Narration]] = ajax[List[Narration]]("/narrations")
+	def narrations: Future[Map[String, Narration]] = ajax[List[Narration]]("/narrations").map(_.map(n => n.id -> n).toMap)
 	def completeNarration(nar: Narration): Future[Narration] =
 		if (nar.narrates.prev(1).get.isDefined) Future.successful(nar)
 		else ajax[Narration](s"/narration/${nar.id}")
@@ -41,15 +42,38 @@ object Viscel {
 		dom.document.body.innerHTML = ""
 		dom.document.body.setAttribute("id", id)
 		dom.document.body.appendChild(fragment.render)
-
 	}
 
 	@JSExport
 	def main(): Unit = {
 
+		dom.onhashchange = { (ev: Event) =>
+			val paths = List(dom.location.hash.substring(1).split("/"): _*)
+			Predef.println(paths.asInstanceOf[org.scalajs.dom.Event])
+			paths match {
+				case Nil | "" :: Nil=>
+					Util.renderIndex()
+				case id :: Nil =>
+					for (nar <- narrations) {
+						Util.renderFront(nar(id))
+					}
+				case id :: posS :: Nil =>
+					val pos = Integer.parseInt(posS)
+					for {
+						nars <- narrations
+						nar = nars(id)
+						fullNarration <- Viscel.completeNarration(nar)
+					} {
+						Util.renderView(fullNarration.narrates.first.next(pos - 1), nar)
+					}
+				case _ => Util.renderIndex()
+			}
+		}
+
 		setBody("index", div("loading"))
-		
-		for (bm <- bookmarks; nar <- narrations) { setBody("index", IndexPage.genIndex(bm, nar)) }
+
+		Util.pushIndex()
+
 	}
 
 

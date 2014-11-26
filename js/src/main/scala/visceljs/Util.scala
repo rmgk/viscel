@@ -10,16 +10,18 @@ import scala.scalajs.js
 import scala.scalajs.js.Dynamic.global
 import scalatags.JsDom.Frag
 import scalatags.JsDom.all._
+import org.scalajs.dom
+
 
 
 object Util {
 
 	def path_main = "/"
 	def path_css = "/css"
-	def path_asset(nr: Narration, absPos: Int) = s"#${ nr.id }/$absPos"
+	def path_asset(nr: Narration, gallery: Gallery[Asset]) = s"/#${ nr.id }/${gallery.pos + 1}"
 	def path_search = "/s"
 	def path_blob(blob: String) = s"/blob/${ blob }"
-	def path_front(nar: Narration) = s"#${ nar.id }"
+	def path_front(nar: Narration) = s"/#${ nar.id }"
 	//	def path_raw(vn: Coin) = s"/r/${ vn.nid }"
 	def path_stop = "/stop"
 	//	def path_core(core: Narrator) = s"/f/${ core.id }"
@@ -36,21 +38,38 @@ object Util {
 	val class_pages = cls := "pages"
 	val class_extern = cls := "extern"
 
-	def link_main(ts: Frag*) = a(href := path_main)(ts)
+	def link_index(ts: Frag*) = span(onclick := (() => pushIndex()))(ts)
 	def link_stop(ts: Frag*) = a(href := path_stop)(ts)
 	//	//def link_front(collection: CollectionNode, ts: Frag*) = a(href := path_front(collection))(ts)
-	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*) = a(href := path_asset(nar, gallery.pos + 1))(ts)(onclick := go_view(gallery, nar))
+	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*) = span(ts)(onclick := (() => pushView(gallery, nar)))
+	def link_front(nar: Narration, ts: Frag*): Frag = span(ts)(onclick := (() => pushFront(nar)))
 
-	def go_front(nar: Narration): () => Unit = { () =>
+
+	def pushFront(nar: Narration): Unit = {
+		dom.history.pushState("","front", path_front(nar))
+		renderFront(nar)
+	}
+	def renderFront(nar: Narration): Unit = {
 		for (bm <- Viscel.bookmarks; fullNarration <- Viscel.completeNarration(nar))
 			Viscel.setBody("front", FrontPage.genIndex(bm.getOrElse(nar.id, 0), fullNarration))
 	}
 
-	def go_view(gallery: Gallery[Asset], nar: Narration): () => Unit = { () =>
+	def pushView(gallery: Gallery[Asset], nar: Narration): Unit = {
+		dom.history.pushState("", "view", path_asset(nar, gallery))
+		renderView(gallery, nar)
+	}
+	def renderView(gallery: Gallery[Asset], nar: Narration): Unit = {
 		Viscel.setBody("view", ViewPage.gen(gallery, nar))
 	}
 
-	def link_front(nar: Narration, ts: Frag*): Frag = a(href := path_front(nar))(ts)(onclick := go_front(nar))
+	def pushIndex() = {
+		dom.history.pushState("", "main", path_main)
+		renderIndex()
+	}
+	def renderIndex() = {
+		for (bm <- Viscel.bookmarks; nar <- Viscel.narrations) { Viscel.setBody("index", IndexPage.genIndex(bm, nar)) }
+	}
+
 	//	def link_node(vn: Option[Coin], ts: Frag*): Frag = vn.map { link_node(_, ts: _*) }.getOrElse(span(ts: _*))
 	//	def link_raw(vn: Coin, ts: Frag*): Frag = a(href := path_raw(vn))(ts)
 	//	// def link_node(en: Option[ElementNode], ts: Frag*): Frag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
@@ -82,7 +101,7 @@ object Util {
 				()
 			}
 		}).render
-		form(inputField, action := "")(onsubmit := { () => filtered.headOption.foreach(go_front(_)()); false })(id := "searchform")
+		form(inputField, action := "")(onsubmit := { () => filtered.headOption.foreach(pushFront); false })(id := "searchform")
 	}
 
 	def blobToImg(asset: Asset): HtmlTag = {
