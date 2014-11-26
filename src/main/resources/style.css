@@ -5,10 +5,11 @@ body {
 	margin: 0px;
 }
 
-a {
+a, .fakelink {
 	text-decoration:none;
 	color:#3654d9;
 	border-color: #3654d9;
+	cursor: pointer;
 }
 
 a:visited {
@@ -16,14 +17,8 @@ a:visited {
 	border-color: #404c80;
 }
 
-a:hover {
+a:hover, .fakelink:hover {
 	text-decoration:underline;
-}
-.bookmark{
-	color:#367ad9;
-}
-a.bookmark:visited {
-	color:#405b80;
 }
 
 a.extern {
@@ -178,7 +173,7 @@ tbody{
 form {
 	display: inline;
 }
-form input.submit {
+form input.submit, .submit {
 	border-style:none;
 	background:transparent;
 	color:#beac0a;

@@ -37,12 +37,13 @@ object Util {
 	val class_content = cls := "content"
 	val class_pages = cls := "pages"
 	val class_extern = cls := "extern"
+	val class_link = cls := "fakelink"
 
-	def link_index(ts: Frag*) = span(onclick := (() => pushIndex()))(ts)
+	def link_index(ts: Frag*) = span(class_link)(onclick := (() => pushIndex()))(ts)
 	def link_stop(ts: Frag*) = a(href := path_stop)(ts)
 	//	//def link_front(collection: CollectionNode, ts: Frag*) = a(href := path_front(collection))(ts)
-	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*) = span(ts)(onclick := (() => pushView(gallery, nar)))
-	def link_front(nar: Narration, ts: Frag*): Frag = span(ts)(onclick := (() => pushFront(nar)))
+	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*) = span(class_link)(ts)(onclick := (() => pushView(gallery, nar)))
+	def link_front(nar: Narration, ts: Frag*): Frag = span(class_link)(ts)(onclick := (() => pushFront(nar)))
 
 
 	def pushFront(nar: Narration): Unit = {
@@ -75,19 +76,10 @@ object Util {
 	//	// def link_node(en: Option[ElementNode], ts: Frag*): Frag = en.map{n => link_view(n.collection.id, n.position, ts)}.getOrElse(ts)
 	//	def link_core(core: Narrator): Frag = a(href := path_core(core))(core.name)
 
-	def set_bookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = span(ts)(onclick := { () =>
+	def set_bookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = span(class_link, class_submit)(ts)(onclick := { () =>
 		Viscel.setBookmark(nar, pos)
 	})
 
-	def form_post(formAction: String, ts: Frag*) = form(
-		"method".attr := "post",
-		"enctype".attr := "application/x-www-form-urlencoded",
-		action := formAction)(ts)
-
-	def form_get(formAction: String, ts: Frag*) = form(
-		"method".attr := "get",
-		"enctype".attr := "application/x-www-form-urlencoded",
-		action := formAction)(ts)
 
 	def form_search(narrations: List[Narration], results: HTMLElement): HtmlTag = {
 		var filtered = Seq[Narration]()
