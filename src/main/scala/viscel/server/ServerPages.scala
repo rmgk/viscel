@@ -43,11 +43,11 @@ object ServerPages {
 
 	def collections(implicit ntx: Ntx): HttpResponse = {
 		val allCollections = GlobalGraphOperations.at(ntx.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply }
-		jsonResponse(allCollections.map { _.narration(nested = false)})
+		jsonResponse(allCollections.map { _.narration(deep = false)})
 	}
 
 
-	def collection(collection: Collection)(implicit ntx: Ntx) = {	jsonResponse(collection.narration(nested = true)) }
+	def collection(collection: Collection)(implicit ntx: Ntx) = {	jsonResponse(collection.narration(deep = true)) }
 
 	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse{
 			val cn = Config.get()
