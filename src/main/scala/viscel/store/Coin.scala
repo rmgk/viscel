@@ -10,7 +10,7 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable.Map
 
 
-trait Coin extends Any {
+sealed trait Coin extends Any {
 	def self: Node
 	def nid(implicit neo: Ntx): Long = self.getId
 	def story(nested: Boolean = false)(implicit neo: Ntx): Story
