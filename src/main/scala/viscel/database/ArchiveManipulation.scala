@@ -40,18 +40,20 @@ object ArchiveManipulation {
 		connectLayer(newLayer)
 	}
 
-	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[Node] = {
+	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): Unit = {
 		val oldLayer = target.layerBelow
-		val oldNarration = oldLayer.map(Coin.apply(_).story)
+		val oldNarration = oldLayer map (Coin.apply(_).story match {
+			case Story.Asset(s, o, m, _) => Story.Asset(s, o, m)
+			case other => other
+		})
+
 		if (oldNarration === narration) {
 			Util.updateDates(target, changed = false)
-			oldLayer
 		}
 		else {
 			Util.updateDates(target, changed = true)
 			val newLayer = replaceLayer(oldLayer, oldNarration, narration)
 			newLayer.headOption.foreach { head => target describes_= head }
-			newLayer
 		}
 	}
 }

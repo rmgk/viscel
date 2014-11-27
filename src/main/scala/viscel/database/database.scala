@@ -29,6 +29,7 @@ package object database extends StrictLogging {
 			incoming(rel).foreach(_.delete())
 			other.createRelationshipTo(self, rel)
 		}
+
 		def outgoing(rel: RelationshipType)(implicit neo: Ntx): Iterable[Relationship] = iterableAsScalaIterableConverter(self.getRelationships(rel, Direction.OUTGOING)).asScala
 		def incoming(rel: RelationshipType)(implicit neo: Ntx): Iterable[Relationship] = iterableAsScalaIterableConverter(self.getRelationships(rel, Direction.INCOMING)).asScala
 
