@@ -66,7 +66,7 @@ object IOUtil extends StrictLogging {
 	def writePage(core: Narrator, pageNode: Page)(doc: Document)(ntx: Ntx): List[ErrorMessage] = {
 		logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pageNode")
 		implicit def tx: Ntx = ntx
-		val wrapped = core.wrap(doc, pageNode.story())
+		val wrapped = core.wrap(doc, pageNode.story)
 		val failed = wrapped.collect { case Story.Failed(msg) => msg }.flatten
 		if (failed.isEmpty) ArchiveManipulation.applyNarration(pageNode.self, wrapped)
 		failed

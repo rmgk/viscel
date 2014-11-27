@@ -56,7 +56,7 @@ object ArchiveManipulation {
 
 	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[Node] = {
 		val oldLayer = Traversal.layerBelow(target)
-		val oldNarration = oldLayer.map(Coin.apply(_).story())
+		val oldNarration = oldLayer.map(Coin.apply(_).story)
 		if (oldNarration === narration) {
 			Util.updateDates(target, changed = false)
 			oldLayer

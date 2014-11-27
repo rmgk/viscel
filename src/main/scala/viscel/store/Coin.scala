@@ -13,7 +13,7 @@ import scala.collection.immutable.Map
 sealed trait Coin extends Any {
 	def self: Node
 	def nid(implicit neo: Ntx): Long = self.getId
-	def story(nested: Boolean = false)(implicit neo: Ntx): Story
+	def story(implicit neo: Ntx): Story
 }
 
 object Coin {
@@ -44,7 +44,7 @@ object Coin {
 		def origin(implicit neo: Ntx): AbsUri = AbsUri.fromString(self[String]("origin"))
 		def source(implicit neo: Ntx): AbsUri = AbsUri.fromString(self[String]("source"))
 
-		override def story(nested: Boolean)(implicit neo: Ntx): Story.Asset = Story.Asset(source, origin, metadata(), if (!nested) None else blob.map(_.story()))
+		override def story(implicit neo: Ntx): Story.Asset = Story.Asset(source, origin, metadata(), blob.map(_.story))
 	}
 
 	final case class Blob(self: Node) extends AnyVal with Coin {
@@ -52,14 +52,14 @@ object Coin {
 		def sha1(implicit neo: Ntx): String = self[String]("sha1")
 		def mediatype(implicit ntx: Ntx): String = self[String]("mediatype")
 
-		override def story(nested: Boolean = false)(implicit neo: Ntx): Story.Blob = Story.Blob(sha1, mediatype)
+		override def story(implicit neo: Ntx): Story.Blob = Story.Blob(sha1, mediatype)
 	}
 
 	final case class Chapter(self: Node) extends AnyVal with Metadata with Coin {
 
 		def name(implicit neo: Ntx): String = self[String]("name")
 
-		override def story(nested: Boolean = false)(implicit neo: Ntx): Story.Chapter = Story.Chapter(name, metadata())
+		override def story(implicit neo: Ntx): Story.Chapter = Story.Chapter(name, metadata())
 	}
 
 	final case class Core(self: Node) extends AnyVal with Metadata with Coin {
@@ -68,16 +68,14 @@ object Coin {
 		def id(implicit neo: Ntx): String = self[String]("id")
 		def name(implicit neo: Ntx): String = self[String]("name")
 
-		override def story(nested: Boolean = false)(implicit neo: Ntx): Story.Core = Story.Core(kind, id, name, metadata())
+		override def story(implicit neo: Ntx): Story.Core = Story.Core(kind, id, name, metadata())
 	}
 
 	final case class Page(self: Node) extends AnyVal with Coin {
 		def location(implicit neo: Ntx): AbsUri = self[String]("location")
 		def pagetype(implicit neo: Ntx): String = self[String]("pagetype")
 
-		override def story(nested: Boolean)(implicit neo: Ntx): Story.More = Story.More(location, pagetype,
-			if (!nested) Nil
-			else viscel.database.Traversal.layerBelow(self).map(Coin.apply(_).story(nested)))
+		override def story(implicit neo: Ntx): Story.More = Story.More(location, pagetype)
 	}
 
 
@@ -100,7 +98,7 @@ object Coin {
 		case Story.Asset(source, origin, metadata, blob) => neo.create(label.Asset, addMetadataPrefix(metadata) + ("source" -> source.toString) + ("origin" -> origin.toString))
 		case Story.Core(kind, id, name, metadata) => neo.create(label.Core, addMetadataPrefix(metadata) + ("id" -> id) + ("kind" -> kind) + ("name" -> name))
 		case Story.Failed(reason) => throw new IllegalArgumentException(reason.toString())
-		case Story.More(loc, pagetype, layer) => neo.create(label.Page, "location" -> loc.toString, "pagetype" -> pagetype)
+		case Story.More(loc, pagetype) => neo.create(label.Page, "location" -> loc.toString, "pagetype" -> pagetype)
 		case Story.Blob(sha1, mediastring) => neo.create(label.Blob, "sha1" -> sha1, "mediatype" -> mediastring)
 	}
 

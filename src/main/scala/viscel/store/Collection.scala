@@ -27,8 +27,8 @@ final case class Collection(self: Node) extends AnyVal {
 		def allAssets(node: Node): (Int, List[Story.Asset], List[(Int, Story.Chapter)]) = {
 			Traversal.fold((0, List[Story.Asset](), List[(Int, Story.Chapter)]()), node) {
 				case state@(pos, assets, chapters) => {
-					case Coin.isAsset(asset) => (pos + 1, asset.story(nested = true) :: assets, chapters)
-					case Coin.isChapter(chapter) => (pos, assets, (pos, chapter.story()) :: chapters)
+					case Coin.isAsset(asset) => (pos + 1, asset.story :: assets, chapters)
+					case Coin.isChapter(chapter) => (pos, assets, (pos, chapter.story) :: chapters)
 					case _ => state
 				}
 			}
