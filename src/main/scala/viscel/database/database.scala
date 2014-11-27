@@ -8,7 +8,7 @@ import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 package object database  extends StrictLogging {
 
 	implicit class NodeOps(val node: Node) extends AnyVal {
-		def apply[T](key: String)(implicit neo: Ntx): T = node.getProperty(key).asInstanceOf[T]
+		def prop[T](key: String)(implicit neo: Ntx): T = node.getProperty(key).asInstanceOf[T]
 		def get[T](key: String)(implicit neo: Ntx): Option[T] = Option(node.getProperty(key, null).asInstanceOf[T])
 		def to(rel: RelationshipType)(implicit neo: Ntx): Option[Node] = Option(node.getSingleRelationship(rel, Direction.OUTGOING)).map { _.getEndNode }
 		def to_=(rel: RelationshipType, other: Node)(implicit neo: Ntx): Relationship = {

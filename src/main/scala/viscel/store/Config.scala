@@ -8,7 +8,7 @@ import scala.Predef.any2ArrowAssoc
 
 final case class Config(self: Node) extends AnyVal {
 
-	def version(implicit neo: Ntx) = self[Int]("version")
+	def version(implicit neo: Ntx) = self.prop[Int]("version")
 
 	def download(size: Long, success: Boolean = true, compressed: Boolean = false)(implicit neo: Ntx): Unit = {
 		self.setProperty("stat_download_size", downloaded + size)

@@ -41,39 +41,39 @@ object Coin {
 		def blob(implicit neo: Ntx): Option[Blob] = self.to(rel.blob).map { Blob.apply }
 		def blob_=(bn: Blob)(implicit neo: Ntx): Relationship = self.to_=(rel.blob, bn.self)
 
-		def origin(implicit neo: Ntx): AbsUri = AbsUri.fromString(self[String]("origin"))
-		def source(implicit neo: Ntx): AbsUri = AbsUri.fromString(self[String]("source"))
+		def origin(implicit neo: Ntx): AbsUri = AbsUri.fromString(self.prop[String]("origin"))
+		def source(implicit neo: Ntx): AbsUri = AbsUri.fromString(self.prop[String]("source"))
 
 		override def story(implicit neo: Ntx): Story.Asset = Story.Asset(source, origin, metadata(), blob.map(_.story))
 	}
 
 	final case class Blob(self: Node) extends AnyVal with Coin {
 
-		def sha1(implicit neo: Ntx): String = self[String]("sha1")
-		def mediatype(implicit ntx: Ntx): String = self[String]("mediatype")
+		def sha1(implicit neo: Ntx): String = self.prop[String]("sha1")
+		def mediatype(implicit ntx: Ntx): String = self.prop[String]("mediatype")
 
 		override def story(implicit neo: Ntx): Story.Blob = Story.Blob(sha1, mediatype)
 	}
 
 	final case class Chapter(self: Node) extends AnyVal with Metadata with Coin {
 
-		def name(implicit neo: Ntx): String = self[String]("name")
+		def name(implicit neo: Ntx): String = self.prop[String]("name")
 
 		override def story(implicit neo: Ntx): Story.Chapter = Story.Chapter(name, metadata())
 	}
 
 	final case class Core(self: Node) extends AnyVal with Metadata with Coin {
 
-		def kind(implicit neo: Ntx): String = self[String]("kind")
-		def id(implicit neo: Ntx): String = self[String]("id")
-		def name(implicit neo: Ntx): String = self[String]("name")
+		def kind(implicit neo: Ntx): String = self.prop[String]("kind")
+		def id(implicit neo: Ntx): String = self.prop[String]("id")
+		def name(implicit neo: Ntx): String = self.prop[String]("name")
 
 		override def story(implicit neo: Ntx): Story.Core = Story.Core(kind, id, name, metadata())
 	}
 
 	final case class Page(self: Node) extends AnyVal with Coin {
-		def location(implicit neo: Ntx): AbsUri = self[String]("location")
-		def pagetype(implicit neo: Ntx): String = self[String]("pagetype")
+		def location(implicit neo: Ntx): AbsUri = self.prop[String]("location")
+		def pagetype(implicit neo: Ntx): String = self.prop[String]("pagetype")
 
 		override def story(implicit neo: Ntx): Story.More = Story.More(location, pagetype)
 	}
@@ -87,7 +87,7 @@ object Coin {
 
 		def metadata()(implicit neo: Ntx): Map[String, String] =
 			self.getPropertyKeys.asScala.collect {
-				case k if k.startsWith(metadataPrefix) => k.substring(metadataPrefix.length) -> self[String](k)
+				case k if k.startsWith(metadataPrefix) => k.substring(metadataPrefix.length) -> self.prop[String](k)
 			}.toMap
 
 		def metadataOption(key: String)(implicit ntx: Ntx): Option[String] = self.get[String](metadataPrefix + key)

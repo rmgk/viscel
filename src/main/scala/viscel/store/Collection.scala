@@ -11,7 +11,7 @@ import scala.Predef.any2ArrowAssoc
 
 final case class Collection(self: Node) extends AnyVal {
 
-	def id(implicit neo: Ntx): String = self[String]("id")
+	def id(implicit neo: Ntx): String = self.prop[String]("id")
 	def name(implicit neo: Ntx): String = self.get[String]("name").getOrElse(id)
 	def name_=(value: String)(implicit neo: Ntx) = self.setProperty("name", value)
 
