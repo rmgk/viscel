@@ -11,19 +11,6 @@ import scala.collection.mutable
 
 object ArchiveManipulation {
 
-	private def fixSkiplist(currentAsset: Node)(implicit neo: Ntx): Unit = {
-		val nextAsset_? = Traversal.next(currentAsset).flatMap(findForward(Coin.isAsset))
-		nextAsset_? match {
-			case None => currentAsset.outgoing(rel.skip).foreach(_.delete())
-			case Some(nextAsset) => currentAsset.to_=(rel.skip, nextAsset.self)
-		}
-		val prevAsset_? = Traversal.prev(currentAsset).flatMap(findBackward(Coin.isAsset))
-		prevAsset_? match {
-			case None => currentAsset.incoming(rel.skip).foreach(_.delete())
-			case Some(prevAsset) => currentAsset.from_=(rel.skip, prevAsset.self)
-		}
-	}
-
 	private def connectLayer(layer: List[Node])(implicit neo: Ntx): List[Node] = {
 		layer.reduceLeftOption { (prev, next) => prev.to_=(rel.narc, next); next }
 		layer.lastOption.foreach(_.outgoing(rel.narc).foreach(_.delete()))
@@ -65,7 +52,6 @@ object ArchiveManipulation {
 			Util.updateDates(target, changed = true)
 			val newLayer = replaceLayer(oldLayer, oldNarration, narration)
 			newLayer.headOption.foreach { head => target.to_=(rel.describes, head) }
-			newLayer.filter { _.hasLabel(label.Asset) }.foreach(fixSkiplist)
 			newLayer
 		}
 	}
