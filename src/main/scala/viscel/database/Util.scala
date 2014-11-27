@@ -15,10 +15,7 @@ object Util extends StrictLogging {
 			lastCheck <- target.get[Long]("last_check")
 			checkInterval <- target.get[Long]("check_interval")
 		} yield {
-			val lowerBound = lastCheck - lastUpdate
-			val upperBound = time - lastUpdate
-			val averageBound = (lowerBound + upperBound) / 2
-			math.round(checkInterval * 0.8 + averageBound * 0.2)
+			math.round(checkInterval * (if (changed) 0.8 else 1.2))
 		}).getOrElse(dayInMillis)
 		val hasUpdated = changed || lastUpdateOption.isEmpty
 		logger.trace(s"update dates on $target: time: $time, interval: $newCheckInterval has update: $hasUpdated")
