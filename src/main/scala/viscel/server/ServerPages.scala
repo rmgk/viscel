@@ -27,7 +27,7 @@ object ServerPages {
 			head(
 				link(href := path_css, rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
 				title := "Viscel"),
-			body(id := "index")(div("this page is generated via javascript")),
+			body("if nothing happens, your javascript does not work"),
 			script(src := path_js),
 			script(RawFrag(s"Viscel().main()")))
 
