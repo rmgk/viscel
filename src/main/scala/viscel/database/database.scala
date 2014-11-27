@@ -26,9 +26,4 @@ package object database  extends StrictLogging {
 		def incoming(rel: RelationshipType)(implicit neo: Ntx): Iterable[Relationship] = iterableAsScalaIterableConverter(node.getRelationships(rel, Direction.INCOMING)).asScala
 	}
 
-	implicit class RelationshipOps(val rel: Relationship) extends AnyVal {
-		def apply[T](key: String)(implicit neo: Ntx): T = rel.getProperty(key).asInstanceOf[T]
-		def get[T](key: String)(implicit neo: Ntx): Option[T] = Option(rel.getProperty(key, null).asInstanceOf[T])
-	}
-
 }
