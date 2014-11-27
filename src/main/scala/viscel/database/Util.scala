@@ -2,19 +2,8 @@ package viscel.database
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.Node
-import org.neo4j.tooling.GlobalGraphOperations
-import org.scalactic.TypeCheckedTripleEquals._
-import viscel.narration.Narrator
-import viscel.store.Collection
-import viscel.time
-
-import scala.Predef.any2ArrowAssoc
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 
 object Util extends StrictLogging {
-
-
 
 
 	def updateDates(target: Node, changed: Boolean)(implicit ntx: Ntx): Unit = {
