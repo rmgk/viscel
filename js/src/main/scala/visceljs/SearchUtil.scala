@@ -2,7 +2,9 @@ package visceljs
 
 
 import scala.Predef.any2ArrowAssoc
+import scala.Predef.augmentString
 import scala.annotation.tailrec
+
 
 object SearchUtil {
 	def search[T](query: String, items: List[(String, T)]): Seq[T] = {

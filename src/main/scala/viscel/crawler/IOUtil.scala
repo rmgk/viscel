@@ -8,7 +8,6 @@ import org.jsoup.nodes.Document
 import org.scalactic.ErrorMessage
 import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
-import spray.http.Uri.Query
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding._
 import viscel.crawler.Result.DelayedRequest
@@ -19,10 +18,9 @@ import viscel.store.Coin
 import viscel.store.Coin.{Asset, Blob, Page}
 import viscel.{Deeds, sha1hex}
 
+import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.Predef.any2ArrowAssoc
-import scala.Predef.conforms
 
 object IOUtil extends StrictLogging {
 
@@ -69,7 +67,7 @@ object IOUtil extends StrictLogging {
 		logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pageNode")
 		implicit def tx: Ntx = ntx
 		val wrapped = core.wrap(doc, pageNode.story())
-		val failed = wrapped.collect{ case Story.Failed(msg) => msg }.flatten
+		val failed = wrapped.collect { case Story.Failed(msg) => msg }.flatten
 		if (failed.isEmpty) ArchiveManipulation.applyNarration(pageNode.self, wrapped)
 		failed
 	}
