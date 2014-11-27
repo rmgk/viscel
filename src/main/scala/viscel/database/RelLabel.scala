@@ -30,5 +30,4 @@ object rel {
 	val blob = SimpleRel("blob")
 	val describes = SimpleRel("describes")
 	val narc = SimpleRel("narc")
-	val skip = SimpleRel("skip")
 }
