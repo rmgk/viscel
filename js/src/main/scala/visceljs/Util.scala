@@ -1,15 +1,15 @@
 package visceljs
 
-import org.scalajs.dom.{HTMLAnchorElement, KeyboardEvent, HTMLInputElement, HTMLElement}
+import org.scalajs.dom
+import org.scalajs.dom.{HTMLElement, HTMLInputElement, KeyboardEvent}
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import scala.scalajs.js
-import scalatags.JsDom.{TypedTag, Frag}
+import scalatags.JsDom.Frag
 import scalatags.JsDom.all._
-import org.scalajs.dom
 
 case class Body(frag: Frag = "", id: String = "", title: String = "", keypress: js.Function1[KeyboardEvent, _] = js.undefined.asInstanceOf[js.Function1[KeyboardEvent, _]])
 
@@ -17,7 +17,7 @@ object Util {
 
 	def path_main = "/"
 	def path_css = "/css"
-	def path_asset(nr: Narration, gallery: Gallery[Asset]) = s"/#${ nr.id }/${gallery.pos + 1}"
+	def path_asset(nr: Narration, gallery: Gallery[Asset]) = s"/#${ nr.id }/${ gallery.pos + 1 }"
 	def path_search = "/s"
 	def path_blob(blob: String) = s"/blob/${ blob }"
 	def path_front(nar: Narration) = s"/#${ nar.id }"
@@ -45,7 +45,7 @@ object Util {
 
 
 	def pushFront(nar: Narration): Unit = {
-		dom.history.pushState("","front", path_front(nar))
+		dom.history.pushState("", "front", path_front(nar))
 		renderFront(nar)
 	}
 	def renderFront(nar: Narration): Unit = {
@@ -58,7 +58,7 @@ object Util {
 		renderView(gallery, nar)
 	}
 	def renderView(gallery: Gallery[Asset], nar: Narration): Unit = {
-		Viscel.setBody( ViewPage.gen(gallery, nar))
+		Viscel.setBody(ViewPage.gen(gallery, nar))
 	}
 
 	def pushIndex() = {
@@ -67,6 +67,28 @@ object Util {
 	}
 	def renderIndex() = {
 		for (bm <- Viscel.bookmarks; nar <- Viscel.narrations) { Viscel.setBody(IndexPage.gen(bm, nar)) }
+	}
+
+	def dispatchPath(path: String): Unit = {
+		val paths = List(path.split("/"): _*)
+		paths match {
+			case Nil | "" :: Nil =>
+				Util.renderIndex()
+			case id :: Nil =>
+				for (nar <- Viscel.narrations) {
+					Util.renderFront(nar(id))
+				}
+			case id :: posS :: Nil =>
+				val pos = Integer.parseInt(posS)
+				for {
+					nars <- Viscel.narrations
+					nar = nars(id)
+					fullNarration <- Viscel.completeNarration(nar)
+				} {
+					Util.renderView(fullNarration.narrates.first.next(pos - 1), nar)
+				}
+			case _ => Util.renderIndex()
+		}
 	}
 
 

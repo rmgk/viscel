@@ -51,30 +51,12 @@ object Viscel {
 	def main(): Unit = {
 
 		dom.onhashchange = { (ev: Event) =>
-			val paths = List(dom.location.hash.substring(1).split("/"): _*)
-			paths match {
-				case Nil | "" :: Nil=>
-					Util.renderIndex()
-				case id :: Nil =>
-					for (nar <- narrations) {
-						Util.renderFront(nar(id))
-					}
-				case id :: posS :: Nil =>
-					val pos = Integer.parseInt(posS)
-					for {
-						nars <- narrations
-						nar = nars(id)
-						fullNarration <- Viscel.completeNarration(nar)
-					} {
-						Util.renderView(fullNarration.narrates.first.next(pos - 1), nar)
-					}
-				case _ => Util.renderIndex()
-			}
+			Util.dispatchPath(dom.location.hash.substring(1))
 		}
 
 		setBody(Body(frag = div("loading")))
 
-		Util.renderIndex()
+		Util.dispatchPath(dom.location.hash.substring(1))
 
 	}
 
