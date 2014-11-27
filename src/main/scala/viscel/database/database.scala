@@ -63,11 +63,7 @@ package object database extends StrictLogging {
 			run(self)
 		}
 
-		def layerAbove(implicit neo: Ntx): Option[Node] =
-			layerFirst.above match {
-				case null => None
-				case other => Some(other)
-			}
+		def layerAbove(implicit neo: Ntx): Option[Node] = Option(layerFirst.above)
 
 		def rightmost(implicit neo: Ntx): Node = {
 			@tailrec def run(node: Node): Node = {
@@ -84,7 +80,7 @@ package object database extends StrictLogging {
 			@tailrec def run(node: Node): Node = {
 				val start = node.layerFirst
 				start.above match {
-					case null => node
+					case null => start
 					case other => run(other)
 				}
 			}
