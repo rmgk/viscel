@@ -38,7 +38,7 @@ object Coin {
 
 	final case class Asset(self: Node) extends AnyVal with Metadata with Coin{
 
-		def blob(implicit neo: Ntx): Option[Blob] = self.to(rel.blob).map { Blob.apply }
+		def blob(implicit neo: Ntx): Option[Blob] = Option(self to rel.blob) map Blob.apply
 		def blob_=(bn: Blob)(implicit neo: Ntx): Relationship = self.to_=(rel.blob, bn.self)
 
 		def origin(implicit neo: Ntx): AbsUri = AbsUri.fromString(self.prop[String]("origin"))

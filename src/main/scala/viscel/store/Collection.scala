@@ -1,7 +1,7 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
-import viscel.database.{NodeOps, Ntx, Traversal, label}
+import viscel.database.{NodeOps, Ntx, label}
 import viscel.narration.Narrator
 import viscel.shared.Story.Narration
 import viscel.shared.{Gallery, Story}
@@ -15,14 +15,14 @@ final case class Collection(self: Node) extends AnyVal {
 	def name(implicit neo: Ntx): String = self.get[String]("name").getOrElse(id)
 	def name_=(value: String)(implicit neo: Ntx) = self.setProperty("name", value)
 
-	def size(implicit neo: Ntx): Int = Traversal.fold(0, self)(count => {
+	def size(implicit neo: Ntx): Int = self.fold(0)(count => {
 		case Coin.isAsset(a) => count + 1
 		case _ => count
 	})
 
 	def narration(deep: Boolean)(implicit neo: Ntx): Narration = {
 		def allAssets(node: Node): (Int, List[Story.Asset], List[(Int, Story.Chapter)]) = {
-			Traversal.fold((0, List[Story.Asset](), List[(Int, Story.Chapter)]()), node) {
+			node.fold((0, List[Story.Asset](), List[(Int, Story.Chapter)]())) {
 				case state@(pos, assets, chapters) => {
 					case Coin.isAsset(asset) => (pos + 1, asset.story :: assets, chapters)
 					case Coin.isChapter(chapter) => (pos, assets, (pos, chapter.story) :: chapters)

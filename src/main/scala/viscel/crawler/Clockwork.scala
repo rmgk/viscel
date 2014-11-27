@@ -1,21 +1,17 @@
 package viscel.crawler
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.neo4j.graphdb.Node
 import org.scalactic.ErrorMessage
 import rescala.events.ImperativeEvent
 import spray.client.pipelining.SendReceive
 import viscel.Deeds
-import viscel.database.Traversal.origin
 import viscel.database._
 import viscel.narration.Narrator
-import viscel.store.{Coin, Collection}
+import viscel.store.Collection
 
-import scala.Predef.any2ArrowAssoc
 import scala.collection.concurrent
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
-import scala.Predef.exceptionWrapper
 
 
 object Clockwork extends StrictLogging {

@@ -2,7 +2,6 @@ package viscel.database
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.database.Traversal.{findBackward, findForward}
 import viscel.shared.Story
 import viscel.store.Coin
 
@@ -12,7 +11,7 @@ import scala.collection.mutable
 object ArchiveManipulation {
 
 	private def connectLayer(layer: List[Node])(implicit neo: Ntx): List[Node] = {
-		layer.reduceLeftOption { (prev, next) => prev.to_=(rel.narc, next); next }
+		layer.reduceLeftOption { (prev, next) => prev narc_= next; next }
 		layer.lastOption.foreach(_.outgoing(rel.narc).foreach(_.delete()))
 		layer.headOption.foreach(_.incoming(rel.narc).foreach(_.delete()))
 		layer
@@ -22,7 +21,7 @@ object ArchiveManipulation {
 	private def deleteRecursive(nodes: List[Node])(implicit neo: Ntx): Unit = nodes match {
 		case Nil => ()
 		case list =>
-			val below = list.flatMap(_.to(rel.describes)).flatMap { Traversal.layer }
+			val below = list.map(_.below).filter(null.ne).flatMap(_.layer)
 			list.foreach(neo.delete)
 			deleteRecursive(below)
 	}
@@ -42,7 +41,7 @@ object ArchiveManipulation {
 	}
 
 	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[Node] = {
-		val oldLayer = Traversal.layerBelow(target)
+		val oldLayer = target.layerBelow
 		val oldNarration = oldLayer.map(Coin.apply(_).story)
 		if (oldNarration === narration) {
 			Util.updateDates(target, changed = false)
@@ -51,7 +50,7 @@ object ArchiveManipulation {
 		else {
 			Util.updateDates(target, changed = true)
 			val newLayer = replaceLayer(oldLayer, oldNarration, narration)
-			newLayer.headOption.foreach { head => target.to_=(rel.describes, head) }
+			newLayer.headOption.foreach { head => target describes_= head }
 			newLayer
 		}
 	}
