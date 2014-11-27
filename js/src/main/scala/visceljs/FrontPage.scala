@@ -7,9 +7,9 @@ import viscel.shared.{Gallery, Story}
 import scala.Predef.{any2ArrowAssoc, conforms}
 import scalatags.JsDom
 import scalatags.JsDom.Frag
-import scalatags.JsDom.implicits.{stringFrag, stringAttr}
+import scalatags.JsDom.attrs.cls
+import scalatags.JsDom.implicits.{stringAttr, stringFrag}
 import scalatags.JsDom.tags.{SeqFrag, div, fieldset, legend}
-import scalatags.JsDom.attrs.{cls}
 import scalatags.JsDom.tags2.nav
 
 object FrontPage {
@@ -52,7 +52,8 @@ object FrontPage {
 					val next = gal.prev(1)
 					(next, link_asset(narration, next, s"$i ") :: acc)
 				}
-				/** for some reason, setting multiple classes does no longer work, keep first to for code refactorings*/
+
+				/** for some reason, setting multiple classes does no longer work, keep first to for code refactorings */
 				fieldset(class_group, class_pages, cls := "group pages").apply(legend(chap.name), links)
 			}
 

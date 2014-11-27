@@ -2,8 +2,6 @@ package visceljs
 
 
 import scala.Predef.any2ArrowAssoc
-import scala.Predef.wrapString
-
 import scala.annotation.tailrec
 
 object SearchUtil {

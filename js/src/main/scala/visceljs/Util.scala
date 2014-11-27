@@ -11,7 +11,6 @@ import scala.scalajs.js
 import scalatags.JsDom.Frag
 import scalatags.JsDom.all._
 
-case class Body(frag: Frag = "", id: String = "", title: String = "", keypress: js.Function1[KeyboardEvent, _] = js.undefined.asInstanceOf[js.Function1[KeyboardEvent, _]])
 
 object Util {
 
