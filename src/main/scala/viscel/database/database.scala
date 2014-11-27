@@ -110,9 +110,11 @@ package object database extends StrictLogging {
 
 		def layer(implicit neo: Ntx): List[Node] = {
 			@tailrec
-			def layerAcc(current: Node, acc: List[Node]): List[Node] = narc match {
-				case null => current :: acc
-				case next => layerAcc(next, current :: acc)
+			def layerAcc(current: Node, acc: List[Node]): List[Node] = {
+				current.narc match {
+					case null => current :: acc
+					case nnode => layerAcc(nnode, current :: acc)
+				}
 			}
 			layerAcc(self, Nil).reverse
 		}
