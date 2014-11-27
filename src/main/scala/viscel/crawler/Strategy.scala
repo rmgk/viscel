@@ -23,10 +23,16 @@ trait Strategy {
 
 object Strategy {
 	lazy val mainStrategy: (Collection) => Strategy = collection =>
-		forwardStrategy(collection.self)(unseenOnly(shallow = false))
-			.andThen(fromEndStrategy(collection.self)(backwardStrategy(_)(recheckOld).limit(4)))
+		walkStrategy(collection.self, ntx => n => n.next(ntx), unseenOnly(shallow = false))
+			.andThen(fromEndStrategy(collection.self)(walkStrategy(_, ntx => n => n.prev(ntx), recheckOld).limit(4)))
 
 	type Select = Ntx => Node => Option[Node]
+
+	def repeat[R](n: Node, f: Node => Option[Node], s: Node => Option[R]): Option[R] = (s(n), f(n)) match {
+		case (r @ Some(_), _) => r
+		case (None, Some(next)) => repeat(next, f, s)
+		case (None, None) => None
+	}
 
 	val noneStrategy: Strategy = new Strategy {
 		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] = None
@@ -36,20 +42,15 @@ object Strategy {
 		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] = f(node.rightmost).run
 	}
 
-	def forwardStrategy(start: Node)(select: Select): Strategy = new Strategy {
+	def walkStrategy(start: Node, next: Ntx => Node => Option[Node], select: Select): Strategy = new Strategy {
 		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] =
-			Predef.??? //Traversal.findForward(select(ntx))(start)(ntx).map(n => n -> forwardStrategy(n)(select))
-	}
-
-	def backwardStrategy(start: Node)(select: Select): Strategy = new Strategy {
-		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] =
-			Predef.??? //Traversal.findBackward(select(ntx))(start)(ntx).map(n => n -> backwardStrategy(n)(select))
+			repeat(start, next(ntx), select(ntx)).map(n => n -> walkStrategy(n, next, select))
 	}
 
 	def unseenOnly(shallow: Boolean): Select = ntx => {
-		Predef.??? //case n@Coin.isPage(page) if page.self.to(rel.describes)(ntx).isEmpty => Some(n)
-		//case n@Coin.isAsset(asset) if (!shallow) && asset.blob(ntx).isEmpty => Some(n)
-		//case _ => None
+		case n@Coin.isPage(page) if page.self.describes(ntx) eq null => Some(n)
+		case n@Coin.isAsset(asset) if (!shallow) && asset.blob(ntx).isEmpty => Some(n)
+		case _ => None
 	}
 
 	def listStrategy(nodes: List[Node]): Strategy = new Strategy {
@@ -58,19 +59,11 @@ object Strategy {
 			case Nil => None
 		}
 	}
-	
-	def rightLeanedStrategy(start: Node)(select: Select): Strategy = new Strategy {
-		override def run(implicit ntx: Ntx): Option[(Node, Strategy)] = {
-			Predef.??? //val (notPages, pageAndRest) = Traversal.layerBelow(start).reverse.span(Coin.isPage.andThen(_.isEmpty))
-			//val check = (pageAndRest.take(1) ::: notPages) filter select(ntx).andThen(_.isDefined)
-			//val strat = listStrategy(check) andThen pageAndRest.headOption.fold(noneStrategy)(rightLeanedStrategy(_)(select))
-			//strat.run
-		}
-	}
+
 
 	val recheckOld: Select = ntx => {
-		Predef.??? //case n@Coin.isPage(page) if Util.needsRecheck(n)(ntx) || page.self.to(rel.describes)(ntx).isEmpty => Some(n)
-		//case n@Coin.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
-		//case _ => None
+		case n@Coin.isPage(page) if Util.needsRecheck(n)(ntx) || (page.self.describes(ntx) eq null) => Some(n)
+		case n@Coin.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
+		case _ => None
 	}
 }

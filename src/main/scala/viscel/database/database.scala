@@ -41,7 +41,7 @@ package object database extends StrictLogging {
 
 		def parc(implicit neo: Ntx): Node = from(rel.narc)
 
-		def below(implicit neo: Ntx): Node = to(rel.describes)
+		def describes(implicit neo: Ntx): Node = to(rel.describes)
 
 		def above(implicit neo: Ntx): Node = from(rel.describes)
 
@@ -68,7 +68,7 @@ package object database extends StrictLogging {
 		def rightmost(implicit neo: Ntx): Node = {
 			@tailrec def run(node: Node): Node = {
 				val end = node.layerLast
-				end.below match {
+				end.describes match {
 					case null => end
 					case other => run(other)
 				}
@@ -92,14 +92,14 @@ package object database extends StrictLogging {
 			parc match {
 				case null => Option(above)
 				case other =>
-					other.below match {
+					other.describes match {
 						case null => Some(other)
 						case third => Some(third.rightmost)
 					}
 			}
 
 		def next(implicit neo: Ntx): Option[Node] =
-			below match {
+			describes match {
 				case null => narc match {
 					case null => layerAbove.flatMap(a => Option(a.narc))
 					case other => Some(other)
@@ -118,7 +118,7 @@ package object database extends StrictLogging {
 		}
 
 		def layerBelow(implicit neo: Ntx): List[Node] =
-			below match {
+			describes match {
 				case null => Nil
 				case other => other.layer
 			}

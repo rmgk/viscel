@@ -21,7 +21,7 @@ object ArchiveManipulation {
 	private def deleteRecursive(nodes: List[Node])(implicit neo: Ntx): Unit = nodes match {
 		case Nil => ()
 		case list =>
-			val below = list.map(_.below).filter(null.ne).flatMap(_.layer)
+			val below = list.map(_.describes).filter(null.ne).flatMap(_.layer)
 			list.foreach(neo.delete)
 			deleteRecursive(below)
 	}
