@@ -13,7 +13,7 @@ package object database extends StrictLogging {
 		def get[T](key: String)(implicit neo: Ntx): Option[T] = Option(self.getProperty(key, null).asInstanceOf[T])
 		def to(rel: RelationshipType)(implicit neo: Ntx): Node = self.getSingleRelationship(rel, Direction.OUTGOING) match {
 			case null => null
-				case other => other.getEndNode
+			case other => other.getEndNode
 		}
 		def to_=(rel: RelationshipType, other: Node)(implicit neo: Ntx): Relationship = {
 			logger.trace(s"create rel: $self -$rel-> $other")
@@ -39,7 +39,7 @@ package object database extends StrictLogging {
 
 		def narc(implicit neo: Ntx): Node = to(rel.narc)
 
-		def parc(implicit neo: Ntx): Node = from(rel.describes)
+		def parc(implicit neo: Ntx): Node = from(rel.narc)
 
 		def below(implicit neo: Ntx): Node = to(rel.describes)
 
