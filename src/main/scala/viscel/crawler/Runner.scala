@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import org.scalactic.ErrorMessage
 import spray.client.pipelining.SendReceive
-import viscel.database.{ArchiveManipulation, Neo, NodeOps, Ntx}
+import viscel.database.{Util, ArchiveManipulation, Neo, NodeOps, Ntx}
 import viscel.narration.Narrator
 import viscel.shared.Story
 import viscel.store.Coin.{Asset, Page}
@@ -25,7 +25,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 
 	def start(): Future[List[ErrorMessage]] = {
 		neo.tx { ArchiveManipulation.applyNarration(collection.self, narrator.archive)(_) }
-		run(strategy(collection.self))
+		run(strategy(collection.self, nextSelect))
 	}
 
 	private def run[R](r: Ntx => Request[R]): Future[R] = {
@@ -39,18 +39,33 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		}
 	}
 
+	type Select = Ntx => Node => Option[Node]
 
-	def strategy(state: Node)(ntx: Ntx): Request[List[ErrorMessage]] = {
-		val selected = repeat(state, _.next(ntx), unseenOnly(shallow = true)(ntx))
+
+
+	def continueOrDone(nopt: Option[Node], select: Select, ntx: Ntx): Future[List[ErrorMessage]] =
+		nopt.fold[Future[List[ErrorMessage]]](Future.successful(Nil))(n => run(strategy(n.self, select)))
+
+
+	val nextSelect: Select = ntx => n => repeat(n.next(ntx), _.next(ntx), unseenOnly(shallow = false)(ntx))
+	val forcePrevPage: Select = ntx => state => repeat(state.prev(ntx), _.prev(ntx), Coin.isPage).map(_.self)
+
+	def strategy(state: Node, select: Select)(ntx: Ntx): Request[List[ErrorMessage]] = {
+		val selected = select(ntx)(state)
 		selected match {
 			case Some(Coin.isPage(page)) =>
 				IOUtil.documentRequest(page.location(ntx)) { doc => ntx =>
 					val errors = writePage(narrator, page)(doc)(ntx)
-					page.self.next(ntx).fold[Future[List[ErrorMessage]]](Future.successful(Nil))(n => run(strategy(n)))
+					if (errors.nonEmpty) {
+						continueOrDone(forcePrevPage(ntx)(page.self), select, ntx)
+					}
+					else {
+						continueOrDone(Some(page.self), select, ntx)
+					}
 				}
 			case Some(Coin.isAsset(asset)) => IOUtil.blobRequest(asset.source(ntx), asset.origin(ntx)) { blob => ntx =>
 				writeAsset(narrator, asset)(blob)(ntx)
-					asset.self.next(ntx).fold[Future[List[ErrorMessage]]](Future.successful(Nil))(n => run(strategy(n)))
+				continueOrDone(Some(asset.self), select, ntx)
 			}
 			case Some(other) => RequestDone(s"can only request pages and assets not ${ other.getLabels.asScala.toList }" :: Nil)
 			case None => RequestDone(Nil)
@@ -83,18 +98,22 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		failed
 	}
 
-	type Select = Ntx => Node => Option[Node]
-
 	def unseenOnly(shallow: Boolean): Select = ntx => {
 		case n@Coin.isPage(page) if page.self.describes(ntx) eq null => Some(n)
 		case n@Coin.isAsset(asset) if (!shallow) && asset.blob(ntx).isEmpty => Some(n)
 		case _ => None
 	}
 
+	val recheckOld: Select = ntx => {
+		case n@Coin.isPage(page) if Util.needsRecheck(n)(ntx) || (page.self.describes(ntx) eq null) => Some(n)
+		case n@Coin.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
+		case _ => None
+	}
+
 	@tailrec
-	final def repeat[R](n: Node, f: Node => Option[Node], s: Node => Option[R]): Option[R] = (s(n), f(n)) match {
+	final def repeat[R](n: Option[Node], f: Node => Option[Node], s: Node => Option[R]): Option[R] = (n flatMap s, n flatMap f) match {
 		case (r@Some(_), _) => r
-		case (None, Some(next)) => repeat(next, f, s)
+		case (None, next @ Some(_)) => repeat(next, f, s)
 		case (None, None) => None
 	}
 
