@@ -6,7 +6,9 @@ import spray.http._
 import upickle.Writer
 import viscel.Deeds
 import viscel.database.{Ntx, label}
+import viscel.narration.Narrator
 import viscel.shared.JsonCodecs.stringMapW
+import viscel.shared.Story.Narration
 import viscel.store.{Collection, Config, User}
 
 import scala.Predef.any2ArrowAssoc
@@ -42,7 +44,9 @@ object ServerPages {
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
 	def collections(implicit ntx: Ntx): HttpResponse = {
-		val allCollections = GlobalGraphOperations.at(ntx.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply }
+
+		val allCollections = GlobalGraphOperations.at(ntx.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply } ++
+			Narrator.availableCores.map(Collection.findAndUpdate)
 		jsonResponse(allCollections.map { _.narration(deep = false)})
 	}
 
