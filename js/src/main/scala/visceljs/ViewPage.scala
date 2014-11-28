@@ -27,7 +27,7 @@ object ViewPage {
 
 		gallery.next(1).get.map(a => blobToImg(a).render)
 
-		def mainPart = div(class_content)(link_asset(narration, gallery.next(1), blobToImg(gallery.get.get))) :: Nil
+		def mainPart = div(class_content)(gallery.get.fold[Frag](div("error, illegal image position"))(a => link_asset(narration, gallery.next(1), blobToImg(a))))
 
 		val navigation = Seq[Frag](
 			link_asset(narration, gallery.prev(1), "prev"),

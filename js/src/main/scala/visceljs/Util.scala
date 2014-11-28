@@ -111,8 +111,8 @@ object Util {
 		form(inputField, action := "")(onsubmit := { () => filtered.headOption.foreach(pushFront); false })(id := "searchform")
 	}
 
-	def blobToImg(asset: Asset): HtmlTag = {
-		img(src := path_blob(asset.blob.get.sha1), class_element)
+	def blobToImg(asset: Asset): Frag = {
+		asset.blob.fold[HtmlTag](div(class_element)("placeholder"))(blob => img(src := path_blob(blob.sha1), class_element))
 	}
 
 	def make_table(entry: (String, Frag)*) = table(tbody(SeqNode(entry.map {
