@@ -16,14 +16,14 @@ import scala.util.{Failure, Success}
 
 object Clockwork extends StrictLogging {
 
-	val jobs: concurrent.Map[String, Runner] = concurrent.TrieMap[String, Runner]()
+	val runners: concurrent.Map[String, Runner] = concurrent.TrieMap[String, Runner]()
 
-	def ensureJob(id: String, runner: Runner, collection: Collection, ec: ExecutionContext, iopipe: SendReceive, neo: Neo)(strategy: Collection => Strategy): Unit = {
-		jobs.putIfAbsent(id, runner) match {
+	def ensureRunner(id: String, runner: Runner, ec: ExecutionContext): Unit = {
+		runners.putIfAbsent(id, runner) match {
 			case Some(x) => logger.info(s"$id race on job creation")
 			case None =>
 				logger.info(s"add new job $runner")
-				Future.successful[Option[ErrorMessage]](None).flatMap(_ => runner.start(collection, neo)(strategy))(ec).onComplete {
+				Future.successful(None).flatMap(_ => runner.start())(ec).onComplete {
 					case Success(res) => Deeds.jobResult(res)
 					case Failure(t) =>
 						t.printStackTrace()
@@ -34,14 +34,14 @@ object Clockwork extends StrictLogging {
 
 	def handleHints(hints: ImperativeEvent[Collection], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { col =>
 		val id = neo.tx { col.id(_) }
-		if (jobs.contains(id)) logger.trace(s"$id has running job")
+		if (runners.contains(id)) logger.trace(s"$id has running job")
 		else Future {
 			logger.info(s"got hint $id")
 			Narrator.get(id) match {
 				case None => logger.warn(s"unkonwn core $id")
 				case Some(core) =>
-					val job = new Runner(core, iopipe, ec)
-					ensureJob(core.id, job, col, ec, iopipe, neo)(Strategy.mainStrategy)
+					val runner = new Runner(core, iopipe, col, neo, ec)
+					ensureRunner(core.id, runner, ec)
 			}
 		}(ec).onFailure { case e: Throwable => e.printStackTrace() }(ec)
 	}

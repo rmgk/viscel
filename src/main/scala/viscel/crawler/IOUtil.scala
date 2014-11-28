@@ -5,23 +5,26 @@ import java.nio.file.{Files, Paths}
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.scalactic.ErrorMessage
 import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
-import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
+import spray.http.HttpHeaders.{`Content-Type`, Location, `Accept-Encoding`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding._
-import viscel.crawler.Result.DelayedRequest
 import viscel.database.{ArchiveManipulation, Ntx}
 import viscel.narration.Narrator
-import viscel.shared.{AbsUri, Story}
 import viscel.store.Coin
-import viscel.store.Coin.{Asset, Blob, Page}
-import viscel.{Deeds, sha1hex}
+import viscel.store.Coin.{Page, Asset}
+import viscel.{sha1hex, Deeds}
+import viscel.shared.{AbsUri, Story}
 
-import scala.Predef.conforms
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.Predef.identity
+import scala.Predef.conforms
 
 object IOUtil extends StrictLogging {
+
+	type ResponseHandler[A, R] = A => Ntx => Future[R]
 
 	def uriToUri(in: java.net.URI): Uri = Uri.parseAbsolute(in.toString)
 
@@ -33,46 +36,48 @@ object IOUtil extends StrictLogging {
 		result.andThen(PartialFunction(Deeds.responses.apply)).map { decode(Gzip) ~> decode(Deflate) }
 	}
 
-	def documentRequest(absuri: AbsUri)(withDoc: Document => Ntx => Strategy): DelayedRequest = {
-		val uri = uriToUri(absuri)
-		DelayedRequest(
-			request = Get(uri),
-			continue = res => withDoc(Jsoup.parse(
-				res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
-				res.header[Location].fold(ifEmpty = uri)(_.uri).toString())))
+	def request[R](source: AbsUri, origin: Option[AbsUri] = None)(withResponse: ResponseHandler[HttpResponse, R]): Request[R] = {
+		Request(Get(uriToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](identity)(origin => addReferrer(uriToUri(origin))), withResponse)
 	}
 
-	def blobRequest(source: AbsUri, origin: AbsUri)(withBlob: (Array[Byte], Story.Blob) => Ntx => Strategy): DelayedRequest =
-		DelayedRequest(
-			request = Get(source) ~> addReferrer(uriToUri(origin)),
-			continue = { res =>
-				val bytes = res.entity.data.toByteArray
-				withBlob(bytes,
-					Story.Blob(
-						sha1 = sha1hex(bytes),
-						mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString())))
-			})
+	def documentRequest[R](absuri: AbsUri)(withDocument: ResponseHandler[Document, R]): Request[R] = request(absuri) { res =>
+		withDocument(Jsoup.parse(
+			res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
+			res.header[Location].fold(ifEmpty = uriToUri(absuri))(_.uri).toString()))
+	}
 
 
-	def writeAsset(core: Narrator, assetNode: Asset, continue: Strategy)(bytes: Array[Byte], story: Story.Blob)(ntx: Ntx): Strategy = {
+	def blobRequest[R](source: AbsUri, origin: AbsUri)(withBlob: ResponseHandler[(Array[Byte], Story.Blob), R]): Request[R] =
+		request(source, Some(origin)) { res =>
+			val bytes = res.entity.data.toByteArray
+			withBlob((bytes,
+				Story.Blob(
+					sha1 = sha1hex(bytes),
+					mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString()))))
+		}
+
+
+	def writeAsset(core: Narrator, assetNode: Asset)(bytes: Array[Byte], story: Story.Blob)(ntx: Ntx): Unit = {
 		logger.debug(s"$core: received blob, applying to $assetNode")
 		val path = Paths.get(viscel.hashToFilename(story.sha1))
 		Files.createDirectories(path.getParent)
 		Files.write(path, bytes)
-		assetNode.blob_=(Blob(Coin.create(story)(ntx)))(ntx)
-		continue
+		assetNode.blob_=(Coin.Blob(Coin.create(story)(ntx)))(ntx)
 	}
 
-	def writePage(core: Narrator, pageNode: Page, continue: Strategy)(doc: Document)(ntx: Ntx): Strategy = {
-		logger.debug(s"$core: received ${ doc.baseUri() }, applying to $pageNode")
+	def writePage(core: Narrator, pageNode: Page)(doc: Document)(ntx: Ntx): List[ErrorMessage] = {
+		logger.debug(s"$core: received ${
+			doc.baseUri()
+		}, applying to $pageNode")
 		implicit def tx: Ntx = ntx
 		val wrapped = core.wrap(doc, pageNode.story)
-		val failed = wrapped.collect { case Story.Failed(msg) => msg }.flatten
+		val failed = wrapped.collect {
+			case Story.Failed(msg) => msg
+		}.flatten
 		if (failed.isEmpty) {
 			ArchiveManipulation.applyNarration(pageNode.self, wrapped)
-			continue
 		}
-		else Strategy.const(Result.Failed(failed))
+		failed
 	}
 
 }
