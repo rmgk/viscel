@@ -7,4 +7,6 @@ import viscel.database.Ntx
 import scala.concurrent.Future
 
 
-final case class Request[R](request: HttpRequest, handler:  HttpResponse => Ntx => Future[R])
+sealed trait Request[R]
+final case class Req[R](request: HttpRequest, handler:  HttpResponse => Ntx => Future[R]) extends Request[R]
+final case class RequestDone[R](result: R) extends Request[R]

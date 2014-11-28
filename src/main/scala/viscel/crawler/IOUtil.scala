@@ -37,7 +37,7 @@ object IOUtil extends StrictLogging {
 	}
 
 	def request[R](source: AbsUri, origin: Option[AbsUri] = None)(withResponse: ResponseHandler[HttpResponse, R]): Request[R] = {
-		Request(Get(uriToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](identity)(origin => addReferrer(uriToUri(origin))), withResponse)
+		Req(Get(uriToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](identity)(origin => addReferrer(uriToUri(origin))), withResponse)
 	}
 
 	def documentRequest[R](absuri: AbsUri)(withDocument: ResponseHandler[Document, R]): Request[R] = request(absuri) { res =>
@@ -55,29 +55,5 @@ object IOUtil extends StrictLogging {
 					sha1 = sha1hex(bytes),
 					mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString()))))
 		}
-
-
-	def writeAsset(core: Narrator, assetNode: Asset)(bytes: Array[Byte], story: Story.Blob)(ntx: Ntx): Unit = {
-		logger.debug(s"$core: received blob, applying to $assetNode")
-		val path = Paths.get(viscel.hashToFilename(story.sha1))
-		Files.createDirectories(path.getParent)
-		Files.write(path, bytes)
-		assetNode.blob_=(Coin.Blob(Coin.create(story)(ntx)))(ntx)
-	}
-
-	def writePage(core: Narrator, pageNode: Page)(doc: Document)(ntx: Ntx): List[ErrorMessage] = {
-		logger.debug(s"$core: received ${
-			doc.baseUri()
-		}, applying to $pageNode")
-		implicit def tx: Ntx = ntx
-		val wrapped = core.wrap(doc, pageNode.story)
-		val failed = wrapped.collect {
-			case Story.Failed(msg) => msg
-		}.flatten
-		if (failed.isEmpty) {
-			ArchiveManipulation.applyNarration(pageNode.self, wrapped)
-		}
-		failed
-	}
 
 }
