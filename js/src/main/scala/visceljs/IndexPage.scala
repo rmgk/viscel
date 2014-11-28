@@ -30,9 +30,10 @@ object IndexPage {
 
 			val result: List[(Narration, Int, Int)] =
 				bookmarks.map { case (id, pos) =>
-					val nr = narrations(id)
-					(nr, pos, nr.size - pos)
-				}.toList
+					narrations.get(id).map { nr =>
+						(nr, pos, nr.size - pos)
+					}
+				}.toList.flatten
 
 			val (hasNewPages, isCurrent) = result.partition(_._3 > 0)
 
