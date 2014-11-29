@@ -43,6 +43,7 @@ object Viscel {
 		dom.document.title = abody.title
 		dom.document.body.setAttribute("id", abody.id)
 		dom.document.body.appendChild(abody.frag.render)
+		dom.window.scrollTo(0, 0)
 	}
 
 	@JSExport
