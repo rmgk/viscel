@@ -1,7 +1,6 @@
 package viscel.database
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.neo4j.cypher.ExecutionEngine
 import org.neo4j.graphdb.factory.{GraphDatabaseFactory, GraphDatabaseSettings}
 import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
 import org.neo4j.helpers.Settings
@@ -35,12 +34,6 @@ trait Ntx {
 object NeoSingleton extends Neo with Ntx with StrictLogging {
 	val db: GraphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("neoViscelStore")
 		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE).newGraphDatabase()
-
-	val ee: ExecutionEngine = new ExecutionEngine(db)
-
-	def execute(query: String, args: (String, Any)*) = ee.execute(Predef.wrapString(query).stripMargin.trim, args.toMap[String, Any])
-
-	def apply(q: String) = execute(q).dumpToString()
 
 	def shutdown(): Unit = {
 		//txt("export") { ArchiveExport.exportAll(_) }

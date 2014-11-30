@@ -120,11 +120,8 @@ object Libraries {
 
 	// gpl3
 	val neo = {
-		val neoVersion = "2.1.5"
-		"org.neo4j" % "neo4j" % neoVersion ::
-			"org.neo4j" % "neo4j-graphviz" % neoVersion ::
-			("org.neo4j" % "neo4j-kernel" % neoVersion % "test" classifier "tests") ::
-			Nil
+		val neoVersion = "2.1.6"
+		Seq("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % neoVersion)
 	}
 
 	// apache 2

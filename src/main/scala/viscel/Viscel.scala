@@ -7,9 +7,6 @@ import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import joptsimple._
-import org.neo4j.graphdb.traversal._
-import org.neo4j.visualization.graphviz._
-import org.neo4j.walk.Walker
 import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
 import spray.client.pipelining
@@ -58,15 +55,9 @@ object Viscel extends StrictLogging {
 		logger.info(s"config version: ${ NeoSingleton.tx { ntx => configNode.version(ntx) } }")
 
 		if (createIndexes.?) {
-			NeoSingleton.execute("create index on :Collection(id)")
-			NeoSingleton.execute("create index on :Blob(source)")
+			//NeoSingleton.execute("create index on :Collection(id)")
+			//NeoSingleton.execute("create index on :Blob(source)")
 		}
-
-		for {
-			dotpath <- makedot.get
-			cid <- collectionid.get
-			cn <- Collection.find(cid)(NeoSingleton)
-		} { visualizeCollection(cn, dotpath) }
 
 		implicit val system = ActorSystem()
 
@@ -110,17 +101,6 @@ object Viscel extends StrictLogging {
 		(system, ioHttp, iopipe)
 	}
 
-
-	def visualizeCollection(col: Collection, dotpath: String) = {
-		NeoSingleton.txs {
-			val td = NeoSingleton.db.traversalDescription().depthFirst
-				.relationships(rel.narc)
-				.relationships(rel.describes)
-				.evaluator(Evaluators.all)
-			val writer = new GraphvizWriter()
-			writer.emit(new File(dotpath), Walker.crosscut(td.traverse(col.self).nodes, rel.narc, rel.describes))
-		}
-	}
 
 }
 
