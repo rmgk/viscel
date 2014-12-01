@@ -13,7 +13,7 @@ import viscel.shared.Story
 import viscel.store.Coin.{Asset, Page}
 import viscel.store.{Coin, Collection}
 
-import scala.Predef.conforms
+import scala.Predef.$conforms
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.concurrent.{ExecutionContext, Future}

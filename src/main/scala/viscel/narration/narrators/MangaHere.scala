@@ -7,7 +7,7 @@ import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.{AbsUri, Story}
 
-import scala.Predef.any2ArrowAssoc
+import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
 
 object MangaHere {

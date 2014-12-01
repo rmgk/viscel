@@ -1,7 +1,7 @@
 package visceljs
 
 
-import scala.Predef.any2ArrowAssoc
+import scala.Predef.ArrowAssoc
 import scala.Predef.augmentString
 import scala.annotation.tailrec
 

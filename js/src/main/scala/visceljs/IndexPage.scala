@@ -4,7 +4,7 @@ package visceljs
 import org.scalajs.dom.HTMLElement
 import viscel.shared.Story.Narration
 
-import scala.Predef.conforms
+import scala.Predef.$conforms
 import scala.collection.immutable.Map
 import scalatags.JsDom.Frag
 import scalatags.JsDom.all.bindNode

@@ -6,7 +6,7 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.SelectUtil._
 
-import scala.Predef.conforms
+import scala.Predef.$conforms
 import scala.collection.JavaConverters._
 
 sealed trait Selection {

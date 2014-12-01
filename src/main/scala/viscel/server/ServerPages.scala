@@ -11,7 +11,7 @@ import viscel.shared.JsonCodecs.stringMapW
 import viscel.shared.Story.Narration
 import viscel.store.{Collection, Config, User}
 
-import scala.Predef.any2ArrowAssoc
+import scala.Predef.ArrowAssoc
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.immutable.Map
 import scalatags.Text.attrs.{`type`, href, id, rel, src, title}

@@ -26,8 +26,8 @@ object Build extends sbt.Build {
 object Settings {
 	lazy val common = List(
 
-		version := "5.1.0",
-		scalaVersion := "2.10.4",
+		version := "5.2.0",
+		scalaVersion := "2.11.4",
 		SourceGeneration.caseCodecs,
 
 		scalacOptions ++= (
@@ -177,11 +177,11 @@ object SourceGeneration {
 		def sep(l: Seq[String]) = l.mkString(", ")
 		val definitions = (1 to 22).map { i =>
 			val nameList = 1 to i map ("n" + _)
-			def types(app: String) = sep(1 to i map ("A" + _ + app))
+			def types(app: String) = sep(1 to i map ("I" + _ + app))
 			val writeJSs = if (i == 1) "n1 -> writeJs(a)"
 			else sep(nameList.zip(1 to i).map{case (p, j) => s"$p -> writeJs(a._$j)"})
 			val readUnapply = sep(nameList.zip(1 to i).map{case (p, j) => s"(`$p`, a$j)"})
-			val readJSs = sep(1 to i map {j => s"readJs[A$j](a$j)"})
+			val readJSs = sep(1 to i map {j => s"readJs[I$j](a$j)"})
 			val names = sep(nameList map (_ + ": String"))
 
 
@@ -197,7 +197,7 @@ object SourceGeneration {
 				 |def case${i}RW[T, ${types(":R:W")}](read: (${types("")}) => T, write: T => Option[(${types("")})])($names): (R[T], W[T]) = {
 				 |(case${i}R(read)(${sep(nameList)}), case${i}W(write)(${sep(nameList)}))
 				 |}
-			 """.stripMargin
+				 |""".stripMargin
 
 		}
 		IO.write(file,
@@ -205,12 +205,12 @@ object SourceGeneration {
 			|package viscel.generated
 			|
 			|import upickle.{Js, Reader => R, Writer => W, writeJs, readJs}
-			|import scala.Predef.any2ArrowAssoc
+			|import scala.Predef.ArrowAssoc
 			|import scala.collection.immutable.Map
 			|trait UpickleCodecs {
 			|${definitions.mkString("\n")}
 			|}
-			 """.stripMargin)
+			|""".stripMargin)
 		Seq(file)
 	}
 }

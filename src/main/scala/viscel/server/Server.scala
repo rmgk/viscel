@@ -17,7 +17,7 @@ import viscel.database.{Neo, NeoSingleton}
 import viscel.narration.Narrator
 import viscel.store._
 
-import scala.Predef.{any2ArrowAssoc, conforms}
+import scala.Predef.{ArrowAssoc, $conforms}
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContextExecutor, Future}

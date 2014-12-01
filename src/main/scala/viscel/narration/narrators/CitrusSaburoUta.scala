@@ -9,7 +9,7 @@ import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.{Chapter, More}
 
-import scala.Predef.conforms
+import scala.Predef.$conforms
 
 object CitrusSaburoUta extends Narrator with StrictLogging {
 

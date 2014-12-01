@@ -20,7 +20,7 @@ import viscel.shared.{AbsUri, Story}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.Predef.identity
-import scala.Predef.conforms
+import scala.Predef.$conforms
 
 object IOUtil extends StrictLogging {
 

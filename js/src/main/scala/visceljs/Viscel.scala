@@ -6,7 +6,7 @@ import upickle._
 import viscel.shared.JsonCodecs.stringMapR
 import viscel.shared.Story._
 
-import scala.Predef.any2ArrowAssoc
+import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
@@ -46,7 +46,7 @@ object Viscel {
 		dom.window.scrollTo(0, 0)
 	}
 
-	@JSExport
+	@JSExport(name = "main")
 	def main(): Unit = {
 
 		dom.onhashchange = { (ev: Event) =>

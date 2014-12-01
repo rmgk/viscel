@@ -8,7 +8,7 @@ import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More
 
-import scala.Predef.{any2ArrowAssoc, augmentString}
+import scala.Predef.{ArrowAssoc, augmentString}
 import scala.collection.immutable.Map
 
 object CloneManga {

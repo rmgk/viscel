@@ -26,7 +26,7 @@ object Twokinds extends Narrator with StrictLogging {
 				Chapter(title) :: links
 			}
 		}
-		chapters_?.map(_.flatten(Predef.conforms))
+		chapters_?.map(_.flatten(Predef.$conforms))
 	}
 
 	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {

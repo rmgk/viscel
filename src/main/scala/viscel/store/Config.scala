@@ -3,7 +3,7 @@ package viscel.store
 import org.neo4j.graphdb.Node
 import viscel.database.{NodeOps, Ntx, label}
 
-import scala.Predef.any2ArrowAssoc
+import scala.Predef.ArrowAssoc
 
 
 final case class Config(self: Node) extends AnyVal {

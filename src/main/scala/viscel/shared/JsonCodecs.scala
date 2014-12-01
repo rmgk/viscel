@@ -1,7 +1,7 @@
 package viscel.shared
 
 import upickle.{Js, Reader => R, Writer => W, writeJs, readJs}
-import scala.Predef.any2ArrowAssoc
+import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
 
 object JsonCodecs extends viscel.generated.UpickleCodecs {

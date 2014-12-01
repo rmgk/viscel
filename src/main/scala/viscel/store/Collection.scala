@@ -7,7 +7,7 @@ import viscel.shared.Story.Narration
 import viscel.shared.{Gallery, Story}
 import viscel.store.Coin.CheckNode
 
-import scala.Predef.any2ArrowAssoc
+import scala.Predef.ArrowAssoc
 
 final case class Collection(self: Node) extends AnyVal {
 

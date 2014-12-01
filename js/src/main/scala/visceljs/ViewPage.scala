@@ -4,7 +4,7 @@ import org.scalajs.dom
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 
-import scala.Predef.conforms
+import scala.Predef.$conforms
 import scalatags.JsDom.Frag
 import scalatags.JsDom.attrs.href
 import scalatags.JsDom.implicits.{stringAttr, stringFrag}

@@ -5,7 +5,7 @@ import org.scalajs.dom.{HTMLElement, HTMLInputElement, KeyboardEvent}
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 
-import scala.Predef.{any2ArrowAssoc, conforms}
+import scala.Predef.{ArrowAssoc, $conforms}
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import scala.scalajs.js
 import scalatags.JsDom.Frag

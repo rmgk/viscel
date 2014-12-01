@@ -6,7 +6,7 @@ import org.scalactic._
 import viscel.shared.Story.{Asset, Chapter, More}
 import viscel.shared.{AbsUri, Story}
 
-import scala.Predef.any2ArrowAssoc
+import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Set
 import scala.language.implicitConversions
 

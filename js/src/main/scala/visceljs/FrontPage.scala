@@ -4,7 +4,7 @@ package visceljs
 import viscel.shared.Story.{Chapter, Narration}
 import viscel.shared.{Gallery, Story}
 
-import scala.Predef.{any2ArrowAssoc, conforms}
+import scala.Predef.{ArrowAssoc, $conforms}
 import scalatags.JsDom
 import scalatags.JsDom.Frag
 import scalatags.JsDom.attrs.cls
