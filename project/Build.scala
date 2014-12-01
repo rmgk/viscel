@@ -194,8 +194,8 @@ object SourceGeneration {
 				 |Js.Obj($writeJSs)
 				 |}
 				 |
-				 |def case${i}RW[T, ${types(":R:W")}](read: (${types("")}) => T, write: T => Option[(${types("")})])($names): (R[T], W[T]) = {
-				 |(case${i}R(read)(${sep(nameList)}), case${i}W(write)(${sep(nameList)}))
+				 |def case${i}RW[T, ${types(":R:W")}](read: (${types("")}) => T, write: T => Option[(${types("")})])($names): ReaderWriter[T] = {
+				 |ReaderWriter(case${i}R(read)(${sep(nameList)}), case${i}W(write)(${sep(nameList)}))
 				 |}
 				 |""".stripMargin
 
@@ -205,6 +205,7 @@ object SourceGeneration {
 			|package viscel.generated
 			|
 			|import upickle.{Js, Reader => R, Writer => W, writeJs, readJs}
+			|import viscel.shared.ReaderWriter
 			|import scala.Predef.ArrowAssoc
 			|import scala.collection.immutable.Map
 			|trait UpickleCodecs {
