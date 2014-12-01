@@ -8,15 +8,16 @@ import viscel.Deeds
 import viscel.database.{Ntx, label}
 import viscel.narration.Narrator
 import viscel.shared.JsonCodecs.stringMapW
-import viscel.shared.Story.Narration
 import viscel.store.{Collection, Config, User}
+import rescala.propagation.Engines.default
+
 
 import scala.Predef.ArrowAssoc
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.immutable.Map
-import scalatags.Text.attrs.{`type`, href, id, rel, src, title}
+import scalatags.Text.attrs.{`type`, href, rel, src, title}
 import scalatags.Text.implicits.{stringAttr, stringFrag}
-import scalatags.Text.tags.{body, div, head, html, link, script}
+import scalatags.Text.tags.{body, head, html, link, script}
 import scalatags.Text.{RawFrag, TypedTag}
 
 
@@ -47,31 +48,31 @@ object ServerPages {
 
 		val allCollections = GlobalGraphOperations.at(ntx.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply } ++
 			Narrator.availableCores.map(Collection.findAndUpdate)
-		jsonResponse(allCollections.map { _.narration(deep = false)})
+		jsonResponse(allCollections.map { _.narration(deep = false) })
 	}
 
 
-	def collection(collection: Collection)(implicit ntx: Ntx) = {	jsonResponse(collection.narration(deep = true)) }
+	def collection(collection: Collection)(implicit ntx: Ntx) = { jsonResponse(collection.narration(deep = true)) }
 
-	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse{
-			val cn = Config.get()
-			Map[String, String](
-				"Downloaded" -> cn.downloaded.toString,
-				"Downloads" -> cn.downloads.toString,
-				"Compressed downloads" -> cn.downloadsCompressed.toString,
-				"Failed downloads" -> cn.downloadsFailed.toString,
-				"Narrations" -> ntx.nodes(label.Collection).size.toString,
-				"Chapters" -> ntx.nodes(label.Chapter).size.toString,
-				"Assets" -> ntx.nodes(label.Asset).size.toString,
-				"Uptime" -> stats.uptime.toString,
-				"Total requests" -> stats.totalRequests.toString,
-				"Open requests" -> stats.openRequests.toString,
-				"Max open requests" -> stats.maxOpenRequests.toString,
-				"Total connections" -> stats.totalConnections.toString,
-				"Open connections" -> stats.openConnections.toString,
-				"Max open connections" -> stats.maxOpenConnections.toString,
-				"Requests timed out" -> stats.requestTimeouts.toString,
-				"Session ui requests" -> Deeds.sessionUiRequests.get.toString)
-		}
+	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse {
+		val cn = Config.get()
+		Map[String, String](
+			"Downloaded" -> cn.downloaded.toString,
+			"Downloads" -> cn.downloads.toString,
+			"Compressed downloads" -> cn.downloadsCompressed.toString,
+			"Failed downloads" -> cn.downloadsFailed.toString,
+			"Narrations" -> ntx.nodes(label.Collection).size.toString,
+			"Chapters" -> ntx.nodes(label.Chapter).size.toString,
+			"Assets" -> ntx.nodes(label.Asset).size.toString,
+			"Uptime" -> stats.uptime.toString,
+			"Total requests" -> stats.totalRequests.toString,
+			"Open requests" -> stats.openRequests.toString,
+			"Max open requests" -> stats.maxOpenRequests.toString,
+			"Total connections" -> stats.totalConnections.toString,
+			"Open connections" -> stats.openConnections.toString,
+			"Max open connections" -> stats.maxOpenConnections.toString,
+			"Requests timed out" -> stats.requestTimeouts.toString,
+			"Session ui requests" -> Deeds.sessionUiRequests.now.toString)
+	}
 
 }

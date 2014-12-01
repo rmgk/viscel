@@ -159,7 +159,7 @@ object Libraries {
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 	val scalatags = Def.setting("com.scalatags" %%% "scalatags" % "0.4.2" :: Nil)
 	// mit
-	val rescala = "de.tuda.stg" %% "rescala" % "0.3.0" :: Nil
+	val rescala = "de.tuda.stg" %% "rescala" % "0.4.0" :: Nil
 	val argonaut = "io.argonaut" %% "argonaut" % "6.0.4" :: Nil
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.5" :: Nil)
 

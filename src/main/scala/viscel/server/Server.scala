@@ -7,6 +7,7 @@ import akka.pattern.ask
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Bad, Good}
+import rescala.propagation.Engines.default
 import spray.can.Http
 import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
@@ -15,11 +16,11 @@ import spray.routing.{HttpService, Route}
 import viscel.Deeds
 import viscel.database.{Neo, NeoSingleton}
 import viscel.narration.Narrator
-import viscel.store._
+import viscel.store.{Collection, User}
 
-import scala.Predef.{ArrowAssoc, $conforms}
+import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.Map
-import scala.concurrent.duration._
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
 
@@ -99,12 +100,12 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			} ~
 			path("js") {
 				getFromFile("js/target/scala-2.10/viscel-js-opt.js") ~ getFromFile("js/target/scala-2.10/viscel-js-fastopt.js") ~
-				getFromResource("viscel-js-opt.js") ~ getFromResource("viscel-js-fastopt.js")
+					getFromResource("viscel-js-opt.js") ~ getFromResource("viscel-js-fastopt.js")
 			} ~
-			path ("viscel-js-fastopt.js.map") {
+			path("viscel-js-fastopt.js.map") {
 				getFromFile("js/target/scala-2.10/viscel-js-fastopt.js.map")
-			}~
-			path ("viscel-js-opt.js.map") {
+			} ~
+			path("viscel-js-opt.js.map") {
 				getFromFile("js/target/scala-2.10/viscel-js-opt.js.map")
 			} ~
 			path("bookmarks") {
@@ -113,19 +114,19 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			path("narrations") {
 				complete(neo.tx(ServerPages.collections(_)))
 			} ~
-			path("narration"/ Segment) { collectionId =>
+			path("narration" / Segment) { collectionId =>
 				rejectNone(Narrator.get(collectionId)) { core =>
 					val collection = neo.tx { Collection.findAndUpdate(core)(_) }
 					Deeds.uiCollection(collection)
-					complete(neo.tx{ServerPages.collection(collection)(_)})
+					complete(neo.tx { ServerPages.collection(collection)(_) })
 				}
 			} ~
 			pathPrefix("blob" / Segment) { (sha1) =>
 				val filename = viscel.hashToFilename(sha1)
 				pathEnd { getFromFile(new File(filename)) } ~
-				path(Segment / Segment) { (part1, part2) =>
-					getFromFile(new File(filename), ContentType(MediaTypes.getForKey(part1 -> part2).get))
-				}
+					path(Segment / Segment) { (part1, part2) =>
+						getFromFile(new File(filename), ContentType(MediaTypes.getForKey(part1 -> part2).get))
+					}
 			} ~
 			path("stats") {
 				complete {

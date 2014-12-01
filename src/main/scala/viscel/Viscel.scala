@@ -1,20 +1,20 @@
 package viscel
 
-import java.io.File
-import java.util.concurrent.{TimeUnit, _}
+import java.util.concurrent.{TimeUnit, ThreadPoolExecutor, LinkedBlockingQueue}
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import joptsimple._
 import org.scalactic.TypeCheckedTripleEquals._
+import rescala.propagation.Engines.default
 import spray.can.Http
 import spray.client.pipelining
 import spray.http.HttpEncodings
 import viscel.crawler.Clockwork
-import viscel.database.{NeoSingleton, rel}
+import viscel.database.NeoSingleton
 import viscel.server.Server
-import viscel.store._
+import viscel.store.Config
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -77,7 +77,7 @@ object Viscel extends StrictLogging {
 				iopipe,
 				NeoSingleton)
 			Deeds.jobResult += {
-				case messages @ _ :: _ => logger.error(s"some job failed: $messages")
+				case messages@_ :: _ => logger.error(s"some job failed: $messages")
 				case Nil =>
 			}
 		}
@@ -105,8 +105,8 @@ object Viscel extends StrictLogging {
 }
 
 object Opts extends OptionParser {
-//	val loglevel = accepts("loglevel", "set the loglevel")
-//		.withRequiredArg().describedAs("loglevel").defaultsTo("INFO")
+	//	val loglevel = accepts("loglevel", "set the loglevel")
+	//		.withRequiredArg().describedAs("loglevel").defaultsTo("INFO")
 	val port = accepts("port", "server listening port")
 		.withRequiredArg().ofType(Predef.classOf[Int]).defaultsTo(2358).describedAs("port")
 	val noserver = accepts("noserver", "do not start the server")
@@ -114,7 +114,7 @@ object Opts extends OptionParser {
 	val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
 	val shutdown = accepts("shutdown", "shutdown after main")
 	val createIndexes = accepts("create-indexes", "create database indexes")
-//	val purgeUnreferenced = accepts("purge-unreferenced", "remove entries that are not referenced by any user")
+	//	val purgeUnreferenced = accepts("purge-unreferenced", "remove entries that are not referenced by any user")
 	val makedot = accepts("makedot", "makes a dot file for a given collection")
 		.withRequiredArg().describedAs("path")
 	val collectionid = accepts("collectionid", "id of the ccollection for other commands")

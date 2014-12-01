@@ -1,26 +1,21 @@
 package viscel.crawler
 
-import java.nio.file.{Files, Paths}
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.scalactic.ErrorMessage
+import rescala.propagation.Engines.default
 import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
-import spray.http.HttpHeaders.{`Content-Type`, Location, `Accept-Encoding`}
+import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding._
-import viscel.database.{ArchiveManipulation, Ntx}
-import viscel.narration.Narrator
-import viscel.store.Coin
-import viscel.store.Coin.{Page, Asset}
-import viscel.{sha1hex, Deeds}
+import viscel.database.Ntx
 import viscel.shared.{AbsUri, Story}
+import viscel.{Deeds, sha1hex}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.Predef.identity
-import scala.Predef.$conforms
+
 
 object IOUtil extends StrictLogging {
 

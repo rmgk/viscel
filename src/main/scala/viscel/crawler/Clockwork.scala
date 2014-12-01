@@ -1,8 +1,8 @@
 package viscel.crawler
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.scalactic.ErrorMessage
-import rescala.events.ImperativeEvent
+import rescala.Evt
+import rescala.propagation.Engines.default
 import spray.client.pipelining.SendReceive
 import viscel.Deeds
 import viscel.database._
@@ -32,7 +32,7 @@ object Clockwork extends StrictLogging {
 		}
 	}
 
-	def handleHints(hints: ImperativeEvent[Collection], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { col =>
+	def handleHints(hints: Evt[Collection], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { col =>
 		val id = neo.tx { col.id(_) }
 		if (runners.contains(id)) logger.trace(s"$id has running job")
 		else Future {
