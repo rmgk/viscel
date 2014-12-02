@@ -5,10 +5,11 @@ import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 
 import scala.Predef.$conforms
-import scalatags.JsDom.Frag
-import scalatags.JsDom.attrs.href
-import scalatags.JsDom.implicits.{stringAttr, stringFrag}
-import scalatags.JsDom.tags.{SeqFrag, a, div}
+import scalatags.JsDom.all.{Tag, Frag}
+import scalatags.JsDom.attrs.{href, style}
+import scalatags.JsDom.styles.{width, padding}
+import scalatags.JsDom.implicits.{stringAttr, stringFrag, stringStyle}
+import scalatags.JsDom.tags.{SeqFrag, a, div, span}
 import scalatags.JsDom.tags2.{article, nav}
 
 object ViewPage {
@@ -29,21 +30,17 @@ object ViewPage {
 
 		def mainPart = div(class_content)(gallery.get.fold[Frag](div("error, illegal image position"))(a => link_asset(narration, gallery.next(1), blobToImg(a))))
 
-		val navigation = Seq[Frag](
+		val navigation = Seq[Tag](
 			link_asset(narration, gallery.prev(1), "prev"),
-			" ",
 			link_front(narration, "front"),
-			" ",
 			set_bookmark(narration, gallery.pos + 1, "pause")(class_submit),
-			" ",
 			a(href := gallery.get.get.origin.toString)(class_extern)("site"),
-			" ",
 			link_asset(narration, gallery.next(1), "next"))
 
 		Body(id = "view", title = narration.name,
 			frag = List(
 				article(class_main)(mainPart),
-				nav(class_navigation)(navigation)),
+				nav(class_navigation)(navigation.map(e => e(style := s"width: ${50/navigation.size}%; padding: 0 ${25/navigation.size}%; display: inline-block")))),
 			keypress = handleKeypress)
 	}
 

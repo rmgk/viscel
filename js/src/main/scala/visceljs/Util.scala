@@ -8,7 +8,6 @@ import viscel.shared.Story.{Asset, Narration}
 import scala.Predef.{ArrowAssoc, $conforms}
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import scala.scalajs.js
-import scalatags.JsDom.Frag
 import scalatags.JsDom.all._
 
 
@@ -37,8 +36,8 @@ object Util {
 
 	def link_index(ts: Frag*): Tag = span(class_link)(onclick := (() => pushIndex()))(ts)
 	def link_stop(ts: Frag*): Tag = a(href := path_stop)(ts)
-	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*): Frag =
-		if (gallery.isEnd) ts
+	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*): Tag =
+		if (gallery.isEnd) span(ts)
 		else span(class_link)(ts)(onclick := (() => pushView(gallery, nar)))
 	def link_front(nar: Narration, ts: Frag*): Tag = span(class_link)(ts)(onclick := (() => pushFront(nar)))
 
