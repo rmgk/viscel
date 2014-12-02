@@ -53,6 +53,10 @@ fieldset.group div {
 	margin: 20px 10px;
 }
 
+img {
+	-webkit-tap-highlight-color: transparent;
+}
+
 /* comic pages */
 .content {
 	padding: 0;
@@ -64,6 +68,16 @@ fieldset.group div {
 	padding: 0;
 	border: none; /*firefox displays a border if a link is on the image */
 	max-width: 100%;
+}
+@media only screen and (max-width: 1024px) {
+	.content .element {
+		width: 100%;
+	}
+}
+@media only screen and (min-height: 1024px) {
+	.content .element {
+		max-height: 100vh;
+	}
 }
 #view .content {
 	/* flex display seems buggy in current versions of opera with images larger than the screen */

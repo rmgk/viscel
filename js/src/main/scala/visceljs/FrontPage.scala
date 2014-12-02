@@ -11,6 +11,7 @@ import scalatags.JsDom.attrs.cls
 import scalatags.JsDom.implicits.{stringAttr, stringFrag}
 import scalatags.JsDom.tags.{SeqFrag, div, fieldset, legend}
 import scalatags.JsDom.tags2.nav
+import scalatags.JsDom.all.Tag
 
 object FrontPage {
 
@@ -30,11 +31,9 @@ object FrontPage {
 				"name" -> narration.name
 			)) :: Nil
 
-		def navigation = Seq[Frag](
+		def navigation = List[Tag](
 			link_index("index"),
-			stringFrag(" – "),
 			link_asset(narration, gallery.first, "first"),
-			stringFrag(" – "),
 			set_bookmark(narration, 0, "remove"))
 
 		def sidePart = div(class_content)(List(
@@ -72,7 +71,7 @@ object FrontPage {
 
 		def content: Frag = List(
 			div(class_main)(mainPart),
-			nav(class_navigation)(navigation),
+			Util.makeNavigation(navigation),
 			div(class_side)(sidePart)
 		) ++ chapterlist
 

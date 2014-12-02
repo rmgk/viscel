@@ -30,17 +30,17 @@ object ViewPage {
 
 		def mainPart = div(class_content)(gallery.get.fold[Frag](div("error, illegal image position"))(a => link_asset(narration, gallery.next(1), blobToImg(a))))
 
-		val navigation = Seq[Tag](
+		val navigation = List[Tag](
 			link_asset(narration, gallery.prev(1), "prev"),
 			link_front(narration, "front"),
 			set_bookmark(narration, gallery.pos + 1, "pause")(class_submit),
-			a(href := gallery.get.get.origin.toString)(class_extern)("site"),
+			a(href := gallery.get.fold("")(_.origin.toString))(class_extern)("site"),
 			link_asset(narration, gallery.next(1), "next"))
 
 		Body(id = "view", title = narration.name,
 			frag = List(
 				article(class_main)(mainPart),
-				nav(class_navigation)(navigation.map(e => e(style := s"width: ${50/navigation.size}%; padding: 0 ${25/navigation.size}%; display: inline-block")))),
+				Util.makeNavigation(navigation)),
 			keypress = handleKeypress)
 	}
 

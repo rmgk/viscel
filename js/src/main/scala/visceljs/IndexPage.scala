@@ -24,8 +24,6 @@ object IndexPage {
 
 		def sidePart = make_fieldset("Search", Seq(form_search(narrations.values.toList, searchResultDiv)))(class_info)
 
-		def navigation = link_stop("stop") :: Nil
-
 		def mainPart: List[Frag] = {
 
 			val result: List[(Narration, Int, Int)] =
@@ -56,7 +54,7 @@ object IndexPage {
 				div(class_main)(mainPart),
 				div(class_side)(sidePart),
 				div(searchResultDiv),
-				nav(class_navigation)(navigation)))
+				makeNavigation(link_stop("stop") :: Nil)))
 
 
 	}
