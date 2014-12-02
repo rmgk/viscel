@@ -18,6 +18,8 @@ import scalatags.JsDom.tags.div
 @JSExport(name = "Viscel")
 object Viscel {
 
+
+
 	def ajax[R: Reader](path: String): Future[R] = dom.extensions.Ajax.get(
 		url = path
 	).map { res => upickle.read[R](res.responseText) }
@@ -50,12 +52,12 @@ object Viscel {
 	def main(): Unit = {
 
 		dom.onhashchange = { (ev: Event) =>
-			Util.dispatchPath(dom.location.hash.substring(1))
+			Navigation.dispatchPath(dom.location.hash.substring(1))
 		}
 
 		setBody(Body(frag = div("loading")))
 
-		Util.dispatchPath(dom.location.hash.substring(1))
+		Navigation.dispatchPath(dom.location.hash.substring(1))
 
 	}
 

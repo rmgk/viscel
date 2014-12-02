@@ -1,21 +1,21 @@
-package visceljs
-
+package visceljs.render
 
 import viscel.shared.Story.{Chapter, Narration}
 import viscel.shared.{Gallery, Story}
+import visceljs.{Render, Body, Definitions}
 
-import scala.Predef.{ArrowAssoc, $conforms}
+import scala.Predef.{$conforms, ArrowAssoc}
 import scalatags.JsDom
 import scalatags.JsDom.Frag
+import scalatags.JsDom.all.Tag
 import scalatags.JsDom.attrs.cls
 import scalatags.JsDom.implicits.{stringAttr, stringFrag}
 import scalatags.JsDom.tags.{SeqFrag, div, fieldset, legend}
-import scalatags.JsDom.tags2.nav
-import scalatags.JsDom.all.Tag
 
-object FrontPage {
+object Front {
 
-	import visceljs.Util._
+	import visceljs.Definitions._
+	import visceljs.Render._
 
 	def gen(bookmark: Int, narration: Narration): Body = {
 
@@ -71,7 +71,7 @@ object FrontPage {
 
 		def content: Frag = List(
 			div(class_main)(mainPart),
-			Util.makeNavigation(navigation),
+			makeNavigation(navigation),
 			div(class_side)(sidePart)
 		) ++ chapterlist
 

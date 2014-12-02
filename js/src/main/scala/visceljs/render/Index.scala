@@ -1,8 +1,8 @@
-package visceljs
-
+package visceljs.render
 
 import org.scalajs.dom.HTMLElement
 import viscel.shared.Story.Narration
+import visceljs.{Render, Body}
 
 import scala.Predef.$conforms
 import scala.collection.immutable.Map
@@ -10,11 +10,11 @@ import scalatags.JsDom.Frag
 import scalatags.JsDom.all.bindNode
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{SeqFrag, div}
-import scalatags.JsDom.tags2.nav
 
-object IndexPage {
+object Index {
+	import Render._
 
-	import visceljs.Util._
+	import visceljs.Definitions._
 
 	case class ColState(id: String, name: String, size: Int, bm: Int, node: String)
 
