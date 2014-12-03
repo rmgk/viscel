@@ -39,12 +39,12 @@ object Definitions {
 	val class_extern = cls := "extern"
 	val class_link = cls := "fakelink"
 
-	def link_index(ts: Frag*): Tag = span(class_link)(onclick := (() => gotoIndex()))(ts)
+	def link_index(ts: Frag*): Tag = a(onclick := (() => gotoIndex()))(ts)
 	def link_stop(ts: Frag*): Tag = a(href := path_stop)(ts)
 	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*): Tag =
-		if (gallery.isEnd) span(ts)
-		else span(class_link)(ts)(onclick := (() => gotoView(gallery, nar)))
-	def link_front(nar: Narration, ts: Frag*): Tag = span(class_link)(ts)(onclick := (() => gotoFront(nar)))
+		if (gallery.isEnd) a(ts)
+		else a(class_link)(ts)(onclick := (() => gotoView(gallery, nar)))
+	def link_front(nar: Narration, ts: Frag*): Tag = a(ts)(onclick := (() => gotoFront(nar)))
 
 
 

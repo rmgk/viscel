@@ -17,7 +17,7 @@ import scalatags.JsDom.tags2.{nav, aside}
 object Render {
 
 	
-	def formPostBookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = span(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, pos) })
+	def formPostBookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, pos) })
 
 	def searchArea(narrations: List[Narration]): HtmlTag = aside {
 		val results = ol.render
