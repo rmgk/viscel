@@ -22,7 +22,7 @@ object Index {
 
 		val searchResultDiv: HTMLElement = div().render
 
-		def sidePart = make_fieldset("Search", Seq(form_search(narrations.values.toList, searchResultDiv)))(class_info)
+		def sidePart = searchArea(narrations.values.toList)
 
 		def mainPart: List[Frag] = {
 

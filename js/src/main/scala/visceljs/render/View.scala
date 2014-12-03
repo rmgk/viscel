@@ -16,7 +16,7 @@ object View {
 
 	import visceljs.Definitions._
 	import visceljs.Render._
-	import visceljs.Navigation._
+	import visceljs.Actions._
 
 	def gen(gallery: Gallery[Asset], narration: Narration): Body = {
 
@@ -35,7 +35,7 @@ object View {
 		val navigation = List[Tag](
 			link_asset(narration, gallery.prev(1), "prev"),
 			link_front(narration, "front"),
-			set_bookmark(narration, gallery.pos + 1, "pause")(class_submit),
+			formPostBookmark(narration, gallery.pos + 1, "pause")(class_post),
 			a(href := gallery.get.fold("")(_.origin.toString))(class_extern)("site"),
 			link_asset(narration, gallery.next(1), "next"))
 

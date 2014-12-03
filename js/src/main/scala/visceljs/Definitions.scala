@@ -16,7 +16,7 @@ import scalatags.JsDom.tags2.nav
 
 object Definitions {
 
-	import Navigation._
+	import Actions._
 
 	def path_main = "/"
 	def path_css = "/css"
@@ -33,7 +33,7 @@ object Definitions {
 	val class_element = cls := "element"
 	val class_info = cls := "info"
 	val class_group = cls := "group"
-	val class_submit = cls := "submit"
+	val class_post = cls := "post"
 	val class_content = cls := "content"
 	val class_pages = cls := "pages"
 	val class_extern = cls := "extern"

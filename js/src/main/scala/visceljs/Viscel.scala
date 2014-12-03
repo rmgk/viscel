@@ -29,7 +29,7 @@ object Viscel {
 	var narrations: Future[Map[String, Narration]] = ajax[List[Narration]]("/narrations").map(_.map(n => n.id -> n).toMap)
 
 	def narration(nar: Narration): Future[Narration] =
-		if (nar.narrates.prev(1).get.isDefined) Future.successful(nar)
+		if (!nar.narrates.isEmpty) Future.successful(nar)
 		else {
 			narrations = narrations.flatMap {
 				case store if store(nar.id).narrates.isEmpty => ajax[Narration](s"/narration/${ nar.id }").map(store.updated(nar.id, _))
@@ -39,7 +39,7 @@ object Viscel {
 		}
 
 
-	def setBookmark(nar: Narration, pos: Int): Future[Map[String, Int]] = {
+	def postBookmark(nar: Narration, pos: Int): Future[Map[String, Int]] = {
 		val res = dom.extensions.Ajax.post("/bookmarks", s"narration=${ nar.id }&bookmark=$pos", headers = List("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
 			.map(res => upickle.read[Map[String, Int]](res.responseText))
 		bookmarks = res
@@ -60,7 +60,7 @@ object Viscel {
 	def main(): Unit = {
 
 		dom.onhashchange = { (ev: Event) =>
-			Navigation.dispatchPath(dom.location.hash.substring(1))
+			Actions.dispatchPath(dom.location.hash.substring(1))
 		}
 
 		setBody(Body(frag = div("loading bookmarked …")))
@@ -74,9 +74,9 @@ object Viscel {
 					narration(nrs(id)).flatMap { case _ => /*elm.innerHTML = s"$id … Done";*/ go(rest)}
 			}
 			go(bm.keys.toList)
-		} onComplete  { _ => Navigation.dispatchPath(dom.location.hash.substring(1)) }
+		} onComplete  { _ => Actions.dispatchPath(dom.location.hash.substring(1)) }
 
-		Navigation.dispatchPath(dom.location.hash.substring(1))
+		Actions.dispatchPath(dom.location.hash.substring(1))
 
 
 

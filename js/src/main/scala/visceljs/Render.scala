@@ -6,37 +6,32 @@ import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 import visceljs.render.{View, Index, Front}
 import visceljs.Definitions._
-import visceljs.Navigation._
+import visceljs.Actions._
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scalatags.JsDom.all._
 import scalatags.JsDom.attrs.style
-import scalatags.JsDom.tags2.nav
+import scalatags.JsDom.tags2.{nav, aside}
 
 object Render {
 
+	
+	def formPostBookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = span(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, pos) })
 
-
-	def set_bookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = span(class_link, class_submit)(ts)(onclick := { () =>
-		Viscel.setBookmark(nar, pos)
-	})
-
-
-
-	def form_search(narrations: List[Narration], results: HTMLElement): HtmlTag = {
+	def searchArea(narrations: List[Narration]): HtmlTag = aside {
+		val results = ol.render
 		var filtered = Seq[Narration]()
 		lazy val inputField: HTMLInputElement = input(`type` := "textfield", autofocus := true, onkeyup := { () =>
 			results.innerHTML = ""
 			val query = inputField.value.toString.toLowerCase
 			if (!query.isEmpty) {
 				filtered = SearchUtil.search(query, narrations.map(n => n.name -> n))
-				val mapped = filtered.map(a => link_front(a, a.name))
-				results.appendChild(make_fieldset("", mapped)(class_group).render)
-				()
+				filtered.foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
 			}
 		}).render
-		form(inputField, action := "")(onsubmit := { () => filtered.headOption.foreach(gotoFront); false })(id := "searchform")
+
+		form(fieldset(legend("Search"), inputField, results), action := "", onsubmit := { () => filtered.headOption.foreach(gotoFront); false })
 	}
 
 	def blobToImg(asset: Asset): Frag = {
