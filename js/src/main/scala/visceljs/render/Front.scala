@@ -2,61 +2,55 @@ package visceljs.render
 
 import viscel.shared.Story.{Chapter, Narration}
 import viscel.shared.{Gallery, Story}
-import visceljs.{Make, Body, Definitions}
+import visceljs.Definitions.{class_chapters, class_preview, link_asset, link_index}
+import visceljs.{Body, Make}
 
 import scala.Predef.{$conforms, ArrowAssoc}
-import scalatags.JsDom
+import scala.annotation.tailrec
 import scalatags.JsDom.Frag
 import scalatags.JsDom.all.Tag
-import scalatags.JsDom.attrs.cls
-import scalatags.JsDom.implicits.{stringAttr, stringFrag}
-import scalatags.JsDom.tags.{SeqFrag, div, fieldset, legend}
+import scalatags.JsDom.implicits.stringFrag
+import scalatags.JsDom.tags.{SeqFrag, fieldset, header, legend}
+import scalatags.JsDom.tags2.{article, section}
 
 object Front {
 
-	import visceljs.Definitions._
-	import visceljs.Make._
 
 	def gen(bookmark: Int, narration: Narration): Body = {
 
 		val gallery = narration.narrates
 
-		val preview3 = gallery.next(bookmark - 1)
-		val preview2 = preview3.prev(1)
-		val preview1 = preview2.prev(1)
+		val top = header(s"${narration.name} ($bookmark/${gallery.size})")
 
-		def mainPart = div(class_info)(
-			make_table(
-				"id" -> narration.id,
-				"name" -> narration.name
-			)) :: Nil
-
-		def navigation = List[Tag](
+		val navigation = Make.navigation(
 			link_index("index"),
 			link_asset(narration, gallery.first, "first"),
-			postBookmark(narration, 0, "remove"))
+			Make.postBookmark(narration, 0, "remove"))
 
-		def sidePart = div(class_content)(List(
-			preview1.get.map(a => link_asset(narration, preview1, asset(a))),
-			preview2.get.map(a => link_asset(narration, preview2, asset(a))),
-			preview3.get.map(a => link_asset(narration, preview3, asset(a)))
-		).flatten: _*)
+		val preview = {
+			val preview3 = gallery.next(bookmark - 1)
+			val preview2 = preview3.prev(1)
+			val preview1 = preview2.prev(1)
+			section(class_preview)(
+				List(preview1, preview2, preview3).map(_.get)
+					.collect { case Some(a) => link_asset(narration, preview1, Make.asset(a)) })
+		}
 
-		def chapterlist: List[JsDom.Frag] = {
+		def chapterlist: Tag = {
 			val assets = gallery.end
 			val chapters = narration.chapters
 
 			def makeChapField(chap: Chapter, size: Int, gallery: Gallery[Story.Asset]): Frag = {
 				val (remaining, links) = Range(size, 0, -1).foldLeft((gallery, List[Frag]())) { case ((gal, acc), i) =>
 					val next = gal.prev(1)
-					(next, link_asset(narration, next, s"$i ") :: acc)
+					(next, link_asset(narration, next, s"$i") :: acc)
 				}
 
-				/** for some reason, setting multiple classes does no longer work, keep first to for code refactorings */
-				fieldset(class_group, class_pages, cls := "group pages").apply(legend(chap.name), links)
+				article(fieldset(legend(chap.name), links))
 			}
 
 
+			@tailrec
 			def build(apos: Int, assets: Gallery[Story.Asset], chapters: List[(Int, Story.Chapter)], acc: List[Frag]): List[Frag] = chapters match {
 				case (cpos, chap) :: ctail =>
 					build(cpos, assets.prev(apos - cpos), ctail, makeChapField(chap, apos - cpos, assets) :: acc)
@@ -65,16 +59,12 @@ object Front {
 					else makeChapField(Story.Chapter("No Chapter"), assets.pos, assets) :: acc
 			}
 
-			build(assets.pos, assets, chapters, Nil)
+			section(class_chapters)(build(assets.pos, assets, chapters, Nil))
 
 		}
 
-		def content: Frag = List(
-			div(class_main)(mainPart),
-			Make.navigation(navigation: _*),
-			div(class_side)(sidePart)
-		) ++ chapterlist
+		Body(id = "front", title = narration.name,
+			frag = List(top, navigation, preview, chapterlist))
 
-		Body(id = "front", frag = content, title = narration.name)
 	}
 }

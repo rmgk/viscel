@@ -1,21 +1,15 @@
 package visceljs
 
-import org.scalajs.dom
-import org.scalajs.dom.{HTMLElement, HTMLInputElement, KeyboardEvent}
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
+import visceljs.Actions.{gotoFront, gotoIndex, gotoView}
 
-import scala.Predef.{ArrowAssoc, $conforms}
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
-import scala.scalajs.js
-import scalatags.JsDom.TypedTag
+import scala.Predef.$conforms
 import scalatags.JsDom.all._
-import scalatags.JsDom.attrs.style
-import scalatags.JsDom.tags2.nav
-import Actions.{gotoFront, gotoView, gotoIndex}
 
 
 object Definitions {
+
 
 	def path_main = "/"
 	def path_css = "/css"
@@ -39,6 +33,9 @@ object Definitions {
 	val class_link = cls := "fakelink"
 	val class_placeholder = cls := "placeholder"
 	val class_dead = cls := "dead"
+	val class_preview = cls := "preview"
+	val class_chapters = cls := "chapters"
+
 
 	def link_index(ts: Frag*): Tag = a(onclick := (() => gotoIndex()))(ts)
 	def link_stop(ts: Frag*): Tag = a(href := path_stop)(ts)
@@ -46,7 +43,6 @@ object Definitions {
 		if (gallery.isEnd) a(class_dead)(ts)
 		else a(ts, onclick := (() => gotoView(gallery, nar)))
 	def link_front(nar: Narration, ts: Frag*): Tag = a(ts)(onclick := (() => gotoFront(nar)))
-
 
 
 }
