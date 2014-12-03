@@ -1,22 +1,18 @@
 package visceljs
 
-import org.scalajs.dom
-import org.scalajs.dom.{HTMLInputElement, HTMLElement}
-import viscel.shared.Gallery
+import org.scalajs.dom.HTMLInputElement
 import viscel.shared.Story.{Asset, Narration}
-import visceljs.render.{View, Index, Front}
-import visceljs.Definitions._
 import visceljs.Actions._
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
+import visceljs.Definitions._
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scalatags.JsDom.all._
 import scalatags.JsDom.attrs.style
-import scalatags.JsDom.tags2.{nav, aside, article, section}
+import scalatags.JsDom.tags2.{article, aside, nav, section}
 
 object Make {
 
-	
+
 	def postBookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, pos) })
 
 	def searchArea(narrations: List[Narration]): HtmlTag = aside {
@@ -42,5 +38,5 @@ object Make {
 
 	def navigation(links: Tag*): Tag =
 		nav(links.map(e =>
-			e(style := s"width: ${50/links.size}%; padding: 0 ${25/links.size}%; display: inline-block")))
+			e(style := s"width: ${ 50 / links.size }%; padding: 0 ${ 25 / links.size }%")))
 }
