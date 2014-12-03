@@ -12,11 +12,10 @@ import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
 import scalatags.JsDom.attrs.style
 import scalatags.JsDom.tags2.nav
+import Actions.{gotoFront, gotoView, gotoIndex}
 
 
 object Definitions {
-
-	import Actions._
 
 	def path_main = "/"
 	def path_css = "/css"
@@ -38,6 +37,7 @@ object Definitions {
 	val class_pages = cls := "pages"
 	val class_extern = cls := "extern"
 	val class_link = cls := "fakelink"
+	val class_placeholder = cls := "placeholder"
 
 	def link_index(ts: Frag*): Tag = a(onclick := (() => gotoIndex()))(ts)
 	def link_stop(ts: Frag*): Tag = a(href := path_stop)(ts)
@@ -45,10 +45,6 @@ object Definitions {
 		if (gallery.isEnd) a(ts)
 		else a(class_link)(ts)(onclick := (() => gotoView(gallery, nar)))
 	def link_front(nar: Narration, ts: Frag*): Tag = a(ts)(onclick := (() => gotoFront(nar)))
-
-
-
-
 
 
 

@@ -2,7 +2,7 @@ package visceljs.render
 
 import viscel.shared.Story.{Chapter, Narration}
 import viscel.shared.{Gallery, Story}
-import visceljs.{Render, Body, Definitions}
+import visceljs.{Make, Body, Definitions}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scalatags.JsDom
@@ -15,7 +15,7 @@ import scalatags.JsDom.tags.{SeqFrag, div, fieldset, legend}
 object Front {
 
 	import visceljs.Definitions._
-	import visceljs.Render._
+	import visceljs.Make._
 
 	def gen(bookmark: Int, narration: Narration): Body = {
 
@@ -37,9 +37,9 @@ object Front {
 			formPostBookmark(narration, 0, "remove"))
 
 		def sidePart = div(class_content)(List(
-			preview1.get.map(a => link_asset(narration, preview1, blobToImg(a))),
-			preview2.get.map(a => link_asset(narration, preview2, blobToImg(a))),
-			preview3.get.map(a => link_asset(narration, preview3, blobToImg(a)))
+			preview1.get.map(a => link_asset(narration, preview1, asset(a))),
+			preview2.get.map(a => link_asset(narration, preview2, asset(a))),
+			preview3.get.map(a => link_asset(narration, preview3, asset(a)))
 		).flatten: _*)
 
 		def chapterlist: List[JsDom.Frag] = {
@@ -71,7 +71,7 @@ object Front {
 
 		def content: Frag = List(
 			div(class_main)(mainPart),
-			makeNavigation(navigation),
+			Make.navigation(navigation),
 			div(class_side)(sidePart)
 		) ++ chapterlist
 

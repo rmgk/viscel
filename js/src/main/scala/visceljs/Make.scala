@@ -12,9 +12,9 @@ import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import scala.Predef.{$conforms, ArrowAssoc}
 import scalatags.JsDom.all._
 import scalatags.JsDom.attrs.style
-import scalatags.JsDom.tags2.{nav, aside}
+import scalatags.JsDom.tags2.{nav, aside, article, section}
 
-object Render {
+object Make {
 
 	
 	def formPostBookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, pos) })
@@ -34,15 +34,15 @@ object Render {
 		form(fieldset(legend("Search"), inputField, results), action := "", onsubmit := { () => filtered.headOption.foreach(gotoFront); false })
 	}
 
-	def blobToImg(asset: Asset): Frag = {
-		asset.blob.fold[HtmlTag](div(class_element)("placeholder"))(blob => img(src := path_blob(blob.sha1), class_element))
+	def asset(asset: Asset): Tag = {
+		asset.blob.fold[HtmlTag](article(class_placeholder)("placeholder"))(blob => article(img(src := path_blob(blob.sha1))))
 	}
 
-	def make_table(entry: (String, Frag)*) = table(tbody(SeqNode(entry.map { case (k, v) => tr(td(k), td(v)) })))
+	def make_table(entry: (String, Frag)*): Tag = section(table(tbody(SeqNode(entry.map { case (k, v) => tr(td(k), td(v)) }))))
 
-	def make_fieldset(name: String, entries: Seq[Frag]) = fieldset(legend(name), div(entries.flatMap { e => List(e, br) }))
+	def group(name: String, entries: Seq[Frag]): Tag = section(fieldset(legend(name), ul(entries.map(li(_)))))
 
-	def makeNavigation(navigation: List[Tag]): Tag =
-		nav(class_navigation)(navigation.map(e =>
-			e(style := s"width: ${50/navigation.size}%; padding: 0 ${25/navigation.size}%; display: inline-block")))
+	def navigation(links: List[Tag]): Tag =
+		nav(class_navigation)(links.map(e =>
+			e(style := s"width: ${50/links.size}%; padding: 0 ${25/links.size}%; display: inline-block")))
 }
