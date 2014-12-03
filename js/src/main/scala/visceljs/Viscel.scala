@@ -74,7 +74,10 @@ object Viscel {
 					narration(nrs(id)).flatMap { case _ => /*elm.innerHTML = s"$id … Done";*/ go(rest)}
 			}
 			go(bm.keys.toList)
-		} onComplete  { _ => Actions.dispatchPath(dom.location.hash.substring(1)) }
+		} onComplete  {
+			case _ if dom.location.hash.substring(1).isEmpty => Actions.dispatchPath(dom.location.hash.substring(1))
+			case _ =>
+		}
 
 		Actions.dispatchPath(dom.location.hash.substring(1))
 

@@ -1,11 +1,11 @@
-/*main layout*/
 body {
 	color : #68e466;
 	background-color : black;
 	margin: 0px;
 }
 
-a, .fakelink {
+
+a {
 	text-decoration:none;
 	color:#3654d9;
 	border-color: #3654d9;
@@ -17,15 +17,37 @@ a:visited {
 	border-color: #404c80;
 }
 
-a:hover, .fakelink:hover {
+a:hover {
 	text-decoration:underline;
 }
 
 a.extern {
 	color:#7a1818;
 }
-/*collection groups*/
-.group {
+
+a.dead {
+	color: grey;
+}
+
+a.post {
+	color: #baca40;
+}
+
+article {
+	display: inline;
+}
+
+img {
+	-webkit-tap-highlight-color: transparent;
+	margin: 0;
+	padding: 0;
+	border: none; /*firefox displays a border if a link is on the image */
+	max-width: 100%;
+	background-color: white;
+}
+
+
+fieldset , header {
 	margin: 2cm 10px;
 	padding: 5px 10px 10px 10px;
 	background-color:#00000b;
@@ -33,6 +55,11 @@ a.extern {
 	border-color: #310000;
 	border-width: 1px;
 }
+
+header {
+	text-align: center;
+}
+
 legend {
 	margin: 0px;
 	padding: 0px;
@@ -43,120 +70,9 @@ legend {
 	display:inline;
 	font-size:large;
 }
-fieldset.group div {
-	column-width: 20em;
-	-webkit-column-width: 20em;
-	-moz-column-width: 20em;
-}
-
-.pages {
-	margin: 20px 10px;
-}
-
-img {
-	-webkit-tap-highlight-color: transparent;
-}
-
-/* comic pages */
-.content {
-	padding: 0;
-	margin: 0;
-	text-align: center;
-}
-.content .element {
-	margin: 0px 0px 0 0;
-	padding: 0;
-	border: none; /*firefox displays a border if a link is on the image */
-	max-width: 100%;
-}
-@media only screen and (max-width: 1024px) {
-	.content .element {
-		width: 100%;
-	}
-}
-@media only screen and (min-height: 1024px) {
-	.content .element {
-		max-height: 100vh;
-	}
-}
-#view .content {
-	/* flex display seems buggy in current versions of opera with images larger than the screen */
-	/*display: flex;*/
-	display: block;
-	flex-flow: row wrap;
-	align-items: top;
-	justify-content: center;
-}
-#view .content .element {
-	vertical-align: top;
-}
-
-.element {
-	background-color: white;
-}
 
 
-
-/*
-.content img {
-	display: block;
-	margin: 0 auto;
-}
-
-.content embed {
-	display: block;
-	margin: 0 auto;
-}
-*/
-.info {
-	text-align:left;
-	margin: 2cm auto;
-	max-width: 600px;
-	background-color:#00000b;
-	border-style: solid;
-	border-color: #310000;
-	border-width: 1px;
-	padding: 2em 3em;
-}
-
-fieldset.info {
-	padding: 1.2em 3em 2em 3em;
-}
-
-#searchform input {
-	width: 100%;
-}
-
-#front .content {
-	text-align:left;
-	margin: 2cm 1cm;
-	padding: 0.5cm 0px;
-	background-color:#00000b;
-	border-style: solid;
-	border-color: #310000;
-	border-width: 1px;
-	text-align: center;
-}
-
-#front .element {
-	display:inline;
-	max-width: 32%;
-	height: auto;
-	margin: 0px 0.2%;
-	padding: 0px;
-	vertical-align: top;
-}
-
-#config .info {
-	max-width: 80%;
-}
-
-tbody{
-	 vertical-align:top;
-}
-
-/*navigation placement for frontpage and comic pages*/
-.navigation {
+nav {
 	text-align:center;
 	clear:both;
 	position:static;
@@ -169,32 +85,72 @@ tbody{
 	color: #808080;
 }
 
-.notification {
-	text-align:center;
-	clear:both;
-	position:static;
-	top:0;
-	left:0;
-	border-style: solid none solid none;
+nav * {
+	display: inline-block;
+}
+
+aside input {
+	display: block;
+	min-width: calc(100%/3);
+	margin: 1em auto;
+}
+
+
+/* index specific */
+#index fieldset > ul, ol {
+	column-width: 20em;
+	-webkit-column-width: 20em;
+	-moz-column-width: 20em;
+}
+
+
+/* front specific */
+#front .preview {
+	text-align:left;
+	margin: 2cm 1cm;
+	padding: 0.5cm 0px;
+	background-color:#00000b;
+	border-style: solid;
 	border-color: #310000;
 	border-width: 1px;
-	padding:0.2cm;
-	margin:0px 0px 0px 0px;
-	background-color:#00000b;
+	text-align: center;
 }
 
-/* pause form */
-form {
+.preview article {
 	display: inline;
 }
-form input.submit, .submit {
-	border-style:none;
-	background:transparent;
-	color:#beac0a;
-	padding:0;
-	cursor:pointer;
+
+
+.preview img {
+	display: inline;
+	max-width: 32%;
+	height: auto;
+	margin: 0px 0.2%;
+	padding: 0px;
+	vertical-align: top;
 }
 
-#chapter h3 {
-	text-align:center;
+.chapters fieldset {
+	margin: 0.5cm 10px;
+}
+
+.chapters a {
+	margin-right: 0.5em;
+}
+
+/* view specific */
+
+#view section {
+	text-align: center;
+}
+
+@media only screen and (max-width: 1024px) {
+	.content .element {
+		width: 100%;
+	}
+}
+@media only screen and (min-height: 1024px) {
+	.content .element {
+		max-height: 100vh;
+	}
 }

@@ -38,5 +38,5 @@ object Make {
 
 	def navigation(links: Tag*): Tag =
 		nav(links.map(e =>
-			e(style := s"width: ${ 50 / links.size }%; padding: 0 ${ 25 / links.size }%")))
+			e(style := s"width: ${ 50 / links.size }%; margin: 0 ${ 25 / links.size }%")))
 }
