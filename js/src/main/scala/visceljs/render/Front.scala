@@ -34,7 +34,7 @@ object Front {
 		def navigation = List[Tag](
 			link_index("index"),
 			link_asset(narration, gallery.first, "first"),
-			formPostBookmark(narration, 0, "remove"))
+			postBookmark(narration, 0, "remove"))
 
 		def sidePart = div(class_content)(List(
 			preview1.get.map(a => link_asset(narration, preview1, asset(a))),
@@ -71,7 +71,7 @@ object Front {
 
 		def content: Frag = List(
 			div(class_main)(mainPart),
-			Make.navigation(navigation),
+			Make.navigation(navigation: _*),
 			div(class_side)(sidePart)
 		) ++ chapterlist
 

@@ -17,7 +17,7 @@ import scalatags.JsDom.tags2.{nav, aside, article, section}
 object Make {
 
 	
-	def formPostBookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, pos) })
+	def postBookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, pos) })
 
 	def searchArea(narrations: List[Narration]): HtmlTag = aside {
 		val results = ol.render
@@ -42,7 +42,7 @@ object Make {
 
 	def group(name: String, entries: Seq[Frag]): Tag = section(fieldset(legend(name), ul(entries.map(li(_)))))
 
-	def navigation(links: List[Tag]): Tag =
+	def navigation(links: Tag*): Tag =
 		nav(class_navigation)(links.map(e =>
 			e(style := s"width: ${50/links.size}%; padding: 0 ${25/links.size}%; display: inline-block")))
 }

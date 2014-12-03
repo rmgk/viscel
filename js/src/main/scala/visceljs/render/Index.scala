@@ -31,7 +31,7 @@ object Index {
 				Make.group("New Pages", unreadTags),
 				Make.group("Bookmarks", currentTags),
 				Make.searchArea(narrations.values.toList),
-				Make.navigation(link_stop("stop") :: Nil)))
+				Make.navigation(link_stop("stop"))))
 
 
 	}
