@@ -43,7 +43,7 @@ object Front {
 			def makeChapField(chap: Chapter, size: Int, gallery: Gallery[Story.Asset]): Frag = {
 				val (remaining, links) = Range(size, 0, -1).foldLeft((gallery, List[Frag]())) { case ((gal, acc), i) =>
 					val next = gal.prev(1)
-					(next, link_asset(narration, next, s"$i") :: acc)
+					(next, link_asset(narration, next, s"$i") :: stringFrag(" ") :: acc)
 				}
 
 				article(fieldset(legend(chap.name), links))
