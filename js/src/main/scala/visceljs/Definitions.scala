@@ -5,7 +5,7 @@ import viscel.shared.Story.{Asset, Narration}
 import visceljs.Actions.{gotoFront, gotoIndex, gotoView}
 
 import scala.Predef.$conforms
-import scalatags.JsDom.all._
+import scalatags.JsDom.all.{Frag, SeqFrag, Tag, a, bindJsAnyLike, cls, href, onclick, stringAttr}
 
 
 object Definitions {

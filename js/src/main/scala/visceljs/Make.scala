@@ -38,8 +38,6 @@ object Make {
 		asset.blob.fold[HtmlTag](article(class_placeholder)("placeholder"))(blob => article(img(src := path_blob(blob.sha1))))
 	}
 
-	def tabulate(entry: (String, Frag)*): Tag = section(table(tbody(SeqNode(entry.map { case (k, v) => tr(td(k), td(v)) }))))
-
 	def group(name: String, entries: Seq[Frag]): Tag = section(fieldset(legend(name), ul(entries.map(li(_)))))
 
 	def navigation(links: Tag*): Tag =

@@ -2,14 +2,14 @@ package visceljs
 
 import org.scalajs.dom
 import viscel.shared.Gallery
-import viscel.shared.Story.{Narration, Asset}
-import visceljs.render.{Index, View, Front}
-import scala.collection.immutable.Map
-import scala.concurrent.Future
+import viscel.shared.Story.{Asset, Narration}
+import visceljs.Definitions.{path_asset, path_front, path_main}
+import visceljs.render.{Front, Index, View}
+
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 
+
 object Actions {
-	import Definitions._
 
 	def dispatchPath(path: String): Unit = {
 		val paths = List(path.split("/"): _*)
@@ -67,7 +67,6 @@ object Actions {
 	def setBodyView(gallery: Gallery[Asset], nar: Narration): Unit = {
 		Viscel.setBody(View.gen(gallery, nar))
 	}
-
 
 
 }
