@@ -145,12 +145,12 @@ aside input {
 }
 
 @media only screen and (max-width: 1024px) {
-	.content .element {
+	#view img {
 		width: 100%;
 	}
 }
 @media only screen and (min-height: 1024px) {
-	.content .element {
+	#view img {
 		max-height: 100vh;
 	}
 }
