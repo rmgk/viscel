@@ -117,7 +117,6 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			path("narration" / Segment) { collectionId =>
 				rejectNone(Narrator.get(collectionId)) { core =>
 					val collection = neo.tx { Collection.findAndUpdate(core)(_) }
-					Deeds.uiCollection(collection)
 					complete(neo.tx { ServerPages.collection(collection)(_) })
 				}
 			} ~

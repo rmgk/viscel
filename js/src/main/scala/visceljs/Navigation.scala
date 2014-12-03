@@ -23,7 +23,7 @@ object Navigation {
 				for {
 					nars <- Viscel.narrations
 					nar = nars(id)
-					fullNarration <- Viscel.completeNarration(nar)
+					fullNarration <- Viscel.narration(nar)
 				} {
 					setBodyView(fullNarration.narrates.first.next(pos - 1), nar)
 				}
@@ -58,7 +58,7 @@ object Navigation {
 	}
 
 	def setBodyFront(nar: Narration): Unit = {
-		for (bm <- Viscel.bookmarks; fullNarration <- Viscel.completeNarration(nar))
+		for (bm <- Viscel.bookmarks; fullNarration <- Viscel.narration(nar))
 			Viscel.setBody(Front.gen(bm.getOrElse(nar.id, 0), fullNarration))
 	}
 

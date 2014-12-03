@@ -33,10 +33,10 @@ final case class Collection(self: Node) extends AnyVal {
 
 		if (deep) {
 			val (size, assets, chapters) = allAssets(self)
-			Narration(id, name, size, Gallery.fromList(assets.reverse), chapters)
+			Narration(id, name, Gallery.fromList(assets.reverse), chapters)
 		}
 		else {
-			Narration(id, name, size, Gallery.fromList(Nil), Nil)
+			Narration(id, name, Gallery.fromList(Nil), Nil)
 		}
 	}
 
@@ -49,7 +49,7 @@ object Collection {
 		neo.node(label.Collection, "id", id).map { Collection.apply }
 
 
-	def findAndUpdate(narrator: Narrator)(implicit ntx: Ntx): Collection = {
+	def findAndUpdate(narrator: Narrator)(implicit ntx: Ntx): Collection = synchronized {
 		val col = find(narrator.id)
 		col.foreach(_.name = narrator.name)
 		col.getOrElse { Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name)) }

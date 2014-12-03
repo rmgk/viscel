@@ -29,7 +29,7 @@ object Index {
 			val result: List[(Narration, Int, Int)] =
 				bookmarks.map { case (id, pos) =>
 					narrations.get(id).map { nr =>
-						(nr, pos, nr.size - pos)
+						(nr, pos, nr.narrates.size - pos)
 					}
 				}.toList.flatten
 

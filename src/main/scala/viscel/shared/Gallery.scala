@@ -13,6 +13,7 @@ case class Gallery[A](left: List[A], right: List[A]) {
 	lazy val pos: Int = left.size
 	override lazy val toString: String = s"Gallery(${left.reverse.mkString(", ")} | ${right.mkString(", ")})"
 	def isEnd: Boolean = right.isEmpty
+	def isEmpty: Boolean = right.isEmpty && left.isEmpty
 }
 
 object Gallery {
