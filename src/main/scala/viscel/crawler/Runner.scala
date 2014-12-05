@@ -45,7 +45,11 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 				val res = neo.tx { request.handler(response) }
 				continue(res)
 			}
-		}(ec).onFailure { case t: Throwable => t.printStackTrace() }(ec)
+		}(ec).onFailure { case t: Throwable =>
+			Log.error(s"error in $narrator")
+			t.printStackTrace()
+			Clockwork.finish(narrator, this)
+		}(ec)
 	}
 
 	override def run(): Unit = if (!cancel) synchronized {
