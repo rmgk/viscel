@@ -11,7 +11,7 @@ import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding._
 import viscel.database.Ntx
 import viscel.shared.{AbsUri, Story}
-import viscel.{Log, Deeds}
+import viscel.{Deeds, Log}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

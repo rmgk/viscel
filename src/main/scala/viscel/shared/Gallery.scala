@@ -1,6 +1,6 @@
 package viscel.shared
 
-import upickle.{Writer, Js, Reader, writeJs}
+import upickle.{Reader, Writer, writeJs}
 
 case class Gallery[A](left: List[A], right: List[A]) {
 	lazy val toList: List[A] = left reverse_::: right

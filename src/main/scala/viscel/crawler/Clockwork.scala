@@ -3,10 +3,10 @@ package viscel.crawler
 import rescala.Evt
 import rescala.propagation.Engines.default
 import spray.client.pipelining.SendReceive
-import viscel.{Log, Deeds}
 import viscel.database._
 import viscel.narration.Narrator
 import viscel.store.Collection
+import viscel.{Deeds, Log}
 
 import scala.collection.concurrent
 import scala.concurrent.{ExecutionContext, Future}

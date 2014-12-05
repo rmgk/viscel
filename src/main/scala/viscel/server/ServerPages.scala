@@ -1,6 +1,7 @@
 package viscel.server
 
 import org.neo4j.tooling.GlobalGraphOperations
+import rescala.propagation.Engines.default
 import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
@@ -9,8 +10,6 @@ import viscel.database.{Ntx, label}
 import viscel.narration.Narrator
 import viscel.shared.JsonCodecs.stringMapW
 import viscel.store.{Collection, Config, User}
-import rescala.propagation.Engines.default
-
 
 import scala.Predef.ArrowAssoc
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter

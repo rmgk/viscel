@@ -4,7 +4,6 @@ import java.nio.charset.Charset
 import java.nio.file.{Files, Path, Paths}
 
 import org.scalactic.{Bad, ErrorMessage, Good, Or}
-import upickle.{Reader, Writer}
 import viscel.shared.JsonCodecs.{case3RW, stringMapR, stringMapW}
 import viscel.shared.ReaderWriter
 
@@ -17,7 +16,6 @@ final case class User(id: String, password: String, bookmarks: Map[String, Int])
 }
 
 object User {
-
 
 	implicit val userRW: ReaderWriter[User] = case3RW(User.apply, User.unapply)("id", "password", "bookmarks")
 

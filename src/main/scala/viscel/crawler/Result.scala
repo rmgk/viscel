@@ -1,6 +1,5 @@
 package viscel.crawler
 
-import org.scalactic.ErrorMessage
 import spray.http.{HttpRequest, HttpResponse}
 import viscel.database.Ntx
 

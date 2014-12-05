@@ -1,7 +1,8 @@
 package viscel.shared
 
 import upickle.Js.Value
-import upickle.{Js, Reader => R, Writer => W, writeJs, readJs}
+import upickle.{Js, readJs, writeJs, Reader => R, Writer => W}
+
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
 

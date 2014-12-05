@@ -1,16 +1,13 @@
 package viscel.crawler
 
-import java.nio.file.{Files, Paths}
-
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import org.scalactic.ErrorMessage
 import spray.client.pipelining.SendReceive
 import viscel.Log
-import viscel.database.{Util, ArchiveManipulation, Neo, NodeOps, Ntx}
+import viscel.database.{ArchiveManipulation, Neo, NodeOps, Ntx, Util}
 import viscel.narration.Narrator
 import viscel.shared.Story
-import viscel.store.Cache.hashToFilename
 import viscel.store.Coin.{Asset, Page}
 import viscel.store.{Cache, Coin, Collection}
 

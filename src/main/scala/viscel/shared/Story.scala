@@ -1,7 +1,5 @@
 package viscel.shared
 
-import upickle.{Js, Reader, Writer, readJs, writeJs}
-
 import scala.collection.immutable.Map
 import scala.language.implicitConversions
 

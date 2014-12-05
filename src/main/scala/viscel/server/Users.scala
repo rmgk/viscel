@@ -1,13 +1,13 @@
 package viscel.server
 
+import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Bad, Good}
-import spray.routing.authentication.{UserPass, UserPassAuthenticator, BasicAuth}
+import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import viscel.Log
 import viscel.store.User
-import org.scalactic.TypeCheckedTripleEquals._
 
-import scala.collection.immutable.Map
 import scala.Predef.ArrowAssoc
+import scala.collection.immutable.Map
 import scala.concurrent.{ExecutionContext, Future}
 
 class Users(implicit ec: ExecutionContext) {

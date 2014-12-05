@@ -1,17 +1,17 @@
 package viscel
 
-import java.util.concurrent.{TimeUnit, ThreadPoolExecutor, LinkedBlockingQueue}
+import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
-import joptsimple.{OptionParser, BuiltinHelpFormatter, OptionException, OptionSpecBuilder, OptionSet, OptionSpec}
+import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
 import org.scalactic.TypeCheckedTripleEquals._
 import rescala.propagation.Engines.default
 import spray.can.Http
 import spray.client.pipelining
 import spray.http.HttpEncodings
 import viscel.crawler.Clockwork
-import viscel.database.{NeoInstance, Neo}
+import viscel.database.NeoInstance
 import viscel.server.Server
 import viscel.store.Config
 
@@ -35,7 +35,7 @@ object Viscel {
 	def main(args: Array[String]): Unit = run(args: _*)
 
 	def run(args: String*) = {
-		import Options._
+		import viscel.Viscel.Options._
 		val formatWidth = try { new jline.console.ConsoleReader().getTerminal.getWidth }
 		catch { case e: Throwable => 80 }
 		formatHelpWith(new BuiltinHelpFormatter(formatWidth, 4))
