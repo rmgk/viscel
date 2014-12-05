@@ -2,12 +2,12 @@ package viscel.narration
 
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import org.scalactic.Accumulation._
-import org.scalactic._
-import viscel.narration.SelectUtil._
+import org.scalactic.Accumulation.convertGenTraversableOnceToValidatable
+import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
+import viscel.narration.SelectUtil.{blame, caller, extract}
 
 import scala.Predef.$conforms
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 sealed trait Selection {
 	/** select exactly one element */
