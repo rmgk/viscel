@@ -86,8 +86,6 @@ object Settings {
 			"""import akka.actor.{ ActorSystem, Props, Actor }
 			  |import akka.io.IO
 			  |import akka.util.Timeout
-			  |//import com.twitter.util.Eval
-			  |import com.typesafe.scalalogging.slf4j.StrictLogging
 			  |import org.jsoup._
 			  |import org.neo4j.graphdb._
 			  |import scala.collection.JavaConversions._
