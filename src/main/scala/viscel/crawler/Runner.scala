@@ -23,7 +23,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 	override def toString: String = s"Job(${ narrator.toString })"
 
 	def start(): Future[List[ErrorMessage]] = {
-		neo.tx { ArchiveManipulation.applyNarration(collection.self, narrator.archive)(_) }
+		neo.tx { Archive.applyNarration(collection.self, narrator.archive)(_) }
 		run(strategy(collection.self, nextSelect))
 	}
 
@@ -91,7 +91,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 			case Story.Failed(msg) => msg
 		}.flatten
 		if (failed.isEmpty) {
-			ArchiveManipulation.applyNarration(pageNode.self, wrapped)
+			Archive.applyNarration(pageNode.self, wrapped)
 		}
 		failed
 	}
@@ -103,7 +103,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 	}
 
 	val recheckOld: Select = ntx => {
-		case n@Coin.isPage(page) if ArchiveManipulation.needsRecheck(n)(ntx) || (page.self.describes(ntx) eq null) => Some(n)
+		case n@Coin.isPage(page) if Archive.needsRecheck(n)(ntx) || (page.self.describes(ntx) eq null) => Some(n)
 		case n@Coin.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
 		case _ => None
 	}

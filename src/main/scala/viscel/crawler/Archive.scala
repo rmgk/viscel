@@ -11,7 +11,7 @@ import viscel.store.Coin
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-object ArchiveManipulation {
+object Archive {
 
 	private def connectLayer(layer: List[Node])(implicit neo: Ntx): List[Node] = {
 		layer.reduceLeftOption { (prev, next) => prev narc_= next; next }
