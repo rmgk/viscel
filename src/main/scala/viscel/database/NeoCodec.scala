@@ -50,7 +50,7 @@ object NeoCodec {
 
 	implicit val assetCodec: NeoCodec[Asset] = new NeoCodec[Asset] {
 		override def write(value: Asset)(implicit ntx: Ntx): Node = {
-			val asset = ntx.create(label.Asset, "source" -> value.source, "origin" -> value.origin, "metadata" -> value.metadata)
+			val asset = ntx.create(label.Asset, "source" -> value.source.toString, "origin" -> value.origin.toString, "metadata" -> upickle.write(value.metadata))
 			value.blob.foreach{ b =>
 				val blob = create(b)
 				asset.to_=(rel.blob, blob)
