@@ -8,7 +8,7 @@ import spray.can.Http
 import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.{HttpService, Route}
-import viscel.Viscel
+import viscel.{Log, Viscel}
 import viscel.database.Neo
 import viscel.narration.Narrator
 import viscel.store.BlobStore.hashToFilename
@@ -55,6 +55,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 					Future {
 						spray.util.actorSystem.shutdown()
 						Viscel.neo.shutdown()
+						Log.info("shutdown complete")
 					}
 					"shutdown"
 				}
