@@ -38,6 +38,7 @@ object Viscel {
 			narrations.map(_(nar.id))
 		}
 
+	def hint(nar: Narration): Unit = dom.extensions.Ajax.post(s"/hint/narrator/${nar.id}")
 
 	def postBookmark(nar: Narration, pos: Int): Future[Map[String, Int]] = {
 		val res = dom.extensions.Ajax.post("/bookmarks", s"narration=${ nar.id }&bookmark=$pos", headers = List("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))

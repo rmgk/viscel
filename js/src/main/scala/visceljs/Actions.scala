@@ -47,6 +47,7 @@ object Actions {
 	def gotoFront(nar: Narration): Unit = {
 		pushFront(nar)
 		setBodyFront(nar)
+		Viscel.hint(nar)
 	}
 
 	def gotoView(gallery: Gallery[Asset], nar: Narration): Unit = {

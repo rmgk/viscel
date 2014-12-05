@@ -4,15 +4,16 @@ import java.io.File
 
 import akka.actor.{Actor, ActorRefFactory}
 import akka.pattern.ask
+import rescala.propagation.Engines.default
 import spray.can.Http
 import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.{HttpService, Route}
-import viscel.{Log, Viscel}
 import viscel.database.Neo
 import viscel.narration.Narrator
 import viscel.store.BlobStore.hashToFilename
 import viscel.store.{Collection, User}
+import viscel.{Deeds, Log, Viscel}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.concurrent.duration.DurationInt
@@ -92,6 +93,15 @@ class Server(neo: Neo) extends Actor with HttpService {
 						getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).get))
 					}
 			} ~
+			pathPrefix("hint") {
+				path("narrator" / Segment) { narratorID =>
+					val narO = Narrator.get(narratorID)
+					rejectNone(narO) { nar =>
+						Deeds.narratorHint(nar)
+						complete("true")
+					}
+				}
+			}
 			path("stats") {
 				complete {
 					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
