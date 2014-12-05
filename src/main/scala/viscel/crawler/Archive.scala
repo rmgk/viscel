@@ -46,7 +46,6 @@ object Archive {
 	}
 
 	implicit val assetEquality: Equality[Asset] = new Equality[Asset] {
-		Log.info("used custom equality")
 		override def areEqual(a: Asset, b: Any): Boolean = b match {
 			case Asset(source, origin, metadata, blob) => a.source === source && a.origin === origin && a.metadata === metadata
 			case _ => false
@@ -55,10 +54,7 @@ object Archive {
 
 	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[(Node, Story)] = {
 		val oldLayer = target.layerBelow
-		val oldNarration = oldLayer map (NeoCodec.load[Story](_) match {
-			case Story.Asset(s, o, m, _) => Story.Asset(s, o, m)
-			case other => other
-		})
+		val oldNarration = oldLayer map NeoCodec.load[Story]
 
 		if (oldNarration === narration) {
 			updateDates(target, changed = false)
