@@ -11,7 +11,7 @@ import spray.routing.{HttpService, Route}
 import viscel.Viscel
 import viscel.database.Neo
 import viscel.narration.Narrator
-import viscel.store.Cache.hashToFilename
+import viscel.store.BlobStore.hashToFilename
 import viscel.store.{Collection, User}
 
 import scala.Predef.{$conforms, ArrowAssoc}

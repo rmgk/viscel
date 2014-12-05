@@ -2,7 +2,7 @@ package viscel.store
 
 import java.nio.file.{Files, Paths}
 
-object Cache {
+object BlobStore {
 
 	def write(sha1: String, bytes: Array[Byte]) = {
 		val path = Paths.get(hashToFilename(sha1))

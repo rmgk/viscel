@@ -10,7 +10,7 @@ import viscel.database.{NeoCodec, Neo, Ntx}
 import viscel.narration.Narrator
 import viscel.shared.Story
 import viscel.shared.Story.Asset
-import viscel.store.{Cache, Collection}
+import viscel.store.{BlobStore, Collection}
 
 import scala.Predef.$conforms
 import scala.annotation.tailrec
