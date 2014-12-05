@@ -6,7 +6,7 @@ import org.scalactic.ErrorMessage
 import spray.client.pipelining.SendReceive
 import viscel.Log
 import viscel.database.Implicits.NodeOps
-import viscel.database.{ArchiveManipulation, Neo, Ntx, Util}
+import viscel.database.{Neo, Ntx}
 import viscel.narration.Narrator
 import viscel.shared.Story
 import viscel.store.Coin.{Asset, Page}
@@ -103,7 +103,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 	}
 
 	val recheckOld: Select = ntx => {
-		case n@Coin.isPage(page) if Util.needsRecheck(n)(ntx) || (page.self.describes(ntx) eq null) => Some(n)
+		case n@Coin.isPage(page) if ArchiveManipulation.needsRecheck(n)(ntx) || (page.self.describes(ntx) eq null) => Some(n)
 		case n@Coin.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
 		case _ => None
 	}
