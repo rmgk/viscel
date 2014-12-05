@@ -55,8 +55,6 @@ object Viscel {
 			sys.exit(0)
 		}
 
-		sys.addShutdownHook { neo.shutdown() }
-
 		if (!nodbwarmup.?) time("warmup db") { neo.txs {} }
 
 		val configNode = neo.tx { ntx => Config.get()(ntx) }

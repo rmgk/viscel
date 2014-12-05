@@ -32,6 +32,9 @@ class NeoInstance(path: String) extends Neo with Ntx {
 	val db: GraphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path)
 		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE).newGraphDatabase()
 
+	sys.addShutdownHook { shutdown() }
+
+
 	def shutdown(): Unit = {
 		//txt("export") { ArchiveExport.exportAll(_) }
 		db.shutdown()
