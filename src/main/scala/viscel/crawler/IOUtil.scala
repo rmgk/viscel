@@ -1,6 +1,5 @@
 package viscel.crawler
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import rescala.propagation.Engines.default
@@ -10,14 +9,14 @@ import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding._
 import viscel.database.Ntx
 import viscel.shared.{AbsUri, Story}
-import viscel.{Deeds, sha1hex}
+import viscel.{Log, Deeds, sha1hex}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.Predef.identity
 
 
-object IOUtil extends StrictLogging {
+object IOUtil {
 
 	type ResponseHandler[A, R] = A => Ntx => Future[R]
 
@@ -27,7 +26,7 @@ object IOUtil extends StrictLogging {
 
 	def getResponse(request: HttpRequest, iopipe: SendReceive): Future[HttpResponse] = {
 		val result = request ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
-		logger.info(s"get ${ request.uri } (${ request.headers })")
+		Log.info(s"get ${ request.uri } (${ request.headers })")
 		result.andThen(PartialFunction(Deeds.responses.apply)).map { decode(Gzip) ~> decode(Deflate) }
 	}
 

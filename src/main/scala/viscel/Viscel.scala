@@ -4,7 +4,6 @@ import java.util.concurrent.{TimeUnit, ThreadPoolExecutor, LinkedBlockingQueue}
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import joptsimple._
 import org.scalactic.TypeCheckedTripleEquals._
 import rescala.propagation.Engines.default
@@ -21,7 +20,7 @@ import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.util.{Failure, Success}
 
-object Viscel extends StrictLogging {
+object Viscel {
 
 	def main(args: Array[String]): Unit = run(args: _*)
 
@@ -52,7 +51,7 @@ object Viscel extends StrictLogging {
 
 		val configNode = NeoSingleton.tx { ntx => Config.get()(ntx) }
 
-		logger.info(s"config version: ${ NeoSingleton.tx { ntx => configNode.version(ntx) } }")
+		Log.info(s"config version: ${ NeoSingleton.tx { ntx => configNode.version(ntx) } }")
 
 		if (createIndexes.?) {
 			//NeoSingleton.execute("create index on :Collection(id)")
@@ -77,7 +76,7 @@ object Viscel extends StrictLogging {
 				iopipe,
 				NeoSingleton)
 			Deeds.jobResult += {
-				case messages@_ :: _ => logger.error(s"some job failed: $messages")
+				case messages@_ :: _ => Log.error(s"some job failed: $messages")
 				case Nil =>
 			}
 		}

@@ -4,7 +4,6 @@ import java.io.File
 
 import akka.actor.{Actor, ActorRefFactory}
 import akka.pattern.ask
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Bad, Good}
 import rescala.propagation.Engines.default
@@ -13,7 +12,7 @@ import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
-import viscel.Deeds
+import viscel.{Log, Deeds}
 import viscel.database.{Neo, NeoSingleton}
 import viscel.narration.Narrator
 import viscel.store.{Collection, User}
@@ -24,7 +23,7 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
 
-class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
+class Server(neo: Neo) extends Actor with HttpService {
 
 	implicit def neoIsImplicit: Neo = neo
 
@@ -52,7 +51,7 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 			val user = User.load(name) match {
 				case Good(g) => g
 				case Bad(e) =>
-					logger.warn(s"could not open user $name: $e")
+					Log.warn(s"could not open user $name: $e")
 					User(name, password, Map())
 			}
 			userCache += name -> user
@@ -62,7 +61,7 @@ class Server(neo: Neo) extends Actor with HttpService with StrictLogging {
 
 	val loginOrCreate = BasicAuth(UserPassAuthenticator[User] {
 		case Some(UserPass(user, password)) =>
-			logger.trace(s"login: $user $password")
+			Log.trace(s"login: $user $password")
 			// time("login") {
 			if (user.matches("\\w+")) {
 				Future.successful { Some(getUserNode(user, password)).filter(_.password === password) }

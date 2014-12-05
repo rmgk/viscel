@@ -2,11 +2,11 @@ package viscel.crawler
 
 import java.nio.file.{Files, Paths}
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import org.scalactic.ErrorMessage
 import spray.client.pipelining.SendReceive
+import viscel.Log
 import viscel.database.{Util, ArchiveManipulation, Neo, NodeOps, Ntx}
 import viscel.narration.Narrator
 import viscel.shared.Story
@@ -19,7 +19,7 @@ import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, neo: Neo, ec: ExecutionContext) extends StrictLogging {
+class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, neo: Neo, ec: ExecutionContext) {
 
 	override def toString: String = s"Job(${ narrator.toString })"
 
@@ -75,7 +75,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 
 
 	def writeAsset[R](core: Narrator, assetNode: Asset)(blob: (Array[Byte], Story.Blob))(ntx: Ntx): List[ErrorMessage] = {
-		logger.debug(s"$core: received blob, applying to $assetNode")
+		Log.debug(s"$core: received blob, applying to $assetNode")
 		val path = Paths.get(viscel.hashToFilename(blob._2.sha1))
 		Files.createDirectories(path.getParent)
 		Files.write(path, blob._1)
@@ -84,7 +84,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 	}
 
 	def writePage(core: Narrator, pageNode: Page)(doc: Document)(ntx: Ntx): List[ErrorMessage] = {
-		logger.debug(s"$core: received ${
+		Log.debug(s"$core: received ${
 			doc.baseUri()
 		}, applying to $pageNode")
 		implicit def tx: Ntx = ntx

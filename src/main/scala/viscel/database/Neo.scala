@@ -1,11 +1,10 @@
 package viscel.database
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.factory.{GraphDatabaseFactory, GraphDatabaseSettings}
 import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
 import org.neo4j.helpers.Settings
 import org.neo4j.tooling.GlobalGraphOperations
-import viscel.time
+import viscel.{Log, time}
 
 import scala.collection.JavaConverters._
 import scala.collection.Map
@@ -31,7 +30,7 @@ trait Ntx {
 }
 
 
-object NeoSingleton extends Neo with Ntx with StrictLogging {
+object NeoSingleton extends Neo with Ntx {
 	val db: GraphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("neoViscelStore")
 		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE).newGraphDatabase()
 
@@ -56,7 +55,7 @@ object NeoSingleton extends Neo with Ntx with StrictLogging {
 
 	def create(label: Label, attributes: (String, Any)*): Node = create(label, attributes.toMap)
 	def create(label: Label, attributes: Map[String, Any]): Node = {
-		logger.debug(s"create node $label($attributes)")
+		Log.debug(s"create node $label($attributes)")
 		val node = db.createNode(label)
 		node.setProperty("created", System.currentTimeMillis)
 		attributes.foreach { case (k, v) => node.setProperty(k, v) }
@@ -64,7 +63,7 @@ object NeoSingleton extends Neo with Ntx with StrictLogging {
 	}
 
 	def delete(node: Node) = {
-		logger.trace(s"delete node $node")
+		Log.trace(s"delete node $node")
 		node.getRelationships.asScala.foreach { _.delete() }
 		node.delete()
 	}

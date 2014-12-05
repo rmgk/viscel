@@ -1,6 +1,5 @@
 package viscel.narration.narrators
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
@@ -10,7 +9,7 @@ import viscel.shared.Story
 import viscel.shared.Story.{Chapter, More}
 
 
-object Twokinds extends Narrator with StrictLogging {
+object Twokinds extends Narrator {
 
 	def archive = More("http://twokinds.keenspot.com/?p=archive", "archive") :: More("http://twokinds.keenspot.com/index.php", "main") :: Nil
 

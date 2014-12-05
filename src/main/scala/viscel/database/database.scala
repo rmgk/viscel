@@ -1,12 +1,11 @@
 package viscel
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.neo4j.graphdb.{Direction, Node, Relationship, RelationshipType}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
-package object database extends StrictLogging {
+package object database {
 
 	implicit class NodeOps(val self: Node) extends AnyVal {
 		def prop[T](key: String)(implicit neo: Ntx): T = self.getProperty(key).asInstanceOf[T]
@@ -16,7 +15,7 @@ package object database extends StrictLogging {
 			case other => other.getEndNode
 		}
 		def to_=(rel: RelationshipType, other: Node)(implicit neo: Ntx): Relationship = {
-			logger.trace(s"create rel: $self -$rel-> $other")
+			Log.trace(s"create rel: $self -$rel-> $other")
 			outgoing(rel).foreach(_.delete())
 			self.createRelationshipTo(other, rel)
 		}
@@ -25,7 +24,7 @@ package object database extends StrictLogging {
 			case other => other.getStartNode
 		}
 		def from_=(rel: RelationshipType, other: Node)(implicit neo: Ntx): Relationship = {
-			logger.trace(s"create rel: $self <-$rel- $other")
+			Log.trace(s"create rel: $self <-$rel- $other")
 			incoming(rel).foreach(_.delete())
 			other.createRelationshipTo(self, rel)
 		}

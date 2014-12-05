@@ -1,15 +1,14 @@
 import java.security.MessageDigest
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import scala.Predef.augmentString
 
-package object viscel extends StrictLogging {
+package object viscel {
 	val digester = MessageDigest.getInstance("SHA1")
 
 	def time[T](desc: String = "")(f: => T): T = {
 		val start = System.nanoTime
 		val res = f
-		logger.info(s"$desc took ${ (System.nanoTime - start) / 1000000.0 } ms")
+		Console.println(s"$desc took ${ (System.nanoTime - start) / 1000000.0 } ms")
 		res
 	}
 

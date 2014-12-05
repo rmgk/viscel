@@ -1,6 +1,5 @@
 package viscel.narration.narrators
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
@@ -11,7 +10,7 @@ import viscel.shared.Story.{Chapter, More}
 
 import scala.language.implicitConversions
 
-object Misfile extends Narrator with StrictLogging {
+object Misfile extends Narrator {
 	def archive = More("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", "archive") :: Nil
 
 	def id: String = "NX_Misfile"

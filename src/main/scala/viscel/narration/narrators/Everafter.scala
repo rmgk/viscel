@@ -1,6 +1,5 @@
 package viscel.narration.narrators
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.narration.SelectUtil._
@@ -8,7 +7,7 @@ import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More
 
-object Everafter extends Narrator with StrictLogging {
+object Everafter extends Narrator {
 	def archive = More("http://ea.snafu-comics.com/archive.php", "archive") :: Nil
 
 	def id: String = "Snafu_Everafter"
