@@ -149,7 +149,7 @@ aside input {
 		width: 100%;
 	}
 }
-@media only screen and (min-height: 1024px) {
+@media only screen and (min-height: 1024px) and (min-width: 1024px) {
 	#view img {
 		max-height: 100vh;
 	}
