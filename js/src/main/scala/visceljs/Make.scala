@@ -17,14 +17,13 @@ object Make {
 
 	def searchArea(narrations: List[Narration]): HtmlTag = aside {
 		val results = ol.render
-		var filtered = Seq[Narration]()
+		var filtered = narrations
+		filtered.foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
 		lazy val inputField: HTMLInputElement = input(`type` := "textfield", autofocus := true, onkeyup := { () =>
 			results.innerHTML = ""
 			val query = inputField.value.toString.toLowerCase
-			if (!query.isEmpty) {
-				filtered = SearchUtil.search(query, narrations.map(n => n.name -> n))
-				filtered.foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
-			}
+			filtered = SearchUtil.search(query, narrations.map(n => n.name -> n))
+			filtered.foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
 		}).render
 
 		form(fieldset(legend("Search"), inputField, results), action := "", onsubmit := { () => filtered.headOption.foreach(gotoFront); false })
