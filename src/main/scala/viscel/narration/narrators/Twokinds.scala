@@ -31,6 +31,6 @@ object Twokinds extends Narrator {
 	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
 		case "archive" => wrapArchive(doc)
 		case "page" => Selection(doc).unique("#cg_img img").wrapEach { imgIntoAsset }
-		case "main" => Selection(doc).unique(".comic img").wrapEach { imgIntoAsset }
+		case "main" => Selection(doc).unique(".comic img[src~=images/\\d+\\.\\w+]").wrapEach { imgIntoAsset }
 	})
 }
