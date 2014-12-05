@@ -4,9 +4,8 @@ import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.Log
 import viscel.database.Implicits.NodeOps
-import viscel.database.{Ntx, rel}
+import viscel.database.{NeoCodec, Ntx, rel}
 import viscel.shared.Story
-import viscel.store.NeoCodec
 
 import scala.annotation.tailrec
 import scala.collection.mutable

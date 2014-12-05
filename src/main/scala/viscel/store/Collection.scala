@@ -2,7 +2,7 @@ package viscel.store
 
 import org.neo4j.graphdb.Node
 import viscel.database.Implicits.NodeOps
-import viscel.database.{Ntx, label}
+import viscel.database.{NeoCodec, Ntx, label}
 import viscel.narration.Narrator
 import viscel.shared.Story.{Chapter, Asset, Narration}
 import viscel.shared.{Gallery, Story}

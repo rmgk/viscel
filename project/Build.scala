@@ -236,7 +236,7 @@ object SourceGeneration {
 			|import viscel.database.Implicits.NodeOps
 			|import viscel.database.Ntx
 			|import viscel.database.label.SimpleLabel
-			|import viscel.store.NeoCodec
+			|import viscel.database.NeoCodec
 			|object NeoCodecs {
 			|${definitions.mkString("\n")}
 			|}
