@@ -4,8 +4,10 @@ import org.neo4j.graphdb.Node
 import viscel.shared.JsonCodecs.stringMapR
 import viscel.shared.Story
 import viscel.shared.Story.{Asset, Blob, Chapter, Core, Failed, More}
+import Implicits.NodeOps
 
 import scala.collection.immutable.Map
+import scala.Predef.ArrowAssoc
 
 trait NeoCodec[T] {
 	def read(node: Node)(implicit ntx: Ntx): T
@@ -42,9 +44,24 @@ object NeoCodec {
 		readf = (n, md) => Chapter(n, upickle.read[Map[String, String]](md)),
 		writef = chap => (chap.name, upickle.write(chap.metadata)))
 
-	implicit val assetCodec: NeoCodec[Asset] = case3RW[Asset, String, String, String](label.Asset, "source", "origin", "metadata")(
+	case3RW[Asset, String, String, String](label.Asset, "source", "origin", "metadata")(
 		readf = (s, o, md) => Asset(s, o, upickle.read[Map[String, String]](md)),
 		writef = asset => (asset.source, asset.origin, upickle.write(asset.metadata)))
+
+	implicit val assetCodec: NeoCodec[Asset] = new NeoCodec[Asset] {
+		override def write(value: Asset)(implicit ntx: Ntx): Node = {
+			val asset = ntx.create(label.Asset, "source" -> value.source, "origin" -> value.origin, "metadata" -> value.metadata)
+			value.blob.foreach{ b =>
+				val blob = create(b)
+				asset.to_=(rel.blob, blob)
+			}
+			asset
+		}
+		override def read(node: Node)(implicit ntx: Ntx): Asset = {
+			val blob = Option(node.to(rel.blob)).map(story[Blob])
+			Asset(node.prop[String]("source"), node.prop[String]("origin"), upickle.read[Map[String,String]](node.prop[String]("metadata")), blob)
+		}
+	}
 
 	implicit val moreCodec: NeoCodec[More] = case2RW[More, String, String](label.More, "loc", "kind")(
 		readf = (l, p) => More(l, p),
