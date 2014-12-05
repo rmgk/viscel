@@ -2,117 +2,100 @@ package viscel.crawler
 
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
-import org.scalactic.ErrorMessage
 import spray.client.pipelining.SendReceive
 import viscel.Log
+import viscel.crawler.IOUtil.Request
 import viscel.database.Implicits.NodeOps
-import viscel.database.{NeoCodec, Neo, Ntx}
+import viscel.database.{Neo, NeoCodec, Ntx, rel}
 import viscel.narration.Narrator
 import viscel.shared.Story
-import viscel.shared.Story.Asset
+import viscel.shared.Story.{Asset, Failed, More}
 import viscel.store.{BlobStore, Collection}
 
-import scala.Predef.$conforms
-import scala.annotation.tailrec
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-import scala.concurrent.{ExecutionContext, Future}
+import scala.Predef.ArrowAssoc
+import scala.concurrent.ExecutionContext
 
 
-class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, neo: Neo, ec: ExecutionContext) {
+class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, neo: Neo, ec: ExecutionContext) extends Runnable {
 
 	override def toString: String = s"Job(${ narrator.toString })"
 
-	def start(): Future[List[ErrorMessage]] = { Predef.???
-//		neo.tx { Archive.applyNarration(collection.self, narrator.archive)(_) }
-//		run(strategy(collection.self, nextSelect))
+	var assets: List[(Node, Asset)] = Nil
+	var pages: List[(Node, More)] = Nil
+	@volatile var cancel: Boolean = false
+
+	def init() = synchronized {
+		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
+			Archive.applyNarration(collection.self, narrator.archive)
+			collection.self.next.foreach(_.fold(()) { _ => node =>
+				NeoCodec.load[Story](node) match {
+					case m@More(loc, kind) if Archive.needsRecheck(node) => pages ::= node -> m
+					case a@Asset(source, origin, metadata, None) => assets ::= node -> a
+					case _ =>
+				}
+			})
+		}
+		else Log.error("tried to initialize non empty runner")
 	}
 
-//	private def run[R](r: Ntx => Request[R]): Future[R] = {
-//		neo.tx { r } match {
-//			case Req(request, handler) =>
-//				IOUtil.getResponse(request, iopipe).flatMap { res =>
-//					neo.tx { handler(res) }
-//				}(ec)
-//			case RequestDone(result) => Future.successful(result)
-//
-//		}
-//	}
-//
-//	type Select = Ntx => Node => Option[Node]
-//
-//
-//
-//	def continueOrDone(nopt: Option[Node], select: Select, ntx: Ntx): Future[List[ErrorMessage]] =
-//		nopt.fold[Future[List[ErrorMessage]]](Future.successful(Nil))(n => run(strategy(n.self, select)))
-//
-//
-//	val nextSelect: Select = ntx => n => repeat(n.next(ntx), _.next(ntx), unseenOnly(shallow = false)(ntx))
-//	val forcePrevPage: Select = ntx => state => repeat(state.prev(ntx), _.prev(ntx), NeoCodec.isPage).map(_.self)
-//
-//	def strategy(state: Node, select: Select)(ntx: Ntx): Request[List[ErrorMessage]] = {
-//		val selected = select(ntx)(state)
-//		selected match {
-//			case Some(NeoCodec.isPage(page)) =>
-//				IOUtil.documentRequest(page.location(ntx)) { doc => ntx =>
-//					val errors = writePage(narrator, page)(doc)(ntx)
-//					if (errors.nonEmpty) {
-//						continueOrDone(forcePrevPage(ntx)(page.self), select, ntx)
-//					}
-//					else {
-//						continueOrDone(Some(page.self), select, ntx)
-//					}
-//				}
-//			case Some(NeoCodec.isAsset(asset)) => IOUtil.blobRequest(asset.source(ntx), asset.origin(ntx)) { blob => ntx =>
-//				writeAsset(narrator, asset)(blob)(ntx)
-//				continueOrDone(Some(asset.self), select, ntx)
-//			}
-//			case Some(other) => RequestDone(s"can only request pages and assets not ${ other.getLabels.asScala.toList }" :: Nil)
-//			case None => RequestDone(Nil)
-//		}
-//
-//	}
-//
-//
-//	def writeAsset[R](core: Narrator, assetNode: Asset)(blob: (Array[Byte], Story.Blob))(ntx: Ntx): List[ErrorMessage] = {
-//		Log.debug(s"$core: received blob, applying to $assetNode")
-//		Cache.write(blob._2.sha1, blob._1)
-//
-//		assetNode.blob_=(NeoCodec.Blob(NeoCodec.create(blob._2)(ntx)))(ntx)
-//		Nil
-//	}
-//
-//	def writePage(core: Narrator, pageNode: Page)(doc: Document)(ntx: Ntx): List[ErrorMessage] = {
-//		Log.debug(s"$core: received ${
-//			doc.baseUri()
-//		}, applying to $pageNode")
-//		implicit def tx: Ntx = ntx
-//		val wrapped = core.wrap(doc, pageNode.story.kind)
-//		val failed = wrapped.collect {
-//			case Story.Failed(msg) => msg
-//		}.flatten
-//		if (failed.isEmpty) {
-//			Archive.applyNarration(pageNode.self, wrapped)
-//		}
-//		failed
-//	}
-//
-//	def unseenOnly(shallow: Boolean): Select = ntx => {
-//		case n@NeoCodec.isPage(page) if page.self.describes(ntx) eq null => Some(n)
-//		case n@NeoCodec.isAsset(asset) if (!shallow) && asset.blob(ntx).isEmpty => Some(n)
-//		case _ => None
-//	}
-//
-//	val recheckOld: Select = ntx => {
-//		case n@NeoCodec.isPage(page) if Archive.needsRecheck(n)(ntx) || (page.self.describes(ntx) eq null) => Some(n)
-//		case n@NeoCodec.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
-//		case _ => None
-//	}
-//
-//	@tailrec
-//	final def repeat[R](n: Option[Node], f: Node => Option[Node], s: Node => Option[R]): Option[R] = (n flatMap s, n flatMap f) match {
-//		case (r@Some(_), _) => r
-//		case (None, next @ Some(_)) => repeat(next, f, s)
-//		case (None, None) => None
-//	}
+
+	def handle[R](request: Request[R])(continue: R => Unit) = {
+		IOUtil.getResponse(request.request, iopipe).map { response =>
+			synchronized {
+				val res = neo.tx { request.handler(response) }
+				continue(res)
+			}
+		}(ec).onFailure { case t: Throwable => t.printStackTrace() }(ec)
+	}
+
+	override def run(): Unit = if (!cancel) synchronized {
+		assets match {
+			case (node, asset) :: rest =>
+				assets = rest
+				handle(IOUtil.blobRequest(asset.source, asset.origin) { writeAsset(narrator, node, asset) }) { _ => ec.execute(this) }
+			case Nil => pages match {
+				case (node, page) :: rest =>
+					pages = rest
+					handle(IOUtil.documentRequest(page.loc) { writePage(narrator, node, page) }) {
+						case Right(failed) =>
+							Log.error(s"$narrator failed on $page: $failed")
+							Clockwork.finish(narrator, this)
+						case Left(created) =>
+							assets :::= created.collect { case (n, ast@Asset(_, _, _, None)) => (n, ast) }
+							pages :::= created.collect { case (n, page@More(_, _)) => (n, page) }
+							ec.execute(this)
+					}
+				case Nil =>
+					Log.info(s"runner for $narrator is done")
+					Clockwork.finish(narrator, this)
+			}
+		}
+	}
+
+
+	def writeAsset(core: Narrator, node: Node, asset: Asset)(blob: (Array[Byte], Story.Blob))(ntx: Ntx): Unit = {
+		Log.debug(s"$core: received blob, applying to $asset ($node)")
+		BlobStore.write(blob._2.sha1, blob._1)
+		node.to_=(rel.blob, NeoCodec.create(blob._2)(ntx, NeoCodec.blobCodec))(ntx)
+	}
+
+	def writePage(core: Narrator, node: Node, page: More)(doc: Document)(ntx: Ntx): Either[List[(Node, Story)], List[Failed]] = {
+		Log.debug(s"$core: received ${
+			doc.baseUri()
+		}, applying to $page")
+		implicit def tx: Ntx = ntx
+		val wrapped = core.wrap(doc, page.kind)
+		val failed = wrapped.collect {
+			case f @ Failed(msg) => f
+		}
+
+		if (failed.isEmpty) {
+			Left(Archive.applyNarration(node, wrapped))
+		}
+		else {
+			Right(failed)
+		}
+	}
+
 
 }

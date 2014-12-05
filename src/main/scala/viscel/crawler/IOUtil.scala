@@ -20,11 +20,13 @@ import scala.Predef.identity
 
 object IOUtil {
 
+	final case class Request[R](request: HttpRequest, handler: HttpResponse => Ntx => R)
+
 	val digester = MessageDigest.getInstance("SHA1")
 
 	def sha1hex(b: Array[Byte]) = Predef.wrapByteArray(digester.digest(b)).map { h => f"$h%02x" }.mkString
 
-	type ResponseHandler[A, R] = A => Ntx => Future[R]
+	type Handler[A, R] = A => Ntx => R
 
 	def uriToUri(in: java.net.URI): Uri = Uri.parseAbsolute(in.toString)
 
@@ -36,18 +38,18 @@ object IOUtil {
 		result.andThen(PartialFunction(Deeds.responses.apply)).map { decode(Gzip) ~> decode(Deflate) }
 	}
 
-	def request[R](source: AbsUri, origin: Option[AbsUri] = None)(withResponse: ResponseHandler[HttpResponse, R]): Request[R] = {
-		Request.Delayed(Get(uriToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](identity)(origin => addReferrer(uriToUri(origin))), withResponse)
+	def request[R](source: AbsUri, origin: Option[AbsUri] = None)(withResponse: Handler[HttpResponse, R]): Request[R] = {
+		Request(Get(uriToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](identity)(origin => addReferrer(uriToUri(origin))), withResponse)
 	}
 
-	def documentRequest[R](absuri: AbsUri)(withDocument: ResponseHandler[Document, R]): Request[R] = request(absuri) { res =>
+	def documentRequest[R](absuri: AbsUri)(withDocument: Handler[Document, R]): Request[R] = request(absuri) { res =>
 		withDocument(Jsoup.parse(
 			res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
 			res.header[Location].fold(ifEmpty = uriToUri(absuri))(_.uri).toString()))
 	}
 
 
-	def blobRequest[R](source: AbsUri, origin: AbsUri)(withBlob: ResponseHandler[(Array[Byte], Story.Blob), R]): Request[R] =
+	def blobRequest[R](source: AbsUri, origin: AbsUri)(withBlob: Handler[(Array[Byte], Story.Blob), R]): Request[R] =
 		request(source, Some(origin)) { res =>
 			val bytes = res.entity.data.toByteArray
 			withBlob((bytes,

@@ -28,21 +28,22 @@ object Archive {
 			deleteRecursive(below)
 	}
 
-	private def replaceLayer(oldLayer: List[Node], oldNarration: List[Story], newNarration: List[Story])(implicit neo: Ntx): List[Node] = {
+	private def replaceLayer(oldLayer: List[Node], oldNarration: List[Story], newNarration: List[Story])(implicit neo: Ntx): List[(Node, Boolean)] = {
 		val oldMap: mutable.Map[Story, Node] = mutable.Map(oldNarration zip oldLayer: _*)
-		val newLayer: List[Node] = newNarration.map { story =>
+		val newLayer: List[(Node, Boolean)] = newNarration.map { story =>
 			oldMap.get(story) match {
-				case None => NeoCodec.create(story)
+				case None => (NeoCodec.create(story), true)
 				case Some(oldCoin) =>
 					oldMap.remove(story)
-					oldCoin
+					(oldCoin, false)
 			}
 		}
 		deleteRecursive(oldMap.values.toList)
-		connectLayer(newLayer)
+		connectLayer(newLayer.map(_._1))
+		newLayer
 	}
 
-	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): Unit = {
+	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[(Node, Story)] = {
 		val oldLayer = target.layerBelow
 		val oldNarration = oldLayer map (NeoCodec.load[Story](_) match {
 			case Story.Asset(s, o, m, _) => Story.Asset(s, o, m)
@@ -51,11 +52,13 @@ object Archive {
 
 		if (oldNarration === narration) {
 			updateDates(target, changed = false)
+			Nil
 		}
 		else {
 			updateDates(target, changed = true)
 			val newLayer = replaceLayer(oldLayer, oldNarration, narration)
-			newLayer.headOption.foreach { head => target describes_= head }
+			newLayer.headOption.foreach { case (head, _) => target describes_= head }
+			narration zip newLayer collect { case (story, (node, true)) => (node, story) }
 		}
 	}
 
