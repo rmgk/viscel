@@ -11,7 +11,7 @@ import spray.can.Http
 import spray.client.pipelining
 import spray.http.HttpEncodings
 import viscel.crawler.Clockwork
-import viscel.database.NeoSingleton
+import viscel.database.{NeoInstance, Neo}
 import viscel.server.Server
 import viscel.store.Config
 
@@ -29,11 +29,13 @@ object Viscel {
 		res
 	}
 
+	var neo: NeoInstance = new NeoInstance("neoViscelStore")
+
 
 	def main(args: Array[String]): Unit = run(args: _*)
 
 	def run(args: String*) = {
-		import Opts._
+		import Options._
 		val formatWidth = try { new jline.console.ConsoleReader().getTerminal.getWidth }
 		catch { case e: Throwable => 80 }
 		formatHelpWith(new BuiltinHelpFormatter(formatWidth, 4))
@@ -53,13 +55,13 @@ object Viscel {
 			sys.exit(0)
 		}
 
-		sys.addShutdownHook { NeoSingleton.shutdown() }
+		sys.addShutdownHook { neo.shutdown() }
 
-		if (!nodbwarmup.?) time("warmup db") { NeoSingleton.txs {} }
+		if (!nodbwarmup.?) time("warmup db") { neo.txs {} }
 
-		val configNode = NeoSingleton.tx { ntx => Config.get()(ntx) }
+		val configNode = neo.tx { ntx => Config.get()(ntx) }
 
-		Log.info(s"config version: ${ NeoSingleton.tx { ntx => configNode.version(ntx) } }")
+		Log.info(s"config version: ${ neo.tx { ntx => configNode.version(ntx) } }")
 
 		implicit val system = ActorSystem()
 
@@ -67,7 +69,7 @@ object Viscel {
 		val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
 		if (!noserver.?) {
-			val server = system.actorOf(Props(Predef.classOf[Server], NeoSingleton), "viscel-server")
+			val server = system.actorOf(Props(Predef.classOf[Server], neo), "viscel-server")
 			ioHttp ! Http.Bind(server, interface = "0", port = port())
 		}
 
@@ -77,7 +79,7 @@ object Viscel {
 				ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 					0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])),
 				iopipe,
-				NeoSingleton)
+				neo)
 			Deeds.jobResult += {
 				case messages@_ :: _ => Log.error(s"some job failed: $messages")
 				case Nil =>
@@ -85,25 +87,27 @@ object Viscel {
 		}
 
 		if (shutdown.?) {
-			NeoSingleton.shutdown()
+			neo.shutdown()
 			system.shutdown()
 		}
 
 
 		Deeds.responses += {
-			case Success(res) => NeoSingleton.tx { ntx =>
+			case Success(res) => neo.tx { ntx =>
 				configNode.download(
 					size = res.entity.data.length,
 					success = res.status.isSuccess,
 					compressed = res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.gzip)(ntx)
 			}
-			case Failure(_) => NeoSingleton.tx { ntx => configNode.download(0, success = false)(ntx) }
+			case Failure(_) => neo.tx { ntx => configNode.download(0, success = false)(ntx) }
 		}
 
 		(system, ioHttp, iopipe)
 	}
 
-	object Opts extends OptionParser {
+	
+
+	object Options extends OptionParser {
 		//	val loglevel = accepts("loglevel", "set the loglevel")
 		//		.withRequiredArg().describedAs("loglevel").defaultsTo("INFO")
 		val port = accepts("port", "server listening port")

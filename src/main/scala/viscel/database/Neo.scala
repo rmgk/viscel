@@ -28,8 +28,8 @@ trait Ntx {
 }
 
 
-object NeoSingleton extends Neo with Ntx {
-	val db: GraphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("neoViscelStore")
+class NeoInstance(path: String) extends Neo with Ntx {
+	val db: GraphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path)
 		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE).newGraphDatabase()
 
 	def shutdown(): Unit = {

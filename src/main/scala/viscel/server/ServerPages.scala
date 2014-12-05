@@ -18,14 +18,14 @@ import scala.collection.immutable.Map
 import scalatags.Text.attrs.{`type`, href, rel, src, title}
 import scalatags.Text.implicits.{stringAttr, stringFrag}
 import scalatags.Text.tags.{body, head, html, link, script}
-import scalatags.Text.{RawFrag, TypedTag}
+import scalatags.Text.{RawFrag, Tag}
 
 
 object ServerPages {
 	val path_css: String = "/css"
 	val path_js: String = "/js"
 
-	val fullHtml: TypedTag[String] =
+	val fullHtml: Tag =
 		html(
 			head(
 				link(href := path_css, rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),

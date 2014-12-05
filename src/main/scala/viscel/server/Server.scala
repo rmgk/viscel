@@ -4,22 +4,17 @@ import java.io.File
 
 import akka.actor.{Actor, ActorRefFactory}
 import akka.pattern.ask
-import org.scalactic.TypeCheckedTripleEquals._
-import org.scalactic.{Bad, Good}
-import rescala.propagation.Engines.default
 import spray.can.Http
 import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
-import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
-import viscel.store.Cache.hashToFilename
-import viscel.{Log, Deeds}
-import viscel.database.{Neo, NeoSingleton}
+import viscel.Viscel
+import viscel.database.Neo
 import viscel.narration.Narrator
-import viscel.store.{Cache, Collection, User}
+import viscel.store.Cache.hashToFilename
+import viscel.store.{Collection, User}
 
 import scala.Predef.{$conforms, ArrowAssoc}
-import scala.collection.immutable.Map
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
@@ -30,54 +25,23 @@ class Server(neo: Neo) extends Actor with HttpService {
 
 	def actorRefFactory: ActorRefFactory = context
 
+	val users = new Users
+
 	override def receive: Receive = runRoute {
 		//(encodeResponse(Gzip) | encodeResponse(Deflate) | encodeResponse(NoEncoding)) {
-		authenticate(loginOrCreate) { user => handleFormFields(user) }
+		authenticate(users.loginOrCreate) { user => handleFormFields(user) }
 		//}
 	}
 
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
 	implicit def implicitExecutionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 
-	var userCache = Map[String, User]()
-
-	def userUpdate(user: User): User = {
-		userCache += user.id -> user
-		User.store(user)
-		user
-	}
-
-	def getUserNode(name: String, password: String): User = {
-		userCache.getOrElse(name, {
-			val user = User.load(name) match {
-				case Good(g) => g
-				case Bad(e) =>
-					Log.warn(s"could not open user $name: $e")
-					User(name, password, Map())
-			}
-			userCache += name -> user
-			user
-		})
-	}
-
-	val loginOrCreate = BasicAuth(UserPassAuthenticator[User] {
-		case Some(UserPass(user, password)) =>
-			Log.trace(s"login: $user $password")
-			// time("login") {
-			if (user.matches("\\w+")) {
-				Future.successful { Some(getUserNode(user, password)).filter(_.password === password) }
-			}
-			else { Future.successful(None) }
-		// }
-		case None =>
-			Future.successful(None)
-	}, "Username is used to store configuration; Passwords are saved in plain text; User is created on first login")
 
 	def handleFormFields(user: User) =
 		formFields(('narration.?.as[Option[String]], 'bookmark.?.as[Option[Int]])) { (colidOption, bmposOption) =>
 			val newUser = for (bmpos <- bmposOption; colid <- colidOption) yield {
-				if (bmpos > 0) userUpdate(user.setBookmark(colid, bmpos))
-				else userUpdate(user.removeBookmark(colid))
+				if (bmpos > 0) users.userUpdate(user.setBookmark(colid, bmpos))
+				else users.userUpdate(user.removeBookmark(colid))
 			}
 			defaultRoute(newUser.getOrElse(user))
 		}
@@ -90,7 +54,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 				complete {
 					Future {
 						spray.util.actorSystem.shutdown()
-						NeoSingleton.shutdown()
+						Viscel.neo.shutdown()
 					}
 					"shutdown"
 				}
