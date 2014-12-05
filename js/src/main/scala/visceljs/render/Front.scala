@@ -32,8 +32,8 @@ object Front {
 			val preview2 = preview3.prev(1)
 			val preview1 = preview2.prev(1)
 			section(class_preview)(
-				List(preview1, preview2, preview3).map(_.get)
-					.collect { case Some(a) => link_asset(narration, preview1, Make.asset(a)) })
+				List(preview1, preview2, preview3).map(p => p -> p.get)
+					.collect { case (p, Some(a)) => link_asset(narration, p, Make.asset(a)) })
 		}
 
 		def chapterlist: Tag = {
