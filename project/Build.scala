@@ -158,8 +158,6 @@ object Libraries {
 	val scalactic = "org.scalactic" %% "scalactic" % "2.2.1" :: Nil
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 	val scalatags = Def.setting("com.scalatags" %%% "scalatags" % "0.4.2" :: Nil)
-	// mit
-	val rescala = "de.tuda.stg" %% "rescala" % "0.4.0" :: Nil
 	val argonaut = "io.argonaut" %% "argonaut" % "6.0.4" :: Nil
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.5" :: Nil)
 
@@ -167,6 +165,10 @@ object Libraries {
 		("org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6") ::
 			// ("org.scala-lang.modules.scalajs" %%% "scalajs-jquery" % "0.6") ::
 			Nil)
+
+	val rescala = ("de.tuda.stg" %% "rescala" % "0.4.0"
+		exclude ("org.scala-lang", "scala-compiler")
+		exclude ("org.scala-lang", "scala-reflect")) :: Nil
 
 }
 
