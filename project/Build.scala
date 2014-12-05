@@ -63,6 +63,7 @@ object Settings {
 	lazy val main: List[Def.Setting[_]] = common ++ List(
 
 		fork := true,
+		SourceGeneration.neoCodecs,
 
 		javaOptions ++= (
 			"-verbose:gc" ::
@@ -168,7 +169,7 @@ object SourceGeneration {
 			val nameList = 1 to i map ("n" + _)
 			def types(app: String) = sep(1 to i map ("I" + _ + app))
 			val writeJSs = if (i == 1) "n1 -> writeJs(a)"
-			else sep(nameList.zip(1 to i).map{case (p, j) => s"$p -> writeJs(a._$j)"})
+				else sep(nameList.zip(1 to i).map{case (p, j) => s"$p -> writeJs(a._$j)"})
 			val readUnapply = sep(nameList.zip(1 to i).map{case (p, j) => s"(`$p`, a$j)"})
 			val readJSs = sep(1 to i map {j => s"readJs[I$j](a$j)"})
 			val names = sep(nameList map (_ + ": String"))
@@ -203,4 +204,44 @@ object SourceGeneration {
 			|""".stripMargin)
 		Seq(file)
 	}
+
+	val neoCodecs = sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
+		val file = dir / "viscel" / "generated" / "NeoCodecs.scala"
+		def sep(l: Seq[String]) = l.mkString(", ")
+		val definitions = (1 to 22).map { i =>
+			val nameList = 1 to i map ("n" + _)
+			val types = sep(1 to i map ("I" + _))
+			val writeNodes = if (i == 1) "(n1, a)"
+				else sep(nameList.zip(1 to i).map{case (p, j) => s"($p, a._$j)"})
+			val readNodes = sep(nameList.zip(1 to i).map{case (p, j) => s"node.prop[I${j}]($p)"})
+			val names = sep(nameList map (_ + ": String"))
+
+
+			s"""
+			|def case1${i}RW[T, $types](readf: ($types) => T, writef: T => Option[($types)])(label: SimpleLabel, $names): NeoCodec[T] = new NeoCodec[T] {
+			| override def read(node: Node)(implicit ntx: Ntx): T = readf($readNodes)
+			| override def write(value: T)(implicit ntx: Ntx): Node = {
+			|   val a = writef(value).get
+			|   ntx.create(label, $writeNodes)
+			| }
+			|}
+			|""".stripMargin
+
+		}
+		IO.write(file,
+			s"""
+			|package viscel.generated
+			|
+			|import org.neo4j.graphdb.Node
+			|import viscel.database.Implicits.NodeOps
+			|import viscel.database.Ntx
+			|import viscel.database.label.SimpleLabel
+			|import viscel.store.NeoCodec
+			|trait NeoCodecs {
+			|${definitions.mkString("\n")}
+			|}
+			|""".stripMargin)
+		Seq(file)
+	}
+
 }
