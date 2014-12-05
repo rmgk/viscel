@@ -2,11 +2,10 @@ package viscel.narration
 
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.database.{Ntx, label}
+import viscel.database.{NeoCodec, Ntx, label}
 import viscel.narration.narrators._
 import viscel.shared.Story
 import viscel.shared.Story.{Core, More}
-import viscel.store.NeoCodec
 
 import scala.collection.immutable.Set
 
@@ -29,6 +28,7 @@ object Narrator {
 			NeoCodec.story[Story](_) match {
 				case core@Core("CloneManga", _, _, _) => CloneManga.getCore(core)
 				case core@Core("MangaHere", _, _, _) => CloneManga.getCore(core)
+				case node @ _ => throw new IllegalStateException(s"$node is not a valid core")
 			}
 		}.toSet
 
