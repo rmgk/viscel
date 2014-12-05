@@ -218,10 +218,10 @@ object SourceGeneration {
 
 
 			s"""
-			|def case1${i}RW[T, $types](readf: ($types) => T, writef: T => Option[($types)])(label: SimpleLabel, $names): NeoCodec[T] = new NeoCodec[T] {
+			|def case${i}RW[T, $types](label: SimpleLabel, $names)(readf: ($types) => T, writef: T => ($types)): NeoCodec[T] = new NeoCodec[T] {
 			| override def read(node: Node)(implicit ntx: Ntx): T = readf($readNodes)
 			| override def write(value: T)(implicit ntx: Ntx): Node = {
-			|   val a = writef(value).get
+			|   val a = writef(value)
 			|   ntx.create(label, $writeNodes)
 			| }
 			|}

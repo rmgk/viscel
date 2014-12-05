@@ -16,7 +16,7 @@ object label {
 	val Collection = SimpleLabel("Collection")
 	val Config = SimpleLabel("Config")
 	val Core = SimpleLabel("Core")
-	val Page = SimpleLabel("Page")
+	val More = SimpleLabel("More")
 }
 
 object rel {
