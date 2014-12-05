@@ -4,7 +4,7 @@ import java.util.concurrent.{TimeUnit, ThreadPoolExecutor, LinkedBlockingQueue}
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
-import joptsimple._
+import joptsimple.{OptionParser, BuiltinHelpFormatter, OptionException, OptionSpecBuilder, OptionSet, OptionSpec}
 import org.scalactic.TypeCheckedTripleEquals._
 import rescala.propagation.Engines.default
 import spray.can.Http
@@ -22,10 +22,18 @@ import scala.util.{Failure, Success}
 
 object Viscel {
 
+	def time[T](desc: String = "")(f: => T): T = {
+		val start = System.nanoTime
+		val res = f
+		Console.println(s"$desc took ${ (System.nanoTime - start) / 1000000.0 } ms")
+		res
+	}
+
+
 	def main(args: Array[String]): Unit = run(args: _*)
 
 	def run(args: String*) = {
-		import viscel.Opts._
+		import Opts._
 		val formatWidth = try { new jline.console.ConsoleReader().getTerminal.getWidth }
 		catch { case e: Throwable => 80 }
 		formatHelpWith(new BuiltinHelpFormatter(formatWidth, 4))
@@ -52,11 +60,6 @@ object Viscel {
 		val configNode = NeoSingleton.tx { ntx => Config.get()(ntx) }
 
 		Log.info(s"config version: ${ NeoSingleton.tx { ntx => configNode.version(ntx) } }")
-
-		if (createIndexes.?) {
-			//NeoSingleton.execute("create index on :Collection(id)")
-			//NeoSingleton.execute("create index on :Blob(source)")
-		}
 
 		implicit val system = ActorSystem()
 
@@ -100,32 +103,27 @@ object Viscel {
 		(system, ioHttp, iopipe)
 	}
 
+	object Opts extends OptionParser {
+		//	val loglevel = accepts("loglevel", "set the loglevel")
+		//		.withRequiredArg().describedAs("loglevel").defaultsTo("INFO")
+		val port = accepts("port", "server listening port")
+			.withRequiredArg().ofType(Predef.classOf[Int]).defaultsTo(2358).describedAs("port")
+		val noserver = accepts("noserver", "do not start the server")
+		val nocore = accepts("nocore", "do not start the core downloader")
+		val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
+		val shutdown = accepts("shutdown", "shutdown after main")
+		val help = accepts("help").forHelp()
 
-}
+		implicit def optToBool(opt: OptionSpecBuilder)(implicit oset: OptionSet): Boolean = oset.has(opt)
 
-object Opts extends OptionParser {
-	//	val loglevel = accepts("loglevel", "set the loglevel")
-	//		.withRequiredArg().describedAs("loglevel").defaultsTo("INFO")
-	val port = accepts("port", "server listening port")
-		.withRequiredArg().ofType(Predef.classOf[Int]).defaultsTo(2358).describedAs("port")
-	val noserver = accepts("noserver", "do not start the server")
-	val nocore = accepts("nocore", "do not start the core downloader")
-	val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
-	val shutdown = accepts("shutdown", "shutdown after main")
-	val createIndexes = accepts("create-indexes", "create database indexes")
-	//	val purgeUnreferenced = accepts("purge-unreferenced", "remove entries that are not referenced by any user")
-	val makedot = accepts("makedot", "makes a dot file for a given collection")
-		.withRequiredArg().describedAs("path")
-	val collectionid = accepts("collectionid", "id of the ccollection for other commands")
-		.withRequiredArg().describedAs("collection id")
-	val help = accepts("help").forHelp()
+		implicit class OptEnhancer[T](opt: OptionSpec[T]) {
+			def ?(implicit oset: OptionSet): Boolean = oset.has(opt)
+			def get(implicit oset: OptionSet): Option[T] = if (!oset.has(opt)) None else Some(apply())
+			def apply()(implicit oset: OptionSet): T = oset.valueOf(opt)
+		}
 
-	implicit def optToBool(opt: OptionSpecBuilder)(implicit oset: OptionSet): Boolean = oset.has(opt)
-
-	implicit class OptEnhancer[T](opt: OptionSpec[T]) {
-		def ?(implicit oset: OptionSet): Boolean = oset.has(opt)
-		def get(implicit oset: OptionSet): Option[T] = if (!oset.has(opt)) None else Some(apply())
-		def apply()(implicit oset: OptionSet): T = oset.valueOf(opt)
 	}
 
+
 }
+

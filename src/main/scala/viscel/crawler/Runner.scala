@@ -10,8 +10,9 @@ import viscel.Log
 import viscel.database.{Util, ArchiveManipulation, Neo, NodeOps, Ntx}
 import viscel.narration.Narrator
 import viscel.shared.Story
+import viscel.store.Cache.hashToFilename
 import viscel.store.Coin.{Asset, Page}
-import viscel.store.{Coin, Collection}
+import viscel.store.{Cache, Coin, Collection}
 
 import scala.Predef.$conforms
 import scala.annotation.tailrec
@@ -76,9 +77,8 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 
 	def writeAsset[R](core: Narrator, assetNode: Asset)(blob: (Array[Byte], Story.Blob))(ntx: Ntx): List[ErrorMessage] = {
 		Log.debug(s"$core: received blob, applying to $assetNode")
-		val path = Paths.get(viscel.hashToFilename(blob._2.sha1))
-		Files.createDirectories(path.getParent)
-		Files.write(path, blob._1)
+		Cache.write(blob._2.sha1, blob._1)
+
 		assetNode.blob_=(Coin.Blob(Coin.create(blob._2)(ntx)))(ntx)
 		Nil
 	}

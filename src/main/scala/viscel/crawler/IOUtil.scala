@@ -1,5 +1,7 @@
 package viscel.crawler
 
+import java.security.MessageDigest
+
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import rescala.propagation.Engines.default
@@ -9,7 +11,7 @@ import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding._
 import viscel.database.Ntx
 import viscel.shared.{AbsUri, Story}
-import viscel.{Log, Deeds, sha1hex}
+import viscel.{Log, Deeds}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -18,11 +20,15 @@ import scala.Predef.identity
 
 object IOUtil {
 
+	val digester = MessageDigest.getInstance("SHA1")
+
+	def sha1hex(b: Array[Byte]) = Predef.wrapByteArray(digester.digest(b)).map { h => f"$h%02x" }.mkString
+
 	type ResponseHandler[A, R] = A => Ntx => Future[R]
 
 	def uriToUri(in: java.net.URI): Uri = Uri.parseAbsolute(in.toString)
 
-	private def addReferrer(referrer: Uri): (HttpRequest) => HttpRequest = addHeader("Referer" /*[sic, http spec]*/ , referrer.toString())
+	def addReferrer(referrer: Uri): (HttpRequest) => HttpRequest = addHeader("Referer" /*[sic, http spec]*/ , referrer.toString())
 
 	def getResponse(request: HttpRequest, iopipe: SendReceive): Future[HttpResponse] = {
 		val result = request ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe

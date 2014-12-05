@@ -32,7 +32,7 @@ object Narrator {
 		}.toSet
 
 	def availableCores: Set[Narrator] = KatBox.cores ++ PetiteSymphony.cores ++ WordpressEasel.cores ++ Batoto.cores ++ staticCores
-	def get(id: String): Option[Narrator] = viscel.time(s"get core $id") { availableCores.find(_.id === id) }
+	def get(id: String): Option[Narrator] = availableCores.find(_.id === id)
 
 	val staticCores = Set(MangaHere.MetaCore, CloneManga.MetaClone, Flipside, Everafter, CitrusSaburoUta, Misfile, Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife)
 }

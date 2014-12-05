@@ -12,10 +12,11 @@ import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import spray.routing.{HttpService, Route}
+import viscel.store.Cache.hashToFilename
 import viscel.{Log, Deeds}
 import viscel.database.{Neo, NeoSingleton}
 import viscel.narration.Narrator
-import viscel.store.{Collection, User}
+import viscel.store.{Cache, Collection, User}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.Map
@@ -120,10 +121,10 @@ class Server(neo: Neo) extends Actor with HttpService {
 				}
 			} ~
 			pathPrefix("blob" / Segment) { (sha1) =>
-				val filename = viscel.hashToFilename(sha1)
-				pathEnd { getFromFile(new File(filename)) } ~
+				val filename = new File(hashToFilename(sha1))
+				pathEnd { getFromFile(filename) } ~
 					path(Segment / Segment) { (part1, part2) =>
-						getFromFile(new File(filename), ContentType(MediaTypes.getForKey(part1 -> part2).get))
+						getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).get))
 					}
 			} ~
 			path("stats") {
