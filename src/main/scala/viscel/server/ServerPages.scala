@@ -55,23 +55,23 @@ object ServerPages {
 
 	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse {
 		val cn = Config.get()
-		Map[String, String](
-			"Downloaded" -> cn.downloaded.toString,
-			"Downloads" -> cn.downloads.toString,
-			"Compressed downloads" -> cn.downloadsCompressed.toString,
-			"Failed downloads" -> cn.downloadsFailed.toString,
-			"Narrations" -> ntx.nodes(label.Collection).size.toString,
-			"Chapters" -> ntx.nodes(label.Chapter).size.toString,
-			"Assets" -> ntx.nodes(label.Asset).size.toString,
-			"Uptime" -> stats.uptime.toString,
-			"Total requests" -> stats.totalRequests.toString,
-			"Open requests" -> stats.openRequests.toString,
-			"Max open requests" -> stats.maxOpenRequests.toString,
-			"Total connections" -> stats.totalConnections.toString,
-			"Open connections" -> stats.openConnections.toString,
-			"Max open connections" -> stats.maxOpenConnections.toString,
-			"Requests timed out" -> stats.requestTimeouts.toString,
-			"Session ui requests" -> Deeds.sessionUiRequests.now.toString)
+		Map[String, Long](
+			"Downloaded" -> cn.downloaded,
+			"Downloads" -> cn.downloads,
+			"Compressed downloads" -> cn.downloadsCompressed,
+			"Failed downloads" -> cn.downloadsFailed,
+			"Narrations" -> ntx.nodes(label.Collection).size,
+			"Chapters" -> ntx.nodes(label.Chapter).size,
+			"Assets" -> ntx.nodes(label.Asset).size,
+			"Uptime" -> stats.uptime.toSeconds,
+			"Total requests" -> stats.totalRequests,
+			"Open requests" -> stats.openRequests,
+			"Max open requests" -> stats.maxOpenRequests,
+			"Total connections" -> stats.totalConnections,
+			"Open connections" -> stats.openConnections,
+			"Max open connections" -> stats.maxOpenConnections,
+			"Requests timed out" -> stats.requestTimeouts,
+			"Session ui requests" -> Deeds.sessionUiRequests.now)
 	}
 
 }
