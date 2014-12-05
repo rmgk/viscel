@@ -19,7 +19,7 @@ object CitrusSaburoUta extends Narrator {
 	def name: String = "CITRUS (SABURO UTA)"
 
 	def wrapArchive(doc: Document): List[Story] Or Every[ErrorMessage] = {
-		Selection(doc).many(".chlist li div :has(.tips):has(.title)").reverse.wrapEach { chapter =>
+		Selection(doc).many(".chlist li div:has(.tips):has(.title)").reverse.wrapEach { chapter =>
 			val title_? = Selection(chapter).unique(".title").getOne.map(_.ownText())
 			val anchor_? = Selection(chapter).unique("a.tips")
 			val uri_? = anchor_?.wrapOne { extractUri }

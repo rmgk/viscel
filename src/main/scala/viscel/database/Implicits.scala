@@ -8,7 +8,7 @@ import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 object Implicits {
 
-	implicit class NodeOps(val self: Node) extends AnyVal {
+	final implicit class NodeOps(val self: Node) extends AnyVal {
 		def prop[T](key: String)(implicit neo: Ntx): T = self.getProperty(key).asInstanceOf[T]
 		def get[T](key: String)(implicit neo: Ntx): Option[T] = Option(self.getProperty(key, null).asInstanceOf[T])
 		def to(rel: RelationshipType)(implicit neo: Ntx): Node = self.getSingleRelationship(rel, Direction.OUTGOING) match {
@@ -45,48 +45,49 @@ object Implicits {
 
 		def above(implicit neo: Ntx): Node = from(rel.describes)
 
-		def layerFirst(implicit neo: Ntx): Node = {
-			@tailrec def run(node: Node): Node =
-				node.parc match {
-					case null => node
-					case other => run(other)
-				}
-			run(self)
-		}
+		@tailrec
+		def layerFirst(implicit neo: Ntx): Node =
+			parc match {
+				case null => self
+				case other => other.layerFirst
+			}
 
-		def layerLast(implicit neo: Ntx): Node = {
-			@tailrec def run(node: Node): Node =
-				node.narc match {
-					case null => node
-					case other => run(other)
-				}
-			run(self)
-		}
+		@tailrec
+		def layerLast(implicit neo: Ntx): Node =
+			narc match {
+				case null => self
+				case other => other.layerLast
+			}
 
 		def layerAbove(implicit neo: Ntx): Option[Node] = Option(layerFirst.above)
 
+		@tailrec
+		def nextAbove(implicit neo: Ntx): Option[Node] =
+			layerFirst.above match {
+				case null => None
+				case other => other.narc match {
+					case null => other.nextAbove
+					case third => Some(third)
+				}
+			}
+
+		@tailrec
 		def rightmost(implicit neo: Ntx): Node = {
-			@tailrec def run(node: Node): Node = {
-				val end = node.layerLast
-				end.describes match {
-					case null => end
-					case other => run(other)
-				}
+			val end = self.layerLast
+			end.describes match {
+				case null => end
+				case other => other.rightmost
 			}
-			run(self)
 		}
 
+		@tailrec
 		def origin(implicit neo: Ntx): Node = {
-			@tailrec def run(node: Node): Node = {
-				val start = node.layerFirst
-				start.above match {
-					case null => start
-					case other => run(other)
-				}
+			val start = self.layerFirst
+			start.above match {
+				case null => start
+				case other => other.origin
 			}
-			run(self)
 		}
-
 
 		def prev(implicit neo: Ntx): Option[Node] =
 			parc match {
@@ -101,12 +102,11 @@ object Implicits {
 		def next(implicit neo: Ntx): Option[Node] =
 			describes match {
 				case null => narc match {
-					case null => layerAbove.flatMap(a => Option(a.narc))
+					case null => nextAbove
 					case other => Some(other)
 				}
 				case other => Some(other)
 			}
-
 
 		def layer(implicit neo: Ntx): List[Node] = {
 			@tailrec
