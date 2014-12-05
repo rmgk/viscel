@@ -5,6 +5,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.database.{Ntx, label}
 import viscel.narration.narrators._
 import viscel.shared.Story
+import viscel.shared.Story.More
 import viscel.store.Coin
 
 import scala.collection.immutable.Set
@@ -13,7 +14,7 @@ trait Narrator {
 	def id: String
 	def name: String
 	def archive: List[Story]
-	def wrap(doc: Document, pd: Story.More): List[Story]
+	def wrap(doc: Document, pd: More): List[Story]
 	final override def equals(other: Any) = other match {
 		case o: Narrator => id === o.id
 		case _ => false
