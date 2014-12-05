@@ -133,19 +133,9 @@ object Libraries {
 		List("akka-actor", "akka-slf4j")
 			.map(n => "com.typesafe.akka" %% n % "2.3.7")
 
-	// scala license (bsdish)
-	val scalaIO =
-		List("scala-io-core", "scala-io-file")
-			.map(n => "com.github.scala-incubator.io" %% n % "0.4.3")
-
 	val scalaz =
 		List("scalaz-core", "scalaz-concurrent")
 			.map(n => "org.scalaz" %% n % "7.0.6")
-
-	val logging =
-		"ch.qos.logback" % "logback-classic" % "1.1.2" ::
-			"com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2" :: // apache 2
-			Nil
 
 	val commandline =
 		"jline" % "jline" % "2.12" ::
@@ -154,11 +144,10 @@ object Libraries {
 
 	val scalamacros = "org.scalamacros" %% s"quasiquotes" % "2.0.1" % "provided" :: Nil
 
-	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.1" % "test") :: Nil
+	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.1" % Test) :: Nil
 	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.1" exclude ("org.scala-lang", "scala-reflect")) :: Nil
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 	val scalatags = Def.setting("com.scalatags" %%% "scalatags" % "0.4.2" :: Nil)
-	val argonaut = "io.argonaut" %% "argonaut" % "6.0.4" :: Nil
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.5" :: Nil)
 
 	val scalajsdom = Def.setting(
