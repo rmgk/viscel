@@ -9,8 +9,8 @@ import viscel.database.Implicits.NodeOps
 import viscel.database.{Neo, Ntx}
 import viscel.narration.Narrator
 import viscel.shared.Story
-import viscel.store.Coin.{Asset, Page}
-import viscel.store.{Cache, Coin, Collection}
+import viscel.store.NeoCodec.{Asset, Page}
+import viscel.store.{Cache, NeoCodec, Collection}
 
 import scala.Predef.$conforms
 import scala.annotation.tailrec
@@ -47,12 +47,12 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 
 
 	val nextSelect: Select = ntx => n => repeat(n.next(ntx), _.next(ntx), unseenOnly(shallow = false)(ntx))
-	val forcePrevPage: Select = ntx => state => repeat(state.prev(ntx), _.prev(ntx), Coin.isPage).map(_.self)
+	val forcePrevPage: Select = ntx => state => repeat(state.prev(ntx), _.prev(ntx), NeoCodec.isPage).map(_.self)
 
 	def strategy(state: Node, select: Select)(ntx: Ntx): Request[List[ErrorMessage]] = {
 		val selected = select(ntx)(state)
 		selected match {
-			case Some(Coin.isPage(page)) =>
+			case Some(NeoCodec.isPage(page)) =>
 				IOUtil.documentRequest(page.location(ntx)) { doc => ntx =>
 					val errors = writePage(narrator, page)(doc)(ntx)
 					if (errors.nonEmpty) {
@@ -62,7 +62,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 						continueOrDone(Some(page.self), select, ntx)
 					}
 				}
-			case Some(Coin.isAsset(asset)) => IOUtil.blobRequest(asset.source(ntx), asset.origin(ntx)) { blob => ntx =>
+			case Some(NeoCodec.isAsset(asset)) => IOUtil.blobRequest(asset.source(ntx), asset.origin(ntx)) { blob => ntx =>
 				writeAsset(narrator, asset)(blob)(ntx)
 				continueOrDone(Some(asset.self), select, ntx)
 			}
@@ -77,7 +77,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		Log.debug(s"$core: received blob, applying to $assetNode")
 		Cache.write(blob._2.sha1, blob._1)
 
-		assetNode.blob_=(Coin.Blob(Coin.create(blob._2)(ntx)))(ntx)
+		assetNode.blob_=(NeoCodec.Blob(NeoCodec.create(blob._2)(ntx)))(ntx)
 		Nil
 	}
 
@@ -97,14 +97,14 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 	}
 
 	def unseenOnly(shallow: Boolean): Select = ntx => {
-		case n@Coin.isPage(page) if page.self.describes(ntx) eq null => Some(n)
-		case n@Coin.isAsset(asset) if (!shallow) && asset.blob(ntx).isEmpty => Some(n)
+		case n@NeoCodec.isPage(page) if page.self.describes(ntx) eq null => Some(n)
+		case n@NeoCodec.isAsset(asset) if (!shallow) && asset.blob(ntx).isEmpty => Some(n)
 		case _ => None
 	}
 
 	val recheckOld: Select = ntx => {
-		case n@Coin.isPage(page) if Archive.needsRecheck(n)(ntx) || (page.self.describes(ntx) eq null) => Some(n)
-		case n@Coin.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
+		case n@NeoCodec.isPage(page) if Archive.needsRecheck(n)(ntx) || (page.self.describes(ntx) eq null) => Some(n)
+		case n@NeoCodec.isAsset(asset) if asset.blob(ntx).isEmpty => Some(n)
 		case _ => None
 	}
 

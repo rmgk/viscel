@@ -6,7 +6,7 @@ import viscel.database.{Ntx, label}
 import viscel.narration.narrators._
 import viscel.shared.Story
 import viscel.shared.Story.More
-import viscel.store.Coin
+import viscel.store.NeoCodec
 
 import scala.collection.immutable.Set
 
@@ -25,7 +25,7 @@ trait Narrator {
 
 object Narrator {
 	def metaCores(implicit ntx: Ntx): Set[Narrator] =
-		ntx.nodes(label.Core).map(Coin.Core.apply).map { core =>
+		ntx.nodes(label.Core).map(NeoCodec.Core.apply).map { core =>
 			core.kind match {
 				case "CloneManga" => CloneManga.getCore(core.story)
 				case "MangaHere" => MangaHere.getCore(core.story)

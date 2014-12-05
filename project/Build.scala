@@ -237,7 +237,7 @@ object SourceGeneration {
 			|import viscel.database.Ntx
 			|import viscel.database.label.SimpleLabel
 			|import viscel.store.NeoCodec
-			|trait NeoCodecs {
+			|object NeoCodecs {
 			|${definitions.mkString("\n")}
 			|}
 			|""".stripMargin)

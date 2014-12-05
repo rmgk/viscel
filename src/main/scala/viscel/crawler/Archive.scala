@@ -6,7 +6,7 @@ import viscel.Log
 import viscel.database.Implicits.NodeOps
 import viscel.database.{Ntx, rel}
 import viscel.shared.Story
-import viscel.store.Coin
+import viscel.store.NeoCodec
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -33,7 +33,7 @@ object Archive {
 		val oldMap: mutable.Map[Story, Node] = mutable.Map(oldNarration zip oldLayer: _*)
 		val newLayer: List[Node] = newNarration.map { story =>
 			oldMap.get(story) match {
-				case None => Coin.create(story)
+				case None => NeoCodec.create(story)
 				case Some(oldCoin) =>
 					oldMap.remove(story)
 					oldCoin
@@ -45,7 +45,7 @@ object Archive {
 
 	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): Unit = {
 		val oldLayer = target.layerBelow
-		val oldNarration = oldLayer map (Coin.apply(_).story match {
+		val oldNarration = oldLayer map (NeoCodec.apply(_).story match {
 			case Story.Asset(s, o, m, _) => Story.Asset(s, o, m)
 			case other => other
 		})
