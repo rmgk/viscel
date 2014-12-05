@@ -2,6 +2,7 @@ package viscel.database
 
 import org.neo4j.graphdb.Node
 import viscel.Log
+import viscel.database.Implicits.NodeOps
 
 object Util {
 

@@ -5,7 +5,8 @@ import org.neo4j.graphdb.Node
 import org.scalactic.ErrorMessage
 import spray.client.pipelining.SendReceive
 import viscel.Log
-import viscel.database.{ArchiveManipulation, Neo, NodeOps, Ntx, Util}
+import viscel.database.Implicits.NodeOps
+import viscel.database.{ArchiveManipulation, Neo, Ntx, Util}
 import viscel.narration.Narrator
 import viscel.shared.Story
 import viscel.store.Coin.{Asset, Page}

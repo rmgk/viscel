@@ -1,11 +1,12 @@
-package viscel
+package viscel.database
 
 import org.neo4j.graphdb.{Direction, Node, Relationship, RelationshipType}
+import viscel.Log
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
-package object database {
+object Implicits {
 
 	implicit class NodeOps(val self: Node) extends AnyVal {
 		def prop[T](key: String)(implicit neo: Ntx): T = self.getProperty(key).asInstanceOf[T]

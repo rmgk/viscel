@@ -2,6 +2,7 @@ package viscel.database
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.database.Implicits.NodeOps
 import viscel.shared.Story
 import viscel.store.Coin
 
