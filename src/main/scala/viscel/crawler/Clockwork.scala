@@ -6,6 +6,7 @@ import spray.client.pipelining.SendReceive
 import spray.http.{HttpResponse, HttpRequest}
 import viscel.database._
 import viscel.narration.Narrator
+import viscel.shared.Story.Narration
 import viscel.store.Collection
 import viscel.{Deeds, Log}
 
@@ -33,18 +34,16 @@ object Clockwork {
 		}
 	}
 
-	def handleHints(hints: Evt[Collection], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { col =>
-		val id = neo.tx { col.id(_) }
+	def handleHints(hints: Evt[Narrator], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { narrator =>
+		val id = narrator.id
 		if (runners.contains(id)) Log.trace(s"$id has running job")
 		else {
 			Log.info(s"got hint $id")
-			Narrator.get(id) match {
-				case None => Log.warn(s"unkonwn core $id")
-				case Some(core) =>
-					val runner = new Runner(core, iopipe, col, neo, ec)
-					ensureRunner(core.id, runner, ec)
-			}
+			val collection = neo.tx { Collection.findAndUpdate(narrator)(_) }
+			val runner = new Runner(narrator, iopipe, collection, neo, ec)
+			ensureRunner(id, runner, ec)
 		}
 	}
+
 
 }

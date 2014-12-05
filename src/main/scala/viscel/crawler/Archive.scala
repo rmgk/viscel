@@ -1,11 +1,13 @@
 package viscel.crawler
 
 import org.neo4j.graphdb.Node
+import org.scalactic.Equality
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.Log
 import viscel.database.Implicits.NodeOps
 import viscel.database.{NeoCodec, Ntx, rel}
 import viscel.shared.Story
+import viscel.shared.Story.Asset
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -41,6 +43,14 @@ object Archive {
 		deleteRecursive(oldMap.values.toList)
 		connectLayer(newLayer.map(_._1))
 		newLayer
+	}
+
+	implicit val assetEquality: Equality[Asset] = new Equality[Asset] {
+		Log.info("used custom equality")
+		override def areEqual(a: Asset, b: Any): Boolean = b match {
+			case Asset(source, origin, metadata, blob) => a.source === source && a.origin === origin && a.metadata === metadata
+			case _ => false
+		}
 	}
 
 	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[(Node, Story)] = {

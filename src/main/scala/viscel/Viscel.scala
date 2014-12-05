@@ -75,7 +75,7 @@ object Viscel {
 
 		if (!nocore.?) {
 			Clockwork.handleHints(
-				Deeds.uiCollection,
+				Deeds.narratorHint,
 				ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 					0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])),
 				iopipe,
