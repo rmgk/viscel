@@ -44,7 +44,7 @@ object Archive {
 
 	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): Unit = {
 		val oldLayer = target.layerBelow
-		val oldNarration = oldLayer map (NeoCodec.story[Story](_) match {
+		val oldNarration = oldLayer map (NeoCodec.load[Story](_) match {
 			case Story.Asset(s, o, m, _) => Story.Asset(s, o, m)
 			case other => other
 		})

@@ -19,7 +19,7 @@ final case class Collection(self: Node) extends AnyVal {
 	def narration(deep: Boolean)(implicit neo: Ntx): Narration = {
 		def allAssets(node: Node): (Int, List[Story.Asset], List[(Int, Story.Chapter)]) = {
 			node.fold((0, List[Story.Asset](), List[(Int, Story.Chapter)]())) {
-				case state@(pos, assets, chapters) => NeoCodec.story[Story](_) match {
+				case state@(pos, assets, chapters) => NeoCodec.load[Story](_) match {
 					case asset @ Asset(_, _, _, _) => (pos + 1, asset :: assets, chapters)
 					case chapter @ Chapter(_, _) => (pos, assets, (pos, chapter) :: chapters)
 					case _ => state

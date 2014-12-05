@@ -18,7 +18,7 @@ object NeoCodec {
 
 	import viscel.generated.NeoCodecs._
 
-	def story[S](node: Node)(implicit ntx: Ntx, codec: NeoCodec[S]): S = codec.read(node)
+	def load[S](node: Node)(implicit ntx: Ntx, codec: NeoCodec[S]): S = codec.read(node)
 
 	def create[S](desc: S)(implicit neo: Ntx, codec: NeoCodec[S]): Node = codec.write(desc)
 
@@ -32,11 +32,11 @@ object NeoCodec {
 			case s @ Failed(reason) => throw new IllegalArgumentException(s"can not write $s")
 		}
 		override def read(node: Node)(implicit ntx: Ntx): Story =
-			if (node.hasLabel(label.Chapter)) story[Chapter](node)
-			else if (node.hasLabel(label.Asset)) story[Asset](node)
-			else if (node.hasLabel(label.More)) story[More](node)
-			else if (node.hasLabel(label.Blob)) story[Blob](node)
-			else if (node.hasLabel(label.Core)) story[Core](node)
+			if (node.hasLabel(label.Chapter)) load[Chapter](node)
+			else if (node.hasLabel(label.Asset)) load[Asset](node)
+			else if (node.hasLabel(label.More)) load[More](node)
+			else if (node.hasLabel(label.Blob)) load[Blob](node)
+			else if (node.hasLabel(label.Core)) load[Core](node)
 			else Failed(s"$node is not a story" :: Nil)
 	}
 
@@ -58,7 +58,7 @@ object NeoCodec {
 			asset
 		}
 		override def read(node: Node)(implicit ntx: Ntx): Asset = {
-			val blob = Option(node.to(rel.blob)).map(story[Blob])
+			val blob = Option(node.to(rel.blob)).map(load[Blob])
 			Asset(node.prop[String]("source"), node.prop[String]("origin"), upickle.read[Map[String,String]](node.prop[String]("metadata")), blob)
 		}
 	}

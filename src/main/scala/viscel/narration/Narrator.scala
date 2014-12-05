@@ -25,7 +25,7 @@ trait Narrator {
 object Narrator {
 	def metaCores(implicit ntx: Ntx): Set[Narrator] =
 		ntx.nodes(label.Core).map {
-			NeoCodec.story[Story](_) match {
+			NeoCodec.load[Story](_) match {
 				case core@Core("CloneManga", _, _, _) => CloneManga.getCore(core)
 				case core@Core("MangaHere", _, _, _) => CloneManga.getCore(core)
 				case node @ _ => throw new IllegalStateException(s"$node is not a valid core")
