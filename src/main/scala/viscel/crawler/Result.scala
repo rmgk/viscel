@@ -7,5 +7,7 @@ import scala.concurrent.Future
 
 
 sealed trait Request[R]
-final case class Delayed[R](request: HttpRequest, handler:  HttpResponse => Ntx => Future[R]) extends Request[R]
-final case class Done[R](result: R) extends Request[R]
+object Request {
+	final case class Delayed[R](request: HttpRequest, handler: HttpResponse => Ntx => Future[R]) extends Request[R]
+	final case class Done[R](result: R) extends Request[R]
+}
