@@ -29,7 +29,7 @@ object Flipside extends Narrator {
 		}
 	}
 
-	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.kind match {
+	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
 		case "archive" => wrapArchive(doc)
 		case "page" => Selection(doc).unique("img.ksc").wrapEach(imgIntoAsset)
 	})

@@ -17,7 +17,7 @@ object Twokinds extends Narrator {
 
 	def name: String = "Twokinds"
 
-	def wrapArchive(doc: Document, pd: More): List[Story] Or Every[ErrorMessage] = {
+	def wrapArchive(doc: Document): List[Story] Or Every[ErrorMessage] = {
 		val chapters_? = Selection(doc).many(".archive .chapter").wrapEach { chapter =>
 			val title_? = Selection(chapter).unique("h4").getOne.map(_.ownText())
 			val links_? = Selection(chapter).many("a").wrapEach { elementIntoPointer("page") }
@@ -28,8 +28,8 @@ object Twokinds extends Narrator {
 		chapters_?.map(_.flatten(Predef.$conforms))
 	}
 
-	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.kind match {
-		case "archive" => wrapArchive(doc, pd)
+	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
+		case "archive" => wrapArchive(doc)
 		case "page" => Selection(doc).unique("#cg_img img").wrapEach { imgIntoAsset }
 		case "main" => Selection(doc).unique(".comic img").wrapEach { imgIntoAsset }
 	})

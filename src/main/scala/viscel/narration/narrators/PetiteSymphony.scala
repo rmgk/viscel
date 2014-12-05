@@ -13,7 +13,7 @@ object PetiteSymphony {
 
 	case class Generic(id: String, name: String, start: String) extends Narrator {
 		override def archive: List[Story] = More(start, "") :: Nil
-		override def wrap(doc: Document, pd: More): List[Story] = storyFromOr {
+		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr {
 			val next_? = Selection(doc).optional("a.navi.navi-next").wrap(selectNext(""))
 			val img_? = Selection(doc).unique("#comic-1 img").wrapEach(imgIntoAsset)
 			withGood(img_?, next_?) { _ ::: _ }

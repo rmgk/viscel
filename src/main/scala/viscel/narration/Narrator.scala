@@ -14,7 +14,7 @@ trait Narrator {
 	def id: String
 	def name: String
 	def archive: List[Story]
-	def wrap(doc: Document, pd: More): List[Story]
+	def wrap(doc: Document, kind: String): List[Story]
 	final override def equals(other: Any) = other match {
 		case o: Narrator => id === o.id
 		case _ => false

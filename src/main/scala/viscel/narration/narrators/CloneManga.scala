@@ -15,7 +15,7 @@ object CloneManga {
 
 	case class Clone(name: String, id: String, start: String) extends Narrator {
 		override def archive = More(start, "page") :: Nil
-		override def wrap(doc: Document, pd: More): List[Story] = storyFromOr(Selection(doc).unique(".subsectionContainer").wrapOne { container =>
+		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(Selection(doc).unique(".subsectionContainer").wrapOne { container =>
 			val next_? = Selection(container).optional("> a:first-child").wrap(selectNext("page"))
 			val img_? = Selection(container).unique("img").wrapOne(imgIntoAsset)
 			withGood(img_?, next_?)(_ :: _)
@@ -28,7 +28,7 @@ object CloneManga {
 		override def id: String = "Meta_CloneManga"
 		override def name: String = "Metacore Clonemanga"
 		override def archive = More("http://manga.clone-army.org/viewer_landing.php", "") :: Nil
-		override def wrap(doc: Document, pd: More): List[Story] = storyFromOr(
+		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(
 			Selection(doc).many(".comicPreviewContainer").wrapEach { container =>
 				val name_? = Selection(container).unique(".comicNote > h3").getOne.map(_.ownText())
 				val uri_? = Selection(container).unique("> a").wrapOne(extractUri)

@@ -86,7 +86,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 			doc.baseUri()
 		}, applying to $pageNode")
 		implicit def tx: Ntx = ntx
-		val wrapped = core.wrap(doc, pageNode.story)
+		val wrapped = core.wrap(doc, pageNode.story.kind)
 		val failed = wrapped.collect {
 			case Story.Failed(msg) => msg
 		}.flatten

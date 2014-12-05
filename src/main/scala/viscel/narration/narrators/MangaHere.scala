@@ -27,7 +27,7 @@ object MangaHere {
 			withGood(img_?, next_?) { _ ::: _ }
 		}
 
-		def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.kind match {
+		def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
 			case "archive" => wrapArchive(doc)
 			case "page" => wrapPage(doc)
 		})
@@ -39,7 +39,7 @@ object MangaHere {
 		override def id: String = "Meta_MangaHere"
 		override def name: String = "Metacore MangaHere"
 		override def archive: List[Story] = More("http://www.mangahere.co/mangalist/", "") :: Nil
-		override def wrap(doc: Document, pd: More): List[Story] = storyFromOr(
+		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(
 			Selection(doc).many("a.manga_info").wrapEach { anchor =>
 				val name = anchor.attr("rel")
 				val uri_? = extractUri(anchor)

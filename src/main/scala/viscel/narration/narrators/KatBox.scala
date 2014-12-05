@@ -17,7 +17,7 @@ object KatBox {
 
 		val id: String = s"KatBox_$shortId"
 
-		def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.kind match {
+		def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
 			case "archive" =>
 				Selection(doc).many("[rel=bookmark]").wrapEach(elementIntoPointer("page")).map { _.reverse }
 			case "page" => queryImages(doc, ".webcomic-image img")

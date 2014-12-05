@@ -49,7 +49,7 @@ object Misfile extends Narrator {
 		withGood(elements_?, next_?) { _ ::: _ }
 	}
 
-	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.kind match {
+	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
 		case "archive" => wrapArchive(doc)
 		case "page" => wrapPage(doc)
 	})
