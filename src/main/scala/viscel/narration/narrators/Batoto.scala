@@ -27,7 +27,7 @@ object Batoto {
 			withGood(chapter_?, currentPage_?, pages_?, nextChapter_?) { _ ::: _ ::: _ ::: _ }
 		}
 
-		def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {
+		def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.kind match {
 			case "page" => wrapPage(doc)
 			case "chapter" => wrapChapter(doc)
 		})

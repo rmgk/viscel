@@ -28,7 +28,7 @@ object Twokinds extends Narrator {
 		chapters_?.map(_.flatten(Predef.$conforms))
 	}
 
-	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.kind match {
 		case "archive" => wrapArchive(doc, pd)
 		case "page" => Selection(doc).unique("#cg_img img").wrapEach { imgIntoAsset }
 		case "main" => Selection(doc).unique(".comic img").wrapEach { imgIntoAsset }

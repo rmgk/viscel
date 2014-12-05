@@ -12,7 +12,7 @@ object JayNaylor {
 	class Common(val id: String, val name: String, val archiveUri: AbsUri) extends Narrator {
 		override def archive: List[Story] = More(archiveUri, "archive") :: Nil
 
-		def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {
+		def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.kind match {
 			case "archive" => Selection(doc).many("#chapters li > a").wrapFlat { anchor =>
 				val chap = Chapter(anchor.ownText())
 				elementIntoPointer("chapter")(anchor).map { List(chap, _) }

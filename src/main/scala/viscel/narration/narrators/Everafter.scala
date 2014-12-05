@@ -14,7 +14,7 @@ object Everafter extends Narrator {
 
 	def name: String = "Everafter"
 
-	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.pagetype match {
+	def wrap(doc: Document, pd: More): List[Story] = storyFromOr(pd.kind match {
 		case "archive" => Selection(doc).unique(".pagecontentbox").many("a").wrap { anchors =>
 			anchors.reverse.validatedBy(elementIntoPointer("page"))
 		}
