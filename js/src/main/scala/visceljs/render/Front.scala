@@ -28,9 +28,9 @@ object Front {
 			Make.postBookmark(narration, 0, "remove"))
 
 		val preview = {
-			val preview3 = gallery.next(bookmark - 1)
-			val preview2 = preview3.prev(1)
-			val preview1 = preview2.prev(1)
+			val preview1 = gallery.next(bookmark - 1).prev(2)
+			val preview2 = preview1.next(1)
+			val preview3 = preview2.next(1)
 			section(class_preview)(
 				List(preview1, preview2, preview3).map(p => p -> p.get)
 					.collect { case (p, Some(a)) => link_asset(narration, p, Make.asset(a)) })
