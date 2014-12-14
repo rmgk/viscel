@@ -34,6 +34,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 					case _ =>
 				}
 			})
+			pages = pages.take(3)
 		}
 		else Log.error("tried to initialize non empty runner")
 	}
