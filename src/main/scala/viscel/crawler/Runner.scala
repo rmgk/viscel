@@ -24,16 +24,16 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 	var pages: List[(Node, More)] = Nil
 	@volatile var cancel: Boolean = false
 
+	def collectInteresting(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
+		case m@More(loc, kind) if Archive.needsRecheck(node) => pages ::= node -> m
+		case a@Asset(source, origin, metadata, None) => assets ::= node -> a
+		case _ =>
+	}
+
 	def init() = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
 			Archive.applyNarration(collection.self, narrator.archive)
-			collection.self.next.foreach(_.fold(()) { _ => node =>
-				NeoCodec.load[Story](node) match {
-					case m@More(loc, kind) if Archive.needsRecheck(node) => pages ::= node -> m
-					case a@Asset(source, origin, metadata, None) => assets ::= node -> a
-					case _ =>
-				}
-			})
+			collection.self.next.foreach(_.fold(()) { _ => collectInteresting })
 			pages = pages.take(3)
 		}
 		else Log.error("tried to initialize non empty runner")
@@ -66,8 +66,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 							Log.error(s"$narrator failed on $page: $failed")
 							Clockwork.finish(narrator, this)
 						case Left(created) =>
-							assets :::= created.collect { case (n, ast@Asset(_, _, _, None)) => (n, ast) }
-							pages :::= created.collect { case (n, page@More(_, _)) => (n, page) }
+							neo.tx { implicit ntx => created foreach collectInteresting }
 							ec.execute(this)
 					}
 				case Nil =>
@@ -84,14 +83,14 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		node.to_=(rel.blob, NeoCodec.create(blob._2)(ntx, NeoCodec.blobCodec))(ntx)
 	}
 
-	def writePage(core: Narrator, node: Node, page: More)(doc: Document)(ntx: Ntx): Either[List[(Node, Story)], List[Failed]] = {
+	def writePage(core: Narrator, node: Node, page: More)(doc: Document)(ntx: Ntx): Either[List[Node], List[Failed]] = {
 		Log.debug(s"$core: received ${
 			doc.baseUri()
 		}, applying to $page")
 		implicit def tx: Ntx = ntx
 		val wrapped = core.wrap(doc, page.kind)
 		val failed = wrapped.collect {
-			case f @ Failed(msg) => f
+			case f@Failed(msg) => f
 		}
 
 		if (failed.isEmpty) {

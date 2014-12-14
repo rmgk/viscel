@@ -30,42 +30,35 @@ object Archive {
 			deleteRecursive(below)
 	}
 
-	private def replaceLayer(oldLayer: List[Node], oldNarration: List[Story], newNarration: List[Story])(implicit neo: Ntx): List[(Node, Boolean)] = {
-		val oldMap: mutable.Map[Story, Node] = mutable.Map(oldNarration zip oldLayer: _*)
-		val newLayer: List[(Node, Boolean)] = newNarration.map { story =>
-			oldMap.get(story) match {
-				case None => (NeoCodec.create(story), true)
-				case Some(oldCoin) =>
-					oldMap.remove(story)
-					(oldCoin, false)
+	private def normalize: Story => Story = {
+		case a@Asset(_, _, _, Some(_)) => a.copy(blob = None)
+		case other => other
+	}
+
+	private def replaceLayer(oldLayer: List[Node], newNarration: List[Story])(implicit neo: Ntx): List[Node] = {
+		val oldNarration: List[Story] = oldLayer map { n => normalize(NeoCodec.load[Story](n)) }
+		var oldMap: List[(Story, Node)] = List(oldNarration zip oldLayer: _*)
+		val newLayer: List[Node] = newNarration.map { story =>
+			val nstory = normalize(story)
+			oldMap.span(_._1 != nstory) match {
+				case (left, Nil) => NeoCodec.create(story)
+				case (left, (_, oldNode) :: rest) =>
+					oldMap = left ::: rest
+					oldNode
 			}
 		}
-		deleteRecursive(oldMap.values.toList)
-		connectLayer(newLayer.map(_._1))
+		deleteRecursive(oldMap.map(_._2))
+		connectLayer(newLayer)
 		newLayer
 	}
 
-	implicit val assetEquality: Equality[Asset] = new Equality[Asset] {
-		override def areEqual(a: Asset, b: Any): Boolean = b match {
-			case Asset(source, origin, metadata, blob) => a.source === source && a.origin === origin && a.metadata === metadata
-			case _ => false
-		}
-	}
 
-	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[(Node, Story)] = {
+	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[Node] = {
 		val oldLayer = target.layerBelow
-		val oldNarration = oldLayer map NeoCodec.load[Story]
-
-		if (oldNarration === narration) {
-			updateDates(target, changed = false)
-			Nil
-		}
-		else {
-			updateDates(target, changed = true)
-			val newLayer = replaceLayer(oldLayer, oldNarration, narration)
-			newLayer.headOption.foreach { case (head, _) => target describes_= head }
-			narration zip newLayer collect { case (story, (node, true)) => (node, story) }
-		}
+		val newLayer = replaceLayer(oldLayer, narration)
+		newLayer.headOption foreach target.describes_=
+		updateDates(target, changed = oldLayer !== newLayer)
+		newLayer
 	}
 
 
