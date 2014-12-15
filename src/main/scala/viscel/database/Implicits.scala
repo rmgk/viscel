@@ -43,27 +43,27 @@ object Implicits {
 
 		def describes(implicit neo: Ntx): Node = to(rel.describes)
 
-		def above(implicit neo: Ntx): Node = from(rel.describes)
+		def describing(implicit neo: Ntx): Node = from(rel.describes)
 
 		@tailrec
-		def layerFirst(implicit neo: Ntx): Node =
+		def firstInLayer(implicit neo: Ntx): Node =
 			parc match {
 				case null => self
-				case other => other.layerFirst
+				case other => other.firstInLayer
 			}
 
 		@tailrec
-		def layerLast(implicit neo: Ntx): Node =
+		def lastInLayer(implicit neo: Ntx): Node =
 			narc match {
 				case null => self
-				case other => other.layerLast
+				case other => other.lastInLayer
 			}
 
-		def layerAbove(implicit neo: Ntx): Option[Node] = Option(layerFirst.above)
+		def above(implicit neo: Ntx): Option[Node] = Option(firstInLayer.describing)
 
 		@tailrec
 		def nextAbove(implicit neo: Ntx): Option[Node] =
-			layerFirst.above match {
+			firstInLayer.describing match {
 				case null => None
 				case other => other.narc match {
 					case null => other.nextAbove
@@ -73,7 +73,7 @@ object Implicits {
 
 		@tailrec
 		def rightmost(implicit neo: Ntx): Node = {
-			val end = self.layerLast
+			val end = self.lastInLayer
 			end.describes match {
 				case null => end
 				case other => other.rightmost
@@ -82,8 +82,8 @@ object Implicits {
 
 		@tailrec
 		def origin(implicit neo: Ntx): Node = {
-			val start = self.layerFirst
-			start.above match {
+			val start = self.firstInLayer
+			start.describing match {
 				case null => start
 				case other => other.origin
 			}
@@ -91,7 +91,7 @@ object Implicits {
 
 		def prev(implicit neo: Ntx): Option[Node] =
 			parc match {
-				case null => Option(above)
+				case null => Option(describing)
 				case other =>
 					other.describes match {
 						case null => Some(other)
@@ -135,6 +135,18 @@ object Implicits {
 				}
 			}
 			run(state, self, f)
+		}
+
+		def position(implicit neo: Ntx): (Int, Int) = {
+			def pos(node: Node, x: Int, y: Int): (Int, Int) =
+				parc match {
+					case null => describing match {
+						case null => (x, y)
+						case other => pos(other.firstInLayer, x + 1, y)
+					}
+					case other => pos(other, x, y + 1)
+				}
+			pos(self, 0, 0)
 		}
 
 

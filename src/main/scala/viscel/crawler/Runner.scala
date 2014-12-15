@@ -35,6 +35,11 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 			Archive.applyNarration(collection.self, narrator.archive)
 			collection.self.next.foreach(_.fold(()) { _ => collectInteresting })
 			pages = pages.take(3)
+			val parent = collection.self.rightmost.above
+			parent.foreach{n =>
+				collectInteresting(n)
+				n.above.foreach(collectInteresting)
+			}
 		}
 		else Log.error("tried to initialize non empty runner")
 	}
