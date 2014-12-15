@@ -71,7 +71,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 							Log.error(s"$narrator failed on $page: $failed")
 							Clockwork.finish(narrator, this)
 						case Left(created) =>
-							neo.tx { implicit ntx => created foreach collectInteresting }
+							neo.tx { implicit ntx => created filterNot node.self.layerBelow.contains foreach collectInteresting }
 							ec.execute(this)
 					}
 				case Nil =>
