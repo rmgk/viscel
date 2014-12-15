@@ -137,18 +137,5 @@ object Implicits {
 			run(state, self, f)
 		}
 
-		def position(implicit neo: Ntx): (Int, Int) = {
-			def pos(node: Node, x: Int, y: Int): (Int, Int) =
-				parc match {
-					case null => describing match {
-						case null => (x, y)
-						case other => pos(other.firstInLayer, x + 1, y)
-					}
-					case other => pos(other, x, y + 1)
-				}
-			pos(self, 0, 0)
-		}
-
-
 	}
 }
