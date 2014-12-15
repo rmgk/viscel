@@ -137,5 +137,13 @@ object Implicits {
 			run(state, self, f)
 		}
 
+		def position(implicit ntx: Ntx): Int = {
+			def go(node: Node, acc: Int): Int = prev match {
+				case None => acc
+				case Some(prev) => go(prev, acc + 1)
+			}
+			go(self, 0)
+		}
+
 	}
 }
