@@ -35,13 +35,13 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 			Archive.applyNarration(collection.self, narrator.archive)
 			collection.self.next.foreach(_.fold(()) { _ => collectInteresting })
 			val (blank, recheck) = pages.partition(_._1.describes eq null)
-			pages = recheck.take(3) ::: blank
+			pages = blank ::: recheck
 			val parent = collection.self.rightmost.above
 			parent.foreach{n =>
 				collectInteresting(n)
 				n.above.foreach(collectInteresting)
 			}
-			pages = pages.distinct.sortBy(- _._1.position)
+			pages = pages.reverse.distinct.reverse
 		}
 		else Log.error("tried to initialize non empty runner")
 	}
