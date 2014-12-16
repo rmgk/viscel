@@ -33,6 +33,8 @@ object Implicits {
 		def outgoing(rel: RelationshipType)(implicit neo: Ntx): Iterable[Relationship] = iterableAsScalaIterableConverter(self.getRelationships(rel, Direction.OUTGOING)).asScala
 		def incoming(rel: RelationshipType)(implicit neo: Ntx): Iterable[Relationship] = iterableAsScalaIterableConverter(self.getRelationships(rel, Direction.INCOMING)).asScala
 
+		def display(implicit ntx: Ntx): String = s"($parc, $describing) -> $self -> ($narc, $describes)"
+
 		def describes_=(other: Node)(implicit neo: Ntx): Relationship = to_=(rel.describes, other)
 
 		def narc_=(other: Node)(implicit neo: Ntx): Relationship = to_=(rel.narc, other)
@@ -138,7 +140,7 @@ object Implicits {
 		}
 
 		def position(implicit ntx: Ntx): Int = {
-			def go(node: Node, acc: Int): Int = prev match {
+			def go(node: Node, acc: Int): Int = node.prev match {
 				case None => acc
 				case Some(prev) => go(prev, acc + 1)
 			}

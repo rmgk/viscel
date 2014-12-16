@@ -40,6 +40,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 				collectInteresting(n)
 				n.above.foreach(collectInteresting)
 			}
+			pages = pages.distinct.sortBy(_._1.position)
 		}
 		else Log.error("tried to initialize non empty runner")
 	}
