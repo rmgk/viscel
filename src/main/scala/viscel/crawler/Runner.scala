@@ -25,7 +25,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 	@volatile var cancel: Boolean = false
 
 	def collectInteresting(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
-		case m@More(loc, kind) if Archive.needsRecheck(node) => pages ::= node -> m
+		case m@More(loc, kind) if (node.describes eq null) || Archive.needsRecheck(node) => pages ::= node -> m
 		case a@Asset(source, origin, metadata, None) => assets ::= node -> a
 		case _ =>
 	}
@@ -34,13 +34,14 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
 			Archive.applyNarration(collection.self, narrator.archive)
 			collection.self.next.foreach(_.fold(()) { _ => collectInteresting })
-			pages = pages.take(3)
+			val (blank, recheck) = pages.partition(_._1.describes eq null)
+			pages = recheck.take(3) ::: blank
 			val parent = collection.self.rightmost.above
 			parent.foreach{n =>
 				collectInteresting(n)
 				n.above.foreach(collectInteresting)
 			}
-			pages = pages.distinct.sortBy(_._1.position)
+			pages = pages.distinct.sortBy(- _._1.position)
 		}
 		else Log.error("tried to initialize non empty runner")
 	}
@@ -67,12 +68,13 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 			case Nil => pages match {
 				case (node, page) :: rest =>
 					pages = rest
+					val oldBelow = neo.tx(node.layerBelow(_))
 					handle(IOUtil.documentRequest(page.loc) { writePage(narrator, node, page) }) {
 						case Right(failed) =>
 							Log.error(s"$narrator failed on $page: $failed")
 							Clockwork.finish(narrator, this)
 						case Left(created) =>
-							neo.tx { implicit ntx => created filterNot node.self.layerBelow.contains foreach collectInteresting }
+							neo.tx { implicit ntx => created filterNot oldBelow.contains foreach collectInteresting }
 							ec.execute(this)
 					}
 				case Nil =>
