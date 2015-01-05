@@ -5,14 +5,14 @@ import org.scalajs.dom.Event
 import upickle._
 import viscel.shared.JsonCodecs.stringMapR
 import viscel.shared.Story._
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-import scala.Predef.{ArrowAssoc, implicitly}
+import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.{div, p}
+import scalatags.JsDom.tags.div
 
 
 @JSExport(name = "Viscel")
@@ -38,7 +38,7 @@ object Viscel {
 			narrations.map(_(nar.id))
 		}
 
-	def hint(nar: Narration): Unit = dom.extensions.Ajax.post(s"/hint/narrator/${nar.id}")
+	def hint(nar: Narration): Unit = dom.extensions.Ajax.post(s"/hint/narrator/${ nar.id }")
 
 	def postBookmark(nar: Narration, pos: Int): Future[Map[String, Int]] = {
 		val res = dom.extensions.Ajax.post("/bookmarks", s"narration=${ nar.id }&bookmark=$pos", headers = List("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
@@ -57,6 +57,32 @@ object Viscel {
 		dom.window.scrollTo(0, 0)
 	}
 
+	def toggleFullscreen(): Unit = {
+		val doc = scalajs.js.Dynamic.global.document
+		val de = doc.documentElement
+
+		def getDefined[T](ts: T*): Option[T] = ts.find(v => v != null && !scalajs.js.isUndefined(v))
+
+		getDefined(doc.fullscreenElement,
+			doc.webkitFullscreenElement,
+			doc.mozFullScreenElement,
+			doc.msFullscreenElement) match {
+			case None =>
+				de.webkitRequestFullscreen()
+				getDefined(
+					de.requestFullscreen,
+					de.msRequestFullscreen,
+					de.mozRequestFullScreen,
+					de.webkitRequestFullscreen).foreach(_.call(de))
+			case Some(e) =>
+				getDefined(
+					doc.exitFullscreen,
+					doc.webkitExitFullscreen,
+					doc.mozCancelFullScreen,
+					doc.msExitFullscreen).foreach { _.call(doc) }
+		}
+	}
+
 	@JSExport(name = "main")
 	def main(): Unit = {
 
@@ -72,17 +98,15 @@ object Viscel {
 				case id :: rest =>
 					//val elm = p(s"$id …").render
 					//dom.document.body.appendChild(elm)
-					narration(nrs(id)).flatMap { case _ => /*elm.innerHTML = s"$id … Done";*/ go(rest)}
+					narration(nrs(id)).flatMap { case _ => /*elm.innerHTML = s"$id … Done";*/ go(rest) }
 			}
 			go(bm.keys.toList)
-		} onComplete  {
+		} onComplete {
 			case _ if dom.location.hash.substring(1).isEmpty => Actions.dispatchPath(dom.location.hash.substring(1))
 			case _ =>
 		}
 
 		Actions.dispatchPath(dom.location.hash.substring(1))
-
-
 
 
 	}

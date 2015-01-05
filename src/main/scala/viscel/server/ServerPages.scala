@@ -14,9 +14,9 @@ import viscel.store.{Collection, Config, User}
 import scala.Predef.ArrowAssoc
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.immutable.Map
-import scalatags.Text.attrs.{`type`, href, rel, src, title}
+import scalatags.Text.attrs.{`type`, content, href, name, rel, src, title}
 import scalatags.Text.implicits.{stringAttr, stringFrag}
-import scalatags.Text.tags.{body, head, html, link, script}
+import scalatags.Text.tags.{body, head, html, link, meta, script}
 import scalatags.Text.{RawFrag, Tag}
 
 
@@ -27,8 +27,10 @@ object ServerPages {
 	val fullHtml: Tag =
 		html(
 			head(
+				title := "Viscel",
 				link(href := path_css, rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
-				title := "Viscel"),
+				meta(name := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes")),
+
 			body("if nothing happens, your javascript does not work"),
 			script(src := path_js),
 			script(RawFrag(s"Viscel().main()")))

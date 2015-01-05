@@ -1,3 +1,18 @@
+/* i wont pretend that i fully understand what im doing here
+it seems to do what i want (black background for page in fullscreen)
+it stops working in opera27 (webkit) when these are combined into a list of selectors
+please improve :D */
+*:-webkit-full-screen {
+	background-color : black;
+}
+*:fullscreen {
+	background-color : black;
+}
+*:-moz-full-screen {
+	background-color : black;
+}
+
+
 body {
 	color : #68e466;
 	background-color : black;

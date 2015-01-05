@@ -30,9 +30,7 @@ object Index {
 			frag = List(
 				Make.group("New Pages", unreadTags),
 				Make.group("Bookmarks", currentTags),
-				Make.searchArea(narrations.values.toList),
-				Make.navigation(link_stop("stop"))))
-
-
+				Make.navigation(Make.fullscreenToggle("TFS"),link_stop("stop")),
+				Make.searchArea(narrations.values.toList)))
 	}
 }

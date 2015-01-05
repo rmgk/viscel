@@ -7,7 +7,8 @@ import visceljs.Definitions._
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scalatags.JsDom.all._
-import scalatags.JsDom.attrs.style
+import scalatags.JsDom.attrs.{onclick, style}
+import scalatags.JsDom.tags.a
 import scalatags.JsDom.tags2.{article, aside, nav, section}
 
 object Make {
@@ -33,9 +34,11 @@ object Make {
 		asset.blob.fold[HtmlTag](article(class_placeholder)("placeholder"))(blob => article(img(src := path_blob(blob.sha1))))
 	}
 
+	def fullscreenToggle(stuff: Frag*): Tag = a(onclick := (() => Viscel.toggleFullscreen()))(stuff)
+
 	def group(name: String, entries: Seq[Frag]): Tag = section(fieldset(legend(name), ul(entries.map(li(_)))))
 
 	def navigation(links: Tag*): Tag =
 		nav(links.map(e =>
-			e(style := s"width: ${ 50 / links.size }%; margin: 0 ${ 25 / links.size }%")))
+			e(style := s"text-align: center; width: ${ 100 / links.size }%; ")))
 }

@@ -24,6 +24,7 @@ object Front {
 
 		val navigation = Make.navigation(
 			link_index("index"),
+			Make.fullscreenToggle("TFS"),
 			link_asset(narration, gallery.first, "first"),
 			Make.postBookmark(narration, 0, "remove"))
 
