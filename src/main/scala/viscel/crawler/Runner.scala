@@ -102,6 +102,8 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		}
 
 		if (failed.isEmpty) {
+			// remove cached size
+			collection.self.removeProperty("size")
 			Left(Archive.applyNarration(node, wrapped))
 		}
 		else {
