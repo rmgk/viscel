@@ -35,7 +35,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 			Archive.applyNarration(collection.self, narrator.archive)
 			collection.self.next.foreach(_.fold(()) { _ => collectInteresting })
 			val (blank, recheck) = pages.partition(_._1.describes eq null)
-			pages = blank ::: recheck
+			pages = blank ::: recheck.take(3)
 			val parent = collection.self.rightmost.above
 			parent.foreach{n =>
 				collectInteresting(n)
