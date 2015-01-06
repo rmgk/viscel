@@ -1,7 +1,6 @@
 package viscel.crawler
 
 import org.neo4j.graphdb.Node
-import org.scalactic.Equality
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.Log
 import viscel.database.Implicits.NodeOps
@@ -10,7 +9,6 @@ import viscel.shared.Story
 import viscel.shared.Story.Asset
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
 object Archive {
 
@@ -53,49 +51,24 @@ object Archive {
 	}
 
 
-	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): List[Node] = {
+	def applyNarration(target: Node, narration: List[Story])(implicit neo: Ntx): Boolean = {
 		val oldLayer = target.layerBelow
 		val newLayer = replaceLayer(oldLayer, narration)
 		newLayer.headOption foreach target.describes_=
-		updateDates(target, changed = oldLayer !== newLayer)
-		newLayer
+		oldLayer !== newLayer
 	}
 
+	private val dayInMillis = 24L * 60L * 60L * 1000L
 
-	def updateDates(target: Node, changed: Boolean)(implicit ntx: Ntx): Unit = {
+	def updateDates(target: Node)(implicit ntx: Ntx): Unit = {
 		val time = System.currentTimeMillis()
-		val dayInMillis = 24L * 60L * 60L * 1000L
-		val lastUpdateOption = target.get[Long]("last_update")
-		val newCheckInterval: Long = (for {
-			lastUpdate <- lastUpdateOption
-			lastCheck <- target.get[Long]("last_check")
-			checkInterval <- target.get[Long]("check_interval")
-		} yield {
-			math.round(checkInterval * (if (changed) 0.8 else 1.2))
-		}).getOrElse(dayInMillis)
-		val hasUpdated = changed || lastUpdateOption.isEmpty
-		Log.trace(s"update dates on $target: time: $time, interval: $newCheckInterval has update: $hasUpdated")
-		target.setProperty("last_check", time)
-		if (hasUpdated) {
-			target.setProperty("last_update", time)
-		}
-		target.setProperty("check_interval", newCheckInterval)
+		target.setProperty("last_run_complete", time)
 	}
 
 	def needsRecheck(target: Node)(implicit ntx: Ntx): Boolean = {
 		Log.trace(s"calculating recheck for $target")
-		val res = for {
-			lastCheck <- target.get[Long]("last_check")
-			lastUpdate <- target.get[Long]("last_update")
-			checkInterval <- target.get[Long]("check_interval")
-		} yield {
-			val time = System.currentTimeMillis()
-			Log.trace(s"recheck $target: $time - $lastCheck > $checkInterval")
-			time - lastCheck > checkInterval
-		}
-		res.getOrElse {
-			Log.debug(s"defaulting to recheck because of missing data on $target")
-			true
-		}
+		val lastRun = target.get[Long]("last_run_complete")
+		val time = System.currentTimeMillis()
+		lastRun.isEmpty || (time - lastRun.get > dayInMillis)
 	}
 }

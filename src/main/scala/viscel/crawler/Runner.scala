@@ -6,13 +6,14 @@ import spray.client.pipelining.SendReceive
 import viscel.Log
 import viscel.crawler.IOUtil.Request
 import viscel.database.Implicits.NodeOps
-import viscel.database.{Neo, NeoCodec, Ntx, rel}
+import viscel.database.{Neo, NeoCodec, Ntx, label, rel}
 import viscel.narration.Narrator
 import viscel.shared.Story
 import viscel.shared.Story.{Asset, Failed, More}
 import viscel.store.{BlobStore, Collection}
 
-import scala.Predef.ArrowAssoc
+import scala.Predef.{ArrowAssoc, implicitly}
+import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
 
 
@@ -22,24 +23,63 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 
 	var assets: List[(Node, Asset)] = Nil
 	var pages: List[(Node, More)] = Nil
+	var recheck: Node = collection.self
 	@volatile var cancel: Boolean = false
 
-	def collectInteresting(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
-		case m@More(loc, kind) if (node.describes eq null) || Archive.needsRecheck(node) => pages ::= node -> m
+	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
+		case m@More(loc, kind) if node.describes eq null => pages ::= node -> m
 		case a@Asset(source, origin, metadata, None) => assets ::= node -> a
 		case _ =>
 	}
 
 	def init() = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
-			Archive.applyNarration(collection.self, narrator.archive)
-			collection.self.next.foreach(_.fold(()) { _ => collectInteresting })
-			val (blank, recheck) = pages.partition(_._1.describes eq null)
-			pages = blank ::: recheck
+			if (Archive.needsRecheck(collection.self)) {
+				Archive.applyNarration(collection.self, narrator.archive)
+				collection.self.next.foreach(_.fold(()) { _ => collectUnvisited })
+			}
+			else cancel = true
 		}
 		else Log.error("tried to initialize non empty runner")
 	}
 
+	def nextHub(start: Node)(implicit ntx: Ntx): Option[Node] = {
+		@tailrec
+		def go(node: Node): Node =
+			node.layerBelow.filter(_.hasLabel(label.More)) match {
+				case Nil => node
+				case m :: Nil => go(m)
+				case _ => node
+			}
+		start.layerBelow.filter(_.hasLabel(label.More)).lastOption.map(go)
+	}
+
+	def recheckOrDone(): Unit = neo.tx(nextHub(recheck)(_)) match {
+		case None =>
+			Log.info(s"runner for $narrator is done")
+			neo.tx(Archive.updateDates(collection.self)(_))
+			Clockwork.finish(narrator, this)
+		case Some(node) =>
+			recheck = node
+			val m = neo.tx(NeoCodec.load[More](node)(_, implicitly))
+			pages ::= node -> m
+			ec.execute(this)
+	}
+
+	override def run(): Unit = if (!cancel) synchronized {
+		assets match {
+			case (node, asset) :: rest =>
+				assets = rest
+				handle(IOUtil.blobRequest(asset.source, asset.origin) { writeAsset(narrator, node, asset) }) { _ => ec.execute(this) }
+			case Nil => pages match {
+				case (node, page) :: rest =>
+					pages = rest
+					handle(IOUtil.documentRequest(page.loc) { writePage(narrator, node, page) })(x => ())
+				case Nil =>
+					recheckOrDone()
+			}
+		}
+	}
 
 	def handle[R](request: Request[R])(continue: R => Unit) = {
 		IOUtil.getResponse(request.request, iopipe).map { response =>
@@ -54,38 +94,13 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		}(ec)
 	}
 
-	override def run(): Unit = if (!cancel) synchronized {
-		assets match {
-			case (node, asset) :: rest =>
-				assets = rest
-				handle(IOUtil.blobRequest(asset.source, asset.origin) { writeAsset(narrator, node, asset) }) { _ => ec.execute(this) }
-			case Nil => pages match {
-				case (node, page) :: rest =>
-					pages = rest
-					val oldBelow = neo.tx(node.layerBelow(_))
-					handle(IOUtil.documentRequest(page.loc) { writePage(narrator, node, page) }) {
-						case Right(failed) =>
-							Log.error(s"$narrator failed on $page: $failed")
-							Clockwork.finish(narrator, this)
-						case Left(created) =>
-							neo.tx { implicit ntx => created filterNot oldBelow.contains foreach collectInteresting }
-							ec.execute(this)
-					}
-				case Nil =>
-					Log.info(s"runner for $narrator is done")
-					Clockwork.finish(narrator, this)
-			}
-		}
-	}
-
-
 	def writeAsset(core: Narrator, node: Node, asset: Asset)(blob: (Array[Byte], Story.Blob))(ntx: Ntx): Unit = {
 		Log.debug(s"$core: received blob, applying to $asset ($node)")
 		BlobStore.write(blob._2.sha1, blob._1)
 		node.to_=(rel.blob, NeoCodec.create(blob._2)(ntx, NeoCodec.blobCodec))(ntx)
 	}
 
-	def writePage(core: Narrator, node: Node, page: More)(doc: Document)(ntx: Ntx): Either[List[Node], List[Failed]] = {
+	def writePage(core: Narrator, node: Node, page: More)(doc: Document)(ntx: Ntx): Unit = {
 		Log.debug(s"$core: received ${
 			doc.baseUri()
 		}, applying to $page")
@@ -96,12 +111,17 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		}
 
 		if (failed.isEmpty) {
-			// remove cached size
-			collection.self.removeProperty("size")
-			Left(Archive.applyNarration(node, wrapped))
+			val changed = Archive.applyNarration(node, wrapped)
+			if (changed) {
+				// remove cached size
+				collection.self.removeProperty("size")
+				node.layerBelow foreach collectUnvisited
+			}
+			ec.execute(this)
 		}
 		else {
-			Right(failed)
+			Log.error(s"$narrator failed on $page: $failed")
+			Clockwork.finish(narrator, this)
 		}
 	}
 
