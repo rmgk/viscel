@@ -16,7 +16,7 @@ object Story {
 	final case class Core(kind: String, id: String, name: String, metadata: Map[String, String]) extends Story
 	final case class Failed(reason: List[String]) extends Story
 	final case class Blob(sha1: String, mediatype: String) extends Story
-	final case class Narration(id: String, name: String, narrates: Gallery[Asset], chapters: List[(Int, Chapter)])
+	final case class Narration(id: String, name: String, size: Int, narrates: Gallery[Asset], chapters: List[(Int, Chapter)])
 
 	implicit val moreR: ReaderWriter[More] = case2RW(More.apply, More.unapply)("loc", "pagetype")
 	implicit val chapterR: ReaderWriter[Chapter] = case2RW(Chapter.apply, Chapter.unapply)("name", "metadata")
@@ -24,7 +24,7 @@ object Story {
 	implicit val assetR: ReaderWriter[Asset] = case4RW(Asset.apply, Asset.unapply)("source", "origin", "metadata", "blob")
 	implicit val coreR: ReaderWriter[Core] = case4RW(Core.apply, Core.unapply)("kind", "id", "name", "metadata")
 	implicit val failedR: ReaderWriter[Failed] = case1RW(Failed.apply, Failed.unapply)("reason")
-	implicit val narrationR: ReaderWriter[Narration] = case4RW(Narration.apply, Narration.unapply)("id", "name", "narrates", "chapters")
+	implicit val narrationR: ReaderWriter[Narration] = case5RW(Narration.apply, Narration.unapply)("id", "name", "size", "narrates", "chapters")
 
 //	implicit val storyWriter: Writer[Story] = Writer[Story] {
 //		case s @ More(_, _) => writeJs(("More", s))

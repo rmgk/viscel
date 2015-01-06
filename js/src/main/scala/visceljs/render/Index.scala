@@ -16,14 +16,18 @@ object Index {
 		val result: List[(Narration, Int, Int)] =
 			bookmarks.map { case (id, pos) =>
 				narrations.get(id).map { nr =>
-					(nr, pos, nr.narrates.size - pos)
+					(nr, pos, nr.size - pos)
 				}
 			}.toList.flatten
 
 		val (hasNewPages, isCurrent) = result.partition(_._3 > 0)
 
-		val unreadTags = hasNewPages.sortBy(-_._3).map { case (nr, pos, unread) => link_front(nr, s"${ nr.name } ($unread)") }
-		val currentTags = isCurrent.sortBy(_._1.name).map { case (nr, pos, unread) => link_front(nr, s"${ nr.name }") }
+		val unreadTags = hasNewPages.sortBy(-_._3).map {
+			case (nr, pos, unread) => link_front(nr, s"${ nr.name } ($unread)")
+		}
+		val currentTags = isCurrent.sortBy(_._1.name).map {
+			case (nr, pos, unread) => link_front(nr, s"${ nr.name }")
+		}
 
 
 		Body(id = "index", title = "Viscel",

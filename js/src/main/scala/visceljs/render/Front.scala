@@ -20,7 +20,7 @@ object Front {
 
 		val gallery = narration.narrates
 
-		val top = header(s"${narration.name} ($bookmark/${gallery.size})")
+		val top = header(s"${narration.name} ($bookmark/${narration.size})")
 
 		val navigation = Make.navigation(
 			link_index("index"),

@@ -37,10 +37,10 @@ final case class Collection(self: Node) extends AnyVal {
 
 		if (deep) {
 			val (size, assets, chapters) = allAssets(self)
-			Narration(id, name, Gallery.fromList(assets.reverse), chapters)
+			Narration(id, name, assets.size, Gallery.fromList(assets.reverse), chapters)
 		}
 		else {
-			Narration(id, name, Gallery.fromList(Nil), Nil)
+			Narration(id, name, size, Gallery.fromList(Nil), Nil)
 		}
 	}
 

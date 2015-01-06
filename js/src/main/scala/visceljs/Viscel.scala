@@ -18,9 +18,14 @@ import scalatags.JsDom.tags.div
 @JSExport(name = "Viscel")
 object Viscel {
 
-	def ajax[R: Reader](path: String): Future[R] = dom.extensions.Ajax.get(
-		url = path
-	).map { res => upickle.read[R](res.responseText) }
+	def ajax[R: Reader](path: String): Future[R] = {
+		val res = dom.extensions.Ajax.get(url = path)
+			.map { res => upickle.read[R](res.responseText) }
+		res.onFailure {
+			case e => Console.println(s"request $path failed with $e")
+		}
+		res
+	}
 
 	implicit val readAssets: Reader[List[Asset]] = Predef.implicitly[Reader[List[Asset]]]
 
@@ -90,21 +95,21 @@ object Viscel {
 			Actions.dispatchPath(dom.location.hash.substring(1))
 		}
 
-		setBody(Body(frag = div("loading bookmarked …")))
+		setBody(Body(frag = div("loading data …")))
 
-		for (bm <- bookmarks; nrs <- narrations) yield {
-			def go(ids: List[String]): Future[Unit] = ids match {
-				case Nil => Future.successful(Unit)
-				case id :: rest =>
-					//val elm = p(s"$id …").render
-					//dom.document.body.appendChild(elm)
-					narration(nrs(id)).flatMap { case _ => /*elm.innerHTML = s"$id … Done";*/ go(rest) }
-			}
-			go(bm.keys.toList)
-		} onComplete {
-			case _ if dom.location.hash.substring(1).isEmpty => Actions.dispatchPath(dom.location.hash.substring(1))
-			case _ =>
-		}
+//		for (bm <- bookmarks; nrs <- narrations) yield {
+//			def go(ids: List[String]): Future[Unit] = ids match {
+//				case Nil => Future.successful(Unit)
+//				case id :: rest =>
+//					//val elm = p(s"$id …").render
+//					//dom.document.body.appendChild(elm)
+//					narration(nrs(id)).flatMap { case _ => /*elm.innerHTML = s"$id … Done";*/ go(rest) }
+//			}
+//			go(bm.keys.toList)
+//		} onComplete {
+//			case _ if dom.location.hash.substring(1).isEmpty => Actions.dispatchPath(dom.location.hash.substring(1))
+//			case _ =>
+//		}
 
 		Actions.dispatchPath(dom.location.hash.substring(1))
 
