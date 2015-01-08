@@ -54,6 +54,12 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		start.layerBelow.filter(_.hasLabel(label.More)).lastOption.map(go)
 	}
 
+	def previousMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start match {
+		case None => None
+		case Some(node) if node.hasLabel(label.More) => Some(node -> NeoCodec.load[More](node))
+		case Some(other) => previousMore(other.prev)
+	}
+
 	def recheckOrDone(): Unit = neo.tx(nextHub(recheck)(_)) match {
 		case None =>
 			Log.info(s"runner for $narrator is done")
@@ -109,10 +115,12 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		}
 
 		if (failed.isEmpty) {
+			val wasEmpty = node.layer.isEmpty
 			val changed = Archive.applyNarration(node, wrapped)
 			if (changed) {
 				// remove cached size
 				collection.self.removeProperty("size")
+				if (!wasEmpty) previousMore(node.prev).foreach(pages ::= _)
 				node.layerBelow foreach collectUnvisited
 			}
 			ec.execute(this)
