@@ -17,7 +17,7 @@ import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
 
 
-class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, neo: Neo, ec: ExecutionContext) extends Runnable {
+class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection, neo: Neo, ec: ExecutionContext) extends Runnable {
 
 	override def toString: String = s"Job(${ narrator.toString })"
 
@@ -34,11 +34,8 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 
 	def init() = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
-			if (Archive.needsRecheck(collection.self)) {
-				Archive.applyNarration(collection.self, narrator.archive)
-				collection.self.next.foreach(_.fold(()) { _ => collectUnvisited })
-			}
-			else cancel = true
+			Archive.applyNarration(collection.self, narrator.archive)
+			collection.self.next.foreach(_.fold(()) { _ => collectUnvisited })
 		}
 		else Log.error("tried to initialize non empty runner")
 	}

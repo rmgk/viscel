@@ -39,11 +39,15 @@ object Clockwork {
 		if (runners.contains(id)) Log.trace(s"$id has running job")
 		else {
 			Log.info(s"got hint $id")
-			val collection = neo.tx { Collection.findAndUpdate(narrator)(_) }
-			val runner = new Runner(narrator, iopipe, collection, neo, ec)
-			ensureRunner(id, runner, ec)
+			val runner = neo.tx { implicit ntx =>
+				val collection = Collection.findAndUpdate(narrator)
+				if (!Archive.needsRecheck(collection.self)) None
+				else {
+					Some(new Runner(narrator, iopipe, collection, neo, ec))
+				}
+			}
+			runner.foreach{ ensureRunner(id, _, ec) }
 		}
 	}
-
 
 }
