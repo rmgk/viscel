@@ -70,23 +70,20 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		assets match {
 			case (node, asset) :: rest =>
 				assets = rest
-				handle(IOUtil.blobRequest(asset.source, asset.origin) { writeAsset(narrator, node, asset) }) { _ => ec.execute(this) }
+				handle(IOUtil.blobRequest(asset.source, asset.origin) { writeAsset(narrator, node, asset) })
 			case Nil => pages match {
 				case (node, page) :: rest =>
 					pages = rest
-					handle(IOUtil.documentRequest(page.loc) { writePage(narrator, node, page) })(x => ())
+					handle(IOUtil.documentRequest(page.loc) { writePage(narrator, node, page) })
 				case Nil =>
 					recheckOrDone()
 			}
 		}
 	}
 
-	def handle[R](request: Request[R])(continue: R => Unit) = {
+	def handle[R](request: Request[R]) = {
 		IOUtil.getResponse(request.request, iopipe).map { response =>
-			synchronized {
-				val res = neo.tx { request.handler(response) }
-				continue(res)
-			}
+			synchronized { neo.tx { request.handler(response) } }
 		}(ec).onFailure { case t: Throwable =>
 			Log.error(s"error in $narrator")
 			t.printStackTrace()
@@ -98,6 +95,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Collection, ne
 		Log.debug(s"$core: received blob, applying to $asset ($node)")
 		BlobStore.write(blob._2.sha1, blob._1)
 		node.to_=(rel.blob, NeoCodec.create(blob._2)(ntx, NeoCodec.blobCodec))(ntx)
+		ec.execute(this)
 	}
 
 	def writePage(core: Narrator, node: Node, page: More)(doc: Document)(ntx: Ntx): Unit = {
