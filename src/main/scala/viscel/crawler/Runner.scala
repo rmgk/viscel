@@ -27,7 +27,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 	@volatile var cancel: Boolean = false
 
 	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
-		case m@More(loc, kind) if (node.describes eq null) || loc.contains("volatile") => pages ::= node -> m
+		case m@More(loc, kind) if (node.describes eq null) || kind.contains("volatile") => pages ::= node -> m
 		case a@Asset(source, origin, metadata, None) => assets ::= node -> a
 		case _ =>
 	}
