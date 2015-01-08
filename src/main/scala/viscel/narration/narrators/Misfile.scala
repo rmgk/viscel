@@ -11,7 +11,7 @@ import viscel.shared.Story.{Chapter, More}
 import scala.language.implicitConversions
 
 object Misfile extends Narrator {
-	def archive = More("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", "archive") :: Nil
+	def archive = More("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", "volatile") :: Nil
 
 	def id: String = "NX_Misfile"
 
@@ -50,7 +50,7 @@ object Misfile extends Narrator {
 	}
 
 	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-		case "archive" => wrapArchive(doc)
+		case "volatile" => wrapArchive(doc)
 		case "page" => wrapPage(doc)
 	})
 }
