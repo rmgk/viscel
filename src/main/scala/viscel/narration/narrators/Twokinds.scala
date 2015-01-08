@@ -11,7 +11,7 @@ import viscel.shared.Story.{Chapter, More}
 
 object Twokinds extends Narrator {
 
-	def archive = More("http://twokinds.keenspot.com/?p=archive", "archive") :: More("http://twokinds.keenspot.com/index.php", "main") :: Nil
+	def archive = More("http://twokinds.keenspot.com/?p=archive", "volatile") :: More("http://twokinds.keenspot.com/index.php", "main") :: Nil
 
 	def id: String = "NX_Twokinds"
 
@@ -29,7 +29,7 @@ object Twokinds extends Narrator {
 	}
 
 	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-		case "archive" => wrapArchive(doc)
+		case "volatile" => wrapArchive(doc)
 		case "page" => Selection(doc).unique("#cg_img img").wrapEach { imgIntoAsset }
 		case "main" => Selection(doc).unique(".comic img[src~=images/\\d+\\.\\w+]").wrapEach { imgIntoAsset }
 	})
