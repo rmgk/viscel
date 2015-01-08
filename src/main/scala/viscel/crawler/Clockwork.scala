@@ -34,14 +34,14 @@ object Clockwork {
 		}
 	}
 
-	def handleHints(hints: Evt[Narrator], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { narrator =>
+	def handleHints(hints: Evt[(Narrator, Boolean)], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { case (narrator, force) =>
 		val id = narrator.id
 		if (runners.contains(id)) Log.trace(s"$id has running job")
 		else {
 			Log.info(s"got hint $id")
 			val runner = neo.tx { implicit ntx =>
 				val collection = Collection.findAndUpdate(narrator)
-				if (!Archive.needsRecheck(collection.self)) None
+				if (!force && !Archive.needsRecheck(collection.self)) None
 				else {
 					Some(new Runner(narrator, iopipe, collection, neo, ec))
 				}

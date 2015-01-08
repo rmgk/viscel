@@ -10,7 +10,7 @@ import viscel.store.Collection
 import scala.util.Try
 
 object Deeds {
-	val narratorHint = Evt[Narrator]()
+	val narratorHint = Evt[(Narrator, Boolean)]()
 	val responses = Evt[Try[HttpResponse]]()
 	val jobResult = Evt[List[ErrorMessage]]()
 
