@@ -2,14 +2,10 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import org.scalactic._
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More
-
-import scala.Predef.{ArrowAssoc, augmentString}
-import scala.collection.immutable.Map
 
 object CloneManga {
 
@@ -22,23 +18,23 @@ object CloneManga {
 		})
 	}
 
-//	def getCore(desc: Story.Core): Narrator = Clone(desc.name, desc.id, desc.metadata("start"))
-//
-//	object MetaClone extends Narrator {
-//		override def id: String = "Meta_CloneManga"
-//		override def name: String = "Metacore Clonemanga"
-//		override def archive = More("http://manga.clone-army.org/viewer_landing.php", "") :: Nil
-//		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(
-//			Selection(doc).many(".comicPreviewContainer").wrapEach { container =>
-//				val name_? = Selection(container).unique(".comicNote > h3").getOne.map(_.ownText())
-//				val uri_? = Selection(container).unique("> a").wrapOne(extractUri)
-//				val id_? = uri_?.flatMap { uri => """series=(\w+)""".r.findFirstMatchIn(uri.toString)
-//					.fold(Bad(One("match error")): String Or One[ErrorMessage])(m => Good(m.group(1)))
-//				}
-//				withGood(name_?, uri_?, id_?) { (name, uri, id) =>
-//					Story.Core("CloneManga", s"CloneManga_$id", name, Map("start" -> s"$uri&start=1"))
-//				}
-//			})
-//	}
+	//	def getCore(desc: Story.Core): Narrator = Clone(desc.name, desc.id, desc.metadata("start"))
+	//
+	//	object MetaClone extends Narrator {
+	//		override def id: String = "Meta_CloneManga"
+	//		override def name: String = "Metacore Clonemanga"
+	//		override def archive = More("http://manga.clone-army.org/viewer_landing.php", "") :: Nil
+	//		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(
+	//			Selection(doc).many(".comicPreviewContainer").wrapEach { container =>
+	//				val name_? = Selection(container).unique(".comicNote > h3").getOne.map(_.ownText())
+	//				val uri_? = Selection(container).unique("> a").wrapOne(extractUri)
+	//				val id_? = uri_?.flatMap { uri => """series=(\w+)""".r.findFirstMatchIn(uri.toString)
+	//					.fold(Bad(One("match error")): String Or One[ErrorMessage])(m => Good(m.group(1)))
+	//				}
+	//				withGood(name_?, uri_?, id_?) { (name, uri, id) =>
+	//					Story.Core("CloneManga", s"CloneManga_$id", name, Map("start" -> s"$uri&start=1"))
+	//				}
+	//			})
+	//	}
 
 }
