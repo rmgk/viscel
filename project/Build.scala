@@ -85,23 +85,23 @@ object Settings {
 
 		initialCommands in console :=
 			"""import akka.actor.{ ActorSystem, Props, Actor }
-			  |import akka.io.IO
-			  |import akka.util.Timeout
-			  |import org.jsoup._
-			  |import org.neo4j.graphdb._
-			  |import scala.collection.JavaConversions._
-			  |import scala.concurrent._
-			  |import scala.concurrent.duration._
-			  |import scala.concurrent.ExecutionContext.Implicits.global
-			  |import spray.can._
-			  |import spray.client.pipelining._
-			  |import spray.http._
-			  |import viscel._
-			  |import viscel.crawler._
-			  |import viscel.server._
-			  |import viscel.store._
-			  |import viscel.database._
-			  |import scala.Predef._
+				|import akka.io.IO
+				|import akka.util.Timeout
+				|import org.jsoup._
+				|import org.neo4j.graphdb._
+				|import scala.collection.JavaConversions._
+				|import scala.concurrent._
+				|import scala.concurrent.duration._
+				|import scala.concurrent.ExecutionContext.Implicits.global
+				|import spray.can._
+				|import spray.client.pipelining._
+				|import spray.http._
+				|import viscel._
+				|import viscel.crawler._
+				|import viscel.server._
+				|import viscel.store._
+				|import viscel.database._
+				|import scala.Predef._
 				|import viscel.ReplUtil
 				|import viscel.narration._
 			""".stripMargin)
@@ -146,7 +146,7 @@ object Libraries {
 	val scalamacros = "org.scalamacros" %% s"quasiquotes" % "2.0.1" % "provided" :: Nil
 
 	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.1" % Test) :: Nil
-	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.1" exclude ("org.scala-lang", "scala-reflect")) :: Nil
+	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.1" exclude("org.scala-lang", "scala-reflect")) :: Nil
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 	val scalatags = Def.setting("com.scalatags" %%% "scalatags" % "0.4.2" :: Nil)
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.5" :: Nil)
@@ -157,8 +157,8 @@ object Libraries {
 			Nil)
 
 	val rescala = ("de.tuda.stg" %% "rescala" % "0.4.0"
-		exclude ("org.scala-lang", "scala-compiler")
-		exclude ("org.scala-lang", "scala-reflect")) :: Nil
+		exclude("org.scala-lang", "scala-compiler")
+		exclude("org.scala-lang", "scala-reflect")) :: Nil
 
 }
 
@@ -171,23 +171,23 @@ object SourceGeneration {
 			val nameList = 1 to i map ("n" + _)
 			def types(app: String) = sep(1 to i map ("I" + _ + app))
 			val writeJSs = if (i == 1) "n1 -> writeJs(a)"
-				else sep(nameList.zip(1 to i).map{case (p, j) => s"$p -> writeJs(a._$j)"})
-			val readUnapply = sep(nameList.zip(1 to i).map{case (p, j) => s"(`$p`, a$j)"})
-			val readJSs = sep(1 to i map {j => s"readJs[I$j](a$j)"})
+			else sep(nameList.zip(1 to i).map { case (p, j) => s"$p -> writeJs(a._$j)" })
+			val readUnapply = sep(nameList.zip(1 to i).map { case (p, j) => s"(`$p`, a$j)" })
+			val readJSs = sep(1 to i map { j => s"readJs[I$j](a$j)" })
 			val names = sep(nameList map (_ + ": String"))
 
 
-			s"""def case${i}R[T, ${types(":R")}](read: (${types("")}) => T)($names): R[T] = R[T] {
+			s"""def case${ i }R[T, ${ types(":R") }](read: (${ types("") }) => T)($names): R[T] = R[T] {
 				 |case Js.Obj($readUnapply) => read($readJSs)
 				 |}
 				 |
-				 |def case${i}W[T, ${types(":W")}](write: T => Option[(${types("")})])($names): W[T] = W[T] { t: T =>
+				 |def case${ i }W[T, ${ types(":W") }](write: T => Option[(${ types("") })])($names): W[T] = W[T] { t: T =>
 				 |val a = write(t).get
 				 |Js.Obj($writeJSs)
 				 |}
 				 |
-				 |def case${i}RW[T, ${types(":R:W")}](read: (${types("")}) => T, write: T => Option[(${types("")})])($names): ReaderWriter[T] = {
-				 |ReaderWriter(case${i}R(read)(${sep(nameList)}), case${i}W(write)(${sep(nameList)}))
+				 |def case${ i }RW[T, ${ types(":R:W") }](read: (${ types("") }) => T, write: T => Option[(${ types("") })])($names): ReaderWriter[T] = {
+				 |ReaderWriter(case${ i }R(read)(${ sep(nameList) }), case${ i }W(write)(${ sep(nameList) }))
 				 |}
 				 |""".stripMargin
 
@@ -201,7 +201,7 @@ object SourceGeneration {
 			|import scala.Predef.ArrowAssoc
 			|import scala.collection.immutable.Map
 			|trait UpickleCodecs {
-			|${definitions.mkString("\n")}
+			|${ definitions.mkString("\n") }
 			|}
 			|""".stripMargin)
 		Seq(file)
@@ -214,13 +214,13 @@ object SourceGeneration {
 			val nameList = 1 to i map ("n" + _)
 			val types = sep(1 to i map ("I" + _))
 			val writeNodes = if (i == 1) "(n1, a)"
-				else sep(nameList.zip(1 to i).map{case (p, j) => s"($p, a._$j)"})
-			val readNodes = sep(nameList.zip(1 to i).map{case (p, j) => s"node.prop[I${j}]($p)"})
+			else sep(nameList.zip(1 to i).map { case (p, j) => s"($p, a._$j)" })
+			val readNodes = sep(nameList.zip(1 to i).map { case (p, j) => s"node.prop[I${ j }]($p)" })
 			val names = sep(nameList map (_ + ": String"))
 
 
 			s"""
-			|def case${i}RW[T, $types](label: SimpleLabel, $names)(readf: ($types) => T, writef: T => ($types)): NeoCodec[T] = new NeoCodec[T] {
+			|def case${ i }RW[T, $types](label: SimpleLabel, $names)(readf: ($types) => T, writef: T => ($types)): NeoCodec[T] = new NeoCodec[T] {
 			| override def read(node: Node)(implicit ntx: Ntx): T = readf($readNodes)
 			| override def write(value: T)(implicit ntx: Ntx): Node = {
 			|   val a = writef(value)
@@ -240,7 +240,7 @@ object SourceGeneration {
 			|import viscel.database.label.SimpleLabel
 			|import viscel.database.NeoCodec
 			|object NeoCodecs {
-			|${definitions.mkString("\n")}
+			|${ definitions.mkString("\n") }
 			|}
 			|""".stripMargin)
 		Seq(file)
