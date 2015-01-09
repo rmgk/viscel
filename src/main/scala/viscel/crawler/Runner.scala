@@ -3,8 +3,8 @@ package viscel.crawler
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import spray.client.pipelining.SendReceive
+import spray.http.{HttpRequest, HttpResponse}
 import viscel.Log
-import viscel.crawler.IOUtil.Request
 import viscel.database.Implicits.NodeOps
 import viscel.database.{Neo, NeoCodec, Ntx, label, rel}
 import viscel.narration.Narrator
@@ -12,7 +12,8 @@ import viscel.shared.Story
 import viscel.shared.Story.{Asset, Failed, More}
 import viscel.store.{BlobStore, Collection}
 
-import scala.Predef.{ArrowAssoc, implicitly}
+import scala.Predef.ArrowAssoc
+import scala.Predef.implicitly
 import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
 
@@ -73,20 +74,20 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 		assets match {
 			case (node, asset) :: rest =>
 				assets = rest
-				handle(IOUtil.blobRequest(asset.source, asset.origin) { writeAsset(narrator, node, asset) })
+				handle(IOUtil.request(asset.source, Some(asset.origin))) { IOUtil.parseBlob _ andThen writeAsset(narrator, node, asset) }
 			case Nil => pages match {
 				case (node, page) :: rest =>
 					pages = rest
-					handle(IOUtil.documentRequest(page.loc) { writePage(narrator, node, page) })
+					handle(IOUtil.request(page.loc)) { IOUtil.parseDocument(page.loc) _ andThen writePage(narrator, node, page) }
 				case Nil =>
 					recheckOrDone()
 			}
 		}
 	}
 
-	def handle[R](request: Request[R]) = {
-		IOUtil.getResponse(request.request, iopipe).map { response =>
-			synchronized { neo.tx { request.handler(response) } }
+	def handle[T, R](request: HttpRequest)(handler: HttpResponse => Ntx => R) = {
+		IOUtil.getResponse(request, iopipe).map { response =>
+			synchronized { neo.tx { handler(response) } }
 		}(ec).onFailure { case t: Throwable =>
 			Log.error(s"error in $narrator")
 			t.printStackTrace()

@@ -9,7 +9,6 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding._
-import viscel.database.Ntx
 import viscel.shared.{AbsUri, Story}
 import viscel.{Deeds, Log}
 
@@ -20,13 +19,9 @@ import scala.Predef.identity
 
 object IOUtil {
 
-	final case class Request[R](request: HttpRequest, handler: HttpResponse => Ntx => R)
-
 	val digester = MessageDigest.getInstance("SHA1")
 
 	def sha1hex(b: Array[Byte]) = Predef.wrapByteArray(digester.digest(b)).map { h => f"$h%02x" }.mkString
-
-	type Handler[A, R] = A => Ntx => R
 
 	def uriToUri(in: java.net.URI): Uri = Uri.parseAbsolute(in.toString)
 
@@ -38,25 +33,20 @@ object IOUtil {
 		result.andThen(PartialFunction(Deeds.responses.apply)).map { decode(Gzip) ~> decode(Deflate) }
 	}
 
-	def request[R](source: AbsUri, origin: Option[AbsUri] = None)(withResponse: Handler[HttpResponse, R]): Request[R] = {
-		Request(Get(uriToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](identity)(origin => addReferrer(uriToUri(origin))), withResponse)
+	def request[R](source: AbsUri, origin: Option[AbsUri] = None): HttpRequest = {
+		Get(uriToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](identity)(origin => addReferrer(uriToUri(origin)))
 	}
-	
-	def parseResponse(absUri: AbsUri)(res: HttpResponse): Document = Jsoup.parse(
+
+	def parseDocument(absUri: AbsUri)(res: HttpResponse): Document = Jsoup.parse(
 		res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
 		res.header[Location].fold(ifEmpty = uriToUri(absUri))(_.uri).toString())
 
-	def documentRequest[R](absUri: AbsUri)(withDocument: Handler[Document, R]): Request[R] =
-		request(absUri) { parseResponse(absUri) andThen withDocument }
-
-
-	def blobRequest[R](source: AbsUri, origin: AbsUri)(withBlob: Handler[(Array[Byte], Story.Blob), R]): Request[R] =
-		request(source, Some(origin)) { res =>
-			val bytes = res.entity.data.toByteArray
-			withBlob((bytes,
-				Story.Blob(
-					sha1 = sha1hex(bytes),
-					mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString()))))
-		}
+	def parseBlob[R](res: HttpResponse): (Array[Byte], Story.Blob) = {
+		val bytes = res.entity.data.toByteArray
+		(bytes,
+			Story.Blob(
+				sha1 = sha1hex(bytes),
+				mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString())))
+	}
 
 }
