@@ -31,6 +31,7 @@ object Narrator {
 		WordpressEasel.cores ++
 		Batoto.cores ++
 		CloneManga.MetaClone.load() ++
+		MangaHere.MetaCore.load() ++
 		Set(Flipside, Everafter, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3)
 

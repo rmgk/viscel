@@ -33,7 +33,7 @@ object CloneManga {
 					.fold(Bad(One("match error")): String Or One[ErrorMessage])(m => Good(m.group(1)))
 				}
 				withGood(name_?, uri_?, id_?) { (name, uri, id) =>
-					Clone(s"CloneManga_$id", s"[CloneManga] $name",  s"$uri&start=1")
+					Clone(s"CloneManga_$id", s"[CM] $name",  s"$uri&start=1")
 				}
 			}
 

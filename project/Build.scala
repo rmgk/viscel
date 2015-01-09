@@ -104,6 +104,7 @@ object Settings {
 				|import scala.Predef._
 				|import viscel.ReplUtil
 				|import viscel.narration._
+				|import viscel.narration.narrators._
 			""".stripMargin)
 
 }
