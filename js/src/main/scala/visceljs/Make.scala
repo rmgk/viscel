@@ -19,7 +19,7 @@ object Make {
 	def searchArea(narrations: List[Narration]): HtmlTag = aside {
 		val results = ol.render
 		var filtered = narrations
-		filtered.foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
+		filtered.sortBy(_.name).foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
 		lazy val inputField: HTMLInputElement = input(`type` := "textfield", autofocus := true, onkeyup := { () =>
 			results.innerHTML = ""
 			val query = inputField.value.toString.toLowerCase
