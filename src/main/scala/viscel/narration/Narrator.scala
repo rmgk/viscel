@@ -2,11 +2,10 @@ package viscel.narration
 
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.database.{NeoCodec, Ntx, label}
 import viscel.narration.narrators._
 import viscel.shared.Story
-import viscel.shared.Story.{Core, More}
 
+import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Set
 
 trait Narrator {
@@ -23,18 +22,16 @@ trait Narrator {
 }
 
 object Narrator {
-	def metaCores(implicit ntx: Ntx): Set[Narrator] =
-		ntx.nodes(label.Core).map {
-			NeoCodec.load[Story](_) match {
-				case core@Core("CloneManga", _, _, _) => CloneManga.getCore(core)
-				case core@Core("MangaHere", _, _, _) => CloneManga.getCore(core)
-				case node @ _ => throw new IllegalStateException(s"$node is not a valid core")
-			}
-		}.toSet
+	def all: Set[Narrator] = narrators
+	def get(id: String): Option[Narrator] = narratorMap.get(id)
 
-	def availableCores: Set[Narrator] = KatBox.cores ++ PetiteSymphony.cores ++ WordpressEasel.cores ++ Batoto.cores ++ staticCores
-	def get(id: String): Option[Narrator] = availableCores.find(_.id === id)
+	private val narrators = Set() ++
+		KatBox.cores ++
+		PetiteSymphony.cores ++
+		WordpressEasel.cores ++
+		Batoto.cores ++
+		Set(Flipside, Everafter, CitrusSaburoUta, Misfile,
+			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3)
 
-	val staticCores = Set(MangaHere.MetaCore, CloneManga.MetaClone, Flipside, Everafter, CitrusSaburoUta, Misfile,
-		Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3)
+	private val narratorMap = narrators.map(n => n.id -> n).toMap
 }

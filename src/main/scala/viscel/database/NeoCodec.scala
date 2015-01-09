@@ -3,7 +3,7 @@ package viscel.database
 import org.neo4j.graphdb.Node
 import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
 import viscel.shared.Story
-import viscel.shared.Story.{Asset, Blob, Chapter, Core, Failed, More}
+import viscel.shared.Story.{Asset, Blob, Chapter, Failed, More}
 import Implicits.NodeOps
 
 import scala.collection.immutable.Map
@@ -27,7 +27,6 @@ object NeoCodec {
 			case s @ More(loc, kind) => create(s)
 			case s @ Chapter(name, metadata) => create(s)
 			case s @ Asset(source, origin, metadata, blob) => create(s)
-			case s @ Core(kind, id, name, metadata) => create(s)
 			case s @ Blob(sha1, mediatype) => create(s)
 			case s @ Failed(reason) => throw new IllegalArgumentException(s"can not write $s")
 		}
@@ -36,7 +35,6 @@ object NeoCodec {
 			else if (node.hasLabel(label.Asset)) load[Asset](node)
 			else if (node.hasLabel(label.More)) load[More](node)
 			else if (node.hasLabel(label.Blob)) load[Blob](node)
-			else if (node.hasLabel(label.Core)) load[Core](node)
 			else Failed(s"$node is not a story" :: Nil)
 	}
 
@@ -70,10 +68,5 @@ object NeoCodec {
 	implicit val blobCodec: NeoCodec[Story.Blob] = case2RW[Blob, String, String](label.Blob, "sha1", "mediatype")(
 		readf = Blob.apply,
 		writef = Blob.unapply _ andThen (_.get))
-
-	implicit val coreCodec: NeoCodec[Core] = case4RW[Core, String, String, String, String](label.Core, "kind", "id", "name", "metadata")(
-		readf = (k, i, n, md) => Core(k, i, n,  upickle.read[Map[String, String]](md)),
-		writef = core => (core.kind, core.id, core.name, upickle.write(core.metadata)))
-
 
 }

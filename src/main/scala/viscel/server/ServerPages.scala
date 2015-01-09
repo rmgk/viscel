@@ -48,7 +48,7 @@ object ServerPages {
 	def collections(implicit ntx: Ntx): HttpResponse = {
 
 		val allCollections = GlobalGraphOperations.at(ntx.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply } ++
-			Narrator.availableCores.map(Collection.findAndUpdate)
+			Narrator.all.map(Collection.findAndUpdate)
 		jsonResponse(allCollections.map { _.narration(deep = false) })
 	}
 
