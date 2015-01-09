@@ -4,11 +4,13 @@ import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.Log
 import viscel.database.Implicits.NodeOps
-import viscel.database.{NeoCodec, Ntx, rel}
+import viscel.database.{label, NeoCodec, Ntx, rel}
 import viscel.shared.Story
-import viscel.shared.Story.Asset
+import viscel.shared.Story.{More, Asset}
 
 import scala.annotation.tailrec
+import scala.Predef.ArrowAssoc
+
 
 object Archive {
 
@@ -70,5 +72,23 @@ object Archive {
 		val lastRun = target.get[Long]("last_run_complete")
 		val time = System.currentTimeMillis()
 		lastRun.isEmpty || (time - lastRun.get > dayInMillis)
+	}
+
+
+	def nextHub(start: Node)(implicit ntx: Ntx): Option[Node] = {
+		@tailrec
+		def go(node: Node): Node =
+			node.layerBelow.filter(_.hasLabel(label.More)) match {
+				case Nil => node
+				case m :: Nil => go(m)
+				case _ => node
+			}
+		start.layerBelow.filter(_.hasLabel(label.More)).lastOption.map(go)
+	}
+
+	def previousMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start match {
+		case None => None
+		case Some(node) if node.hasLabel(label.More) => Some(node -> NeoCodec.load[More](node))
+		case Some(other) => previousMore(other.prev)
 	}
 }

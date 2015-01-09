@@ -5,8 +5,10 @@ import org.neo4j.graphdb.Node
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpRequest, HttpResponse}
 import viscel.Log
+import viscel.crawler.Archive._
+import viscel.crawler.RunnerUtil._
 import viscel.database.Implicits.NodeOps
-import viscel.database.{Neo, NeoCodec, Ntx, label, rel}
+import viscel.database.{Neo, NeoCodec, Ntx, rel}
 import viscel.narration.Narrator
 import viscel.shared.Story
 import viscel.shared.Story.{Asset, Failed, More}
@@ -14,10 +16,7 @@ import viscel.store.{BlobStore, Collection}
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.implicitly
-import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
-
-import viscel.crawler.RunnerUtil._
 
 
 class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection, neo: Neo, ec: ExecutionContext) extends Runnable {
@@ -37,7 +36,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 
 	def init() = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
-			Archive.applyNarration(collection.self, narrator.archive)
+			applyNarration(collection.self, narrator.archive)
 			collection.self.next.foreach(_.fold(()) { _ => collectUnvisited })
 		}
 		else Log.error("tried to initialize non empty runner")
@@ -46,7 +45,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 	def recheckOrDone(): Unit = neo.tx(nextHub(recheck)(_)) match {
 		case None =>
 			Log.info(s"runner for $narrator is done")
-			neo.tx(Archive.updateDates(collection.self)(_))
+			neo.tx(updateDates(collection.self)(_))
 			Clockwork.finish(narrator, this)
 		case Some(node) =>
 			recheck = node
@@ -99,7 +98,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 
 		if (failed.isEmpty) {
 			val wasEmpty = node.layer.isEmpty
-			val changed = Archive.applyNarration(node, wrapped)
+			val changed = applyNarration(node, wrapped)
 			if (changed) {
 				// remove cached size
 				collection.self.removeProperty("size")
