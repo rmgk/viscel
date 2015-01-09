@@ -34,10 +34,18 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 		case _ =>
 	}
 
+	def collectVolatile(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
+		case m@More(loc, kind) if  kind.contains("volatile") => pages ::= node -> m
+		case _ =>
+	}
+
 	def init() = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
 			applyNarration(collection.self, narrator.archive)
 			collection.self.next.foreach(_.fold(()) { _ => collectUnvisited })
+			pages = pages.reverse
+			assets = assets.reverse
+			if (pages.isEmpty) collection.self.next.foreach(_.fold(()) { _ => collectVolatile })
 		}
 		else Log.error("tried to initialize non empty runner")
 	}
