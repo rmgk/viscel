@@ -27,7 +27,7 @@ object Settings {
 	lazy val common = List(
 
 		version := "5.6.0",
-		scalaVersion := "2.11.4",
+		scalaVersion := "2.11.5",
 		SourceGeneration.caseCodecs,
 
 		scalacOptions ++= (
@@ -132,7 +132,7 @@ object Libraries {
 
 	val akka =
 		List("akka-actor", "akka-slf4j")
-			.map(n => "com.typesafe.akka" %% n % "2.3.7")
+			.map(n => "com.typesafe.akka" %% n % "2.3.8")
 
 	val scalaz =
 		List("scalaz-core", "scalaz-concurrent")
@@ -145,8 +145,8 @@ object Libraries {
 
 	val scalamacros = "org.scalamacros" %% s"quasiquotes" % "2.0.1" % "provided" :: Nil
 
-	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.1" % Test) :: Nil
-	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.1" exclude("org.scala-lang", "scala-reflect")) :: Nil
+	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.3" % Test) :: Nil
+	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.3" exclude("org.scala-lang", "scala-reflect")) :: Nil
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 	val scalatags = Def.setting("com.scalatags" %%% "scalatags" % "0.4.2" :: Nil)
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.5" :: Nil)
