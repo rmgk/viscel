@@ -41,12 +41,13 @@ object IOUtil {
 	def request[R](source: AbsUri, origin: Option[AbsUri] = None)(withResponse: Handler[HttpResponse, R]): Request[R] = {
 		Request(Get(uriToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](identity)(origin => addReferrer(uriToUri(origin))), withResponse)
 	}
+	
+	def parseResponse(absUri: AbsUri)(res: HttpResponse): Document = Jsoup.parse(
+		res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
+		res.header[Location].fold(ifEmpty = uriToUri(absUri))(_.uri).toString())
 
-	def documentRequest[R](absuri: AbsUri)(withDocument: Handler[Document, R]): Request[R] = request(absuri) { res =>
-		withDocument(Jsoup.parse(
-			res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
-			res.header[Location].fold(ifEmpty = uriToUri(absuri))(_.uri).toString()))
-	}
+	def documentRequest[R](absUri: AbsUri)(withDocument: Handler[Document, R]): Request[R] =
+		request(absUri) { parseResponse(absUri) andThen withDocument }
 
 
 	def blobRequest[R](source: AbsUri, origin: AbsUri)(withBlob: Handler[(Array[Byte], Story.Blob), R]): Request[R] =
