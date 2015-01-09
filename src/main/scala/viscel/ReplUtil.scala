@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
 import viscel.crawler.{Clockwork, RunnerUtil}
+import viscel.narration.{Narrator, Metarrator}
 import viscel.shared.AbsUri
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -18,6 +19,12 @@ class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 			t.printStackTrace()
 		}
 		Await.result(res, Duration.Inf)
+	}
+
+	def updateMetarrator[T <: Narrator](metarrator: Metarrator[T]) = {
+		val doc = fetch(metarrator.archive)
+		val nars = metarrator.wrap(doc)
+		metarrator.save(nars.get)
 	}
 
 	def shutdown() = {

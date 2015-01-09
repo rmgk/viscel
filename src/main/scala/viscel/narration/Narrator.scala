@@ -30,6 +30,7 @@ object Narrator {
 		PetiteSymphony.cores ++
 		WordpressEasel.cores ++
 		Batoto.cores ++
+		CloneManga.MetaClone.load() ++
 		Set(Flipside, Everafter, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3)
 
