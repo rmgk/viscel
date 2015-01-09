@@ -51,7 +51,7 @@ object SelectUtil {
 			Chapter(chapter.text()) :: pointer :: Nil
 		}
 
-	val ignoredClasses = Set("viscel.wrapper.Selection", "java.lang.Thread", "viscel.wrapper.GoodSelection", "org.scalactic", "scala", "viscel.wrapper.Util")
+	val ignoredClasses = Set("viscel.narration.Selection", "java.lang.Thread", "viscel.narration.GoodSelection", "org.scalactic", "scala", "viscel.narration.SelectUtil")
 	def caller: String = {
 		val stackTraceOption = Predef.wrapRefArray(Thread.currentThread().getStackTrace()).find { ste =>
 			val cname = ste.getClassName

@@ -45,13 +45,6 @@ object ServerPages {
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-	def collections(implicit ntx: Ntx): HttpResponse = {
-
-		val allCollections = Viscel.time("find narrators") { Viscel.time("find narrators gggo") {GlobalGraphOperations.at(ntx.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply }} ++
-			Viscel.time("find narrators nall") {Narrator.all.map(Collection.findAndUpdate)} }
-		Viscel.time("serialising narrators") { jsonResponse(allCollections.map { _.narration(deep = false) }) }
-	}
-
 	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse {
 		val cn = Config.get()
 		Map[String, Long](

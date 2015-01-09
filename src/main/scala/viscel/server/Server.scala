@@ -78,7 +78,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 				complete(ServerPages.bookmarks(user))
 			} ~
 			path("narrations") {
-				complete(neo.tx(ServerPages.collections(_)))
+				complete(ServerPages.jsonResponse(neo.tx(Collection.allNarrations(deep = false)(_))))
 			} ~
 			path("narration" / Segment) { collectionId =>
 				rejectNone(neo.tx {Collection.getNarration(collectionId, deep = true)(_) }) { narration =>

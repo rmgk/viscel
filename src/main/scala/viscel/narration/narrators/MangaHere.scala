@@ -18,7 +18,7 @@ object MangaHere {
 		}
 
 		def wrapPage(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
-			val next_? = Selection(doc).optional(".next_page:not([onclick])").wrap { selectNext("page") }
+			val next_? = Selection(doc).all(".next_page:not([onclick])").wrap { selectNext("page") }
 			val img_? = Selection(doc).unique("#image").wrapEach(imgIntoAsset)
 			withGood(img_?, next_?) { _ ::: _ }
 		}

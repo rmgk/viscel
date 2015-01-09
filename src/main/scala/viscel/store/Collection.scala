@@ -1,7 +1,8 @@
 package viscel.store
 
-import org.neo4j.graphdb.Node
-import viscel.Viscel
+import org.neo4j.graphdb.{ConstraintViolationException, Node}
+import org.scalactic.TypeCheckedTripleEquals._
+import viscel.{Log, Viscel}
 import viscel.database.Implicits.NodeOps
 import viscel.database.{NeoCodec, Ntx, label}
 import viscel.narration.Narrator
@@ -9,6 +10,7 @@ import viscel.shared.Story.{Asset, Chapter, Narration}
 import viscel.shared.{Gallery, Story}
 
 import scala.Predef.ArrowAssoc
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 final case class Collection(self: Node) extends AnyVal {
 
@@ -41,7 +43,7 @@ final case class Collection(self: Node) extends AnyVal {
 			Narration(id, name, assets.size, Gallery.fromList(assets.reverse), chapters)
 		}
 		else {
-			Narration(id, name, size, Gallery.fromList(Nil), Nil)
+			Narration(id, name, size, Gallery.empty, Nil)
 		}
 	}
 
@@ -54,16 +56,34 @@ object Collection {
 	})
 
 	def find(id: String)(implicit ntx: Ntx): Option[Collection] =
-		Viscel.time ("find") { ntx.node(label.Collection, "id", id).map { Collection.apply } }
+		Viscel.time (s"find $id") { ntx.node(label.Collection, "id", id).map { Collection.apply } }
 
 	def findAndUpdate(narrator: Narrator)(implicit ntx: Ntx): Collection = synchronized {
 		val col = find(narrator.id)
 		col.foreach { c => c.name = narrator.name }
-		col.getOrElse { Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name)) }
+		col.getOrElse {
+			try {
+				Log.info(s"materializing $narrator")
+				Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name))
+			}
+			catch {
+				case e: ConstraintViolationException =>
+					// node already exists, try to find again
+					Log.warn(s"tried to recreate $narrator, trying to find again")
+					findAndUpdate(narrator)
+			}
+		}
 	}
 
 	def getNarration(id: String, deep: Boolean)(implicit ntx: Ntx): Option[Narration] =	Narrator.get(id) match {
 		case None => find(id).map(_.narration(deep))
 		case Some(nar) => Some(findAndUpdate(nar).narration(deep))
+	}
+
+	def allNarrations(deep: Boolean)(implicit ntx: Ntx): List[Narration] = {
+		val inDB = ntx.nodes(label.Collection).map { n => Collection.apply(n).narration(deep) }.toList
+		val dbids = inDB.map(_.id).toSet
+		val other = Narrator.all.filterNot(n => dbids(n.id)).map { nar => Narration(nar.id, nar.name, 0, Gallery.empty, Nil)}.toList
+		inDB ::: other
 	}
 }

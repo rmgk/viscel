@@ -11,7 +11,7 @@ import spray.can.Http
 import spray.client.pipelining
 import spray.http.HttpEncodings
 import viscel.crawler.Clockwork
-import viscel.database.NeoInstance
+import viscel.database.{label, NeoInstance}
 import viscel.server.Server
 import viscel.store.Config
 
@@ -58,6 +58,10 @@ object Viscel {
 		neo = new NeoInstance(dbpath())
 
 		if (!nodbwarmup.?) time("warmup db") { neo.txs {} }
+
+		neo.txs { if (!neo.db.schema().getConstraints(label.Collection).iterator().hasNext)
+				neo.db.schema().constraintFor(label.Collection).assertPropertyIsUnique("id").create()
+		}
 
 		val configNode = neo.tx { ntx => Config.get()(ntx) }
 

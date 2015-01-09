@@ -2,7 +2,7 @@ package viscel.shared
 
 import upickle.{Reader, Writer, writeJs}
 
-case class Gallery[A](left: List[A], right: List[A]) {
+case class Gallery[+A](left: List[A], right: List[A]) {
 	lazy val toList: List[A] = left reverse_::: right
 	lazy val first: Gallery[A] = Gallery(Nil, toList)
 	lazy val end: Gallery[A] = Gallery(right reverse_::: left, Nil)
@@ -19,6 +19,7 @@ case class Gallery[A](left: List[A], right: List[A]) {
 
 object Gallery {
 	def fromList[A](l: List[A]): Gallery[A] = Gallery(Nil, l)
+	val empty: Gallery[Nothing] = Gallery.fromList(Nil)
 	implicit def galleryR[A: Reader]: Reader[Gallery[A]] = Reader[Gallery[A]](upickle.SeqishR[A, List].read.andThen(fromList))
 	implicit def galleryW[A: Writer]: Writer[Gallery[A]] = Writer[Gallery[A]](g => writeJs(g.toList))
 }
