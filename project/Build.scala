@@ -102,6 +102,8 @@ object Settings {
 			  |import viscel.store._
 			  |import viscel.database._
 			  |import scala.Predef._
+				|import viscel.ReplUtil
+				|import viscel.narration._
 			""".stripMargin)
 
 }
