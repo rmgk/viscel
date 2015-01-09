@@ -1,6 +1,7 @@
 package viscel.store
 
 import org.neo4j.graphdb.Node
+import viscel.Viscel
 import viscel.database.Implicits.NodeOps
 import viscel.database.{NeoCodec, Ntx, label}
 import viscel.narration.Narrator
@@ -52,12 +53,17 @@ object Collection {
 		case _ => s
 	})
 
-	def find(id: String)(implicit neo: Ntx): Option[Collection] =
-		neo.node(label.Collection, "id", id).map { Collection.apply }
+	def find(id: String)(implicit ntx: Ntx): Option[Collection] =
+		Viscel.time ("find") { ntx.node(label.Collection, "id", id).map { Collection.apply } }
 
 	def findAndUpdate(narrator: Narrator)(implicit ntx: Ntx): Collection = synchronized {
 		val col = find(narrator.id)
 		col.foreach { c => c.name = narrator.name }
 		col.getOrElse { Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name)) }
+	}
+
+	def getNarration(id: String, deep: Boolean)(implicit ntx: Ntx): Option[Narration] =	Narrator.get(id) match {
+		case None => find(id).map(_.narration(deep))
+		case Some(nar) => Some(findAndUpdate(nar).narration(deep))
 	}
 }

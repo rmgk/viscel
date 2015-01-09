@@ -81,9 +81,8 @@ class Server(neo: Neo) extends Actor with HttpService {
 				complete(neo.tx(ServerPages.collections(_)))
 			} ~
 			path("narration" / Segment) { collectionId =>
-				rejectNone(Narrator.get(collectionId)) { core =>
-					val collection = neo.tx { Collection.findAndUpdate(core)(_) }
-					complete(neo.tx { ServerPages.collection(collection)(_) })
+				rejectNone(neo.tx {Collection.getNarration(collectionId, deep = true)(_) }) { narration =>
+					complete( ServerPages.jsonResponse(narration) )
 				}
 			} ~
 			pathPrefix("blob" / Segment) { (sha1) =>
@@ -95,8 +94,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 			} ~
 			pathPrefix("hint") {
 				path("narrator" / Segment) { narratorID =>
-					val narO = Narrator.get(narratorID)
-					rejectNone(narO) { nar =>
+					rejectNone(Narrator.get(narratorID)) { nar =>
 						parameters('force.?.as[Option[Boolean]]) { force =>
 							Deeds.narratorHint((nar, force.getOrElse(false)))
 							complete(force.toString)

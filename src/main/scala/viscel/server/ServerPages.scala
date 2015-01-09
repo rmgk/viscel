@@ -5,7 +5,7 @@ import rescala.propagation.Engines.default
 import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
-import viscel.Deeds
+import viscel.{Viscel, Deeds}
 import viscel.database.{Ntx, label}
 import viscel.narration.Narrator
 import viscel.shared.JsonCodecs.stringMapW
@@ -47,13 +47,10 @@ object ServerPages {
 
 	def collections(implicit ntx: Ntx): HttpResponse = {
 
-		val allCollections = GlobalGraphOperations.at(ntx.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply } ++
-			Narrator.all.map(Collection.findAndUpdate)
-		jsonResponse(allCollections.map { _.narration(deep = false) })
+		val allCollections = Viscel.time("find narrators") { Viscel.time("find narrators gggo") {GlobalGraphOperations.at(ntx.db).getAllNodesWithLabel(label.Collection).asScala.map { Collection.apply }} ++
+			Viscel.time("find narrators nall") {Narrator.all.map(Collection.findAndUpdate)} }
+		Viscel.time("serialising narrators") { jsonResponse(allCollections.map { _.narration(deep = false) }) }
 	}
-
-
-	def collection(collection: Collection)(implicit ntx: Ntx) = { jsonResponse(collection.narration(deep = true)) }
 
 	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse {
 		val cn = Config.get()
