@@ -17,6 +17,8 @@ import scala.Predef.implicitly
 import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
 
+import viscel.crawler.RunnerUtil._
+
 
 class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection, neo: Neo, ec: ExecutionContext) extends Runnable {
 
@@ -41,23 +43,6 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 		else Log.error("tried to initialize non empty runner")
 	}
 
-	def nextHub(start: Node)(implicit ntx: Ntx): Option[Node] = {
-		@tailrec
-		def go(node: Node): Node =
-			node.layerBelow.filter(_.hasLabel(label.More)) match {
-				case Nil => node
-				case m :: Nil => go(m)
-				case _ => node
-			}
-		start.layerBelow.filter(_.hasLabel(label.More)).lastOption.map(go)
-	}
-
-	def previousMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start match {
-		case None => None
-		case Some(node) if node.hasLabel(label.More) => Some(node -> NeoCodec.load[More](node))
-		case Some(other) => previousMore(other.prev)
-	}
-
 	def recheckOrDone(): Unit = neo.tx(nextHub(recheck)(_)) match {
 		case None =>
 			Log.info(s"runner for $narrator is done")
@@ -74,11 +59,11 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 		assets match {
 			case (node, asset) :: rest =>
 				assets = rest
-				handle(IOUtil.request(asset.source, Some(asset.origin))) { IOUtil.parseBlob _ andThen writeAsset(narrator, node, asset) }
+				handle(request(asset.source, Some(asset.origin))) { parseBlob _ andThen writeAsset(narrator, node, asset) }
 			case Nil => pages match {
 				case (node, page) :: rest =>
 					pages = rest
-					handle(IOUtil.request(page.loc)) { IOUtil.parseDocument(page.loc) _ andThen writePage(narrator, node, page) }
+					handle(request(page.loc)) { parseDocument(page.loc) _ andThen writePage(narrator, node, page) }
 				case Nil =>
 					recheckOrDone()
 			}
@@ -86,7 +71,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 	}
 
 	def handle[T, R](request: HttpRequest)(handler: HttpResponse => Ntx => R) = {
-		IOUtil.getResponse(request, iopipe).map { response =>
+		getResponse(request, iopipe).map { response =>
 			synchronized { neo.tx { handler(response) } }
 		}(ec).onFailure { case t: Throwable =>
 			Log.error(s"error in $narrator")

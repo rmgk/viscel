@@ -4,20 +4,26 @@ import java.security.MessageDigest
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.neo4j.graphdb.Node
 import rescala.propagation.Engines.default
 import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding._
+import viscel.database.{NeoCodec, label, Ntx}
+import viscel.shared.Story.More
 import viscel.shared.{AbsUri, Story}
 import viscel.{Deeds, Log}
+import viscel.database.Implicits.NodeOps
 
+import scala.Predef.ArrowAssoc
+import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.Predef.identity
 
 
-object IOUtil {
+object RunnerUtil {
 
 	val digester = MessageDigest.getInstance("SHA1")
 
@@ -47,6 +53,23 @@ object IOUtil {
 			Story.Blob(
 				sha1 = sha1hex(bytes),
 				mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString())))
+	}
+
+	def nextHub(start: Node)(implicit ntx: Ntx): Option[Node] = {
+		@tailrec
+		def go(node: Node): Node =
+			node.layerBelow.filter(_.hasLabel(label.More)) match {
+				case Nil => node
+				case m :: Nil => go(m)
+				case _ => node
+			}
+		start.layerBelow.filter(_.hasLabel(label.More)).lastOption.map(go)
+	}
+
+	def previousMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start match {
+		case None => None
+		case Some(node) if node.hasLabel(label.More) => Some(node -> NeoCodec.load[More](node))
+		case Some(other) => previousMore(other.prev)
 	}
 
 }
