@@ -111,7 +111,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 				// remove cached size
 				collection.self.removeProperty("size")
 				if (!wasEmpty && pages.isEmpty) previousMore(node.prev).foreach(pages ::= _)
-				node.layerBelow foreach collectUnvisited
+				node.layerBelow.reverse foreach collectUnvisited
 			}
 			ec.execute(this)
 		}
