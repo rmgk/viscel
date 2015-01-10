@@ -62,16 +62,8 @@ object Collection {
 		val col = find(narrator.id)
 		col.foreach { c => c.name = narrator.name }
 		col.getOrElse {
-			try {
-				Log.info(s"materializing $narrator")
-				Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name))
-			}
-			catch {
-				case e: ConstraintViolationException =>
-					// node already exists, try to find again
-					Log.warn(s"tried to recreate $narrator, trying to find again")
-					findAndUpdate(narrator)
-			}
+			Log.info(s"materializing $narrator")
+			Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name))
 		}
 	}
 
