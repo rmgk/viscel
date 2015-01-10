@@ -96,8 +96,10 @@ class Server(neo: Neo) extends Actor with HttpService {
 				path("narrator" / Segment) { narratorID =>
 					rejectNone(Narrator.get(narratorID)) { nar =>
 						parameters('force.?.as[Option[Boolean]]) { force =>
-							Deeds.narratorHint((nar, force.getOrElse(false)))
-							complete(force.toString)
+							complete {
+								Deeds.narratorHint((nar, force.getOrElse(false)))
+								force.toString
+							}
 						}
 					}
 				}

@@ -58,7 +58,9 @@ object Collection {
 	def find(id: String)(implicit ntx: Ntx): Option[Collection] =
 		Viscel.time (s"find $id") { ntx.node(label.Collection, "id", id).map { Collection.apply } }
 
+
 	def findAndUpdate(narrator: Narrator)(implicit ntx: Ntx): Collection = synchronized {
+		ntx.db.beginTx().acquireWriteLock(Config.get().self)
 		val col = find(narrator.id)
 		col.foreach { c => c.name = narrator.name }
 		col.getOrElse {
