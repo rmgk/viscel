@@ -51,6 +51,8 @@ object Funish {
 				Good(if (tpIndex > 0) Chapter(elem.text().substring(tpIndex + "Title Page ".length)) :: page else page)
 			},
 			queryImage("#comic")),
-		SF("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/index.php?id=1", queryImageInAnchor("#comic", "page"))
+		SF("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/index.php?id=1", queryImageInAnchor("#comic", "page")),
+		SF("NX_TheRockCocks", "The Rock Cocks", "http://www.therockcocks.com/index.php?id=1", queryImageInAnchor("#comic", "page")),
+		SF("NX_PragueRace", "Prague Race", "http://www.praguerace.com/index.php?id=1", queryImageInAnchor("#comic", "page"))
 	)
 }
