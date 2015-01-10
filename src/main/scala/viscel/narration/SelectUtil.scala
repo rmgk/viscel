@@ -24,8 +24,11 @@ object SelectUtil {
 			getAttr(img, "width") ++
 			getAttr(img, "height")).toMap))
 
-	def queryImage(from: Element, query: String): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgIntoAsset)
-	def queryImages(from: Element, query: String): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)
+	def queryImage(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgIntoAsset)
+	def queryImages(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)
+	def queryImageInAnchor(query: String, pagetype: String)(from: Element): List[Story] Or Every[ErrorMessage] = Selection(from).unique(query).wrapFlat{ image =>
+		imgIntoAsset(image).map(_ :: elementIntoPointer(pagetype)(image.parent()).toOption.toList )
+	}
 
 	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${ err.getMessage } at ($caller)").accumulating
 
