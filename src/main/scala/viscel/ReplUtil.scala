@@ -5,13 +5,13 @@ import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
 import viscel.crawler.{Clockwork, RunnerUtil}
 import viscel.narration.{Narrator, Metarrator}
-import viscel.shared.AbsUri
+import viscel.shared.ViscelUrl
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
-	def fetch(absUri: AbsUri): Document = {
+	def fetch(absUri: ViscelUrl): Document = {
 		val request = RunnerUtil.request(absUri)
 		val res = RunnerUtil.getResponse(request, iopipe).map { RunnerUtil.parseDocument(absUri) }
 		res.onFailure { case t: Throwable =>

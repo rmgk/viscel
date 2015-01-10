@@ -1,15 +1,15 @@
 package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
-import viscel.narration.SelectUtil.{elementIntoPointer, imgIntoAsset, storyFromOr}
+import viscel.narration.SelectUtil.{elementIntoPointer, imgIntoAsset, storyFromOr, stringToVurl}
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story.{Chapter, More}
-import viscel.shared.{AbsUri, Story}
+import viscel.shared.{ViscelUrl, Story}
 
 
 object JayNaylor {
 
-	class Common(val id: String, val name: String, val archiveUri: AbsUri) extends Narrator {
+	class Common(val id: String, val name: String, val archiveUri: ViscelUrl) extends Narrator {
 		override def archive: List[Story] = More(archiveUri, "archive") :: Nil
 
 		def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {

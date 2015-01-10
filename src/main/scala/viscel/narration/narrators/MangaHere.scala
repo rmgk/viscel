@@ -5,11 +5,11 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, Narrator, Selection}
-import viscel.shared.{AbsUri, Story}
+import viscel.shared.{ViscelUrl, Story}
 
 object MangaHere {
 
-	case class Generic(id: String, name: String, archiveUri: AbsUri) extends Narrator {
+	case class Generic(id: String, name: String, archiveUri: ViscelUrl) extends Narrator {
 
 		def archive = Story.More(archiveUri, "archive") :: Nil
 
@@ -30,7 +30,7 @@ object MangaHere {
 	}
 
 		object MetaCore extends Metarrator[Generic]("MangaHere") {
-			override def archive: AbsUri = AbsUri.fromString("http://www.mangahere.co/mangalist/")
+			override def archive: ViscelUrl = vurlToString("http://www.mangahere.co/mangalist/")
 			override def wrap(doc: Document): List[Generic] Or Every[ErrorMessage] =
 				Selection(doc).many("a.manga_info").wrapEach { anchor =>
 					val name = anchor.attr("rel")

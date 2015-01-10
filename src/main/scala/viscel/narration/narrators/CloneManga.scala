@@ -5,7 +5,7 @@ import org.scalactic.Accumulation._
 import org.scalactic.{Every, Good, Or, Bad, One, ErrorMessage}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, Narrator, Selection}
-import viscel.shared.{AbsUri, Story}
+import viscel.shared.{ViscelUrl, Story}
 import viscel.shared.Story.More
 
 import scala.Predef.ArrowAssoc
@@ -24,7 +24,7 @@ object CloneManga {
 
 
 	object MetaClone extends Metarrator[Clone]("CloneManga") {
-		override def archive: AbsUri = AbsUri.fromString("http://manga.clone-army.org/viewer_landing.php")
+		override def archive: ViscelUrl = stringToVurl("http://manga.clone-army.org/viewer_landing.php")
 		override def wrap(doc: Document): List[Clone] Or Every[ErrorMessage] =
 			Selection(doc).many(".comicPreviewContainer").wrapEach { container =>
 				val name_? = Selection(container).first(".comicNote > h3").getOne.map(_.ownText())

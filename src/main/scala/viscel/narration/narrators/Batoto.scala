@@ -3,16 +3,16 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation.withGood
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.narration.SelectUtil.{elementIntoPointer, imgIntoAsset, selectNext, storyFromOr}
+import viscel.narration.SelectUtil.{elementIntoPointer, imgIntoAsset, selectNext, storyFromOr, stringToVurl}
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story.{Chapter, More}
-import viscel.shared.{AbsUri, Story}
+import viscel.shared.{ViscelUrl, Story}
 
 import scala.collection.immutable.Set
 
 object Batoto {
 
-	case class Generic(id: String, name: String, first: AbsUri) extends Narrator {
+	case class Generic(id: String, name: String, first: ViscelUrl) extends Narrator {
 
 		def archive = More(first, "chapter") :: Nil
 

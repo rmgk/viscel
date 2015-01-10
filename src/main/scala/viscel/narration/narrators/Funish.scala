@@ -1,13 +1,17 @@
 package viscel.narration.narrators
 
+import java.net.URLEncoder
+
+import org.jsoup.Jsoup
 import org.jsoup.nodes.{Element, Document}
 import org.scalactic.Accumulation._
 import org.scalactic.{Good, Or, Every, ErrorMessage}
 import viscel.Log
 import viscel.narration.SelectUtil.{elementIntoPointer, storyFromOr, queryImage,
-	queryImageInAnchor, imgIntoAsset, extract, elementIntoChapterPointer, placeChapters}
+	queryImageInAnchor, imgIntoAsset, extract, elementIntoChapterPointer, placeChapters,
+	stringToVurl}
 import viscel.narration.{Selection, Narrator}
-import viscel.shared.{AbsUri, Story}
+import viscel.shared.{ViscelUrl, Story}
 import viscel.shared.Story.{Chapter, More}
 
 import scala.collection.immutable.Set
@@ -17,7 +21,7 @@ import scala.Predef.augmentString
 object Funish {
 	case class AP(override val id: String,
 								override val name: String,
-								start: AbsUri,
+								start: ViscelUrl,
 								wrapArchive: Document => List[Story] Or Every[ErrorMessage],
 								wrapPage: Document => List[Story] Or Every[ErrorMessage]) extends Narrator {
 		override def archive: List[Story] = More(start, "archive") :: Nil
@@ -28,7 +32,7 @@ object Funish {
 	}
 	case class SF(override val id: String,
 								override val name: String,
-								start: AbsUri,
+								start: ViscelUrl,
 								wrapPage: Document => List[Story] Or Every[ErrorMessage]) extends Narrator {
 		override def archive: List[Story] = More(start, "page") :: Nil
 		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
@@ -71,6 +75,7 @@ object Funish {
 					placeChapters(pages, chapters)
 				}
 			},
-			queryImage("#comic"))
+			queryImage("#comic")),
+		SF("NX_CliqueRefresh","Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#comicImg img", "page"))
 	)
 }

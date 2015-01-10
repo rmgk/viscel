@@ -6,14 +6,14 @@ import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import upickle.{Writer, Reader}
 import viscel.{Log, Viscel}
-import viscel.shared.AbsUri
+import viscel.shared.ViscelUrl
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.collection.Set
 
 abstract class Metarrator[T<: Narrator : Reader : Writer ](id: String) {
 
-	def archive: AbsUri
+	def archive: ViscelUrl
 	def wrap(document: Document): List[T] Or Every[ErrorMessage]
 
 	def path = Paths.get("data", s"$id.json")

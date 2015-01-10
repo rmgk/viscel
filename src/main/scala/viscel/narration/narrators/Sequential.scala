@@ -5,7 +5,7 @@ import org.scalactic.Accumulation.withGood
 import org.scalactic.{Bad, Good, ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil.{storyFromOr, selectNext, elementIntoPointer, imgIntoAsset, extractUri}
 import viscel.narration.{Selection, Narrator}
-import viscel.shared.{Story, AbsUri}
+import viscel.shared.{Story, ViscelUrl}
 import viscel.shared.Story.{Chapter, More}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -13,7 +13,7 @@ import scala.Predef.augmentString
 import scala.collection.immutable.Set
 
 object Sequential {
-	case class AutoNext(id: String, name: String, first: AbsUri, selectImage: Selection => Selection) extends Narrator {
+	case class AutoNext(id: String, name: String, first: ViscelUrl, selectImage: Selection => Selection) extends Narrator {
 
 		def archive = More(first, "page") :: Nil
 

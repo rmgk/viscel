@@ -2,12 +2,13 @@ package viscel.database
 
 import org.neo4j.graphdb.Node
 import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
-import viscel.shared.Story
+import viscel.shared.{ViscelUrl, Story}
 import viscel.shared.Story.{Asset, Blob, Chapter, Failed, More}
-import Implicits.NodeOps
+import viscel.database.Implicits.NodeOps
 
 import scala.collection.immutable.Map
 import scala.Predef.ArrowAssoc
+import scala.language.implicitConversions
 
 trait NeoCodec[T] {
 	def read(node: Node)(implicit ntx: Ntx): T
@@ -15,6 +16,9 @@ trait NeoCodec[T] {
 }
 
 object NeoCodec {
+
+	private implicit def vurlToString(vurl: ViscelUrl): String = vurl.self
+	private implicit def stringToVurl(url: String): ViscelUrl = new ViscelUrl(url)
 
 	import viscel.generated.NeoCodecs._
 

@@ -1,10 +1,12 @@
 package viscel.narration
 
+import java.net.URL
+
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.shared.Story.{Asset, Chapter, More}
-import viscel.shared.{AbsUri, Story}
+import viscel.shared.{ViscelUrl, Story}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Set
@@ -33,9 +35,9 @@ object SelectUtil {
 	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${ err.getMessage } at ($caller)").accumulating
 
 	/** tries to extract an absolute uri from an element, extraction depends on type of tag */
-	def extractUri(element: Element): AbsUri Or One[ErrorMessage] = element.tagName() match {
-		case "a" => extract { AbsUri.fromString(element.attr("abs:href")) }
-		case "option" => extract { AbsUri.fromString(element.attr("abs:value")) }
+	def extractUri(element: Element): ViscelUrl Or One[ErrorMessage] = element.tagName() match {
+		case "a" => extract { stringToVurl(element.attr("abs:href")) }
+		case "option" => extract { stringToVurl(element.attr("abs:value")) }
 		case tag => Bad(One(s"can not extract uri from '$tag' at ($caller): ${ show(element) }"))
 	}
 
@@ -77,5 +79,8 @@ object SelectUtil {
 		case (a :: as, (c, m) :: cms) if a == m => c :: a :: placeChapters(as, cms)
 		case (a :: as, cms) => a :: placeChapters(as, cms)
 	}
+
+	implicit def vurlToString(vurl: ViscelUrl): String = vurl.self
+	implicit def stringToVurl(url: String): ViscelUrl = new ViscelUrl(new URL(url).toString)
 
 }
