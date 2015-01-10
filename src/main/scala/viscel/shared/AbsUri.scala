@@ -12,7 +12,7 @@ class AbsUri private(val uri: URI) extends AnyVal {
 
 object AbsUri {
 	implicit def fromString(uri: String): AbsUri = {
-		val parsed = new URI(uri)
+		val parsed = new URI(uri.replaceAll(" ", "%20"))
 		Predef.require(parsed.isAbsolute)
 		new AbsUri(parsed)
 	}
