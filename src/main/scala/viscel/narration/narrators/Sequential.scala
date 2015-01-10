@@ -49,6 +49,6 @@ object Sequential {
 		}
 	}
 
-	def cores: Set[AutoNext] = Set(AutoNext("NX_Fragile", "Fragile", "http://www.fragilestory.com/strips/chapter_01", _.unique("#content_comics > a > img")))
+	def cores: Set[AutoNext] = Set()
 
 }

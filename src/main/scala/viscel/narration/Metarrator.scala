@@ -1,11 +1,11 @@
 package viscel.narration
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
+import java.nio.file.{NoSuchFileException, Files, Paths}
 import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import upickle.{Writer, Reader}
-import viscel.Viscel
+import viscel.{Log, Viscel}
 import viscel.shared.AbsUri
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
@@ -18,8 +18,15 @@ abstract class Metarrator[T<: Narrator : Reader : Writer ](id: String) {
 
 	def path = Paths.get("data", s"$id.json")
 	def load(): Set[T] = {
-		val lines = Files.readAllLines(path, StandardCharsets.UTF_8).asScala
-		Viscel.time(s"load $id") { upickle.read[Set[T]](lines.mkString("\n")) }
+		try {
+			val lines = Files.readAllLines(path, StandardCharsets.UTF_8).asScala
+			Viscel.time(s"load $id") { upickle.read[Set[T]](lines.mkString("\n")) }
+		}
+		catch {
+			case e: NoSuchFileException =>
+				Log.warn(s"could not load $path")
+				Set()
+		}
 	}
 	def save(nars: List[T]): Unit = {
 		val json = upickle.write(nars)
