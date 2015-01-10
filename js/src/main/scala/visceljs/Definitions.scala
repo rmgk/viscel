@@ -30,9 +30,9 @@ object Definitions {
 
 	def link_index(ts: Frag*): Tag = a(onclick := (() => gotoIndex()))(ts)
 	def link_stop(ts: Frag*): Tag = a(href := path_stop)(ts)
-	def link_asset(nar: Narration, gallery: Gallery[Asset], ts: Frag*): Tag =
-		if (gallery.isEnd) a(class_dead)(ts)
-		else a(ts, onclick := (() => gotoView(gallery, nar)))
+	def link_asset(nar: Narration, gallery: Gallery[Asset]): Tag =
+		if (gallery.isEnd) a(class_dead)
+		else a(onclick := (() => gotoView(gallery, nar)))
 	def link_front(nar: Narration, ts: Frag*): Tag = a(ts)(onclick := (() => gotoFront(nar)))
 
 

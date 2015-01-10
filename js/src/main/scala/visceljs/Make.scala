@@ -8,7 +8,7 @@ import visceljs.Definitions._
 import scala.Predef.{$conforms, ArrowAssoc}
 import scalatags.JsDom.all._
 import scalatags.JsDom.attrs.{onclick, style}
-import scalatags.JsDom.tags.a
+import scalatags.JsDom.tags.{p, a}
 import scalatags.JsDom.tags2.{article, aside, nav, section}
 
 object Make {
@@ -30,8 +30,8 @@ object Make {
 		form(fieldset(legend("Search"), inputField, results), action := "", onsubmit := { () => filtered.headOption.foreach(gotoFront); false })
 	}
 
-	def asset(asset: Asset): Tag = {
-		asset.blob.fold[HtmlTag](article(class_placeholder)("placeholder"))(blob => article(img(src := path_blob(blob.sha1))))
+	def asset(asset: Asset): List[Modifier] = {
+		asset.blob.fold[List[Modifier]](List(class_placeholder, "placeholder"))(blob => img(src := path_blob(blob.sha1)) :: Nil)
 	}
 
 	def fullscreenToggle(stuff: Frag*): Tag = a(onclick := (() => Viscel.toggleFullscreen()))(stuff)

@@ -10,8 +10,8 @@ import scala.Predef.$conforms
 import scalatags.JsDom.all._
 import scalatags.JsDom.attrs.{href, rel, onclick}
 import scalatags.JsDom.implicits.{stringAttr, stringFrag}
-import scalatags.JsDom.tags.{SeqFrag, a, p}
-import scalatags.JsDom.tags2.section
+import scalatags.JsDom.tags.{SeqFrag}
+import scalatags.JsDom.tags2.{section, article}
 
 object View {
 
@@ -28,17 +28,21 @@ object View {
 				}
 			}
 
-			val preload = gallery.next(1).get.map(Make.asset(_).render)
+			val preload = gallery.next(1).get.map(asst => div(Make.asset(asst)).render)
 
-			val mainPart = section(gallery.get.fold[Frag](p("error, illegal image position"))(a => link_asset(narration, gallery.next(1), Make.asset(a))))
+			val mainPart = section(gallery.get.fold[Frag](p("error, illegal image position")){asst =>
+				article(link_asset(narration, gallery.next(1))(Make.asset(asst))) ::
+					asst.metadata.get("longcomment").fold(List[Tag]())(article(_) :: Nil)
+			})
+
 
 			val navigation = Make.navigation(
-				link_asset(narration, gallery.prev(1), "prev")(rel := "prev"),
+				link_asset(narration, gallery.prev(1))("prev", rel := "prev"),
 				link_front(narration, "front"),
 				Make.fullscreenToggle("TFS"),
 				Make.postBookmark(narration, gallery.pos + 1, "pause"),
 				a(href := gallery.get.fold("")(_.origin.toString))(class_extern)("site"),
-				link_asset(narration, gallery.next(1), "next")(rel := "next"))
+				link_asset(narration, gallery.next(1))("next", rel := "next"))
 
 			Body(id = "view", title = narration.name,
 				frag = List(mainPart, navigation),

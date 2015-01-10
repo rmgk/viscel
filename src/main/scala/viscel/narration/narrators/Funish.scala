@@ -4,7 +4,7 @@ import org.jsoup.nodes.{Element, Document}
 import org.scalactic.Accumulation._
 import org.scalactic.{Good, Or, Every, ErrorMessage}
 import viscel.Log
-import viscel.narration.SelectUtil.{elementIntoPointer, storyFromOr, queryImage, queryImageInAnchor}
+import viscel.narration.SelectUtil.{elementIntoPointer, storyFromOr, queryImage, queryImageInAnchor, imgIntoAsset}
 import viscel.narration.{Selection, Narrator}
 import viscel.shared.{AbsUri, Story}
 import viscel.shared.Story.{Chapter, More}
@@ -53,6 +53,13 @@ object Funish {
 			queryImage("#comic")),
 		SF("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/index.php?id=1", queryImageInAnchor("#comic", "page")),
 		SF("NX_TheRockCocks", "The Rock Cocks", "http://www.therockcocks.com/index.php?id=1", queryImageInAnchor("#comic", "page")),
-		SF("NX_PragueRace", "Prague Race", "http://www.praguerace.com/index.php?id=1", queryImageInAnchor("#comic", "page"))
+		SF("NX_PragueRace", "Prague Race", "http://www.praguerace.com/index.php?id=1", queryImageInAnchor("#comic", "page")),
+		AP("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
+			doc => Selection(doc).many("#pagecontent > p > a").wrapEach(elementIntoPointer("page")),
+			doc => {
+				val asset_? = Selection(doc).unique("#comic").wrapOne(imgIntoAsset)
+				val comment_? = Selection(doc).many("#newsarea > *").get.map(_.drop(2).dropRight(1).map(_.text()).mkString("\n"))
+				withGood(asset_?, comment_?) { (asset, comment) => asset.copy(metadata = asset.metadata.updated("longcomment", comment)) :: Nil }
+			})
 	)
 }

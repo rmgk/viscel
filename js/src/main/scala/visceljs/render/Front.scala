@@ -25,7 +25,7 @@ object Front {
 		val navigation = Make.navigation(
 			link_index("index"),
 			Make.fullscreenToggle("TFS"),
-			link_asset(narration, gallery.first, "first"),
+			link_asset(narration, gallery.first)("first"),
 			Make.postBookmark(narration, 0, "remove"))
 
 		val preview = {
@@ -34,7 +34,7 @@ object Front {
 			val preview3 = preview2.next(1)
 			section(class_preview)(
 				List(preview1, preview2, preview3).map(p => p -> p.get)
-					.collect { case (p, Some(a)) => link_asset(narration, p, Make.asset(a)) })
+					.collect { case (p, Some(a)) => link_asset(narration, p)(article(Make.asset(a): _*)) })
 		}
 
 		def chapterlist: Tag = {
@@ -44,7 +44,7 @@ object Front {
 			def makeChapField(chap: Chapter, size: Int, gallery: Gallery[Story.Asset]): Frag = {
 				val (remaining, links) = Range(size, 0, -1).foldLeft((gallery, List[Frag]())) { case ((gal, acc), i) =>
 					val next = gal.prev(1)
-					(next, link_asset(narration, next, s"$i") :: stringFrag(" ") :: acc)
+					(next, link_asset(narration, next)(s"$i") :: stringFrag(" ") :: acc)
 				}
 
 				article(fieldset(legend(chap.name), links))
