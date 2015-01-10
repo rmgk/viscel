@@ -25,7 +25,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 
 	var assets: List[(Node, Asset)] = Nil
 	var pages: List[(Node, More)] = Nil
-	var recheck: Node = collection.self
+	var recheck: Option[Node] = None
 	@volatile var cancel: Boolean = false
 
 	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
@@ -45,18 +45,21 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection
 			collection.self.next.foreach(_.fold(()) { _ => collectUnvisited })
 			pages = pages.reverse
 			assets = assets.reverse
-			if (pages.isEmpty) collection.self.next.foreach(_.fold(()) { _ => collectVolatile })
+			if (pages.isEmpty) {
+				collection.self.next.foreach(_.fold(()) { _ => collectVolatile })
+				recheck = Some(collection.self)
+			}
 		}
 		else Log.error("tried to initialize non empty runner")
 	}
 
-	def recheckOrDone(): Unit = neo.tx(nextHub(recheck)(_)) match {
+	def recheckOrDone(): Unit = recheck.flatMap(n => neo.tx(nextHub(n)(_))) match {
 		case None =>
 			Log.info(s"runner for $narrator is done")
 			neo.tx(updateDates(collection.self)(_))
 			Clockwork.finish(narrator, this)
-		case Some(node) =>
-			recheck = node
+		case sn @ Some(node) =>
+			recheck = sn
 			val m = neo.tx(NeoCodec.load[More](node)(_, implicitly))
 			pages ::= node -> m
 			ec.execute(this)
