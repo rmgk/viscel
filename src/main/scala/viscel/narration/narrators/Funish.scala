@@ -76,6 +76,6 @@ object Funish {
 				}
 			},
 			queryImage("#comic")),
-		SF("NX_CliqueRefresh","Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#comicImg img", "page"))
+		SF("NX_CliqueRefresh","Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor(".comicImg img", "page"))
 	)
 }
