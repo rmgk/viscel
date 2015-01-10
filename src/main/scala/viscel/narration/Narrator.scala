@@ -33,7 +33,8 @@ object Narrator {
 		CloneManga.MetaClone.load() ++
 		MangaHere.MetaCore.load() ++
 		Set(Flipside, Everafter, CitrusSaburoUta, Misfile,
-			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3)
+			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
+			Building12)
 
 	private val narratorMap = narrators.map(n => n.id -> n).toMap
 }
