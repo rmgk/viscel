@@ -4,12 +4,14 @@ import org.jsoup.nodes.{Element, Document}
 import org.scalactic.Accumulation._
 import org.scalactic.{Good, Or, Every, ErrorMessage}
 import viscel.Log
-import viscel.narration.SelectUtil.{elementIntoPointer, storyFromOr, queryImage, queryImageInAnchor, imgIntoAsset}
+import viscel.narration.SelectUtil.{elementIntoPointer, storyFromOr, queryImage,
+	queryImageInAnchor, imgIntoAsset, extract, elementIntoChapterPointer, placeChapters}
 import viscel.narration.{Selection, Narrator}
 import viscel.shared.{AbsUri, Story}
 import viscel.shared.Story.{Chapter, More}
 
 import scala.collection.immutable.Set
+import scala.Predef.augmentString
 
 
 object Funish {
@@ -33,7 +35,6 @@ object Funish {
 			case "page" => wrapPage(doc)
 		})
 	}
-
 
 	def cores: Set[Narrator] = Set(
 		AP("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
@@ -60,6 +61,16 @@ object Funish {
 				val asset_? = Selection(doc).unique("#comic").wrapOne(imgIntoAsset)
 				val comment_? = Selection(doc).many("#newsarea > *").get.map(_.drop(2).dropRight(1).map(_.text()).mkString("\n"))
 				withGood(asset_?, comment_?) { (asset, comment) => asset.copy(metadata = asset.metadata.updated("longcomment", comment)) :: Nil }
-			})
+			}),
+		AP("NX_GoGetARoomie", "Go Get a Roomie!", "http://www.gogetaroomie.com/archive.php",
+			doc => Selection(doc).unique("#comicwrap").wrapOne { comicwrap =>
+				val pages_? = Selection(comicwrap).many("> select > option[value~=^\\d+$]").wrapEach(e =>
+					extract(More(s"http://www.gogetaroomie.com/index.php?id=${e.attr("value").toInt}","page")))
+				val chapters_? = Selection(comicwrap).many("h2 a").wrapEach(elementIntoChapterPointer("page")).map(_.map(cp => (cp(0), cp(1))))
+				withGood(pages_?, chapters_?) { (pages, chapters) =>
+					placeChapters(pages, chapters)
+				}
+			},
+			queryImage("#comic"))
 	)
 }

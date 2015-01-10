@@ -71,5 +71,11 @@ object SelectUtil {
 
 	def storyFromOr(or: List[Story] Or Every[ErrorMessage]): List[Story] = or.fold(Predef.identity, err => Story.Failed(err.toList) :: Nil)
 
+	def placeChapters(archive: List[Story], chapters: List[(Story, Story)]): List[Story] = (archive, chapters) match {
+		case (Nil, chaps) => chaps.flatMap(c => c._1 :: c._2 :: Nil)
+		case (as, Nil) => as
+		case (a :: as, (c, m) :: cms) if a == m => c :: a :: placeChapters(as, cms)
+		case (a :: as, cms) => a :: placeChapters(as, cms)
+	}
 
 }
