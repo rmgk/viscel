@@ -2,7 +2,7 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import org.scalactic.{ErrorMessage, Every, Or}
+import org.scalactic.{Good, ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
@@ -29,7 +29,7 @@ object Building12 extends Narrator {
 					metadata = element.metadata - "width" - "height")
 			}
 		}
-		elements_?.map { Chapter("issue\\d+".r.findFirstIn(doc.baseUri()).getOrElse("Unknown Issue")) :: _ }
+		cons(Good(Chapter("issue\\d+".r.findFirstIn(doc.baseUri()).getOrElse("Unknown Issue"))), elements_?)
 	}
 
 	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {

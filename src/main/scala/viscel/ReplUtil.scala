@@ -4,25 +4,27 @@ import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
 import viscel.crawler.{Clockwork, RunnerUtil}
-import viscel.narration.{Narrator, Metarrator}
+import viscel.narration.{SelectUtil, Narrator, Metarrator}
 import viscel.shared.ViscelUrl
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
-	def fetch(absUri: ViscelUrl): Document = {
-		val request = RunnerUtil.request(absUri)
-		val res = RunnerUtil.getResponse(request, iopipe).map { RunnerUtil.parseDocument(absUri) }
+	def fetch(url: String): Document = fetchV(SelectUtil.stringToVurl(url))
+	
+	def fetchV(vurl: ViscelUrl): Document = {
+		val request = RunnerUtil.request(vurl)
+		val res = RunnerUtil.getResponse(request, iopipe).map { RunnerUtil.parseDocument(vurl) }
 		res.onFailure { case t: Throwable =>
-			Log.error(s"error fetching $absUri")
+			Log.error(s"error fetching $vurl")
 			t.printStackTrace()
 		}
 		Await.result(res, Duration.Inf)
 	}
 
 	def updateMetarrator[T <: Narrator](metarrator: Metarrator[T]) = {
-		val doc = fetch(metarrator.archive)
+		val doc = fetchV(metarrator.archive)
 		val nars = metarrator.wrap(doc)
 		metarrator.save(nars.get)
 	}

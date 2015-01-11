@@ -3,7 +3,7 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation.withGood
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.narration.SelectUtil.{elementIntoPointer, imgIntoAsset, selectNext, storyFromOr, stringToVurl}
+import viscel.narration.SelectUtil.{elementIntoPointer, imgIntoAsset, selectNext, storyFromOr, stringToVurl, append}
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story.{Chapter, More}
 import viscel.shared.{ViscelUrl, Story}
@@ -24,7 +24,7 @@ object Batoto {
 			val currentPage_? = wrapPage(doc)
 			val nextChapter_? = Selection(doc).first(".moderation_bar").optional("a:has(img[title=Next Chapter])").wrap(selectNext("chapter"))
 			val chapter_? = Selection(doc).first("select[name=chapter_select]").unique("option[selected=selected]").getOne.map(e => Chapter(e.text) :: Nil)
-			withGood(chapter_?, currentPage_?, pages_?, nextChapter_?) { _ ::: _ ::: _ ::: _ }
+			append(chapter_?, currentPage_?, pages_?, nextChapter_?)
 		}
 
 		def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {

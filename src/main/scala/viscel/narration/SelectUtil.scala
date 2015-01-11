@@ -8,7 +8,7 @@ import org.scalactic._
 import viscel.shared.Story.{Asset, Chapter, More}
 import viscel.shared.{ViscelUrl, Story}
 
-import scala.Predef.ArrowAssoc
+import scala.Predef.{ArrowAssoc, $conforms}
 import scala.collection.immutable.Set
 import scala.language.implicitConversions
 
@@ -30,6 +30,10 @@ object SelectUtil {
 	def queryImages(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)
 	def queryImageInAnchor(query: String, pagetype: String)(from: Element): List[Story] Or Every[ErrorMessage] = Selection(from).unique(query).wrapFlat{ image =>
 		imgIntoAsset(image).map(_ :: elementIntoPointer(pagetype)(image.parent()).toOption.toList )
+	}
+	def queryNext(query: String, pagetype: String)(from: Element): List[More] Or Every[ErrorMessage] = Selection(from).all(query).wrap(selectNext(pagetype))
+	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: String)(from: Element): List[Story] Or Every[ErrorMessage]  = {
+		append(queryImage(imageQuery)(from), queryNext(nextQuery, pagetype)(from))
 	}
 
 	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${ err.getMessage } at ($caller)").accumulating
@@ -79,6 +83,10 @@ object SelectUtil {
 		case (a :: as, (c, m) :: cms) if a == m => c :: a :: placeChapters(as, cms)
 		case (a :: as, cms) => a :: placeChapters(as, cms)
 	}
+
+	def append[T](as: Or[List[T], Every[ErrorMessage]]*): Or[List[T], Every[ErrorMessage]] = convertGenTraversableOnceToCombinable(as).combined.map(_.flatten.toList)
+	def cons[T](a: T Or Every[ErrorMessage], b: List[T] Or Every[ErrorMessage]): Or[List[T], Every[ErrorMessage]] = withGood(a, b)(_ :: _)
+
 
 	implicit def vurlToString(vurl: ViscelUrl): String = vurl.self
 	implicit def stringToVurl(url: String): ViscelUrl = new ViscelUrl(new URL(url).toString)

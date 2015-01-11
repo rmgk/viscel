@@ -9,7 +9,7 @@ import org.scalactic.{Good, Or, Every, ErrorMessage}
 import viscel.Log
 import viscel.narration.SelectUtil.{elementIntoPointer, storyFromOr, queryImage,
 	queryImageInAnchor, imgIntoAsset, extract, elementIntoChapterPointer, placeChapters,
-	stringToVurl}
+	stringToVurl, queryImageNext}
 import viscel.narration.{Selection, Narrator}
 import viscel.shared.{ViscelUrl, Story}
 import viscel.shared.Story.{Chapter, More}
@@ -76,6 +76,7 @@ object Funish {
 				}
 			},
 			queryImage("#comic")),
-		SF("NX_CliqueRefresh","Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor(".comicImg img", "page"))
+		SF("NX_CliqueRefresh","Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor(".comicImg img", "page")),
+		SF("NX_Candi", "Candi", "http://candicomics.com/d/20040625.html", queryImageNext("#comicplace > span > img", "#comicnav a:has(img#next_day2)", "page"))
 	)
 }
