@@ -11,15 +11,6 @@ import scala.collection.immutable.Set
 
 object PetiteSymphony {
 
-	case class Generic(id: String, name: String, start: String) extends Narrator {
-		override def archive: List[Story] = More(start, "") :: Nil
-		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr {
-			val next_? = Selection(doc).optional("a.navi.navi-next").wrap(selectNext(""))
-			val img_? = Selection(doc).unique("#comic-1 img").wrapEach(imgIntoAsset)
-			withGood(img_?, next_?) { _ ::: _ }
-		}
-	}
-
 	val cores: Set[Narrator] = Set(
 		("goyoku", "Rascals Goyoku", "http://goyoku.petitesymphony.com/comic/goyoku-prologue1/"),
 		("generation17", "Generation 17", "http://generation17.petitesymphony.com/comic/cover"),
@@ -34,6 +25,6 @@ object PetiteSymphony {
 		("remnantsonata", "Remnant Sonata", "http://remnantsonata.petitesymphony.com/comic/rs-pg1/"),
 		("ladycrimson", "Lady Crimson", "http://ladycrimson.petitesymphony.com/comic/ladycrimson_cover/"),
 		("yearofthecow", "Year of the Cow", "http://yearofthecow.petitesymphony.com/comic/yotc-cover/")
-	).map { case (id, name, start) => Generic(s"PetiteSymphony_$id", name, start) }
+	).map { case (id, name, start) => Funish.SF(s"PetiteSymphony_$id", name, start, queryImageNext("#comic-1 img", "a.navi.navi-next", "")) }
 
 }

@@ -46,7 +46,7 @@ object Misfile extends Narrator {
 		}
 		val next_? = Selection(doc).all("a.next").wrap { selectNext("page") }
 
-		withGood(elements_?, next_?) { _ ::: _ }
+		append(elements_?, next_?)
 	}
 
 	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {

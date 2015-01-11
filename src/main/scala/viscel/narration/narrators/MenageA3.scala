@@ -37,6 +37,6 @@ object MenageA3 extends Narrator {
 	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
 		case "archive" => wrapArchive(doc)
 		case "volume" => wrapVolume(doc)
-		case "page" => Selection(doc).unique("#cc img").wrapEach(imgIntoAsset)
+		case "page" => queryImage("#cc img")(doc)
 	})
 }

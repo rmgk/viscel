@@ -36,7 +36,7 @@ object Funish {
 								wrapPage: Document => List[Story] Or Every[ErrorMessage]) extends Narrator {
 		override def archive: List[Story] = More(start, "page") :: Nil
 		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-			case "page" => wrapPage(doc)
+			case _ => wrapPage(doc)
 		})
 	}
 
