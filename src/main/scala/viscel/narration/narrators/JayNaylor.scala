@@ -1,12 +1,12 @@
 package viscel.narration.narrators
 
 import viscel.narration.SelectUtil.{elementIntoChapterPointer, queryImages, stringToVurl}
-import viscel.narration.Selection
+import viscel.narration.{Templates, Selection}
 import viscel.shared.ViscelUrl
 
 
 object JayNaylor {
-	def common(id: String, name: String, archiveUri: ViscelUrl) = Funish.AP(id, name, archiveUri,
+	def common(id: String, name: String, archiveUri: ViscelUrl) = Templates.AP(id, name, archiveUri,
 		doc => Selection(doc).many("#chapters li > a").wrapFlat { elementIntoChapterPointer("page") },
 		queryImages("#comicentry .content img"))
 

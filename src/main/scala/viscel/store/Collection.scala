@@ -5,7 +5,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.{Log, Viscel}
 import viscel.database.Implicits.NodeOps
 import viscel.database.{NeoCodec, Ntx, label}
-import viscel.narration.Narrator
+import viscel.narration.{Narrators, Narrator}
 import viscel.shared.Story.{Asset, Chapter, Narration}
 import viscel.shared.{Gallery, Story}
 
@@ -69,7 +69,7 @@ object Collection {
 		}
 	}
 
-	def getNarration(id: String, deep: Boolean)(implicit ntx: Ntx): Option[Narration] =	Narrator.get(id) match {
+	def getNarration(id: String, deep: Boolean)(implicit ntx: Ntx): Option[Narration] =	Narrators.get(id) match {
 		case None => find(id).map(_.narration(deep))
 		case Some(nar) => Some(findAndUpdate(nar).narration(deep))
 	}
@@ -77,7 +77,7 @@ object Collection {
 	def allNarrations(deep: Boolean)(implicit ntx: Ntx): List[Narration] = {
 		val inDB = ntx.nodes(label.Collection).map { n => Collection.apply(n).narration(deep) }.toList
 		val dbids = inDB.map(_.id).toSet
-		val other = Narrator.all.filterNot(n => dbids(n.id)).map { nar => Narration(nar.id, nar.name, 0, Gallery.empty, Nil)}.toList
+		val other = Narrators.all.filterNot(n => dbids(n.id)).map { nar => Narration(nar.id, nar.name, 0, Gallery.empty, Nil)}.toList
 		inDB ::: other
 	}
 }

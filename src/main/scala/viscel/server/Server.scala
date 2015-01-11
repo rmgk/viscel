@@ -10,7 +10,7 @@ import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.{HttpService, Route}
 import viscel.database.Neo
-import viscel.narration.Narrator
+import viscel.narration.{Narrators, Narrator}
 import viscel.store.BlobStore.hashToFilename
 import viscel.store.{Collection, User}
 import viscel.{Deeds, Log, Viscel}
@@ -94,7 +94,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 			} ~
 			pathPrefix("hint") {
 				path("narrator" / Segment) { narratorID =>
-					rejectNone(Narrator.get(narratorID)) { nar =>
+					rejectNone(Narrators.get(narratorID)) { nar =>
 						parameters('force.?.as[Option[Boolean]]) { force =>
 							complete {
 								Deeds.narratorHint((nar, force.getOrElse(false)))

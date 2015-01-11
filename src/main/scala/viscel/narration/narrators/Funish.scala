@@ -1,45 +1,17 @@
 package viscel.narration.narrators
 
-import java.net.URLEncoder
-
-import org.jsoup.Jsoup
-import org.jsoup.nodes.{Element, Document}
 import org.scalactic.Accumulation._
-import org.scalactic.{Good, Or, Every, ErrorMessage}
-import viscel.Log
-import viscel.narration.SelectUtil.{elementIntoPointer, storyFromOr, queryImage,
-	queryImageInAnchor, imgIntoAsset, extract, elementIntoChapterPointer, placeChapters,
-	stringToVurl, queryImageNext}
-import viscel.narration.{Selection, Narrator}
-import viscel.shared.{ViscelUrl, Story}
+import org.scalactic.Good
+import viscel.narration.SelectUtil.{elementIntoChapterPointer, elementIntoPointer, extract, imgIntoAsset, placeChapters, queryImage, queryImageInAnchor, queryImageNext, stringToVurl}
+import viscel.narration.Templates.{AP, SF}
+import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story.{Chapter, More}
 
-import scala.collection.immutable.Set
 import scala.Predef.augmentString
+import scala.collection.immutable.Set
 
 
 object Funish {
-	case class AP(override val id: String,
-								override val name: String,
-								start: ViscelUrl,
-								wrapArchive: Document => List[Story] Or Every[ErrorMessage],
-								wrapPage: Document => List[Story] Or Every[ErrorMessage]) extends Narrator {
-		override def archive: List[Story] = More(start, "archive") :: Nil
-		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-			case "archive" => wrapArchive(doc)
-			case "page" => wrapPage(doc)
-		})
-	}
-	case class SF(override val id: String,
-								override val name: String,
-								start: ViscelUrl,
-								wrapPage: Document => List[Story] Or Every[ErrorMessage]) extends Narrator {
-		override def archive: List[Story] = More(start, "page") :: Nil
-		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-			case _ => wrapPage(doc)
-		})
-	}
-
 	def cores: Set[Narrator] = Set(
 		AP("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
 			doc => Selection(doc).unique("#content_inner_pages").many(".c_arch:has(div.a_2)").wrapFlat { chap =>
