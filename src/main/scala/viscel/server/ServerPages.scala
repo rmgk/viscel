@@ -9,7 +9,7 @@ import viscel.{Viscel, Deeds}
 import viscel.database.{Ntx, label}
 import viscel.narration.Narrator
 import viscel.shared.JsonCodecs.stringMapW
-import viscel.store.{Collection, Config, User}
+import viscel.store.{Book, Config, User}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter

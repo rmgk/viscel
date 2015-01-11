@@ -12,14 +12,14 @@ import viscel.database.{Neo, NeoCodec, Ntx, rel}
 import viscel.narration.Narrator
 import viscel.shared.Story
 import viscel.shared.Story.{Asset, Failed, More}
-import viscel.store.{BlobStore, Collection}
+import viscel.store.{BlobStore, Book}
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.implicitly
 import scala.concurrent.ExecutionContext
 
 
-class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Collection, neo: Neo, ec: ExecutionContext) extends Runnable {
+class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo: Neo, ec: ExecutionContext) extends Runnable {
 
 	override def toString: String = s"Job(${ narrator.toString })"
 

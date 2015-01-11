@@ -12,7 +12,7 @@ import spray.routing.{HttpService, Route}
 import viscel.database.Neo
 import viscel.narration.{Narrators, Narrator}
 import viscel.store.BlobStore.hashToFilename
-import viscel.store.{Collections, Collection, User}
+import viscel.store.{Books, Book, User}
 import viscel.{Deeds, Log, Viscel}
 
 import scala.Predef.{$conforms, ArrowAssoc}
@@ -78,10 +78,10 @@ class Server(neo: Neo) extends Actor with HttpService {
 				complete(ServerPages.bookmarks(user))
 			} ~
 			path("narrations") {
-				complete(ServerPages.jsonResponse(neo.tx(Collections.allNarrations(deep = false)(_))))
+				complete(ServerPages.jsonResponse(neo.tx(Books.allNarrations(deep = false)(_))))
 			} ~
 			path("narration" / Segment) { collectionId =>
-				rejectNone(neo.tx {Collections.getNarration(collectionId, deep = true)(_) }) { narration =>
+				rejectNone(neo.tx {Books.getNarration(collectionId, deep = true)(_) }) { narration =>
 					complete( ServerPages.jsonResponse(narration) )
 				}
 			} ~
