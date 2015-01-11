@@ -2,14 +2,14 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import org.scalactic.{Good, ErrorMessage, Every, Or}
+import org.scalactic.{ErrorMessage, Every, Good, Or}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.{Chapter, More}
 
-import scala.language.implicitConversions
 import scala.Predef.augmentString
+import scala.language.implicitConversions
 
 object Building12 extends Narrator {
 	def archive = More("http://www.building12.net/archives.htm", "archive") :: Nil

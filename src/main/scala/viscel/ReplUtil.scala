@@ -3,9 +3,10 @@ package viscel
 import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
-import viscel.crawler.{Clockwork, RunnerUtil}
-import viscel.narration.{SelectUtil, Narrator, Metarrator}
+import viscel.crawler.RunnerUtil
+import viscel.narration.{Metarrator, Narrator, SelectUtil}
 import viscel.shared.ViscelUrl
+
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration

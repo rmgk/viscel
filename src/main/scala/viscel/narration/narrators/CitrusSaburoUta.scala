@@ -8,8 +8,6 @@ import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.{Chapter, More}
 
-import scala.Predef.$conforms
-
 object CitrusSaburoUta extends Narrator {
 
 	def archive = More("http://mangafox.me/manga/citrus_saburo_uta/", "archive") :: Nil

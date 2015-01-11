@@ -5,7 +5,6 @@ import rescala.Evt
 import rescala.propagation.Engines.default
 import spray.http.HttpResponse
 import viscel.narration.Narrator
-import viscel.store.Book
 
 import scala.util.Try
 

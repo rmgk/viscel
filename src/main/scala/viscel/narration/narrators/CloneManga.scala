@@ -2,13 +2,12 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import org.scalactic.{Every, Good, Or, Bad, One, ErrorMessage}
+import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, Narrator, Selection}
-import viscel.shared.{ViscelUrl, Story}
 import viscel.shared.Story.More
+import viscel.shared.{Story, ViscelUrl}
 
-import scala.Predef.ArrowAssoc
 import scala.Predef.augmentString
 
 object CloneManga {
@@ -33,7 +32,7 @@ object CloneManga {
 					.fold(Bad(One("match error")): String Or One[ErrorMessage])(m => Good(m.group(1)))
 				}
 				withGood(name_?, uri_?, id_?) { (name, uri, id) =>
-					Clone(s"CloneManga_$id", s"[CM] $name",  s"$uri&start=1")
+					Clone(s"CloneManga_$id", s"[CM] $name", s"$uri&start=1")
 				}
 			}
 

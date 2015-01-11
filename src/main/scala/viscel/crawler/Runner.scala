@@ -35,7 +35,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	}
 
 	def collectVolatile(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
-		case m@More(loc, kind) if  kind.contains("volatile") => pages ::= node -> m
+		case m@More(loc, kind) if kind.contains("volatile") => pages ::= node -> m
 		case _ =>
 	}
 
@@ -58,7 +58,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			Log.info(s"runner for $narrator is done")
 			neo.tx(updateDates(collection.self)(_))
 			Clockwork.finish(narrator, this)
-		case sn @ Some(node) =>
+		case sn@Some(node) =>
 			recheck = sn
 			val m = neo.tx(NeoCodec.load[More](node)(_, implicitly))
 			pages ::= node -> m

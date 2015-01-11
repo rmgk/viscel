@@ -1,7 +1,7 @@
 package viscel.narration.narrators
 
 import viscel.narration.SelectUtil.{elementIntoChapterPointer, queryImages, stringToVurl}
-import viscel.narration.{Templates, Selection}
+import viscel.narration.{Selection, Templates}
 import viscel.shared.ViscelUrl
 
 

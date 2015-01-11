@@ -6,9 +6,9 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.shared.Story.{Asset, Chapter, More}
-import viscel.shared.{ViscelUrl, Story}
+import viscel.shared.{Story, ViscelUrl}
 
-import scala.Predef.{ArrowAssoc, $conforms}
+import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.Set
 import scala.language.implicitConversions
 
@@ -28,11 +28,11 @@ object SelectUtil {
 
 	def queryImage(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgIntoAsset)
 	def queryImages(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)
-	def queryImageInAnchor(query: String, pagetype: String)(from: Element): List[Story] Or Every[ErrorMessage] = Selection(from).unique(query).wrapFlat{ image =>
-		imgIntoAsset(image).map(_ :: elementIntoPointer(pagetype)(image.parent()).toOption.toList )
+	def queryImageInAnchor(query: String, pagetype: String)(from: Element): List[Story] Or Every[ErrorMessage] = Selection(from).unique(query).wrapFlat { image =>
+		imgIntoAsset(image).map(_ :: elementIntoPointer(pagetype)(image.parent()).toOption.toList)
 	}
 	def queryNext(query: String, pagetype: String)(from: Element): List[More] Or Every[ErrorMessage] = Selection(from).all(query).wrap(selectNext(pagetype))
-	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: String)(from: Element): List[Story] Or Every[ErrorMessage]  = {
+	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: String)(from: Element): List[Story] Or Every[ErrorMessage] = {
 		append(queryImage(imageQuery)(from), queryNext(nextQuery, pagetype)(from))
 	}
 

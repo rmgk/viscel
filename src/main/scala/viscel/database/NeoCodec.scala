@@ -1,13 +1,13 @@
 package viscel.database
 
 import org.neo4j.graphdb.Node
-import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
-import viscel.shared.{ViscelUrl, Story}
-import viscel.shared.Story.{Asset, Blob, Chapter, Failed, More}
 import viscel.database.Implicits.NodeOps
+import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
+import viscel.shared.Story.{Asset, Blob, Chapter, Failed, More}
+import viscel.shared.{Story, ViscelUrl}
 
-import scala.collection.immutable.Map
 import scala.Predef.ArrowAssoc
+import scala.collection.immutable.Map
 import scala.language.implicitConversions
 
 trait NeoCodec[T] {
@@ -28,11 +28,11 @@ object NeoCodec {
 
 	implicit val storyCodec: NeoCodec[Story] = new NeoCodec[Story] {
 		override def write(value: Story)(implicit ntx: Ntx): Node = value match {
-			case s @ More(loc, kind) => create(s)
-			case s @ Chapter(name, metadata) => create(s)
-			case s @ Asset(source, origin, metadata, blob) => create(s)
-			case s @ Blob(sha1, mediatype) => create(s)
-			case s @ Failed(reason) => throw new IllegalArgumentException(s"can not write $s")
+			case s@More(loc, kind) => create(s)
+			case s@Chapter(name, metadata) => create(s)
+			case s@Asset(source, origin, metadata, blob) => create(s)
+			case s@Blob(sha1, mediatype) => create(s)
+			case s@Failed(reason) => throw new IllegalArgumentException(s"can not write $s")
 		}
 		override def read(node: Node)(implicit ntx: Ntx): Story =
 			if (node.hasLabel(label.Chapter)) load[Chapter](node)
@@ -53,7 +53,7 @@ object NeoCodec {
 	implicit val assetCodec: NeoCodec[Asset] = new NeoCodec[Asset] {
 		override def write(value: Asset)(implicit ntx: Ntx): Node = {
 			val asset = ntx.create(label.Asset, "source" -> value.source.toString, "origin" -> value.origin.toString, "metadata" -> upickle.write(value.metadata))
-			value.blob.foreach{ b =>
+			value.blob.foreach { b =>
 				val blob = create(b)
 				asset.to_=(rel.blob, blob)
 			}
@@ -61,7 +61,7 @@ object NeoCodec {
 		}
 		override def read(node: Node)(implicit ntx: Ntx): Asset = {
 			val blob = Option(node.to(rel.blob)).map(load[Blob])
-			Asset(node.prop[String]("source"), node.prop[String]("origin"), upickle.read[Map[String,String]](node.prop[String]("metadata")), blob)
+			Asset(node.prop[String]("source"), node.prop[String]("origin"), upickle.read[Map[String, String]](node.prop[String]("metadata")), blob)
 		}
 	}
 

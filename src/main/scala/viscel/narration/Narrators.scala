@@ -1,9 +1,6 @@
 package viscel.narration
 
-import org.jsoup.nodes.Document
-import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.narrators._
-import viscel.shared.Story
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Set

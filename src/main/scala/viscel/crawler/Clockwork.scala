@@ -3,16 +3,13 @@ package viscel.crawler
 import rescala.Evt
 import rescala.propagation.Engines.default
 import spray.client.pipelining.SendReceive
-import spray.http.{HttpResponse, HttpRequest}
+import viscel.Log
 import viscel.database._
 import viscel.narration.Narrator
-import viscel.shared.Story.Narration
-import viscel.store.{Books, Book}
-import viscel.{Deeds, Log}
+import viscel.store.Books
 
 import scala.collection.concurrent
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext
 
 
 object Clockwork {
@@ -46,7 +43,7 @@ object Clockwork {
 					Some(new Runner(narrator, iopipe, collection, neo, ec))
 				}
 			}
-			runner.foreach{ ensureRunner(id, _, ec) }
+			runner.foreach { ensureRunner(id, _, ec) }
 		}
 	}
 

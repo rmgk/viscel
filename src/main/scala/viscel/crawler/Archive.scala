@@ -4,12 +4,12 @@ import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.Log
 import viscel.database.Implicits.NodeOps
-import viscel.database.{label, NeoCodec, Ntx, rel}
+import viscel.database.{NeoCodec, Ntx, label, rel}
 import viscel.shared.Story
-import viscel.shared.Story.{More, Asset}
+import viscel.shared.Story.{Asset, More}
 
-import scala.annotation.tailrec
 import scala.Predef.ArrowAssoc
+import scala.annotation.tailrec
 
 
 object Archive {

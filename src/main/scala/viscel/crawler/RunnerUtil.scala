@@ -9,8 +9,8 @@ import rescala.propagation.Engines.default
 import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
-import spray.httpx.encoding._
-import viscel.shared.{ViscelUrl, Story}
+import spray.httpx.encoding.{Gzip, Deflate}
+import viscel.shared.{Story, ViscelUrl}
 import viscel.{Deeds, Log}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -26,7 +26,7 @@ object RunnerUtil {
 
 	def urlToUri(vurl: ViscelUrl): Uri = {
 		val in = new URL(vurl.self)
-		implicit class X(s: String) {def ? = Option(s).getOrElse("")}
+		implicit class X(s: String) {def ? = Option(s).getOrElse("") }
 		Uri.from(
 			scheme = in.getProtocol.?,
 			userinfo = in.getUserInfo.?,

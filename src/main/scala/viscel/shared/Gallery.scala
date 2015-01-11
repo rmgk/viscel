@@ -11,7 +11,7 @@ case class Gallery[+A](left: List[A], right: List[A]) {
 	def prev(n: Int): Gallery[A] = Gallery(left.drop(n), left.take(n) reverse_::: right)
 	lazy val size: Int = pos + right.size
 	lazy val pos: Int = left.size
-	override lazy val toString: String = s"Gallery(${left.reverse.mkString(", ")} | ${right.mkString(", ")})"
+	override lazy val toString: String = s"Gallery(${ left.reverse.mkString(", ") } | ${ right.mkString(", ") })"
 	def isFirst: Boolean = left.isEmpty
 	def isEnd: Boolean = right.isEmpty
 	def isEmpty: Boolean = isFirst && isEnd

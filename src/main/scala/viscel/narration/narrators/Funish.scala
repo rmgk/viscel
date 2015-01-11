@@ -41,14 +41,14 @@ object Funish {
 		AP("NX_GoGetARoomie", "Go Get a Roomie!", "http://www.gogetaroomie.com/archive.php",
 			doc => Selection(doc).unique("#comicwrap").wrapOne { comicwrap =>
 				val pages_? = Selection(comicwrap).many("> select > option[value~=^\\d+$]").wrapEach(e =>
-					extract(More(s"http://www.gogetaroomie.com/index.php?id=${e.attr("value").toInt}","page")))
+					extract(More(s"http://www.gogetaroomie.com/index.php?id=${ e.attr("value").toInt }", "page")))
 				val chapters_? = Selection(comicwrap).many("h2 a").wrapEach(elementIntoChapterPointer("page")).map(_.map(cp => (cp(0), cp(1))))
 				withGood(pages_?, chapters_?) { (pages, chapters) =>
 					placeChapters(pages, chapters)
 				}
 			},
 			queryImage("#comic")),
-		SF("NX_CliqueRefresh","Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor(".comicImg img", "page")),
+		SF("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor(".comicImg img", "page")),
 		SF("NX_Candi", "Candi", "http://candicomics.com/d/20040625.html", queryImageNext("#comicplace > span > img", "#comicnav a:has(img#next_day2)", "page"))
 	)
 }

@@ -10,9 +10,9 @@ import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.{HttpService, Route}
 import viscel.database.Neo
-import viscel.narration.{Narrators, Narrator}
+import viscel.narration.Narrators
 import viscel.store.BlobStore.hashToFilename
-import viscel.store.{Books, Book, User}
+import viscel.store.{Books, User}
 import viscel.{Deeds, Log, Viscel}
 
 import scala.Predef.{$conforms, ArrowAssoc}
@@ -81,8 +81,8 @@ class Server(neo: Neo) extends Actor with HttpService {
 				complete(ServerPages.jsonResponse(neo.tx(Books.allNarrations(deep = false)(_))))
 			} ~
 			path("narration" / Segment) { collectionId =>
-				rejectNone(neo.tx {Books.getNarration(collectionId, deep = true)(_) }) { narration =>
-					complete( ServerPages.jsonResponse(narration) )
+				rejectNone(neo.tx { Books.getNarration(collectionId, deep = true)(_) }) { narration =>
+					complete(ServerPages.jsonResponse(narration))
 				}
 			} ~
 			pathPrefix("blob" / Segment) { (sha1) =>
@@ -104,14 +104,14 @@ class Server(neo: Neo) extends Actor with HttpService {
 					}
 				}
 			}
-			path("stats") {
-				complete {
-					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
-						.ask(Http.GetStats)(1.second)
-						.mapTo[Stats]
-					stats.map { s => neo.tx { ServerPages.stats(s)(_) } }
-				}
-			}
+	path("stats") {
+		complete {
+			val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
+				.ask(Http.GetStats)(1.second)
+				.mapTo[Stats]
+			stats.map { s => neo.tx { ServerPages.stats(s)(_) } }
+		}
+	}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)
 }
