@@ -7,7 +7,7 @@ import viscel.shared.Story.More
 import viscel.shared.{Story, ViscelUrl}
 
 object Templates {
-	case class AP(override val id: String,
+	final case class AP(override val id: String,
 								override val name: String,
 								start: ViscelUrl,
 								wrapArchive: Document => List[Story] Or Every[ErrorMessage],
@@ -18,7 +18,7 @@ object Templates {
 			case "page" => wrapPage(doc)
 		})
 	}
-	case class SF(override val id: String,
+	final case class SF(override val id: String,
 								override val name: String,
 								start: ViscelUrl,
 								wrapPage: Document => List[Story] Or Every[ErrorMessage]) extends Narrator {
