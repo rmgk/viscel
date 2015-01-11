@@ -12,7 +12,7 @@ import scala.concurrent.duration.Duration
 
 class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 	def fetch(url: String): Document = fetchV(SelectUtil.stringToVurl(url))
-	
+
 	def fetchV(vurl: ViscelUrl): Document = {
 		val request = RunnerUtil.request(vurl)
 		val res = RunnerUtil.getResponse(request, iopipe).map { RunnerUtil.parseDocument(vurl) }

@@ -56,7 +56,7 @@ object SelectUtil {
 
 	/** takes an element, extracts its uri and text and generates a description pointing to that chapter */
 	def elementIntoChapterPointer(pagetype: String)(chapter: Element): List[Story] Or Every[ErrorMessage] =
-		withGood(elementIntoPointer(pagetype)(chapter)) { (pointer) =>
+		elementIntoPointer(pagetype)(chapter).map { pointer =>
 			Chapter(chapter.text()) :: pointer :: Nil
 		}
 
