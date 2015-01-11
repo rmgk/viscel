@@ -7,7 +7,7 @@ import scala.collection.immutable.Set
 
 object PetiteSymphony {
 
-	val cores: Set[Narrator] = Set(
+	def cores: Set[Narrator] = Set(
 		("goyoku", "Rascals Goyoku", "http://goyoku.petitesymphony.com/comic/goyoku-prologue1/"),
 		("generation17", "Generation 17", "http://generation17.petitesymphony.com/comic/cover"),
 		("seed", "Seed", "http://seed.petitesymphony.com/comic/seedchapter1"),
