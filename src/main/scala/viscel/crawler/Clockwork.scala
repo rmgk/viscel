@@ -7,7 +7,7 @@ import spray.http.{HttpResponse, HttpRequest}
 import viscel.database._
 import viscel.narration.Narrator
 import viscel.shared.Story.Narration
-import viscel.store.Collection
+import viscel.store.{Collections, Collection}
 import viscel.{Deeds, Log}
 
 import scala.collection.concurrent
@@ -40,7 +40,7 @@ object Clockwork {
 		else {
 			Log.info(s"got hint $id")
 			val runner = neo.tx { implicit ntx =>
-				val collection = Collection.findAndUpdate(narrator)
+				val collection = Collections.findAndUpdate(narrator)
 				if (!force && !Archive.needsRecheck(collection.self)) None
 				else {
 					Some(new Runner(narrator, iopipe, collection, neo, ec))

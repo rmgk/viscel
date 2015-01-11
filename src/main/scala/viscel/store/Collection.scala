@@ -20,11 +20,16 @@ final case class Collection(self: Node) extends AnyVal {
 	def size(implicit ntx: Ntx): Int = {
 		val sopt = self.get[Int]("size")
 		sopt.getOrElse {
-			val size = Collection.size(this)
+			val size = calcSize()
 			self.setProperty("size", size)
 			size
 		}
 	}
+
+	private def calcSize()(implicit ntx: Ntx): Int = self.fold(0)(s => {
+		case n if n.hasLabel(label.Asset) => s + 1
+		case _ => s
+	})
 
 
 	def narration(deep: Boolean)(implicit ntx: Ntx): Narration = {
@@ -49,35 +54,4 @@ final case class Collection(self: Node) extends AnyVal {
 
 }
 
-object Collection {
-	def size(col: Collection)(implicit ntx: Ntx): Int = col.self.fold(0)(s => {
-		case n if n.hasLabel(label.Asset) => s + 1
-		case _ => s
-	})
 
-	def find(id: String)(implicit ntx: Ntx): Option[Collection] =
-		Viscel.time (s"find $id") { ntx.node(label.Collection, "id", id).map { Collection.apply } }
-
-
-	def findAndUpdate(narrator: Narrator)(implicit ntx: Ntx): Collection = synchronized {
-		ntx.db.beginTx().acquireWriteLock(Config.get().self)
-		val col = find(narrator.id)
-		col.foreach { c => c.name = narrator.name }
-		col.getOrElse {
-			Log.info(s"materializing $narrator")
-			Collection(ntx.create(label.Collection, "id" -> narrator.id, "name" -> narrator.name))
-		}
-	}
-
-	def getNarration(id: String, deep: Boolean)(implicit ntx: Ntx): Option[Narration] =	Narrators.get(id) match {
-		case None => find(id).map(_.narration(deep))
-		case Some(nar) => Some(findAndUpdate(nar).narration(deep))
-	}
-
-	def allNarrations(deep: Boolean)(implicit ntx: Ntx): List[Narration] = {
-		val inDB = ntx.nodes(label.Collection).map { n => Collection.apply(n).narration(deep) }.toList
-		val dbids = inDB.map(_.id).toSet
-		val other = Narrators.all.filterNot(n => dbids(n.id)).map { nar => Narration(nar.id, nar.name, 0, Gallery.empty, Nil)}.toList
-		inDB ::: other
-	}
-}
