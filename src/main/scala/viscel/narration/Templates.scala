@@ -7,22 +7,33 @@ import viscel.shared.Story.More
 import viscel.shared.{Story, ViscelUrl}
 
 object Templates {
-	final case class AP(override val id: String,
-								override val name: String,
-								start: ViscelUrl,
-								wrapArchive: Document => List[Story] Or Every[ErrorMessage],
-								wrapPage: Document => List[Story] Or Every[ErrorMessage]) extends Narrator {
-		override def archive: List[Story] = More(start, "archive") :: Nil
+	def AP(
+		pid: String, pname: String,
+		start: ViscelUrl,
+		wrapArchive: Document => List[Story] Or Every[ErrorMessage],
+		wrapPage: Document => List[Story] Or Every[ErrorMessage],
+		archiveString: String = "archive",
+		pageString: String = "page"
+	): Narrator = new Narrator {
+		override def id: String = pid
+		override def name: String = pname
+		override def archive: List[Story] = More(start, archiveString) :: Nil
 		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-			case "archive" => wrapArchive(doc)
-			case "page" => wrapPage(doc)
+			case `archiveString` => wrapArchive(doc)
+			case `pageString` => wrapPage(doc)
 		})
 	}
-	final case class SF(override val id: String,
-								override val name: String,
-								start: ViscelUrl,
-								wrapPage: Document => List[Story] Or Every[ErrorMessage]) extends Narrator {
-		override def archive: List[Story] = More(start, "page") :: Nil
+
+	def SF(
+		pid: String,
+		pname: String,
+		start: ViscelUrl,
+		wrapPage: Document => List[Story] Or Every[ErrorMessage],
+		pageString: String = ""
+	): Narrator = new Narrator {
+		override def id: String = pid
+		override def name: String = pname
+		override def archive: List[Story] = More(start, pageString) :: Nil
 		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
 			case _ => wrapPage(doc)
 		})
