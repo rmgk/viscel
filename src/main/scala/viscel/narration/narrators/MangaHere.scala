@@ -10,22 +10,10 @@ import viscel.shared.{ViscelUrl, Story}
 object MangaHere {
 
 	case class Generic(id: String, name: String, archiveUri: ViscelUrl) extends Narrator {
-
 		def archive = Story.More(archiveUri, "archive") :: Nil
-
-		def wrapArchive(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
-			Selection(doc).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { elementIntoChapterPointer("page") }
-		}
-
-		def wrapPage(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
-			val next_? = Selection(doc).all(".next_page:not([onclick])").wrap { selectNext("page") }
-			val img_? = Selection(doc).unique("#image").wrapEach(imgIntoAsset)
-			withGood(img_?, next_?) { _ ::: _ }
-		}
-
 		def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-			case "archive" => wrapArchive(doc)
-			case "page" => wrapPage(doc)
+			case "archive" => 			Selection(doc).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { elementIntoChapterPointer("page") }
+			case "page" => queryImageNext("#image", ".next_page:not([onclick])", "page")(doc)
 		})
 	}
 
