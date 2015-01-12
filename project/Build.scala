@@ -105,6 +105,7 @@ object Settings {
 				|import viscel.ReplUtil
 				|import viscel.narration._
 				|import viscel.narration.narrators._
+				|import SelectUtil._
 			""".stripMargin)
 
 }

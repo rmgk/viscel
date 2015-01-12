@@ -12,9 +12,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
-	def fetch(url: String): Document = fetchV(SelectUtil.stringToVurl(url))
 
-	def fetchV(vurl: ViscelUrl): Document = {
+	def fetch(vurl: ViscelUrl): Document = {
 		val request = RunnerUtil.request(vurl)
 		val res = RunnerUtil.getResponse(request, iopipe).map { RunnerUtil.parseDocument(vurl) }
 		res.onFailure { case t: Throwable =>
@@ -25,7 +24,7 @@ class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 	}
 
 	def updateMetarrator[T <: Narrator](metarrator: Metarrator[T]) = {
-		val doc = fetchV(metarrator.archive)
+		val doc = fetch(metarrator.archive)
 		val nars = metarrator.wrap(doc)
 		metarrator.save(nars.get)
 	}

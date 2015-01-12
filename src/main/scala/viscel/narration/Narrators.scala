@@ -12,21 +12,22 @@ import scala.collection.immutable.Set
 
 
 object Narrators {
-	def all: Set[Narrator] = narrators
-	def get(id: String): Option[Narrator] = narratorMap.get(id)
 
-	private val narrators = inlineCores ++
+	private val static = inlineCores ++
 		KatBox.cores ++
 		PetiteSymphony.cores ++
 		WordpressEasel.cores ++
 		Batoto.cores ++
-		CloneManga.MetaClone.load() ++
-		MangaHere.MetaCore.load() ++
 		Set(Flipside, Everafter, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
 			Building12)
+	private def dynamic = CloneManga.MetaClone.load() ++ MangaHere.MetaCore.load() ++ Fakku.Meta.load()
 
-	private val narratorMap = narrators.map(n => n.id -> n).toMap
+	val all: Set[Narrator] = static ++ dynamic
+	private val narratorMap = all.map(n => n.id -> n).toMap
+
+	def get(id: String): Option[Narrator] = narratorMap.get(id)
+
 
 	private def inlineCores = Set(
 		AP("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
@@ -65,7 +66,8 @@ object Narrators {
 			},
 			queryImage("#comic")),
 		SF("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor(".comicImg img", "page")),
-		SF("NX_Candi", "Candi", "http://candicomics.com/d/20040625.html", queryImageNext("#comicplace > span > img", "#comicnav a:has(img#next_day2)", "page"))
+		SF("NX_Candi", "Candi", "http://candicomics.com/d/20040625.html", queryImageNext("#comicplace > span > img", "#comicnav a:has(img#next_day2)", "page")),
+		SF("NX_Goblins", "Goblins", "http://www.goblinscomic.org/06252005/", queryImageNext("#comic > table > tbody > tr > td > img", "#navigation > div.nav-next > a", ""))
 	)
 
 }
