@@ -6,11 +6,12 @@ import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
+import viscel.shared.Story.More.{Page, Archive, Kind}
 import viscel.shared.Story.{Chapter, More}
 
 object CitrusSaburoUta extends Narrator {
 
-	def archive = More("http://mangafox.me/manga/citrus_saburo_uta/", "archive") :: Nil
+	def archive = More("http://mangafox.me/manga/citrus_saburo_uta/", Archive) :: Nil
 
 	def id: String = "Mangafox_Citrus"
 
@@ -23,13 +24,13 @@ object CitrusSaburoUta extends Narrator {
 			val uri_? = anchorSel.wrapOne { extractUri }
 			val text_? = anchorSel.getOne.map { _.ownText() }
 			withGood(title_?, uri_?, text_?) { (title, uri, text) =>
-				Chapter(s"$text $title") :: More(uri, "page") :: Nil
+				Chapter(s"$text $title") :: More(uri, Page) :: Nil
 			}
 		}
 	}
 
-	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-		case "archive" => wrapArchive(doc)
-		case "page" => queryImageNext("#viewer img", "#top_bar .next_page:not([onclick])", "page")(doc)
+	def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
+		case Archive => wrapArchive(doc)
+		case Page => queryImageNext("#viewer img", "#top_bar .next_page:not([onclick])", Page)(doc)
 	})
 }

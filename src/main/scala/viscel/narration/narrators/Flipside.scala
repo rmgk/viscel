@@ -5,11 +5,12 @@ import org.scalactic.Accumulation._
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
+import viscel.shared.Story.More.{Archive, Page, Kind}
 import viscel.shared.Story.{Chapter, More}
 
 object Flipside extends Narrator {
 
-	def archive = More("http://flipside.keenspot.com/chapters.php", "archive") :: Nil
+	def archive = More("http://flipside.keenspot.com/chapters.php", Archive) :: Nil
 
 	def id: String = "NX_Flipside"
 
@@ -17,7 +18,7 @@ object Flipside extends Narrator {
 
 	def wrapArchive(doc: Document) = {
 		Selection(doc).many("td:matches(Chapter|Intermission)").wrapFlat { data =>
-			val pages_? = Selection(data).many("a").wrapEach(elementIntoPointer("page")).map { _.distinct }
+			val pages_? = Selection(data).many("a").wrapEach(elementIntoPointer(Page)).map { _.distinct }
 			val name_? = if (data.text.contains("Chapter"))
 				Selection(data).unique("td:root > div:first-child").getOne.map { _.text() }
 			else
@@ -29,8 +30,8 @@ object Flipside extends Narrator {
 		}
 	}
 
-	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-		case "archive" => wrapArchive(doc)
-		case "page" => Selection(doc).unique("img.ksc").wrapEach(imgIntoAsset)
+	def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
+		case Archive => wrapArchive(doc)
+		case Page => Selection(doc).unique("img.ksc").wrapEach(imgIntoAsset)
 	})
 }

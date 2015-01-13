@@ -6,12 +6,13 @@ import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
+import viscel.shared.Story.More.{Archive, Page, Kind}
 import viscel.shared.Story.{Chapter, More}
 
 import scala.language.implicitConversions
 
 object Misfile extends Narrator {
-	def archive = More("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", "archive") :: Nil
+	def archive = More("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", Archive) :: Nil
 
 	def id: String = "NX_Misfile"
 
@@ -19,7 +20,7 @@ object Misfile extends Narrator {
 
 	def wrapArchive(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
 		val chapters_? = Selection(doc).many("#comicbody a:matchesOwn(^Book #\\d+$)").wrapFlat { anchor =>
-			withGood(elementIntoPointer("page")(anchor)) { pointer =>
+			withGood(elementIntoPointer(Page)(anchor)) { pointer =>
 				Chapter(anchor.ownText()) :: pointer :: Nil
 			}
 		}
@@ -44,13 +45,13 @@ object Misfile extends Narrator {
 					metadata = element.metadata - "width" - "height")
 			}
 		}
-		val next_? = Selection(doc).all("a.next").wrap { selectNext("page") }
+		val next_? = Selection(doc).all("a.next").wrap { selectNext(Page) }
 
 		append(elements_?, next_?)
 	}
 
-	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-		case "archive" => wrapArchive(doc)
-		case "page" => wrapPage(doc)
+	def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
+		case Archive => wrapArchive(doc)
+		case Page => wrapPage(doc)
 	})
 }

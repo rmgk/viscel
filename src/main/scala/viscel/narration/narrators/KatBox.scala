@@ -5,6 +5,7 @@ import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More
+import viscel.shared.Story.More.{Page, Archive, Kind}
 
 import scala.collection.immutable.Set
 
@@ -13,13 +14,13 @@ object KatBox {
 
 	case class Generic(shortId: String, name: String) extends Narrator {
 
-		def archive = More(s"http://$shortId.katbox.net/archive", "archive") :: Nil
+		def archive = More(s"http://$shortId.katbox.net/archive", Archive) :: Nil
 
 		val id: String = s"KatBox_$shortId"
 
-		def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-			case "archive" => Selection(doc).many("[rel=bookmark]").wrapEach(elementIntoPointer("page")).map { _.reverse }
-			case "page" => queryImages(".webcomic-image img")(doc)
+		def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
+			case Archive => Selection(doc).many("[rel=bookmark]").wrapEach(elementIntoPointer(Page)).map { _.reverse }
+			case Page => queryImages(".webcomic-image img")(doc)
 		})
 	}
 

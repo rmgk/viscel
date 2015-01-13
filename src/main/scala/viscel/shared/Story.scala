@@ -9,12 +9,32 @@ object Story {
 
 	import viscel.shared.JsonCodecs._
 
-	final case class More(loc: ViscelUrl, kind: String) extends Story
+	final case class More(loc: ViscelUrl, kind: More.Kind) extends Story
 	final case class Chapter(name: String, metadata: Map[String, String] = Map()) extends Story
 	final case class Asset(source: ViscelUrl, origin: ViscelUrl, metadata: Map[String, String] = Map(), blob: Option[Blob] = None) extends Story
 	final case class Failed(reason: List[String]) extends Story
 	final case class Blob(sha1: String, mediatype: String) extends Story
 	final case class Narration(id: String, name: String, size: Int, narrates: Gallery[Asset], chapters: List[(Int, Chapter)])
+
+	object More {
+		abstract class Kind(val name: String)
+		case object Unused extends Kind("")
+		case object Archive extends Kind("Archive")
+		case object Page extends Kind("Page")
+		case object Issue extends Kind("Chapter")
+		//case class Other(override val name: String) extends Kind(name)
+		object Kind {
+			def apply(name: String): Kind = name match {
+				case Unused.name => Unused
+				case Archive.name => Archive
+				case Page.name => Page
+				case Issue.name => Issue
+				//case s => Other(s)
+			}
+		}
+		implicit val kindR: upickle.Reader[Kind] = upickle.Reader(PartialFunction(n => Kind(upickle.readJs[String](n))))
+		implicit val kindW: upickle.Writer[Kind]= upickle.Writer(k => upickle.writeJs(k.name))
+	}
 
 	implicit val moreR: ReaderWriter[More] = case2RW(More.apply, More.unapply)("loc", "pagetype")
 	implicit val chapterR: ReaderWriter[Chapter] = case2RW(Chapter.apply, Chapter.unapply)("name", "metadata")

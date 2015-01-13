@@ -5,15 +5,16 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, Narrator, Selection}
+import viscel.shared.Story.More.{Archive, Page, Kind}
 import viscel.shared.{Story, ViscelUrl}
 
 object MangaHere {
 
 	case class Generic(id: String, name: String, archiveUri: ViscelUrl) extends Narrator {
-		def archive = Story.More(archiveUri, "archive") :: Nil
-		def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-			case "archive" => Selection(doc).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { elementIntoChapterPointer("page") }
-			case "page" => queryImageNext("#image", ".next_page:not([onclick])", "page")(doc)
+		def archive = Story.More(archiveUri, Archive) :: Nil
+		def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
+			case Archive => Selection(doc).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { elementIntoChapterPointer(Page) }
+			case Page => queryImageNext("#image", ".next_page:not([onclick])", Page)(doc)
 		})
 	}
 

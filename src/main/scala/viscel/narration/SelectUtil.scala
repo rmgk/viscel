@@ -5,6 +5,7 @@ import java.net.URL
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
+import viscel.shared.Story.More.{Unused, Kind}
 import viscel.shared.Story.{Asset, Chapter, More}
 import viscel.shared.{Story, ViscelUrl}
 
@@ -28,11 +29,11 @@ object SelectUtil {
 
 	def queryImage(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgIntoAsset)
 	def queryImages(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)
-	def queryImageInAnchor(query: String, pagetype: String)(from: Element): List[Story] Or Every[ErrorMessage] = Selection(from).unique(query).wrapFlat { image =>
+	def queryImageInAnchor(query: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = Selection(from).unique(query).wrapFlat { image =>
 		imgIntoAsset(image).map(_ :: elementIntoPointer(pagetype)(image.parent()).toOption.toList)
 	}
-	def queryNext(query: String, pagetype: String)(from: Element): List[More] Or Every[ErrorMessage] = Selection(from).all(query).wrap(selectNext(pagetype))
-	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: String)(from: Element): List[Story] Or Every[ErrorMessage] = {
+	def queryNext(query: String, pagetype: Kind)(from: Element): List[More] Or Every[ErrorMessage] = Selection(from).all(query).wrap(selectNext(pagetype))
+	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
 		append(queryImage(imageQuery)(from), queryNext(nextQuery, pagetype)(from))
 	}
 
@@ -45,17 +46,17 @@ object SelectUtil {
 		case tag => Bad(One(s"can not extract uri from '$tag' at ($caller): ${ show(element) }"))
 	}
 
-	def selectNext(pagetype: String)(elements: List[Element]): List[More] Or Every[ErrorMessage] = elements.validatedBy(elementIntoPointer(pagetype)).flatMap {
+	def selectNext(pagetype: Kind)(elements: List[Element]): List[More] Or Every[ErrorMessage] = elements.validatedBy(elementIntoPointer(pagetype)).flatMap {
 		case pointers if elements.isEmpty => Good(Nil)
 		case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
 		case pointers => Bad(One(blame("more than one next found", elements: _*)))
 	}
 
-	def elementIntoPointer(pagetype: String)(element: Element): More Or Every[ErrorMessage] =
+	def elementIntoPointer(pagetype: Kind)(element: Element): More Or Every[ErrorMessage] =
 		extractUri(element).map(uri => More(uri, pagetype))
 
 	/** takes an element, extracts its uri and text and generates a description pointing to that chapter */
-	def elementIntoChapterPointer(pagetype: String)(chapter: Element): List[Story] Or Every[ErrorMessage] =
+	def elementIntoChapterPointer(pagetype: Kind)(chapter: Element): List[Story] Or Every[ErrorMessage] =
 		elementIntoPointer(pagetype)(chapter).map { pointer =>
 			Chapter(chapter.text()) :: pointer :: Nil
 		}

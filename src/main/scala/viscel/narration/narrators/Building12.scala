@@ -6,13 +6,14 @@ import org.scalactic.{ErrorMessage, Every, Good, Or}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
+import viscel.shared.Story.More.{Page, Archive, Kind}
 import viscel.shared.Story.{Chapter, More}
 
 import scala.Predef.augmentString
 import scala.language.implicitConversions
 
 object Building12 extends Narrator {
-	def archive = More("http://www.building12.net/archives.htm", "archive") :: Nil
+	def archive = More("http://www.building12.net/archives.htm", Archive) :: Nil
 
 	def id: String = "NX_Building12"
 
@@ -32,8 +33,8 @@ object Building12 extends Narrator {
 		cons(Good(Chapter("issue\\d+".r.findFirstIn(doc.baseUri()).getOrElse("Unknown Issue"))), elements_?)
 	}
 
-	def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-		case "archive" => Selection(doc).many("a[href~=issue\\d+\\.htm$]").wrapEach(elementIntoPointer("issue"))
-		case "issue" => wrapIssue(doc)
+	def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
+		case Archive => Selection(doc).many("a[href~=issue\\d+\\.htm$]").wrapEach(elementIntoPointer(Page))
+		case Page => wrapIssue(doc)
 	})
 }

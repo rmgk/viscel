@@ -7,6 +7,7 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, Narrator, Selection}
+import viscel.shared.Story.More.{Unused, Kind}
 import viscel.shared.Story.{Asset, More}
 import viscel.shared.{Story, ViscelUrl}
 
@@ -18,12 +19,12 @@ object Fakku {
 	val extractID = ".*/(?:manga|doujinshi)/([^/]+)/read".r
 	
 	case class FKU(override val id: String, override val name: String, url: String) extends Narrator {
-		override def archive: List[Story] = More(url, "") :: Nil
+		override def archive: List[Story] = More(url, Unused) :: Nil
 
 		val findStr = "window.params.thumbs = "
 		val extractPos = ".*\\D(\\d+)\\.\\w+".r
 
-		override def wrap(doc: Document, kind: String): List[Story] = storyFromOr(Selection(doc).many("head script").wrap { scripts =>
+		override def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(Selection(doc).many("head script").wrap { scripts =>
 			val jsSrc = scripts.map(_.html()).mkString("\n")
 			val start = jsSrc.indexOf(findStr) + findStr.length
 			val end = jsSrc.indexOf("\n", start) - 1

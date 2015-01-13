@@ -4,6 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil.{append, elementIntoPointer, imgIntoAsset, selectNext, storyFromOr, stringToVurl}
 import viscel.narration.{Narrator, Selection}
+import viscel.shared.Story.More.{Page, Kind}
 import viscel.shared.Story.{Chapter, More}
 import viscel.shared.{Story, ViscelUrl}
 
@@ -13,22 +14,22 @@ object Batoto {
 
 	case class Generic(id: String, name: String, first: ViscelUrl) extends Narrator {
 
-		def archive = More(first, "chapter") :: Nil
+		def archive = More(first, More.Issue) :: Nil
 
 		def wrapPage(doc: Document): Or[List[Story], Every[ErrorMessage]] =
 			Selection(doc).unique("#comic_page").wrapEach(imgIntoAsset)
 
 		def wrapChapter(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
-			val pages_? = Selection(doc).first("#page_select").many("option:not([selected=selected])").wrapEach { elementIntoPointer("page") }
+			val pages_? = Selection(doc).first("#page_select").many("option:not([selected=selected])").wrapEach { elementIntoPointer(Page) }
 			val currentPage_? = wrapPage(doc)
-			val nextChapter_? = Selection(doc).first(".moderation_bar").optional("a:has(img[title=Next Chapter])").wrap(selectNext("chapter"))
+			val nextChapter_? = Selection(doc).first(".moderation_bar").optional("a:has(img[title=Next Chapter])").wrap(selectNext(More.Issue))
 			val chapter_? = Selection(doc).first("select[name=chapter_select]").unique("option[selected=selected]").getOne.map(e => Chapter(e.text) :: Nil)
 			append(chapter_?, currentPage_?, pages_?, nextChapter_?)
 		}
 
-		def wrap(doc: Document, kind: String): List[Story] = storyFromOr(kind match {
-			case "page" => wrapPage(doc)
-			case "chapter" => wrapChapter(doc)
+		def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
+			case Page => wrapPage(doc)
+			case More.Issue => wrapChapter(doc)
 		})
 	}
 

@@ -2,6 +2,7 @@ package viscel.narration.narrators
 
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Templates}
+import viscel.shared.Story.More.Unused
 
 import scala.collection.immutable.Set
 
@@ -21,6 +22,6 @@ object PetiteSymphony {
 		("remnantsonata", "Remnant Sonata", "http://remnantsonata.petitesymphony.com/comic/rs-pg1/"),
 		("ladycrimson", "Lady Crimson", "http://ladycrimson.petitesymphony.com/comic/ladycrimson_cover/"),
 		("yearofthecow", "Year of the Cow", "http://yearofthecow.petitesymphony.com/comic/yotc-cover/")
-	).map { case (id, name, start) => Templates.SF(s"PetiteSymphony_$id", name, start, queryImageNext("#comic-1 img", "a.navi.navi-next", "")) }
+	).map { case (id, name, start) => Templates.SF(s"PetiteSymphony_$id", name, start, queryImageNext("#comic-1 img", "a.navi.navi-next", Unused)) }
 
 }

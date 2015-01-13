@@ -2,12 +2,13 @@ package viscel.narration.narrators
 
 import viscel.narration.SelectUtil.{elementIntoChapterPointer, queryImages, stringToVurl}
 import viscel.narration.{Selection, Templates}
+import viscel.shared.Story.More.Page
 import viscel.shared.ViscelUrl
 
 
 object JayNaylor {
 	def common(id: String, name: String, archiveUri: ViscelUrl) = Templates.AP(id, name, archiveUri,
-		doc => Selection(doc).many("#chapters li > a").wrapFlat { elementIntoChapterPointer("page") },
+		doc => Selection(doc).many("#chapters li > a").wrapFlat { elementIntoChapterPointer(Page) },
 		queryImages("#comicentry .content img"))
 
 	def BetterDays = common("NX_BetterDays", "Better Days", "http://jaynaylor.com/betterdays/archives/chapter-1-honest-girls/")

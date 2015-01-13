@@ -66,8 +66,8 @@ object NeoCodec {
 	}
 
 	implicit val moreCodec: NeoCodec[More] = case2RW[More, String, String](label.More, "loc", "kind")(
-		readf = (l, p) => More(l, p),
-		writef = more => (more.loc, more.kind))
+		readf = (l, p) => More(l, More.Kind(p)),
+		writef = more => (more.loc, more.kind.name))
 
 	implicit val blobCodec: NeoCodec[Story.Blob] = case2RW[Blob, String, String](label.Blob, "sha1", "mediatype")(
 		readf = Blob.apply,
