@@ -21,7 +21,7 @@ object Narrators {
 		Batoto.cores ++
 		Set(Flipside, Everafter, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
-			Building12)
+			Building12, Candi)
 	private def dynamic = CloneManga.MetaClone.load() ++ MangaHere.MetaCore.load() ++ Fakku.Meta.load()
 
 	val all: Set[Narrator] = static ++ dynamic
@@ -46,9 +46,13 @@ object Narrators {
 				Good(if (tpIndex > 0) Chapter(elem.text().substring(tpIndex + "Title Page ".length)) :: page else page)
 			},
 			queryImage("#comic")),
-		SF("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/index.php?id=1", queryImageInAnchor("#comic", Page)),
+		AP("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/archives.php",
+			Selection(_).many("#leftarea > h3 > a").wrapFlat(elementIntoChapterPointer(Page)),
+			queryImageInAnchor("#comic", Page)),
 		SF("NX_TheRockCocks", "The Rock Cocks", "http://www.therockcocks.com/index.php?id=1", queryImageInAnchor("#comic", Page)),
-		SF("NX_PragueRace", "Prague Race", "http://www.praguerace.com/index.php?id=1", queryImageInAnchor("#comic", Page)),
+		AP("NX_PragueRace", "Prague Race", "http://www.praguerace.com/archive.php",
+			Selection(_).many("#bottommid > div > div > h2 > a").wrapFlat(elementIntoChapterPointer(Page)),
+			queryImageInAnchor("#comic", Page)),
 		AP("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
 			doc => Selection(doc).many("#pagecontent > p > a").wrapEach(elementIntoPointer(Page)),
 			doc => {
@@ -67,7 +71,6 @@ object Narrators {
 			},
 			queryImage("#comic")),
 		SF("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor(".comicImg img", Page)),
-		SF("NX_Candi", "Candi", "http://candicomics.com/d/20040625.html", queryImageNext("#comicplace > span > img", "#comicnav a:has(img#next_day2)", Page)),
 		SF("NX_Goblins", "Goblins", "http://www.goblinscomic.org/06252005/", queryImageNext("#comic > table > tbody > tr > td > img", "#navigation > div.nav-next > a", Unused)),
 		AP("NX_Skullkickers", "Skull☠kickers", "http://comic.skullkickers.com/archive.php",
 			Selection(_).many("#sleft > h2 > a").wrapFlat(elementIntoChapterPointer(Page)),
