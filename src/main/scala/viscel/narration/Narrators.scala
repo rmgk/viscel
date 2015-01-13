@@ -71,7 +71,9 @@ object Narrators {
 			},
 			queryImage("#comic")),
 		SF("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor(".comicImg img", Page)),
-		SF("NX_Goblins", "Goblins", "http://www.goblinscomic.org/06252005/", queryImageNext("#comic > table > tbody > tr > td > img", "#navigation > div.nav-next > a", Unused)),
+		AP("NX_Goblins", "Goblins", "http://www.goblinscomic.org/archive/",
+			Selection(_).many("#column div.entry a").wrapFlat(elementIntoChapterPointer(Page)),
+			queryImageNext("#comic > table > tbody > tr > td > img", "#navigation > div.nav-next > a", Page)),
 		AP("NX_Skullkickers", "Skull☠kickers", "http://comic.skullkickers.com/archive.php",
 			Selection(_).many("#sleft > h2 > a").wrapFlat(elementIntoChapterPointer(Page)),
 			queryImageInAnchor("#sleft img.ksc", Page))
