@@ -70,13 +70,18 @@ object Archive {
 
 	def nextHub(start: Node)(implicit ntx: Ntx): Option[Node] = {
 		@tailrec
-		def go(node: Node): Node =
-			node.layerBelow.filter(_.hasLabel(label.More)) match {
-				case Nil => node
-				case m :: Nil => go(m)
-				case _ => node
+		def go(node: Node, saved: Node): Node = NeoCodec.load[Story](node) match {
+			case More(_, More.Archive | More.Issue) => node
+			case More(_, kind) => node.next match {
+				case None => node
+				case Some(next) => go(next, node)
 			}
-		start.layerBelow.filter(_.hasLabel(label.More)).lastOption.map(go)
+			case _ => node.next match {
+				case None => saved
+				case Some(next) => go(next, saved)
+			}
+		}
+		start.layerBelow.find(_.hasLabel(label.More)).map(n => go(n, n))
 	}
 
 	def previousMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start match {

@@ -19,17 +19,17 @@ object Story {
 	object More {
 		abstract class Kind(val name: String)
 		case object Unused extends Kind("")
-		case object Archive extends Kind("Archive")
-		case object Page extends Kind("Page")
-		case object Issue extends Kind("Chapter")
-		//case class Other(override val name: String) extends Kind(name)
+		case object Archive extends Kind("archive")
+		case object Page extends Kind("page")
+		case object Issue extends Kind("chapter")
+		case class Other(override val name: String) extends Kind(name)
 		object Kind {
 			def apply(name: String): Kind = name match {
 				case Unused.name => Unused
 				case Archive.name => Archive
 				case Page.name => Page
 				case Issue.name => Issue
-				//case s => Other(s)
+				case s => Other(s)
 			}
 		}
 		implicit val kindR: upickle.Reader[Kind] = upickle.Reader(PartialFunction(n => Kind(upickle.readJs[String](n))))

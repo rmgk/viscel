@@ -11,6 +11,7 @@ import viscel.database.Implicits.NodeOps
 import viscel.database.{Neo, NeoCodec, Ntx, rel}
 import viscel.narration.Narrator
 import viscel.shared.Story
+import viscel.shared.Story.More.Issue
 import viscel.shared.Story.{Asset, Failed, More}
 import viscel.store.{BlobStore, Book}
 
@@ -25,19 +26,16 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	override def toString: String = s"Job(${ narrator.toString })"
 
 	var assets: List[(Node, Asset)] = Nil
+	var volumes : List[(Node, More)] = Nil
 	var pages: List[(Node, More)] = Nil
 	var recheck: Option[Node] = None
 	var known: Set[Story] = Set.empty
 	@volatile var cancel: Boolean = false
 
 	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
-		case m@More(loc, kind) if (node.describes eq null) || kind.contains("volatile") => pages ::= node -> m
+		case m@More(loc, Story.More.Archive | Issue) if node.describes eq null => volumes ::= node -> m
+		case m@More(loc, kind) if node.describes eq null => pages ::= node -> m
 		case a@Asset(source, origin, metadata, None) => assets ::= node -> a
-		case _ =>
-	}
-
-	def collectVolatile(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
-		case m@More(loc, kind) if kind.contains("volatile") => pages ::= node -> m
 		case _ =>
 	}
 
@@ -49,7 +47,6 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			pages = pages.reverse
 			assets = assets.reverse
 			if (pages.isEmpty) {
-				collection.self.fold(()) { _ => collectVolatile }
 				recheck = Some(collection.self)
 			}
 		}
@@ -73,12 +70,17 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			case (node, asset) :: rest =>
 				assets = rest
 				handle(request(asset.source, Some(asset.origin))) { parseBlob _ andThen writeAsset(narrator, node, asset) }
-			case Nil => pages match {
-				case (node, page) :: rest =>
-					pages = rest
-					handle(request(page.loc)) { parseDocument(page.loc) _ andThen writePage(narrator, node, page) }
-				case Nil =>
-					recheckOrDone()
+			case Nil => volumes match {
+				case (node, volume) :: rest =>
+					volumes = rest
+					handle(request(volume.loc)) { parseDocument(volume.loc) _ andThen writePage(narrator, node, volume) }
+				case Nil => pages match {
+					case (node, page) :: rest =>
+						pages = rest
+						handle(request(page.loc)) { parseDocument(page.loc) _ andThen writePage(narrator, node, page) }
+					case Nil =>
+						recheckOrDone()
+				}
 			}
 		}
 	}
@@ -112,7 +114,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 
 		if (failed.isEmpty) {
 			val wasEmpty = node.layer.isEmpty
-			val filter = known.diff(collectMore(node).tail.toSet)
+			val filter = known.diff(collectMore(node).reverse.tail.toSet)
 			val filtered = wrapped filterNot filter
 			val changed = applyNarration(node, filtered)
 			if (changed) {
