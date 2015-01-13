@@ -16,6 +16,7 @@ import viscel.store.{BlobStore, Book}
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.implicitly
+import scala.collection.immutable.Set
 import scala.concurrent.ExecutionContext
 
 
@@ -26,6 +27,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	var assets: List[(Node, Asset)] = Nil
 	var pages: List[(Node, More)] = Nil
 	var recheck: Option[Node] = None
+	var known: Set[Story] = Set.empty
 	@volatile var cancel: Boolean = false
 
 	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
@@ -42,11 +44,12 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	def init() = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
 			applyNarration(collection.self, narrator.archive)
-			collection.self.next.foreach(_.fold(()) { _ => collectUnvisited })
+			known = collectMore(collection.self).toSet
+			collection.self.fold(()) { _ => collectUnvisited }
 			pages = pages.reverse
 			assets = assets.reverse
 			if (pages.isEmpty) {
-				collection.self.next.foreach(_.fold(()) { _ => collectVolatile })
+				collection.self.fold(()) { _ => collectVolatile }
 				recheck = Some(collection.self)
 			}
 		}
@@ -109,8 +112,11 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 
 		if (failed.isEmpty) {
 			val wasEmpty = node.layer.isEmpty
-			val changed = applyNarration(node, wrapped)
+			val filter = known.diff(collectMore(node).tail.toSet)
+			val filtered = wrapped filterNot filter
+			val changed = applyNarration(node, filtered)
 			if (changed) {
+				known = collectMore(collection.self).toSet
 				// remove cached size
 				collection.self.removeProperty("size")
 				if (!wasEmpty && pages.isEmpty) previousMore(node.prev).foreach(pages ::= _)

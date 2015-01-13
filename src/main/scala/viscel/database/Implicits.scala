@@ -129,14 +129,14 @@ object Implicits {
 
 		def fold[S](state: S)(f: S => Node => S)(implicit neo: Ntx): S = {
 			@tailrec
-			def run(state: S, node: Node, f: S => Node => S): S = {
-				val nextState = f(state)(node)
-				node.next match {
-					case None => nextState
-					case Some(nextNode) => run(nextState, nextNode, f)
-				}
+			def run(state: S, nodes: List[Node]): S = nodes match {
+				case Nil => state
+				case node :: ns =>
+					val below = node.layerBelow
+					val nextState = f(state)(node)
+					run(nextState, below ::: ns)
 			}
-			run(state, self, f)
+			run(state, self :: Nil)
 		}
 
 		def position(implicit ntx: Ntx): Int = {

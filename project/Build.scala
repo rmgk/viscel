@@ -106,6 +106,7 @@ object Settings {
 				|import viscel.narration._
 				|import viscel.narration.narrators._
 				|import SelectUtil._
+				|import viscel.database.Implicits.NodeOps
 			""".stripMargin)
 
 }

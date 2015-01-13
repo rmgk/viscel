@@ -21,14 +21,7 @@ object Archive {
 		layer
 	}
 
-	@tailrec
-	private def deleteRecursive(nodes: List[Node])(implicit neo: Ntx): Unit = nodes match {
-		case Nil => ()
-		case list =>
-			val below = list.map(_.describes).filter(null.ne).flatMap(_.layer)
-			list.foreach(neo.delete)
-			deleteRecursive(below)
-	}
+	private def deleteRecursive(nodes: List[Node])(implicit ntx: Ntx): Unit = nodes foreach (_.fold(())(_ => ntx.delete))
 
 	private def normalize: Story => Story = {
 		case a@Asset(_, _, _, Some(_)) => a.copy(blob = None)
@@ -91,4 +84,9 @@ object Archive {
 		case Some(node) if node.hasLabel(label.More) => Some(node -> NeoCodec.load[More](node))
 		case Some(other) => previousMore(other.prev)
 	}
+
+	def collectMore(start: Node)(implicit ntx: Ntx): List[More] = start.fold(List[More]())(s => NeoCodec.load[Story](_) match {
+		case m@More(_, _) => m :: s
+		case _ => s
+	})
 }
