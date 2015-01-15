@@ -3,24 +3,23 @@ package viscel.server
 import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
-import viscel.Deeds
 import viscel.database.{Ntx, label}
 import viscel.shared.JsonCodecs.stringMapW
 import viscel.store.{Config, User}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
+import scalatags.Text.{RawFrag, Modifier, Tag}
 import scalatags.Text.attrs.{`type`, content, href, name, rel, src, title}
 import scalatags.Text.implicits.{stringAttr, stringFrag}
 import scalatags.Text.tags.{body, head, html, link, meta, script}
-import scalatags.Text.{RawFrag, Tag}
 
 
 object ServerPages {
-	val path_css: String = "/css"
-	val path_js: String = "/js"
+	val path_css: String = "css"
+	val path_js: String = "js"
 
-	val fullHtml: Tag =
+	def makeHtml(stuff: Modifier*): Tag =
 		html(
 			head(
 				title := "Viscel",
@@ -28,8 +27,11 @@ object ServerPages {
 				meta(name := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes")),
 
 			body("if nothing happens, your javascript does not work"),
-			script(src := path_js),
-			script(RawFrag(s"Viscel().main()")))
+			script(src := path_js)
+		)(stuff: _*)
+
+
+	val fullHtml: Tag = makeHtml(script(RawFrag(s"Viscel().main()")))
 
 	val landing: HttpResponse = HttpResponse(entity = HttpEntity(
 		ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),

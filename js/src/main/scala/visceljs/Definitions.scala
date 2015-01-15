@@ -11,14 +11,13 @@ import scalatags.JsDom.all.{Frag, SeqFrag, Tag, a, bindJsAnyLike, cls, href, onc
 object Definitions {
 
 
-	def path_main = "/"
-	def path_css = "/css"
-	def path_asset(nr: Narration, gallery: Gallery[Asset]) = s"/#${ nr.id }/${ gallery.pos + 1 }"
-	def path_search = "/s"
-	def path_blob(blob: String) = s"/blob/${ blob }"
-	def path_front(nar: Narration) = s"/#${ nar.id }"
-	def path_stop = "/stop"
-	def path_scripts = "/viscel.js"
+	def path_main = ""
+	def path_css = "css"
+	def path_asset(nr: Narration, gallery: Gallery[Asset]) = s"#${ nr.id }/${ gallery.pos + 1 }"
+	def path_search = "s"
+	def path_blob(blob: String) = s"blob/${ blob }"
+	def path_front(nar: Narration) = s"#${ nar.id }"
+	def path_stop = "stop"
 
 	val class_post = cls := "post"
 	val class_extern = cls := "extern"
