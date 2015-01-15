@@ -12,7 +12,7 @@ import viscel.database.Neo
 import viscel.narration.Narrators
 import viscel.store.BlobStore.hashToFilename
 import viscel.store.{Books, User}
-import viscel.{Deeds, Log, Viscel}
+import viscel.{ReplUtil, Deeds, Log, Viscel}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.concurrent.duration.DurationInt
@@ -102,15 +102,18 @@ class Server(neo: Neo) extends Actor with HttpService {
 						}
 					}
 				}
+			} ~
+			path("stats") {
+				complete {
+					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
+						.ask(Http.GetStats)(1.second)
+						.mapTo[Stats]
+					stats.map { s => neo.tx { ServerPages.stats(s)(_) } }
+				}
+			} ~
+			path("export" / Segment) { (id) =>
+				complete(try { ReplUtil.export(id)(Viscel.neo); "success" } catch {case e: Exception => e.toString})
 			}
-	path("stats") {
-		complete {
-			val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
-				.ask(Http.GetStats)(1.second)
-				.mapTo[Stats]
-			stats.map { s => neo.tx { ServerPages.stats(s)(_) } }
-		}
-	}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)
 }

@@ -7,6 +7,7 @@ import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
 import viscel.crawler.RunnerUtil
+import viscel.database.Neo
 import viscel.narration.{Metarrator, Narrator}
 import viscel.server.ServerPages
 import viscel.shared.ViscelUrl
@@ -39,10 +40,22 @@ class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 		metarrator.save(nars.get)
 	}
 
-	def export(id: String): Unit = {
+	def shutdown() = {
+		system.shutdown()
+		Viscel.neo.shutdown()
+	}
+}
+
+object ReplUtil {
+	def apply() = {
+		val (system, ioHttp, iopipe) = Viscel.run()
+		new ReplUtil(system, iopipe)
+	}
+
+	def export(id: String)(implicit neo: Neo): Unit = {
 		val p = Paths.get("export", id)
 		Files.createDirectories(p)
-		val nar = Viscel.neo.tx { implicit ntx => Books.getNarration(id, deep = true).get }
+		val nar = neo.tx { implicit ntx => Books.getNarration(id, deep = true).get }
 
 		val html = "<!DOCTYPE html>" + ServerPages.makeHtml(script(src := "narration"),script(RawFrag(s"""Viscel().spore("$id", JSON.stringify(narration))""")))
 		val js = getClass.getClassLoader.getResource("viscel-js-opt.js")
@@ -66,17 +79,5 @@ class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 		}
 
 
-	}
-
-	def shutdown() = {
-		system.shutdown()
-		Viscel.neo.shutdown()
-	}
-}
-
-object ReplUtil {
-	def apply() = {
-		val (system, ioHttp, iopipe) = Viscel.run()
-		new ReplUtil(system, iopipe)
 	}
 }
