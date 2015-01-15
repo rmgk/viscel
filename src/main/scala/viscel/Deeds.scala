@@ -1,18 +1,13 @@
 package viscel
 
 import org.scalactic.ErrorMessage
-import rescala.Evt
-import rescala.propagation.Engines.default
 import spray.http.HttpResponse
 import viscel.narration.Narrator
 
 import scala.util.Try
 
 object Deeds {
-	val narratorHint = Evt[(Narrator, Boolean)]()
-	val responses = Evt[Try[HttpResponse]]()
-	val jobResult = Evt[List[ErrorMessage]]()
-
-	val sessionDownloads = responses.count()
-	val sessionUiRequests = narratorHint.count()
+	var narratorHint: (Narrator, Boolean) => Unit = (n, b) => ()
+	var responses: Try[HttpResponse] => Unit = r => ()
+	var jobResult: List[ErrorMessage] => Unit = e => ()
 }

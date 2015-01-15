@@ -5,7 +5,6 @@ import java.security.MessageDigest
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import rescala.propagation.Engines.default
 import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}

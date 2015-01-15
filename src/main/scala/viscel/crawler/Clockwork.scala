@@ -1,7 +1,5 @@
 package viscel.crawler
 
-import rescala.Evt
-import rescala.propagation.Engines.default
 import spray.client.pipelining.SendReceive
 import viscel.Log
 import viscel.database._
@@ -31,7 +29,7 @@ object Clockwork {
 		}
 	}
 
-	def handleHints(hints: Evt[(Narrator, Boolean)], ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = hints += { case (narrator, force) =>
+	def handleHints(ec: ExecutionContext, iopipe: SendReceive, neo: Neo): (Narrator, Boolean) => Unit = { case (narrator, force) =>
 		val id = narrator.id
 		if (runners.contains(id)) Log.trace(s"$id has running job")
 		else {

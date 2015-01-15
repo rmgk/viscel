@@ -6,7 +6,6 @@ import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
 import org.scalactic.TypeCheckedTripleEquals._
-import rescala.propagation.Engines.default
 import spray.can.Http
 import spray.client.pipelining
 import spray.http.HttpEncodings
@@ -79,13 +78,12 @@ object Viscel {
 		}
 
 		if (!nocore.?) {
-			Clockwork.handleHints(
-				Deeds.narratorHint,
+			Deeds.narratorHint = Clockwork.handleHints(
 				ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 					0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])),
 				iopipe,
 				neo)
-			Deeds.jobResult += {
+			Deeds.jobResult = {
 				case messages@_ :: _ => Log.error(s"some job failed: $messages")
 				case Nil =>
 			}
@@ -97,7 +95,7 @@ object Viscel {
 		}
 
 
-		Deeds.responses += {
+		Deeds.responses = {
 			case Success(res) => neo.tx { ntx =>
 				configNode.download(
 					size = res.entity.data.length,

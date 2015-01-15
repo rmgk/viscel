@@ -115,7 +115,7 @@ object Libraries {
 
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++
-		commandline ++ scalatest ++ scalactic ++ jsoup ++ rescala ++ shared.value)
+		commandline ++ scalatest ++ scalactic ++ jsoup ++ shared.value)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++= scalajsdom.value ++ shared.value)
 

@@ -4,7 +4,6 @@ import java.io.File
 
 import akka.actor.{Actor, ActorRefFactory}
 import akka.pattern.ask
-import rescala.propagation.Engines.default
 import spray.can.Http
 import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
@@ -97,7 +96,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 					rejectNone(Narrators.get(narratorID)) { nar =>
 						parameters('force.?.as[Option[Boolean]]) { force =>
 							complete {
-								Deeds.narratorHint((nar, force.getOrElse(false)))
+								Deeds.narratorHint(nar, force.getOrElse(false))
 								force.toString
 							}
 						}

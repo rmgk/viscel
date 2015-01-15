@@ -1,6 +1,5 @@
 package viscel.server
 
-import rescala.propagation.Engines.default
 import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
@@ -59,8 +58,7 @@ object ServerPages {
 			"Total connections" -> stats.totalConnections,
 			"Open connections" -> stats.openConnections,
 			"Max open connections" -> stats.maxOpenConnections,
-			"Requests timed out" -> stats.requestTimeouts,
-			"Session ui requests" -> Deeds.sessionUiRequests.now)
+			"Requests timed out" -> stats.requestTimeouts)
 	}
 
 }
