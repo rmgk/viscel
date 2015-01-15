@@ -10,9 +10,11 @@ import viscel.crawler.RunnerUtil
 import viscel.database.Neo
 import viscel.narration.{Metarrator, Narrator}
 import viscel.server.ServerPages
-import viscel.shared.ViscelUrl
+import viscel.shared.Story.Asset
+import viscel.shared.{Story, Gallery, ViscelUrl}
 import viscel.store.{BlobStore, Books}
 
+import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -61,22 +63,32 @@ object ReplUtil {
 		val js = getClass.getClassLoader.getResource("viscel-js-opt.js")
 		val css = getClass.getClassLoader.getResource("style.css")
 
-		val narJson = "var narration = " + upickle.write(nar)
+		val pBlob = p.resolve("blob")
+		Files.createDirectories(pBlob)
+
+		def mimeToExt(mime: String) = mime match {
+			case "image/jpeg" => "jpg"
+			case "image/gif" => "gif"
+			case "image/png" => "png"
+			case _ => "bmp"
+		}
+
+		val assetList = nar.narrates.toList.zipWithIndex.map { case (a, pos) =>
+			val name = f"$pos%05d.${mimeToExt(a.blob.fold("")(_.mediatype))}"
+			a.blob.foreach { b =>
+				Files.copy(Paths.get(BlobStore.hashToFilename(b.sha1)), pBlob.resolve(name), StandardCopyOption.REPLACE_EXISTING)
+			}
+			a.copy(blob = a.blob.map(b => b.copy(sha1 = name)))
+		}
+
+		val narJson = "var narration = " + upickle.write(nar.copy(narrates = Gallery.fromList(assetList)))
 
 		Files.write(p.resolve(s"${nar.name}.html"), html.getBytes(StandardCharsets.UTF_8))
 		Files.write(p.resolve("narration"), narJson.getBytes(StandardCharsets.UTF_8))
 		Files.copy(Paths.get(js.toURI), p.resolve("js"), StandardCopyOption.REPLACE_EXISTING)
 		Files.copy(Paths.get(css.toURI), p.resolve("css"), StandardCopyOption.REPLACE_EXISTING)
 
-		val pBlob = p.resolve("blob")
 
-		Files.createDirectories(pBlob)
-
-		nar.narrates.toList.zipWithIndex.map { case (a, pos) =>
-			a.blob.foreach { b =>
-				Files.copy(Paths.get(BlobStore.hashToFilename(b.sha1)), pBlob.resolve(b.sha1), StandardCopyOption.REPLACE_EXISTING)
-			}
-		}
 
 
 	}
