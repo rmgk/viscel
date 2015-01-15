@@ -26,7 +26,7 @@ object Build extends sbt.Build {
 object Settings {
 	lazy val common = List(
 
-		version := "5.6.0",
+		version := "5.7.0",
 		scalaVersion := "2.11.5",
 		SourceGeneration.caseCodecs,
 
