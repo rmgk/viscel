@@ -11,7 +11,7 @@ import scalatags.JsDom.all.{Frag, SeqFrag, Tag, a, bindJsAnyLike, cls, href, onc
 object Definitions {
 
 
-	def path_main = ""
+	def path_main = "#"
 	def path_css = "css"
 	def path_asset(nr: Narration, gallery: Gallery[Asset]) = s"#${ nr.id }/${ gallery.pos + 1 }"
 	def path_search = "s"
