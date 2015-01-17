@@ -5,6 +5,7 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
+import viscel.Log
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, Narrator, Selection}
 import viscel.shared.Story.More.{Unused, Kind}
@@ -15,7 +16,7 @@ import scala.Predef.augmentString
 
 object Fakku {
 
-	val baseURL = new URL("https://fakku.net/")
+	val baseURL = new URL("https://www.fakku.net/")
 	val extractID = ".*/(?:manga|doujinshi)/([^/]+)/read".r
 	
 	case class FKU(override val id: String, override val name: String, url: String) extends Narrator {
@@ -47,9 +48,9 @@ object Fakku {
 
 	object Meta extends Metarrator[FKU]("Fakku"){
 
-		def handles(url: ViscelUrl): Boolean = new URL(url).getHost == baseURL.getHost
-
-		override def archive: ViscelUrl = "https://www.fakku.net/"
+		override def unapply(url: ViscelUrl): Option[ViscelUrl] = {
+			if (new URL(url).getHost == baseURL.getHost) Some(url) else None
+		}
 
 		def wrap(doc: Document): List[FKU] Or Every[ErrorMessage] = {
 			val current = Selection(doc).all("#content > div.content-wrap.doujinshi")

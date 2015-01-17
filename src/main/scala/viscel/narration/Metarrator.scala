@@ -14,7 +14,7 @@ import scala.collection.Set
 
 abstract class Metarrator[T <: Narrator : Reader : Writer](id: String) {
 
-	def archive: ViscelUrl
+	def unapply(vurl: ViscelUrl): Option[ViscelUrl]
 	def wrap(document: Document): List[T] Or Every[ErrorMessage]
 
 	def path = Paths.get("data", s"$id.json")

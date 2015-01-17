@@ -9,14 +9,15 @@ import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.{HttpService, Route}
 import viscel.database.Neo
-import viscel.narration.Narrators
+import viscel.narration.{Metarrators, Narrators}
 import viscel.store.BlobStore.hashToFilename
 import viscel.store.{Books, User}
 import viscel.{Deeds, Log, ReplUtil, Viscel}
 
-import scala.Predef.{$conforms, ArrowAssoc}
+import scala.Predef.{$conforms, ArrowAssoc, genericArrayOps}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.util.{Failure, Success}
 
 
 class Server(neo: Neo) extends Actor with HttpService {
@@ -113,11 +114,19 @@ class Server(neo: Neo) extends Actor with HttpService {
 				}
 			} ~
 			path("export" / Segment) { (id) =>
-				complete(try { ReplUtil.export(id)(Viscel.neo); "success" }
-				catch { case e: Exception => e.toString })
+				if (!user.isAdmin) reject
+				else complete(
+					try { ReplUtil.export(id)(Viscel.neo); "success" }
+					catch { case e: Exception => e.toString })
 			} ~
 			path("add") {
-				complete("not yet implemented")
+				if (!user.isAdmin) reject
+				else parameter('url.as[String]) { url =>
+					onComplete(Metarrators.add(url, Viscel.iopipe)) {
+						case Success(v) => complete(s"found ${v.map(_.id)}")
+						case Failure(e) => complete{e.printStackTrace(); e.toString}
+					}
+				}
 			}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)

@@ -36,11 +36,11 @@ class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 		Await.result(res, Duration.Inf)
 	}
 
-	def updateMetarrator[T <: Narrator](metarrator: Metarrator[T]) = {
-		val doc = fetch(metarrator.archive)
-		val nars = metarrator.wrap(doc)
-		metarrator.save(nars.get)
-	}
+//	def updateMetarrator[T <: Narrator](metarrator: Metarrator[T]) = {
+//		val doc = fetch(metarrator.archive)
+//		val nars = metarrator.wrap(doc)
+//		metarrator.save(nars.get)
+//	}
 
 	def shutdown() = {
 		system.shutdown()

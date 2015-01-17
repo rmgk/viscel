@@ -22,11 +22,16 @@ object Narrators {
 		Set(Flipside, Everafter, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
 			Building12, Candi)
-	private def dynamic = CloneManga.MetaClone.load() ++ MangaHere.MetaCore.load() ++ Fakku.Meta.load()
 
-	val all: Set[Narrator] = static ++ dynamic
-	private val narratorMap = all.map(n => n.id -> n).toMap
+	def update() = {
+		cached = static ++ Metarrators.cores()
+		narratorMap = all.map(n => n.id -> n).toMap
+	}
+	
+	@volatile private var cached: Set[Narrator] = static ++ Metarrators.cores()
+	def all: Set[Narrator] = synchronized(cached)
 
+	@volatile private var narratorMap = all.map(n => n.id -> n).toMap
 	def get(id: String): Option[Narrator] = narratorMap.get(id)
 
 

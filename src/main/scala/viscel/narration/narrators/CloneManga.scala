@@ -24,7 +24,10 @@ object CloneManga {
 
 
 	object MetaClone extends Metarrator[Clone]("CloneManga") {
-		override def archive: ViscelUrl = stringToVurl("http://manga.clone-army.org/viewer_landing.php")
+		def archive: ViscelUrl = stringToVurl("http://manga.clone-army.org/viewer_landing.php")
+
+		override def unapply(vurl: ViscelUrl): Option[ViscelUrl] = None
+
 		override def wrap(doc: Document): List[Clone] Or Every[ErrorMessage] =
 			Selection(doc).many(".comicPreviewContainer").wrapEach { container =>
 				val name_? = Selection(container).first(".comicNote > h3").getOne.map(_.ownText())

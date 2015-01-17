@@ -8,6 +8,7 @@ import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSe
 import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
 import spray.client.pipelining
+import spray.client.pipelining.SendReceive
 import spray.http.HttpEncodings
 import viscel.crawler.Clockwork
 import viscel.database.{NeoInstance, label}
@@ -29,6 +30,7 @@ object Viscel {
 	}
 
 	var neo: NeoInstance = _
+	var iopipe: SendReceive = _
 
 
 	def main(args: Array[String]): Unit = run(args: _*)
@@ -70,7 +72,7 @@ object Viscel {
 		implicit val system = ActorSystem()
 
 		val ioHttp = IO(Http)
-		val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
+		iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
 		if (!noserver.?) {
 			val server = system.actorOf(Props(Predef.classOf[Server], neo), "viscel-server")
