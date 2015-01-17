@@ -29,7 +29,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 
 	override def receive: Receive = runRoute {
 		//(encodeResponse(Gzip) | encodeResponse(Deflate) | encodeResponse(NoEncoding)) {
-		authenticate(users.loginOrCreate) { user => handleFormFields(user) }
+		authenticate(users.loginOrCreate) { user => defaultRoute(user) }
 		//}
 	}
 
@@ -37,13 +37,13 @@ class Server(neo: Neo) extends Actor with HttpService {
 	implicit def implicitExecutionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 
 
-	def handleFormFields(user: User) =
+	def handleBookmarksForm(user: User)(continue: User => Route): Route =
 		formFields(('narration.?.as[Option[String]], 'bookmark.?.as[Option[Int]])) { (colidOption, bmposOption) =>
 			val newUser = for (bmpos <- bmposOption; colid <- colidOption) yield {
 				if (bmpos > 0) users.userUpdate(user.setBookmark(colid, bmpos))
 				else users.userUpdate(user.removeBookmark(colid))
 			}
-			defaultRoute(newUser.getOrElse(user))
+			continue(newUser.getOrElse(user))
 		}
 
 	def defaultRoute(user: User): Route =
@@ -75,7 +75,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 				getFromFile("js/target/scala-2.11/viscel-js-opt.js.map")
 			} ~
 			path("bookmarks") {
-				complete(ServerPages.bookmarks(user))
+				handleBookmarksForm(user)(newUser => complete(ServerPages.bookmarks(newUser)))
 			} ~
 			path("narrations") {
 				complete(ServerPages.jsonResponse(neo.tx(Books.allNarrations(deep = false)(_))))
@@ -115,6 +115,9 @@ class Server(neo: Neo) extends Actor with HttpService {
 			path("export" / Segment) { (id) =>
 				complete(try { ReplUtil.export(id)(Viscel.neo); "success" }
 				catch { case e: Exception => e.toString })
+			} ~
+			path("add") {
+				complete("not yet implemented")
 			}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)
