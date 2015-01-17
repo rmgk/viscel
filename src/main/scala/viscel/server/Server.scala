@@ -12,7 +12,7 @@ import viscel.database.Neo
 import viscel.narration.Narrators
 import viscel.store.BlobStore.hashToFilename
 import viscel.store.{Books, User}
-import viscel.{ReplUtil, Deeds, Log, Viscel}
+import viscel.{Deeds, Log, ReplUtil, Viscel}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.concurrent.duration.DurationInt
@@ -51,7 +51,8 @@ class Server(neo: Neo) extends Actor with HttpService {
 			complete(ServerPages.landing)
 		} ~
 			path("stop") {
-				complete {
+				if (!user.isAdmin) reject
+				else complete {
 					Future {
 						spray.util.actorSystem.shutdown()
 						Viscel.neo.shutdown()
@@ -112,7 +113,8 @@ class Server(neo: Neo) extends Actor with HttpService {
 				}
 			} ~
 			path("export" / Segment) { (id) =>
-				complete(try { ReplUtil.export(id)(Viscel.neo); "success" } catch {case e: Exception => e.toString})
+				complete(try { ReplUtil.export(id)(Viscel.neo); "success" }
+				catch { case e: Exception => e.toString })
 			}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)

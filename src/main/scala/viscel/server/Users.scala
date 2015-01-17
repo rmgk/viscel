@@ -25,7 +25,7 @@ class Users(implicit ec: ExecutionContext) {
 				case Good(g) => g
 				case Bad(e) =>
 					Log.warn(s"could not open user $name: $e")
-					User(name, password, Map())
+					User(name, password, isAdmin = false, Map())
 			}
 			userCache += name -> user
 			user
