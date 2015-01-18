@@ -31,7 +31,7 @@ object Fakku {
 			val end = jsSrc.indexOf("\n", start) - 1
 			extract { upickle.read[List[String]](jsSrc.substring(start, end)).map(_.replaceAll("thumbs/(\\d+).thumb", "images/$1")).map(new URL(baseURL, _).toString) }.map(_.map { url =>
 				val extractPos(pos) = url
-				Asset(url, s"$url#page=$pos")
+				Asset(url, s"${doc.baseUri()}#page=$pos")
 			})
 		})
 	}
@@ -53,7 +53,7 @@ object Fakku {
 		}
 
 		def wrap(doc: Document): List[FKU] Or Every[ErrorMessage] = {
-			val current = Selection(doc).all("#content > div.content-wrap.doujinshi")
+			val current = Selection(doc).all("#content > div.content-wrap")
 			val currentUrl_? = current.optional("a.button.green").wrapEach(e => Good(e.attr("abs:href")))
 			val currentName_? = current.optional("h1[itemprop=name]").wrapEach(e => Good(e.text()))
 
