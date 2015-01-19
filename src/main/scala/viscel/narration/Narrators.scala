@@ -27,7 +27,7 @@ object Narrators {
 		cached = static ++ Metarrators.cores()
 		narratorMap = all.map(n => n.id -> n).toMap
 	}
-	
+
 	@volatile private var cached: Set[Narrator] = static ++ Metarrators.cores()
 	def all: Set[Narrator] = synchronized(cached)
 
@@ -81,7 +81,15 @@ object Narrators {
 			queryImageNext("#comic > table > tbody > tr > td > img", "#navigation > div.nav-next > a", Page)),
 		AP("NX_Skullkickers", "Skull☠kickers", "http://comic.skullkickers.com/archive.php",
 			Selection(_).many("#sleft > h2 > a").wrapFlat(elementIntoChapterPointer(Page)),
-			queryImageInAnchor("#sleft img.ksc", Page))
+			queryImageInAnchor("#sleft img.ksc", Page)),
+		SF("NX_CoolCatStudio", "Cool Cat Studio", "http://coolcatstudio.com/strips-cat/first", queryImageInAnchor("#comic img", Page)),
+		SF("NX_StickyDillyBuns", "Sticky Dilly Buns", "http://www.stickydillybuns.com/strips-sdb/awesome_leading_man", queryImageInAnchor("#comic img", Page)),
+		SF("NX_EerieCuties", "Eerie Cuties", "http://www.eeriecuties.com/strips-ec/%28chapter_1%29_it_is_gonna_eat_me%21", queryImageInAnchor("#comic img[src~=/comics/]", Page)),
+		SF("NX_MagicChicks", "Magic Chicks", "http://www.magickchicks.com/strips-mc/tis_but_a_trifle", queryImageInAnchor("#comic img[src~=/comics/]", Page)),
+		AP("NX_PennyAndAggie", "Penny & Aggie", "http://www.pennyandaggie.com/index.php?p=1",
+			Selection(_).many("form[name=jump] > select[name=menu] > option[value]").wrapFlat(elementIntoChapterPointer(Page)),
+			queryImageNext(".comicImage", "center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])", Page))
+
 	)
 
 }
