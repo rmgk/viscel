@@ -2,7 +2,8 @@ package viscel.narration
 
 import org.scalactic.Accumulation.withGood
 import org.scalactic.Good
-import viscel.narration.SelectUtil.{elementIntoChapterPointer, elementIntoPointer, extract, imgIntoAsset, placeChapters, queryImage, queryImageInAnchor, queryImageNext, stringToVurl}
+import viscel.narration.SelectUtil.{elementIntoChapterPointer, elementIntoPointer, extract, imgIntoAsset,
+	placeChapters, queryImage, queryImageInAnchor, queryImageNext, stringToVurl, queryNext}
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
 import viscel.shared.Story.More.{Unused, Page}
@@ -83,7 +84,8 @@ object Narrators {
 			Selection(_).many("#sleft > h2 > a").wrapFlat(elementIntoChapterPointer(Page)),
 			queryImageInAnchor("#sleft img.ksc", Page)),
 		SF("NX_CoolCatStudio", "Cool Cat Studio", "http://coolcatstudio.com/strips-cat/first", queryImageInAnchor("#comic img", Page)),
-		SF("NX_StickyDillyBuns", "Sticky Dilly Buns", "http://www.stickydillybuns.com/strips-sdb/awesome_leading_man", queryImageInAnchor("#comic img", Page)),
+		SF("NX_StickyDillyBuns", "Sticky Dilly Buns", "http://www.stickydillybuns.com/strips-sdb/awesome_leading_man",
+			doc => queryImageInAnchor("#comic img", Page)(doc).orElse(queryNext("#cndnext", Page)(doc))),
 		SF("NX_EerieCuties", "Eerie Cuties", "http://www.eeriecuties.com/strips-ec/%28chapter_1%29_it_is_gonna_eat_me%21", queryImageInAnchor("#comic img[src~=/comics/]", Page)),
 		SF("NX_MagicChicks", "Magic Chicks", "http://www.magickchicks.com/strips-mc/tis_but_a_trifle", queryImageInAnchor("#comic img[src~=/comics/]", Page)),
 		AP("NX_PennyAndAggie", "Penny & Aggie", "http://www.pennyandaggie.com/index.php?p=1",
