@@ -93,12 +93,29 @@ object Narrators {
 			queryImageNext(".comicImage", "center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])", Page)),
 		SF("NX_SandraOnTheRocks", "Sandra on the Rocks", "http://www.sandraontherocks.com/strips-sotr/start_by_running", queryImageInAnchor("#comic img[src~=/comics/]", Page)),
 		AP("NX_MegaTokyo", "MegaTokyo", "http://megatokyo.com/archive.php",
-			Selection(_).many("div.content:has(a[id~=^C-\\d+$]").wrapFlat{chap =>
+			Selection(_).many("div.content:has(a[id~=^C-\\d+$]").wrapFlat{ chap =>
 				val chapter_? = extract(Chapter(chap.child(0).text()))
 				val elements_? = Selection(chap).many("li a").wrapEach(elementIntoPointer(Page))
 				cons(chapter_?, elements_?)
 			},
-			queryImageNext("#strip img", "#comic .next a", Page))
+			queryImageNext("#strip img", "#comic .next a", Page)),
+		SF("NX_WhatBirdsKnow", "What Birds Know", "http://fribergthorelli.com/wbk/index.php/page-1/", queryImageNext("#comic > img", ".nav-next > a", Page)),
+		AP("NX_TodayNothingHappened", "Today Nothing Happened", "http://www.todaynothinghappened.com/archive.php",
+			Selection(_).many("#wrapper > div.rant a.link").wrapEach(elementIntoPointer(Page)),
+			queryImage("#comic > img")),
+		AP("NX_RedString", "Red String", "http://www.redstring.strawberrycomics.com/archive.php",
+			Selection(_).many("#comicwrap h2 > a").wrapFlat(elementIntoChapterPointer(Page)),
+			queryImageInAnchor("#comic", Page)),
+		SF("NX_Dreamless", "Dreamless", "http://dreamless.keenspot.com/d/20090105.html", queryImageNext("img.ksc",  "a:has(#next_day1)", Page)),
+		AP("NX_PhoenixRequiem", "The Phoenix Requiem", "http://requiem.seraph-inn.com/archives.html",
+			Selection(_).many("#container div.main > table tr:contains(Chapter)").wrapFlat{ chap =>
+				val chapter_? = extract(Chapter(chap.child(0).text()))
+				val elements_? = Selection(chap).many("a").wrapEach(elementIntoPointer(Page))
+				cons(chapter_?, elements_?)
+			},
+			queryImage("#container img[src~=^pages/]")),
+		SF("NX_ErrantStory", "Errant Story", "http://www.errantstory.com/2002-11-04/15", queryImageNext("#comic > img", "#column > div.nav > h4.nav-next > a", Page))
+
 
 	)
 
