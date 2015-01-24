@@ -3,7 +3,7 @@ package viscel.narration
 import org.scalactic.Accumulation.withGood
 import org.scalactic.Good
 import viscel.narration.SelectUtil.{elementIntoChapterPointer, elementIntoPointer, extract, imgIntoAsset,
-	placeChapters, queryImage, queryImageInAnchor, queryImageNext, stringToVurl, queryNext}
+	placeChapters, queryImage, queryImageInAnchor, queryImageNext, stringToVurl, queryNext, cons}
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
 import viscel.shared.Story.More.{Unused, Page}
@@ -91,7 +91,14 @@ object Narrators {
 		AP("NX_PennyAndAggie", "Penny & Aggie", "http://www.pennyandaggie.com/index.php?p=1",
 			Selection(_).many("form[name=jump] > select[name=menu] > option[value]").wrapFlat(elementIntoChapterPointer(Page)),
 			queryImageNext(".comicImage", "center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])", Page)),
-		SF("NX_SandraOnTheRocks", "Sandra on the Rocks", "http://www.sandraontherocks.com/strips-sotr/start_by_running", queryImageInAnchor("#comic img[src~=/comics/]", Page))
+		SF("NX_SandraOnTheRocks", "Sandra on the Rocks", "http://www.sandraontherocks.com/strips-sotr/start_by_running", queryImageInAnchor("#comic img[src~=/comics/]", Page)),
+		AP("NX_MegaTokyo", "MegaTokyo", "http://megatokyo.com/archive.php",
+			Selection(_).many("div.content:has(a[id~=^C-\\d+$]").wrapFlat{chap =>
+				val chapter_? = extract(Chapter(chap.child(0).text()))
+				val elements_? = Selection(chap).many("li a").wrapEach(elementIntoPointer(Page))
+				cons(chapter_?, elements_?)
+			},
+			queryImageNext("#strip img", "#comic .next a", Page))
 
 	)
 
