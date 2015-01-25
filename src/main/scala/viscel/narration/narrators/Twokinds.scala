@@ -6,7 +6,7 @@ import org.scalactic._
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
-import viscel.shared.Story.More.{Archive, Issue, Page, Kind}
+import viscel.shared.Story.More.{Archive, Issue, Kind, Page}
 import viscel.shared.Story.{Chapter, More}
 
 

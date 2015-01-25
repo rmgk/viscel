@@ -5,7 +5,7 @@ import org.scalactic.Accumulation._
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
-import viscel.shared.Story.More.{Archive, Page, Kind}
+import viscel.shared.Story.More.{Archive, Kind, Page}
 import viscel.shared.Story.{Chapter, More}
 
 object Flipside extends Narrator {

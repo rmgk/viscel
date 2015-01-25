@@ -1,16 +1,15 @@
 package viscel.narration
 
 import org.scalactic.Accumulation.withGood
-import org.scalactic.{ErrorMessage, Good}
+import org.scalactic.Good
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.SelectUtil._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
-import viscel.shared.Story
-import viscel.shared.Story.More.{Unused, Page}
+import viscel.shared.Story.More.{Page, Unused}
 import viscel.shared.Story.{Chapter, More}
 
-import scala.Predef.{ArrowAssoc, augmentString, $conforms}
+import scala.Predef.{$conforms, ArrowAssoc, augmentString}
 import scala.collection.immutable.Set
 
 
@@ -23,7 +22,7 @@ object Narrators {
 		Batoto.cores ++
 		Set(Flipside, Everafter, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
-			Building12, Candi)
+			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter)
 
 	def update() = {
 		cached = static ++ Metarrators.cores()
@@ -65,7 +64,7 @@ object Narrators {
 			doc => {
 				val asset_? = Selection(doc).unique("#comic").wrapOne(imgIntoAsset)
 				val comment_? = Selection(doc).many("#newsarea > *").get.map(_.drop(2).dropRight(1).map(_.text()).mkString("\n"))
-				withGood(asset_?, comment_?) { (asset, comment) => asset.copy(metadata = asset.metadata.updated("longcomment", comment)) :: Nil }
+				withGood(asset_?, comment_?) { (asset, comment) => asset.updateMeta(_.updated("longcomment", comment)) :: Nil }
 			}),
 		AP("NX_GoGetARoomie", "Go Get a Roomie!", "http://www.gogetaroomie.com/archive.php",
 			doc => Selection(doc).unique("#comicwrap").wrapOne { comicwrap =>
@@ -94,7 +93,7 @@ object Narrators {
 			queryImageNext(".comicImage", "center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])", Page)),
 		SF("NX_SandraOnTheRocks", "Sandra on the Rocks", "http://www.sandraontherocks.com/strips-sotr/start_by_running", queryImageInAnchor("#comic img[src~=/comics/]", Page)),
 		AP("NX_MegaTokyo", "MegaTokyo", "http://megatokyo.com/archive.php",
-			Selection(_).many("div.content:has(a[id~=^C-\\d+$]").wrapFlat{ chap =>
+			Selection(_).many("div.content:has(a[id~=^C-\\d+$]").wrapFlat { chap =>
 				val chapter_? = extract(Chapter(chap.child(0).text()))
 				val elements_? = Selection(chap).many("li a").wrapEach(elementIntoPointer(Page))
 				cons(chapter_?, elements_?)
@@ -108,9 +107,9 @@ object Narrators {
 			Selection(_).many("#comicwrap h2 > a").wrapFlat(elementIntoChapterPointer(Page)),
 			queryImageInAnchor("#comic", Page)),
 		SF("NX_Dreamless", "Dreamless", "http://dreamless.keenspot.com/d/20090105.html",
-			doc => queryImageNext("img.ksc",  "a:has(#next_day1)", Page)(doc).orElse(queryNext("a:has(#next_day1)", Page)(doc))),
+			doc => queryImageNext("img.ksc", "a:has(#next_day1)", Page)(doc).orElse(queryNext("a:has(#next_day1)", Page)(doc))),
 		AP("NX_PhoenixRequiem", "The Phoenix Requiem", "http://requiem.seraph-inn.com/archives.html",
-			Selection(_).many("#container div.main > table tr:contains(Chapter)").wrapFlat{ chap =>
+			Selection(_).many("#container div.main > table tr:contains(Chapter)").wrapFlat { chap =>
 				val chapter_? = extract(Chapter(chap.child(0).text()))
 				val elements_? = Selection(chap).many("a").wrapEach(elementIntoPointer(Page))
 				cons(chapter_?, elements_?)
@@ -128,24 +127,24 @@ object Narrators {
 		SF("NX_Nimona", "Nimona", "http://gingerhaze.com/nimona/comic/page-1",
 			queryImageNext("img[src~=/nimona-pages/]", "a:has(img[src=http://gingerhaze.com/sites/default/files/comicdrop/comicdrop_next_label_file.png])", Unused)),
 		AP("NX_Monsterkind", "Monsterkind", "http://monsterkind.enenkay.com/comic/archive",
-			Selection(_).unique("#content > div.text").wrapFlat{ content =>
+			Selection(_).unique("#content > div.text").wrapFlat { content =>
 				val chapters_? = Selection(content).many("h2").wrapEach(h => extract(Chapter(h.text())))
-				val pages_? = Selection(content).many("p").wrapEach{ p =>
+				val pages_? = Selection(content).many("p").wrapEach { p =>
 					Selection(p).many("a").wrapEach(elementIntoPointer(Page))
 				}
-				withGood(chapters_?, pages_?) {(chaps, pages) =>
+				withGood(chapters_?, pages_?) { (chaps, pages) =>
 					chaps.zip(pages).map(t => t._1 :: t._2).flatten
 				}
 			},
 			queryImage("#comic img")),
 		SF("NX_Solstoria", "Solstoria", "http://solstoria.net/?webcomic1=54", queryImageInAnchor("#webcomic > div.webcomic-image img", Unused)),
-		AP("NX_TheBoyWhoFell", "The Boy Who Fell" , "http://www.boywhofell.com/chapter.php",
+		AP("NX_TheBoyWhoFell", "The Boy Who Fell", "http://www.boywhofell.com/chapter.php",
 			Selection(_).many("#comicarea h2 a").wrapFlat(elementIntoChapterPointer(Page)),
 			queryImageInAnchor("#comic", Page)),
 		SF("NX_DominicDeegan", "Dominic Deegan", "http://www.dominic-deegan.com/view.php?date=2002-05-21",
 			doc => append(queryImages("body > div.comic > img")(doc), queryNext("#bottom a:has(img[alt=Next])", Unused)(doc))),
 		AP("NX_DreamScar", "dream*scar", "http://dream-scar.net/archive.php",
-			Selection(_).many("#static > b , #static > a").wrapEach{ elem =>
+			Selection(_).many("#static > b , #static > a").wrapEach { elem =>
 				if (elem.tagName() === "b") extract { Chapter(elem.text()) }
 				else elementIntoPointer(Page)(elem)
 			},

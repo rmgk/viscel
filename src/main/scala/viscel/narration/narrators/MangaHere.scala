@@ -1,11 +1,10 @@
 package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
-import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, Narrator, Selection}
-import viscel.shared.Story.More.{Archive, Page, Kind}
+import viscel.shared.Story.More.{Archive, Kind, Page}
 import viscel.shared.{Story, ViscelUrl}
 
 import scala.Predef.augmentString
@@ -29,7 +28,7 @@ object MangaHere {
 		override def wrap(doc: Document): List[Generic] Or Every[ErrorMessage] =
 			Selection(doc).unique("#main > article > div > div.box_w.clearfix > h1").getOne.map { anchor =>
 				val extractID(id) = doc.baseUri()
-				Generic(s"MangaHere_$id", s"[MH] ${anchor.text()}", doc.baseUri()) :: Nil
+				Generic(s"MangaHere_$id", s"[MH] ${ anchor.text() }", doc.baseUri()) :: Nil
 			}
 	}
 

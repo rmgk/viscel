@@ -6,7 +6,7 @@ import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, Narrator, Selection}
 import viscel.shared.Story.More
-import viscel.shared.Story.More.{Unused, Page, Kind}
+import viscel.shared.Story.More.{Kind, Page, Unused}
 import viscel.shared.{Story, ViscelUrl}
 
 import scala.Predef.augmentString

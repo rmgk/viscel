@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil.{append, elementIntoPointer, imgIntoAsset, selectNext, storyFromOr, stringToVurl}
 import viscel.narration.{Narrator, Selection}
-import viscel.shared.Story.More.{Page, Kind}
+import viscel.shared.Story.More.{Kind, Page}
 import viscel.shared.Story.{Chapter, More}
 import viscel.shared.{Story, ViscelUrl}
 

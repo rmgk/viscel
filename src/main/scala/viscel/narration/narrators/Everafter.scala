@@ -6,7 +6,7 @@ import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More
-import viscel.shared.Story.More.{Page, Archive, Kind}
+import viscel.shared.Story.More.{Archive, Kind, Page}
 
 object Everafter extends Narrator {
 	def archive = More("http://ea.snafu-comics.com/archive.php", Archive) :: Nil

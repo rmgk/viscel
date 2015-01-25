@@ -6,7 +6,7 @@ import org.scalactic.{ErrorMessage, Every, Good, Or}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
-import viscel.shared.Story.More.{Page, Archive, Kind}
+import viscel.shared.Story.More.{Archive, Kind, Page}
 import viscel.shared.Story.{Chapter, More}
 
 import scala.Predef.augmentString

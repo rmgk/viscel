@@ -5,10 +5,9 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.Log
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, Narrator, Selection}
-import viscel.shared.Story.More.{Unused, Kind}
+import viscel.shared.Story.More.{Kind, Unused}
 import viscel.shared.Story.{Asset, More}
 import viscel.shared.{Story, ViscelUrl}
 
@@ -18,7 +17,7 @@ object Fakku {
 
 	val baseURL = new URL("https://www.fakku.net/")
 	val extractID = ".*/(?:manga|doujinshi)/([^/]+)/read".r
-	
+
 	case class FKU(override val id: String, override val name: String, url: String) extends Narrator {
 		override def archive: List[Story] = More(url, Unused) :: Nil
 
@@ -31,7 +30,7 @@ object Fakku {
 			val end = jsSrc.indexOf("\n", start) - 1
 			extract { upickle.read[List[String]](jsSrc.substring(start, end)).map(_.replaceAll("thumbs/(\\d+).thumb", "images/$1")).map(new URL(baseURL, _).toString) }.map(_.map { url =>
 				val extractPos(pos) = url
-				Asset(url, s"${doc.baseUri()}#page=$pos")
+				Asset(url, s"${ doc.baseUri() }#page=$pos")
 			})
 		})
 	}
@@ -41,12 +40,11 @@ object Fakku {
 			case extractID(eid) => eid
 			case _ => throw new IllegalArgumentException(s"could not find id for $url")
 		}
-		FKU(_id, s"[FK] ${_name}", url)
+		FKU(_id, s"[FK] ${ _name }", url)
 	}
-	
 
 
-	object Meta extends Metarrator[FKU]("Fakku"){
+	object Meta extends Metarrator[FKU]("Fakku") {
 
 		override def unapply(url: ViscelUrl): Option[ViscelUrl] = {
 			if (new URL(url).getHost == baseURL.getHost) Some(url) else None
@@ -59,7 +57,7 @@ object Fakku {
 
 			val rows_? = Selection(doc).all(".content-row a.content-title").get.map(_.map { a => (a.text, a.attr("abs:href") + "/read") })
 
-			val pairs = append(withGood(currentName_?, currentUrl_?){ _ zip _ }.recover(_ => Nil), rows_?)
+			val pairs = append(withGood(currentName_?, currentUrl_?) { _ zip _ }.recover(_ => Nil), rows_?)
 
 			pairs.map(_.map((create _).tupled))
 		}

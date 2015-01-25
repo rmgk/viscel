@@ -6,7 +6,7 @@ import viscel.narration.SelectUtil._
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More
-import viscel.shared.Story.More.{Unused, Kind}
+import viscel.shared.Story.More.{Kind, Unused}
 
 import scala.collection.immutable.Set
 
