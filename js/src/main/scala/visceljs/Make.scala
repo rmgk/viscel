@@ -20,7 +20,7 @@ object Make {
 		val results = ol.render
 		var filtered = narrations
 		filtered.sortBy(_.name).foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
-		lazy val inputField: HTMLInputElement = input(`type` := "textfield", autofocus := true, onkeyup := { () =>
+		lazy val inputField: HTMLInputElement = input(`type` := "textfield", onkeyup := { () =>
 			results.innerHTML = ""
 			val query = inputField.value.toString.toLowerCase
 			filtered = SearchUtil.search(query, narrations.map(n => n.name -> n))
