@@ -1,7 +1,8 @@
 package viscel.narration
 
 import org.scalactic.Accumulation.withGood
-import org.scalactic.Good
+import org.scalactic.{ErrorMessage, Good}
+import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.SelectUtil._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
@@ -140,8 +141,15 @@ object Narrators {
 		SF("NX_Solstoria", "Solstoria", "http://solstoria.net/?webcomic1=54", queryImageInAnchor("#webcomic > div.webcomic-image img", Unused)),
 		AP("NX_TheBoyWhoFell", "The Boy Who Fell" , "http://www.boywhofell.com/chapter.php",
 			Selection(_).many("#comicarea h2 a").wrapFlat(elementIntoChapterPointer(Page)),
-			queryImageInAnchor("#comic", Page))
-
+			queryImageInAnchor("#comic", Page)),
+		SF("NX_DominicDeegan", "Dominic Deegan", "http://www.dominic-deegan.com/view.php?date=2002-05-21",
+			doc => append(queryImages("body > div.comic > img")(doc), queryNext("#bottom a:has(img[alt=Next])", Unused)(doc))),
+		AP("NX_DreamScar", "dream*scar", "http://dream-scar.net/archive.php",
+			Selection(_).many("#static > b , #static > a").wrapEach{ elem =>
+				if (elem.tagName() === "b") extract { Chapter(elem.text()) }
+				else elementIntoPointer(Page)(elem)
+			},
+			queryImage("#comic"))
 
 	)
 

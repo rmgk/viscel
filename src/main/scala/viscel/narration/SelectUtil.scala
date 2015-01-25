@@ -5,7 +5,7 @@ import java.net.URL
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.shared.Story.More.{Unused, Kind}
+import viscel.shared.Story.More.Kind
 import viscel.shared.Story.{Asset, Chapter, More}
 import viscel.shared.{Story, ViscelUrl}
 
@@ -43,6 +43,7 @@ object SelectUtil {
 			cons(chapter_?, elements_?)
 		}
 	}
+
 
 	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${ err.getMessage } at ($caller)").accumulating
 
