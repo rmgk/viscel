@@ -2,8 +2,7 @@ package viscel.narration
 
 import org.scalactic.Accumulation.withGood
 import org.scalactic.Good
-import viscel.narration.SelectUtil.{elementIntoChapterPointer, elementIntoPointer, extract, imgIntoAsset,
-	placeChapters, queryImage, queryImageInAnchor, queryImageNext, stringToVurl, queryNext, cons}
+import viscel.narration.SelectUtil._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
 import viscel.shared.Story.More.{Unused, Page}
@@ -115,7 +114,10 @@ object Narrators {
 				cons(chapter_?, elements_?)
 			},
 			queryImage("#container img[src~=^pages/]")),
-		SF("NX_ErrantStory", "Errant Story", "http://www.errantstory.com/2002-11-04/15", queryImageNext("#comic > img", "#column > div.nav > h4.nav-next > a", Page))
+		SF("NX_ErrantStory", "Errant Story", "http://www.errantstory.com/2002-11-04/15", queryImageNext("#comic > img", "#column > div.nav > h4.nav-next > a", Page)),
+		AP("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
+			queryArchive("#main_text div.archivediv", "h2", "a", Page),
+			queryImage("#wrapper2 img"))
 
 
 	)

@@ -36,6 +36,13 @@ object SelectUtil {
 	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
 		append(queryImage(imageQuery)(from), queryNext(nextQuery, pagetype)(from))
 	}
+	def queryArchive(chapterContainer: String, name: String, pages: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
+		Selection(from).many(chapterContainer).wrapFlat { chap =>
+			val chapter_? = Selection(chap).unique(name).getOne.map(e => Chapter(e.text()))
+			val elements_? = Selection(chap).many(pages).wrapEach(elementIntoPointer(pagetype))
+			cons(chapter_?, elements_?)
+		}
+	}
 
 	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${ err.getMessage } at ($caller)").accumulating
 
