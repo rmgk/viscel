@@ -106,7 +106,8 @@ object Narrators {
 		AP("NX_RedString", "Red String", "http://www.redstring.strawberrycomics.com/archive.php",
 			Selection(_).many("#comicwrap h2 > a").wrapFlat(elementIntoChapterPointer(Page)),
 			queryImageInAnchor("#comic", Page)),
-		SF("NX_Dreamless", "Dreamless", "http://dreamless.keenspot.com/d/20090105.html", queryImageNext("img.ksc",  "a:has(#next_day1)", Page)),
+		SF("NX_Dreamless", "Dreamless", "http://dreamless.keenspot.com/d/20090105.html",
+			doc => queryImageNext("img.ksc",  "a:has(#next_day1)", Page)(doc).orElse(queryNext("a:has(#next_day1)", Page)(doc))),
 		AP("NX_PhoenixRequiem", "The Phoenix Requiem", "http://requiem.seraph-inn.com/archives.html",
 			Selection(_).many("#container div.main > table tr:contains(Chapter)").wrapFlat{ chap =>
 				val chapter_? = extract(Chapter(chap.child(0).text()))
