@@ -137,7 +137,10 @@ object Narrators {
 				}
 			},
 			queryImage("#comic img")),
-		SF("NX_Solstoria", "Solstoria", "http://solstoria.net/?webcomic1=54", queryImageInAnchor("#webcomic > div.webcomic-image img", Unused))
+		SF("NX_Solstoria", "Solstoria", "http://solstoria.net/?webcomic1=54", queryImageInAnchor("#webcomic > div.webcomic-image img", Unused)),
+		AP("NX_TheBoyWhoFell", "The Boy Who Fell" , "http://www.boywhofell.com/chapter.php",
+			Selection(_).many("#comicarea h2 a").wrapFlat(elementIntoChapterPointer(Page)),
+			queryImageInAnchor("#comic", Page))
 
 
 	)
