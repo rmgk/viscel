@@ -5,10 +5,11 @@ import org.scalactic.Good
 import viscel.narration.SelectUtil._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
+import viscel.shared.Story
 import viscel.shared.Story.More.{Unused, Page}
 import viscel.shared.Story.{Chapter, More}
 
-import scala.Predef.{ArrowAssoc, augmentString}
+import scala.Predef.{ArrowAssoc, augmentString, $conforms}
 import scala.collection.immutable.Set
 
 
@@ -117,7 +118,26 @@ object Narrators {
 		SF("NX_ErrantStory", "Errant Story", "http://www.errantstory.com/2002-11-04/15", queryImageNext("#comic > img", "#column > div.nav > h4.nav-next > a", Page)),
 		AP("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
 			queryArchive("#main_text div.archivediv", "h2", "a", Page),
-			queryImage("#wrapper2 img"))
+			queryImage("#wrapper2 img")),
+		SF("NX_Awaken", "Awaken", "http://awakencomic.com/index.php?id=1", queryImageInAnchor("#comic", Page)),
+		SF("NX_DangerouslyChloe", "Dangerously Chloe", "http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl", queryImageInAnchor("#comic img", Unused)),
+		SF("NX_YouSuck", "You Suck", "http://yousuckthecomic.com/go/1",
+			doc => queryImageNext("img[src=/comics/yousuck_0096-1.png]", "a[href=http://yousuckthecomic.com/go/97]", Unused)(doc)
+				.orElse(queryImageInAnchor("img.comicpage", Unused)(doc))),
+		SF("NX_Nimona", "Nimona", "http://gingerhaze.com/nimona/comic/page-1",
+			queryImageNext("img[src~=/nimona-pages/]", "a:has(img[src=http://gingerhaze.com/sites/default/files/comicdrop/comicdrop_next_label_file.png])", Unused)),
+		AP("NX_Monsterkind", "Monsterkind", "http://monsterkind.enenkay.com/comic/archive",
+			Selection(_).unique("#content > div.text").wrapFlat{ content =>
+				val chapters_? = Selection(content).many("h2").wrapEach(h => extract(Chapter(h.text())))
+				val pages_? = Selection(content).many("p").wrapEach{ p =>
+					Selection(p).many("a").wrapEach(elementIntoPointer(Page))
+				}
+				withGood(chapters_?, pages_?) {(chaps, pages) =>
+					chaps.zip(pages).map(t => t._1 :: t._2).flatten
+				}
+			},
+			queryImage("#comic img")),
+		SF("NX_Solstoria", "Solstoria", "http://solstoria.net/?webcomic1=54", queryImageInAnchor("#webcomic > div.webcomic-image img", Unused))
 
 
 	)
