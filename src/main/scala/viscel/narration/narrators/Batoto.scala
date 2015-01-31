@@ -35,14 +35,9 @@ object Batoto {
 
 
 	val cores: Set[Narrator] = Set(
-		Generic("Batoto_mangaka-san-to-assistant-san-to-2", "Mangaka-san to Assistant-san to 2", "http://bato.to/read/_/185677/mangaka-san-to-assistant-san-to-2_ch1_by_madman-scans"),
-		Generic("Batoto_kimi-no-iru-machi", "Kimi no Iru Machi", "http://bato.to/read/_/46885/kimi-no-iru-machi_v1_ch1_by_red-hawk-scans"),
 		Generic("Batoto_nisekoi", "Nisekoi", "http://bato.to/read/_/20464/nisekoi_by_cxc-scans"),
-		Generic("Batoto_bokura-wa-minna-kawaisou", "Bokura wa Minna Kawaisou", "http://bato.to/read/_/253606/bokura-wa-minna-kawaisou_v1_ch1_by_kuudere-scans"),
 		Generic("Batoto_sankarea", "Sankarea", "http://bato.to/read/_/2015/sankarea_v1_ch1_by_milky-translation"),
 		Generic("Batoto_suzuka", "Suzuka", "http://bato.to/read/_/189133/suzuka_v1_by_anime-waves"),
-		Generic("Batoto_kiss-x-sis", "Kiss x Sis", "http://bato.to/read/_/8293/kiss-x-sis_by_lemon-inc/1"),
-		Generic("Batoto_fuuka", "Fuuka", "http://bato.to/read/_/270324/fuuka_by_red-hawk-scans"),
 		Generic("Batoto_princess-lucia", "Princess Lucia", "http://bato.to/read/_/275/princess-lucia_v1_by_red-hawk-scans"),
 		Generic("Batoto_half-half", "Half and Half", "http://bato.to/read/_/130232/half-half_ch1_by_red-hawk-scans"),
 		Generic("Batoto_love-letter-seo-kouji", "Love Letter (SEO Kouji)", "http://bato.to/read/_/30376/love-letter-seo-kouji_ch1_by_red-hawk-scans"),
