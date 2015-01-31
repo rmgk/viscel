@@ -32,3 +32,47 @@ http://bearversuszombies.smackjeeves.com/comics/507662/chapter-1/
 http://www.alphaluna.net/archive/
 :am #page > div.content > div > h2 , #page > div.content > div > ul > li > a
 :i #comic img
+
+-:Bardsworth
+http://www.bardsworth.com/?comic=brain
+:ia #comic img
+
+-:Bizarre Uprising
+http://www.bizarreuprising.com/view/1/awakening-splash
+:i div.v_comic > div.v_comiccontent > img
+:n div.v_bottomnav > a:has(img[alt=next])
+
+-:Blank It
+http://blankitcomics.com/blankit-0001/
+:i #comic > img
+:n #comicnav > a[rel=next]
+
+-:Gone with the Blastwave
+http://www.blastwave-comic.com/index.php?p=comic&nro=1
+:i #comic_ruutu > center > img
+:n #comic_ruutu a:has(img[src~=next.jpg])
+
+-:Catalyst
+http://catalyst.spiderforest.com/archives.php
+:ac #white > tbody > tr:nth-child(2) > td:nth-child(1) > div a
+:ia img[src~=^comics/\d{8}]
+
+-:Chugworth Academy
+http://chugworth.com/archive/?strip_id=0
+:i img[src~=comics/\d{6}]
+:n a:has(img[src=images/next.gif])
+
+-:Chugworth
+http://chugworth.com/?p=12
+:i #comic > img
+:n #comic_navi a.navi.navi-next
+
+-:Cortland
+http://cortland.comicgenesis.com/d/20040320.html
+:is #rightpane > div.comic-today > img
+:n #navlinks > a:has(img[alt=Next comic])
+
+-:Exiern
+http://www.exiern.com/2005/09/06/so-far/
+:i #comic-1 > img
+:n #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
