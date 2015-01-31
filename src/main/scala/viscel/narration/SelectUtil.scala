@@ -5,6 +5,7 @@ import java.net.URL
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
+import org.scalactic.TypeCheckedTripleEquals._
 import viscel.shared.Story.More.Kind
 import viscel.shared.Story.{Asset, Chapter, More}
 import viscel.shared.{Story, ViscelUrl}
@@ -41,6 +42,12 @@ object SelectUtil {
 			val chapter_? = Selection(chap).unique(name).getOne.map(e => Chapter(e.text()))
 			val elements_? = Selection(chap).many(pages).wrapEach(elementIntoPointer(pagetype))
 			cons(chapter_?, elements_?)
+		}
+	}
+	def queryMixedArchive(query: String, pagetype: Kind)(from: Element):  List[Story] Or Every[ErrorMessage] = {
+		Selection(from).many(query).wrapEach { elem =>
+			if (elem.tagName() === "a") elementIntoPointer(pagetype)(elem)
+			else extract { Chapter(elem.text()) }
 		}
 	}
 

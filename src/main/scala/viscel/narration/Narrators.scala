@@ -1,13 +1,13 @@
 package viscel.narration
 
-import org.scalactic.Accumulation.withGood
+import org.scalactic.Accumulation.{convertGenTraversableOnceToCombinable, withGood}
 import org.scalactic.Good
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.SelectUtil._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
 import viscel.shared.Story.More.{Page, Unused}
-import viscel.shared.Story.{Chapter, More}
+import viscel.shared.Story.{Asset, Chapter, More}
 
 import scala.Predef.{$conforms, ArrowAssoc, augmentString}
 import scala.collection.immutable.Set
@@ -150,8 +150,38 @@ object Narrators {
 				if (elem.tagName() === "b") extract { Chapter(elem.text()) }
 				else elementIntoPointer(Page)(elem)
 			},
-			queryImage("#comic"))
-
+			queryImage("#comic")),
+		SF("NX_Everblue", "Everblue", "http://everblue-comic.com/archive.php",
+			Selection(_).unique("#archive-thumbs").many("h3, a").wrapEach { elem =>
+				if (elem.tagName() === "h3") extract { Chapter(elem.text()) }
+				else Selection(elem).unique("img").wrapOne { img =>
+					val origin = elem.attr("abs:href")
+					val source = img.attr("abs:src").replace("/admin/img/thumb/", "/img/comic/")
+					Good(Asset(source, origin))
+				}
+			}),
+		AP("NX_Amya", "Amya", "http://www.amyachronicles.com/archives",
+			Selection(_).many("a:has(img[src~=images/chap\\d+)").wrapFlat(elementIntoChapterPointer(Page)),
+			queryImageInAnchor("#comic img", Page)),
+		AP("NX_ToiletGenie", "Toilet Genie", "http://www.storyofthedoor.com/archive/",
+			queryMixedArchive("#chapter_table td[colspan=4] a h2, #chapter_table a[onmouseout=hideddrivetip()]", Page),
+			queryImage("#comic_image")),
+		SF("NX_AvasDemon", "Ava’s Demon", "http://www.avasdemon.com/chapters.php",
+			Selection(_).many("table[id~=chapter\\d+_table]").wrap {
+				_.zipWithIndex.map { case (elem, idx) =>
+					Selection(elem).many("a").wrap { as =>
+						Good(Chapter(s"Chapter ${idx + 1}") ::
+							as.sortBy(_.text()).map { a =>
+								val origin = a.attr("abs:href")
+								val source = s"http://www.avasdemon.com/pages/${ a.text() }.png"
+								Asset(source, origin)
+							})
+					}
+				}.combined.map(_.flatten)
+			}),
+		AP("NX_Spindrift", "Spindrift", "http://www.spindrift-comic.com/archive",
+			queryMixedArchive("#pjax-container > div.content > div:nth-child(1) .archivehead .shead , #pjax-container > div.content > div:nth-child(1) .archive-comic-container a", Page),
+			queryImage("#comic-image"))
 	)
 
 }
