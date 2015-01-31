@@ -1,0 +1,4 @@
+-:Rave Kitty
+http://ravekitty.comicgenesis.com/d/20040116.html
+:i img[src~=/comics/\d{8}]
+:n a:containsOwn(Next comic)

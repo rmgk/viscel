@@ -24,12 +24,14 @@ object Narrators {
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
 			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter)
 
+	def calculateAll() = static ++ Metarrators.cores() ++ Vid.load()
+
 	def update() = {
-		cached = static ++ Metarrators.cores()
+		cached = calculateAll()
 		narratorMap = all.map(n => n.id -> n).toMap
 	}
 
-	@volatile private var cached: Set[Narrator] = static ++ Metarrators.cores()
+	@volatile private var cached: Set[Narrator] = calculateAll()
 	def all: Set[Narrator] = synchronized(cached)
 
 	@volatile private var narratorMap = all.map(n => n.id -> n).toMap

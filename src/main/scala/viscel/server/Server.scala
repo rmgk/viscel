@@ -127,7 +127,14 @@ class Server(neo: Neo) extends Actor with HttpService {
 						case Failure(e) => complete{e.printStackTrace(); e.toString}
 					}
 				}
-			}
+			}~
+			path("reload") {
+				if (!user.isAdmin) reject
+				else complete {
+						Narrators.update()
+						"done"
+					}
+				}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)
 }
