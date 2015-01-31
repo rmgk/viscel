@@ -38,7 +38,7 @@ object Vid {
 		}
 
 
-	def makeNarrator(id: String, name: String, url: ViscelUrl, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
+	def makeNarrator(id: String, name: String, pos: Int, url: ViscelUrl, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
 		if (attrs.contains("i")) {
 			val img = attrs("i")
@@ -52,7 +52,7 @@ object Vid {
 				doc => queryImageInAnchor(attrs("i").s, Unused)(doc)
 					.badMap(_ :+ s"at line ${ img.p }")))
 		}
-		else Bad(s"$id is missing required attribute 'i'")
+		else Bad(s"$cid is missing required attribute 'i' at $pos")
 	}
 
 
@@ -61,7 +61,7 @@ object Vid {
 			case Line(extractIDAndName(id, name), pos) =>
 				parseURL(it).flatMap { url =>
 					val attrs = parseAttributes(it, Map())
-					makeNarrator(id, name, url, attrs)
+					makeNarrator(id, name, pos, url, attrs)
 				}
 
 			case Line(line, pos) => Bad(s"expected definition at line $pos, but found $line")
