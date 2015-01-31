@@ -1,6 +1,7 @@
 package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
+import org.scalactic.Good
 import viscel.narration.SelectUtil.{cons, elementIntoPointer, extract, queryImageNext, storyFromOr, stringToVurl}
 import viscel.narration.{Narrator, Selection}
 import viscel.shared.Story
@@ -17,6 +18,8 @@ object Inverloch extends Narrator {
 				extract(Chapter(chap.ownText())),
 				Selection(chap).many("a").wrapEach(elementIntoPointer(Page)))
 		})
-		case Page => storyFromOr(queryImageNext("#main > p:nth-child(1) > img", "#main a:containsOwn(Next)", Page)(doc))
+		case Page => storyFromOr(
+			if (doc.baseUri() == "http://inverloch.seraph-inn.com/viewcomic.php?page=765") Good(Nil)
+			else queryImageNext("#main > p:nth-child(1) > img", "#main a:containsOwn(Next)", Page)(doc))
 	}
 }
