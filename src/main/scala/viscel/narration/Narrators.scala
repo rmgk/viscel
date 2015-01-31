@@ -181,7 +181,10 @@ object Narrators {
 			}),
 		AP("NX_Spindrift", "Spindrift", "http://www.spindrift-comic.com/archive",
 			queryMixedArchive("#pjax-container > div.content > div:nth-child(1) .archivehead .shead , #pjax-container > div.content > div:nth-child(1) .archive-comic-container a", Page),
-			queryImage("#comic-image"))
+			queryImage("#comic-image")),
+		AP("NX_Anathema", "Anathema", "http://anathema-comics.smackjeeves.com/archive/",
+			queryMixedArchive("#chapter_table td[colspan=4] a h2, #chapter_table a[onmouseout=hideddrivetip()]", Page),
+			queryImage("#comic_image"))
 	)
 
 }
