@@ -5,20 +5,30 @@ http://ravekitty.comicgenesis.com/d/20040116.html
 
 -AoiHouse:AOI House
 http://www.aoihouse.net/strips-aoi/chewed_out
-:i #comic > a:nth-child(2) > img
+:ia #comic > a:nth-child(2) > img
 
 -:Amazing Agent Jennifer
 http://www.amazingagentjennifer.com/strips-aaj/a_beautiful_campus
-:i #comic > a:nth-child(2) > img
+:ia #comic > a:nth-child(2) > img
 
 -:Amazing Agent Luna
 http://www.amazingagentluna.com/strips-aal/file_01_-_page_1
-:i #comic > a:nth-child(2) > img
+:ia #comic > a:nth-child(2) > img
 
 -:Vampire Cheerleaders
 http://www.vampirecheerleaders.net/strips-vc/fang_service
-:i #comic > a:nth-child(2) > img
+:ia #comic > a:nth-child(2) > img
 
 -:Dracula Everlasting
 http://www.draculaeverlasting.com/strips-de/abraham_van_helsing_journal_i
-:i #comic > a:nth-child(2) > img
+:ia #comic > a:nth-child(2) > img
+
+-:Bear vs Zombie
+http://bearversuszombies.smackjeeves.com/comics/507662/chapter-1/
+:i #comic_image
+:n #content a[title=Next Page]
+
+-:Alpha Luna
+http://www.alphaluna.net/archive/
+:am #page > div.content > div > h2 , #page > div.content > div > ul > li > a
+:i #comic img

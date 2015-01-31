@@ -3,11 +3,12 @@ package viscel.narration
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 
+import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or, attempt}
 import viscel.Log
-import viscel.narration.SelectUtil.{queryImageInAnchor, queryImageNext}
-import viscel.shared.Story.More.Unused
-import viscel.shared.ViscelUrl
+import viscel.narration.SelectUtil._
+import viscel.shared.Story.More.{Page, Unused}
+import viscel.shared.{Story, ViscelUrl}
 
 import scala.Predef.augmentString
 import scala.annotation.tailrec
@@ -37,22 +38,49 @@ object Vid {
 			case _ => acc
 		}
 
+	implicit class ExtractContext (val sc : StringContext) {
+		object extract {
+			def unapplySeq[T](m: Map[String, T]): Option[Seq[T]] = {
+				val keys = sc.parts.map(_.trim).filter(_.nonEmpty)
+				val res = keys.flatMap(m.get)
+				if (res.size == keys.size) Some(res)
+				else None
+			}
+		}
+	}
 
 	def makeNarrator(id: String, name: String, pos: Int, url: ViscelUrl, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
-		if (attrs.contains("i")) {
-			val img = attrs("i")
-			if (attrs.contains("n")) {
-				val next = attrs("n")
-				Good(Templates.SF(cid, name, url,
-					doc => queryImageNext(img.s, next.s, Unused)(doc)
-						.badMap(_ :+ s"at lines ${ img.p } or ${ next.p }")))
-			}
-			else Good(Templates.SF(cid, name, url,
-				doc => queryImageInAnchor(attrs("i").s, Unused)(doc)
-					.badMap(_ :+ s"at line ${ img.p }")))
+		def has(keys: String*): Boolean = keys.forall(attrs.contains)
+
+		val extractia = extract("ia")
+
+		val pageFun: Option[Document => List[Story] Or Every[ErrorMessage]] = attrs match {
+			case extract"ia $img" =>
+				Some(doc => queryImageInAnchor(attrs("i").s, Page)(doc).badMap(_ :+ s"at line ${ img.p }"))
+
+			case extract"i$img n$next" =>
+				Some(doc => queryImageNext(img.s, next.s, Page)(doc).badMap(_ :+ s"at lines ${ img.p } or ${ next.p }"))
+
+			case extract"i $img" =>
+				Some(doc => queryImage(img.s)(doc).badMap(_ :+ s"at line ${ img.p }"))
+
+			case _ => None
 		}
-		else Bad(s"$cid is missing required attribute 'i' at $pos")
+
+		val archFun: Option[Document => List[Story] Or Every[ErrorMessage]] = attrs match {
+			case extract"am $arch" =>
+				Some(doc => SelectUtil.queryMixedArchive(arch.s, Page)(doc).badMap(_ :+ s"at line ${ arch.p }"))
+
+			case _ => None
+		}
+
+		(pageFun, archFun) match {
+			case (Some(pf), None) => Good(Templates.SF(cid, name, url, pf))
+			case (Some(pf), Some(af)) => Good(Templates.AP(cid, name, url, af, pf))
+			case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
+		}
+
 	}
 
 
