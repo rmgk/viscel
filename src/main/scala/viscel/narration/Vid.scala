@@ -57,7 +57,7 @@ object Vid {
 
 		val pageFun: Option[Document => List[Story] Or Every[ErrorMessage]] = attrs match {
 			case extract"ia $img" =>
-				Some(doc => queryImageInAnchor(attrs("i").s, Page)(doc).badMap(_ :+ s"at line ${ img.p }"))
+				Some(doc => queryImageInAnchor(img.s, Page)(doc).badMap(_ :+ s"at line ${ img.p }"))
 
 			case extract"i$img n$next" =>
 				Some(doc => queryImageNext(img.s, next.s, Page)(doc).badMap(_ :+ s"at lines ${ img.p } or ${ next.p }"))
