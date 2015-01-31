@@ -30,6 +30,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	var pages: List[(Node, More)] = Nil
 	var recheck: Option[Node] = None
 	var known: Set[Story] = Set.empty
+	var recover: Boolean = true
 	@volatile var cancel: Boolean = false
 
 	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
@@ -95,15 +96,20 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 		}(ec)
 	}
 
-	def tryRecovery(node: Node)(implicit ntx: Ntx) = {
-		Log.info(s"trying to recover after failure in $narrator at $node")
-		volumes = Nil
-		pages = Nil
-		assets = Nil
-		recheck = None
-		previousMore(node.prev).foreach(pages ::= _)
-		ec.execute(this)
-	}
+	def tryRecovery(node: Node)(implicit ntx: Ntx) =
+		if (!recover) {
+			Log.info(s"no more recovery after failure in $narrator at $node")
+		}
+		else {
+			Log.info(s"trying to recover after failure in $narrator at $node")
+			volumes = Nil
+			pages = Nil
+			assets = Nil
+			recheck = None
+			recover = false
+			previousMore(node.prev).foreach(pages ::= _)
+			ec.execute(this)
+		}
 
 	def writeAsset(node: Node, asset: Asset)(blob: (Array[Byte], Story.Blob))(ntx: Ntx): Unit = {
 		Log.debug(s"$narrator: received blob, applying to $asset ($node)")
