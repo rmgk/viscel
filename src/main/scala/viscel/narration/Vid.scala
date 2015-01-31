@@ -89,7 +89,7 @@ object Vid {
 		val paths = Files.newDirectoryStream(dir, "*.vid")
 		paths.iterator().asScala.flatMap { p =>
 			Log.info(s"parsing definitions from $p")
-			parse(Files.readAllLines(p, StandardCharsets.UTF_8).iterator().asScala) match {
+			parse(Files.lines(p, StandardCharsets.UTF_8).iterator().asScala) match {
 				case Good(res) => res
 				case Bad(err) =>
 					Log.warn(s"failed to parse 'test.vid' errors: $err")

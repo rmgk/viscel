@@ -1,5 +1,6 @@
 package viscel.crawler
 
+import java.nio.file.{Path, Paths}
 import java.util.{Timer, TimerTask}
 
 import org.scalactic.{Bad, Good}
@@ -7,9 +8,11 @@ import spray.client.pipelining.SendReceive
 import viscel.Log
 import viscel.database._
 import viscel.narration.{Narrator, Narrators}
-import viscel.store.{Books, Users}
+import viscel.shared.JsonCodecs.{stringMapW, stringMapR}
+import viscel.store.{Books, Json, Users}
 
 import scala.collection.concurrent
+import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
 
 
@@ -26,7 +29,6 @@ object Clockwork {
 		runners.putIfAbsent(id, runner) match {
 			case Some(x) => Log.info(s"$id race on job creation")
 			case None =>
-				Log.info(s"add new job $runner")
 				runner.init()
 				ec.execute(runner)
 		}
@@ -37,21 +39,20 @@ object Clockwork {
 	def runForNarrator(narrator: Narrator, recheckInterval: Long, iopipe: SendReceive, neo: Neo, ec: ExecutionContext): Unit = {
 		val id = narrator.id
 		if (runners.contains(id)) Log.trace(s"$id has running job")
+		else if (!needsRecheck(narrator, recheckInterval)) Log.trace(s"$id does not need recheck")
 		else {
+			Log.info(s"update ${ narrator.id }")
 			val runner = neo.tx { implicit ntx =>
 				val collection = Books.findAndUpdate(narrator)
-				if (!Archive.needsRecheck(collection.self, recheckInterval)) None
-				else {
-					Some(new Runner(narrator, iopipe, collection, neo, ec))
-				}
+				new Runner(narrator, iopipe, collection, neo, ec)
 			}
-			runner.foreach { ensureRunner(id, _, ec) }
+			ensureRunner(id, runner, ec)
 		}
 	}
 
 	def handleHints(ec: ExecutionContext, iopipe: SendReceive, neo: Neo): (Narrator, Boolean) => Unit = {
 		case (narrator, force) =>
-			Log.info(s"got hint ${narrator.id}")
+			Log.info(s"got hint ${ narrator.id }")
 			runForNarrator(narrator, if (force) 0 else dayInMillis / 4, iopipe, neo, ec)
 	}
 
@@ -69,12 +70,31 @@ object Clockwork {
 					case Good(users) =>
 						val narrators = users.flatMap(_.bookmarks.keySet).distinct.map(Narrators.get).flatten
 						narrators.foreach { n =>
-							Log.info(s"update ${n.id}")
-							runForNarrator(n, dayInMillis * 7, iopipe, neo, ec) }
+							runForNarrator(n, dayInMillis * 7, iopipe, neo, ec)
+						}
 				}
 			}
 		}, delay, period)
 
+	}
+
+	private val path: Path = Paths.get("data/updateTimes.json")
+	private var updateTimes: Map[String, Long] = Json.load[Map[String, Long]](path).fold(x => x, err => {
+		Log.error(s"could not load $path: $err")
+		Map()
+	})
+
+	def updateDates(nar: Narrator): Unit = synchronized {
+		val time = System.currentTimeMillis()
+		updateTimes = updateTimes.updated(nar.id, time)
+		Json.store(path, updateTimes)
+	}
+
+	def needsRecheck(nar: Narrator, recheckInterval: Long): Boolean = synchronized {
+		Log.trace(s"calculating recheck for $nar")
+		val lastRun = updateTimes.get(nar.id)
+		val time = System.currentTimeMillis()
+		lastRun.isEmpty || (time - lastRun.get > recheckInterval)
 	}
 
 }

@@ -53,17 +53,7 @@ object Archive {
 		oldLayer !== newLayer
 	}
 
-	def updateDates(target: Node)(implicit ntx: Ntx): Unit = {
-		val time = System.currentTimeMillis()
-		target.setProperty("last_run_complete", time)
-	}
 
-	def needsRecheck(target: Node, recheckInterval: Long)(implicit ntx: Ntx): Boolean = {
-		Log.trace(s"calculating recheck for $target")
-		val lastRun = target.get[Long]("last_run_complete")
-		val time = System.currentTimeMillis()
-		lastRun.isEmpty || (time - lastRun.get > recheckInterval)
-	}
 
 
 	def nextHub(start: Node)(implicit ntx: Ntx): Option[Node] = {

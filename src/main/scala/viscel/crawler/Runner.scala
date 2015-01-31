@@ -56,7 +56,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	def recheckOrDone(): Unit = recheck.flatMap(n => neo.tx(nextHub(n)(_))) match {
 		case None =>
 			Log.info(s"runner for $narrator is done")
-			neo.tx(updateDates(collection.self)(_))
+			Clockwork.updateDates(narrator)
 			Clockwork.finish(narrator, this)
 		case sn@Some(node) =>
 			recheck = sn

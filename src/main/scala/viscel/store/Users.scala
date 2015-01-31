@@ -28,18 +28,7 @@ object Users {
 
 	def load(id: String): User Or ErrorMessage = load(path(id))
 
-	def load(p: Path): User Or ErrorMessage = synchronized {
-		try {
-			val jsonString = Files.readAllLines(p, UTF_8).asScala.mkString("\n")
-			Good(upickle.read[User](jsonString))
-		}
-		catch { case e: Exception => Bad(e.getMessage) }
-	}
+	def load(p: Path): User Or ErrorMessage = Json.load[User](p).badMap(e => e.getMessage)
 
-	def store(user: User): Unit = synchronized {
-		val jsonBytes = upickle.write(user).getBytes(UTF_8)
-		val p = path(user.id)
-		Files.createDirectories(p.getParent)
-		Files.write(p, jsonBytes)
-	}
+	def store(user: User): Unit = Json.store(path(user.id), user)
 }
