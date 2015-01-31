@@ -1,12 +1,13 @@
 package viscel.crawler
 
-import java.util.{TimerTask, Timer}
+import java.util.{Timer, TimerTask}
 
+import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import viscel.Log
 import viscel.database._
-import viscel.narration.Narrator
-import viscel.store.Books
+import viscel.narration.{Narrator, Narrators}
+import viscel.store.{Books, Users}
 
 import scala.collection.concurrent
 import scala.concurrent.ExecutionContext
@@ -31,14 +32,15 @@ object Clockwork {
 		}
 	}
 
-	def handleHints(ec: ExecutionContext, iopipe: SendReceive, neo: Neo): (Narrator, Boolean) => Unit = { case (narrator, force) =>
+	private val dayInMillis = 24L * 60L * 60L * 1000L
+
+	def runForNarrator(narrator: Narrator, recheckInterval: Long, iopipe: SendReceive, neo: Neo, ec: ExecutionContext): Unit = {
 		val id = narrator.id
 		if (runners.contains(id)) Log.trace(s"$id has running job")
 		else {
-			Log.info(s"got hint $id")
 			val runner = neo.tx { implicit ntx =>
 				val collection = Books.findAndUpdate(narrator)
-				if (!force && !Archive.needsRecheck(collection.self)) None
+				if (!Archive.needsRecheck(collection.self, recheckInterval)) None
 				else {
 					Some(new Runner(narrator, iopipe, collection, neo, ec))
 				}
@@ -47,13 +49,30 @@ object Clockwork {
 		}
 	}
 
+	def handleHints(ec: ExecutionContext, iopipe: SendReceive, neo: Neo): (Narrator, Boolean) => Unit = {
+		case (narrator, force) =>
+			Log.info(s"got hint ${narrator.id}")
+			runForNarrator(narrator, if (force) 0 else dayInMillis / 4, iopipe, neo, ec)
+	}
+
+
 	val timer: Timer = new Timer(true)
-	val delay: Long = 60 * 1000 // a minute after start
+	val delay: Long = 0
 	val period: Long = 60 * 60 * 1000 // every hour
 
 	def recheckPeriodically(ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = {
 		timer.scheduleAtFixedRate(new TimerTask {
-			override def run(): Unit = ()
+			override def run(): Unit = synchronized {
+				Log.info("running scheduled updates")
+				Users.all() match {
+					case Bad(err) => Log.error(s"could not load bookmarked collections: $err")
+					case Good(users) =>
+						val narrators = users.flatMap(_.bookmarks.keySet).distinct.map(Narrators.get).flatten
+						narrators.foreach { n =>
+							Log.info(s"update ${n.id}")
+							runForNarrator(n, dayInMillis * 7, iopipe, neo, ec) }
+				}
+			}
 		}, delay, period)
 
 	}

@@ -80,11 +80,12 @@ object Viscel {
 		}
 
 		if (!nocore.?) {
-			Deeds.narratorHint = Clockwork.handleHints(
-				ExecutionContext.fromExecutor(new ThreadPoolExecutor(
-					0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])),
-				iopipe,
-				neo)
+			val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
+				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
+
+			Deeds.narratorHint = Clockwork.handleHints(clockworkContext, iopipe, neo)
+			Clockwork.recheckPeriodically(clockworkContext, iopipe, neo)
+
 			Deeds.jobResult = {
 				case messages@_ :: _ => Log.error(s"some job failed: $messages")
 				case Nil =>
