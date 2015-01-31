@@ -61,8 +61,10 @@ object Vid {
 
 			case extract"i$img n$next" => annotate(queryImageNext(img.s, next.s, Page), img, next)
 
-			case extract"i $img" => annotate(queryImage(img.s), img)
+			case extract"is$img n$next" => annotate(doc => append(queryImages(img.s)(doc), queryNext(next.s, Page)(doc)), img, next)
 
+			case extract"i $img" => annotate(queryImage(img.s), img)
+			case extract"is $img" => annotate(queryImages(img.s), img)
 			case _ => None
 		}
 
