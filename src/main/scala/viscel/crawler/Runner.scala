@@ -69,15 +69,15 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 		assets match {
 			case (node, asset) :: rest =>
 				assets = rest
-				handle(request(asset.source, Some(asset.origin))) { parseBlob _ andThen writeAsset(narrator, node, asset) }
+				handle(request(asset.source, Some(asset.origin))) { parseBlob _ andThen writeAsset(node, asset) }
 			case Nil => volumes match {
 				case (node, volume) :: rest =>
 					volumes = rest
-					handle(request(volume.loc)) { parseDocument(volume.loc) _ andThen writePage(narrator, node, volume) }
+					handle(request(volume.loc)) { parseDocument(volume.loc) _ andThen writePage(node, volume) }
 				case Nil => pages match {
 					case (node, page) :: rest =>
 						pages = rest
-						handle(request(page.loc)) { parseDocument(page.loc) _ andThen writePage(narrator, node, page) }
+						handle(request(page.loc)) { parseDocument(page.loc) _ andThen writePage(node, page) }
 					case Nil =>
 						recheckOrDone()
 				}
@@ -95,19 +95,29 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 		}(ec)
 	}
 
-	def writeAsset(core: Narrator, node: Node, asset: Asset)(blob: (Array[Byte], Story.Blob))(ntx: Ntx): Unit = {
-		Log.debug(s"$core: received blob, applying to $asset ($node)")
+	def tryRecovery(node: Node)(implicit ntx: Ntx) = {
+		Log.info(s"trying to recover after failure in $narrator at $node")
+		volumes = Nil
+		pages = Nil
+		assets = Nil
+		recheck = None
+		previousMore(node.prev).foreach(pages ::= _)
+		ec.execute(this)
+	}
+
+	def writeAsset(node: Node, asset: Asset)(blob: (Array[Byte], Story.Blob))(ntx: Ntx): Unit = {
+		Log.debug(s"$narrator: received blob, applying to $asset ($node)")
 		BlobStore.write(blob._2.sha1, blob._1)
 		node.to_=(rel.blob, NeoCodec.create(blob._2)(ntx, NeoCodec.blobCodec))(ntx)
 		ec.execute(this)
 	}
 
-	def writePage(core: Narrator, node: Node, page: More)(doc: Document)(ntx: Ntx): Unit = {
-		Log.debug(s"$core: received ${
+	def writePage(node: Node, page: More)(doc: Document)(ntx: Ntx): Unit = {
+		Log.debug(s"$narrator: received ${
 			doc.baseUri()
 		}, applying to $page")
 		implicit def tx: Ntx = ntx
-		val wrapped = core.wrap(doc, page.kind)
+		val wrapped = narrator.wrap(doc, page.kind)
 		val failed = wrapped.collect {
 			case f@Failed(msg) => f
 		}
@@ -121,6 +131,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 				known = collectMore(collection.self).toSet
 				// remove cached size
 				collection.self.removeProperty("size")
+				// if we have changes at the end, we tests the more generating the end to make sure that has not changed
 				if (!wasEmpty && pages.isEmpty) previousMore(node.prev).foreach(pages ::= _)
 				node.layerBelow.reverse foreach collectUnvisited
 			}
@@ -128,6 +139,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 		}
 		else {
 			Log.error(s"$narrator failed on $page: $failed")
+			tryRecovery(node)(ntx)
 			Clockwork.finish(narrator, this)
 		}
 	}
