@@ -37,18 +37,14 @@ object SelectUtil {
 	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
 		append(queryImage(imageQuery)(from), queryNext(nextQuery, pagetype)(from))
 	}
-	def queryArchive(chapterContainer: String, name: String, pages: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
-		Selection(from).many(chapterContainer).wrapFlat { chap =>
-			val chapter_? = Selection(chap).unique(name).getOne.map(e => Chapter(e.text()))
-			val elements_? = Selection(chap).many(pages).wrapEach(elementIntoPointer(pagetype))
-			cons(chapter_?, elements_?)
-		}
-	}
 	def queryMixedArchive(query: String, pagetype: Kind)(from: Element):  List[Story] Or Every[ErrorMessage] = {
 		Selection(from).many(query).wrapEach { elem =>
 			if (elem.tagName() === "a") elementIntoPointer(pagetype)(elem)
 			else extract { Chapter(elem.text()) }
 		}
+	}
+	def queryChapterArchive(query: String, pagetye: Kind)(from: Element):  List[Story] Or Every[ErrorMessage] = {
+		Selection(from).many(query).wrapFlat(elementIntoChapterPointer(pagetye))
 	}
 
 

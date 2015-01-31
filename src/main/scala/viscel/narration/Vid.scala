@@ -38,6 +38,7 @@ object Vid {
 			case _ => acc
 		}
 
+
 	implicit class ExtractContext (val sc : StringContext) {
 		object extract {
 			def unapplySeq[T](m: Map[String, T]): Option[Seq[T]] = {
@@ -51,26 +52,24 @@ object Vid {
 
 	def makeNarrator(id: String, name: String, pos: Int, url: ViscelUrl, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
+		type Wrap = Document => List[Story] Or Every[ErrorMessage]
 		def has(keys: String*): Boolean = keys.forall(attrs.contains)
+		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(_.badMap(_ :+ s"at lines ${lines.map(_.p)}")))
 
-		val extractia = extract("ia")
+		val pageFun: Option[Wrap] = attrs match {
+			case extract"ia $img" => annotate(queryImageInAnchor(img.s, Page), img)
 
-		val pageFun: Option[Document => List[Story] Or Every[ErrorMessage]] = attrs match {
-			case extract"ia $img" =>
-				Some(doc => queryImageInAnchor(img.s, Page)(doc).badMap(_ :+ s"at line ${ img.p }"))
+			case extract"i$img n$next" => annotate(queryImageNext(img.s, next.s, Page), img, next)
 
-			case extract"i$img n$next" =>
-				Some(doc => queryImageNext(img.s, next.s, Page)(doc).badMap(_ :+ s"at lines ${ img.p } or ${ next.p }"))
-
-			case extract"i $img" =>
-				Some(doc => queryImage(img.s)(doc).badMap(_ :+ s"at line ${ img.p }"))
+			case extract"i $img" => annotate(queryImage(img.s), img)
 
 			case _ => None
 		}
 
-		val archFun: Option[Document => List[Story] Or Every[ErrorMessage]] = attrs match {
-			case extract"am $arch" =>
-				Some(doc => SelectUtil.queryMixedArchive(arch.s, Page)(doc).badMap(_ :+ s"at line ${ arch.p }"))
+		val archFun: Option[Wrap] = attrs match {
+			case extract"am $arch" => annotate(queryMixedArchive(arch.s, Page), arch)
+
+			case extract"ac $arch" => annotate(queryChapterArchive(arch.s, Page), arch)
 
 			case _ => None
 		}
