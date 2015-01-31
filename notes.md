@@ -11,8 +11,8 @@
 
 # comic groups to look into
 
-|      group       |                     url                      |
-|------------------|----------------------------------------------|
+|       group        |                     url                      |
+| ------------------ | -------------------------------------------- |
 | ♦ Big Head Press   | <http://www.bigheadpress.com/>               |
 | ♦ Smack Jeeves     | <http://www.smackjeeves.com>                 |
 | ♦ Webcomics Nation | <http://www.webcomicsnation.com/>            |
@@ -25,6 +25,8 @@
 | ✘ Moderntales      | <http://www.moderntales.com/>                |
 | ♦ Comic Fury       | <http://comicfury.com/index.php>             |
 | ✘ Mangamagazine    | <http://www.mangamagazine.net/>              |
+| reveriecomics      | <http://reveriecomics.com/>                  |
+|                    |                                              |
 
 
 # comics with multiple strips
