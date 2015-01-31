@@ -26,7 +26,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 
 	def actorRefFactory: ActorRefFactory = context
 
-	val users = new Users
+	val users = new UserStore
 
 	override def receive: Receive = runRoute {
 		//(encodeResponse(Gzip) | encodeResponse(Deflate) | encodeResponse(NoEncoding)) {
