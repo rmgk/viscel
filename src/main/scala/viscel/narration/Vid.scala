@@ -1,5 +1,6 @@
 package viscel.narration
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or, attempt}
@@ -88,7 +89,7 @@ object Vid {
 		val paths = Files.newDirectoryStream(dir, "*.vid")
 		paths.iterator().asScala.flatMap { p =>
 			Log.info(s"parsing definitions from $p")
-			parse(Files.lines(p).iterator().asScala) match {
+			parse(Files.readAllLines(p, StandardCharsets.UTF_8).iterator().asScala) match {
 				case Good(res) => res
 				case Bad(err) =>
 					Log.warn(s"failed to parse 'test.vid' errors: $err")
