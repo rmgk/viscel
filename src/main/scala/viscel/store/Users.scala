@@ -1,11 +1,10 @@
 package viscel.store
 
 import java.io.IOException
-import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.{Files, Path, Paths}
 
 import org.scalactic.Accumulation._
-import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
+import org.scalactic.{Bad, ErrorMessage, Every, One, Or}
 import viscel.shared.JsonCodecs.{case4RW, stringMapR, stringMapW}
 import viscel.shared.ReaderWriter
 
