@@ -4,7 +4,7 @@ import java.io.IOException
 import java.nio.file.{Files, Path}
 
 import org.scalactic.Accumulation._
-import org.scalactic.{Bad, ErrorMessage, Every, One, Or}
+import org.scalactic.{Good, Bad, ErrorMessage, Every, One, Or}
 import viscel.Viscel
 import viscel.shared.JsonCodecs.{case4RW, stringMapR, stringMapW}
 import viscel.shared.ReaderWriter
@@ -18,7 +18,7 @@ object Users {
 	implicit val userRW: ReaderWriter[User] = case4RW(User.apply, User.unapply)("id", "password", "admin", "bookmarks")
 
 	def all(): List[User] Or Every[ErrorMessage] = try {
-		if (!Files.isDirectory(usersDir)) Nil
+		if (!Files.isDirectory(usersDir)) Good(Nil)
 		else Files.newDirectoryStream(usersDir, "*.json").asScala.map(load(_).accumulating).toList.combined
 	}
 	catch {
