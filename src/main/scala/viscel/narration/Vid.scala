@@ -7,6 +7,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or, attempt}
 import viscel.Log
 import viscel.narration.SelectUtil._
+import viscel.shared.Story.Chapter
 import viscel.shared.Story.More.{Page, Unused}
 import viscel.shared.{Story, ViscelUrl}
 
@@ -76,7 +77,14 @@ object Vid {
 			case _ => None
 		}
 
-		(pageFun, archFun) match {
+		val archFunMod = if (has("archiveReverse")) archFun.map(_.andThen(_.map { stories =>
+			groupedOn(stories){ case c @ Chapter(_, _) => true ; case _ => false }.reverse.flatMap {
+				case (h :: t) => h :: t.reverse
+				case Nil => Nil
+			}
+		})) else archFun
+
+		(pageFun, archFunMod) match {
 			case (Some(pf), None) => Good(Templates.SF(cid, name, url, pf))
 			case (Some(pf), Some(af)) => Good(Templates.AP(cid, name, url, af, pf))
 			case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")

@@ -103,4 +103,10 @@ object SelectUtil {
 	implicit def vurlToString(vurl: ViscelUrl): String = vurl.self
 	implicit def stringToVurl(url: String): ViscelUrl = new ViscelUrl(new URL(url).toString)
 
+	def groupedOn[T](l: List[T])(p: T => Boolean) = l.foldLeft(List[List[T]]()) {
+		case (acc, t) if p(t) => List(t) :: acc
+		case (Nil, t) => List(t) :: Nil
+		case (a :: as, t) => (t :: a) :: as
+	}.map(_.reverse).reverse
+
 }
