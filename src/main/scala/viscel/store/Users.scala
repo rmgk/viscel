@@ -1,10 +1,11 @@
 package viscel.store
 
 import java.io.IOException
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 
 import org.scalactic.Accumulation._
 import org.scalactic.{Bad, ErrorMessage, Every, One, Or}
+import viscel.Viscel
 import viscel.shared.JsonCodecs.{case4RW, stringMapR, stringMapW}
 import viscel.shared.ReaderWriter
 
@@ -12,7 +13,7 @@ import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 object Users {
 
-	val usersDir: Path = Paths.get(s"users")
+	val usersDir: Path = Viscel.basepath.resolve(s"users")
 
 	implicit val userRW: ReaderWriter[User] = case4RW(User.apply, User.unapply)("id", "password", "admin", "bookmarks")
 

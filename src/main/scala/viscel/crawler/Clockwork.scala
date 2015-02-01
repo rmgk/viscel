@@ -1,11 +1,11 @@
 package viscel.crawler
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.{Path}
 import java.util.{Timer, TimerTask}
 
 import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
-import viscel.Log
+import viscel.{Viscel, Log}
 import viscel.database._
 import viscel.narration.{Narrator, Narrators}
 import viscel.shared.JsonCodecs.{stringMapW, stringMapR}
@@ -78,7 +78,7 @@ object Clockwork {
 
 	}
 
-	private val path: Path = Paths.get("data/updateTimes.json")
+	private val path: Path = Viscel.basepath.resolve("data/updateTimes.json")
 	private var updateTimes: Map[String, Long] = Json.load[Map[String, Long]](path).fold(x => x, err => {
 		Log.error(s"could not load $path: $err")
 		Map()

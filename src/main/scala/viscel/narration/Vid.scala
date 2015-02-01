@@ -5,7 +5,7 @@ import java.nio.file.{Files, Paths}
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or, attempt}
-import viscel.Log
+import viscel.{Viscel, Log}
 import viscel.narration.SelectUtil._
 import viscel.shared.Story.Chapter
 import viscel.shared.Story.More.{Page, Unused}
@@ -121,7 +121,7 @@ object Vid {
 	}
 
 	def load(): List[Narrator] = {
-		val dir = Paths.get("definitions")
+		val dir = Viscel.basepath.resolve("definitions")
 		Files.createDirectories(dir)
 		val paths = Files.newDirectoryStream(dir, "*.vid")
 		paths.iterator().asScala.flatMap { p =>

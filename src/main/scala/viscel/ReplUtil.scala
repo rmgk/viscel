@@ -1,7 +1,7 @@
 package viscel
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths, StandardCopyOption, StandardOpenOption}
+import java.nio.file.{Paths, Files, StandardCopyOption, StandardOpenOption}
 
 import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
@@ -65,7 +65,7 @@ object ReplUtil {
 					case (c :: xs, a@Asset(_, _, _, _)) => (a :: c) :: xs
 					case (s, _) => s
 				}).map(_.reverse).reverse
-				(nar.name, list, nar.narration(true).chapters)
+				(nar.name, list, nar.narration(deep = true).chapters)
 			}
 		}
 
@@ -75,7 +75,7 @@ object ReplUtil {
 		}
 
 
-		val p = Paths.get("export", id)
+		val p = Viscel.basepath.resolve("export").resolve(id)
 		Files.createDirectories(p)
 
 		val html = "<!DOCTYPE html>" + ServerPages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
@@ -101,7 +101,7 @@ object ReplUtil {
 					case (a@Asset(_, _, _, blob), apos) =>
 						val name = f"$apos%05d.${ mimeToExt(a.blob.fold("")(_.mediatype)) }"
 						blob.foreach { b =>
-							Files.copy(Paths.get(BlobStore.hashToFilename(b.sha1)), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
+							Files.copy(Viscel.basepath.resolve(BlobStore.hashToFilename(b.sha1)), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
 						}
 						a.copy(blob = blob.map(b => b.copy(sha1 = s"$cname/$name")))
 					case _ => throw new IllegalStateException("invalid archive structure")
