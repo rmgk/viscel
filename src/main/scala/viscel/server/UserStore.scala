@@ -25,7 +25,8 @@ class UserStore(implicit ec: ExecutionContext) {
 				case Good(g) => g
 				case Bad(e) =>
 					Log.warn(s"could not open user $name: $e")
-					User(name, password, isAdmin = false, Map())
+					val firstUser = Users.all().fold(_.isEmpty, _ => false)
+					User(name, password, isAdmin = firstUser, Map())
 			}
 			userCache += name -> user
 			user

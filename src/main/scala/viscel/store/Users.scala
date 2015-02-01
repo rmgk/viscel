@@ -18,7 +18,8 @@ object Users {
 	implicit val userRW: ReaderWriter[User] = case4RW(User.apply, User.unapply)("id", "password", "admin", "bookmarks")
 
 	def all(): List[User] Or Every[ErrorMessage] = try {
-		Files.newDirectoryStream(usersDir, "*.json").asScala.map(load(_).accumulating).toList.combined
+		if (!Files.isDirectory(usersDir)) Nil
+		else Files.newDirectoryStream(usersDir, "*.json").asScala.map(load(_).accumulating).toList.combined
 	}
 	catch {
 		case e: IOException => Bad(One(e.getMessage))
