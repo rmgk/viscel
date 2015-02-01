@@ -334,11 +334,6 @@ http://haikucomics.com/2009/01/14/haikuone/
 :i #comic-1 > img
 :n #comicinfo .nav-next a
 
--:Key
-http://key.shadilyn.com/archive.html
-:am div.content .archive span.titlefont , div.content .archive .main-txt a
-:i img[src~=chapter/\d/\d{3}]
-
 -:Memoriam
 http://memoriam.smackjeeves.com/comics/1080096/pg-1/
 :ia #comic_image
