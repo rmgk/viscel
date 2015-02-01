@@ -365,3 +365,8 @@ http://thefirstdaughter.keenspot.com/d/20100704.html
 http://two-rooks.com/archive/volume-i/
 :is #webcomic > div span.webcomic-object > img
 :n #webcomic > div > nav.webcomic-below  a[rel=next]
+
+-:Strange Candy
+http://www.strangecandy.net/d/20010116.html
+:i #comic > img
+:n #comicnav a:has(img[alt=Next comic])
