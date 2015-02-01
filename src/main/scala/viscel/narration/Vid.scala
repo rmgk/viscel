@@ -1,10 +1,11 @@
 package viscel.narration
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Path, Files, Paths}
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or, attempt}
+import viscel.ReplUtil.getClass
 import viscel.{Viscel, Log}
 import viscel.narration.SelectUtil._
 import viscel.shared.Story.Chapter
@@ -120,19 +121,29 @@ object Vid {
 		go(preprocessed, Nil)
 	}
 
+	def load(p: Path): List[Narrator] = {
+		Log.info(s"parsing definitions from $p")
+		parse(Files.lines(p, StandardCharsets.UTF_8).iterator().asScala) match {
+			case Good(res) => res
+			case Bad(err) =>
+				Log.warn(s"failed to parse 'test.vid' errors: $err")
+				Nil
+		}
+	}
+
 	def load(): List[Narrator] = {
 		val dir = Viscel.basepath.resolve("definitions")
-		Files.createDirectories(dir)
-		val paths = Files.newDirectoryStream(dir, "*.vid")
-		paths.iterator().asScala.flatMap { p =>
-			Log.info(s"parsing definitions from $p")
-			parse(Files.lines(p, StandardCharsets.UTF_8).iterator().asScala) match {
-				case Good(res) => res
-				case Bad(err) =>
-					Log.warn(s"failed to parse 'test.vid' errors: $err")
-					Nil
-			}
-		}.toList
+		val dynamic = if (!Files.exists(dir)) Nil
+		else {
+			val paths = Files.newDirectoryStream(dir, "*.vid")
+			paths.iterator().asScala.flatMap { load }.toList
+		}
+
+		val resource = Paths.get(getClass.getClassLoader.getResource("definitions.vid").toURI)
+		val res = if (!Files.exists(resource)) Nil
+		else load(resource)
+
+		res ::: dynamic
 	}
 
 }

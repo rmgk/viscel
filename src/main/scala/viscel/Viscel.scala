@@ -1,6 +1,6 @@
 package viscel
 
-import java.nio.file.{Paths, Path}
+import java.nio.file.{Files, Paths, Path}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.{ActorSystem, Props}
@@ -59,6 +59,7 @@ object Viscel {
 		}
 		
 		basepath = Paths.get(basedir())
+		Files.createDirectories(basepath)
 
 		neo = new NeoInstance(basepath.resolve(dbpath()).toString)
 
