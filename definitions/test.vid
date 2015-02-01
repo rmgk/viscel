@@ -17,7 +17,8 @@ http://www.amazingagentluna.com/strips-aal/file_01_-_page_1
 
 -:Vampire Cheerleaders
 http://www.vampirecheerleaders.net/strips-vc/fang_service
-:ia #comic > a:nth-child(2) > img
+:i #comic img
+:n a:has(#next_day1)
 
 -:Dracula Everlasting
 http://www.draculaeverlasting.com/strips-de/abraham_van_helsing_journal_i
@@ -158,8 +159,8 @@ http://www.meekcomic.com/archives/
 
 -:No Pink Ponies
 http://nopinkponies.keenspot.com/d/20060207.html
-:i body > center > table > tbody > tr:nth-child(4) > td > center > img
-:n body > center > table > tbody > tr:nth-child(3) > td > center > a[rel=next]
+:i img.ksc
+:n a:has(#next_day1)
 
 -:Oglaf
 http://oglaf.com/archive/
@@ -214,7 +215,7 @@ http://www.theduckwebcomics.com/SOPHIA_Awakening/5043865/
 
 -:Sore Thumbs
 http://sorethumbs.keenspot.com/d/20040308.html
-:i img.ksc
+:i img.ksc , img[src~=http://sorethumbs.keenspot.com/st\d{8}.jpg]
 :n a:has(#next_day1)
 
 -:Spinnerette
@@ -250,7 +251,7 @@ http://supernormalstep.com/?page_id=696
 
 -:Taiki
 http://www.taikiwebcomic.com/archive.html
-:am body > div img[usemap~=#map[1234]] , body > div a:matchesOwn(\d\d?)
+:am body > div img[usemap~=#map[1234]] , body > div a:matchesOwn(^\d\d?$)
 :i body > div > img:nth-child(7)
 
 -:The Lounge
@@ -302,10 +303,70 @@ http://www.thezombiehunters.com/index.php?strip_id=1
 
 -:Wings of Wishes
 http://chrisschrossed.xepher.net/manga/v2pages/ch0/p1.html
-:i body > center > font > img
+:i body > center > font > img , body > center > table > tbody > tr > td > center > img
 :n a:contains(next)
 
 -:Omake Theater
 http://omaketheater.com/comic/1/
 :i #left > article > figure > img
 :n a[rel=next]
+
+-:The Awakened
+http://www.theawakenedcomic.com/comic/chapter-one-page-one/
+:ia #comic img
+
+-:Ein Stück Wahnsinn
+http://wahnsinn.viviane.ch/wahnmanga/wahnmanga01.htm
+:i img[src~=manga/wahn]
+:n a:has(img[name=pfeil3])
+
+-:Geek Hero
+http://www.geekherocomic.com/2008/03/03/03032008/index.html
+:i #comic > img
+:n #comic-nav > div.nav > a:has(img[alt=Next >>])
+
+-:Good Cheese
+http://fern.junglestudio.com/comics/GC/index.php?date=2006-12-12
+:ia img[src~=pages/]
+
+-:Haiku Comics
+http://haikucomics.com/2009/01/14/haikuone/
+:i #comic-1 > img
+:n #comicinfo .nav-next a
+
+-:Key
+http://key.shadilyn.com/archive.html
+:am div.content .archive span.titlefont , div.content .archive .main-txt a
+:i img[src~=chapter/\d/\d{3}]
+
+-:Memoriam
+http://memoriam.smackjeeves.com/comics/1080096/pg-1/
+:ia #comic_image
+
+-:Nymph
+http://fern.junglestudio.com/comics/nymph/01.html
+:ia img[src~=images/ny\d\d\.]
+
+-:Reila
+http://reila.smackjeeves.com/comics/1001394/cover/
+:ia #comic_image
+
+-:Sakana no Sadness
+http://old.sakanacomic.com/archive/
+:am #leftside h2 , #leftside .pagebox a
+:i #comic-inner > img
+
+-:Tales of the traveling Gnome
+http://www.theduckwebcomics.com/Tales_of_the_Traveling_Gnome/4828138/
+:i #comic > img
+:n #top_arrows a:has(img.arrow_next)
+
+-:The First Daughter
+http://thefirstdaughter.keenspot.com/d/20100704.html
+:i img.ksc
+:n a:has(#next_day1)
+
+-:Two Rooks
+http://two-rooks.com/archive/volume-i/
+:is #webcomic > div span.webcomic-object > img
+:n #webcomic > div > nav.webcomic-below  a[rel=next]
