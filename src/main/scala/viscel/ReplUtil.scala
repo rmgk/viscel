@@ -7,10 +7,11 @@ import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
 import viscel.crawler.RunnerUtil
-import viscel.database.Neo
-import viscel.narration.{Metarrator, Narrator}
+import viscel.database.{NeoCodec, Neo}
+import viscel.database.Implicits.NodeOps
+import viscel.narration.{SelectUtil, Metarrator, Narrator}
 import viscel.server.ServerPages
-import viscel.shared.Story.Asset
+import viscel.shared.Story.{Narration, Chapter, Asset}
 import viscel.shared.{Story, Gallery, ViscelUrl}
 import viscel.store.{BlobStore, Books}
 
@@ -36,11 +37,11 @@ class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 		Await.result(res, Duration.Inf)
 	}
 
-//	def updateMetarrator[T <: Narrator](metarrator: Metarrator[T]) = {
-//		val doc = fetch(metarrator.archive)
-//		val nars = metarrator.wrap(doc)
-//		metarrator.save(nars.get)
-//	}
+	//	def updateMetarrator[T <: Narrator](metarrator: Metarrator[T]) = {
+	//		val doc = fetch(metarrator.archive)
+	//		val nars = metarrator.wrap(doc)
+	//		metarrator.save(nars.get)
+	//	}
 
 	def shutdown() = {
 		system.shutdown()
@@ -55,16 +56,31 @@ object ReplUtil {
 	}
 
 	def export(id: String)(implicit neo: Neo): Unit = {
+
+		val narrationOption = neo.tx { implicit ntx =>
+			Books.find(id).map { nar =>
+				val list = nar.self.fold(List[List[Story]]())(state => n => (state, NeoCodec.load[Story](n)) match {
+					case (s, c@Chapter(_, _)) => List(c) :: s
+					case (Nil, a@Asset(_, _, _, _)) => (a :: Chapter("") :: Nil) :: Nil
+					case (c :: xs, a@Asset(_, _, _, _)) => (a :: c) :: xs
+					case (s, _) => s
+				}).map(_.reverse).reverse
+				(nar.name, list, nar.narration(true).chapters)
+			}
+		}
+
+		if (narrationOption.isEmpty) {
+			Log.warn(s"$id not found")
+			return
+		}
+
+
 		val p = Paths.get("export", id)
 		Files.createDirectories(p)
-		val nar = neo.tx { implicit ntx => Books.getNarration(id, deep = true).get }
 
-		val html = "<!DOCTYPE html>" + ServerPages.makeHtml(script(src := "narration"),script(RawFrag(s"""Viscel().spore("$id", JSON.stringify(narration))""")))
+		val html = "<!DOCTYPE html>" + ServerPages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
 		val js = getClass.getClassLoader.getResource("viscel-js-opt.js")
 		val css = getClass.getClassLoader.getResource("style.css")
-
-		val pBlob = p.resolve("blob")
-		Files.createDirectories(pBlob)
 
 		def mimeToExt(mime: String) = mime match {
 			case "image/jpeg" => "jpg"
@@ -73,22 +89,34 @@ object ReplUtil {
 			case _ => "bmp"
 		}
 
-		val assetList = nar.narrates.toList.zipWithIndex.map { case (a, pos) =>
-			val name = f"$pos%05d.${mimeToExt(a.blob.fold("")(_.mediatype))}"
-			a.blob.foreach { b =>
-				Files.copy(Paths.get(BlobStore.hashToFilename(b.sha1)), pBlob.resolve(name), StandardCopyOption.REPLACE_EXISTING)
-			}
-			a.copy(blob = a.blob.map(b => b.copy(sha1 = name)))
+
+		val (narname, chapters, flatChapters) = narrationOption.get
+
+		val assetList = chapters.zipWithIndex.flatMap {
+			case (chap :: assets, cpos) =>
+				val cname = f"$cpos%04d"
+				val dir = p.resolve(cname)
+				Files.createDirectories(dir)
+				assets.zipWithIndex.map {
+					case (a@Asset(_, _, _, blob), apos) =>
+						val name = f"$apos%05d.${ mimeToExt(a.blob.fold("")(_.mediatype)) }"
+						blob.foreach { b =>
+							Files.copy(Paths.get(BlobStore.hashToFilename(b.sha1)), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
+						}
+						a.copy(blob = blob.map(b => b.copy(sha1 = s"$cname/$name")))
+					case _ => throw new IllegalStateException("invalid archive structure")
+				}
+			case _ => throw new IllegalStateException("invalid archive structure")
 		}
 
-		val narJson = "var narration = " + upickle.write(nar.copy(narrates = Gallery.fromList(assetList)))
+		val assembled = Narration(id, narname, assetList.size, Gallery.fromList(assetList), flatChapters)
 
-		Files.write(p.resolve(s"${nar.name}.html"), html.getBytes(StandardCharsets.UTF_8))
+		val narJson = "var narration = " + upickle.write(assembled)
+
+		Files.write(p.resolve(s"${ narname }.html"), html.getBytes(StandardCharsets.UTF_8))
 		Files.write(p.resolve("narration"), narJson.getBytes(StandardCharsets.UTF_8))
 		Files.copy(Paths.get(js.toURI), p.resolve("js"), StandardCopyOption.REPLACE_EXISTING)
 		Files.copy(Paths.get(css.toURI), p.resolve("css"), StandardCopyOption.REPLACE_EXISTING)
-
-
 
 
 	}
