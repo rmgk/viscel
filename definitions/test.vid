@@ -76,3 +76,236 @@ http://cortland.comicgenesis.com/d/20040320.html
 http://www.exiern.com/2005/09/06/so-far/
 :i #comic-1 > img
 :n #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
+
+-:Carciphona
+http://carciphona.smackjeeves.com/archive/
+:am #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
+:i #comic_image
+
+-:EGS Newspaper
+http://www.egscomics.com/egsnp.php?id=12
+:ia #comic
+
+-:Erstwhile
+http://www.erstwhiletales.com/comicslist/
+:ac #content > div > div > div.entry a
+:ia #comic-1 img
+
+-:Ever Night
+http://www.evernightcomic.com/archives/1
+:i #comic-1 > img
+:n #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
+
+-:Falcon Twin
+http://www.falcontwin.com/archive.html
+:ac #chapterlist a
+:i #strip > img
+:n #next > a
+
+-:Fall Out Toy Works
+http://fallouttoyworks.keenspot.com/d/20120326.html
+:i #comicpage > img
+:n a:has(#anext)
+
+-:Fantasy Realms
+http://www.fantasyrealmsonline.com/manga.php
+:am body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table strong , body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table a 
+:i body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table > tbody > tr:nth-child(1) > td > div  img
+
+-:Feywinds
+http://www.feywinds.com/comic.html
+:am body > table > tbody > tr:nth-child(2) > td > table:nth-child(4) > tbody > tr > td > blockquote > p:lt(3) span.h1 , body > table > tbody > tr:nth-child(2) > td > table:nth-child(4) > tbody > tr > td > blockquote > p:lt(3) a
+:i body > table > tbody > tr:nth-child(2) > td > table:nth-child(2) > tbody > tr > td > blockquote > p > img
+
+-:Flipside0
+http://flipside.keenspot.com/comic/book0/fs01pg01.html
+:i body > center > table > tbody > tr:nth-child(2) > td > center > img
+:n a:contains(Next >)
+
+-:Lavender Legend
+http://lavenderlegend.com/?page_id=109
+:ac li[id~=storyline-chapter-\d+] a.storyline-title
+:ia #comic-1  img
+
+-:Lint
+http://www.purnicellin.com/lint/2004/01/10/01102004/
+:i #comic > img
+:n #column div.nav a[rel=next]
+
+-:Loserz
+http://the-qlc.com/loserz/go/1
+:ia img.comicpage
+
+-:Love is in the Blood
+http://www.loveisintheblood.com/archive/
+:am #post-6 > div > div.entry h3.comic-archive-chapter , #post-6 > div > div.entry .comic-archive-title a
+:i #comic img
+
+-:Makeshift Miracle
+http://makeshiftmiracle.keenspot.com/archive.html
+:ac #chapnav > a
+:ia #mleft img
+
+-:Marry Me
+http://marryme.keenspot.com/d/20120730.html
+:i #comicspot > img , #comicspot > a > img
+:n a:has(#nexty)
+
+-:The Meek
+http://www.meekcomic.com/archives/
+:am li[id~=storyline-chapter-\d+] > span , li[id~=storyline-chapter-\d+] > div.pages_in_cat > a
+:i #comic-1 img
+
+-:No Pink Ponies
+http://nopinkponies.keenspot.com/d/20060207.html
+:i body > center > table > tbody > tr:nth-child(4) > td > center > img
+:n body > center > table > tbody > tr:nth-child(3) > td > center > a[rel=next]
+
+-:Oglaf
+http://oglaf.com/archive/
+:ac body > div > div > div a
+:archiveReverse
+:i #strip
+:n #nav > a:has(#nx)
+
+-:Otaku no Yen
+http://otakunoyen.com/?p=19
+:i #comic-1 > img
+:n #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
+
+-:Chirault
+http://chirault.sevensmith.net/archives.php
+:am div.entryText > p > b , div.entryText > p > a
+:i img[src~=/comics/\d{8}]
+
+-:Annyseed
+http://www.colourofivy.com/annyseed_webcomic.htm
+:i body > table > tbody > tr:nth-child(3) > td > div > img
+:n a:has(img[src=Next.gif])
+
+-:Quiltbag
+http://quiltbag.keenspot.com/d/20111018.html
+:ia #comicarea img
+
+-:Sequential Art
+http://www.collectedcurios.com/sequentialart.php?s=1
+:i #strip
+:n #nav > a:has(img[title=Forward One])
+
+-:Sexy Losers
+http://sexylosers.com/001.html
+:i img[src~=comics/]
+:n tr:not(:has(tr)):matches(All SL Strips) a:contains(>>)
+
+-:Shadowbinders
+http://shadowbinders.com/comic/shadowbinders-chapter-1/
+:ia #comic img
+
+-:Sister Claire
+http://www.sisterclaire.com/archive.php
+:ac #pagecontent > a:matches(Book \d+: Chapter)
+:i #comic
+:n #topnav > div > a.next
+
+-:Sophia Awakening
+http://www.theduckwebcomics.com/SOPHIA_Awakening/5043865/
+:i #comic > img
+:n #top_arrows a:has(img.arrow_next)
+
+-:Sore Thumbs
+http://sorethumbs.keenspot.com/d/20040308.html
+:i img.ksc
+:n a:has(#next_day1)
+
+-:Spinnerette
+http://www.spinnyverse.com/issues/
+:ac #chaptertiles > div > a
+:i #comic
+:n #comic-head > ul > li.nav-next > a
+
+-:Star Power
+http://www.starpowercomic.com/archives/
+:am #storyline li[id~=^storyline-volume] , #storyline .level-2 a.archivethumbnaillink
+:i #comic-1 img
+
+-:Strawberry Death Cake
+http://strawberrydeathcake.com/archive/prologuepage1/
+:i #webcomic > div > span > img
+:n #webcomic > div > nav > a.next-webcomic-link
+
+-:Strawberry Death Cake Original
+http://strawberrydeathcake.com/original/archive/page0/
+:i #webcomic > div > span > img
+:n #webcomic > div > nav > a.next-webcomic-link
+
+-:Strays
+http://www.straysonline.com/archives/
+:ac #storyline > li:nth-child(2) > ul a.storyline-title
+:ia #comic-1 img
+
+-:Supernormal Step
+http://supernormalstep.com/?page_id=696
+:ac #content  div.entry a:has(img)
+:ia #comic-1 img
+
+-:Taiki
+http://www.taikiwebcomic.com/archive.html
+:am body > div img[usemap~=#map[1234]] , body > div a:matchesOwn(\d\d?)
+:i body > div > img:nth-child(7)
+
+-:The Lounge
+http://thelounge.keenspot.com/d/20020601.html
+:is img.ksc
+:n a:has(#next_day1)
+
+-UFO:u.f.o.
+http://mangowow.zamomo.com/index.php?strip_id=1
+:i body > table > tbody > tr > td:nth-child(2) > p > img
+:n a:has(img[src=next.gif])
+
+-:Undertow
+http://undertow.dreamshards.org/0/u0_0.html
+:i body > center > img:nth-child(1)
+:n body > center > a:has(img[src~=saepoint.JPG])
+
+-:Valiant
+http://valiant.spiderforest.com/?comic_id=0
+:i body > div > img
+:n a:containsOwn(Next Comic)
+
+-:Winters in Lavelle
+http://wintersinlavelle.com/
+:ac #sidenav > ul > li:gt(0) > a
+:ia #comicimg
+
+-Xylia:Xylia Tales
+http://www.xyliatales.com/archive/
+:am #post-5 > div > table img , #post-5 > div > table a:not(:has(img))
+:i #comic > img
+:n #comic a:has(img[alt=Next])
+
+-:Yet Another Fantasy Gamer Comic
+http://yafgc.net/archive/
+:am #post-41 > div > div.entry .comic-archive-chapter-wrap h3 , #post-41 > div > div.entry a
+:i #comic img
+
+-Zap:Zap!
+http://www.zapcomic.com/archives/
+:ac #comic > table a:matches(Volume)
+:i div[id~=^comic-\d+$] > div > img
+:n #comic2 > div.alignleft.comicnav > div:nth-child(1) > a.next-comic-link
+
+-:The Zombie Hunters
+http://www.thezombiehunters.com/index.php?strip_id=1
+:i #comicdiv > center > img
+:n a:has(#next_comic)
+
+-:Wings of Wishes
+http://chrisschrossed.xepher.net/manga/v2pages/ch0/p1.html
+:i body > center > font > img
+:n a:contains(next)
+
+-:Omake Theater
+http://omaketheater.com/comic/1/
+:i #left > article > figure > img
+:n a[rel=next]
