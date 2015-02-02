@@ -6,13 +6,15 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.Log
 import viscel.shared.Story.More.Kind
 import viscel.shared.Story.{Asset, Chapter, More}
 import viscel.shared.{Story, ViscelUrl}
 
 import scala.Predef.{$conforms, ArrowAssoc}
-import scala.collection.immutable.Set
+import scala.collection.immutable.{Map, Set}
 import scala.language.implicitConversions
+import scala.util.matching.Regex
 
 object SelectUtil {
 	def getAttr(e: Element, k: String): Option[(String, String)] = {
@@ -108,5 +110,18 @@ object SelectUtil {
 		case (Nil, t) => List(t) :: Nil
 		case (a :: as, t) => (t :: a) :: as
 	}.map(_.reverse).reverse
+
+
+	implicit class RegexContext (val sc : StringContext) {
+		object rex {
+			def unapplySeq(m: String): Option[Seq[String]] = {
+				val regex = new Regex(sc.parts.mkString(""))
+				regex.findFirstMatchIn(m).map { gs =>
+					gs.subgroups
+				}
+			}
+		}
+	}
+
 
 }

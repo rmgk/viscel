@@ -1,15 +1,18 @@
 package viscel.narration
 
+import org.scalactic.{Bad, Good, Or, ErrorMessage}
 import spray.client.pipelining.SendReceive
 import viscel.crawler.RunnerUtil
-import viscel.narration.narrators.{Fakku, MangaHere, CloneManga}
+import viscel.narration.narrators._
 import viscel.shared.ViscelUrl
 
 import scala.collection.Set
 import scala.concurrent.{Future, ExecutionContext}
 
 object Metarrators {
-	def cores(): Set[Narrator] = synchronized(Set.empty[Narrator] ++ CloneManga.MetaClone.load() ++ MangaHere.MetaCore.load() ++ Fakku.Meta.load())
+	val metas: List[Metarrator[_ <: Narrator]] = CloneManga.MetaClone :: MangaHere.MetaCore :: Fakku.Meta :: Snafu.Meta :: Nil
+
+	def cores(): Set[Narrator] = synchronized(metas.iterator.flatMap[Narrator](_.load()).toSet)
 
 	def add(start: String, iopipe: SendReceive)(implicit ec: ExecutionContext): Future[List[Narrator]] = {
 		def go[T <: Narrator](metarrator: Metarrator[T], url: ViscelUrl): Future[List[Narrator]] = iopipe(RunnerUtil.request(url)).map { res =>
@@ -22,12 +25,11 @@ object Metarrators {
 		}
 
 		try {
-			SelectUtil.stringToVurl(start) match {
-				case Fakku.Meta(url) => go(Fakku.Meta, url)
-				case MangaHere.MetaCore(url) => go(MangaHere.MetaCore, url)
-				case CloneManga.MetaClone(url) => go(CloneManga.MetaClone, url)
-				case _ => Future.successful(Nil)
-			}
+			val url = SelectUtil.stringToVurl(start)
+			metas.map(m => (m, m.unapply(url)))
+				.collectFirst { case (m, Some(uri)) => go(m, uri) }
+				.getOrElse(Future.failed(new IllegalArgumentException(s"$url is not handled")))
+
 		}
 		catch {
 			case e: Exception => Future.failed(e)

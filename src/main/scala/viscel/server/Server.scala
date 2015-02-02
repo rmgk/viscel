@@ -134,7 +134,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 				else parameter('url.as[String]) { url =>
 					onComplete(Metarrators.add(url, Viscel.iopipe)) {
 						case Success(v) => complete(s"found ${v.map(_.id)}")
-						case Failure(e) => complete{e.printStackTrace(); e.toString}
+						case Failure(e) => complete{e.getMessage}
 					}
 				}
 			}~
