@@ -10,6 +10,7 @@ import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding.{Gzip, Deflate}
 import viscel.shared.{Story, ViscelUrl}
+import viscel.store.BlobStore
 import viscel.{Deeds, Log}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -18,10 +19,6 @@ import scala.Predef.identity
 
 
 object RunnerUtil {
-
-	val digester = MessageDigest.getInstance("SHA1")
-
-	def sha1hex(b: Array[Byte]) = Predef.wrapByteArray(digester.digest(b)).map { h => f"$h%02x" }.mkString
 
 	def urlToUri(vurl: ViscelUrl): Uri = {
 		val in = new URL(vurl.self)
@@ -57,7 +54,7 @@ object RunnerUtil {
 		val bytes = res.entity.data.toByteArray
 		(bytes,
 			Story.Blob(
-				sha1 = sha1hex(bytes),
+				sha1 = BlobStore.sha1hex(bytes),
 				mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString())))
 	}
 

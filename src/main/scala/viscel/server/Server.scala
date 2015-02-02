@@ -10,7 +10,7 @@ import spray.http.{ContentType, MediaTypes}
 import spray.routing.{HttpService, Route}
 import viscel.database.Neo
 import viscel.narration.{Metarrators, Narrators}
-import viscel.store.BlobStore.hashToFilename
+import viscel.store.BlobStore.hashToPath
 import viscel.store.{Books, User}
 import viscel.{Deeds, Log, ReplUtil, Viscel}
 
@@ -87,7 +87,7 @@ class Server(neo: Neo) extends Actor with HttpService {
 				}
 			} ~
 			pathPrefix("blob" / Segment) { (sha1) =>
-				val filename = new File(hashToFilename(sha1))
+				val filename = hashToPath(sha1).toFile
 				pathEnd { getFromFile(filename) } ~
 					path(Segment / Segment) { (part1, part2) =>
 						getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).get))
@@ -115,9 +115,19 @@ class Server(neo: Neo) extends Actor with HttpService {
 			} ~
 			path("export" / Segment) { (id) =>
 				if (!user.isAdmin) reject
-				else complete(
-					try { ReplUtil.export(id)(Viscel.neo); "success" }
-					catch { case e: Exception => e.toString })
+				else onComplete(Future(ReplUtil.export(id)(Viscel.neo))) {
+					case Success(v) => complete("success")
+					case Failure(e) => complete(e.toString())
+				}
+			} ~
+			path("import" / Segment) { (id) =>
+				if (!user.isAdmin) reject
+				else parameters('name.as[String], 'path.as[String]) { (name, path) =>
+					onComplete(Future(ReplUtil.importFolder(path, s"Import_$id", name)(Viscel.neo))) {
+						case Success(v) => complete("success")
+						case Failure(e) => complete(e.toString())
+					}
+				}
 			} ~
 			path("add") {
 				if (!user.isAdmin) reject

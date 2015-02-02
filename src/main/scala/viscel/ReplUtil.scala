@@ -1,16 +1,19 @@
 package viscel
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Paths, Files, StandardCopyOption, StandardOpenOption}
+import java.nio.file.{Path, Paths, Files, StandardCopyOption, StandardOpenOption}
+import java.util.Comparator
+import java.util.function.Predicate
 
 import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
-import viscel.crawler.RunnerUtil
+import viscel.crawler.{Archive, RunnerUtil}
 import viscel.database.{NeoCodec, Neo}
 import viscel.database.Implicits.NodeOps
 import viscel.narration.{SelectUtil, Metarrator, Narrator}
 import viscel.server.ServerPages
+import viscel.shared.Story.More.Kind
 import viscel.shared.Story.{Narration, Chapter, Asset}
 import viscel.shared.{Story, Gallery, ViscelUrl}
 import viscel.store.{BlobStore, Books}
@@ -19,11 +22,13 @@ import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
+import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.Predef.augmentString
 import scalatags.Text.RawFrag
 import scalatags.Text.attrs.src
 import scalatags.Text.tags.script
 import scalatags.Text.implicits.{stringAttr, stringFrag}
+import scala.collection.immutable.Map
 
 class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 
@@ -55,6 +60,14 @@ object ReplUtil {
 		new ReplUtil(system, iopipe)
 	}
 
+	def mimeToExt(mime: String, default: String = "") = mime match {
+		case "image/jpeg" => "jpg"
+		case "image/gif" => "gif"
+		case "image/png" => "png"
+		case "image/bmp" => "bmp"
+		case _ => default
+	}
+
 	def export(id: String)(implicit neo: Neo): Unit = {
 
 		val narrationOption = neo.tx { implicit ntx =>
@@ -82,13 +95,6 @@ object ReplUtil {
 		val js = getClass.getClassLoader.getResource("viscel-js-opt.js")
 		val css = getClass.getClassLoader.getResource("style.css")
 
-		def mimeToExt(mime: String) = mime match {
-			case "image/jpeg" => "jpg"
-			case "image/gif" => "gif"
-			case "image/png" => "png"
-			case _ => "bmp"
-		}
-
 
 		val (narname, chapters, flatChapters) = narrationOption.get
 
@@ -99,7 +105,7 @@ object ReplUtil {
 				Files.createDirectories(dir)
 				assets.zipWithIndex.map {
 					case (a@Asset(_, _, _, blob), apos) =>
-						val name = f"$apos%05d.${ mimeToExt(a.blob.fold("")(_.mediatype)) }"
+						val name = f"$apos%05d.${ mimeToExt(a.blob.fold("")(_.mediatype), default = "bmp") }"
 						blob.foreach { b =>
 							Files.copy(Viscel.basepath.resolve(BlobStore.hashToFilename(b.sha1)), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
 						}
@@ -120,4 +126,44 @@ object ReplUtil {
 
 
 	}
+
+	def importFolder(path: String, nid: String, nname: String)(implicit neo: Neo) = {
+		import viscel.narration.SelectUtil.stringToVurl
+		import scala.math.Ordering.Implicits.seqDerivedOrdering
+
+		Log.info(s"try to import $nid($nname) form $path")
+
+		val files = Files.walk(Paths.get(path))
+		val sortedFiles = try { files.iterator().asScala.toList.sortBy(_.iterator().asScala.map(_.toString).toList) }
+		finally files.close()
+		val story = sortedFiles.flatMap { p =>
+			if (Files.isDirectory(p)) Some(Chapter(p.getFileName.toString))
+			else if (Files.isRegularFile(p)) {
+				val mime = Files.probeContentType(p)
+				if (mimeToExt(mime, default = "") == "") None
+				else {
+					Log.info(s"processing $p")
+					val sha1 = BlobStore.write(Files.readAllBytes(p))
+					val blob = Story.Blob(sha1, mime)
+					Some(Asset(p.toUri.toString, p.getParent.toUri.toString, Map(), Some(blob)))
+				}
+			}
+			else None
+		}
+
+		neo.tx { implicit ntx =>
+
+			val book = Books.findAndUpdate(new Narrator {
+				override def name: String = nname
+				override def archive: List[Story] = Nil
+				override def wrap(doc: Document, kind: Kind): List[Story] = Nil
+				override def id: String = nid
+			})
+
+			Archive.applyNarration(book.self, story)
+		}
+
+
+	}
+
 }
