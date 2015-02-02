@@ -111,10 +111,9 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			ec.execute(this)
 		}
 
-	def writeAsset(node: Node, asset: Asset)(blob: (Array[Byte], Story.Blob))(ntx: Ntx): Unit = {
+	def writeAsset(node: Node, asset: Asset)(blob: Story.Blob)(ntx: Ntx): Unit = {
 		Log.debug(s"$narrator: received blob, applying to $asset ($node)")
-		BlobStore.write(blob._2.sha1, blob._1)
-		node.to_=(rel.blob, NeoCodec.create(blob._2)(ntx, NeoCodec.blobCodec))(ntx)
+		node.to_=(rel.blob, NeoCodec.create(blob)(ntx, NeoCodec.blobCodec))(ntx)
 		ec.execute(this)
 	}
 

@@ -50,12 +50,12 @@ object RunnerUtil {
 		res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
 		res.header[Location].fold(ifEmpty = urlToUri(absUri))(_.uri).toString())
 
-	def parseBlob[R](res: HttpResponse): (Array[Byte], Story.Blob) = {
+	def parseBlob[R](res: HttpResponse): Story.Blob = {
 		val bytes = res.entity.data.toByteArray
-		(bytes,
-			Story.Blob(
-				sha1 = BlobStore.sha1hex(bytes),
-				mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString())))
+		val sha1 = BlobStore.write(bytes)
+		Story.Blob(
+			sha1 = sha1,
+			mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString()))
 	}
 
 }
