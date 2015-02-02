@@ -25,7 +25,7 @@
 | ✘ Moderntales      | <http://www.moderntales.com/>                |
 | ♦ Comic Fury       | <http://comicfury.com/index.php>             |
 | ✘ Mangamagazine    | <http://www.mangamagazine.net/>              |
-| reveriecomics      | <http://reveriecomics.com/>                  |
+| ✔ reveriecomics    | <http://reveriecomics.com/>                  |
 |                    |                                              |
 
 
