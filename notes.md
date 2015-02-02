@@ -44,16 +44,18 @@
 
 # comics with other problems
 
-|    comic    |              problem               |                              url                              |
-|-------------|------------------------------------|---------------------------------------------------------------|
-| AppleGeeks  | bad next                           | <http://www.applegeeks.com/comics/viewcomic.php?issue=1>      |
-| CounterRose | bad html                           | <http://www.counter-rose.com/page.php?p=1>                    |
-| Carciphona  | background hack                    | <http://carciphona.com/view.php?page=cover&chapter=1>         |
-| DeadHeaven  | all images on one page, javascript | <http://www.deadheaven.net/start.html>                        |
-| FreakAngels | later dude                         | <http://www.freakangels.com/?p=22&page=1>                     |
-| DrMcNinja   | not today pal                      | <http://www.drmcninja.com/mcdonalds.html>                     |
-| Shiniez     | deviant art                        | <http://shiniez.deviantart.com/gallery/35675685>              |
-| BloodStain  | devian art                         | <http://sigeel.deviantart.com/art/the-title-is-out-346949185> |
+|    comic    |              problem               |                                      url                                       |
+| ----------- | ---------------------------------- | ------------------------------------------------------------------------------ |
+| AppleGeeks  | bad next                           | <http://www.applegeeks.com/comics/viewcomic.php?issue=1>                       |
+| CounterRose | bad html                           | <http://www.counter-rose.com/page.php?p=1>                                     |
+| Carciphona  | background hack                    | <http://carciphona.com/view.php?page=cover&chapter=1>                          |
+| DeadHeaven  | all images on one page, javascript | <http://www.deadheaven.net/start.html>                                         |
+| FreakAngels | later dude                         | <http://www.freakangels.com/?p=22&page=1>                                      |
+| DrMcNinja   | not today pal                      | <http://www.drmcninja.com/mcdonalds.html>                                      |
+| Shiniez     | deviant art                        | <http://shiniez.deviantart.com/gallery/35675685>                               |
+| BloodStain  | devian art                         | <http://sigeel.deviantart.com/art/the-title-is-out-346949185>                  |
+| Ianua       | chunked transfer encoding          | <http://www.lesserkeystudios.com/ianua/wp-content/uploads/2013/07/Pg25Big.jpg> |
+|             |                                    |                                                                                |
 
 # broken comics
 
