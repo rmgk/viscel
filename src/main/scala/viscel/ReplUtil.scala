@@ -92,9 +92,6 @@ object ReplUtil {
 		Files.createDirectories(p)
 
 		val html = "<!DOCTYPE html>" + ServerPages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
-		val js = getClass.getClassLoader.getResource("viscel-js-opt.js")
-		val css = getClass.getClassLoader.getResource("style.css")
-
 
 		val (narname, chapters, flatChapters) = narrationOption.get
 
@@ -121,9 +118,12 @@ object ReplUtil {
 
 		Files.write(p.resolve(s"${ narname }.html"), html.getBytes(StandardCharsets.UTF_8))
 		Files.write(p.resolve("narration"), narJson.getBytes(StandardCharsets.UTF_8))
-		Files.copy(Paths.get(js.toURI), p.resolve("js"), StandardCopyOption.REPLACE_EXISTING)
-		Files.copy(Paths.get(css.toURI), p.resolve("css"), StandardCopyOption.REPLACE_EXISTING)
 
+		val js = getClass.getClassLoader.getResourceAsStream("viscel-js-opt.js")
+		val css = getClass.getClassLoader.getResourceAsStream("style.css")
+
+		Files.copy(js, p.resolve("js"), StandardCopyOption.REPLACE_EXISTING)
+		Files.copy(css, p.resolve("css"), StandardCopyOption.REPLACE_EXISTING)
 
 	}
 

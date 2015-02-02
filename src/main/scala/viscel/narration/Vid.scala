@@ -1,5 +1,6 @@
 package viscel.narration
 
+import java.io.{InputStreamReader, BufferedReader}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Path, Files, Paths}
 
@@ -126,7 +127,7 @@ object Vid {
 		parse(Files.lines(p, StandardCharsets.UTF_8).iterator().asScala) match {
 			case Good(res) => res
 			case Bad(err) =>
-				Log.warn(s"failed to parse 'test.vid' errors: $err")
+				Log.warn(s"failed to parse $p errors: $err")
 				Nil
 		}
 	}
@@ -139,9 +140,15 @@ object Vid {
 			paths.iterator().asScala.flatMap { load }.toList
 		}
 
-		val resource = Paths.get(getClass.getClassLoader.getResource("definitions.vid").toURI)
-		val res = if (!Files.exists(resource)) Nil
-		else load(resource)
+		val stream  = new BufferedReader(new InputStreamReader(getClass.getClassLoader.getResourceAsStream("definitions.vid"), StandardCharsets.UTF_8)).lines()
+		val res = try {
+			parse(stream.iterator().asScala) match {
+				case Good(res) => res
+				case Bad(err) =>
+					Log.warn(s"failed to parse definitions.vid errors: $err")
+					Nil
+			}
+		} finally stream.close()
 
 		res ::: dynamic
 	}
