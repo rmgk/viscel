@@ -25,6 +25,8 @@ object Metarrators {
 			SelectUtil.stringToVurl(start) match {
 				case Fakku.Meta(url) => go(Fakku.Meta, url)
 				case MangaHere.MetaCore(url) => go(MangaHere.MetaCore, url)
+				case CloneManga.MetaClone(url) => go(CloneManga.MetaClone, url)
+				case _ => Future.successful(Nil)
 			}
 		}
 		catch {

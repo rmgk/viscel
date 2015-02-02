@@ -1,5 +1,7 @@
 package viscel.narration.narrators
 
+import java.net.URL
+
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
@@ -24,9 +26,10 @@ object CloneManga {
 
 
 	object MetaClone extends Metarrator[Clone]("CloneManga") {
-		def archive: ViscelUrl = stringToVurl("http://manga.clone-army.org/viewer_landing.php")
 
-		override def unapply(vurl: ViscelUrl): Option[ViscelUrl] = None
+		override def unapply(url: ViscelUrl): Option[ViscelUrl] = {
+			if (url.toString.matches("^http://\\w+.clone-army.org.*")) Some("http://manga.clone-army.org/viewer_landing.php") else None
+		}
 
 		override def wrap(doc: Document): List[Clone] Or Every[ErrorMessage] =
 			Selection(doc).many(".comicPreviewContainer").wrapEach { container =>
