@@ -368,5 +368,39 @@ http://two-rooks.com/archive/volume-i/
 
 -:Strange Candy
 http://www.strangecandy.net/d/20010116.html
-:i #comic > img
+:is #comic > img
 :n #comicnav a:has(img[alt=Next comic])
+
+-:Drowtales Moonless Age
+http://www.drowtales.com/mainarchive.php?sid=4192
+:ia #content_middle img
+
+-:Earthsong
+http://earthsongsaga.com/archives.php
+:am #text strong , #text a
+:i img[src~=images/vol]
+
+-:Final Arcanum
+http://www.finalarcanum.com/archive/
+:am .archive__table td.archive__header h2 , .archive__table .archive__pagename a
+:i #comic_image
+
+-:Ianua
+http://www.lesserkeystudios.com/ianua/page-1/
+:i #art > p:nth-child(4) > img
+:n #art > p:nth-child(5) > a:contains(Next)
+
+-:Snow by Night
+http://www.snowbynight.com/story.php
+:am .content_main h2 , .content_main .archive_pages a
+:i div.content_group.comic_group img
+
+-:Valkyrie Squadron
+http://www.valkyriesquadron.com/valkyrie/prologue-page-0/
+:i #webcomic > div.webcomic-image > img
+:n #webcomic > nav.webcomics.above > a.next-webcomic-link
+
+-:Wilde Life
+http://wildelifecomic.com/index.php?id=1
+:i #comic
+:n #nav1 > div > a.next
