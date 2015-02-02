@@ -169,11 +169,6 @@ http://oglaf.com/archive/
 :i #strip
 :n #nav > a:has(#nx)
 
--:Otaku no Yen
-http://otakunoyen.com/?p=19
-:i #comic-1 > img
-:n #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
-
 -:Chirault
 http://chirault.sevensmith.net/archives.php
 :am div.entryText > p > b , div.entryText > p > a
@@ -370,10 +365,6 @@ http://two-rooks.com/archive/volume-i/
 http://www.strangecandy.net/d/20010116.html
 :is #comic > img
 :n #comicnav a:has(img[alt=Next comic])
-
--:Drowtales Moonless Age
-http://www.drowtales.com/mainarchive.php?sid=4192
-:ia #content_middle img
 
 -:Earthsong
 http://earthsongsaga.com/archives.php

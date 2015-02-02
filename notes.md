@@ -59,7 +59,8 @@
 
 # broken comics
 
-|     comic     |       problem       |                   url                    |
-| ------------- | ------------------- | ---------------------------------------- |
-| Universal_Key | page layout changes | <http://key.shadilyn.com/pages/085.html> |
-|               |                     |                                          |
+|         comic          |       problem       |                         url                         |
+| ---------------------- | ------------------- | --------------------------------------------------- |
+| Universal_Key          | page layout changes | <http://key.shadilyn.com/pages/085.html>            |
+| Drowtales Moonless Age | flash               | <http://www.drowtales.com/mainarchive.php?sid=4065> |
+| Otaku no Yen           | missing image       | <http://otakunoyen.com/?p=1079>                     |
