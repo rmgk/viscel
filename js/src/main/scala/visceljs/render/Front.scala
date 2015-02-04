@@ -55,9 +55,7 @@ object Front {
 			def build(apos: Int, assets: Gallery[Story.Asset], chapters: List[(Int, Story.Chapter)], acc: List[Frag]): List[Frag] = chapters match {
 				case (cpos, chap) :: ctail =>
 					build(cpos, assets.prev(apos - cpos), ctail, makeChapField(chap, apos - cpos, assets) :: acc)
-				case Nil =>
-					if (assets.pos == 0) acc
-					else makeChapField(Story.Chapter("No Chapter"), assets.pos, assets) :: acc
+				case Nil => acc
 			}
 
 			section(class_chapters)(build(assets.pos, assets, chapters, Nil))

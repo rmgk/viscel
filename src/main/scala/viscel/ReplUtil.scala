@@ -72,13 +72,7 @@ object ReplUtil {
 
 		val narrationOption = neo.tx { implicit ntx =>
 			Books.findExisting(id).map { nar =>
-				val list = nar.self.fold(List[List[Story]]())(state => n => (state, NeoCodec.load[Story](n)) match {
-					case (s, c@Chapter(_, _)) => List(c) :: s
-					case (Nil, a@Asset(_, _, _, _)) => (a :: Chapter("") :: Nil) :: Nil
-					case (c :: xs, a@Asset(_, _, _, _)) => (a :: c) :: xs
-					case (s, _) => s
-				}).map(_.reverse).reverse
-				(nar.name, list, nar.content().chapters)
+				(nar.name, nar.content())
 			}
 		}
 
@@ -93,26 +87,29 @@ object ReplUtil {
 
 		val html = "<!DOCTYPE html>" + ServerPages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
 
-		val (narname, chapters, flatChapters) = narrationOption.get
+		val (narname, content) = narrationOption.get
+
+		val chapters: List[(Chapter, Seq[Asset])] = content.chapters.foldLeft((content.gallery.size, List[(Chapter, Seq[Asset])]())){ case ((np, cs), (p, c)) =>
+			(p, (c, Range(p, np).map(p => content.gallery.next(p).get.get)) :: cs)
+		}._2
 
 		val assetList = chapters.zipWithIndex.flatMap {
-			case (chap :: assets, cpos) =>
-				val cname = f"$cpos%04d"
+			case ((chap, assets), cpos) =>
+				val cname = f"${cpos + 1}%04d"
 				val dir = p.resolve(cname)
 				Files.createDirectories(dir)
 				assets.zipWithIndex.map {
-					case (a@Asset(_, _, _, blob), apos) =>
-						val name = f"$apos%05d.${ mimeToExt(a.blob.fold("")(_.mediatype), default = "bmp") }"
-						blob.foreach { b =>
+					case (a, apos) =>
+						val name = f"${apos + 1}%05d.${ mimeToExt(a.blob.fold("")(_.mediatype), default = "bmp") }"
+						a.blob.foreach { b =>
 							Files.copy(Viscel.basepath.resolve(BlobStore.hashToFilename(b.sha1)), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
 						}
-						a.copy(blob = blob.map(b => b.copy(sha1 = s"$cname/$name")))
-					case _ => throw new IllegalStateException("invalid archive structure")
+						a.copy(blob = a.blob.map(b => b.copy(sha1 = s"$cname/$name")))
 				}
-			case _ => throw new IllegalStateException("invalid archive structure")
 		}
 
-		val assembled = (Description(id, narname, assetList.size), Content(Gallery.fromList(assetList), flatChapters))
+
+		val assembled = (Description(id, narname, assetList.size), content.copy(Gallery.fromList(assetList)))
 
 		val narJson = "var data = " + upickle.write(assembled)
 
