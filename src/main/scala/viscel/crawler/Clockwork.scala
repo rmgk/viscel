@@ -9,7 +9,7 @@ import viscel.{Viscel, Log}
 import viscel.database._
 import viscel.narration.{Narrator, Narrators}
 import viscel.shared.JsonCodecs.{stringMapW, stringMapR}
-import viscel.store.{Books, Json, Users}
+import viscel.store.{Json, Users}
 
 import scala.collection.concurrent
 import scala.collection.immutable.Map

@@ -1,7 +1,7 @@
 package visceljs
 
 import viscel.shared.Gallery
-import viscel.shared.Story.{Asset, Narration}
+import viscel.shared.Story.{Asset, Description}
 import visceljs.Actions.{gotoFront, gotoIndex, gotoView, onLeftClick}
 
 import scala.Predef.$conforms
@@ -13,10 +13,10 @@ object Definitions {
 
 	def path_main = "#"
 	def path_css = "css"
-	def path_asset(nr: Narration, gallery: Gallery[Asset]) = s"#${ nr.id }/${ gallery.pos + 1 }"
+	def path_asset(data: Data) = s"#${ data.id }/${ data.pos + 1 }"
 	def path_search = "s"
 	def path_blob(blob: String) = if (blob.contains("/")) blob else s"blob/${ blob }"
-	def path_front(nar: Narration) = s"#${ nar.id }"
+	def path_front(nar: Description) = s"#${ nar.id }"
 	def path_stop = "stop"
 
 	val class_post = cls := "post"
@@ -29,10 +29,10 @@ object Definitions {
 
 	def link_index(ts: Frag*): Tag = a(onLeftClick(gotoIndex()), href := path_main)(ts)
 	def link_stop(ts: Frag*): Tag = a(href := path_stop)(ts)
-	def link_asset(nar: Narration, gallery: Gallery[Asset]): Tag =
-		if (gallery.isEnd) a(class_dead)
-		else a.apply(onLeftClick(gotoView(gallery, nar)), href := path_asset(nar, gallery))
-	def link_front(nar: Narration, ts: Frag*): Tag = a(onLeftClick(gotoFront(nar)), href := path_front(nar))(ts)
+	def link_asset(data: Data): Tag =
+		if (data.gallery.isEnd) a(class_dead)
+		else a.apply(onLeftClick(gotoView(data)), href := path_asset(data))
+	def link_front(nar: Description, ts: Frag*): Tag = a(onLeftClick(gotoFront(nar)), href := path_front(nar))(ts)
 
 
 }

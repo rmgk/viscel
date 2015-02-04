@@ -1,7 +1,7 @@
 package visceljs
 
 import org.scalajs.dom.HTMLInputElement
-import viscel.shared.Story.{Asset, Narration}
+import viscel.shared.Story.{Asset, Description}
 import visceljs.Actions._
 import visceljs.Definitions._
 
@@ -14,9 +14,9 @@ import scalatags.JsDom.tags2.{article, aside, nav, section}
 object Make {
 
 
-	def postBookmark(nar: Narration, pos: Int, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, pos) })
+	def postBookmark(nar: Description, pos: Int, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, pos) })
 
-	def searchArea(narrations: List[Narration]): HtmlTag = aside {
+	def searchArea(narrations: List[Description]): HtmlTag = aside {
 		val results = ol.render
 		var filtered = narrations
 		filtered.sortBy(_.name).foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))

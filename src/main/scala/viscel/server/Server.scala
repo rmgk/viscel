@@ -8,10 +8,10 @@ import spray.can.Http
 import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.{HttpService, Route}
-import viscel.database.Neo
+import viscel.database.{Books, Neo}
 import viscel.narration.{Metarrators, Narrators}
 import viscel.store.BlobStore.hashToPath
-import viscel.store.{Books, User}
+import viscel.store.User
 import viscel.{Deeds, Log, ReplUtil, Viscel}
 
 import scala.Predef.{$conforms, ArrowAssoc, genericArrayOps}
@@ -79,11 +79,11 @@ class Server(neo: Neo) extends Actor with HttpService {
 				handleBookmarksForm(user)(newUser => complete(ServerPages.bookmarks(newUser)))
 			} ~
 			path("narrations") {
-				complete(ServerPages.jsonResponse(neo.tx(Books.allNarrations(deep = false)(_))))
+				complete(ServerPages.jsonResponse(neo.tx(Books.allDescriptions()(_))))
 			} ~
 			path("narration" / Segment) { collectionId =>
-				rejectNone(neo.tx { Books.getNarration(collectionId, deep = true)(_) }) { narration =>
-					complete(ServerPages.jsonResponse(narration))
+				rejectNone(neo.tx { ntx => Books.find(collectionId)(ntx).map(_.content()(ntx)) }) { content =>
+					complete(ServerPages.jsonResponse(content))
 				}
 			} ~
 			pathPrefix("blob" / Segment) { (sha1) =>

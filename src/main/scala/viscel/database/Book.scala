@@ -1,10 +1,9 @@
-package viscel.store
+package viscel.database
 
 import org.neo4j.graphdb.Node
-import viscel.database.Implicits.NodeOps
-import viscel.database.{NeoCodec, Ntx, label}
-import viscel.shared.Story.{Asset, Chapter, Narration}
+import viscel.shared.Story.{Content, Asset, Chapter, Description}
 import viscel.shared.{Gallery, Story}
+import viscel.database.Implicits.NodeOps
 
 final case class Book(self: Node) extends AnyVal {
 
@@ -25,8 +24,7 @@ final case class Book(self: Node) extends AnyVal {
 		case _ => s
 	})
 
-
-	def narration(deep: Boolean)(implicit ntx: Ntx): Narration = {
+	def content()(implicit ntx: Ntx): Content = {
 		def allAssets(node: Node): (Int, List[Story.Asset], List[(Int, Story.Chapter)]) = {
 			node.fold((0, List[Story.Asset](), List[(Int, Story.Chapter)]())) {
 				case state@(pos, assets, chapters) => NeoCodec.load[Story](_) match {
@@ -36,16 +34,10 @@ final case class Book(self: Node) extends AnyVal {
 				}
 			}
 		}
-
-		if (deep) {
-			val (size, assets, chapters) = allAssets(self)
-			Narration(id, name, assets.size, Gallery.fromList(assets.reverse), chapters)
-		}
-		else {
-			Narration(id, name, size, Gallery.empty, Nil)
-		}
+		val (size, assets, chapters) = allAssets(self)
+		Content(Gallery.fromList(assets.reverse), chapters)
 	}
 
+	def description()(implicit ntx: Ntx): Description = Description(id, name, size)
+
 }
-
-

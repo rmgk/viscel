@@ -16,7 +16,9 @@ object Story {
 	}
 	final case class Failed(reason: List[String]) extends Story
 	final case class Blob(sha1: String, mediatype: String) extends Story
-	final case class Narration(id: String, name: String, size: Int, narrates: Gallery[Asset], chapters: List[(Int, Chapter)])
+
+	final case class Description(id: String, name: String, size: Int)
+	final case class Content(gallery: Gallery[Asset], chapters: List[(Int, Chapter)])
 
 	object More {
 		abstract class Kind(val name: String)
@@ -43,7 +45,8 @@ object Story {
 	implicit val blobR: ReaderWriter[Blob] = case2RW(Blob.apply, Blob.unapply)("sha1", "mediatype")
 	implicit val assetR: ReaderWriter[Asset] = case4RW(Asset.apply, Asset.unapply)("source", "origin", "metadata", "blob")
 	implicit val failedR: ReaderWriter[Failed] = case1RW(Failed.apply, Failed.unapply)("reason")
-	implicit val narrationR: ReaderWriter[Narration] = case5RW(Narration.apply, Narration.unapply)("id", "name", "size", "narrates", "chapters")
+	implicit val descriptionRW: ReaderWriter[Description] = case3RW(Description.apply, Description.unapply)("id", "name", "size")
+	implicit val contentRW: ReaderWriter[Content] = case2RW(Content.apply, Content.unapply)("gallery", "chapters")
 
 	//	implicit val storyWriter: Writer[Story] = Writer[Story] {
 	//		case s @ More(_, _) => writeJs(("More", s))

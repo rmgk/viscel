@@ -35,21 +35,19 @@ object Viscel {
 
 	var bookmarks: Future[Map[String, Int]] = _
 
-	var narrations: Future[Map[String, Narration]] = _
+	var descriptions: Future[Map[String, Description]] = _
+	var contents: Map[String, Future[Content]] = Map()
 
-	def narration(nar: Narration): Future[Narration] =
-		if (!nar.narrates.isEmpty) Future.successful(nar)
-		else {
-			narrations = narrations.flatMap {
-				case store if store(nar.id).narrates.isEmpty => ajax[Narration](s"narration/${ nar.id }").map(store.updated(nar.id, _))
-				case store => Future.successful(store)
-			}
-			narrations.map(_(nar.id))
-		}
+	def content(nar: Description): Future[Content] = contents.getOrElse(nar.id, {
+		val res = ajax[Content](s"narration/${ nar.id }")
+		contents = contents.updated(nar.id, res)
+		res
+	})
 
-	def hint(nar: Narration): Unit = dom.extensions.Ajax.post(s"hint/narrator/${ nar.id }")
 
-	def postBookmark(nar: Narration, pos: Int): Future[Map[String, Int]] = {
+	def hint(nar: Description): Unit = dom.extensions.Ajax.post(s"hint/narrator/${ nar.id }")
+
+	def postBookmark(nar: Description, pos: Int): Future[Map[String, Int]] = {
 		val res = dom.extensions.Ajax.post("bookmarks", s"narration=${ nar.id }&bookmark=$pos", headers = List("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
 			.map(res => upickle.read[Map[String, Int]](res.responseText))
 		bookmarks = res
@@ -100,7 +98,7 @@ object Viscel {
 		}
 
 		bookmarks = ajax[Map[String, Int]]("bookmarks")
-		narrations = ajax[List[Narration]]("narrations").map(_.map(n => n.id -> n).toMap)
+		descriptions = ajax[List[Description]]("narrations").map(_.map(n => n.id -> n).toMap)
 
 		setBody(Body(frag = div("loading data …")))
 
@@ -110,7 +108,7 @@ object Viscel {
 	}
 
 	@JSExport(name = "spore")
-	def spore(id: String, narationJson: String): Unit = {
+	def spore(id: String, dataJson: String): Unit = {
 
 		offlineMode = true
 
@@ -119,7 +117,9 @@ object Viscel {
 		}
 
 		bookmarks = Future.successful(Map())
-		narrations = Future.successful(Map(id -> upickle.read[Narration](narationJson)))
+		val (desc, content) = upickle.read[(Description, Content)](dataJson)
+		descriptions = Future.successful(Map(id -> desc))
+		contents = Map(desc.id -> Future.successful(content))
 
 		setBody(Body(frag = div("loading data …")))
 

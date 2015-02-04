@@ -8,12 +8,12 @@ import viscel.Log
 import viscel.crawler.Archive._
 import viscel.crawler.RunnerUtil._
 import viscel.database.Implicits.NodeOps
-import viscel.database.{Neo, NeoCodec, Ntx, rel}
+import viscel.database.{Book, Neo, NeoCodec, Ntx, rel}
 import viscel.narration.Narrator
 import viscel.shared.Story
 import viscel.shared.Story.More.Issue
 import viscel.shared.Story.{Asset, Failed, More}
-import viscel.store.{BlobStore, Book}
+import viscel.store.BlobStore
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.implicitly

@@ -9,14 +9,14 @@ import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
 import viscel.crawler.{Archive, RunnerUtil}
-import viscel.database.{NeoCodec, Neo}
+import viscel.database.{Books, NeoCodec, Neo}
 import viscel.database.Implicits.NodeOps
 import viscel.narration.{SelectUtil, Metarrator, Narrator}
 import viscel.server.ServerPages
 import viscel.shared.Story.More.Kind
-import viscel.shared.Story.{Narration, Chapter, Asset}
+import viscel.shared.Story.{Content, Description, Chapter, Asset}
 import viscel.shared.{Story, Gallery, ViscelUrl}
-import viscel.store.{BlobStore, Books}
+import viscel.store.BlobStore
 
 import scala.annotation.tailrec
 import scala.concurrent.Await
@@ -71,14 +71,14 @@ object ReplUtil {
 	def export(id: String)(implicit neo: Neo): Unit = {
 
 		val narrationOption = neo.tx { implicit ntx =>
-			Books.find(id).map { nar =>
+			Books.findExisting(id).map { nar =>
 				val list = nar.self.fold(List[List[Story]]())(state => n => (state, NeoCodec.load[Story](n)) match {
 					case (s, c@Chapter(_, _)) => List(c) :: s
 					case (Nil, a@Asset(_, _, _, _)) => (a :: Chapter("") :: Nil) :: Nil
 					case (c :: xs, a@Asset(_, _, _, _)) => (a :: c) :: xs
 					case (s, _) => s
 				}).map(_.reverse).reverse
-				(nar.name, list, nar.narration(deep = true).chapters)
+				(nar.name, list, nar.content().chapters)
 			}
 		}
 
@@ -112,9 +112,9 @@ object ReplUtil {
 			case _ => throw new IllegalStateException("invalid archive structure")
 		}
 
-		val assembled = Narration(id, narname, assetList.size, Gallery.fromList(assetList), flatChapters)
+		val assembled = (Description(id, narname, assetList.size), Content(Gallery.fromList(assetList), flatChapters))
 
-		val narJson = "var narration = " + upickle.write(assembled)
+		val narJson = "var data = " + upickle.write(assembled)
 
 		Files.write(p.resolve(s"${ narname }.html"), html.getBytes(StandardCharsets.UTF_8))
 		Files.write(p.resolve("narration"), narJson.getBytes(StandardCharsets.UTF_8))

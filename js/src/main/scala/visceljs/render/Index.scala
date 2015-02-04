@@ -1,6 +1,6 @@
 package visceljs.render
 
-import viscel.shared.Story.Narration
+import viscel.shared.Story.Description
 import visceljs.Definitions.{link_front, link_stop}
 import visceljs.{Body, Make}
 
@@ -11,11 +11,11 @@ import scalatags.JsDom.tags.SeqFrag
 
 
 object Index {
-	def gen(bookmarks: Map[String, Int], narrations: Map[String, Narration]): Body = {
+	def gen(bookmarks: Map[String, Int], descriptions: Map[String, Description]): Body = {
 
-		val bookmarkedNarrations: List[(Narration, Int, Int)] =
+		val bookmarkedNarrations: List[(Description, Int, Int)] =
 			bookmarks.toList.map { case (id, pos) =>
-				narrations.get(id).map { nr =>
+				descriptions.get(id).map { nr =>
 					(nr, pos, nr.size - pos)
 				}
 			}.flatten
@@ -30,13 +30,13 @@ object Index {
 		}
 
 		val (totalBookmarks, unreadBookmarks) = bookmarkedNarrations.foldLeft((0, 0)){case ((pos, unread), (nar, p, u)) => (pos + p, unread + (if (u > 0) u else 0))}
-		val totalBookmarkedPages = narrations.filterKeys(bookmarks.contains).values.map(_.size).sum
+		val totalBookmarkedPages = descriptions.filterKeys(bookmarks.contains).values.map(_.size).sum
 
 		Body(id = "index", title = "Viscel",
 			frag = List(
 				Make.group(s"New Pages ($unreadBookmarks)", unreadTags),
 				Make.group(s"Bookmarks ($totalBookmarks/$totalBookmarkedPages)", currentTags),
 				Make.navigation(Make.fullscreenToggle("TFS"),link_stop("stop")),
-				Make.searchArea(narrations.values.toList)))
+				Make.searchArea(descriptions.values.toList)))
 	}
 }
