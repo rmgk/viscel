@@ -1,17 +1,21 @@
 package visceljs
 
 import org.scalajs.dom
+import org.scalajs.dom.MouseEvent
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.{Front, Index, View}
 
+import scala.Predef.$conforms
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
+import scalatags.JsDom.all.{Modifier, bindJsAnyLike, onclick}
 
 
 object Actions {
 
 	def dispatchPath(path: String): Unit = {
+		Console.println(s"dispatching $path")
 		val paths = List(path.split("/"): _*)
 		paths match {
 			case Nil | "" :: Nil =>
@@ -38,6 +42,12 @@ object Actions {
 	def pushFront(nar: Narration): Unit = dom.history.pushState("", "front", path_front(nar))
 	def pushView(gallery: Gallery[Asset], nar: Narration): Unit = dom.history.pushState("", "view", path_asset(nar, gallery))
 
+	def onLeftClick(a: => Unit): Modifier = onclick := { (e: MouseEvent) =>
+		if (e.button == 0) {
+			e.preventDefault()
+			a
+		}
+	}
 
 	def gotoIndex(): Unit = {
 		pushIndex()

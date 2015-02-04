@@ -2,10 +2,10 @@ package visceljs
 
 import viscel.shared.Gallery
 import viscel.shared.Story.{Asset, Narration}
-import visceljs.Actions.{gotoFront, gotoIndex, gotoView}
+import visceljs.Actions.{gotoFront, gotoIndex, gotoView, onLeftClick}
 
 import scala.Predef.$conforms
-import scalatags.JsDom.all.{Frag, SeqFrag, Tag, a, bindJsAnyLike, cls, href, onclick, stringAttr}
+import scalatags.JsDom.all.{Frag, SeqFrag, Tag, a, cls, href, stringAttr}
 
 
 object Definitions {
@@ -27,12 +27,12 @@ object Definitions {
 	val class_chapters = cls := "chapters"
 
 
-	def link_index(ts: Frag*): Tag = a(onclick := (() => gotoIndex()))(ts)
+	def link_index(ts: Frag*): Tag = a(onLeftClick(gotoIndex()), href := path_main)(ts)
 	def link_stop(ts: Frag*): Tag = a(href := path_stop)(ts)
 	def link_asset(nar: Narration, gallery: Gallery[Asset]): Tag =
 		if (gallery.isEnd) a(class_dead)
-		else a(onclick := (() => gotoView(gallery, nar)))
-	def link_front(nar: Narration, ts: Frag*): Tag = a(ts)(onclick := (() => gotoFront(nar)))
+		else a.apply(onLeftClick(gotoView(gallery, nar)), href := path_asset(nar, gallery))
+	def link_front(nar: Narration, ts: Frag*): Tag = a(onLeftClick(gotoFront(nar)), href := path_front(nar))(ts)
 
 
 }
