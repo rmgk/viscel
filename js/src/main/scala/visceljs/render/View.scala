@@ -42,7 +42,7 @@ object View {
 					link_asset(data.prev)("prev", rel := "prev"),
 					link_front(narration, "front"),
 					Make.fullscreenToggle("TFS"),
-					if (bookmark != gallery.pos) Make.postBookmark(narration, gallery.pos + 1, "pause") else a(class_dead, "pause"),
+					if (bookmark != gallery.pos + 1) Make.postBookmark(narration, gallery.pos + 1, "pause") else a(class_dead, "pause"),
 					a(href := gallery.get.fold("")(_.origin.toString))(class_extern)("site"),
 					link_asset(data.next)("next", rel := "next"))
 
