@@ -85,7 +85,6 @@ object ReplUtil {
 		val p = Viscel.basepath.resolve("export").resolve(id)
 		Files.createDirectories(p)
 
-		val html = "<!DOCTYPE html>" + ServerPages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
 
 		val (narname, content) = narrationOption.get
 
@@ -111,7 +110,9 @@ object ReplUtil {
 
 		val assembled = (Description(id, narname, assetList.size), content.copy(Gallery.fromList(assetList)))
 
-		val narJson = "var data = " + upickle.write(assembled)
+		val narJson = "var narration = " + upickle.write(assembled)
+		val html = "<!DOCTYPE html>" + ServerPages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
+
 
 		Files.write(p.resolve(s"${ narname }.html"), html.getBytes(StandardCharsets.UTF_8))
 		Files.write(p.resolve("narration"), narJson.getBytes(StandardCharsets.UTF_8))
