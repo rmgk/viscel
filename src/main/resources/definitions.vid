@@ -164,7 +164,7 @@ http://nopinkponies.keenspot.com/d/20060207.html
 
 -:Oglaf
 http://oglaf.com/archive/
-:ac body > div > div > div a
+:ac body > div > div > div a[href~=^/]
 :archiveReverse
 :i #strip
 :n #nav > a:has(#nx)
