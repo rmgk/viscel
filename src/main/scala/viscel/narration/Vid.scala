@@ -16,6 +16,7 @@ import scala.Predef.augmentString
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.Map
+import scala.Predef.genericArrayOps
 
 object Vid {
 
@@ -81,18 +82,19 @@ object Vid {
 
 		val (pageFunReplace, archFunReplace) = attrs match {
 			case extract"url_replace $replacer" =>
-				replacer.s.split("\\s+:::\\s+", 2) match {
-					case Array(matches, replace) =>
-						val doReplace: List[Story] => List[Story] = { stories =>
-							stories.map {
-								case Story.More(url, kind) => Story.More(url.replaceAll(matches, replace), kind)
-								case o => o
+				val replacements = replacer.s.split("\\s+:::\\s+").sliding(2, 2).toList
+				val doReplace: List[Story] => List[Story] = { stories =>
+					stories.map {
+						case Story.More(url, kind) =>
+							val newUrl = replacements.foldLeft(url.toString){
+								case (u, Array(matches, replace)) => u.replaceAll(matches, replace)
 							}
-						}
-						(transform(pageFun)(doReplace), transform(archFun)(doReplace))
-
-					case _ => (None, None)
+							Story.More(newUrl, kind)
+						case o => o
+					}
 				}
+				(transform(pageFun)(doReplace), transform(archFun)(doReplace))
+
 
 			case _ => (pageFun, archFun)
 		}
