@@ -23,7 +23,7 @@ object Viscel {
 	def ajax[R: Reader](path: String): Future[R] =
 		if (offlineMode) Future.failed(new Throwable("offline mode"))
 		else {
-			val res = dom.extensions.Ajax.get(url = path)
+			val res = dom.ext.Ajax.get(url = path)
 				.map { res => upickle.read[R](res.responseText) }
 			res.onFailure {
 				case e => Console.println(s"request $path failed with $e")
@@ -45,10 +45,11 @@ object Viscel {
 	})
 
 
-	def hint(nar: Description): Unit = dom.extensions.Ajax.post(s"hint/narrator/${ nar.id }")
+	def hint(nar: Description): Unit = dom.ext.Ajax.post(s"hint/narrator/${ nar.id }")
 
 	def postBookmark(nar: Description, pos: Int): Future[Map[String, Int]] = {
-		val res = dom.extensions.Ajax.post("bookmarks", s"narration=${ nar.id }&bookmark=$pos", headers = List("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
+
+		val res = dom.ext.Ajax.post("bookmarks", s"narration=${ nar.id }&bookmark=$pos", headers = Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
 			.map(res => upickle.read[Map[String, Int]](res.responseText))
 		bookmarks = res
 		res

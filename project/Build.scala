@@ -1,8 +1,8 @@
 import sbt.Keys._
 import sbt._
 
-import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys._
-import scala.scalajs.sbtplugin.ScalaJSPlugin._
+import org.scalajs.sbtplugin.ScalaJSPlugin
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
 object Build extends sbt.Build {
 
@@ -17,7 +17,7 @@ object Build extends sbt.Build {
 
 	lazy val js = project.in(file("js"))
 		.settings(name := "viscel-js")
-		.settings(scalaJSSettings: _*)
+		.enablePlugins(ScalaJSPlugin)
 		.settings(Settings.common: _*)
 		.settings(Libraries.js: _*)
 
@@ -125,7 +125,7 @@ object Libraries {
 
 	// gpl3
 	val neo = {
-		val neoVersion = "2.1.6"
+		val neoVersion = "2.1.7"
 		Seq("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % neoVersion)
 	}
 
@@ -136,7 +136,7 @@ object Libraries {
 
 	val akka =
 		List("akka-actor", "akka-slf4j")
-			.map(n => "com.typesafe.akka" %% n % "2.3.8")
+			.map(n => "com.typesafe.akka" %% n % "2.3.9")
 
 	val scalaz =
 		List("scalaz-core", "scalaz-concurrent")
@@ -149,15 +149,14 @@ object Libraries {
 
 	val scalamacros = "org.scalamacros" %% s"quasiquotes" % "2.0.1" % "provided" :: Nil
 
-	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.3" % Test) :: Nil
-	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.3" exclude("org.scala-lang", "scala-reflect")) :: Nil
+	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.4" % Test) :: Nil
+	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.4" exclude("org.scala-lang", "scala-reflect")) :: Nil
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
-	val scalatags = Def.setting("com.scalatags" %%% "scalatags" % "0.4.2" :: Nil)
-	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.5" :: Nil)
+	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.4.5" :: Nil)
+	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.6" :: Nil)
 
 	val scalajsdom = Def.setting(
-		("org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6") ::
-			// ("org.scala-lang.modules.scalajs" %%% "scalajs-jquery" % "0.6") ::
+		("org.scala-js" %%% "scalajs-dom" % "0.8.0") ::
 			Nil)
 
 	val rescala = ("de.tuda.stg" %% "rescala" % "0.4.0"

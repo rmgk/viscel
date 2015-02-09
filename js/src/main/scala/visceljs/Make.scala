@@ -1,6 +1,6 @@
 package visceljs
 
-import org.scalajs.dom.HTMLInputElement
+import org.scalajs.dom.html
 import viscel.shared.Story.{Asset, Description}
 import visceljs.Actions._
 import visceljs.Definitions._
@@ -20,7 +20,7 @@ object Make {
 		val results = ol.render
 		var filtered = narrations
 		filtered.sortBy(_.name).foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
-		lazy val inputField: HTMLInputElement = input(`type` := "textfield", onkeyup := { () =>
+		lazy val inputField: html.Input = input(`type` := "textfield", onkeyup := { () =>
 			results.innerHTML = ""
 			val query = inputField.value.toString.toLowerCase
 			filtered = SearchUtil.search(query, narrations.map(n => n.name -> n))
