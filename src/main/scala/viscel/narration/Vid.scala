@@ -163,7 +163,7 @@ object Vid {
 			}
 		} finally stream.close()
 
-		res ::: dynamic
+    (res ::: dynamic).reverse
 	}
 
 }
