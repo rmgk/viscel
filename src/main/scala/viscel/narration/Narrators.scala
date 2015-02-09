@@ -22,7 +22,7 @@ object Narrators {
 		Batoto.cores ++
     Snafu.cores ++
     CloneManga.cores ++
-		Set(Flipside, Everafter, CitrusSaburoUta, Misfile,
+		Set(Flipside, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
 			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter)
 
