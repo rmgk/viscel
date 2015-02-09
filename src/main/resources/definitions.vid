@@ -17,7 +17,7 @@ http://www.amazingagentluna.com/strips-aal/file_01_-_page_1
 
 -:Vampire Cheerleaders
 http://www.vampirecheerleaders.net/strips-vc/fang_service
-:i #comic img
+:i #comic img[src~=/comics/]
 :n a:has(#next_day1)
 
 -:Dracula Everlasting
