@@ -53,18 +53,19 @@ object Vid {
 		}
 	}
 
-	def makeNarrator(id: String, name: String, pos: Int, url: ViscelUrl, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
+	def makeNarrator(id: String, name: String, pos: Int, startUrl: ViscelUrl, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
 		type Wrap = Document => List[Story] Or Every[ErrorMessage]
 		def has(keys: String*): Boolean = keys.forall(attrs.contains)
 		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(_.badMap(_ :+ s"at lines ${lines.map(_.p)}")))
+    def transform(ow: Option[Wrap])(f: List[Story] => List[Story]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
 
 		val pageFun: Option[Wrap] = attrs match {
 			case extract"ia $img" => annotate(queryImageInAnchor(img.s, Page), img)
 
-			case extract"i$img n$next" => annotate(queryImageNext(img.s, next.s, Page), img, next)
+			case extract"i $img n $next" => annotate(queryImageNext(img.s, next.s, Page), img, next)
 
-			case extract"is$img n$next" => annotate(doc => append(queryImages(img.s)(doc), queryNext(next.s, Page)(doc)), img, next)
+			case extract"is $img n $next" => annotate(doc => append(queryImages(img.s)(doc), queryNext(next.s, Page)(doc)), img, next)
 
 			case extract"i $img" => annotate(queryImage(img.s), img)
 			case extract"is $img" => annotate(queryImages(img.s), img)
@@ -79,16 +80,28 @@ object Vid {
 			case _ => None
 		}
 
-		val archFunMod = if (has("archiveReverse")) archFun.map(_.andThen(_.map { stories =>
+    val (pageFunReplace, archFunReplace) = attrs match {
+      case extract"url_match $matches url_replace $replace" =>
+        val doReplace: List[Story] => List[Story] = { stories =>
+          stories.map {
+            case Story.More(url, kind) => Story.More(url.replaceAll(matches.s, replace.s), kind)
+            case o => o
+          }
+        }
+        (transform(pageFun)(doReplace), transform(archFun)(doReplace))
+      case _ => (pageFun, archFun)
+    }
+
+		val archFunRev = if (has("archiveReverse")) transform(archFunReplace) { stories =>
 			groupedOn(stories){ case c @ Chapter(_, _) => true ; case _ => false }.reverse.flatMap {
 				case (h :: t) => h :: t.reverse
 				case Nil => Nil
 			}
-		})) else archFun
+		} else archFunReplace
 
-		(pageFun, archFunMod) match {
-			case (Some(pf), None) => Good(Templates.SF(cid, name, url, pf))
-			case (Some(pf), Some(af)) => Good(Templates.AP(cid, name, url, af, pf))
+		(pageFunReplace, archFunRev) match {
+			case (Some(pf), None) => Good(Templates.SF(cid, name, startUrl, pf))
+			case (Some(pf), Some(af)) => Good(Templates.AP(cid, name, startUrl, af, pf))
 			case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
 		}
 

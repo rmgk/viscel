@@ -107,7 +107,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			assets = Nil
 			recheck = None
 			recover = false
-			previousMore(node.prev).foreach(pages ::= _)
+			parentMore(node.prev).foreach(pages ::= _)
 			ec.execute(this)
 		}
 
@@ -137,7 +137,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 				// remove cached size
 				collection.self.removeProperty("size")
 				// if we have changes at the end, we tests the more generating the end to make sure that has not changed
-				if (!wasEmpty && pages.isEmpty) previousMore(node.prev).foreach(pages ::= _)
+				if (!wasEmpty && pages.isEmpty) parentMore(node.prev).foreach(pages ::= _)
 				node.layerBelow.reverse foreach collectUnvisited
 			}
 			ec.execute(this)
