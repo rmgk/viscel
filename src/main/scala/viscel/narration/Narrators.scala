@@ -20,6 +20,8 @@ object Narrators {
 		PetiteSymphony.cores ++
 		WordpressEasel.cores ++
 		Batoto.cores ++
+    Snafu.cores ++
+    CloneManga.cores ++
 		Set(Flipside, Everafter, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
 			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter)
