@@ -80,14 +80,20 @@ object Vid {
 		}
 
 		val (pageFunReplace, archFunReplace) = attrs match {
-			case extract"url_match $matches url_replace $replace" =>
-				val doReplace: List[Story] => List[Story] = { stories =>
-					stories.map {
-						case Story.More(url, kind) => Story.More(url.replaceAll(matches.s, replace.s), kind)
-						case o => o
-					}
+			case extract"url_replace $replacer" =>
+				replacer.s.split("\\s+:::\\s+", 2) match {
+					case Array(matches, replace) =>
+						val doReplace: List[Story] => List[Story] = { stories =>
+							stories.map {
+								case Story.More(url, kind) => Story.More(url.replaceAll(matches, replace), kind)
+								case o => o
+							}
+						}
+						(transform(pageFun)(doReplace), transform(archFun)(doReplace))
+
+					case _ => (None, None)
 				}
-				(transform(pageFun)(doReplace), transform(archFun)(doReplace))
+
 			case _ => (pageFun, archFun)
 		}
 

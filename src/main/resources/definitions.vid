@@ -370,8 +370,7 @@ http://www.strangecandy.net/d/20010116.html
 http://earthsongsaga.com/archives.php
 :am #text strong , #text a
 :i img[src~=images/vol]
-:url_match (http://earthsongsaga.com/vol4/ch14cover.php)
-:url_replace http://earthsongsaga.com/vol5/ch14cover.php
+:url_replace http://earthsongsaga.com/vol4/ch14cover.php ::: http://earthsongsaga.com/vol5/ch14cover.php
 
 -:Final Arcanum
 http://www.finalarcanum.com/archive/
