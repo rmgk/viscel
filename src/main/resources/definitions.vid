@@ -115,8 +115,8 @@ http://www.fantasyrealmsonline.com/manga.php
 
 -:Feywinds
 http://www.feywinds.com/comic.html
-:am body > table > tbody > tr:nth-child(2) > td > table:nth-child(4) > tbody > tr > td > blockquote > p:lt(3) span.h1 , body > table > tbody > tr:nth-child(2) > td > table:nth-child(4) > tbody > tr > td > blockquote > p:lt(3) a
-:i body > table > tbody > tr:nth-child(2) > td > table:nth-child(2) > tbody > tr > td > blockquote > p > img
+:am blockquote:has(.title:contains(Archive)) > p:lt(2) span.h1 , blockquote:contains(Archive) > p:lt(2) a
+:i img[src~=/comic/pages/]
 
 -:Flipside0
 http://flipside.keenspot.com/comic/book0/fs01pg01.html
@@ -262,7 +262,7 @@ http://mangowow.zamomo.com/index.php?strip_id=1
 -:Undertow
 http://undertow.dreamshards.org/0/u0_0.html
 :i body > center > img:nth-child(1)
-:n body > center > a:has(img[src~=saepoint.JPG])
+:n body > center > a:has(img[src~=saepoint.JPG]):not([href=http://undertow.dreamshards.org])
 
 -:Valiant
 http://valiant.spiderforest.com/?comic_id=0

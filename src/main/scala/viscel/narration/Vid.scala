@@ -121,7 +121,7 @@ object Vid {
 	}
 
 	def parse(lines: Iterator[String]): List[Narrator] Or ErrorMessage = {
-		val preprocessed = lines.map(_.trim).zipWithIndex.map(p => Line(p._1, p._2 + 1)).filter(_.s.nonEmpty).buffered
+		val preprocessed = lines.map(_.trim).zipWithIndex.map(p => Line(p._1, p._2 + 1)).filter(l => l.s.nonEmpty && !l.s.startsWith("--")).buffered
 		def go(it: It, acc: List[Narrator]): List[Narrator] Or ErrorMessage =
 			if (!it.hasNext) {
 				Good(acc)
