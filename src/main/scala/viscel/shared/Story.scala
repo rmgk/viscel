@@ -37,7 +37,7 @@ object Story {
 			}
 		}
 		implicit val kindR: upickle.Reader[Kind] = upickle.Reader(PartialFunction(n => Kind(upickle.readJs[String](n))))
-		implicit val kindW: upickle.Writer[Kind]= upickle.Writer(k => upickle.writeJs(k.name))
+		implicit val kindW: upickle.Writer[Kind] = upickle.Writer(k => upickle.writeJs(k.name))
 	}
 
 	implicit val moreR: ReaderWriter[More] = case2RW(More.apply, More.unapply)("loc", "pagetype")

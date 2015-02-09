@@ -1,6 +1,6 @@
 package viscel
 
-import java.nio.file.{Files, Paths, Path}
+import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.{ActorSystem, Props}
@@ -57,7 +57,7 @@ object Viscel {
 			printHelpOn(System.out)
 			sys.exit(0)
 		}
-		
+
 		basepath = Paths.get(basedir())
 		Files.createDirectories(basepath)
 

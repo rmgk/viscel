@@ -1,7 +1,5 @@
 package viscel.server
 
-import java.io.File
-
 import akka.actor.{Actor, ActorRefFactory}
 import akka.pattern.ask
 import spray.can.Http
@@ -14,7 +12,7 @@ import viscel.store.BlobStore.hashToPath
 import viscel.store.User
 import viscel.{Deeds, Log, ReplUtil, Viscel}
 
-import scala.Predef.{$conforms, ArrowAssoc, genericArrayOps}
+import scala.Predef.{$conforms, ArrowAssoc}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
@@ -133,18 +131,18 @@ class Server(neo: Neo) extends Actor with HttpService {
 				if (!user.isAdmin) reject
 				else parameter('url.as[String]) { url =>
 					onComplete(Metarrators.add(url, Viscel.iopipe)) {
-						case Success(v) => complete(s"found ${v.map(_.id)}")
-						case Failure(e) => complete{e.getMessage}
+						case Success(v) => complete(s"found ${ v.map(_.id) }")
+						case Failure(e) => complete { e.getMessage }
 					}
 				}
-			}~
+			} ~
 			path("reload") {
 				if (!user.isAdmin) reject
 				else complete {
-						Narrators.update()
-						"done"
-					}
+					Narrators.update()
+					"done"
 				}
+			}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)
 }

@@ -1,22 +1,21 @@
 package viscel.narration
 
-import java.io.{InputStreamReader, BufferedReader}
+import java.io.{BufferedReader, InputStreamReader}
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Path, Files, Paths}
+import java.nio.file.{Files, Path}
 
 import org.jsoup.nodes.Document
-import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or, attempt}
-import viscel.ReplUtil.getClass
-import viscel.{Viscel, Log}
+import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
 import viscel.narration.SelectUtil._
 import viscel.shared.Story.Chapter
-import viscel.shared.Story.More.{Page, Unused}
+import viscel.shared.Story.More.Page
 import viscel.shared.{Story, ViscelUrl}
+import viscel.{Log, Viscel}
 
 import scala.Predef.augmentString
 import scala.annotation.tailrec
-import scala.collection.immutable.Map
 import scala.collection.JavaConverters.asScalaIteratorConverter
+import scala.collection.immutable.Map
 
 object Vid {
 
@@ -42,7 +41,7 @@ object Vid {
 		}
 
 
-	implicit class ExtractContext (val sc : StringContext) {
+	implicit class ExtractContext(val sc: StringContext) {
 		object extract {
 			def unapplySeq[T](m: Map[String, T]): Option[Seq[T]] = {
 				val keys = sc.parts.map(_.trim).filter(_.nonEmpty)
@@ -57,8 +56,8 @@ object Vid {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
 		type Wrap = Document => List[Story] Or Every[ErrorMessage]
 		def has(keys: String*): Boolean = keys.forall(attrs.contains)
-		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(_.badMap(_ :+ s"at lines ${lines.map(_.p)}")))
-    def transform(ow: Option[Wrap])(f: List[Story] => List[Story]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
+		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(_.badMap(_ :+ s"at lines ${ lines.map(_.p) }")))
+		def transform(ow: Option[Wrap])(f: List[Story] => List[Story]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
 
 		val pageFun: Option[Wrap] = attrs match {
 			case extract"ia $img" => annotate(queryImageInAnchor(img.s, Page), img)
@@ -80,24 +79,25 @@ object Vid {
 			case _ => None
 		}
 
-    val (pageFunReplace, archFunReplace) = attrs match {
-      case extract"url_match $matches url_replace $replace" =>
-        val doReplace: List[Story] => List[Story] = { stories =>
-          stories.map {
-            case Story.More(url, kind) => Story.More(url.replaceAll(matches.s, replace.s), kind)
-            case o => o
-          }
-        }
-        (transform(pageFun)(doReplace), transform(archFun)(doReplace))
-      case _ => (pageFun, archFun)
-    }
+		val (pageFunReplace, archFunReplace) = attrs match {
+			case extract"url_match $matches url_replace $replace" =>
+				val doReplace: List[Story] => List[Story] = { stories =>
+					stories.map {
+						case Story.More(url, kind) => Story.More(url.replaceAll(matches.s, replace.s), kind)
+						case o => o
+					}
+				}
+				(transform(pageFun)(doReplace), transform(archFun)(doReplace))
+			case _ => (pageFun, archFun)
+		}
 
 		val archFunRev = if (has("archiveReverse")) transform(archFunReplace) { stories =>
-			groupedOn(stories){ case c @ Chapter(_, _) => true ; case _ => false }.reverse.flatMap {
+			groupedOn(stories) { case c@Chapter(_, _) => true; case _ => false }.reverse.flatMap {
 				case (h :: t) => h :: t.reverse
 				case Nil => Nil
 			}
-		} else archFunReplace
+		}
+		else archFunReplace
 
 		(pageFunReplace, archFunRev) match {
 			case (Some(pf), None) => Good(Templates.SF(cid, name, startUrl, pf))
@@ -153,7 +153,7 @@ object Vid {
 			paths.iterator().asScala.flatMap { load }.toList
 		}
 
-		val stream  = new BufferedReader(new InputStreamReader(getClass.getClassLoader.getResourceAsStream("definitions.vid"), StandardCharsets.UTF_8)).lines()
+		val stream = new BufferedReader(new InputStreamReader(getClass.getClassLoader.getResourceAsStream("definitions.vid"), StandardCharsets.UTF_8)).lines()
 		val res = try {
 			parse(stream.iterator().asScala) match {
 				case Good(res) => res
@@ -161,9 +161,10 @@ object Vid {
 					Log.warn(s"failed to parse definitions.vid errors: $err")
 					Nil
 			}
-		} finally stream.close()
+		}
+		finally stream.close()
 
-    (res ::: dynamic).reverse
+		(res ::: dynamic).reverse
 	}
 
 }

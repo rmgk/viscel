@@ -1,17 +1,17 @@
 package viscel.store
 
-import java.io.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.{Files, Path}
-import org.scalactic.{Bad, Good, ErrorMessage, Or}
-import upickle.{Writer, Reader}
+
+import org.scalactic.{Bad, Good, Or}
+import upickle.{Reader, Writer}
 
 object Json {
 
 	def store[T: Writer](p: Path, data: T) = synchronized {
-			val jsonBytes = upickle.write(data).getBytes(UTF_8)
-			Files.createDirectories(p.getParent)
-			Files.write(p, jsonBytes)
+		val jsonBytes = upickle.write(data).getBytes(UTF_8)
+		Files.createDirectories(p.getParent)
+		Files.write(p, jsonBytes)
 	}
 
 	def load[T: Reader](p: Path): T Or Exception = synchronized {

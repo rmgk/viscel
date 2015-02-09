@@ -2,7 +2,6 @@ package viscel.crawler
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.Log
 import viscel.database.Implicits.NodeOps
 import viscel.database.{NeoCodec, Ntx, label, rel}
 import viscel.shared.Story
@@ -54,8 +53,6 @@ object Archive {
 	}
 
 
-
-
 	def nextHub(start: Node)(implicit ntx: Ntx): Option[Node] = {
 		@tailrec
 		def go(node: Node, saved: Node): Node = NeoCodec.load[Story](node) match {
@@ -72,7 +69,7 @@ object Archive {
 		start.layerBelow.find(_.hasLabel(label.More)).map(n => go(n, n))
 	}
 
-  def parentMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start.flatMap(_.above).map(n => (n, NeoCodec.load[More](n)))
+	def parentMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start.flatMap(_.above).map(n => (n, NeoCodec.load[More](n)))
 
 	def previousMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start match {
 		case None => None

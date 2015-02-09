@@ -8,12 +8,11 @@ import viscel.shared.JsonCodecs.stringMapW
 import viscel.store.{Config, User}
 
 import scala.Predef.ArrowAssoc
-import scala.Predef.$conforms
 import scala.collection.immutable.Map
-import scalatags.Text.{RawFrag, Modifier}
 import scalatags.Text.attrs.{`type`, content, href, name, rel, src, title}
-import scalatags.Text.implicits.{stringAttr, stringFrag, Tag}
+import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, head, html, link, meta, script}
+import scalatags.Text.{Modifier, RawFrag}
 
 
 object ServerPages {

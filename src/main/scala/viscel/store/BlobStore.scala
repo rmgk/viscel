@@ -1,6 +1,6 @@
 package viscel.store
 
-import java.nio.file.{Path, Files}
+import java.nio.file.{Files, Path}
 import java.security.MessageDigest
 
 import viscel.Viscel

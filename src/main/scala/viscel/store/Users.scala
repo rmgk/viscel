@@ -4,7 +4,7 @@ import java.io.IOException
 import java.nio.file.{Files, Path}
 
 import org.scalactic.Accumulation._
-import org.scalactic.{Good, Bad, ErrorMessage, Every, One, Or}
+import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
 import viscel.Viscel
 import viscel.shared.JsonCodecs.{case4RW, stringMapR, stringMapW}
 import viscel.shared.ReaderWriter

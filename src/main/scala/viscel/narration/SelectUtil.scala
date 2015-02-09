@@ -4,15 +4,14 @@ import java.net.URL
 
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
-import org.scalactic._
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.Log
+import org.scalactic._
 import viscel.shared.Story.More.Kind
 import viscel.shared.Story.{Asset, Chapter, More}
 import viscel.shared.{Story, ViscelUrl}
 
 import scala.Predef.{$conforms, ArrowAssoc}
-import scala.collection.immutable.{Map, Set}
+import scala.collection.immutable.Set
 import scala.language.implicitConversions
 import scala.util.matching.Regex
 
@@ -39,13 +38,13 @@ object SelectUtil {
 	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
 		append(queryImage(imageQuery)(from), queryNext(nextQuery, pagetype)(from))
 	}
-	def queryMixedArchive(query: String, pagetype: Kind)(from: Element):  List[Story] Or Every[ErrorMessage] = {
+	def queryMixedArchive(query: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
 		Selection(from).many(query).wrapEach { elem =>
 			if (elem.tagName() === "a") elementIntoPointer(pagetype)(elem)
 			else extract { Chapter(elem.text()) }
 		}
 	}
-	def queryChapterArchive(query: String, pagetye: Kind)(from: Element):  List[Story] Or Every[ErrorMessage] = {
+	def queryChapterArchive(query: String, pagetye: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
 		Selection(from).many(query).wrapFlat(elementIntoChapterPointer(pagetye))
 	}
 
@@ -112,7 +111,7 @@ object SelectUtil {
 	}.map(_.reverse).reverse
 
 
-	implicit class RegexContext (val sc : StringContext) {
+	implicit class RegexContext(val sc: StringContext) {
 		object rex {
 			def unapplySeq(m: String): Option[Seq[String]] = {
 				val regex = new Regex(sc.parts.mkString(""))

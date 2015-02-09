@@ -1,34 +1,29 @@
 package viscel
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Path, Paths, Files, StandardCopyOption, StandardOpenOption}
-import java.util.Comparator
-import java.util.function.Predicate
+import java.nio.file.{Files, Paths, StandardCopyOption}
 
 import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
 import viscel.crawler.{Archive, RunnerUtil}
-import viscel.database.{Books, NeoCodec, Neo}
-import viscel.database.Implicits.NodeOps
-import viscel.narration.{SelectUtil, Metarrator, Narrator}
+import viscel.database.{Books, Neo}
+import viscel.narration.Narrator
 import viscel.server.ServerPages
 import viscel.shared.Story.More.Kind
-import viscel.shared.Story.{Content, Description, Chapter, Asset}
-import viscel.shared.{Story, Gallery, ViscelUrl}
+import viscel.shared.Story.{Asset, Chapter, Description}
+import viscel.shared.{Gallery, Story, ViscelUrl}
 import viscel.store.BlobStore
 
-import scala.annotation.tailrec
+import scala.collection.JavaConverters.asScalaIteratorConverter
+import scala.collection.immutable.Map
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-import scala.collection.JavaConverters.asScalaIteratorConverter
-import scala.Predef.augmentString
 import scalatags.Text.RawFrag
 import scalatags.Text.attrs.src
+import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
-import scalatags.Text.implicits.{stringAttr, stringFrag}
-import scala.collection.immutable.Map
 
 class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 
@@ -88,18 +83,18 @@ object ReplUtil {
 
 		val (narname, content) = narrationOption.get
 
-		val chapters: List[(Chapter, Seq[Asset])] = content.chapters.foldLeft((content.gallery.size, List[(Chapter, Seq[Asset])]())){ case ((np, cs), (p, c)) =>
+		val chapters: List[(Chapter, Seq[Asset])] = content.chapters.foldLeft((content.gallery.size, List[(Chapter, Seq[Asset])]())) { case ((np, cs), (p, c)) =>
 			(p, (c, Range(p, np).map(p => content.gallery.next(p).get.get)) :: cs)
 		}._2
 
 		val assetList = chapters.zipWithIndex.flatMap {
 			case ((chap, assets), cpos) =>
-				val cname = f"${cpos + 1}%04d"
+				val cname = f"${ cpos + 1 }%04d"
 				val dir = p.resolve(cname)
 				Files.createDirectories(dir)
 				assets.zipWithIndex.map {
 					case (a, apos) =>
-						val name = f"${apos + 1}%05d.${ mimeToExt(a.blob.fold("")(_.mediatype), default = "bmp") }"
+						val name = f"${ apos + 1 }%05d.${ mimeToExt(a.blob.fold("")(_.mediatype), default = "bmp") }"
 						a.blob.foreach { b =>
 							Files.copy(Viscel.basepath.resolve(BlobStore.hashToFilename(b.sha1)), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
 						}
@@ -127,6 +122,7 @@ object ReplUtil {
 
 	def importFolder(path: String, nid: String, nname: String)(implicit neo: Neo) = {
 		import viscel.narration.SelectUtil.stringToVurl
+
 		import scala.math.Ordering.Implicits.seqDerivedOrdering
 
 		Log.info(s"try to import $nid($nname) form $path")

@@ -1,15 +1,15 @@
 package viscel.crawler
 
-import java.nio.file.{Path}
+import java.nio.file.Path
 import java.util.{Timer, TimerTask}
 
 import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
-import viscel.{Viscel, Log}
 import viscel.database._
 import viscel.narration.{Narrator, Narrators}
-import viscel.shared.JsonCodecs.{stringMapW, stringMapR}
+import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
 import viscel.store.{Json, Users}
+import viscel.{Log, Viscel}
 
 import scala.collection.concurrent
 import scala.collection.immutable.Map

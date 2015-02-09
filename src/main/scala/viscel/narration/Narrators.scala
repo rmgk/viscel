@@ -20,8 +20,8 @@ object Narrators {
 		PetiteSymphony.cores ++
 		WordpressEasel.cores ++
 		Batoto.cores ++
-    Snafu.cores ++
-    CloneManga.cores ++
+		Snafu.cores ++
+		CloneManga.cores ++
 		Set(Flipside, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
 			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter)
@@ -172,7 +172,7 @@ object Narrators {
 			Selection(_).many("table[id~=chapter\\d+_table]").wrap {
 				_.zipWithIndex.map { case (elem, idx) =>
 					Selection(elem).many("a").wrap { as =>
-						Good(Chapter(s"Chapter ${idx + 1}") ::
+						Good(Chapter(s"Chapter ${ idx + 1 }") ::
 							as.sortBy(_.text()).map { a =>
 								val origin = a.attr("abs:href")
 								val source = s"http://www.avasdemon.com/pages/${ a.text() }.png"

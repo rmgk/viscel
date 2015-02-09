@@ -3,9 +3,9 @@ package viscel.narration
 import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import upickle.{Reader, Writer}
-import viscel.{Viscel, Log}
 import viscel.shared.ViscelUrl
 import viscel.store.Json
+import viscel.{Log, Viscel}
 
 import scala.collection.Set
 

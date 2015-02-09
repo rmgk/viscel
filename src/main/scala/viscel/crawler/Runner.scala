@@ -13,7 +13,6 @@ import viscel.narration.Narrator
 import viscel.shared.Story
 import viscel.shared.Story.More.Issue
 import viscel.shared.Story.{Asset, Failed, More}
-import viscel.store.BlobStore
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.implicitly
@@ -26,7 +25,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	override def toString: String = s"Job(${ narrator.toString })"
 
 	var assets: List[(Node, Asset)] = Nil
-	var volumes : List[(Node, More)] = Nil
+	var volumes: List[(Node, More)] = Nil
 	var pages: List[(Node, More)] = Nil
 	var recheck: Option[Node] = None
 	var known: Set[Story] = Set.empty

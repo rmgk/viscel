@@ -4,7 +4,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Bad, Good}
 import spray.routing.authentication.{BasicAuth, UserPass, UserPassAuthenticator}
 import viscel.Log
-import viscel.store.{Users, User}
+import viscel.store.{User, Users}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map

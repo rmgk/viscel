@@ -1,21 +1,20 @@
 package viscel.crawler
 
 import java.net.URL
-import java.security.MessageDigest
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
-import spray.httpx.encoding.{Gzip, Deflate}
+import spray.httpx.encoding.{Deflate, Gzip}
 import viscel.shared.{Story, ViscelUrl}
 import viscel.store.BlobStore
 import viscel.{Deeds, Log}
 
+import scala.Predef.identity
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.Predef.identity
 
 
 object RunnerUtil {

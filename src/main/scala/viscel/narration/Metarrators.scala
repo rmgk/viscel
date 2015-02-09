@@ -1,13 +1,12 @@
 package viscel.narration
 
-import org.scalactic.{Bad, Good, Or, ErrorMessage}
 import spray.client.pipelining.SendReceive
 import viscel.crawler.RunnerUtil
 import viscel.narration.narrators._
 import viscel.shared.ViscelUrl
 
 import scala.collection.Set
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 object Metarrators {
 	val metas: List[Metarrator[_ <: Narrator]] = MangaHere.MetaCore :: Fakku.Meta :: Nil

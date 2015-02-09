@@ -1,7 +1,6 @@
 package viscel.database
 
 import viscel.narration.{Narrator, Narrators}
-import viscel.shared.Gallery
 import viscel.shared.Story.Description
 import viscel.store.Config
 import viscel.{Log, Viscel}
