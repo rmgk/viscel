@@ -1,8 +1,8 @@
-import sbt.Keys._
-import sbt._
-
+import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import sbt.Keys._
+import sbt._
 
 object Build extends sbt.Build {
 
@@ -10,9 +10,9 @@ object Build extends sbt.Build {
 		.settings(name := "viscel")
 		.settings(Settings.main: _*)
 		.settings(Libraries.main: _*)
-		.settings(compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in(js, Compile)))
+		//.settings(compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in(js, Compile)))
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
-		.settings(com.typesafe.sbt.SbtNativePackager.packageArchetype.java_application: _*)
+		.enablePlugins(JavaAppPackaging)
 
 
 	lazy val js = project.in(file("js"))
