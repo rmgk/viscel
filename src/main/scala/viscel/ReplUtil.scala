@@ -50,8 +50,8 @@ class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 }
 
 object ReplUtil {
-	def apply() = {
-		val (system, ioHttp, iopipe) = Viscel.run()
+	def apply(args: String*) = {
+		val (system, ioHttp, iopipe) = Viscel.run(args: _*)
 		new ReplUtil(system, iopipe)
 	}
 
