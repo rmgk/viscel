@@ -391,3 +391,9 @@ http://www.valkyriesquadron.com/valkyrie/prologue-page-0/
 http://wildelifecomic.com/index.php?id=1
 :i #comic
 :n #nav1 > div > a.next
+
+-:Otaku no Yen
+http://otakunoyen.com/?p=19
+:i #comic-1 > img
+:n #sidebar-undercomic a.navi.navi-next
+:url_replace http://otakunoyen.com/\?p=1079 ::: http://otakunoyen.com/?p=547
