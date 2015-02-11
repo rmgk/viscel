@@ -20,7 +20,7 @@ object Archive {
 		layer
 	}
 
-	private def deleteRecursive(nodes: List[Node])(implicit ntx: Ntx): Unit = nodes foreach (_.fold(())(_ => ntx.delete))
+	def deleteRecursive(nodes: List[Node])(implicit ntx: Ntx): Unit = nodes foreach (_.fold(())(_ => ntx.delete))
 
 	private def normalize: Story => Story = {
 		case a@Asset(_, _, _, Some(_)) => a.copy(blob = None)

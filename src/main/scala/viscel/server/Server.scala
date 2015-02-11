@@ -142,6 +142,13 @@ class Server(neo: Neo) extends Actor with HttpService {
 					Narrators.update()
 					"done"
 				}
+			} ~
+			path("purge" / Segment) { (id) =>
+				if (!user.isAdmin) reject
+				else onComplete(Future(ReplUtil.purge(id)(Viscel.neo))) {
+					case Success(b) => complete(s"$b")
+					case Failure(e) => complete(e.toString())
+				}
 			}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)

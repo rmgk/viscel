@@ -7,7 +7,7 @@ import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
 import viscel.crawler.{Archive, RunnerUtil}
-import viscel.database.{Books, Neo}
+import viscel.database.{Ntx, Books, Neo}
 import viscel.narration.Narrator
 import viscel.server.ServerPages
 import viscel.shared.Story.More.Kind
@@ -159,5 +159,7 @@ object ReplUtil {
 
 
 	}
+
+	def purge(id: String)(neo: Neo): Boolean = neo.tx { implicit ntx => Books.find(id).map(b => Archive.deleteRecursive(List(b.self))).fold(false)(_ => true) }
 
 }
