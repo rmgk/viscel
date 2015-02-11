@@ -24,7 +24,8 @@ object Narrators {
 		CloneManga.cores ++
 		Set(Flipside, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
-			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter)
+			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter,
+			KeyShanShan.Key, KeyShanShan.ShanShan)
 
 	def calculateAll() = static ++ Metarrators.cores() ++ Vid.load()
 
