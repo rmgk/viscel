@@ -2,8 +2,8 @@ package viscel.database
 
 import org.neo4j.graphdb.Node
 import viscel.database.Implicits.NodeOps
-import viscel.shared.{Policy, Asset, Blob, More, Story}
 import viscel.narration.SelectUtil.stringToURL
+import viscel.shared.{Asset, Blob, More, Policy, Story}
 
 import scala.Predef.ArrowAssoc
 import scala.language.implicitConversions
@@ -15,7 +15,7 @@ trait Codec[T] {
 }
 
 object Codec {
-	
+
 	def load[S](node: Node)(implicit ntx: Ntx, codec: Codec[S]): S = codec.read(node)
 
 	def create[S](desc: S)(implicit neo: Ntx, codec: Codec[S]): Node = codec.write(desc)

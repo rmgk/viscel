@@ -39,7 +39,7 @@ object Viscel {
 
 		val configNode = neo.tx { implicit ntx =>
 			val cfg = Config.get()(ntx)
-			if (cfg.version != 2) throw new IllegalStateException(s"config version not supported: ${cfg.version}")
+			if (cfg.version != 2) throw new IllegalStateException(s"config version not supported: ${ cfg.version }")
 
 			if (!neo.db.schema().getConstraints(label.Book).iterator().hasNext)
 				neo.db.schema().constraintFor(label.Book).assertPropertyIsUnique("id").create()
@@ -66,7 +66,7 @@ object Viscel {
 
 		(system, ioHttp, iopipe)
 	}
-	
+
 
 }
 

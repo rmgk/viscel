@@ -4,7 +4,7 @@ import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.database.Implicits.NodeOps
 import viscel.database.{Codec, Ntx, label, rel}
-import viscel.shared.{Volatile, Story, Asset, More}
+import viscel.shared.{More, Story, Volatile}
 
 import scala.Predef.ArrowAssoc
 import scala.annotation.tailrec

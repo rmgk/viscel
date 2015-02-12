@@ -4,12 +4,10 @@ import java.net.URL
 
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
-import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
-import viscel.shared.{Asset, More}
-import viscel.shared.{Story}
+import viscel.shared.{Asset, More, Story}
 
-import scala.Predef.{$conforms, ArrowAssoc}
+import scala.Predef.$conforms
 import scala.collection.immutable.Set
 import scala.language.implicitConversions
 import scala.util.matching.Regex

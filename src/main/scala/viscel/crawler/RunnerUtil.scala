@@ -8,11 +8,10 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding.{Deflate, Gzip}
-import viscel.shared.{Blob, Story}
+import viscel.shared.Blob
 import viscel.store.BlobStore
 import viscel.{Deeds, Log}
 
-import scala.Predef.identity
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -41,7 +40,7 @@ object RunnerUtil {
 	}
 
 	def request[R](source: URL, origin: Option[URL] = None): HttpRequest = {
-		Get(urlToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](identity)(origin => addReferrer(urlToUri(origin)))
+		Get(urlToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](x => x)(origin => addReferrer(urlToUri(origin)))
 	}
 
 	def parseDocument(absUri: URL)(res: HttpResponse): Document = Jsoup.parse(

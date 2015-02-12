@@ -1,8 +1,8 @@
 package viscel.narration
 
 import org.jsoup.nodes.Document
-import org.scalactic.{Or, Every}
 import org.scalactic.TypeCheckedTripleEquals._
+import org.scalactic.{Every, Or}
 import viscel.shared.{More, Story}
 
 trait Problem

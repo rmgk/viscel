@@ -9,12 +9,11 @@ import viscel.Log
 import viscel.crawler.Archive._
 import viscel.crawler.RunnerUtil._
 import viscel.database.Implicits.NodeOps
-import viscel.database.{Book, Neo, Codec, Ntx, rel}
+import viscel.database.{Book, Codec, Neo, Ntx, rel}
 import viscel.narration.Narrator
-import viscel.shared.{Blob, Volatile, Story, Asset, More}
+import viscel.shared.{Asset, Blob, More, Story, Volatile}
 
 import scala.Predef.ArrowAssoc
-import scala.Predef.implicitly
 import scala.collection.immutable.Set
 import scala.concurrent.ExecutionContext
 
@@ -59,7 +58,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			Clockwork.finish(narrator, this)
 		case sn@Some(node) =>
 			recheck = sn
-			val m = neo.tx(Codec.load[More](node)(_, implicitly))
+			val m = neo.tx(Codec.load(node)(_, Codec.moreCodec))
 			pages ::= node -> m
 			ec.execute(this)
 	}
@@ -135,10 +134,10 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 					node.layerBelow.reverse foreach collectUnvisited
 				}
 				ec.execute(this)
-		case Bad(failed) =>
-			Log.error(s"$narrator failed on $page: $failed")
-			tryRecovery(node)(ntx)
-			Clockwork.finish(narrator, this)
+			case Bad(failed) =>
+				Log.error(s"$narrator failed on $page: $failed")
+				tryRecovery(node)(ntx)
+				Clockwork.finish(narrator, this)
 		}
 	}
 
