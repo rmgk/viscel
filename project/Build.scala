@@ -7,12 +7,13 @@ object Build extends sbt.Build {
 		.settings(name := "viscelcrawl")
 		.settings(Settings.main: _*)
 		.settings(Libraries.main: _*)
+		.settings(SourceGeneration.neoCodecs)
 
 
 }
 
 object Settings {
-	lazy val common = List(
+	lazy val main = List(
 
 		version := "0.1.0",
 		scalaVersion := "2.11.5",
@@ -45,66 +46,13 @@ object Settings {
 				("spray repo" at "http://repo.spray.io") ::
 				("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/") ::
 				Nil))
-
-
-	lazy val main: List[Def.Setting[_]] = common ++ List(
-
-		fork := true,
-		SourceGeneration.neoCodecs,
-
-		javaOptions ++= (
-			"-verbose:gc" ::
-				"-XX:+PrintGCDetails" ::
-				//"-Xverify:none" ::
-				//"-server" ::
-				//"-Xms16m" ::
-				//"-Xmx256m" ::
-				//"-Xss1m" ::
-				//"-XX:MinHeapFreeRatio=5" ::
-				//"-XX:MaxHeapFreeRatio=10" ::
-				//"-XX:NewRatio=12" ::
-				//"-XX:+UseSerialGC" ::
-				//"-XX:+UseParallelGC" ::
-				//"-XX:+UseParallelOldGC" ::
-				//"-XX:+UseConcMarkSweepGC" ::
-				//"-XX:+PrintTenuringDistribution" ::
-				Nil),
-
-		initialCommands in console :=
-			"""import akka.actor.{ ActorSystem, Props, Actor }
-				|import akka.io.IO
-				|import akka.util.Timeout
-				|import org.jsoup._
-				|import org.neo4j.graphdb._
-				|import scala.collection.JavaConversions._
-				|import scala.concurrent._
-				|import scala.concurrent.duration._
-				|import scala.concurrent.ExecutionContext.Implicits.global
-				|import spray.can._
-				|import spray.client.pipelining._
-				|import spray.http._
-				|import viscel._
-				|import viscel.crawler._
-				|import viscel.server._
-				|import viscel.store._
-				|import viscel.database._
-				|import scala.Predef._
-				|import viscel.ReplUtil
-				|import viscel.narration._
-				|import viscel.narration.narrators._
-				|import SelectUtil._
-				|import viscel.database.Implicits.NodeOps
-			""".stripMargin)
-
 }
 
 object Libraries {
 
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++
-		commandline ++ scalatest ++ scalactic ++ jsoup ++ shared.value)
-
-	lazy val shared = Def.setting(scalatags.value ++ upickle.value)
+		 scalatest ++ scalactic ++ jsoup)
 
 
 	// gpl3
@@ -122,22 +70,10 @@ object Libraries {
 		List("akka-actor", "akka-slf4j")
 			.map(n => "com.typesafe.akka" %% n % "2.3.9")
 
-	val scalaz =
-		List("scalaz-core", "scalaz-concurrent")
-			.map(n => "org.scalaz" %% n % "7.0.6")
-
-	val commandline =
-		"jline" % "jline" % "2.12" ::
-			"net.sf.jopt-simple" % "jopt-simple" % "4.8" :: // mit
-			Nil
-
-	val scalamacros = "org.scalamacros" %% s"quasiquotes" % "2.0.1" % "provided" :: Nil
 
 	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.4" % Test) :: Nil
 	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.4" exclude("org.scala-lang", "scala-reflect")) :: Nil
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
-	val scalatags = Def.setting("com.lihaoyi" %% "scalatags" % "0.4.5" :: Nil)
-	val upickle = Def.setting("com.lihaoyi" %% "upickle" % "0.2.6" :: Nil)
 
 }
 

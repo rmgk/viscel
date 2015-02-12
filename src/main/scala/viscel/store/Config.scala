@@ -28,7 +28,7 @@ object Config {
 
 	def get()(implicit neo: Ntx): ConfigNode = synchronized {
 		ConfigNode(neo.node(label.Config, "id", "config").getOrElse {
-			neo.create(label.Config, "id" -> "config", "version" -> 1)
+			neo.create(label.Config, "id" -> "config", "version" -> 2)
 		})
 	}
 

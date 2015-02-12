@@ -33,8 +33,6 @@ object Story {
 				case s => Other(s)
 			}
 		}
-		implicit val kindR: upickle.Reader[Kind] = upickle.Reader(PartialFunction(n => Kind(upickle.readJs[String](n))))
-		implicit val kindW: upickle.Writer[Kind] = upickle.Writer(k => upickle.writeJs(k.name))
 	}
 
 

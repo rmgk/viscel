@@ -7,7 +7,10 @@ import viscel.shared.{Story, ViscelUrl}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
+import scala.Predef.genericArrayOps
 import scala.language.implicitConversions
+import viscel.generated.NeoCodecs._
+
 
 trait NeoCodec[T] {
 	def read(node: Node)(implicit ntx: Ntx): T
@@ -19,7 +22,6 @@ object NeoCodec {
 	private implicit def vurlToString(vurl: ViscelUrl): String = vurl.self
 	private implicit def stringToVurl(url: String): ViscelUrl = new ViscelUrl(url)
 
-	import viscel.generated.NeoCodecs._
 
 	def load[S](node: Node)(implicit ntx: Ntx, codec: NeoCodec[S]): S = codec.read(node)
 
@@ -41,17 +43,20 @@ object NeoCodec {
 			else Failed(s"$node is not a story" :: Nil)
 	}
 
-	implicit val chapterCodec: NeoCodec[Chapter] = case2RW[Chapter, String, String](label.Chapter, "name", "metadata")(
-		readf = (n, md) => Chapter(n, upickle.read[Map[String, String]](md)),
-		writef = chap => (chap.name, upickle.write(chap.metadata)))
+	def serializeMetadata(m: Map[String, String]): Array[String] = m.map(e => Array(e._1, e._2)).flatten.toArray
+	def deserializeMetadata(a: Array[String]): Map[String, String] = a.sliding(2,2).map(a => (a(0), a(1))).toMap
 
-	case3RW[Asset, String, String, String](label.Asset, "source", "origin", "metadata")(
-		readf = (s, o, md) => Asset(s, o, upickle.read[Map[String, String]](md)),
-		writef = asset => (asset.source, asset.origin, upickle.write(asset.metadata)))
+	implicit val chapterCodec: NeoCodec[Chapter] = case2RW[Chapter, String, Array[String]](label.Chapter, "name", "metadata")(
+		readf = (n, md) => Chapter(n, deserializeMetadata(md)),
+		writef = chap => (chap.name, serializeMetadata(chap.metadata)))
+
+	case3RW[Asset, String, String, Array[String]](label.Asset, "source", "origin", "metadata")(
+		readf = (s, o, md) => Asset(s, o, deserializeMetadata(md)),
+		writef = asset => (asset.source, asset.origin, serializeMetadata(asset.metadata)))
 
 	implicit val assetCodec: NeoCodec[Asset] = new NeoCodec[Asset] {
 		override def write(value: Asset)(implicit ntx: Ntx): Node = {
-			val asset = ntx.create(label.Asset, "source" -> value.source.toString, "origin" -> value.origin.toString, "metadata" -> upickle.write(value.metadata))
+			val asset = ntx.create(label.Asset, "source" -> value.source.toString, "origin" -> value.origin.toString, "metadata" -> serializeMetadata(value.metadata))
 			value.blob.foreach { b =>
 				val blob = create(b)
 				asset.to_=(rel.blob, blob)
@@ -60,7 +65,7 @@ object NeoCodec {
 		}
 		override def read(node: Node)(implicit ntx: Ntx): Asset = {
 			val blob = Option(node.to(rel.blob)).map(load[Blob])
-			Asset(node.prop[String]("source"), node.prop[String]("origin"), upickle.read[Map[String, String]](node.prop[String]("metadata")), blob)
+			Asset(node.prop[String]("source"), node.prop[String]("origin"), deserializeMetadata(node.prop[Array[String]]("metadata")), blob)
 		}
 	}
 

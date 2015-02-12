@@ -55,7 +55,7 @@ object Clockwork {
 
 
 	private val path: Path = Viscel.basepath.resolve("data/updateTimes.json")
-	private var updateTimes: Map[String, Long] = Json.load[Map[String, Long]](path).fold(x => x, err => {
+	private var updateTimes: Map[String, Long] = Json.load(path).fold(x => x, err => {
 		Log.error(s"could not load $path: $err")
 		Map()
 	})

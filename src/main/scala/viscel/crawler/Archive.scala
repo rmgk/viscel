@@ -10,7 +10,6 @@ import viscel.shared.Story.{Asset, More}
 import scala.Predef.ArrowAssoc
 import scala.annotation.tailrec
 
-
 object Archive {
 
 	private def connectLayer(layer: List[Node])(implicit neo: Ntx): List[Node] = {
