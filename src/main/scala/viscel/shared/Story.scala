@@ -12,7 +12,6 @@ object Story {
 	final case class Asset(source: ViscelUrl, origin: ViscelUrl, metadata: Map[String, String] = Map(), blob: Option[Blob] = None) extends Story {
 		def updateMeta(f: Map[String, String] => Map[String, String]): Asset = copy(metadata = f(metadata))
 	}
-	final case class Failed(reason: List[String]) extends Story
 	final case class Blob(sha1: String, mediatype: String) extends Story
 
 	final case class Description(id: String, name: String, size: Int)

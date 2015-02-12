@@ -2,6 +2,7 @@ package viscel.crawler
 
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
+import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpRequest, HttpResponse}
 import viscel.Log
@@ -12,7 +13,7 @@ import viscel.database.{Book, Neo, NeoCodec, Ntx, rel}
 import viscel.narration.Narrator
 import viscel.shared.Story
 import viscel.shared.Story.More.Issue
-import viscel.shared.Story.{Asset, Failed, More}
+import viscel.shared.Story.{Asset, More}
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.implicitly
@@ -121,27 +122,22 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			doc.baseUri()
 		}, applying to $page")
 		implicit def tx: Ntx = ntx
-		val wrapped = narrator.wrap(doc, page.kind)
-		val failed = wrapped.collect {
-			case f@Failed(msg) => f
-		}
-
-		if (failed.isEmpty) {
-			val wasEmpty = node.layer.isEmpty
-			val filter = known.diff(collectMore(node).reverse.tail.toSet)
-			val filtered = wrapped filterNot filter
-			val changed = applyNarration(node, filtered)
-			if (changed) {
-				known = collectMore(collection.self).toSet
-				// remove cached size
-				collection.self.removeProperty("size")
-				// if we have changes at the end, we tests the more generating the end to make sure that has not changed
-				if (!wasEmpty && pages.isEmpty) parentMore(node.prev).foreach(pages ::= _)
-				node.layerBelow.reverse foreach collectUnvisited
-			}
-			ec.execute(this)
-		}
-		else {
+		narrator.wrap(doc, page.kind) match {
+			case Good(wrapped) =>
+				val wasEmpty = node.layer.isEmpty
+				val filter = known.diff(collectMore(node).reverse.tail.toSet)
+				val filtered = wrapped filterNot filter
+				val changed = applyNarration(node, filtered)
+				if (changed) {
+					known = collectMore(collection.self).toSet
+					// remove cached size
+					collection.self.removeProperty("size")
+					// if we have changes at the end, we tests the more generating the end to make sure that has not changed
+					if (!wasEmpty && pages.isEmpty) parentMore(node.prev).foreach(pages ::= _)
+					node.layerBelow.reverse foreach collectUnvisited
+				}
+				ec.execute(this)
+		case Bad(failed) =>
 			Log.error(s"$narrator failed on $page: $failed")
 			tryRecovery(node)(ntx)
 			Clockwork.finish(narrator, this)

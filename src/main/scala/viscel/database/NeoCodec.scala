@@ -2,7 +2,7 @@ package viscel.database
 
 import org.neo4j.graphdb.Node
 import viscel.database.Implicits.NodeOps
-import viscel.shared.Story.{Asset, Blob, Chapter, Failed, More}
+import viscel.shared.Story.{Asset, Blob, Chapter, More}
 import viscel.shared.{Story, ViscelUrl}
 
 import scala.Predef.ArrowAssoc
@@ -33,14 +33,13 @@ object NeoCodec {
 			case s@Chapter(name, metadata) => create(s)
 			case s@Asset(source, origin, metadata, blob) => create(s)
 			case s@Blob(sha1, mediatype) => create(s)
-			case s@Failed(reason) => throw new IllegalArgumentException(s"can not write $s")
 		}
 		override def read(node: Node)(implicit ntx: Ntx): Story =
 			if (node.hasLabel(label.Chapter)) load[Chapter](node)
 			else if (node.hasLabel(label.Asset)) load[Asset](node)
 			else if (node.hasLabel(label.More)) load[More](node)
 			else if (node.hasLabel(label.Blob)) load[Blob](node)
-			else Failed(s"$node is not a story" :: Nil)
+			else throw new IllegalArgumentException(s"unknown node type ${node}")
 	}
 
 	def serializeMetadata(m: Map[String, String]): Array[String] = m.map(e => Array(e._1, e._2)).flatten.toArray

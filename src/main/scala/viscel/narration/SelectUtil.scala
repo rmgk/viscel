@@ -88,8 +88,6 @@ object SelectUtil {
 		s"""$text at ($caller) on (${ cause.head.baseUri }) elements (${ cause.map { show } })"""
 
 
-	def storyFromOr(or: List[Story] Or Every[ErrorMessage]): List[Story] = or.fold(Predef.identity, err => Story.Failed(err.toList) :: Nil)
-
 	def placeChapters(archive: List[Story], chapters: List[(Story, Story)]): List[Story] = (archive, chapters) match {
 		case (Nil, chaps) => chaps.flatMap(c => c._1 :: c._2 :: Nil)
 		case (as, Nil) => as
