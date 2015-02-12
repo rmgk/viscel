@@ -12,10 +12,8 @@ object label {
 
 	val Asset = SimpleLabel("Asset")
 	val Blob = SimpleLabel("Blob")
-	val Chapter = SimpleLabel("Chapter")
-	val Collection = SimpleLabel("Collection")
+	val Book = SimpleLabel("Book")
 	val Config = SimpleLabel("Config")
-	val Core = SimpleLabel("Core")
 	val More = SimpleLabel("More")
 }
 

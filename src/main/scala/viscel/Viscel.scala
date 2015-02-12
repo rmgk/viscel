@@ -41,8 +41,8 @@ object Viscel {
 			val cfg = Config.get()(ntx)
 			if (cfg.version != 2) throw new IllegalStateException(s"config version not supported: ${cfg.version}")
 
-			if (!neo.db.schema().getConstraints(label.Collection).iterator().hasNext)
-				neo.db.schema().constraintFor(label.Collection).assertPropertyIsUnique("id").create()
+			if (!neo.db.schema().getConstraints(label.Book).iterator().hasNext)
+				neo.db.schema().constraintFor(label.Book).assertPropertyIsUnique("id").create()
 
 			cfg
 		}
