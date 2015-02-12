@@ -30,9 +30,6 @@ object Books {
 	}
 
 	def allDescriptions()(implicit ntx: Ntx): List[Description] = {
-		val inDB = ntx.nodes(label.Collection).map { n => Book.apply(n).description() }.toList
-		val dbids = inDB.map(_.id).toSet
-		val other = Narrators.all.filterNot(n => dbids(n.id)).map { nar => Description(nar.id, nar.name, 0) }.toList
-		inDB ::: other
+		ntx.nodes(label.Collection).map { n => Book.apply(n).description() }.toList
 	}
 }

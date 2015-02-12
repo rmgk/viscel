@@ -1,14 +1,11 @@
 package viscel.crawler
 
 import java.nio.file.Path
-import java.util.{Timer, TimerTask}
 
-import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import viscel.database._
-import viscel.narration.{Narrator, Narrators}
-import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
-import viscel.store.{Json, Users}
+import viscel.narration.{Narrator}
+import viscel.store.{Json}
 import viscel.{Log, Viscel}
 
 import scala.collection.concurrent
@@ -56,27 +53,6 @@ object Clockwork {
 			runForNarrator(narrator, if (force) 0 else dayInMillis / 4, iopipe, neo, ec)
 	}
 
-
-	val timer: Timer = new Timer(true)
-	val delay: Long = 0
-	val period: Long = 60 * 60 * 1000 // every hour
-
-	def recheckPeriodically(ec: ExecutionContext, iopipe: SendReceive, neo: Neo): Unit = {
-		timer.scheduleAtFixedRate(new TimerTask {
-			override def run(): Unit = synchronized {
-				Log.info("running scheduled updates")
-				Users.all() match {
-					case Bad(err) => Log.error(s"could not load bookmarked collections: $err")
-					case Good(users) =>
-						val narrators = users.flatMap(_.bookmarks.keySet).distinct.map(Narrators.get).flatten
-						narrators.foreach { n =>
-							runForNarrator(n, dayInMillis * 7, iopipe, neo, ec)
-						}
-				}
-			}
-		}, delay, period)
-
-	}
 
 	private val path: Path = Viscel.basepath.resolve("data/updateTimes.json")
 	private var updateTimes: Map[String, Long] = Json.load[Map[String, Long]](path).fold(x => x, err => {

@@ -2,7 +2,6 @@ package viscel.database
 
 import org.neo4j.graphdb.Node
 import viscel.database.Implicits.NodeOps
-import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
 import viscel.shared.Story.{Asset, Blob, Chapter, Failed, More}
 import viscel.shared.{Story, ViscelUrl}
 

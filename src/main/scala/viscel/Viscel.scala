@@ -13,7 +13,6 @@ import spray.client.pipelining.SendReceive
 import spray.http.HttpEncodings
 import viscel.crawler.Clockwork
 import viscel.database.{NeoInstance, label}
-import viscel.server.Server
 import viscel.store.Config
 
 import scala.concurrent.ExecutionContext
@@ -79,17 +78,12 @@ object Viscel {
 		val ioHttp = IO(Http)
 		iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
-		if (!noserver.?) {
-			val server = system.actorOf(Props(Predef.classOf[Server], neo), "viscel-server")
-			ioHttp ! Http.Bind(server, interface = "0", port = port())
-		}
 
 		if (!nocore.?) {
 			val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
 
 			Deeds.narratorHint = Clockwork.handleHints(clockworkContext, iopipe, neo)
-			Clockwork.recheckPeriodically(clockworkContext, iopipe, neo)
 
 			Deeds.jobResult = {
 				case messages@_ :: _ => Log.error(s"some job failed: $messages")
