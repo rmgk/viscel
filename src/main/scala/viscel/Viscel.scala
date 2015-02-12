@@ -3,7 +3,7 @@ package viscel
 import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.io.IO
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
 import org.scalactic.TypeCheckedTripleEquals._
