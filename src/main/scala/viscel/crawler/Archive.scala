@@ -69,8 +69,7 @@ object Archive {
 		case Some(other) => previousMore(other.prev)
 	}
 
-	def collectMore(start: Node)(implicit ntx: Ntx): List[More] = start.fold(List[More]())(s => Codec.load[Story](_) match {
-		case m@More(_, _, _) => m :: s
-		case _ => s
-	})
+	def collectMore(start: Node)(implicit ntx: Ntx): List[More] = start.fold(List[More]())(s => n =>
+		if (n.hasLabel(label.More)) Codec.load[More](n) :: s
+		else s)
 }

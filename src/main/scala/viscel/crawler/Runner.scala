@@ -9,7 +9,7 @@ import viscel.Log
 import viscel.crawler.Archive._
 import viscel.crawler.RunnerUtil._
 import viscel.database.Implicits.NodeOps
-import viscel.database.{Book, Codec, Neo, Ntx, rel}
+import viscel.database.{Book, Codec, Neo, Ntx, label, rel}
 import viscel.narration.Narrator
 import viscel.shared.{Asset, Blob, More, Story, Volatile}
 
@@ -30,12 +30,14 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	var recover: Boolean = true
 	@volatile var cancel: Boolean = false
 
-	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit = Codec.load[Story](node) match {
-		case m@More(_, Volatile, _) if node.describes eq null => volumes ::= node -> m
-		case m@More(_, _, _) if node.describes eq null => pages ::= node -> m
-		case a@Asset(Some(_), _, _) if node.to(rel.blob) eq null => assets ::= node -> a
-		case _ =>
-	}
+	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit =
+		if (node.hasLabel(label.More) || node.hasLabel(label.Asset))
+			Codec.load[Story](node) match {
+				case m@More(_, Volatile, _) if node.describes eq null => volumes ::= node -> m
+				case m@More(_, _, _) if node.describes eq null => pages ::= node -> m
+				case a@Asset(Some(_), _, _) if node.to(rel.blob) eq null => assets ::= node -> a
+				case _ =>
+			}
 
 	def init() = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>

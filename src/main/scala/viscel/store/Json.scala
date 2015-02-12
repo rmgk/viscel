@@ -18,13 +18,16 @@ object Json {
 	}
 
 	def load(p: Path): Map[String, Long] Or Exception = synchronized {
-		val s = Files.lines(p, UTF_8)
-		try {
-			val res = s.iterator().asScala.map(_.split("=", 2)).map { case Array(id, data) => (id, data.toLong) }.toMap
-			Good(res)
+		if (!Files.exists(p)) Good(Map())
+		else {
+			val s = Files.lines(p, UTF_8)
+			try {
+				val res = s.iterator().asScala.map(_.split("=", 2)).map { case Array(id, data) => (id, data.toLong) }.toMap
+				Good(res)
+			}
+			catch { case e: Exception => Bad(e) }
+			finally { s.close() }
 		}
-		catch { case e: Exception => Bad(e) }
-		finally { s.close() }
 	}
 
 }

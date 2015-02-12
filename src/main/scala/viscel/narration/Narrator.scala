@@ -5,7 +5,8 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Or}
 import viscel.shared.{More, Story}
 
-trait Problem
+case class Problem(msg: String)
+
 
 trait Narrator {
 	def id: String

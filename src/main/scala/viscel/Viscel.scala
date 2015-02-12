@@ -1,6 +1,7 @@
 package viscel
 
 import java.nio.file.{Files, Path, Paths}
+import java.util.concurrent.{LinkedBlockingQueue, TimeUnit, ThreadPoolExecutor}
 
 import akka.actor.ActorSystem
 import akka.io.IO
@@ -9,9 +10,11 @@ import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.HttpEncodings
+import viscel.crawler.Clockwork
 import viscel.database.{NeoInstance, label}
 import viscel.store.Config
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.util.{Failure, Success}
@@ -37,22 +40,24 @@ object Viscel {
 		basepath = Paths.get(basedir)
 		Files.createDirectories(basepath)
 
+		neo = new NeoInstance(basepath.resolve("db").toString)
+
 		val configNode = neo.tx { implicit ntx =>
 			val cfg = Config.get()(ntx)
 			if (cfg.version != 2) throw new IllegalStateException(s"config version not supported: ${ cfg.version }")
 
+			cfg
+		}
+
+		neo.tx { implicit ntx =>
 			if (!neo.db.schema().getConstraints(label.Book).iterator().hasNext)
 				neo.db.schema().constraintFor(label.Book).assertPropertyIsUnique("id").create()
-
-			cfg
 		}
 
 		implicit val system = ActorSystem()
 
 		val ioHttp = IO(Http)
 		iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
-
-
 
 		Deeds.responses = {
 			case Success(res) => neo.tx { ntx =>
@@ -63,6 +68,18 @@ object Viscel {
 			}
 			case Failure(_) => neo.tx { ntx => configNode.download(0, success = false)(ntx) }
 		}
+
+		val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
+			0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
+
+		Deeds.narratorHint = Clockwork.handleHints(clockworkContext, iopipe, neo)
+
+		Deeds.jobResult = {
+			case messages@_ :: _ => Log.error(s"some job failed: $messages")
+			case Nil =>
+		}
+
+		Deeds.narratorHint(narration.Twokinds, true)
 
 		(system, ioHttp, iopipe)
 	}
