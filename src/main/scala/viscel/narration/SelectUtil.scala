@@ -7,7 +7,7 @@ import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.shared.Story.More.Kind
-import viscel.shared.Story.{Asset, Chapter, More}
+import viscel.shared.Story.{Asset, More}
 import viscel.shared.{Story, ViscelUrl}
 
 import scala.Predef.{$conforms, ArrowAssoc}
@@ -38,15 +38,6 @@ object SelectUtil {
 	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
 		append(queryImage(imageQuery)(from), queryNext(nextQuery, pagetype)(from))
 	}
-	def queryMixedArchive(query: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
-		Selection(from).many(query).wrapEach { elem =>
-			if (elem.tagName() === "a") elementIntoPointer(pagetype)(elem)
-			else extract { Chapter(elem.text()) }
-		}
-	}
-	def queryChapterArchive(query: String, pagetye: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
-		Selection(from).many(query).wrapFlat(elementIntoChapterPointer(pagetye))
-	}
 
 
 	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${ err.getMessage } at ($caller)").accumulating
@@ -67,11 +58,6 @@ object SelectUtil {
 	def elementIntoPointer(pagetype: Kind)(element: Element): More Or Every[ErrorMessage] =
 		extractUri(element).map(uri => More(uri, pagetype))
 
-	/** takes an element, extracts its uri and text and generates a description pointing to that chapter */
-	def elementIntoChapterPointer(pagetype: Kind)(chapter: Element): List[Story] Or Every[ErrorMessage] =
-		elementIntoPointer(pagetype)(chapter).map { pointer =>
-			Chapter(chapter.text()) :: pointer :: Nil
-		}
 
 	val ignoredClasses = Set("viscel.narration.Selection", "java.lang.Thread", "viscel.narration.GoodSelection", "org.scalactic", "scala", "viscel.narration.SelectUtil")
 	def caller: String = {

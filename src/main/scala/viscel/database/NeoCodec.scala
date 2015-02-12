@@ -2,7 +2,7 @@ package viscel.database
 
 import org.neo4j.graphdb.Node
 import viscel.database.Implicits.NodeOps
-import viscel.shared.Story.{Asset, Blob, Chapter, More}
+import viscel.shared.Story.{Asset, Blob, More}
 import viscel.shared.{Story, ViscelUrl}
 
 import scala.Predef.ArrowAssoc
@@ -30,13 +30,11 @@ object NeoCodec {
 	implicit val storyCodec: NeoCodec[Story] = new NeoCodec[Story] {
 		override def write(value: Story)(implicit ntx: Ntx): Node = value match {
 			case s@More(loc, kind) => create(s)
-			case s@Chapter(name, metadata) => create(s)
 			case s@Asset(source, origin, metadata, blob) => create(s)
 			case s@Blob(sha1, mediatype) => create(s)
 		}
 		override def read(node: Node)(implicit ntx: Ntx): Story =
-			if (node.hasLabel(label.Chapter)) load[Chapter](node)
-			else if (node.hasLabel(label.Asset)) load[Asset](node)
+			if (node.hasLabel(label.Asset)) load[Asset](node)
 			else if (node.hasLabel(label.More)) load[More](node)
 			else if (node.hasLabel(label.Blob)) load[Blob](node)
 			else throw new IllegalArgumentException(s"unknown node type ${node}")
@@ -45,9 +43,6 @@ object NeoCodec {
 	def serializeMetadata(m: Map[String, String]): Array[String] = m.map(e => Array(e._1, e._2)).flatten.toArray
 	def deserializeMetadata(a: Array[String]): Map[String, String] = a.sliding(2,2).map(a => (a(0), a(1))).toMap
 
-	implicit val chapterCodec: NeoCodec[Chapter] = case2RW[Chapter, String, Array[String]](label.Chapter, "name", "metadata")(
-		readf = (n, md) => Chapter(n, deserializeMetadata(md)),
-		writef = chap => (chap.name, serializeMetadata(chap.metadata)))
 
 	case3RW[Asset, String, String, Array[String]](label.Asset, "source", "origin", "metadata")(
 		readf = (s, o, md) => Asset(s, o, deserializeMetadata(md)),
