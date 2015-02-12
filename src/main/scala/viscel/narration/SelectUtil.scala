@@ -6,8 +6,7 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
-import viscel.shared.Story.More.Kind
-import viscel.shared.Story.{Asset, More}
+import viscel.shared.{Asset, More}
 import viscel.shared.{Story}
 
 import scala.Predef.{$conforms, ArrowAssoc}
@@ -16,27 +15,27 @@ import scala.language.implicitConversions
 import scala.util.matching.Regex
 
 object SelectUtil {
-	def getAttr(e: Element, k: String): Option[(String, String)] = {
+	def getAttr(e: Element, k: String): Option[List[String]] = {
 		val res = e.attr(k)
-		if (res.isEmpty) None else Some(k -> res)
+		if (res.isEmpty) None else Some(List(k, res))
 	}
 
 	def imgIntoAsset(img: Element): Asset Or Every[ErrorMessage] = extract(Asset(
-		source = img.attr("abs:src"),
-		origin = img.ownerDocument().location(),
-		metadata = (getAttr(img, "alt") ++
+		blob = Some(img.attr("abs:src")),
+		origin = Some(img.ownerDocument().location()),
+		data = (getAttr(img, "alt") ++
 			getAttr(img, "title") ++
 			getAttr(img, "width") ++
-			getAttr(img, "height")).toMap))
+			getAttr(img, "height")).flatten.toArray))
 
 	def queryImage(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgIntoAsset)
 	def queryImages(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)
-	def queryImageInAnchor(query: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = Selection(from).unique(query).wrapFlat { image =>
-		imgIntoAsset(image).map(_ :: elementIntoPointer(pagetype)(image.parent()).toOption.toList)
+	def queryImageInAnchor(query: String)(from: Element): List[Story] Or Every[ErrorMessage] = Selection(from).unique(query).wrapFlat { image =>
+		imgIntoAsset(image).map(_ :: elementIntoPointer(image.parent()).toOption.toList)
 	}
-	def queryNext(query: String, pagetype: Kind)(from: Element): List[More] Or Every[ErrorMessage] = Selection(from).all(query).wrap(selectNext(pagetype))
-	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
-		append(queryImage(imageQuery)(from), queryNext(nextQuery, pagetype)(from))
+	def queryNext(query: String)(from: Element): List[More] Or Every[ErrorMessage] = Selection(from).all(query).wrap(selectNext)
+	def queryImageNext(imageQuery: String, nextQuery: String)(from: Element): List[Story] Or Every[ErrorMessage] = {
+		append(queryImage(imageQuery)(from), queryNext(nextQuery)(from))
 	}
 
 
@@ -49,14 +48,14 @@ object SelectUtil {
 		case tag => Bad(One(s"can not extract uri from '$tag' at ($caller): ${ show(element) }"))
 	}
 
-	def selectNext(pagetype: Kind)(elements: List[Element]): List[More] Or Every[ErrorMessage] = elements.validatedBy(elementIntoPointer(pagetype)).flatMap {
+	def selectNext(elements: List[Element]): List[More] Or Every[ErrorMessage] = elements.validatedBy(elementIntoPointer).flatMap {
 		case pointers if elements.isEmpty => Good(Nil)
 		case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
 		case pointers => Bad(One(blame("more than one next found", elements: _*)))
 	}
 
-	def elementIntoPointer(pagetype: Kind)(element: Element): More Or Every[ErrorMessage] =
-		extractUri(element).map(uri => More(uri, pagetype))
+	def elementIntoPointer(element: Element): More Or Every[ErrorMessage] =
+		extractUri(element).map(uri => More(uri))
 
 
 	val ignoredClasses = Set("viscel.narration.Selection", "java.lang.Thread", "viscel.narration.GoodSelection", "org.scalactic", "scala", "viscel.narration.SelectUtil")

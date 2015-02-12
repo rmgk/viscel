@@ -8,7 +8,7 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding.{Deflate, Gzip}
-import viscel.shared.{Story}
+import viscel.shared.{Blob, Story}
 import viscel.store.BlobStore
 import viscel.{Deeds, Log}
 
@@ -48,12 +48,12 @@ object RunnerUtil {
 		res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
 		res.header[Location].fold(ifEmpty = urlToUri(absUri))(_.uri).toString())
 
-	def parseBlob[R](res: HttpResponse): Story.Blob = {
+	def parseBlob[R](res: HttpResponse): Blob = {
 		val bytes = res.entity.data.toByteArray
 		val sha1 = BlobStore.write(bytes)
-		Story.Blob(
+		Blob(
 			sha1 = sha1,
-			mediatype = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString()))
+			mime = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString()))
 	}
 
 }

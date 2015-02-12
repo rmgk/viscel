@@ -3,7 +3,7 @@ package viscel.database
 import org.neo4j.graphdb.Node
 import viscel.database.Implicits.NodeOps
 import viscel.shared.Story
-import viscel.shared.Story.{Asset, Description}
+import viscel.shared.{Asset, Description}
 
 final case class Book(self: Node) extends AnyVal {
 

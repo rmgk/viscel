@@ -9,11 +9,9 @@ import viscel.Log
 import viscel.crawler.Archive._
 import viscel.crawler.RunnerUtil._
 import viscel.database.Implicits.NodeOps
-import viscel.database.{Book, Neo, NeoCodec, Ntx, rel}
+import viscel.database.{Book, Neo, Codec, Ntx, rel}
 import viscel.narration.Narrator
-import viscel.shared.Story
-import viscel.shared.Story.More.Issue
-import viscel.shared.Story.{Asset, More}
+import viscel.shared.{Blob, Volatile, Story, Asset, More}
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.implicitly
@@ -33,10 +31,10 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	var recover: Boolean = true
 	@volatile var cancel: Boolean = false
 
-	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit = NeoCodec.load[Story](node) match {
-		case m@More(loc, Story.More.Archive | Issue) if node.describes eq null => volumes ::= node -> m
-		case m@More(loc, kind) if node.describes eq null => pages ::= node -> m
-		case a@Asset(source, origin, metadata, None) => assets ::= node -> a
+	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit = Codec.load[Story](node) match {
+		case m@More(_, Volatile, _) if node.describes eq null => volumes ::= node -> m
+		case m@More(_, _, _) if node.describes eq null => pages ::= node -> m
+		case a@Asset(Some(_), _, _) if node.to(rel.blob) eq null => assets ::= node -> a
 		case _ =>
 	}
 
@@ -61,7 +59,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			Clockwork.finish(narrator, this)
 		case sn@Some(node) =>
 			recheck = sn
-			val m = neo.tx(NeoCodec.load[More](node)(_, implicitly))
+			val m = neo.tx(Codec.load[More](node)(_, implicitly))
 			pages ::= node -> m
 			ec.execute(this)
 	}
@@ -70,7 +68,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 		assets match {
 			case (node, asset) :: rest =>
 				assets = rest
-				handle(request(asset.source, Some(asset.origin))) { parseBlob _ andThen writeAsset(node, asset) }
+				handle(request(asset.blob.get, asset.origin)) { parseBlob _ andThen writeAsset(node, asset) }
 			case Nil => volumes match {
 				case (node, volume) :: rest =>
 					volumes = rest
@@ -111,9 +109,9 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			ec.execute(this)
 		}
 
-	def writeAsset(node: Node, asset: Asset)(blob: Story.Blob)(ntx: Ntx): Unit = {
+	def writeAsset(node: Node, asset: Asset)(blob: Blob)(ntx: Ntx): Unit = {
 		Log.debug(s"$narrator: received blob, applying to $asset ($node)")
-		node.to_=(rel.blob, NeoCodec.create(blob)(ntx, NeoCodec.blobCodec))(ntx)
+		node.to_=(rel.blob, Codec.create(blob)(ntx, Codec.blobCodec))(ntx)
 		ec.execute(this)
 	}
 
@@ -122,7 +120,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			doc.baseUri()
 		}, applying to $page")
 		implicit def tx: Ntx = ntx
-		narrator.wrap(doc, page.kind) match {
+		narrator.wrap(doc, page) match {
 			case Good(wrapped) =>
 				val wasEmpty = node.layer.isEmpty
 				val filter = known.diff(collectMore(node).reverse.tail.toSet)

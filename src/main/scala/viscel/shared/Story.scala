@@ -2,40 +2,31 @@ package viscel.shared
 
 import java.net.URL
 
-import scala.collection.immutable.Map
 import scala.language.implicitConversions
 
 sealed trait Story
+final case class More(loc: URL, policy: Policy = Normal, data: Array[String] = Array()) extends Story
+final case class Asset(blob: Option[URL], origin: Option[URL], data: Array[String] = Array()) extends Story
 
-object Story {
+final case class Blob(sha1: String, mime: String)
+final case class Description(id: String, name: String, size: Int)
 
-	final case class More(loc: URL, kind: More.Kind) extends Story
-	final case class Asset(source: URL, origin: URL, metadata: Map[String, String] = Map(), blob: Option[Blob] = None) extends Story {
-		def updateMeta(f: Map[String, String] => Map[String, String]): Asset = copy(metadata = f(metadata))
-	}
-	final case class Blob(sha1: String, mediatype: String) extends Story
-
-	final case class Description(id: String, name: String, size: Int)
-
-	object More {
-		abstract class Kind(val name: String)
-		case object Unused extends Kind("")
-		case object Archive extends Kind("archive")
-		case object Page extends Kind("page")
-		case object Issue extends Kind("chapter")
-		case class Other(override val name: String) extends Kind(name)
-		object Kind {
-			def apply(name: String): Kind = name match {
-				case Unused.name => Unused
-				case Archive.name => Archive
-				case Page.name => Page
-				case Issue.name => Issue
-				case s => Other(s)
-			}
-		}
-	}
-
-
+sealed trait Policy {
+	def ext: Option[String]
 }
+case object Normal extends Policy {
+	override def ext = None
+}
+case object Volatile extends Policy {
+	override def ext = Some("V")
+}
+object Policy {
+	def int(s: Option[String]): Policy = s match {
+		case None => Normal
+		case Some("V") => Volatile
+		case Some(s) => throw new IllegalStateException(s"unknown policy $s")
+	}
+}
+
 
 
