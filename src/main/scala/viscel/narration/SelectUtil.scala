@@ -13,18 +13,19 @@ import scala.language.implicitConversions
 import scala.util.matching.Regex
 
 object SelectUtil {
-	def getAttr(e: Element, k: String): Option[List[String]] = {
+	def getAttr(e: Element, k: String): List[String] = {
 		val res = e.attr(k)
-		if (res.isEmpty) None else Some(List(k, res))
+		if (res.isEmpty) Nil else List(k, res)
 	}
 
 	def imgIntoAsset(img: Element): Asset Or Every[ErrorMessage] = extract(Asset(
 		blob = Some(img.attr("abs:src")),
 		origin = Some(img.ownerDocument().location()),
-		data = (getAttr(img, "alt") ++
-			getAttr(img, "title") ++
-			getAttr(img, "width") ++
-			getAttr(img, "height")).flatten.toArray))
+		data = (List("image") :::
+			getAttr(img, "alt") :::
+			getAttr(img, "title") :::
+			getAttr(img, "width") :::
+			getAttr(img, "height")).toArray))
 
 	def queryImage(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgIntoAsset)
 	def queryImages(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)

@@ -9,7 +9,7 @@ import scala.Predef.augmentString
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.Map
 
-object Json {
+object TimeStore {
 
 	def store(p: Path, data: Map[String, Long]) = synchronized {
 		val jsonBytes = data.map { case (s, l) => s"$s=$l\n" }.mkString("").getBytes(UTF_8)

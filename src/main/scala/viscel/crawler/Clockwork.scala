@@ -5,7 +5,7 @@ import java.nio.file.Path
 import spray.client.pipelining.SendReceive
 import viscel.database._
 import viscel.narration.Narrator
-import viscel.store.Json
+import viscel.store.TimeStore
 import viscel.{Log, Viscel}
 
 import scala.collection.concurrent
@@ -55,7 +55,7 @@ object Clockwork {
 
 
 	private val path: Path = Viscel.basepath.resolve("data/updateTimes.json")
-	private var updateTimes: Map[String, Long] = Json.load(path).fold(x => x, err => {
+	private var updateTimes: Map[String, Long] = TimeStore.load(path).fold(x => x, err => {
 		Log.error(s"could not load $path: $err")
 		Map()
 	})
@@ -63,7 +63,7 @@ object Clockwork {
 	def updateDates(nar: Narrator): Unit = synchronized {
 		val time = System.currentTimeMillis()
 		updateTimes = updateTimes.updated(nar.id, time)
-		Json.store(path, updateTimes)
+		TimeStore.store(path, updateTimes)
 	}
 
 	def needsRecheck(nar: Narrator, recheckInterval: Long): Boolean = synchronized {
