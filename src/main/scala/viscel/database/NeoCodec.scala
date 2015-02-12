@@ -3,7 +3,8 @@ package viscel.database
 import org.neo4j.graphdb.Node
 import viscel.database.Implicits.NodeOps
 import viscel.shared.Story.{Asset, Blob, More}
-import viscel.shared.{Story, ViscelUrl}
+import viscel.shared.{Story}
+import viscel.narration.SelectUtil.{stringToURL}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
@@ -18,9 +19,6 @@ trait NeoCodec[T] {
 }
 
 object NeoCodec {
-
-	private implicit def vurlToString(vurl: ViscelUrl): String = vurl.self
-	private implicit def stringToVurl(url: String): ViscelUrl = new ViscelUrl(url)
 
 
 	def load[S](node: Node)(implicit ntx: Ntx, codec: NeoCodec[S]): S = codec.read(node)
@@ -44,10 +42,6 @@ object NeoCodec {
 	def deserializeMetadata(a: Array[String]): Map[String, String] = a.sliding(2,2).map(a => (a(0), a(1))).toMap
 
 
-	case3RW[Asset, String, String, Array[String]](label.Asset, "source", "origin", "metadata")(
-		readf = (s, o, md) => Asset(s, o, deserializeMetadata(md)),
-		writef = asset => (asset.source, asset.origin, serializeMetadata(asset.metadata)))
-
 	implicit val assetCodec: NeoCodec[Asset] = new NeoCodec[Asset] {
 		override def write(value: Asset)(implicit ntx: Ntx): Node = {
 			val asset = ntx.create(label.Asset, "source" -> value.source.toString, "origin" -> value.origin.toString, "metadata" -> serializeMetadata(value.metadata))
@@ -65,7 +59,7 @@ object NeoCodec {
 
 	implicit val moreCodec: NeoCodec[More] = case2RW[More, String, String](label.More, "loc", "kind")(
 		readf = (l, p) => More(l, More.Kind(p)),
-		writef = more => (more.loc, more.kind.name))
+		writef = more => (more.loc.toExternalForm, more.kind.name))
 
 	implicit val blobCodec: NeoCodec[Story.Blob] = case2RW[Blob, String, String](label.Blob, "sha1", "mediatype")(
 		readf = Blob.apply,

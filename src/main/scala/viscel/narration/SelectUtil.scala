@@ -8,7 +8,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.shared.Story.More.Kind
 import viscel.shared.Story.{Asset, More}
-import viscel.shared.{Story, ViscelUrl}
+import viscel.shared.{Story}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.Set
@@ -43,9 +43,9 @@ object SelectUtil {
 	def extract[R](op: => R): R Or One[ErrorMessage] = attempt(op).badMap(err => s"${ err.getMessage } at ($caller)").accumulating
 
 	/** tries to extract an absolute uri from an element, extraction depends on type of tag */
-	def extractUri(element: Element): ViscelUrl Or One[ErrorMessage] = element.tagName() match {
-		case "a" => extract { stringToVurl(element.attr("abs:href")) }
-		case "option" => extract { stringToVurl(element.attr("abs:value")) }
+	def extractUri(element: Element): URL Or One[ErrorMessage] = element.tagName() match {
+		case "a" => extract { stringToURL(element.attr("abs:href")) }
+		case "option" => extract { stringToURL(element.attr("abs:value")) }
 		case tag => Bad(One(s"can not extract uri from '$tag' at ($caller): ${ show(element) }"))
 	}
 
@@ -85,15 +85,13 @@ object SelectUtil {
 	def cons[T](a: T Or Every[ErrorMessage], b: List[T] Or Every[ErrorMessage]): Or[List[T], Every[ErrorMessage]] = withGood(a, b)(_ :: _)
 
 
-	implicit def vurlToString(vurl: ViscelUrl): String = vurl.self
-	implicit def stringToVurl(url: String): ViscelUrl = new ViscelUrl(new URL(url).toString)
-
 	def groupedOn[T](l: List[T])(p: T => Boolean) = l.foldLeft(List[List[T]]()) {
 		case (acc, t) if p(t) => List(t) :: acc
 		case (Nil, t) => List(t) :: Nil
 		case (a :: as, t) => (t :: a) :: as
 	}.map(_.reverse).reverse
 
+	implicit def stringToURL(s: String): URL = new URL(s)
 
 	implicit class RegexContext(val sc: StringContext) {
 		object rex {

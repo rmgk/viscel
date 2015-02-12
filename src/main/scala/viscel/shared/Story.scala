@@ -1,5 +1,7 @@
 package viscel.shared
 
+import java.net.URL
+
 import scala.collection.immutable.Map
 import scala.language.implicitConversions
 
@@ -7,8 +9,8 @@ sealed trait Story
 
 object Story {
 
-	final case class More(loc: ViscelUrl, kind: More.Kind) extends Story
-	final case class Asset(source: ViscelUrl, origin: ViscelUrl, metadata: Map[String, String] = Map(), blob: Option[Blob] = None) extends Story {
+	final case class More(loc: URL, kind: More.Kind) extends Story
+	final case class Asset(source: URL, origin: URL, metadata: Map[String, String] = Map(), blob: Option[Blob] = None) extends Story {
 		def updateMeta(f: Map[String, String] => Map[String, String]): Asset = copy(metadata = f(metadata))
 	}
 	final case class Blob(sha1: String, mediatype: String) extends Story

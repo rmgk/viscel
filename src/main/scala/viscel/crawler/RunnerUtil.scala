@@ -8,7 +8,7 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding.{Deflate, Gzip}
-import viscel.shared.{Story, ViscelUrl}
+import viscel.shared.{Story}
 import viscel.store.BlobStore
 import viscel.{Deeds, Log}
 
@@ -19,8 +19,7 @@ import scala.concurrent.Future
 
 object RunnerUtil {
 
-	def urlToUri(vurl: ViscelUrl): Uri = {
-		val in = new URL(vurl.self)
+	def urlToUri(in: URL): Uri = {
 		implicit class X(s: String) {def ? = Option(s).getOrElse("") }
 		Uri.from(
 			scheme = in.getProtocol.?,
@@ -41,11 +40,11 @@ object RunnerUtil {
 		result.andThen(PartialFunction(Deeds.responses.apply)).map { decode(Gzip) ~> decode(Deflate) }
 	}
 
-	def request[R](source: ViscelUrl, origin: Option[ViscelUrl] = None): HttpRequest = {
+	def request[R](source: URL, origin: Option[URL] = None): HttpRequest = {
 		Get(urlToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](identity)(origin => addReferrer(urlToUri(origin)))
 	}
 
-	def parseDocument(absUri: ViscelUrl)(res: HttpResponse): Document = Jsoup.parse(
+	def parseDocument(absUri: URL)(res: HttpResponse): Document = Jsoup.parse(
 		res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
 		res.header[Location].fold(ifEmpty = urlToUri(absUri))(_.uri).toString())
 
