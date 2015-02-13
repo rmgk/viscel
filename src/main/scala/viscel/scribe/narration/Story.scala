@@ -1,4 +1,4 @@
-package viscel.crawl.narration
+package viscel.scribe.narration
 
 import java.net.URL
 

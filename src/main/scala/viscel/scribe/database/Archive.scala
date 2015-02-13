@@ -1,9 +1,9 @@
-package viscel.crawl.database
+package viscel.scribe.database
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.crawl.database.Implicits.NodeOps
-import viscel.crawl.narration.{More, Story, Volatile}
+import viscel.scribe.database.Implicits.NodeOps
+import viscel.scribe.narration.{More, Story, Volatile}
 
 import scala.Predef.ArrowAssoc
 import scala.annotation.tailrec

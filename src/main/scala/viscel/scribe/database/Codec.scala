@@ -1,9 +1,9 @@
-package viscel.crawl.database
+package viscel.scribe.database
 
 import org.neo4j.graphdb.Node
-import viscel.crawl.database.Implicits.NodeOps
-import viscel.crawl.narration.SelectUtil.stringToURL
-import viscel.crawl.narration.{Asset, Blob, More, Policy, Story}
+import viscel.scribe.database.Implicits.NodeOps
+import viscel.scribe.narration.SelectUtil.stringToURL
+import viscel.scribe.narration.{Asset, Blob, More, Policy, Story}
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.genericWrapArray

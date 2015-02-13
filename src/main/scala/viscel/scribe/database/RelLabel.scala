@@ -1,4 +1,4 @@
-package viscel.crawl.database
+package viscel.scribe.database
 
 import org.neo4j.graphdb.{Label, RelationshipType}
 

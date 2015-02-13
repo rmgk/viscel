@@ -1,4 +1,4 @@
-package viscel.crawl
+package viscel.scribe
 
 import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
@@ -10,15 +10,15 @@ import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.HttpEncodings
-import viscel.crawl.database.{NeoInstance, label}
-import viscel.crawl.store.Config
+import viscel.scribe.database.{NeoInstance, label}
+import viscel.scribe.store.Config
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.util.{Failure, Success}
 
-object Viscel {
+object Scribe {
 
 	def time[T](desc: String = "")(f: => T): T = {
 		val start = System.nanoTime

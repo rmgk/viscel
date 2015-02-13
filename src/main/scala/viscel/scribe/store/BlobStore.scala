@@ -1,9 +1,9 @@
-package viscel.crawl.store
+package viscel.scribe.store
 
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
 
-import viscel.crawl.Viscel
+import viscel.scribe.Scribe
 
 object BlobStore {
 
@@ -12,7 +12,7 @@ object BlobStore {
 	def sha1hex(b: Array[Byte]) = Predef.wrapByteArray(digester.digest(b)).map { h => f"$h%02x" }.mkString
 
 	def write(sha1: String, bytes: Array[Byte]): Unit = {
-		val path = Viscel.basepath.resolve(hashToFilename(sha1))
+		val path = Scribe.basepath.resolve(hashToFilename(sha1))
 		Files.createDirectories(path.getParent)
 		Files.write(path, bytes)
 	}
@@ -25,6 +25,6 @@ object BlobStore {
 
 	def hashToFilename(h: String): String = new StringBuilder(h).insert(2, '/').insert(0, "./cache/").toString()
 
-	def hashToPath(h: String): Path = Viscel.basepath.resolve(hashToFilename(h))
+	def hashToPath(h: String): Path = Scribe.basepath.resolve(hashToFilename(h))
 
 }

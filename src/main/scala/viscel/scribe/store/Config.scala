@@ -1,8 +1,8 @@
-package viscel.crawl.store
+package viscel.scribe.store
 
 import org.neo4j.graphdb.Node
-import viscel.crawl.database.Implicits.NodeOps
-import viscel.crawl.database.{Ntx, label}
+import viscel.scribe.database.Implicits.NodeOps
+import viscel.scribe.database.{Ntx, label}
 
 import scala.Predef.ArrowAssoc
 
