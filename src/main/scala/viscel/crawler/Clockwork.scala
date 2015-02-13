@@ -1,15 +1,11 @@
 package viscel.crawler
 
-import java.nio.file.Path
-
 import spray.client.pipelining.SendReceive
+import viscel.Log
 import viscel.database._
 import viscel.narration.Narrator
-import viscel.store.TimeStore
-import viscel.{Log, Viscel}
 
 import scala.collection.concurrent
-import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
 
 
@@ -18,7 +14,7 @@ object Clockwork {
 
 	val runners: concurrent.Map[String, Runner] = concurrent.TrieMap[String, Runner]()
 
-	def finish(narrator: Narrator, runner: Runner): Unit = {
+	def finish(narrator: Narrator, runner: Runner, success: Boolean): Unit = {
 		runners.remove(narrator.id, runner)
 	}
 
@@ -36,7 +32,6 @@ object Clockwork {
 	def runForNarrator(narrator: Narrator, recheckInterval: Long, iopipe: SendReceive, neo: Neo, ec: ExecutionContext): Unit = {
 		val id = narrator.id
 		if (runners.contains(id)) Log.trace(s"$id has running job")
-		else if (!needsRecheck(narrator, recheckInterval)) Log.trace(s"$id does not need recheck")
 		else {
 			Log.info(s"update ${ narrator.id }")
 			val runner = neo.tx { implicit ntx =>
@@ -51,26 +46,6 @@ object Clockwork {
 		case (narrator, force) =>
 			Log.info(s"got hint ${ narrator.id }")
 			runForNarrator(narrator, if (force) 0 else dayInMillis / 4, iopipe, neo, ec)
-	}
-
-
-	private val path: Path = Viscel.basepath.resolve("data/updateTimes.json")
-	private var updateTimes: Map[String, Long] = TimeStore.load(path).fold(x => x, err => {
-		Log.error(s"could not load $path: $err")
-		Map()
-	})
-
-	def updateDates(nar: Narrator): Unit = synchronized {
-		val time = System.currentTimeMillis()
-		updateTimes = updateTimes.updated(nar.id, time)
-		TimeStore.store(path, updateTimes)
-	}
-
-	def needsRecheck(nar: Narrator, recheckInterval: Long): Boolean = synchronized {
-		Log.trace(s"calculating recheck for $nar")
-		val lastRun = updateTimes.get(nar.id)
-		val time = System.currentTimeMillis()
-		lastRun.isEmpty || (time - lastRun.get > recheckInterval)
 	}
 
 }

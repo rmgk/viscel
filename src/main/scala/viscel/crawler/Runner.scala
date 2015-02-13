@@ -56,8 +56,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	def recheckOrDone(): Unit = recheck.flatMap(n => neo.tx(nextHub(n)(_))) match {
 		case None =>
 			Log.info(s"runner for $narrator is done")
-			if (recover) Clockwork.updateDates(narrator)
-			Clockwork.finish(narrator, this)
+			Clockwork.finish(narrator, this, success = true)
 		case sn@Some(node) =>
 			recheck = sn
 			val m = neo.tx(Codec.load(node)(_, Codec.moreCodec))
@@ -91,7 +90,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 		}(ec).onFailure { case t: Throwable =>
 			Log.error(s"error in $narrator")
 			t.printStackTrace()
-			Clockwork.finish(narrator, this)
+			Clockwork.finish(narrator, this, success = false)
 		}(ec)
 	}
 
@@ -139,7 +138,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			case Bad(failed) =>
 				Log.error(s"$narrator failed on $page: $failed")
 				tryRecovery(node)(ntx)
-				Clockwork.finish(narrator, this)
+				Clockwork.finish(narrator, this, success = false)
 		}
 	}
 
