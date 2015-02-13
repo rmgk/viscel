@@ -20,11 +20,11 @@ object SelectUtil {
 	def imgIntoAsset(img: Element): Asset Or Every[ErrorMessage] = extract(Asset(
 		blob = Some(img.attr("abs:src")),
 		origin = Some(img.ownerDocument().location()),
-		data = (List("image") :::
+		data = List("image") :::
 			getAttr(img, "alt") :::
 			getAttr(img, "title") :::
 			getAttr(img, "width") :::
-			getAttr(img, "height")).toArray))
+			getAttr(img, "height")))
 
 	def queryImage(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgIntoAsset)
 	def queryImages(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)

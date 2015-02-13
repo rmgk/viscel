@@ -6,6 +6,7 @@ import viscel.crawler.narration.SelectUtil.stringToURL
 import viscel.crawler.narration.{Asset, Blob, More, Policy, Story}
 
 import scala.Predef.ArrowAssoc
+import scala.Predef.genericWrapArray
 import scala.language.implicitConversions
 
 
@@ -37,13 +38,13 @@ object Codec {
 			ntx.create(label.Asset, List(
 				value.blob.map(b => "blob" -> b.toExternalForm),
 				value.origin.map(o => "origin" -> o.toExternalForm),
-				if (value.data.length == 0) None else Some("data" -> value.data)
+				if (value.data.length == 0) None else Some("data" -> value.data.toArray)
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): Asset = Asset(
 			blob = node.get[String]("blob").map(stringToURL),
 			origin = node.get[String]("origin").map(stringToURL),
-			data = node.get[Array[String]]("data").fold(Array[String]())(a => a)
+			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)
 	}
 
@@ -52,13 +53,13 @@ object Codec {
 			ntx.create(label.More, List(
 				Some("loc" -> value.loc.toExternalForm),
 				value.policy.ext.map("policy" -> _),
-				if (value.data.length == 0) None else Some("data" -> value.data)
+				if (value.data.length == 0) None else Some("data" -> value.data.toArray)
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): More = More(
 			loc = node.prop[String]("loc"),
 			policy = Policy.int(node.get[String]("policy")),
-			data = node.get[Array[String]]("data").fold(Array[String]())(a => a)
+			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)
 	}
 
