@@ -15,7 +15,6 @@ import scala.collection.Map
 
 trait Neo {
 	def tx[R](f: Ntx => R): R
-	def txs[R](f: => R): R
 }
 
 trait Ntx {
@@ -52,7 +51,7 @@ class NeoInstance(path: String) extends Neo with Ntx {
 		go()
 	}
 
-	def nodes(label: Label): List[Node] = txs { GlobalGraphOperations.at(db).getAllNodesWithLabel(label).asScala.toList }
+	def nodes(label: Label): List[Node] = tx { _ => GlobalGraphOperations.at(db).getAllNodesWithLabel(label).asScala.toList }
 
 	def create(label: Label, attributes: (String, Any)*): Node = create(label, attributes.toMap)
 	def create(label: Label, attributes: Map[String, Any]): Node = {
@@ -80,7 +79,5 @@ class NeoInstance(path: String) extends Neo with Ntx {
 			tx.close()
 		}
 	}
-
-	def txs[R](f: => R): R = tx(_ => f)
 
 }
