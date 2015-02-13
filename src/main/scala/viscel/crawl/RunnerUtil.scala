@@ -1,4 +1,4 @@
-package viscel.crawler
+package viscel.crawl
 
 import java.net.URL
 
@@ -8,8 +8,8 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding.{Deflate, Gzip}
-import viscel.crawler.narration.Blob
-import viscel.crawler.store.BlobStore
+import viscel.crawl.narration.Blob
+import viscel.crawl.store.BlobStore
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

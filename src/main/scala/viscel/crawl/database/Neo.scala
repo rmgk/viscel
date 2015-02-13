@@ -1,10 +1,10 @@
-package viscel.crawler.database
+package viscel.crawl.database
 
 import org.neo4j.graphdb.factory.{GraphDatabaseFactory, GraphDatabaseSettings}
 import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
 import org.neo4j.helpers.Settings
 import org.neo4j.tooling.GlobalGraphOperations
-import viscel.crawler.Log
+import viscel.crawl.Log
 
 import scala.collection.JavaConverters._
 import scala.collection.Map

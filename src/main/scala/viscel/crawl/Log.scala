@@ -1,4 +1,4 @@
-package viscel.crawler
+package viscel.crawl
 
 object Log {
 	def trace(m: String) = /*Console.println(m)*/ ()

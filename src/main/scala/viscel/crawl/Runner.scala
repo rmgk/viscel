@@ -1,15 +1,15 @@
-package viscel.crawler
+package viscel.crawl
 
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpRequest, HttpResponse}
-import viscel.crawler.RunnerUtil._
-import viscel.crawler.database.Archive._
-import viscel.crawler.database.Implicits.NodeOps
-import viscel.crawler.database.{Book, Codec, Neo, Ntx, label, rel}
-import viscel.crawler.narration.{Asset, Blob, More, Narrator, Story, Volatile}
+import viscel.crawl.RunnerUtil._
+import viscel.crawl.database.Archive._
+import viscel.crawl.database.Implicits.NodeOps
+import viscel.crawl.database.{Book, Codec, Neo, Ntx, label, rel}
+import viscel.crawl.narration.{Asset, Blob, More, Narrator, Story, Volatile}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Set

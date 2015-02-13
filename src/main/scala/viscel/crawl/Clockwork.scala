@@ -1,8 +1,8 @@
-package viscel.crawler
+package viscel.crawl
 
 import spray.client.pipelining.SendReceive
-import viscel.crawler.database._
-import viscel.crawler.narration.Narrator
+import viscel.crawl.database._
+import viscel.crawl.narration.Narrator
 
 import scala.collection.concurrent
 import scala.concurrent.ExecutionContext

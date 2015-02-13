@@ -1,4 +1,4 @@
-package viscel.crawler.narration
+package viscel.crawl.narration
 
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._

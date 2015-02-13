@@ -1,4 +1,4 @@
-package viscel.crawler
+package viscel.crawl
 
 import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
@@ -10,8 +10,8 @@ import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.HttpEncodings
-import viscel.crawler.database.{NeoInstance, label}
-import viscel.crawler.store.Config
+import viscel.crawl.database.{NeoInstance, label}
+import viscel.crawl.store.Config
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._

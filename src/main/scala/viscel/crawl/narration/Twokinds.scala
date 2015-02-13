@@ -1,9 +1,9 @@
-package viscel.crawler.narration
+package viscel.crawl.narration
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.crawler.narration.SelectUtil._
+import viscel.crawl.narration.SelectUtil._
 
 
 object Twokinds extends Narrator {
