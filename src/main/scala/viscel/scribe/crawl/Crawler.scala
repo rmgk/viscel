@@ -1,21 +1,22 @@
-package viscel.scribe
+package viscel.scribe.crawl
 
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpRequest, HttpResponse}
+import viscel.scribe.{Book, Log}
 import viscel.scribe.database.Archive._
 import viscel.scribe.database.Implicits.NodeOps
-import viscel.scribe.database.{Book, Codec, Neo, Ntx, label, rel}
+import viscel.scribe.database.{Codec, Neo, Ntx, label, rel}
 import viscel.scribe.narration.{Asset, Blob, More, Narrator, Story, Volatile}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Set
-import scala.concurrent.{Future, Promise, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 
 
-class Runner(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Neo, ec: ExecutionContext, runnerUtil: RunnerUtil) extends Runnable {
+class Crawler(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Neo, ec: ExecutionContext, runnerUtil: CrawlerUtil) extends Runnable {
 	import runnerUtil._
 
 	override def toString: String = s"Job(${ narrator.toString })"
@@ -27,7 +28,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Neo
 	var known: Set[Story] = Set.empty
 	var recover: Boolean = true
 	@volatile var cancel: Boolean = false
-	val result: Promise[(Narrator, Runner, Boolean)] = Promise()
+	val result: Promise[(Narrator, Crawler, Boolean)] = Promise()
 
 	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit =
 		if (node.hasLabel(label.More) || node.hasLabel(label.Asset))
@@ -38,7 +39,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Neo
 				case _ =>
 			}
 
-	def init(): Future[(Narrator, Runner, Boolean)] = synchronized {
+	def init(): Future[(Narrator, Crawler, Boolean)] = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
 			applyNarration(collection.self, narrator.archive)
 			known = collectMore(collection.self).toSet

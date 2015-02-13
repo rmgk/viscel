@@ -1,7 +1,8 @@
-package viscel.scribe.database
+package viscel.scribe
 
 import org.neo4j.graphdb.Node
 import viscel.scribe.database.Implicits.NodeOps
+import viscel.scribe.database.{Ntx, label}
 import viscel.scribe.narration.Description
 
 final case class Book(self: Node) extends AnyVal {

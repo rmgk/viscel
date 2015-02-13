@@ -10,7 +10,8 @@ import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpResponse, HttpEncodings}
-import viscel.scribe.database.{Books, Neo, NeoInstance, label}
+import viscel.scribe.crawl.{CrawlerUtil, Crawler}
+import viscel.scribe.database.{Neo, NeoInstance, label}
 import viscel.scribe.narration.Narrator
 import viscel.scribe.store.{BlobStore, Config}
 
@@ -67,20 +68,20 @@ object Scribe {
 
 		val blobs = new BlobStore(basedir.resolve("blobs"))
 
-		new Scribe(basedir, neo, iopipe, executionContext, blobs, new RunnerUtil(blobs, responseHandler))
+		new Scribe(basedir, neo, iopipe, executionContext, blobs, new CrawlerUtil(blobs, responseHandler))
 	}
 
 }
 
-class Scribe(val basedir: Path, val neo: NeoInstance, val sendReceive: SendReceive, val ec: ExecutionContext, val blobs: BlobStore, val util: RunnerUtil) {
+class Scribe(val basedir: Path, val neo: NeoInstance, val sendReceive: SendReceive, val ec: ExecutionContext, val blobs: BlobStore, val util: CrawlerUtil) {
 
-	val runners: concurrent.Map[String, Runner] = concurrent.TrieMap[String, Runner]()
+	val runners: concurrent.Map[String, Crawler] = concurrent.TrieMap[String, Crawler]()
 
-	def finish(narrator: Narrator, runner: Runner, success: Boolean): Unit = {
+	def finish(narrator: Narrator, runner: Crawler, success: Boolean): Unit = {
 		runners.remove(narrator.id, runner)
 	}
 
-	def ensureRunner(id: String, runner: Runner): Unit = {
+	def ensureRunner(id: String, runner: Crawler): Unit = {
 		runners.putIfAbsent(id, runner) match {
 			case Some(x) => Log.info(s"$id race on job creation")
 			case None =>
@@ -98,7 +99,7 @@ class Scribe(val basedir: Path, val neo: NeoInstance, val sendReceive: SendRecei
 			Log.info(s"update ${ narrator.id }")
 			val runner = neo.tx { implicit ntx =>
 				val collection = Books.findAndUpdate(narrator)
-				new Runner(narrator, iopipe, collection, neo, ec, util)
+				new Crawler(narrator, iopipe, collection, neo, ec, util)
 			}
 			ensureRunner(id, runner)
 		}

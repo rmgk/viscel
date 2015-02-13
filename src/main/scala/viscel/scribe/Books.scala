@@ -1,8 +1,8 @@
-package viscel.scribe.database
+package viscel.scribe
 
+import viscel.scribe.database.{Ntx, label}
 import viscel.scribe.narration.{Description, Narrator}
 import viscel.scribe.store.Config
-import viscel.scribe.{Log, Scribe}
 
 import scala.Predef.ArrowAssoc
 

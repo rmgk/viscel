@@ -1,4 +1,4 @@
-package viscel.scribe
+package viscel.scribe.crawl
 
 import java.net.URL
 
@@ -8,6 +8,7 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding.{Deflate, Gzip}
+import viscel.scribe.Log
 import viscel.scribe.narration.Blob
 import viscel.scribe.store.BlobStore
 
@@ -16,7 +17,7 @@ import scala.concurrent.Future
 import scala.util.Try
 
 
-class RunnerUtil(blobs: BlobStore, responsHandler: Try[HttpResponse] => Unit) {
+class CrawlerUtil(blobs: BlobStore, responsHandler: Try[HttpResponse] => Unit) {
 
 	def urlToUri(in: URL): Uri = {
 		implicit class X(s: String) {def ? = Option(s).getOrElse("") }
