@@ -9,8 +9,8 @@ import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.SendReceive
-import spray.http.{HttpResponse, HttpEncodings}
-import viscel.scribe.crawl.{CrawlerUtil, Crawler}
+import spray.http.{HttpEncodings, HttpResponse}
+import viscel.scribe.crawl.{Crawler, CrawlerUtil}
 import viscel.scribe.database.{Neo, NeoInstance, label}
 import viscel.scribe.narration.Narrator
 import viscel.scribe.store.{BlobStore, Config}
@@ -19,7 +19,7 @@ import scala.collection.concurrent
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.language.implicitConversions
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 object Scribe {
 
@@ -73,7 +73,16 @@ object Scribe {
 
 }
 
-class Scribe(val basedir: Path, val neo: NeoInstance, val sendReceive: SendReceive, val ec: ExecutionContext, val blobs: BlobStore, val util: CrawlerUtil) {
+class Scribe(
+	val basedir: Path,
+	val neo: NeoInstance,
+	val sendReceive: SendReceive,
+	val ec: ExecutionContext,
+	val blobs: BlobStore,
+	val util: CrawlerUtil
+) {
+
+	val books = new Books(neo)
 
 	val runners: concurrent.Map[String, Crawler] = concurrent.TrieMap[String, Crawler]()
 
@@ -98,7 +107,7 @@ class Scribe(val basedir: Path, val neo: NeoInstance, val sendReceive: SendRecei
 		else {
 			Log.info(s"update ${ narrator.id }")
 			val runner = neo.tx { implicit ntx =>
-				val collection = Books.findAndUpdate(narrator)
+				val collection = books.findAndUpdate(narrator)
 				new Crawler(narrator, iopipe, collection, neo, ec, util)
 			}
 			ensureRunner(id, runner)

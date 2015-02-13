@@ -9,7 +9,6 @@ final case class More(loc: URL, policy: Policy = Normal, data: List[String] = Li
 final case class Asset(blob: Option[URL], origin: Option[URL], data: List[String] = List()) extends Story
 
 final case class Blob(sha1: String, mime: String)
-final case class Description(id: String, name: String, size: Int)
 
 sealed trait Policy {
 	def ext: Option[String]

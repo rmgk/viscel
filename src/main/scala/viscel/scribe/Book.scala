@@ -2,8 +2,7 @@ package viscel.scribe
 
 import org.neo4j.graphdb.Node
 import viscel.scribe.database.Implicits.NodeOps
-import viscel.scribe.database.{Ntx, label}
-import viscel.scribe.narration.Description
+import viscel.scribe.database.{Neo, Ntx, label}
 
 final case class Book(self: Node) extends AnyVal {
 
@@ -23,7 +22,5 @@ final case class Book(self: Node) extends AnyVal {
 		case n if n.hasLabel(label.Asset) => s + 1
 		case _ => s
 	})
-
-	def description()(implicit ntx: Ntx): Description = Description(id, name, size)
 
 }
