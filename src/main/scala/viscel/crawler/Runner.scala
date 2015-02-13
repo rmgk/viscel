@@ -5,12 +5,12 @@ import org.neo4j.graphdb.Node
 import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpRequest, HttpResponse}
-import viscel.Log
-import viscel.crawler.Archive._
+import viscel.crawler.database.{Archive, Book, Codec, Neo, Ntx, label, rel}
+import Archive._
 import viscel.crawler.RunnerUtil._
-import viscel.database.Implicits.NodeOps
-import viscel.database.{Book, Codec, Neo, Ntx, label, rel}
-import viscel.narration.{Volatile, Blob, Asset, More, Story, Narrator}
+import viscel.crawler.database.Implicits.NodeOps
+import viscel.crawler.database.{Book, Codec, Neo, Ntx, label, rel}
+import viscel.crawler.narration.{Volatile, Blob, Asset, More, Story, Narrator}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Set

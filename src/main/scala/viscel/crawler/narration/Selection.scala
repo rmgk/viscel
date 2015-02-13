@@ -1,10 +1,10 @@
-package viscel.narration
+package viscel.crawler.narration
 
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.scalactic.Accumulation.convertGenTraversableOnceToValidatable
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
-import viscel.narration.SelectUtil.{blame, caller, extract}
+import viscel.crawler.narration.SelectUtil.{blame, caller, extract}
 
 import scala.Predef.$conforms
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter

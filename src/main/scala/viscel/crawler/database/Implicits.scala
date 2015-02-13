@@ -1,7 +1,7 @@
-package viscel.database
+package viscel.crawler.database
 
 import org.neo4j.graphdb.{Direction, Node, Relationship, RelationshipType}
-import viscel.Log
+import viscel.crawler.Log
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter

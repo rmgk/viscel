@@ -1,8 +1,8 @@
-package viscel.database
+package viscel.crawler.database
 
 import org.neo4j.graphdb.Node
-import viscel.database.Implicits.NodeOps
-import viscel.narration.Description
+import viscel.crawler.database.Implicits.NodeOps
+import viscel.crawler.narration.Description
 
 final case class Book(self: Node) extends AnyVal {
 

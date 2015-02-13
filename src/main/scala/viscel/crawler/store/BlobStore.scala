@@ -1,9 +1,9 @@
-package viscel.store
+package viscel.crawler.store
 
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
 
-import viscel.Viscel
+import viscel.crawler.Viscel
 
 object BlobStore {
 

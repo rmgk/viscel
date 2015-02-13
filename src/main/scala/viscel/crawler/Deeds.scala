@@ -1,8 +1,8 @@
-package viscel
+package viscel.crawler
 
 import org.scalactic.ErrorMessage
 import spray.http.HttpResponse
-import viscel.narration.Narrator
+import viscel.crawler.narration.Narrator
 
 import scala.util.Try
 

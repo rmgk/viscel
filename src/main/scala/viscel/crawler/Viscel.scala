@@ -1,7 +1,7 @@
-package viscel
+package viscel.crawler
 
 import java.nio.file.{Files, Path, Paths}
-import java.util.concurrent.{LinkedBlockingQueue, TimeUnit, ThreadPoolExecutor}
+import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.ActorSystem
 import akka.io.IO
@@ -10,9 +10,8 @@ import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.HttpEncodings
-import viscel.crawler.Clockwork
-import viscel.database.{NeoInstance, label}
-import viscel.store.Config
+import viscel.crawler.database.{NeoInstance, label}
+import viscel.crawler.store.Config
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
