@@ -1,6 +1,6 @@
 package viscel.database
 
-import viscel.narration.{Narrator, Narrators}
+import viscel.narration.{Narrator}
 import viscel.shared.Description
 import viscel.store.Config
 import viscel.{Log, Viscel}
@@ -22,11 +22,6 @@ object Books {
 			Log.info(s"materializing $narrator")
 			Book(ntx.create(label.Book, "id" -> narrator.id, "name" -> narrator.name))
 		}
-	}
-
-	def find(id: String)(implicit ntx: Ntx): Option[Book] = Narrators.get(id) match {
-		case None => findExisting(id)
-		case Some(nar) => Some(findAndUpdate(nar))
 	}
 
 	def allDescriptions()(implicit ntx: Ntx): List[Description] = {
