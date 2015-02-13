@@ -4,7 +4,6 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.SelectUtil._
-import viscel.shared.{Asset, More, Story, Volatile}
 
 
 object Twokinds extends Narrator {

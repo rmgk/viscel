@@ -3,7 +3,7 @@ package viscel.database
 import org.neo4j.graphdb.Node
 import viscel.database.Implicits.NodeOps
 import viscel.narration.SelectUtil.stringToURL
-import viscel.shared.{Asset, Blob, More, Policy, Story}
+import viscel.narration.{Policy, Blob, Asset, More, Story}
 
 import scala.Predef.ArrowAssoc
 import scala.language.implicitConversions

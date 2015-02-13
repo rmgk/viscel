@@ -10,8 +10,7 @@ import viscel.crawler.Archive._
 import viscel.crawler.RunnerUtil._
 import viscel.database.Implicits.NodeOps
 import viscel.database.{Book, Codec, Neo, Ntx, label, rel}
-import viscel.narration.Narrator
-import viscel.shared.{Asset, Blob, More, Story, Volatile}
+import viscel.narration.{Volatile, Blob, Asset, More, Story, Narrator}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Set

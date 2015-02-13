@@ -1,4 +1,4 @@
-package viscel.shared
+package viscel.narration
 
 import java.net.URL
 

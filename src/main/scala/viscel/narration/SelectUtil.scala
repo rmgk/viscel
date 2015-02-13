@@ -5,7 +5,6 @@ import java.net.URL
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.shared.{Asset, More, Story}
 
 import scala.Predef.$conforms
 import scala.collection.immutable.Set

@@ -8,7 +8,7 @@ import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransf
 import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
 import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
 import spray.httpx.encoding.{Deflate, Gzip}
-import viscel.shared.Blob
+import viscel.narration.Blob
 import viscel.store.BlobStore
 import viscel.{Deeds, Log}
 

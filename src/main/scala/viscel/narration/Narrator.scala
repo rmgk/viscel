@@ -3,7 +3,6 @@ package viscel.narration
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Or}
-import viscel.shared.{More, Story}
 
 case class Problem(msg: String)
 
