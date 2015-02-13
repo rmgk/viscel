@@ -13,9 +13,10 @@ import viscel.scribe.store.BlobStore
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Try
 
 
-class RunnerUtil(blobs: BlobStore) {
+class RunnerUtil(blobs: BlobStore, responsHandler: Try[HttpResponse] => Unit) {
 
 	def urlToUri(in: URL): Uri = {
 		implicit class X(s: String) {def ? = Option(s).getOrElse("") }
@@ -35,7 +36,7 @@ class RunnerUtil(blobs: BlobStore) {
 	def getResponse(request: HttpRequest, iopipe: SendReceive): Future[HttpResponse] = {
 		val result = request ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
 		Log.info(s"get ${ request.uri } (${ request.headers })")
-		result.andThen(PartialFunction(Deeds.responses.apply)).map { decode(Gzip) ~> decode(Deflate) }
+		result.andThen(PartialFunction(responsHandler)).map { decode(Gzip) ~> decode(Deflate) }
 	}
 
 	def request[R](source: URL, origin: Option[URL] = None): HttpRequest = {

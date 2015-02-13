@@ -9,7 +9,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.SendReceive
-import spray.http.HttpEncodings
+import spray.http.{HttpResponse, HttpEncodings}
 import viscel.scribe.database.{Books, Neo, NeoInstance, label}
 import viscel.scribe.narration.Narrator
 import viscel.scribe.store.{BlobStore, Config}
@@ -18,7 +18,7 @@ import scala.collection.concurrent
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.language.implicitConversions
-import scala.util.{Failure, Success}
+import scala.util.{Try, Failure, Success}
 
 object Scribe {
 
@@ -52,7 +52,7 @@ object Scribe {
 		val ioHttp = IO(Http)
 		val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
-		Deeds.responses = {
+		val responseHandler: Try[HttpResponse] => Unit = {
 			case Success(res) => neo.tx { ntx =>
 				configNode.download(
 					size = res.entity.data.length,
@@ -65,15 +65,14 @@ object Scribe {
 		val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 			0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
 
-		new Scribe(basedir, neo, iopipe, executionContext)
+		val blobs = new BlobStore(basedir.resolve("blobs"))
+
+		new Scribe(basedir, neo, iopipe, executionContext, blobs, new RunnerUtil(blobs, responseHandler))
 	}
 
 }
 
-class Scribe(val basedir: Path, val neo: NeoInstance, val sendReceive: SendReceive, val ec: ExecutionContext) {
-	val blobs = new BlobStore(basedir.resolve("blobs"))
-	val util = new RunnerUtil(blobs)
-
+class Scribe(val basedir: Path, val neo: NeoInstance, val sendReceive: SendReceive, val ec: ExecutionContext, val blobs: BlobStore, val util: RunnerUtil) {
 
 	val runners: concurrent.Map[String, Runner] = concurrent.TrieMap[String, Runner]()
 
