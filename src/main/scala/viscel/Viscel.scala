@@ -79,6 +79,15 @@ object Viscel {
 		val ioHttp = IO(Http)
 		iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
+		if (upgradedb.?) {
+			val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"), system,
+				ExecutionContext.fromExecutor(new ThreadPoolExecutor(
+					0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])))
+
+			Upgrader.doUpgrade(scribe, neo)
+
+		}
+
 		if (!noserver.?) {
 			val server = system.actorOf(Props(Predef.classOf[Server], neo), "viscel-server")
 			ioHttp ! Http.Bind(server, interface = "0", port = port())
@@ -131,6 +140,7 @@ object Viscel {
 		val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
 		val shutdown = accepts("shutdown", "shutdown after main")
 		val help = accepts("help").forHelp()
+		val upgradedb = accepts("upgradedb", "upgrade the db from version 1 to version 2")
 
 		implicit def optToBool(opt: OptionSpecBuilder)(implicit oset: OptionSet): Boolean = oset.has(opt)
 

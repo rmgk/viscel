@@ -7,8 +7,9 @@ import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
 import viscel.crawler.{Archive, RunnerUtil}
-import viscel.database.{Ntx, Books, Neo}
+import viscel.database.{NeoInstance, Ntx, Books, Neo}
 import viscel.narration.Narrator
+import viscel.scribe.Scribe
 import viscel.server.ServerPages
 import viscel.shared.Story.More.Kind
 import viscel.shared.Story.{Asset, Chapter, Description}
@@ -50,6 +51,7 @@ class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
 }
 
 object ReplUtil {
+
 	def apply(args: String*) = {
 		val (system, ioHttp, iopipe) = Viscel.run(args: _*)
 		new ReplUtil(system, iopipe)
