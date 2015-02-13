@@ -3,8 +3,9 @@ import sbt._
 
 object Build extends sbt.Build {
 
-	lazy val crawl = project.in(file("."))
-		.settings(name := "viscelcrawl")
+	lazy val scribe = project.in(file("."))
+		.settings(name := "scribe")
+		.settings(organization := "viscel")
 		.settings(Settings.main: _*)
 		.settings(Libraries.main: _*)
 
