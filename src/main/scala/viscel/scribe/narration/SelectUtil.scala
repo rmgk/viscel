@@ -56,7 +56,7 @@ object SelectUtil {
 		extractUri(element).map(uri => More(uri))
 
 
-	val ignoredClasses = Set("viscel.narration.Selection", "java.lang.Thread", "viscel.narration.GoodSelection", "org.scalactic", "scala", "viscel.narration.SelectUtil")
+	val ignoredClasses = Set("viscel.scribe", "java", "org.scalactic", "scala")
 	def caller: String = {
 		val stackTraceOption = Predef.wrapRefArray(Thread.currentThread().getStackTrace()).find { ste =>
 			val cname = ste.getClassName
@@ -69,14 +69,6 @@ object SelectUtil {
 
 	def blame(text: String, cause: Element*): String =
 		s"""$text at ($caller) on (${ cause.head.baseUri }) elements (${ cause.map { show } })"""
-
-
-	def placeChapters(archive: List[Story], chapters: List[(Story, Story)]): List[Story] = (archive, chapters) match {
-		case (Nil, chaps) => chaps.flatMap(c => c._1 :: c._2 :: Nil)
-		case (as, Nil) => as
-		case (a :: as, (c, m) :: cms) if a == m => c :: a :: placeChapters(as, cms)
-		case (a :: as, cms) => a :: placeChapters(as, cms)
-	}
 
 	def append[T](as: Or[List[T], Every[ErrorMessage]]*): Or[List[T], Every[ErrorMessage]] = convertGenTraversableOnceToCombinable(as).combined.map(_.flatten.toList)
 	def cons[T](a: T Or Every[ErrorMessage], b: List[T] Or Every[ErrorMessage]): Or[List[T], Every[ErrorMessage]] = withGood(a, b)(_ :: _)

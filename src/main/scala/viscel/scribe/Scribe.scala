@@ -1,6 +1,6 @@
 package viscel.scribe
 
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.ActorSystem
@@ -10,9 +10,11 @@ import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.HttpEncodings
-import viscel.scribe.database.{NeoInstance, label}
-import viscel.scribe.store.Config
+import viscel.scribe.database.{Books, Neo, NeoInstance, label}
+import viscel.scribe.narration.Narrator
+import viscel.scribe.store.{BlobStore, Config}
 
+import scala.collection.concurrent
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.language.implicitConversions
@@ -27,19 +29,11 @@ object Scribe {
 		res
 	}
 
-	var neo: NeoInstance = _
-	var iopipe: SendReceive = _
+	def apply(basedir: Path, system: ActorSystem, executionContext: ExecutionContext): Scribe = {
 
-	var basepath: Path = _
+		Files.createDirectories(basedir)
 
-	def main(args: Array[String]): Unit = run(args(0))
-
-	def run(basedir: String) = {
-
-		basepath = Paths.get(basedir)
-		Files.createDirectories(basepath)
-
-		neo = new NeoInstance(basepath.resolve("db").toString)
+		val neo = new NeoInstance(basedir.resolve("db").toString)
 
 		val configNode = neo.tx { implicit ntx =>
 			val cfg = Config.get()(ntx)
@@ -56,7 +50,7 @@ object Scribe {
 		implicit val system = ActorSystem()
 
 		val ioHttp = IO(Http)
-		iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
+		val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
 		Deeds.responses = {
 			case Success(res) => neo.tx { ntx =>
@@ -71,18 +65,43 @@ object Scribe {
 		val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 			0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
 
-		Deeds.narratorHint = Clockwork.handleHints(clockworkContext, iopipe, neo)
-
-		Deeds.jobResult = {
-			case messages@_ :: _ => Log.error(s"some job failed: $messages")
-			case Nil =>
-		}
-
-		Deeds.narratorHint(narration.Twokinds, true)
-
-		(system, ioHttp, iopipe)
+		new Scribe(basedir, neo, iopipe, executionContext)
 	}
-
 
 }
 
+class Scribe(val basedir: Path, val neo: NeoInstance, val sendReceive: SendReceive, val ec: ExecutionContext) {
+	val blobs = new BlobStore(basedir.resolve("blobs"))
+	val util = new RunnerUtil(blobs)
+
+
+	val runners: concurrent.Map[String, Runner] = concurrent.TrieMap[String, Runner]()
+
+	def finish(narrator: Narrator, runner: Runner, success: Boolean): Unit = {
+		runners.remove(narrator.id, runner)
+	}
+
+	def ensureRunner(id: String, runner: Runner): Unit = {
+		runners.putIfAbsent(id, runner) match {
+			case Some(x) => Log.info(s"$id race on job creation")
+			case None =>
+				runner.init().onSuccess { case (n, r, s) => finish(n, r, s) }(ec)
+				ec.execute(runner)
+		}
+	}
+
+	private val dayInMillis = 24L * 60L * 60L * 1000L
+
+	def runForNarrator(narrator: Narrator, iopipe: SendReceive, neo: Neo): Unit = {
+		val id = narrator.id
+		if (runners.contains(id)) Log.trace(s"$id has running job")
+		else {
+			Log.info(s"update ${ narrator.id }")
+			val runner = neo.tx { implicit ntx =>
+				val collection = Books.findAndUpdate(narrator)
+				new Runner(narrator, iopipe, collection, neo, ec, util)
+			}
+			ensureRunner(id, runner)
+		}
+	}
+}

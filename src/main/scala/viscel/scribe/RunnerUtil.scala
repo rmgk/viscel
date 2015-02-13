@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
-object RunnerUtil {
+class RunnerUtil(blobs: BlobStore) {
 
 	def urlToUri(in: URL): Uri = {
 		implicit class X(s: String) {def ? = Option(s).getOrElse("") }
@@ -48,7 +48,7 @@ object RunnerUtil {
 
 	def parseBlob[R](res: HttpResponse): Blob = {
 		val bytes = res.entity.data.toByteArray
-		val sha1 = BlobStore.write(bytes)
+		val sha1 = blobs.write(bytes)
 		Blob(
 			sha1 = sha1,
 			mime = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString()))

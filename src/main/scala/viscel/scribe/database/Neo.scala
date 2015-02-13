@@ -1,5 +1,8 @@
 package viscel.scribe.database
 
+import java.time.LocalDateTime
+import java.util.Objects
+
 import org.neo4j.graphdb.factory.{GraphDatabaseFactory, GraphDatabaseSettings}
 import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
 import org.neo4j.helpers.Settings
@@ -36,7 +39,6 @@ class NeoInstance(path: String) extends Neo with Ntx {
 
 
 	def shutdown(): Unit = {
-		//txt("export") { ArchiveExport.exportAll(_) }
 		db.shutdown()
 	}
 

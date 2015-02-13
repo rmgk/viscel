@@ -5,7 +5,6 @@ import org.neo4j.graphdb.Node
 import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpRequest, HttpResponse}
-import viscel.scribe.RunnerUtil._
 import viscel.scribe.database.Archive._
 import viscel.scribe.database.Implicits.NodeOps
 import viscel.scribe.database.{Book, Codec, Neo, Ntx, label, rel}
@@ -13,10 +12,11 @@ import viscel.scribe.narration.{Asset, Blob, More, Narrator, Story, Volatile}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Set
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, Promise, ExecutionContext}
 
 
-class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo: Neo, ec: ExecutionContext) extends Runnable {
+class Runner(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Neo, ec: ExecutionContext, runnerUtil: RunnerUtil) extends Runnable {
+	import runnerUtil._
 
 	override def toString: String = s"Job(${ narrator.toString })"
 
@@ -27,6 +27,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 	var known: Set[Story] = Set.empty
 	var recover: Boolean = true
 	@volatile var cancel: Boolean = false
+	val result: Promise[(Narrator, Runner, Boolean)] = Promise()
 
 	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit =
 		if (node.hasLabel(label.More) || node.hasLabel(label.Asset))
@@ -37,7 +38,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 				case _ =>
 			}
 
-	def init() = synchronized {
+	def init(): Future[(Narrator, Runner, Boolean)] = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
 			applyNarration(collection.self, narrator.archive)
 			known = collectMore(collection.self).toSet
@@ -47,14 +48,18 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			if (pages.isEmpty) {
 				recheck = Some(collection.self)
 			}
+			result.future
 		}
-		else Log.error("tried to initialize non empty runner")
+		else {
+			Log.error("tried to initialize non empty runner")
+			Future.failed(new IllegalStateException("already initialised"))
+		}
 	}
 
 	def recheckOrDone(): Unit = recheck.flatMap(n => neo.tx(nextHub(n)(_))) match {
 		case None =>
 			Log.info(s"runner for $narrator is done")
-			Clockwork.finish(narrator, this, success = true)
+			result.success((narrator, this, true))
 		case sn@Some(node) =>
 			recheck = sn
 			val m = neo.tx(Codec.load(node)(_, Codec.moreCodec))
@@ -88,7 +93,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 		}(ec).onFailure { case t: Throwable =>
 			Log.error(s"error in $narrator")
 			t.printStackTrace()
-			Clockwork.finish(narrator, this, success = false)
+			result.success((narrator, this, false))
 		}(ec)
 	}
 
@@ -136,7 +141,7 @@ class Runner(narrator: Narrator, iopipe: SendReceive, val collection: Book, neo:
 			case Bad(failed) =>
 				Log.error(s"$narrator failed on $page: $failed")
 				tryRecovery(node)(ntx)
-				Clockwork.finish(narrator, this, success = false)
+				result.success((narrator, this, false))
 		}
 	}
 
