@@ -11,7 +11,7 @@ import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpEncodings, HttpResponse}
 import viscel.scribe.crawl.{Crawler, CrawlerUtil}
-import viscel.scribe.database.{Neo, NeoInstance, label}
+import viscel.scribe.database.{Books, Neo, NeoInstance, label}
 import viscel.scribe.narration.Narrator
 import viscel.scribe.store.{BlobStore, Config}
 

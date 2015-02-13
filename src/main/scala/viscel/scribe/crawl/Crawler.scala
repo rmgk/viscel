@@ -5,10 +5,10 @@ import org.neo4j.graphdb.Node
 import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpRequest, HttpResponse}
-import viscel.scribe.{Book, Log}
+import viscel.scribe.Log
 import viscel.scribe.database.Archive._
 import viscel.scribe.database.Implicits.NodeOps
-import viscel.scribe.database.{Codec, Neo, Ntx, label, rel}
+import viscel.scribe.database.{Book, Codec, Neo, Ntx, label, rel}
 import viscel.scribe.narration.{Asset, Blob, More, Narrator, Story, Volatile}
 
 import scala.Predef.ArrowAssoc
