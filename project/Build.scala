@@ -21,13 +21,12 @@ object Build extends sbt.Build {
 		.settings(Settings.common: _*)
 		.settings(Libraries.js: _*)
 
-
 }
 
 object Settings {
 	lazy val common = List(
 
-		version := "5.10.0",
+		version := "5.11.0",
 		scalaVersion := "2.11.5",
 		SourceGeneration.caseCodecs,
 
@@ -116,12 +115,13 @@ object Libraries {
 
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++
-		commandline ++ scalatest ++ scalactic ++ jsoup ++ shared.value)
+		commandline ++ scalatest ++ scalactic ++ jsoup ++ shared.value ++ scribe)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++= scalajsdom.value ++ shared.value)
 
 	lazy val shared = Def.setting(scalatags.value ++ upickle.value)
 
+	val scribe = List("viscel" %% "scribe" % "0.1.0")
 
 	// gpl3
 	val neo = {
