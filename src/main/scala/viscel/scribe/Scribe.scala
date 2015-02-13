@@ -34,7 +34,7 @@ object Scribe {
 
 		Files.createDirectories(basedir)
 
-		val neo = new NeoInstance(basedir.resolve("db").toString)
+		val neo = new NeoInstance(basedir.resolve("db2").toString)
 
 		val configNode = neo.tx { implicit ntx =>
 			val cfg = Config.get()(ntx)
