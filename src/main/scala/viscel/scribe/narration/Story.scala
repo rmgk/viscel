@@ -10,6 +10,8 @@ final case class Asset(blob: Option[URL], origin: Option[URL], data: List[String
 
 final case class Blob(sha1: String, mime: String)
 
+final case class Page(asset: Asset, blob: Option[Blob])
+
 sealed trait Policy {
 	def ext: Option[String]
 }
