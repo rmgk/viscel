@@ -1,8 +1,8 @@
 package viscel.crawler.database
 
-import viscel.crawler.{Viscel, Log}
 import viscel.crawler.narration.{Description, Narrator}
 import viscel.crawler.store.Config
+import viscel.crawler.{Log, Viscel}
 
 import scala.Predef.ArrowAssoc
 

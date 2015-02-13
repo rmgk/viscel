@@ -3,7 +3,7 @@ package viscel.crawler.database
 import org.neo4j.graphdb.Node
 import viscel.crawler.database.Implicits.NodeOps
 import viscel.crawler.narration.SelectUtil.stringToURL
-import viscel.crawler.narration.{Policy, Blob, Asset, More, Story}
+import viscel.crawler.narration.{Asset, Blob, More, Policy, Story}
 
 import scala.Predef.ArrowAssoc
 import scala.language.implicitConversions
