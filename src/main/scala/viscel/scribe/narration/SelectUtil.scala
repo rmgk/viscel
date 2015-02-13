@@ -20,7 +20,8 @@ object SelectUtil {
 	def imgIntoAsset(img: Element): Asset Or Every[ErrorMessage] = extract(Asset(
 		blob = Some(img.attr("abs:src")),
 		origin = Some(img.ownerDocument().location()),
-		data = List("image") :::
+		kind = 0,
+		data =
 			getAttr(img, "alt") :::
 			getAttr(img, "title") :::
 			getAttr(img, "width") :::

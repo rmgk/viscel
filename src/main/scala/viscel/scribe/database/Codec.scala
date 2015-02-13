@@ -24,7 +24,7 @@ object Codec {
 	implicit val storyCodec: Codec[Story] = new Codec[Story] {
 		override def write(value: Story)(implicit ntx: Ntx): Node = value match {
 			case s@More(_, _, _) => create(s)
-			case s@Asset(_, _, _) => create(s)
+			case s@Asset(_, _, _, _) => create(s)
 		}
 		override def read(node: Node)(implicit ntx: Ntx): Story =
 			if (node.hasLabel(label.Asset)) load[Asset](node)
@@ -38,12 +38,14 @@ object Codec {
 			ntx.create(label.Asset, List(
 				value.blob.map(b => "blob" -> b.toExternalForm),
 				value.origin.map(o => "origin" -> o.toExternalForm),
+				Some("kind" -> value.kind),
 				if (value.data.length == 0) None else Some("data" -> value.data.toArray)
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): Asset = Asset(
 			blob = node.get[String]("blob").map(stringToURL),
 			origin = node.get[String]("origin").map(stringToURL),
+			kind = node.prop[Byte]("kind"),
 			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)
 	}

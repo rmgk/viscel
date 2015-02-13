@@ -6,7 +6,7 @@ import scala.language.implicitConversions
 
 sealed trait Story
 final case class More(loc: URL, policy: Policy = Normal, data: List[String] = List()) extends Story
-final case class Asset(blob: Option[URL], origin: Option[URL], data: List[String] = List()) extends Story
+final case class Asset(blob: Option[URL], origin: Option[URL], kind: Byte, data: List[String] = List()) extends Story
 
 final case class Blob(sha1: String, mime: String)
 

@@ -35,7 +35,7 @@ class Crawler(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Ne
 			Codec.load[Story](node) match {
 				case m@More(_, Volatile, _) if node.describes eq null => volumes ::= node -> m
 				case m@More(_, _, _) if node.describes eq null => pages ::= node -> m
-				case a@Asset(Some(_), _, _) if node.to(rel.blob) eq null => assets ::= node -> a
+				case a@Asset(Some(_), _, _, _) if node.to(rel.blob) eq null => assets ::= node -> a
 				case _ =>
 			}
 

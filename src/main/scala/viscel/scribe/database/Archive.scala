@@ -10,7 +10,7 @@ import scala.annotation.tailrec
 
 object Archive {
 
-	private def connectLayer(layer: List[Node])(implicit neo: Ntx): List[Node] = {
+	def connectLayer(layer: List[Node])(implicit neo: Ntx): List[Node] = {
 		layer.reduceLeftOption { (prev, next) => prev narc_= next; next }
 		layer.lastOption.foreach(_.outgoing(rel.narc).foreach(_.delete()))
 		layer.headOption.foreach(_.incoming(rel.narc).foreach(_.delete()))
