@@ -130,15 +130,15 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 					}
 				}
 			} ~
-//			path("add") {
-//				if (!user.isAdmin) reject
-//				else parameter('url.as[String]) { url =>
-//					onComplete(Metarrators.add(url, Viscel.iopipe)) {
-//						case Success(v) => complete(s"found ${ v.map(_.id) }")
-//						case Failure(e) => complete { e.getMessage }
-//					}
-//				}
-//			} ~
+			path("add") {
+				if (!user.admin) reject
+				else parameter('url.as[String]) { url =>
+					onComplete(Metarrators.add(url, scribe)) {
+						case Success(v) => complete(s"found ${ v.map(_.id) }")
+						case Failure(e) => complete { e.getMessage }
+					}
+				}
+			} ~
 			path("reload") {
 				if (!user.admin) reject
 				else complete {
