@@ -17,7 +17,7 @@ import scala.collection.immutable.Map
 
 object Upgrader {
 
-	import viscel.scribe.narration.SelectUtil.stringToURL
+	import viscel.scribe.narration.SelectMore.stringToURL
 
 	def mapToList[T](map: Map[T, T]): List[T] = map.flatMap { case (a, b) => List(a, b) }.toList
 
