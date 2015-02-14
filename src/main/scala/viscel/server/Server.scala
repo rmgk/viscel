@@ -10,7 +10,7 @@ import viscel.narration.{Metarrators, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.database.{Books, Neo}
 import viscel.store.User
-import viscel.{Deeds, Log}
+import viscel.{Deeds, Log, ReplUtil}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.concurrent.duration.DurationInt
@@ -114,13 +114,13 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 					stats map pages.stats
 				}
 			} ~
-//			path("export" / Segment) { (id) =>
-//				if (!user.isAdmin) reject
-//				else onComplete(Future(ReplUtil.export(id))) {
-//					case Success(v) => complete("success")
-//					case Failure(e) => complete(e.toString())
-//				}
-//			} ~
+			path("export" / Segment) { (id) =>
+				if (!user.admin) reject
+				else onComplete(Future(new ReplUtil(scribe).export(id))) {
+					case Success(v) => complete("success")
+					case Failure(e) => complete(e.toString())
+				}
+			} ~
 //			path("import" / Segment) { (id) =>
 //				if (!user.isAdmin) reject
 //				else parameters('name.as[String], 'path.as[String]) { (name, path) =>
