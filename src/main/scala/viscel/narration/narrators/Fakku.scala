@@ -5,11 +5,13 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.compat.v1.{NarratorV1, SelectUtilV1, SelectionV1, Story}
-import viscel.compat.v1.Story.More.{Kind, Unused}
-import viscel.compat.v1.Story.{Asset, More}
-import SelectUtilV1._
-import viscel.narration.Metarrator
+import viscel.narration.{Data, Metarrator}
+import viscel.scribe.narration.{Asset, Selection, More, Story, Narrator}
+import viscel.scribe.narration.SelectMore._
+import viscel.narration.Queries._
+import viscel.scribe.report.Report
+import viscel.scribe.report.ReportTools._
+
 
 import scala.Predef.augmentString
 
@@ -18,21 +20,21 @@ object Fakku {
 	val baseURL = new URL("https://www.fakku.net/")
 	val extractID = ".*/(?:manga|doujinshi)/([^/]+)/read".r
 
-	case class FKU(override val id: String, override val name: String, url: String) extends NarratorV1 {
-		override def archive: List[Story] = More(url, Unused) :: Nil
+	case class FKU(override val id: String, override val name: String, url: String) extends Narrator {
+		override def archive: List[Story] = More(url) :: Nil
 
 		val findStr = "window.params.thumbs = "
 		val extractPos = ".*\\D(\\d+)\\.\\w+".r
 
-		override def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(SelectionV1(doc).many("head script").wrap { scripts =>
+		override def wrap(doc: Document, more: More): List[Story] Or Every[Report] = Selection(doc).many("head script").wrap { scripts =>
 			val jsSrc = scripts.map(_.html()).mkString("\n")
 			val start = jsSrc.indexOf(findStr) + findStr.length
 			val end = jsSrc.indexOf("\n", start) - 1
 			extract { upickle.read[List[String]](jsSrc.substring(start, end)).map(_.replaceAll("thumbs/(\\d+).thumb", "images/$1")).map(new URL(baseURL, _).toString) }.map(_.map { url =>
 				val extractPos(pos) = url
-				Asset(url, s"${ doc.baseUri() }#page=$pos")
+				Data.Article(url, s"${ doc.baseUri() }#page=$pos")
 			})
-		})
+		}
 	}
 
 	def create(_name: String, url: String): FKU = {
@@ -50,12 +52,12 @@ object Fakku {
 			if (new URL(url).getHost == baseURL.getHost) Some(new URL(url)) else None
 		}
 
-		def wrap(doc: Document): List[FKU] Or Every[ErrorMessage] = {
-			val current = SelectionV1(doc).all("#content > div.content-wrap")
+		def wrap(doc: Document): List[FKU] Or Every[Report] = {
+			val current = Selection(doc).all("#content > div.content-wrap")
 			val currentUrl_? = current.optional("a.button.green").wrapEach(e => Good(e.attr("abs:href")))
 			val currentName_? = current.optional("h1[itemprop=name]").wrapEach(e => Good(e.text()))
 
-			val rows_? = SelectionV1(doc).all(".content-row a.content-title").get.map(_.map { a => (a.text, a.attr("abs:href") + "/read") })
+			val rows_? = Selection(doc).all(".content-row a.content-title").get.map(_.map { a => (a.text, a.attr("abs:href") + "/read") })
 
 			val pairs = append(withGood(currentName_?, currentUrl_?) { _ zip _ }.recover(_ => Nil), rows_?)
 

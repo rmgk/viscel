@@ -29,7 +29,7 @@ object Narrators {
 			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter,
 			KeyShanShan.Key, KeyShanShan.ShanShan)
 
-	def calculateAll() = (static ++ Metarrators.cores() ++ Vid.load()).map(new NarratorV1Adapter(_): Narrator)
+	def calculateAll() = static.map(new NarratorV1Adapter(_): Narrator) ++ Metarrators.cores() ++ Vid.load()
 
 	def update() = {
 		cached = calculateAll()

@@ -1,15 +1,18 @@
 package viscel.narration
 
 import java.io.{BufferedReader, InputStreamReader}
+import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
 import org.jsoup.nodes.Document
-import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
-import viscel.compat.v1.Story.Chapter
-import viscel.compat.v1.Story.More.Page
-import viscel.compat.v1.{NarratorV1, TemplatesV1, SelectUtilV1, Story, ViscelUrl}
-import viscel.compat.v1.SelectUtilV1._
+import org.scalactic.{Bad, Every, Good, Or, attempt}
+import org.scalactic.ErrorMessage
+import viscel.scribe.narration.{Asset, More, Story, Narrator}
+import viscel.scribe.narration.SelectMore._
+import viscel.narration.Queries._
+import viscel.scribe.report.Report
+import viscel.scribe.report.ReportTools.{append, augmentBad}
 import viscel.{Log, Viscel}
 
 import scala.Predef.augmentString
@@ -26,9 +29,9 @@ object Vid {
 	val extractIDAndName = """^-(\w*):(.+)$""".r
 	val extractAttribute = """^:(\w+)\s*(.*)$""".r
 
-	def parseURL(it: It): ViscelUrl Or ErrorMessage = {
+	def parseURL(it: It): URL Or ErrorMessage = {
 		val Line(url, pos) = it.next()
-		attempt(SelectUtilV1.stringToVurl(url)).badMap(_ => s"malformed URL at line $pos: $url")
+		attempt(stringToURL(url)).badMap(_ => s"malformed URL at line $pos: $url")
 	}
 
 	@tailrec
@@ -53,19 +56,23 @@ object Vid {
 		}
 	}
 
-	def makeNarrator(id: String, name: String, pos: Int, startUrl: ViscelUrl, attrs: Map[String, Line]): NarratorV1 Or ErrorMessage = {
+	case class AdditionalPosition(lines: Seq[Line], annotated: Report) extends Report {
+		override def describe: String = s"${annotated.describe} at lines '${lines.map(_.p)}'"
+	}
+
+	def makeNarrator(id: String, name: String, pos: Int, startUrl: URL, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
-		type Wrap = Document => List[Story] Or Every[ErrorMessage]
+		type Wrap = Document => List[Story] Or Every[Report]
 		def has(keys: String*): Boolean = keys.forall(attrs.contains)
-		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(_.badMap(_ :+ s"at lines ${ lines.map(_.p) }")))
+		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(augmentBad(_)(AdditionalPosition(lines, _))))
 		def transform(ow: Option[Wrap])(f: List[Story] => List[Story]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
 
 		val pageFun: Option[Wrap] = attrs match {
-			case extract"ia $img" => annotate(queryImageInAnchor(img.s, Page), img)
+			case extract"ia $img" => annotate(queryImageInAnchor(img.s), img)
 
-			case extract"i $img n $next" => annotate(queryImageNext(img.s, next.s, Page), img, next)
+			case extract"i $img n $next" => annotate(queryImageNext(img.s, next.s), img, next)
 
-			case extract"is $img n $next" => annotate(doc => append(queryImages(img.s)(doc), queryNext(next.s, Page)(doc)), img, next)
+			case extract"is $img n $next" => annotate(doc => append(queryImages(img.s)(doc), queryNext(next.s)(doc)), img, next)
 
 			case extract"i $img" => annotate(queryImage(img.s), img)
 			case extract"is $img" => annotate(queryImages(img.s), img)
@@ -73,9 +80,9 @@ object Vid {
 		}
 
 		val archFun: Option[Wrap] = attrs match {
-			case extract"am $arch" => annotate(queryMixedArchive(arch.s, Page), arch)
+			case extract"am $arch" => annotate(queryMixedArchive(arch.s), arch)
 
-			case extract"ac $arch" => annotate(queryChapterArchive(arch.s, Page), arch)
+			case extract"ac $arch" => annotate(queryChapterArchive(arch.s), arch)
 
 			case _ => None
 		}
@@ -85,11 +92,11 @@ object Vid {
 				val replacements = replacer.s.split("\\s+:::\\s+").sliding(2, 2).toList
 				val doReplace: List[Story] => List[Story] = { stories =>
 					stories.map {
-						case Story.More(url, kind) =>
+						case More(url, policy, data) =>
 							val newUrl = replacements.foldLeft(url.toString) {
 								case (u, Array(matches, replace)) => u.replaceAll(matches, replace)
 							}
-							Story.More(newUrl, kind)
+							More(newUrl, policy, data)
 						case o => o
 					}
 				}
@@ -100,7 +107,7 @@ object Vid {
 		}
 
 		val archFunRev = if (has("archiveReverse")) transform(archFunReplace) { stories =>
-			groupedOn(stories) { case c@Chapter(_, _) => true; case _ => false }.reverse.flatMap {
+			groupedOn(stories) { case Asset(_, _, AssetKind.chapter, _) => true; case _ => false }.reverse.flatMap {
 				case (h :: t) => h :: t.reverse
 				case Nil => Nil
 			}
@@ -108,15 +115,15 @@ object Vid {
 		else archFunReplace
 
 		(pageFunReplace, archFunRev) match {
-			case (Some(pf), None) => Good(TemplatesV1.SF(cid, name, startUrl, pf))
-			case (Some(pf), Some(af)) => Good(TemplatesV1.AP(cid, name, startUrl, af, pf))
+			case (Some(pf), None) => Good(Templates.SF(cid, name, startUrl, pf))
+			case (Some(pf), Some(af)) => Good(Templates.AP(cid, name, startUrl, af, pf))
 			case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
 		}
 
 	}
 
 
-	def parseNarration(it: It): NarratorV1 Or ErrorMessage = {
+	def parseNarration(it: It): Narrator Or ErrorMessage = {
 		it.next() match {
 			case Line(extractIDAndName(id, name), pos) =>
 				parseURL(it).flatMap { url =>
@@ -128,9 +135,9 @@ object Vid {
 		}
 	}
 
-	def parse(lines: Iterator[String]): List[NarratorV1] Or ErrorMessage = {
+	def parse(lines: Iterator[String]): List[Narrator] Or ErrorMessage = {
 		val preprocessed = lines.map(_.trim).zipWithIndex.map(p => Line(p._1, p._2 + 1)).filter(l => l.s.nonEmpty && !l.s.startsWith("--")).buffered
-		def go(it: It, acc: List[NarratorV1]): List[NarratorV1] Or ErrorMessage =
+		def go(it: It, acc: List[Narrator]): List[Narrator] Or ErrorMessage =
 			if (!it.hasNext) {
 				Good(acc)
 			}
@@ -143,7 +150,7 @@ object Vid {
 		go(preprocessed, Nil)
 	}
 
-	def load(p: Path): List[NarratorV1] = {
+	def load(p: Path): List[Narrator] = {
 		Log.info(s"parsing definitions from $p")
 		parse(Files.lines(p, StandardCharsets.UTF_8).iterator().asScala) match {
 			case Good(res) => res
@@ -153,7 +160,7 @@ object Vid {
 		}
 	}
 
-	def load(): List[NarratorV1] = {
+	def load(): List[Narrator] = {
 		val dir = Viscel.basepath.resolve("definitions")
 		val dynamic = if (!Files.exists(dir)) Nil
 		else {
