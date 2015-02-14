@@ -86,7 +86,7 @@ object Vid {
 				val doReplace: List[Story] => List[Story] = { stories =>
 					stories.map {
 						case Story.More(url, kind) =>
-							val newUrl = replacements.foldLeft(url.toString){
+							val newUrl = replacements.foldLeft(url.toString) {
 								case (u, Array(matches, replace)) => u.replaceAll(matches, replace)
 							}
 							Story.More(newUrl, kind)

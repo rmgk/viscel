@@ -16,13 +16,13 @@ object Metarrators {
 	def add(start: String, scribe: Scribe): Future[List[NarratorV1]] = {
 		def go[T <: NarratorV1](metarrator: Metarrator[T], url: URL): Future[List[NarratorV1]] =
 			scribe.sendReceive(scribe.util.request(url)).map { res =>
-			val nars = metarrator.wrap(scribe.util.parseDocument(url)(res)).get
-			synchronized {
-				metarrator.save((metarrator.load() ++ nars).toList)
-				Narrators.update()
-				nars
-			}
-		}(scribe.ec)
+				val nars = metarrator.wrap(scribe.util.parseDocument(url)(res)).get
+				synchronized {
+					metarrator.save((metarrator.load() ++ nars).toList)
+					Narrators.update()
+					nars
+				}
+			}(scribe.ec)
 
 		try {
 			metas.map(m => (m, m.unapply(start)))

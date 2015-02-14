@@ -23,8 +23,9 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 	implicit def neo: Neo = scribe.neo
 	def books: Books = scribe.books
 	val pages = new ServerPages(scribe)
+
 	import scribe.blobs.hashToPath
-	
+
 	def actorRefFactory: ActorRefFactory = context
 
 	val users = new UserStore
