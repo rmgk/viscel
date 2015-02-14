@@ -96,14 +96,14 @@ class Scribe(
 
 	private val dayInMillis = 24L * 60L * 60L * 1000L
 
-	def runForNarrator(narrator: Narrator, iopipe: SendReceive, neo: Neo): Unit = {
+	def runForNarrator(narrator: Narrator): Unit = {
 		val id = narrator.id
 		if (runners.contains(id)) Log.trace(s"$id has running job")
 		else {
 			Log.info(s"update ${ narrator.id }")
 			val runner = neo.tx { implicit ntx =>
 				val collection = books.findAndUpdate(narrator)
-				new Crawler(narrator, iopipe, collection, neo, ec, util)
+				new Crawler(narrator, sendReceive, collection, neo, ec, util)
 			}
 			ensureRunner(id, runner)
 		}
