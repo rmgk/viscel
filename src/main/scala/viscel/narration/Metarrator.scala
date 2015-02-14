@@ -5,6 +5,7 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import upickle.{Reader, Writer}
+import viscel.compat.v1.NarratorV1
 import viscel.store.Json
 import viscel.{Log, Viscel}
 

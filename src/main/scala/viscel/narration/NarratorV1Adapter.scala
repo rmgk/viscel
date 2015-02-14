@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{Every, Or}
 import viscel.compat.v1.Upgrader.translateStory
-import viscel.compat.v1.{Story => OldStory}
+import viscel.compat.v1.{Story => OldStory, NarratorV1}
 import viscel.scribe.narration.{More, Narrator, Story}
 import viscel.scribe.report.{Report}
 

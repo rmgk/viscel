@@ -2,10 +2,9 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Good
-import viscel.compat.v1.{SelectUtilV1, Story}
+import viscel.compat.v1.{NarratorV1, SelectUtilV1, Story}
 import viscel.compat.v1.Story.More.{Kind, Unused}
 import viscel.compat.v1.Story.{Chapter, More}
-import viscel.narration.NarratorV1
 import SelectUtilV1._
 
 object KeyShanShan {

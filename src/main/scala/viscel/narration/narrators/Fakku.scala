@@ -5,11 +5,11 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.compat.v1.{SelectUtilV1, SelectionV1, Story}
+import viscel.compat.v1.{NarratorV1, SelectUtilV1, SelectionV1, Story}
 import viscel.compat.v1.Story.More.{Kind, Unused}
 import viscel.compat.v1.Story.{Asset, More}
 import SelectUtilV1._
-import viscel.narration.{Metarrator, NarratorV1}
+import viscel.narration.Metarrator
 
 import scala.Predef.augmentString
 

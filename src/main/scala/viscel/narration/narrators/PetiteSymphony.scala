@@ -1,9 +1,8 @@
 package viscel.narration.narrators
 
-import viscel.compat.v1.{TemplatesV1, SelectUtilV1}
+import viscel.compat.v1.{NarratorV1, TemplatesV1, SelectUtilV1}
 import viscel.compat.v1.Story.More.Unused
 import SelectUtilV1._
-import viscel.narration.NarratorV1
 
 import scala.collection.immutable.Set
 

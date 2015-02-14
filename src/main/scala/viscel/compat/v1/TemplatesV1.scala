@@ -5,7 +5,6 @@ import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.compat.v1.SelectUtilV1.storyFromOr
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Archive, Kind, Page, Unused}
-import viscel.narration.NarratorV1
 
 object TemplatesV1 {
 	def AP(

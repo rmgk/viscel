@@ -1,8 +1,7 @@
-package viscel.narration
+package viscel.compat.v1
 
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.compat.v1.Story
 import viscel.compat.v1.Story.More.Kind
 
 trait NarratorV1 {

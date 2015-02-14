@@ -2,6 +2,7 @@ package viscel.narration
 
 import java.net.URL
 
+import viscel.compat.v1.NarratorV1
 import viscel.narration.narrators._
 import viscel.scribe.Scribe
 

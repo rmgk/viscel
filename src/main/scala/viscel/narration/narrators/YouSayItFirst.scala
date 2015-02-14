@@ -2,11 +2,10 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Good
-import viscel.compat.v1.{SelectUtilV1, SelectionV1, Story}
+import viscel.compat.v1.{NarratorV1, SelectUtilV1, SelectionV1, Story}
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
 import SelectUtilV1.{elementIntoChapterPointer, queryImageInAnchor, storyFromOr, stringToVurl}
-import viscel.narration.NarratorV1
 
 object YouSayItFirst extends NarratorV1 {
 	override def id: String = "NX_YouSayItFirst"
