@@ -53,7 +53,7 @@ object Vid {
 		}
 	}
 
-	def makeNarrator(id: String, name: String, pos: Int, startUrl: ViscelUrl, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
+	def makeNarrator(id: String, name: String, pos: Int, startUrl: ViscelUrl, attrs: Map[String, Line]): NarratorV1 Or ErrorMessage = {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
 		type Wrap = Document => List[Story] Or Every[ErrorMessage]
 		def has(keys: String*): Boolean = keys.forall(attrs.contains)
@@ -116,7 +116,7 @@ object Vid {
 	}
 
 
-	def parseNarration(it: It): Narrator Or ErrorMessage = {
+	def parseNarration(it: It): NarratorV1 Or ErrorMessage = {
 		it.next() match {
 			case Line(extractIDAndName(id, name), pos) =>
 				parseURL(it).flatMap { url =>
@@ -128,9 +128,9 @@ object Vid {
 		}
 	}
 
-	def parse(lines: Iterator[String]): List[Narrator] Or ErrorMessage = {
+	def parse(lines: Iterator[String]): List[NarratorV1] Or ErrorMessage = {
 		val preprocessed = lines.map(_.trim).zipWithIndex.map(p => Line(p._1, p._2 + 1)).filter(l => l.s.nonEmpty && !l.s.startsWith("--")).buffered
-		def go(it: It, acc: List[Narrator]): List[Narrator] Or ErrorMessage =
+		def go(it: It, acc: List[NarratorV1]): List[NarratorV1] Or ErrorMessage =
 			if (!it.hasNext) {
 				Good(acc)
 			}
@@ -143,7 +143,7 @@ object Vid {
 		go(preprocessed, Nil)
 	}
 
-	def load(p: Path): List[Narrator] = {
+	def load(p: Path): List[NarratorV1] = {
 		Log.info(s"parsing definitions from $p")
 		parse(Files.lines(p, StandardCharsets.UTF_8).iterator().asScala) match {
 			case Good(res) => res
@@ -153,7 +153,7 @@ object Vid {
 		}
 	}
 
-	def load(): List[Narrator] = {
+	def load(): List[NarratorV1] = {
 		val dir = Viscel.basepath.resolve("definitions")
 		val dynamic = if (!Files.exists(dir)) Nil
 		else {

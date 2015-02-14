@@ -3,7 +3,7 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil.{append, elementIntoPointer, imgIntoAsset, selectNext, storyFromOr, stringToVurl}
-import viscel.narration.{Narrator, Selection}
+import viscel.narration.{NarratorV1, Selection}
 import viscel.shared.Story.More.{Kind, Page}
 import viscel.shared.Story.{Chapter, More}
 import viscel.shared.{Story, ViscelUrl}
@@ -12,7 +12,7 @@ import scala.collection.immutable.Set
 
 object Batoto {
 
-	case class Generic(id: String, name: String, first: ViscelUrl) extends Narrator {
+	case class Generic(id: String, name: String, first: ViscelUrl) extends NarratorV1 {
 
 		def archive = More(first, More.Issue) :: Nil
 
@@ -34,7 +34,7 @@ object Batoto {
 	}
 
 
-	val cores: Set[Narrator] = Set(
+	val cores: Set[NarratorV1] = Set(
 		Generic("Batoto_nisekoi", "Nisekoi", "http://bato.to/read/_/20464/nisekoi_by_cxc-scans"),
 		Generic("Batoto_sankarea", "Sankarea", "http://bato.to/read/_/2015/sankarea_v1_ch1_by_milky-translation"),
 		Generic("Batoto_suzuka", "Suzuka", "http://bato.to/read/_/189133/suzuka_v1_by_anime-waves"),

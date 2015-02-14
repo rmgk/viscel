@@ -11,7 +11,7 @@ import viscel.{Log, Viscel}
 
 import scala.collection.Set
 
-abstract class Metarrator[T <: Narrator : Reader : Writer](id: String) {
+abstract class Metarrator[T <: NarratorV1 : Reader : Writer](id: String) {
 
 	def unapply(description: String): Option[URL]
 	def wrap(document: Document): List[T] Or Every[ErrorMessage]

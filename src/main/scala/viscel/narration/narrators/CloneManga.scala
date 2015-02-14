@@ -4,7 +4,7 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.narration.SelectUtil._
-import viscel.narration.{Metarrator, Narrator, Selection}
+import viscel.narration.{Metarrator, NarratorV1, Selection}
 import viscel.shared.Story.More
 import viscel.shared.Story.More.{Kind, Page, Unused}
 import viscel.shared.{Story, ViscelUrl}
@@ -14,7 +14,7 @@ import scala.collection.immutable.Set
 
 object CloneManga {
 
-	case class Clone(id: String, name: String, start: String) extends Narrator {
+	case class Clone(id: String, name: String, start: String) extends NarratorV1 {
 		override def archive = More(start, Unused) :: Nil
 		override def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(Selection(doc).unique(".subsectionContainer").wrapOne { container =>
 			val next_? = Selection(container).optional("> a:first-child").wrap(selectNext(Page))

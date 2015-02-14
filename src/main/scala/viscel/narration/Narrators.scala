@@ -34,11 +34,11 @@ object Narrators {
 		narratorMap = all.map(n => n.id -> n).toMap
 	}
 
-	@volatile private var cached: Set[Narrator] = calculateAll()
-	def all: Set[Narrator] = synchronized(cached)
+	@volatile private var cached: Set[NarratorV1] = calculateAll()
+	def all: Set[NarratorV1] = synchronized(cached)
 
 	@volatile private var narratorMap = all.map(n => n.id -> n).toMap
-	def get(id: String): Option[Narrator] = narratorMap.get(id)
+	def get(id: String): Option[NarratorV1] = narratorMap.get(id)
 
 
 	private def inlineCores = Set(

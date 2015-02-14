@@ -13,7 +13,7 @@ object Templates {
 		start: ViscelUrl,
 		wrapArchive: Document => List[Story] Or Every[ErrorMessage],
 		wrapPage: Document => List[Story] Or Every[ErrorMessage]
-	): Narrator = new Narrator {
+	): NarratorV1 = new NarratorV1 {
 		override def id: String = pid
 		override def name: String = pname
 		override def archive: List[Story] = More(start, Archive) :: Nil
@@ -28,7 +28,7 @@ object Templates {
 		pname: String,
 		start: ViscelUrl,
 		wrapPage: Document => List[Story] Or Every[ErrorMessage]
-	): Narrator = new Narrator {
+	): NarratorV1 = new NarratorV1 {
 		override def id: String = pid
 		override def name: String = pname
 		override def archive: List[Story] = More(start, Unused) :: Nil

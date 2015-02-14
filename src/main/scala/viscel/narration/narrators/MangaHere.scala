@@ -5,7 +5,7 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic._
 import viscel.narration.SelectUtil._
-import viscel.narration.{Metarrator, Narrator, Selection}
+import viscel.narration.{Metarrator, NarratorV1, Selection}
 import viscel.shared.Story.More.{Archive, Kind, Page}
 import viscel.shared.{Story, ViscelUrl}
 
@@ -13,7 +13,7 @@ import scala.Predef.augmentString
 
 object MangaHere {
 
-	case class Generic(id: String, name: String, archiveUri: ViscelUrl) extends Narrator {
+	case class Generic(id: String, name: String, archiveUri: ViscelUrl) extends NarratorV1 {
 		def archive = Story.More(archiveUri, Archive) :: Nil
 		def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
 			case Archive => Selection(doc).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { elementIntoChapterPointer(Page) }

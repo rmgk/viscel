@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil._
-import viscel.narration.{Metarrator, Narrator, Selection}
+import viscel.narration.{Metarrator, NarratorV1, Selection}
 import viscel.shared.Story.More
 import viscel.shared.Story.More.{Archive, Kind, Page}
 import viscel.shared.{Story, ViscelUrl}
@@ -14,7 +14,7 @@ import scala.collection.immutable.Set
 
 object Snafu {
 
-	case class Snar(override val id: String, override val name: String, start: ViscelUrl) extends Narrator {
+	case class Snar(override val id: String, override val name: String, start: ViscelUrl) extends NarratorV1 {
 		def archive = More(start, Archive) :: Nil
 
 		def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {

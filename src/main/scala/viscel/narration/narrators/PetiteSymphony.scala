@@ -1,14 +1,14 @@
 package viscel.narration.narrators
 
 import viscel.narration.SelectUtil._
-import viscel.narration.{Narrator, Templates}
+import viscel.narration.{NarratorV1, Templates}
 import viscel.shared.Story.More.Unused
 
 import scala.collection.immutable.Set
 
 object PetiteSymphony {
 
-	def cores: Set[Narrator] = Set(
+	def cores: Set[NarratorV1] = Set(
 		("goyoku", "Rascals Goyoku", "http://goyoku.petitesymphony.com/comic/goyoku-prologue1/"),
 		("generation17", "Generation 17", "http://generation17.petitesymphony.com/comic/cover"),
 		("seed", "Seed", "http://seed.petitesymphony.com/comic/seedchapter1"),

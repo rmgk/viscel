@@ -9,12 +9,12 @@ import scala.collection.Set
 import scala.concurrent.{ExecutionContext, Future}
 
 object Metarrators {
-	val metas: List[Metarrator[_ <: Narrator]] = MangaHere.MetaCore :: Fakku.Meta :: Nil
+	val metas: List[Metarrator[_ <: NarratorV1]] = MangaHere.MetaCore :: Fakku.Meta :: Nil
 
-	def cores(): Set[Narrator] = synchronized(metas.iterator.flatMap[Narrator](_.load()).toSet)
+	def cores(): Set[NarratorV1] = synchronized(metas.iterator.flatMap[NarratorV1](_.load()).toSet)
 
-	def add(start: String, scribe: Scribe): Future[List[Narrator]] = {
-		def go[T <: Narrator](metarrator: Metarrator[T], url: URL): Future[List[Narrator]] =
+	def add(start: String, scribe: Scribe): Future[List[NarratorV1]] = {
+		def go[T <: NarratorV1](metarrator: Metarrator[T], url: URL): Future[List[NarratorV1]] =
 			scribe.sendReceive(scribe.util.request(url)).map { res =>
 			val nars = metarrator.wrap(scribe.util.parseDocument(url)(res)).get
 			synchronized {

@@ -2,7 +2,7 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import viscel.narration.SelectUtil._
-import viscel.narration.{Narrator, Selection}
+import viscel.narration.{NarratorV1, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More
 import viscel.shared.Story.More.{Archive, Kind, Page}
@@ -12,7 +12,7 @@ import scala.collection.immutable.Set
 
 object KatBox {
 
-	case class Generic(shortId: String, name: String) extends Narrator {
+	case class Generic(shortId: String, name: String) extends NarratorV1 {
 
 		def archive = More(s"http://$shortId.katbox.net/archive", Archive) :: Nil
 
@@ -24,7 +24,7 @@ object KatBox {
 		})
 	}
 
-	val cores: Set[Narrator] = Set(
+	val cores: Set[NarratorV1] = Set(
 		("laslindas", "Las Lindas!"),
 		("cblue", "Caribbean Blue!"),
 		("yosh", "Yosh!"),

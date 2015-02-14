@@ -1,6 +1,6 @@
 package viscel.database
 
-import viscel.narration.{Narrator, Narrators}
+import viscel.narration.{NarratorV1, Narrators}
 import viscel.shared.Story.Description
 import viscel.store.Config
 import viscel.{Log, Viscel}
@@ -14,7 +14,7 @@ object Books {
 		Viscel.time(s"find $id") { ntx.node(label.Collection, "id", id).map { Book.apply } }
 
 
-	def findAndUpdate(narrator: Narrator)(implicit ntx: Ntx): Book = synchronized {
+	def findAndUpdate(narrator: NarratorV1)(implicit ntx: Ntx): Book = synchronized {
 		ntx.db.beginTx().acquireWriteLock(Config.get().self)
 		val col = findExisting(narrator.id)
 		col.foreach { c => c.name = narrator.name }

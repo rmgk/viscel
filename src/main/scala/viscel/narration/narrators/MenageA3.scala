@@ -4,14 +4,14 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil._
-import viscel.narration.{Narrator, Selection}
+import viscel.narration.{NarratorV1, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More.{Archive, Kind, Page}
 import viscel.shared.Story.{Chapter, More}
 
 import scala.language.implicitConversions
 
-object MenageA3 extends Narrator {
+object MenageA3 extends NarratorV1 {
 	def archive = More("http://www.ma3comic.com/archive/volume1", Archive) :: Nil
 
 	def id: String = "NX_MenageA3"

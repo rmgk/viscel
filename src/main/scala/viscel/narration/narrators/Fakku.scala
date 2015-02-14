@@ -6,7 +6,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.SelectUtil._
-import viscel.narration.{Metarrator, Narrator, Selection}
+import viscel.narration.{Metarrator, NarratorV1, Selection}
 import viscel.shared.Story.More.{Kind, Unused}
 import viscel.shared.Story.{Asset, More}
 import viscel.shared.{Story, ViscelUrl}
@@ -18,7 +18,7 @@ object Fakku {
 	val baseURL = new URL("https://www.fakku.net/")
 	val extractID = ".*/(?:manga|doujinshi)/([^/]+)/read".r
 
-	case class FKU(override val id: String, override val name: String, url: String) extends Narrator {
+	case class FKU(override val id: String, override val name: String, url: String) extends NarratorV1 {
 		override def archive: List[Story] = More(url, Unused) :: Nil
 
 		val findStr = "window.params.thumbs = "

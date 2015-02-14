@@ -3,7 +3,7 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.narration.SelectUtil._
-import viscel.narration.{Narrator, Selection}
+import viscel.narration.{NarratorV1, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More
 import viscel.shared.Story.More.{Kind, Unused}
@@ -13,7 +13,7 @@ import scala.collection.immutable.Set
 
 object WordpressEasel {
 
-	case class Generic(id: String, name: String, start: String) extends Narrator {
+	case class Generic(id: String, name: String, start: String) extends NarratorV1 {
 		override def archive: List[Story] = More(start, Unused) :: Nil
 		override def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr {
 			val next_? = Selection(doc).optional("a.navi.navi-next").wrap(selectNext(Unused))
@@ -22,7 +22,7 @@ object WordpressEasel {
 		}
 	}
 
-	val cores: Set[Narrator] = Set(
+	val cores: Set[NarratorV1] = Set(
 		Generic("ZombiesAndFairytales", "Zombies and Fairytales", "http://166612.webhosting66.1blu.de/zaf_de/wordpress/comic/erster-eindruck/")
 	)
 }

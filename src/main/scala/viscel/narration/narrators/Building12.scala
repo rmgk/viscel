@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Good, Or}
 import viscel.narration.SelectUtil._
-import viscel.narration.{Narrator, Selection}
+import viscel.narration.{NarratorV1, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More.{Archive, Kind, Page}
 import viscel.shared.Story.{Chapter, More}
@@ -12,7 +12,7 @@ import viscel.shared.Story.{Chapter, More}
 import scala.Predef.augmentString
 import scala.language.implicitConversions
 
-object Building12 extends Narrator {
+object Building12 extends NarratorV1 {
 	def archive = More("http://www.building12.net/archives.htm", Archive) :: Nil
 
 	def id: String = "NX_Building12"

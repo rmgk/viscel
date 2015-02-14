@@ -3,12 +3,12 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Good
 import viscel.narration.SelectUtil.{elementIntoChapterPointer, queryImageInAnchor, storyFromOr, stringToVurl}
-import viscel.narration.{Narrator, Selection}
+import viscel.narration.{NarratorV1, Selection}
 import viscel.shared.Story
 import viscel.shared.Story.More
 import viscel.shared.Story.More.{Archive, Kind, Page}
 
-object YouSayItFirst extends Narrator {
+object YouSayItFirst extends NarratorV1 {
 	override def id: String = "NX_YouSayItFirst"
 	override def name: String = "You Say It First"
 	override def archive: List[Story] = Range.inclusive(1, 9).map(i => More(s"http://www.yousayitfirst.com/archive/index.php?year=$i", Archive)).toList
