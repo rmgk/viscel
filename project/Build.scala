@@ -132,8 +132,6 @@ object Libraries {
 
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(scalatags.value ++ upickle.value)
 
-	val scribe = List("viscel" %% "scribe" % "0.1.0")
-
 	// gpl3
 	val neo = {
 		val neoVersion = "2.1.7"
