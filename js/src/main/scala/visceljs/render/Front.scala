@@ -54,7 +54,7 @@ object Front {
 			@tailrec
 			def build(apos: Int, assets: Gallery[Article], chapters: List[Chapter], acc: List[Frag]): List[Frag] = chapters match {
 				case Chapter(name, cpos) :: ctail =>
-					build(cpos, assets.prev(apos - cpos), ctail, makeChapField(chap, apos - cpos, assets) :: acc)
+					build(cpos, assets.prev(apos - cpos), ctail, makeChapField(name, apos - cpos, assets) :: acc)
 				case Nil => acc
 			}
 
