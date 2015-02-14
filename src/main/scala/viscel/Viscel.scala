@@ -6,20 +6,14 @@ import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
-import org.scalactic.TypeCheckedTripleEquals._
 import spray.can.Http
-import spray.client.pipelining
-import spray.client.pipelining.SendReceive
-import spray.http.HttpEncodings
-import viscel.compat.v1.{Config, Upgrader}
-import viscel.compat.v1.database.{NeoInstance, label}
+import viscel.compat.v1.Upgrader
+import viscel.compat.v1.database.NeoInstance
 import viscel.scribe.Scribe
 import viscel.server.Server
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
 import scala.language.implicitConversions
-import scala.util.{Failure, Success}
 
 object Viscel {
 
@@ -78,9 +72,6 @@ object Viscel {
 		}
 
 		if (!nocore.?) {
-			val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
-				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
-
 			Deeds.narratorHint = (narrator, force) => {
 				scribe.runForNarrator(narrator)
 			}
