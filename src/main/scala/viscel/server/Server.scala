@@ -9,7 +9,6 @@ import spray.routing.{HttpService, Route}
 import viscel.narration.{Metarrators, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.database.{Books, Neo}
-import viscel.store.BlobStore.hashToPath
 import viscel.store.User
 import viscel.{Deeds, Log}
 
@@ -24,6 +23,7 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 	implicit def neo: Neo = scribe.neo
 	def books: Books = scribe.books
 	val pages = new ServerPages(scribe)
+	import scribe.blobs.hashToPath
 	
 	def actorRefFactory: ActorRefFactory = context
 
