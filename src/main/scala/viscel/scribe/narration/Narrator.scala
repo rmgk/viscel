@@ -3,7 +3,7 @@ package viscel.scribe.narration
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Or}
-import viscel.scribe.Report
+import viscel.scribe.report.Report
 
 trait Narrator {
 	def id: String
