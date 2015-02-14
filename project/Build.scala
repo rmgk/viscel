@@ -13,7 +13,7 @@ object Build extends sbt.Build {
 object Settings {
 	lazy val main = List(
 
-		version := "0.1.0",
+		version := "1.0.0",
 		organization := "viscel",
 		scalaVersion := "2.11.5",
 
