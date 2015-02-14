@@ -1,8 +1,9 @@
 package viscel.scribe.database
 
-import viscel.scribe.narration.Narrator
+import viscel.scribe.narration.{Page, Asset, Narrator}
 import viscel.scribe.store.Config
 import viscel.scribe.{Log, Scribe}
+import viscel.scribe.database.Implicits.NodeOps
 
 import scala.Predef.ArrowAssoc
 
@@ -16,19 +17,30 @@ class Books(neo: Neo) {
 		}
 
 
-	def findAndUpdate(narrator: Narrator): Book = synchronized {
+	def findAndUpdate(narrator: Narrator): Book = findAndUpdate(narrator.id, narrator.name)
+
+	def findAndUpdate(id: String, name: String): Book = synchronized {
 		neo.tx { implicit ntx =>
 			ntx.db.beginTx().acquireWriteLock(Config.get().self)
-			val col = findExisting(narrator.id)
-			col.foreach { c => c.name = narrator.name }
+			val col = findExisting(id)
+			col.foreach { c => c.name = name }
 			col.getOrElse {
-				Log.info(s"materializing $narrator")
-				Book(ntx.create(label.Book, "id" -> narrator.id, "name" -> narrator.name))
+				Log.info(s"materializing $id($name)}")
+				Book(ntx.create(label.Book, "id" -> id, "name" -> name))
 			}
 		}
 	}
 
 	def all(): List[Book] = neo.tx { implicit ntx =>
 		ntx.nodes(label.Book).map { n => Book.apply(n) }.toList
+	}
+
+	def importFlat(id: String, name: String, pages: List[Page]) = neo.tx { implicit ntx =>
+		val book = findAndUpdate(id, name)
+		Archive.applyNarration(book.self, pages.map(_.asset))
+		book.self.layerBelow.zip(pages.map(_.blob)).foreach {
+			case (node, Some(blob)) => node.to_=(rel.blob, Codec.create(blob))
+			case _ =>
+		}
 	}
 }
