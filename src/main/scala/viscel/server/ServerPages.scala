@@ -27,7 +27,7 @@ class ServerPages(scribe: Scribe) {
 	def narration(id: String): Option[Content] = neo.tx { implicit ntx =>
 		(Narrators.get(id) match {
 			case None => findExisting(id)
-			case Some(nar) => findExisting(id) //Some(findAndUpdate(nar))
+			case Some(nar) => Some(findAndUpdate(nar))
 		}).map(book => {
 			val story: List[Story] = book.pages().map {
 				case Page(Asset(Some(source), Some(origin), 0, data), blob) =>
@@ -41,15 +41,14 @@ class ServerPages(scribe: Scribe) {
 						name,
 						data.sliding(2, 2).map(l => (l(0), l(1))).toMap)
 			}
-			val all: (Int, List[Story.Asset], List[(Int, Story.Chapter)]) = {
-				story.foldLeft((0, List[Story.Asset](), List[(Int, Story.Chapter)]())) {
+			val all: (Int, List[Story.Asset], List[(Int, Story.Chapter)]) =
+				story.reverse.foldLeft((0, List[Story.Asset](), List[(Int, Story.Chapter)]())) {
 					case (state@(pos, assets, chapters), asset@Story.Asset(_, _, _, _)) =>
 						(pos + 1, asset :: assets, if (chapters.isEmpty) List((0, Story.Chapter(""))) else chapters)
 					case (state@(pos, assets, chapters), chapter@Story.Chapter(_, _)) => (pos, assets, (pos, chapter) :: chapters)
 					case (state, _) => state
 				}
-			}
-			Content(Gallery.fromList(all._2), all._3)
+			Content(Gallery.fromList(all._2.reverse), all._3)
 
 		})
 	}
