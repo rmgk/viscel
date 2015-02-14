@@ -15,7 +15,7 @@ object Build extends sbt.Build {
 		.enablePlugins(JavaAppPackaging)
 		.dependsOn(scribe)
 		.dependsOn(shared % Provided)
-		.settings(unmanagedSourceDirectories in Compile += (scalaSource in (shared, Compile)).value)
+		.settings(Settings.sharedSource)
 
 
 	lazy val js = project.in(file("js"))
@@ -24,7 +24,7 @@ object Build extends sbt.Build {
 		.settings(Settings.common: _*)
 		.settings(Libraries.js: _*)
 		.dependsOn(shared % Provided)
-		.settings(unmanagedSourceDirectories in Compile += (scalaSource in (shared, Compile)).value)
+		.settings(Settings.sharedSource)
 
 	lazy val shared = project.in(file("shared"))
 		.settings(name := "viscel-shared")
@@ -36,39 +36,42 @@ object Build extends sbt.Build {
 }
 
 object Settings {
+
+	lazy val sharedSource = unmanagedSourceDirectories in Compile += (scalaSource in (Build.shared, Compile)).value
+
 	lazy val common = List(
 
 		version := "5.11.0",
 		scalaVersion := "2.11.5",
 
-		scalacOptions ++= (
+		scalacOptions ++=
 			"-deprecation" ::
-				"-encoding" :: "UTF-8" ::
-				"-unchecked" ::
-				"-feature" ::
-				"-target:jvm-1.7" ::
-				"-Xlint" ::
-				"-Xfuture" ::
-				//"-Xlog-implicits" ::
-				"-Yno-predef" ::
-				//"-Yno-imports" ::
-				"-Xfatal-warnings" ::
-				"-Yinline-warnings" ::
-				"-Yno-adapted-args" ::
-				//"-Ywarn-dead-code" ::
-				"-Ywarn-nullary-override" ::
-				"-Ywarn-nullary-unit" ::
-				//"-Ywarn-numeric-widen" ::
-				//"-Ywarn-value-discard" ::
-				Nil),
+			"-encoding" :: "UTF-8" ::
+			"-unchecked" ::
+			"-feature" ::
+			"-target:jvm-1.7" ::
+			"-Xlint" ::
+			"-Xfuture" ::
+			//"-Xlog-implicits" ::
+			"-Yno-predef" ::
+			//"-Yno-imports" ::
+			"-Xfatal-warnings" ::
+			"-Yinline-warnings" ::
+			"-Yno-adapted-args" ::
+			//"-Ywarn-dead-code" ::
+			"-Ywarn-nullary-override" ::
+			"-Ywarn-nullary-unit" ::
+			//"-Ywarn-numeric-widen" ::
+			//"-Ywarn-value-discard" ::
+			Nil,
 
-		resolvers ++= (
+		resolvers ++=
 			("Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/") ::
-				("Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/") ::
-				// ("spray nightlies repo" at "http://nightlies.spray.io") ::
-				("spray repo" at "http://repo.spray.io") ::
-				("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/") ::
-				Nil))
+			("Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/") ::
+			// ("spray nightlies repo" at "http://nightlies.spray.io") ::
+			("spray repo" at "http://repo.spray.io") ::
+			("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/") ::
+			Nil)
 
 
 	lazy val main: List[Def.Setting[_]] = common ++ List(
@@ -76,23 +79,23 @@ object Settings {
 		fork := true,
 		SourceGeneration.neoCodecs,
 
-		javaOptions ++= (
+		javaOptions ++=
 			"-verbose:gc" ::
-				"-XX:+PrintGCDetails" ::
-				//"-Xverify:none" ::
-				//"-server" ::
-				//"-Xms16m" ::
-				//"-Xmx256m" ::
-				//"-Xss1m" ::
-				//"-XX:MinHeapFreeRatio=5" ::
-				//"-XX:MaxHeapFreeRatio=10" ::
-				//"-XX:NewRatio=12" ::
-				//"-XX:+UseSerialGC" ::
-				//"-XX:+UseParallelGC" ::
-				//"-XX:+UseParallelOldGC" ::
-				//"-XX:+UseConcMarkSweepGC" ::
-				//"-XX:+PrintTenuringDistribution" ::
-				Nil),
+			"-XX:+PrintGCDetails" ::
+			//"-Xverify:none" ::
+			//"-server" ::
+			//"-Xms16m" ::
+			//"-Xmx256m" ::
+			//"-Xss1m" ::
+			//"-XX:MinHeapFreeRatio=5" ::
+			//"-XX:MaxHeapFreeRatio=10" ::
+			//"-XX:NewRatio=12" ::
+			//"-XX:+UseSerialGC" ::
+			//"-XX:+UseParallelGC" ::
+			//"-XX:+UseParallelOldGC" ::
+			//"-XX:+UseConcMarkSweepGC" ::
+			//"-XX:+PrintTenuringDistribution" ::
+			Nil,
 
 		initialCommands in console :=
 			"""import akka.actor.{ ActorSystem, Props, Actor }
@@ -121,53 +124,35 @@ object Settings {
 
 object Libraries {
 
+	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++=
+		neo ::: spray ::: akka :::
+		jline ::: jopt  ::: scalactic ::: shared.value)
 
-	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++
-		commandline ++ scalatest ++ scalactic ++ jsoup ++ shared.value)
+	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++=
+		scalajsdom.value ::: shared.value)
 
-	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++= scalajsdom.value ++ shared.value)
-
-	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(scalatags.value ++ upickle.value)
+	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
+		scalatags.value ::: upickle.value)
 
 	// gpl3
-	val neo = {
-		val neoVersion = "2.1.7"
-		Seq("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % neoVersion)
-	}
+	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.1.7")
 
 	// apache 2
-	val spray =
-		List("spray-caching", "spray-can", "spray-client", "spray-http", "spray-httpx", "spray-routing", "spray-util")
-			.map(n => "io.spray" %% n % "1.3.2")
+	val spray = List("spray-routing").map(n => "io.spray" %% n % "1.3.2")
 
-	val akka =
-		List("akka-actor", "akka-slf4j")
-			.map(n => "com.typesafe.akka" %% n % "2.3.9")
+	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.3.9")
 
-	val scalaz =
-		List("scalaz-core", "scalaz-concurrent")
-			.map(n => "org.scalaz" %% n % "7.0.6")
+	val jline = "jline" % "jline" % "2.12" :: Nil
 
-	val commandline =
-		"jline" % "jline" % "2.12" ::
-			"net.sf.jopt-simple" % "jopt-simple" % "4.8" :: // mit
-			Nil
+	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "4.8" :: Nil
 
-	val scalamacros = "org.scalamacros" %% s"quasiquotes" % "2.0.1" % "provided" :: Nil
-
-	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.4" % Test) :: Nil
 	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.4" exclude("org.scala-lang", "scala-reflect")) :: Nil
-	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
+
 	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.4.5" :: Nil)
+
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.6" :: Nil)
 
-	val scalajsdom = Def.setting(
-		("org.scala-js" %%% "scalajs-dom" % "0.8.0") ::
-			Nil)
-
-	val rescala = ("de.tuda.stg" %% "rescala" % "0.4.0"
-		exclude("org.scala-lang", "scala-compiler")
-		exclude("org.scala-lang", "scala-reflect")) :: Nil
+	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.8.0") :: Nil)
 
 }
 
