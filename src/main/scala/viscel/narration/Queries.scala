@@ -56,19 +56,12 @@ object Queries {
 				Chapter(chapter.text()) :: pointer :: Nil
 			}
 
-		val ignoredClasses = Set("viscel.narration.Selection", "java.lang.Thread", "viscel.narration.GoodSelection", "org.scalactic", "scala", "viscel.narration.SelectUtil")
-		def caller: String = {
-			val stackTraceOption = Predef.wrapRefArray(Thread.currentThread().getStackTrace()).find { ste =>
-				val cname = ste.getClassName
-				!ignoredClasses.exists(cname.startsWith)
-			}
-			stackTraceOption.fold("invalid stacktrace") { ste => s"${ ste.getClassName }#${ ste.getMethodName }:${ ste.getLineNumber }" }
-		}
 
-		def show(element: Element) = s"${ element.tag }, #${ element.id }, .${ element.classNames }"
-
-		def blame(text: String, cause: Element*): String =
-			s"""$text at ($caller) on (${ cause.head.baseUri }) elements (${ cause.map { show } })"""
+		def moreData[B](or: List[Story] Or B, data: String): List[Story] Or B = or.map(_.map{
+			case More(loc, policy, Nil) => More(loc, policy, data :: Nil)
+			case m@More(_, _, _) => throw new IllegalArgumentException(s"tried to add '$data' to $m")
+			case o => o
+		})
 
 
 		def placeChapters(archive: List[Story], chapters: List[(Story, Story)]): List[Story] = (archive, chapters) match {
@@ -77,7 +70,6 @@ object Queries {
 			case (a :: as, (c, m) :: cms) if a == m => c :: a :: placeChapters(as, cms)
 			case (a :: as, cms) => a :: placeChapters(as, cms)
 		}
-
 
 		def groupedOn[T](l: List[T])(p: T => Boolean) = l.foldLeft(List[List[T]]()) {
 			case (acc, t) if p(t) => List(t) :: acc

@@ -8,7 +8,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
 import viscel.compat.v1.Story.Chapter
 import viscel.compat.v1.Story.More.Page
-import viscel.compat.v1.{SelectUtilV1, Story, ViscelUrl}
+import viscel.compat.v1.{TemplatesV1, SelectUtilV1, Story, ViscelUrl}
 import SelectUtilV1._
 import viscel.{Log, Viscel}
 
@@ -108,8 +108,8 @@ object Vid {
 		else archFunReplace
 
 		(pageFunReplace, archFunRev) match {
-			case (Some(pf), None) => Good(Templates.SF(cid, name, startUrl, pf))
-			case (Some(pf), Some(af)) => Good(Templates.AP(cid, name, startUrl, af, pf))
+			case (Some(pf), None) => Good(TemplatesV1.SF(cid, name, startUrl, pf))
+			case (Some(pf), Some(af)) => Good(TemplatesV1.AP(cid, name, startUrl, af, pf))
 			case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
 		}
 

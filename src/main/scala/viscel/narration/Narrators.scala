@@ -3,11 +3,11 @@ package viscel.narration
 import org.scalactic.Accumulation.{convertGenTraversableOnceToCombinable, withGood}
 import org.scalactic.Good
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.compat.v1.{SelectUtilV1, SelectionV1}
+import viscel.compat.v1.SelectionV1
 import viscel.compat.v1.Story.More.{Page, Unused}
 import viscel.compat.v1.Story.{Asset, Chapter, More}
-import SelectUtilV1._
-import viscel.narration.Templates.{AP, SF}
+import viscel.compat.v1.SelectUtilV1._
+import viscel.compat.v1.TemplatesV1.{AP, SF}
 import viscel.narration.narrators._
 import viscel.scribe.narration.Narrator
 

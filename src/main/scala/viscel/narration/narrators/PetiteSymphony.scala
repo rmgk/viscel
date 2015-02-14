@@ -1,9 +1,9 @@
 package viscel.narration.narrators
 
-import viscel.compat.v1.SelectUtilV1
+import viscel.compat.v1.{TemplatesV1, SelectUtilV1}
 import viscel.compat.v1.Story.More.Unused
 import SelectUtilV1._
-import viscel.narration.{NarratorV1, Templates}
+import viscel.narration.NarratorV1
 
 import scala.collection.immutable.Set
 
@@ -23,6 +23,6 @@ object PetiteSymphony {
 		("remnantsonata", "Remnant Sonata", "http://remnantsonata.petitesymphony.com/comic/rs-pg1/"),
 		("ladycrimson", "Lady Crimson", "http://ladycrimson.petitesymphony.com/comic/ladycrimson_cover/"),
 		("yearofthecow", "Year of the Cow", "http://yearofthecow.petitesymphony.com/comic/yotc-cover/")
-	).map { case (id, name, start) => Templates.SF(s"PetiteSymphony_$id", name, start, queryImageNext("#comic-1 img", "a.navi.navi-next", Unused)) }
+	).map { case (id, name, start) => TemplatesV1.SF(s"PetiteSymphony_$id", name, start, queryImageNext("#comic-1 img", "a.navi.navi-next", Unused)) }
 
 }
