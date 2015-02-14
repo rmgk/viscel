@@ -3,15 +3,13 @@ package viscel.scribe.narration
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Or}
-
-case class Problem(msg: String)
-
+import viscel.scribe.Report
 
 trait Narrator {
 	def id: String
 	def name: String
 	def archive: List[Story]
-	def wrap(doc: Document, more: More): List[Story] Or Every[Problem]
+	def wrap(doc: Document, more: More): List[Story] Or Every[Report]
 	final override def equals(other: Any) = other match {
 		case o: Narrator => id === o.id
 		case _ => false

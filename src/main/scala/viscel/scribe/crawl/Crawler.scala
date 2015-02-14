@@ -5,7 +5,7 @@ import org.neo4j.graphdb.Node
 import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpRequest, HttpResponse}
-import viscel.scribe.Log
+import viscel.scribe.{TextReport, Report, Log}
 import viscel.scribe.database.Archive._
 import viscel.scribe.database.Implicits.NodeOps
 import viscel.scribe.database.{Book, Codec, Neo, Ntx, label, rel}
@@ -16,7 +16,7 @@ import scala.collection.immutable.Set
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
 
-class Crawler(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Neo, ec: ExecutionContext, runnerUtil: CrawlerUtil) extends Runnable {
+class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Neo, ec: ExecutionContext, runnerUtil: CrawlerUtil) extends Runnable {
 	import runnerUtil._
 
 	override def toString: String = s"Job(${ narrator.toString })"
@@ -28,7 +28,7 @@ class Crawler(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Ne
 	var known: Set[Story] = Set.empty
 	var recover: Boolean = true
 	@volatile var cancel: Boolean = false
-	val result: Promise[(Narrator, Crawler, Boolean)] = Promise()
+	val result: Promise[List[Report]] = Promise()
 
 	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit =
 		if (node.hasLabel(label.More) || node.hasLabel(label.Asset))
@@ -39,7 +39,7 @@ class Crawler(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Ne
 				case _ =>
 			}
 
-	def init(): Future[(Narrator, Crawler, Boolean)] = synchronized {
+	def init(): Future[List[Report]] = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
 			applyNarration(collection.self, narrator.archive)
 			known = collectMore(collection.self).toSet
@@ -58,9 +58,7 @@ class Crawler(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Ne
 	}
 
 	def recheckOrDone(): Unit = recheck.flatMap(n => neo.tx(nextHub(n)(_))) match {
-		case None =>
-			Log.info(s"runner for $narrator is done")
-			result.success((narrator, this, true))
+		case None => result.success(Nil)
 		case sn@Some(node) =>
 			recheck = sn
 			val m = neo.tx(Codec.load(node)(_, Codec.moreCodec))
@@ -88,19 +86,15 @@ class Crawler(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Ne
 		}
 	}
 
-	def handle[T, R](request: HttpRequest)(handler: HttpResponse => Ntx => R) = {
+	def handle[T](request: HttpRequest)(handler: HttpResponse => Ntx => Unit): Unit = {
 		getResponse(request, iopipe).map { response =>
 			synchronized { neo.tx { handler(response) } }
-		}(ec).onFailure { case t: Throwable =>
-			Log.error(s"error in $narrator")
-			t.printStackTrace()
-			result.success((narrator, this, false))
-		}(ec)
+		}(ec).onFailure { PartialFunction(result.failure) }(ec)
 	}
 
 	def tryRecovery(node: Node)(implicit ntx: Ntx) =
 		if (!recover) {
-			Log.info(s"no more recovery after failure in $narrator at $node")
+			result.success(TextReport(s"no more recovery after failure in $narrator at $node") :: Nil)
 		}
 		else {
 			Log.info(s"trying to recover after failure in $narrator at $node")
@@ -142,7 +136,6 @@ class Crawler(narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Ne
 			case Bad(failed) =>
 				Log.error(s"$narrator failed on $page: $failed")
 				tryRecovery(node)(ntx)
-				result.success((narrator, this, false))
 		}
 	}
 

@@ -17,7 +17,7 @@ import viscel.scribe.store.Config.ConfigNode
 import viscel.scribe.store.{BlobStore, Config}
 
 import scala.collection.concurrent
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
@@ -90,24 +90,26 @@ class Scribe(
 
 	val runners: concurrent.Map[String, Crawler] = concurrent.TrieMap[String, Crawler]()
 
-	def finish(narrator: Narrator, runner: Crawler, success: Boolean): Unit = {
-		runners.remove(narrator.id, runner)
+	def finish(runner: Crawler): Unit = {
+		runners.remove(runner.narrator.id, runner)
 	}
 
-	def ensureRunner(id: String, runner: Crawler): Unit = {
+	def ensureRunner(id: String, runner: Crawler): Future[List[Report]] = {
 		runners.putIfAbsent(id, runner) match {
-			case Some(x) => Log.info(s"$id race on job creation")
+			case Some(x) => Future.successful(Precondition(s"$id race on job creation") :: Nil)
 			case None =>
-				runner.init().onSuccess { case (n, r, s) => finish(n, r, s) }(ec)
+				val result = runner.init()
+				result.onComplete{ _ => finish(runner) }(ec)
 				ec.execute(runner)
+				result
 		}
 	}
 
 	private val dayInMillis = 24L * 60L * 60L * 1000L
 
-	def runForNarrator(narrator: Narrator): Unit = {
+	def runForNarrator(narrator: Narrator): Future[List[Report]] = {
 		val id = narrator.id
-		if (runners.contains(id)) Log.trace(s"$id has running job")
+		if (runners.contains(id)) Future.successful(Precondition(s"$id has running job") :: Nil)
 		else {
 			Log.info(s"update ${ narrator.id }")
 			val runner = neo.tx { implicit ntx =>
