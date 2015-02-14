@@ -79,6 +79,7 @@ object Viscel {
 		val ioHttp = IO(Http)
 		iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
+
 		if (upgradedb.?) {
 			val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"), system,
 				ExecutionContext.fromExecutor(new ThreadPoolExecutor(
@@ -86,7 +87,10 @@ object Viscel {
 
 			Upgrader.doUpgrade(scribe, neo)
 
+			scribe.neo.shutdown()
+
 		}
+
 
 		if (!noserver.?) {
 			val server = system.actorOf(Props(Predef.classOf[Server], neo), "viscel-server")
@@ -121,6 +125,8 @@ object Viscel {
 			}
 			case Failure(_) => neo.tx { ntx => configNode.download(0, success = false)(ntx) }
 		}
+
+		Log.info("initialization done")
 
 		(system, ioHttp, iopipe)
 	}

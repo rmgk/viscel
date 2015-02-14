@@ -9,8 +9,6 @@ import viscel.scribe.narration.{Normal, Volatile}
 import viscel.shared.Story
 import viscel.shared.Story.More.{Archive, Issue}
 import viscel.store.Config
-import viscel.store.Config.ConfigNode
-
 
 import scala.Predef.ArrowAssoc
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -18,6 +16,7 @@ import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 object Upgrader {
 
 	import viscel.scribe.narration.SelectUtil.stringToURL
+
 
 	def convert(oldNode: Node)(implicit ntx1: Ntx, ntx2: viscel.scribe.database.Ntx): Node = {
 		val newNode =
@@ -56,7 +55,7 @@ object Upgrader {
 				}
 				newAsset
 			}
-			else throw new IllegalArgumentException("unknown node")
+			else throw new IllegalArgumentException(s"unknown nodetype ${ oldNode.getLabels.asScala.toList }")
 
 		val newbelow = oldNode.layerBelow.map(n => convert(n))
 		viscel.scribe.database.Archive.connectLayer(newbelow)
@@ -67,18 +66,33 @@ object Upgrader {
 	}
 
 
-	def doUpgrade(scribe: Scribe, neo1: NeoInstance) = neo1.tx { implicit ntx1 =>
-		scribe.neo.tx { implicit ntx2 =>
-			ntx1.nodes(label.Collection).map { n => Book.apply(n) }.toList.foreach { book =>
-				convert(book.self)
-			}
-			val cfg1 = Config.get()
-			val cfg2 = viscel.scribe.store.Config.get()
+	def doUpgrade(scribe: Scribe, neo1: NeoInstance) = {
+		Log.info("loading books")
+		val books = neo1.tx { implicit ntx1 =>
+			scribe.neo.tx { implicit ntx2 =>
 
-			cfg1.self.getPropertyKeys.asScala.foreach{ k =>
-				cfg2.self.setProperty(k, cfg1.self.getProperty(k))
-			}
+				val cfg1 = Config.get()
+				val cfg2 = viscel.scribe.store.Config.get()
 
+				cfg1.self.getPropertyKeys.asScala.foreach { k =>
+					cfg2.self.setProperty(k, cfg1.self.getProperty(k))
+				}
+				cfg2.self.setProperty("version", 2)
+
+				ntx1.nodes(label.Collection).map { n => Book.apply(n) }.toList
+			}
 		}
+
+		Log.info("staring conversion")
+
+		books.foreach { book =>
+			neo1.tx { implicit ntx1 =>
+				Log.info(s"upgrading ${ book.name }")
+				scribe.neo.tx { implicit ntx2 =>
+					convert(book.self)
+				}
+			}
+		}
+		Log.info("all done")
 	}
 }
