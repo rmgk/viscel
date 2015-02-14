@@ -1,12 +1,11 @@
 package viscel.scribe.database
 
 import org.neo4j.graphdb.Node
-import viscel.scribe.Log
 import viscel.scribe.database.Implicits.NodeOps
 import viscel.scribe.narration.{Asset, Blob, Page}
 
-import scala.util.Try
 import scala.collection.immutable.Map
+import scala.util.Try
 
 final case class Book(self: Node) extends AnyVal {
 

@@ -1,8 +1,5 @@
 package viscel.scribe.database
 
-import java.time.LocalDateTime
-import java.util.Objects
-
 import org.neo4j.graphdb.factory.{GraphDatabaseFactory, GraphDatabaseSettings}
 import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
 import org.neo4j.helpers.Settings

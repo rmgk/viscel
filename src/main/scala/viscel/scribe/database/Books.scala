@@ -1,9 +1,9 @@
 package viscel.scribe.database
 
-import viscel.scribe.narration.{Page, Asset, Narrator}
+import viscel.scribe.database.Implicits.NodeOps
+import viscel.scribe.narration.{Narrator, Page}
 import viscel.scribe.store.Config
 import viscel.scribe.{Log, Scribe}
-import viscel.scribe.database.Implicits.NodeOps
 
 import scala.Predef.ArrowAssoc
 

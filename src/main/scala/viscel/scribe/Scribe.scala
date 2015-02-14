@@ -1,7 +1,6 @@
 package viscel.scribe
 
 import java.nio.file.{Files, Path}
-import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.ActorSystem
 import akka.io.IO
@@ -11,14 +10,14 @@ import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpEncodings, HttpResponse}
 import viscel.scribe.crawl.{Crawler, CrawlerUtil}
-import viscel.scribe.database.{Archive, Books, Neo, NeoInstance, label}
+import viscel.scribe.database.{Archive, Books, NeoInstance, label}
 import viscel.scribe.narration.Narrator
 import viscel.scribe.store.Config.ConfigNode
 import viscel.scribe.store.{BlobStore, Config}
 
 import scala.collection.concurrent
-import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 

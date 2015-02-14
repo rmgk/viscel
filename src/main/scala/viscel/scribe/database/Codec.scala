@@ -6,7 +6,7 @@ import viscel.scribe.narration.SelectUtil.stringToURL
 import viscel.scribe.narration.{Asset, Blob, More, Policy, Story}
 
 import scala.Predef.ArrowAssoc
-import scala.Predef.genericWrapArray
+import scala.Predef.genericArrayOps
 import scala.language.implicitConversions
 
 
