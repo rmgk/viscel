@@ -1,0 +1,3 @@
+[submodule "scribe"]
+	path = scribe
+	url = git@github.com:rmgk/viscel-scribe.git

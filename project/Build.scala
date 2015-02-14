@@ -13,6 +13,7 @@ object Build extends sbt.Build {
 		//.settings(compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in(js, Compile)))
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
 		.enablePlugins(JavaAppPackaging)
+		.dependsOn(scribe)
 
 
 	lazy val js = project.in(file("js"))
@@ -20,6 +21,9 @@ object Build extends sbt.Build {
 		.enablePlugins(ScalaJSPlugin)
 		.settings(Settings.common: _*)
 		.settings(Libraries.js: _*)
+
+
+	lazy val scribe = ProjectRef(file("scribe"), "scribe")
 
 }
 
@@ -115,7 +119,7 @@ object Libraries {
 
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++
-		commandline ++ scalatest ++ scalactic ++ jsoup ++ shared.value ++ scribe)
+		commandline ++ scalatest ++ scalactic ++ jsoup ++ shared.value)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++= scalajsdom.value ++ shared.value)
 

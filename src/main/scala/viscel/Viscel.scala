@@ -96,7 +96,7 @@ object Viscel {
 		val noserver = accepts("noserver", "do not start the server")
 		val nocore = accepts("nocore", "do not start the core downloader")
 		val basedir = accepts("basedir", "die base working directory")
-			.withRequiredArg().ofType(Predef.classOf[String]).defaultsTo(".").describedAs("basedir")
+			.withRequiredArg().ofType(Predef.classOf[String]).defaultsTo("./data/").describedAs("basedir")
 		val dbpath = accepts("dbpath", "path of the neo database")
 			.withRequiredArg().ofType(Predef.classOf[String]).defaultsTo("store").describedAs("dbpath")
 		val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
