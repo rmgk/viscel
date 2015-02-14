@@ -98,9 +98,11 @@ class Scribe(
 		runners.remove(runner.narrator.id, runner)
 	}
 
-	def ensureRunner(id: String, runner: Crawler): Future[List[Report]] = {
+	def ensureRunner(id: String, runner: Crawler): Future[Boolean] = {
 		runners.putIfAbsent(id, runner) match {
-			case Some(x) => Future.successful(Precondition(s"$id race on job creation") :: Nil)
+			case Some(x) =>
+				Log.info(s"$id race on job creation")
+				Future.successful(false)
 			case None =>
 				val result = runner.init()
 				result.onComplete { _ => finish(runner) }(ec)
@@ -111,9 +113,12 @@ class Scribe(
 
 	private val dayInMillis = 24L * 60L * 60L * 1000L
 
-	def runForNarrator(narrator: Narrator): Future[List[Report]] = {
+	def runForNarrator(narrator: Narrator): Future[Boolean] = {
 		val id = narrator.id
-		if (runners.contains(id)) Future.successful(Precondition(s"$id has running job") :: Nil)
+		if (runners.contains(id)) {
+			Log.info(s"$id has running job")
+			Future.successful(false)
+		}
 		else {
 			Log.info(s"update ${ narrator.id }")
 			val runner = neo.tx { implicit ntx =>

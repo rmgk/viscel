@@ -30,7 +30,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 	var known: Set[Story] = Set.empty
 	var recover: Boolean = true
 	@volatile var cancel: Boolean = false
-	val result: Promise[List[Report]] = Promise()
+	val result: Promise[Boolean] = Promise()
 
 	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit =
 		if (node.hasLabel(label.More) || node.hasLabel(label.Asset))
@@ -41,7 +41,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 				case _ =>
 			}
 
-	def init(): Future[List[Report]] = synchronized {
+	def init(): Future[Boolean] = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
 			applyNarration(collection.self, narrator.archive)
 			known = collectMore(collection.self).toSet
@@ -60,7 +60,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 	}
 
 	def recheckOrDone(): Unit = recheck.flatMap(n => neo.tx(nextHub(n)(_))) match {
-		case None => result.success(Nil)
+		case None => result.success(true)
 		case sn@Some(node) =>
 			recheck = sn
 			val m = neo.tx(Codec.load(node)(_, Codec.moreCodec))
@@ -96,7 +96,8 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 
 	def tryRecovery(node: Node)(implicit ntx: Ntx) =
 		if (!recover) {
-			result.success(TextReport(s"no more recovery after failure in $narrator at $node") :: Nil)
+			Log.info(s"no more recovery after failure in $narrator at $node")
+			result.success(false)
 		}
 		else {
 			Log.info(s"trying to recover after failure in $narrator at $node")
