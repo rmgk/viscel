@@ -37,7 +37,7 @@ object Fakku {
 
 	def create(_name: String, url: String): FKU = {
 		val _id = url match {
-			case extractID(eid) => eid
+			case extractID(eid) => s"Fakku_$eid"
 			case _ => throw new IllegalArgumentException(s"could not find id for $url")
 		}
 		FKU(_id, s"[FK] ${ _name }", url)
