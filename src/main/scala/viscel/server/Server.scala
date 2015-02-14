@@ -121,15 +121,15 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 					case Failure(e) => complete(e.toString())
 				}
 			} ~
-//			path("import" / Segment) { (id) =>
-//				if (!user.isAdmin) reject
-//				else parameters('name.as[String], 'path.as[String]) { (name, path) =>
-//					onComplete(Future(ReplUtil.importFolder(path, s"Import_$id", name))) {
-//						case Success(v) => complete("success")
-//						case Failure(e) => complete(e.toString())
-//					}
-//				}
-//			} ~
+			path("import" / Segment) { (id) =>
+				if (!user.admin) reject
+				else parameters('name.as[String], 'path.as[String]) { (name, path) =>
+					onComplete(Future(new ReplUtil(scribe).importFolder(path, s"Import_$id", name))) {
+						case Success(v) => complete("success")
+						case Failure(e) => complete(e.toString())
+					}
+				}
+			} ~
 //			path("add") {
 //				if (!user.isAdmin) reject
 //				else parameter('url.as[String]) { url =>

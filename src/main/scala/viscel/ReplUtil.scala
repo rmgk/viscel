@@ -1,12 +1,15 @@
 package viscel
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, StandardCopyOption}
+import java.nio.file.{Files, Paths, StandardCopyOption}
 
+import org.jsoup.nodes.Document
 import viscel.scribe.Scribe
+import viscel.scribe.narration.{Page, Blob, Asset, Narrator, Story}
 import viscel.server.ServerPages
 import viscel.shared.{Article, Chapter, Description, Gallery}
 
+import scala.collection.JavaConverters.asScalaIteratorConverter
 import scalatags.Text.RawFrag
 import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
@@ -83,44 +86,33 @@ class ReplUtil(scribe: Scribe) {
 
 	}
 
-	//	def importFolder(path: String, nid: String, nname: String)(implicit neo: Neo) = {
-	//		import viscel.narration.SelectUtil.stringToVurl
-	//
-	//		import scala.math.Ordering.Implicits.seqDerivedOrdering
-	//
-	//		Log.info(s"try to import $nid($nname) form $path")
-	//
-	//		val files = Files.walk(Paths.get(path))
-	//		val sortedFiles = try { files.iterator().asScala.toList.sortBy(_.iterator().asScala.map(_.toString).toList) }
-	//		finally files.close()
-	//		val story = sortedFiles.flatMap { p =>
-	//			if (Files.isDirectory(p)) Some(Chapter(p.getFileName.toString))
-	//			else if (Files.isRegularFile(p)) {
-	//				val mime = Files.probeContentType(p)
-	//				if (mimeToExt(mime, default = "") == "") None
-	//				else {
-	//					Log.info(s"processing $p")
-	//					val sha1 = BlobStore.write(Files.readAllBytes(p))
-	//					val blob = Story.Blob(sha1, mime)
-	//					Some(Asset(p.toUri.toString, p.getParent.toUri.toString, Map(), Some(blob)))
-	//				}
-	//			}
-	//			else None
-	//		}
-	//
-	//		neo.tx { implicit ntx =>
-	//
-	//			val book = Books.findAndUpdate(new Narrator {
-	//				override def name: String = nname
-	//				override def archive: List[Story] = Nil
-	//				override def wrap(doc: Document, kind: Kind): List[Story] = Nil
-	//				override def id: String = nid
-	//			})
-	//
-	//			Archive.applyNarration(book.self, story)
-	//		}
-	//
-	//
-	//	}
+	def importFolder(path: String, nid: String, nname: String) = {
+
+		import scala.math.Ordering.Implicits.seqDerivedOrdering
+
+		Log.info(s"try to import $nid($nname) form $path")
+
+		val files = Files.walk(Paths.get(path))
+		val sortedFiles = try { files.iterator().asScala.toList.sortBy(_.iterator().asScala.map(_.toString).toList) }
+		finally files.close()
+		val story = sortedFiles.flatMap { p =>
+			if (Files.isDirectory(p)) Some(Page(Asset(kind = 1, data = List(p.getFileName.toString)), None))
+			else if (Files.isRegularFile(p)) {
+				val mime = Files.probeContentType(p)
+				if (mimeToExt(mime, default = "") == "") None
+				else {
+					Log.info(s"processing $p")
+					val sha1 = scribe.blobs.write(Files.readAllBytes(p))
+					val blob = Blob(sha1, mime)
+					Some(Page(Asset(kind = 0), Some(blob)))
+				}
+			}
+			else None
+		}
+
+		scribe.books.importFlat(nid, nname, story)
+
+
+	}
 
 }
