@@ -2,15 +2,13 @@ package viscel.server
 
 import spray.http._
 import upickle.Writer
+import viscel.Log
 import viscel.narration.Narrators
-import viscel.narration.SelectUtil.stringToVurl
 import viscel.scribe.Scribe
 import viscel.scribe.database.Neo
-import viscel.scribe.narration.{Asset, Page}
+import viscel.scribe.narration.{ Asset => SAsset, Page}
 import viscel.shared.JsonCodecs.stringMapW
-import viscel.compat.v1.Story.{Content, Description}
-import viscel.compat.v1.Story
-import viscel.shared.{Gallery}
+import viscel.shared.{Description, Chapter, Article, Content, Gallery}
 import viscel.store.User
 
 import scalatags.Text.attrs.{`type`, content, href, name, rel, src, title}
@@ -30,26 +28,24 @@ class ServerPages(scribe: Scribe) {
 			case None => findExisting(id)
 			case Some(nar) => Some(findAndUpdate(nar))
 		}).map(book => {
-			val story: List[Story] = book.pages().map {
-				case Page(Asset(Some(source), Some(origin), 0, data), blob) =>
-					Story.Asset(
-						source.toString,
-						origin.toString,
-						data.sliding(2, 2).map(l => (l(0), l(1))).toMap,
-						blob.map(b => Story.Blob(b.sha1, b.mime)))
-				case Page(Asset(None, None, 1, name :: data), None) =>
-					Story.Chapter(
-						name,
-						data.sliding(2, 2).map(l => (l(0), l(1))).toMap)
+			val content: (Int, List[Article], List[Chapter])= book.pages().reverse.foldLeft((0, List[Article](), List[Chapter]())) {
+				case (state@(pos, assets, chapters), Page(SAsset(source, origin, 0, data), blob)) =>
+					val asset = Article(
+						source = source map (_.toString),
+						origin = origin map (_.toString),
+						data = data.sliding(2, 2).map(l => (l(0), l(1))).toMap,
+						blob = blob map (_.sha1),
+						mime = blob map (_.mime))
+					(pos + 1, asset :: assets, if (chapters.isEmpty) List(Chapter("", 0)) else chapters)
+				case (state@(pos, assets, chapters), Page(SAsset(None, None, 1, name :: data), None)) =>
+					val chapter = Chapter(name, pos)
+					(pos, assets, chapter :: chapters)
+				case (state@(pos, assets, chapters), page) =>
+					Log.error(s"unhandled page $page")
+					state
 			}
-			val all: (Int, List[Story.Asset], List[(Int, Story.Chapter)]) =
-				story.reverse.foldLeft((0, List[Story.Asset](), List[(Int, Story.Chapter)]())) {
-					case (state@(pos, assets, chapters), asset@Story.Asset(_, _, _, _)) =>
-						(pos + 1, asset :: assets, if (chapters.isEmpty) List((0, Story.Chapter(""))) else chapters)
-					case (state@(pos, assets, chapters), chapter@Story.Chapter(_, _)) => (pos, assets, (pos, chapter) :: chapters)
-					case (state, _) => state
-				}
-			Content(Gallery.fromList(all._2.reverse), all._3)
+
+			Content(Gallery.fromList(content._2.reverse), content._3)
 
 		})
 	}
