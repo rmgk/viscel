@@ -4,7 +4,7 @@ import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
 import viscel.Log
-import viscel.narration.{Kind, Narrators}
+import viscel.narration.{AssetKind, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.database.{Neo, label}
 import viscel.scribe.narration.{Asset => SAsset, Page}
@@ -27,7 +27,7 @@ class ServerPages(scribe: Scribe) {
 
 	object ArticlePage {
 		def unapply(page: Page): Option[Article] = page match {
-			case Page(SAsset(source, origin, Kind.article, data), blob) =>
+			case Page(SAsset(source, origin, AssetKind.article, data), blob) =>
 				Some(Article(
 					source = source map (_.toString),
 					origin = origin map (_.toString),
@@ -40,7 +40,7 @@ class ServerPages(scribe: Scribe) {
 
 	object ChapterPage {
 		def unapply(page: Page): Option[String] = page match {
-			case Page(SAsset(None, None, Kind.chapter, name :: data), None) => Some(name)
+			case Page(SAsset(None, None, AssetKind.chapter, name :: data), None) => Some(name)
 			case _ => None
 		}
 	}

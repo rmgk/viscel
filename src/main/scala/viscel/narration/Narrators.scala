@@ -6,7 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.compat.v1.SelectionV1
 import viscel.compat.v1.Story.More.{Page, Unused}
 import viscel.compat.v1.Story.{Asset, Chapter, More}
-import viscel.narration.SelectUtil._
+import viscel.narration.SelectUtilV1._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
 import viscel.scribe.narration.Narrator

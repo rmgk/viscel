@@ -15,7 +15,7 @@ import scala.collection.immutable.Set
 import scala.language.implicitConversions
 import scala.util.matching.Regex
 
-object SelectUtil {
+object SelectUtilV1 {
 	def getAttr(e: Element, k: String): Option[(String, String)] = {
 		val res = e.attr(k)
 		if (res.isEmpty) None else Some(k -> res)

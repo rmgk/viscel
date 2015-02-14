@@ -6,7 +6,7 @@ import org.scalactic._
 import viscel.compat.v1.{SelectionV1, Story}
 import viscel.compat.v1.Story.More.{Archive, Issue, Kind, Page}
 import viscel.compat.v1.Story.{Chapter, More}
-import viscel.narration.SelectUtil._
+import viscel.narration.SelectUtilV1._
 import viscel.narration.NarratorV1
 
 

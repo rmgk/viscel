@@ -6,7 +6,7 @@ import org.jsoup.nodes.Document
 import org.scalactic._
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
 import viscel.compat.v1.{SelectionV1, Story, ViscelUrl}
-import viscel.narration.SelectUtil._
+import viscel.narration.SelectUtilV1._
 import viscel.narration.{Metarrator, NarratorV1}
 
 import scala.Predef.augmentString

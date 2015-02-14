@@ -5,7 +5,7 @@ import org.scalactic.Good
 import viscel.compat.v1.{SelectionV1, Story}
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
 import viscel.compat.v1.Story.{Chapter, More}
-import viscel.narration.SelectUtil.{cons, elementIntoPointer, extract, queryImageNext, storyFromOr, stringToVurl}
+import viscel.narration.SelectUtilV1.{cons, elementIntoPointer, extract, queryImageNext, storyFromOr, stringToVurl}
 import viscel.narration.NarratorV1
 
 object Inverloch extends NarratorV1 {

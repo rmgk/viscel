@@ -2,7 +2,7 @@ package viscel.narration.narrators
 
 import viscel.compat.v1.Story.More.Page
 import viscel.compat.v1.{SelectionV1, ViscelUrl}
-import viscel.narration.SelectUtil.{elementIntoChapterPointer, queryImages, stringToVurl}
+import viscel.narration.SelectUtilV1.{elementIntoChapterPointer, queryImages, stringToVurl}
 import viscel.narration.Templates
 
 

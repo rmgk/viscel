@@ -5,7 +5,7 @@ import org.scalactic.Good
 import viscel.compat.v1.{SelectionV1, Story}
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
-import viscel.narration.SelectUtil.{elementIntoChapterPointer, queryImageInAnchor, storyFromOr, stringToVurl}
+import viscel.narration.SelectUtilV1.{elementIntoChapterPointer, queryImageInAnchor, storyFromOr, stringToVurl}
 import viscel.narration.NarratorV1
 
 object YouSayItFirst extends NarratorV1 {

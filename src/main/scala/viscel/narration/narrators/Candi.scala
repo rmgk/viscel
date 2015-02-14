@@ -6,7 +6,7 @@ import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.compat.v1.{SelectionV1, Story}
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
-import viscel.narration.SelectUtil._
+import viscel.narration.SelectUtilV1._
 import viscel.narration.NarratorV1
 
 import scala.language.implicitConversions

@@ -6,7 +6,7 @@ import org.scalactic.Accumulation._
 import viscel.compat.v1.{SelectionV1, Story}
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Kind, Page, Unused}
-import viscel.narration.SelectUtil._
+import viscel.narration.SelectUtilV1._
 import viscel.narration.NarratorV1
 
 import scala.collection.immutable.Set

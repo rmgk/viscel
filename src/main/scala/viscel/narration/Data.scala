@@ -11,12 +11,12 @@ object Data {
 	def mapToList[T](map: Map[T, T]): List[T] = map.flatMap { case (a, b) => List(a, b) }.toList
 
 	def chapter(name: String, data: Map[String, String]): Asset = chapter(name, mapToList(data))
-	def chapter(name: String, data: List[String]): Asset = Asset(kind = Kind.chapter, data = List(name), blob = None, origin = None)
+	def chapter(name: String, data: List[String]): Asset = Asset(kind = AssetKind.chapter, data = List(name), blob = None, origin = None)
 	def article(blob: URL, origin: URL, data: Map[String, String]): Asset = article(blob, origin, mapToList(data))
-	def article(blob: URL, origin: URL, data: List[String]): Asset = Asset(kind = Kind.article, blob = Some(blob), origin = Some(origin), data = data)
+	def article(blob: URL, origin: URL, data: List[String]): Asset = Asset(kind = AssetKind.article, blob = Some(blob), origin = Some(origin), data = data)
 }
 
-object Kind {
+object AssetKind {
 	val article: Byte = 0
 	val chapter: Byte = 1
 }

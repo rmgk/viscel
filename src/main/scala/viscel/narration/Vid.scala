@@ -9,7 +9,7 @@ import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
 import viscel.compat.v1.Story.Chapter
 import viscel.compat.v1.Story.More.Page
 import viscel.compat.v1.{Story, ViscelUrl}
-import viscel.narration.SelectUtil._
+import viscel.narration.SelectUtilV1._
 import viscel.{Log, Viscel}
 
 import scala.Predef.augmentString
@@ -28,7 +28,7 @@ object Vid {
 
 	def parseURL(it: It): ViscelUrl Or ErrorMessage = {
 		val Line(url, pos) = it.next()
-		attempt(SelectUtil.stringToVurl(url)).badMap(_ => s"malformed URL at line $pos: $url")
+		attempt(SelectUtilV1.stringToVurl(url)).badMap(_ => s"malformed URL at line $pos: $url")
 	}
 
 	@tailrec
