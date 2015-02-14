@@ -77,18 +77,14 @@ object Viscel {
 			IO(Http)(system) ! Http.Bind(server, interface = "0", port = port())
 		}
 
-//		if (!nocore.?) {
-//			val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
-//				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
-//
-//			Deeds.narratorHint = Clockwork.handleHints(clockworkContext, iopipe, neo)
-//			Clockwork.recheckPeriodically(clockworkContext, iopipe, neo)
-//
-//			Deeds.jobResult = {
-//				case messages@_ :: _ => Log.error(s"some job failed: $messages")
-//				case Nil =>
-//			}
-//		}
+		if (!nocore.?) {
+			val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
+				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
+
+			Deeds.narratorHint = (narrator, force) => {
+				scribe.runForNarrator(narrator)
+			}
+		}
 
 		if (shutdown.?) {
 			scribe.neo.shutdown()
