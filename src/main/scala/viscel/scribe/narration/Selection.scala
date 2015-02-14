@@ -3,8 +3,8 @@ package viscel.scribe.narration
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.scalactic.Accumulation.convertGenTraversableOnceToValidatable
-import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
-import viscel.scribe.report.{Fatal, QueryNotMatch, QueryNotUnique, FailedElement, Report}
+import org.scalactic.{Bad, Every, Good, One, Or}
+import viscel.scribe.report.{FailedElement, Fatal, QueryNotMatch, QueryNotUnique, Report}
 
 import scala.Predef.$conforms
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter

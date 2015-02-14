@@ -5,9 +5,9 @@ import java.net.URL
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.scribe.report.{ExtractionFailed, UnhandledTag, QueryNotUnique, FailedElement, Report}
+import viscel.scribe.report.ReportTools.extract
+import viscel.scribe.report.{FailedElement, QueryNotUnique, Report, UnhandledTag}
 
-import scala.Predef.$conforms
 import scala.collection.immutable.Set
 import scala.language.implicitConversions
 
@@ -17,7 +17,6 @@ object SelectUtil {
 		if (res.isEmpty) Nil else List(k, res)
 	}
 
-	def extract[R](op: => R): R Or One[Report] = attempt(op).badMap(ExtractionFailed.apply).accumulating
 
 	/** tries to extract an absolute uri from an element, extraction depends on type of tag */
 	def extractUri(element: Element): URL Or One[Report] = element.tagName() match {
