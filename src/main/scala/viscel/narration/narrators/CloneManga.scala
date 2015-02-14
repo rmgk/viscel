@@ -3,13 +3,12 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.narration.SelectUtil._
-import viscel.narration.{Metarrator, NarratorV1, Selection}
+import viscel.compat.v1.Story
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Kind, Page, Unused}
-import viscel.compat.v1.Story
+import viscel.narration.SelectUtil._
+import viscel.narration.{NarratorV1, Selection}
 
-import scala.Predef.augmentString
 import scala.collection.immutable.Set
 
 object CloneManga {

@@ -2,10 +2,10 @@ package viscel.narration
 
 import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.narration.SelectUtil.storyFromOr
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Archive, Kind, Page, Unused}
-import viscel.compat.v1.{ViscelUrl, Story}
+import viscel.compat.v1.{Story, ViscelUrl}
+import viscel.narration.SelectUtil.storyFromOr
 
 object Templates {
 	def AP(

@@ -3,9 +3,8 @@ package viscel
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths, StandardCopyOption}
 
-import org.jsoup.nodes.Document
 import viscel.scribe.Scribe
-import viscel.scribe.narration.{Page, Blob, Asset, Narrator, Story}
+import viscel.scribe.narration.{Asset, Blob, Page}
 import viscel.server.ServerPages
 import viscel.shared.{Article, Chapter, Description, Gallery}
 

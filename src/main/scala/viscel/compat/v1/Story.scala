@@ -1,6 +1,7 @@
 package viscel.compat.v1
 
-import viscel.shared.{Gallery}
+import viscel.shared.Gallery
+
 import scala.collection.immutable.Map
 
 sealed trait Story

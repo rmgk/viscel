@@ -2,13 +2,13 @@ package viscel.compat.v1
 
 import org.neo4j.graphdb.Node
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
+import viscel.compat.v1.Story.More.{Archive, Issue}
 import viscel.compat.v1.database.Implicits.NodeOps
 import viscel.compat.v1.database.{Book, NeoCodec, NeoInstance, Ntx, label}
+import viscel.compat.v1.{Story => StoryV1}
 import viscel.scribe.Scribe
 import viscel.scribe.database.Codec
 import viscel.scribe.narration.{Asset, More, Normal, Story => StoryV2, Volatile}
-import viscel.compat.v1.Story.More.{Archive, Issue}
-import viscel.compat.v1.{Story => StoryV1}
 import viscel.{Log, scribe}
 
 import scala.Predef.ArrowAssoc

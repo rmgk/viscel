@@ -1,10 +1,10 @@
 package viscel.compat.v1.database
 
 import org.neo4j.graphdb.Node
-import viscel.compat.v1.database.Implicits.NodeOps
-import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
 import viscel.compat.v1.Story.{Asset, Blob, Chapter, Failed, More}
-import viscel.compat.v1.{ViscelUrl, Story}
+import viscel.compat.v1.database.Implicits.NodeOps
+import viscel.compat.v1.{Story, ViscelUrl}
+import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map

@@ -6,17 +6,17 @@ import java.nio.file.{Files, Path}
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
-import viscel.narration.SelectUtil._
 import viscel.compat.v1.Story.Chapter
 import viscel.compat.v1.Story.More.Page
-import viscel.compat.v1.{ViscelUrl, Story}
+import viscel.compat.v1.{Story, ViscelUrl}
+import viscel.narration.SelectUtil._
 import viscel.{Log, Viscel}
 
 import scala.Predef.augmentString
+import scala.Predef.genericArrayOps
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.Map
-import scala.Predef.genericArrayOps
 
 object Vid {
 

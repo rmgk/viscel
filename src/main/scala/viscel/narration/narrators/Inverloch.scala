@@ -2,11 +2,11 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Good
-import viscel.narration.SelectUtil.{cons, elementIntoPointer, extract, queryImageNext, storyFromOr, stringToVurl}
-import viscel.narration.{NarratorV1, Selection}
 import viscel.compat.v1.Story
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
 import viscel.compat.v1.Story.{Chapter, More}
+import viscel.narration.SelectUtil.{cons, elementIntoPointer, extract, queryImageNext, storyFromOr, stringToVurl}
+import viscel.narration.{NarratorV1, Selection}
 
 object Inverloch extends NarratorV1 {
 	override def id: String = "NX_Inverloch"

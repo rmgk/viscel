@@ -1,9 +1,9 @@
 package viscel.narration.narrators
 
+import viscel.compat.v1.Story.More.Page
 import viscel.compat.v1.ViscelUrl
 import viscel.narration.SelectUtil.{elementIntoChapterPointer, queryImages, stringToVurl}
 import viscel.narration.{Selection, Templates}
-import viscel.compat.v1.Story.More.Page
 
 
 object JayNaylor {

@@ -4,10 +4,10 @@ import java.net.URL
 
 import org.jsoup.nodes.Document
 import org.scalactic._
+import viscel.compat.v1.Story.More.{Archive, Kind, Page}
+import viscel.compat.v1.{Story, ViscelUrl}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, NarratorV1, Selection}
-import viscel.compat.v1.Story.More.{Archive, Kind, Page}
-import viscel.compat.v1.{ViscelUrl, Story}
 
 import scala.Predef.augmentString
 

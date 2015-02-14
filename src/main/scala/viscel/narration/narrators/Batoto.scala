@@ -2,11 +2,11 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.narration.SelectUtil.{append, elementIntoPointer, imgIntoAsset, selectNext, storyFromOr, stringToVurl}
-import viscel.narration.{NarratorV1, Selection}
 import viscel.compat.v1.Story.More.{Kind, Page}
 import viscel.compat.v1.Story.{Chapter, More}
-import viscel.compat.v1.{ViscelUrl, Story}
+import viscel.compat.v1.{Story, ViscelUrl}
+import viscel.narration.SelectUtil.{append, elementIntoPointer, imgIntoAsset, selectNext, storyFromOr, stringToVurl}
+import viscel.narration.{NarratorV1, Selection}
 
 import scala.collection.immutable.Set
 

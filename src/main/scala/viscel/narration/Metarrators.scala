@@ -6,7 +6,7 @@ import viscel.narration.narrators._
 import viscel.scribe.Scribe
 
 import scala.collection.Set
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 object Metarrators {
 	val metas: List[Metarrator[_ <: NarratorV1]] = MangaHere.MetaCore :: Fakku.Meta :: Nil

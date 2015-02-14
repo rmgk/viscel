@@ -4,18 +4,14 @@ import java.nio.file.Path
 import java.util.{Timer, TimerTask}
 
 import org.scalactic.{Bad, Good}
-import spray.client.pipelining.SendReceive
 import viscel.narration.Narrators
 import viscel.scribe.Scribe
-import viscel.scribe.narration.Narrator
 import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
 import viscel.store.{Json, Users}
 
-import scala.collection.concurrent
 import scala.collection.immutable.Map
-import scala.concurrent.ExecutionContext
-import scala.util.{Success, Failure}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 
 class Clockwork(path: Path, scribe: Scribe) {

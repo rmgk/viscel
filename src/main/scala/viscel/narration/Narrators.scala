@@ -3,12 +3,12 @@ package viscel.narration
 import org.scalactic.Accumulation.{convertGenTraversableOnceToCombinable, withGood}
 import org.scalactic.Good
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.compat.v1.Story.More.{Page, Unused}
+import viscel.compat.v1.Story.{Asset, Chapter, More}
 import viscel.narration.SelectUtil._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
 import viscel.scribe.narration.Narrator
-import viscel.compat.v1.Story.More.{Page, Unused}
-import viscel.compat.v1.Story.{Asset, Chapter, More}
 
 import scala.Predef.{$conforms, ArrowAssoc, augmentString}
 import scala.collection.immutable.Set

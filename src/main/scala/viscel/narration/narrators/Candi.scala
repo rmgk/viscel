@@ -3,11 +3,11 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.narration.SelectUtil._
-import viscel.narration.{NarratorV1, Selection}
 import viscel.compat.v1.Story
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
+import viscel.narration.SelectUtil._
+import viscel.narration.{NarratorV1, Selection}
 
 import scala.language.implicitConversions
 
