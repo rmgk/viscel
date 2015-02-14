@@ -5,7 +5,6 @@ object Build extends sbt.Build {
 
 	lazy val scribe = project.in(file("."))
 		.settings(name := "scribe")
-		.settings(organization := "viscel")
 		.settings(Settings.main: _*)
 		.settings(Libraries.main: _*)
 
@@ -15,6 +14,7 @@ object Settings {
 	lazy val main = List(
 
 		version := "0.1.0",
+		organization := "viscel",
 		scalaVersion := "2.11.5",
 
 		scalacOptions ++= (
@@ -49,29 +49,18 @@ object Settings {
 
 object Libraries {
 
-
-	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++
-		 scalatest ++ scalactic ++ jsoup)
-
+	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++ scalactic ++ jsoup)
 
 	// gpl3
-	val neo = {
-		val neoVersion = "2.1.7"
-		Seq("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % neoVersion)
-	}
+	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.1.7")
 
 	// apache 2
-	val spray =
-		List("spray-caching", "spray-can", "spray-client", "spray-http", "spray-httpx", "spray-routing", "spray-util")
-			.map(n => "io.spray" %% n % "1.3.2")
+	val spray = List("spray-client").map(n => "io.spray" %% n % "1.3.2")
 
-	val akka =
-		List("akka-actor", "akka-slf4j")
-			.map(n => "com.typesafe.akka" %% n % "2.3.9")
+	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.3.9")
 
-
-	val scalatest = ("org.scalatest" %% "scalatest" % "2.2.4" % Test) :: Nil
 	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.4" exclude("org.scala-lang", "scala-reflect")) :: Nil
+
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 
 }
