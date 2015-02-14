@@ -3,7 +3,7 @@ package visceljs
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import viscel.shared.Gallery
-import viscel.shared.Story.{Content, Asset, Description}
+import viscel.shared.{Content, Article, Description}
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.{Front, Index, View}
 

@@ -1,7 +1,7 @@
 package visceljs
 
 import org.scalajs.dom.html
-import viscel.shared.Story.{Asset, Description}
+import viscel.shared.{Description, Article}
 import visceljs.Actions._
 import visceljs.Definitions._
 
@@ -30,8 +30,8 @@ object Make {
 		form(fieldset(legend("Search"), inputField, results), action := "", onsubmit := { () => filtered.headOption.foreach(gotoFront); false })
 	}
 
-	def asset(asset: Asset): List[Modifier] = {
-		asset.blob.fold[List[Modifier]](List(class_placeholder, "placeholder"))(blob => img(src := path_blob(blob.sha1)) :: Nil)
+	def asset(asset: Article): List[Modifier] = {
+		asset.blob.fold[List[Modifier]](List(class_placeholder, "placeholder"))(blob => img(src := path_blob(blob)) :: Nil)
 	}
 
 	def fullscreenToggle(stuff: Frag*): Tag = a(onclick := (() => Viscel.toggleFullscreen()))(stuff)

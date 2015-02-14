@@ -1,6 +1,6 @@
 package visceljs.render
 
-import viscel.shared.Story.Description
+import viscel.shared.Description
 import visceljs.Definitions.{link_front, link_stop}
 import visceljs.{Body, Make}
 

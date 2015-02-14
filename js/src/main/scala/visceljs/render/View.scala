@@ -2,7 +2,7 @@ package visceljs.render
 
 import org.scalajs.dom
 import viscel.shared.Gallery
-import viscel.shared.Story.{Content, Asset, Description}
+import viscel.shared.{Content, Article, Description}
 import visceljs.Definitions.{class_dead, class_extern, link_asset, link_front}
 import visceljs.{Data, Viscel, Actions, Body, Make}
 

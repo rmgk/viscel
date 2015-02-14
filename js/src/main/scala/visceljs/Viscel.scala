@@ -4,7 +4,7 @@ import org.scalajs.dom
 import org.scalajs.dom.Event
 import upickle._
 import viscel.shared.JsonCodecs.stringMapR
-import viscel.shared.Story._
+import viscel.shared._
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
@@ -31,7 +31,7 @@ object Viscel {
 			res
 		}
 
-	implicit val readAssets: Reader[List[Asset]] = Predef.implicitly[Reader[List[Asset]]]
+	implicit val readAssets: Reader[List[Article]] = Predef.implicitly[Reader[List[Article]]]
 
 	var bookmarks: Future[Map[String, Int]] = _
 

@@ -1,7 +1,7 @@
 package visceljs.render
 
-import viscel.shared.Story.{Content, Chapter, Description}
-import viscel.shared.{Gallery, Story}
+import viscel.shared.{Content, Chapter, Description, Article}
+import viscel.shared.{Gallery}
 import visceljs.Definitions.{class_chapters, class_preview, link_asset, link_index}
 import visceljs.{Data, Body, Make}
 
@@ -41,19 +41,19 @@ object Front {
 		def chapterlist: Tag = {
 			val assets = gallery.end
 
-			def makeChapField(chap: Chapter, size: Int, gallery: Gallery[Story.Asset]): Frag = {
+			def makeChapField(chap: String, size: Int, gallery: Gallery[Article]): Frag = {
 				val (remaining, links) = Range(size, 0, -1).foldLeft((gallery, List[Frag]())) { case ((gal, acc), i) =>
 					val next = gal.prev(1)
 					(next, link_asset(data.move(_ => next))(s"$i") :: stringFrag(" ") :: acc)
 				}
 
-				article(fieldset(legend(chap.name), links))
+				article(fieldset(legend(chap), links))
 			}
 
 
 			@tailrec
-			def build(apos: Int, assets: Gallery[Story.Asset], chapters: List[(Int, Story.Chapter)], acc: List[Frag]): List[Frag] = chapters match {
-				case (cpos, chap) :: ctail =>
+			def build(apos: Int, assets: Gallery[Article], chapters: List[Chapter], acc: List[Frag]): List[Frag] = chapters match {
+				case Chapter(name, cpos) :: ctail =>
 					build(cpos, assets.prev(apos - cpos), ctail, makeChapField(chap, apos - cpos, assets) :: acc)
 				case Nil => acc
 			}
