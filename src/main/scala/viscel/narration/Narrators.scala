@@ -6,6 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.SelectUtil._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
+import viscel.scribe.narration.Narrator
 import viscel.shared.Story.More.{Page, Unused}
 import viscel.shared.Story.{Asset, Chapter, More}
 
@@ -27,18 +28,18 @@ object Narrators {
 			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter,
 			KeyShanShan.Key, KeyShanShan.ShanShan)
 
-	def calculateAll() = static ++ Metarrators.cores() ++ Vid.load()
+	def calculateAll() = (static ++ Metarrators.cores() ++ Vid.load()).map(new NarratorV1Adapter(_): Narrator)
 
 	def update() = {
 		cached = calculateAll()
 		narratorMap = all.map(n => n.id -> n).toMap
 	}
 
-	@volatile private var cached: Set[NarratorV1] = calculateAll()
-	def all: Set[NarratorV1] = synchronized(cached)
+	@volatile private var cached: Set[Narrator] = calculateAll()
+	def all: Set[Narrator] = synchronized(cached)
 
 	@volatile private var narratorMap = all.map(n => n.id -> n).toMap
-	def get(id: String): Option[NarratorV1] = narratorMap.get(id)
+	def get(id: String): Option[Narrator] = narratorMap.get(id)
 
 
 	private def inlineCores = Set(
