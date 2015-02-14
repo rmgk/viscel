@@ -60,7 +60,7 @@ object Codec {
 
 		override def read(node: Node)(implicit ntx: Ntx): More = More(
 			loc = node.prop[String]("loc"),
-			policy = Policy.int(node.get[String]("policy")),
+			policy = Policy.int(node.get[Byte]("policy")),
 			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)
 	}

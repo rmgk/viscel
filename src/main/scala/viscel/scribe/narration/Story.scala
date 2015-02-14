@@ -22,18 +22,18 @@ final case class Blob(sha1: String, mime: String)
 final case class Page(asset: Asset, blob: Option[Blob])
 
 sealed trait Policy {
-	def ext: Option[String]
+	def ext: Option[Byte]
 }
 case object Normal extends Policy {
-	override def ext = None
+	override def ext: Option[Byte] = None
 }
 case object Volatile extends Policy {
-	override def ext = Some("V")
+	override def ext: Option[Byte] = Some(0)
 }
 object Policy {
-	def int(s: Option[String]): Policy = s match {
+	def int(s: Option[Byte]): Policy = s match {
 		case None => Normal
-		case Some("V") => Volatile
+		case Some(0) => Volatile
 		case Some(s) => throw new IllegalStateException(s"unknown policy $s")
 	}
 }
