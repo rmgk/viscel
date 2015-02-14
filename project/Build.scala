@@ -14,6 +14,7 @@ object Build extends sbt.Build {
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
 		.enablePlugins(JavaAppPackaging)
 		.dependsOn(scribe)
+		.settings(unmanagedSourceDirectories in Compile += baseDirectory.value / "shared")
 
 
 	lazy val js = project.in(file("js"))
@@ -21,6 +22,7 @@ object Build extends sbt.Build {
 		.enablePlugins(ScalaJSPlugin)
 		.settings(Settings.common: _*)
 		.settings(Libraries.js: _*)
+		.settings(unmanagedSourceDirectories in Compile += baseDirectory.value / "../shared")
 
 
 	lazy val scribe = ProjectRef(file("scribe"), "scribe")
