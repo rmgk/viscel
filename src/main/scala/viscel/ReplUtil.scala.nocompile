@@ -145,6 +145,4 @@ object ReplUtil {
 
 	}
 
-	def purge(id: String)(neo: Neo): Boolean = neo.tx { implicit ntx => Books.find(id).map(b => Archive.deleteRecursive(List(b.self))).fold(false)(_ => true) }
-
 }
