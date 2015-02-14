@@ -14,7 +14,8 @@ object Build extends sbt.Build {
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
 		.enablePlugins(JavaAppPackaging)
 		.dependsOn(scribe)
-		.settings(unmanagedSourceDirectories in Compile += baseDirectory.value / "shared")
+		.dependsOn(shared % Provided)
+		.settings(unmanagedSourceDirectories in Compile += (scalaSource in (shared, Compile)).value)
 
 
 	lazy val js = project.in(file("js"))
@@ -22,8 +23,13 @@ object Build extends sbt.Build {
 		.enablePlugins(ScalaJSPlugin)
 		.settings(Settings.common: _*)
 		.settings(Libraries.js: _*)
-		.settings(unmanagedSourceDirectories in Compile += baseDirectory.value / "../shared")
+		.dependsOn(shared % Provided)
+		.settings(unmanagedSourceDirectories in Compile += (scalaSource in (shared, Compile)).value)
 
+	lazy val shared = project.in(file("shared"))
+		.settings(name := "viscel-shared")
+		.settings(Settings.common: _*)
+		.settings(libraryDependencies ++= Libraries.shared.value)
 
 	lazy val scribe = ProjectRef(file("scribe"), "scribe")
 
@@ -125,7 +131,7 @@ object Libraries {
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++= scalajsdom.value ++ shared.value)
 
-	lazy val shared = Def.setting(scalatags.value ++ upickle.value)
+	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(scalatags.value ++ upickle.value)
 
 	val scribe = List("viscel" %% "scribe" % "0.1.0")
 
