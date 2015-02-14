@@ -6,7 +6,7 @@ import org.scalactic.{Every, Or}
 import viscel.compat.v1.Upgrader.translateStory
 import viscel.compat.v1.{Story => OldStory}
 import viscel.scribe.narration.{More, Narrator, Story}
-import viscel.scribe.{Report, TextReport}
+import viscel.scribe.report.{TextReport, Report}
 
 class NarratorV1Adapter(wrapped: NarratorV1) extends Narrator {
 

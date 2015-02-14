@@ -37,10 +37,10 @@ class Clockwork(path: Path, scribe: Scribe) {
 									case Failure(t) =>
 										Log.error(s"recheck failed with $t")
 										t.printStackTrace()
-									case Success(Nil) =>
+									case Success(true) =>
 										Log.info(s"update ${ n.id } complete")
 										updateDates(n.id)
-									case Success(reports) => Log.warn(s"recheck reported $reports")
+									case Success(false) =>
 								}
 							}
 						}
