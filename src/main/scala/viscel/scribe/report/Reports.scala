@@ -33,10 +33,6 @@ trait Stack {
 
 class FixedReport(override val describe: String) extends Report
 
-case class TextReport(override val describe: String) extends Report
-
-case class Precondition(override val describe: String) extends Report
-
 case class FailedElement(query: String, reason: Report, element: Element*) extends Report with Stack {
 	override def describe: String = s"failed '$query' at ($position) because $reason on <${ element map show }>"
 }

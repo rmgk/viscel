@@ -12,7 +12,6 @@ import spray.http.{HttpEncodings, HttpResponse}
 import viscel.scribe.crawl.{Crawler, CrawlerUtil}
 import viscel.scribe.database.{Archive, Books, NeoInstance, label}
 import viscel.scribe.narration.Narrator
-import viscel.scribe.report.{Precondition, Report}
 import viscel.scribe.store.Config.ConfigNode
 import viscel.scribe.store.{BlobStore, Config}
 
