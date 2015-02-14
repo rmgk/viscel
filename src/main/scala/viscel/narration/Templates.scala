@@ -1,39 +1,39 @@
 package viscel.narration
 
+import java.net.URL
+
 import org.jsoup.nodes.Document
-import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.compat.v1.Story.More
-import viscel.compat.v1.Story.More.{Archive, Kind, Page, Unused}
-import viscel.compat.v1.{SelectUtilV1, Story, ViscelUrl}
-import SelectUtilV1.storyFromOr
+import org.scalactic.{Every, Or}
+import viscel.scribe.narration.{Narrator, Normal, Volatile, More, Story}
+import viscel.scribe.report.Report
 
 object Templates {
 	def AP(
 		pid: String, pname: String,
-		start: ViscelUrl,
-		wrapArchive: Document => List[Story] Or Every[ErrorMessage],
-		wrapPage: Document => List[Story] Or Every[ErrorMessage]
-	): NarratorV1 = new NarratorV1 {
+		start: URL,
+		wrapArchive: Document => List[Story] Or Every[Report],
+		wrapPage: Document => List[Story] Or Every[Report]
+	): Narrator = new Narrator {
 		override def id: String = pid
 		override def name: String = pname
-		override def archive: List[Story] = More(start, Archive) :: Nil
-		override def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
-			case Archive => wrapArchive(doc)
-			case Page => wrapPage(doc)
-		})
+		override def archive: List[Story] = More(start, Volatile) :: Nil
+		override def wrap(doc: Document, more: More): List[Story] Or Every[Report] = more match {
+			case More(_, Volatile, _) => wrapArchive(doc)
+			case More(_, Normal, _) => wrapPage(doc)
+		}
 	}
 
 	def SF(
 		pid: String,
 		pname: String,
-		start: ViscelUrl,
-		wrapPage: Document => List[Story] Or Every[ErrorMessage]
-	): NarratorV1 = new NarratorV1 {
+		start: URL,
+		wrapPage: Document => List[Story] Or Every[Report]
+	): Narrator = new Narrator {
 		override def id: String = pid
 		override def name: String = pname
-		override def archive: List[Story] = More(start, Unused) :: Nil
-		override def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
+		override def archive: List[Story] = More(start) :: Nil
+		override def wrap(doc: Document, more: More): List[Story] Or Every[Report] = more match {
 			case _ => wrapPage(doc)
-		})
+		}
 	}
 }
