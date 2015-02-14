@@ -44,7 +44,7 @@ class ReplUtil(scribe: Scribe) {
 		val content = narrationOption.get
 		val description = scribe.neo.tx { implicit nxt =>
 			val b = scribe.books.findExisting(id).get
-			Description(b.id, b.name, b.size)
+			Description(b.id, b.name, b.size(0))
 		}
 
 		val chapters: List[(Chapter, Seq[Article])] =

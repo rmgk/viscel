@@ -54,7 +54,7 @@ class ServerPages(scribe: Scribe) {
 
 	def narrations(): HttpResponse =
 		jsonResponse(neo.tx { implicit ntx =>
-			scribe.books.all().map(b => Description(b.id, b.name, b.size))
+			scribe.books.all().map(b => Description(b.id, b.name, b.size(0)))
 		})
 
 

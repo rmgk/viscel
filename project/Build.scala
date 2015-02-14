@@ -108,16 +108,13 @@ object Settings {
 				|import spray.client.pipelining._
 				|import spray.http._
 				|import viscel._
-				|import viscel.crawler._
 				|import viscel.server._
 				|import viscel.store._
-				|import viscel.database._
 				|import scala.Predef._
 				|import viscel.ReplUtil
 				|import viscel.narration._
 				|import viscel.narration.narrators._
 				|import SelectUtil._
-				|import viscel.database.Implicits.NodeOps
 			""".stripMargin)
 
 }
