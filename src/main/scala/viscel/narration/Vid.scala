@@ -9,7 +9,7 @@ import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
 import viscel.compat.v1.Story.Chapter
 import viscel.compat.v1.Story.More.Page
 import viscel.compat.v1.{NarratorV1, TemplatesV1, SelectUtilV1, Story, ViscelUrl}
-import SelectUtilV1._
+import viscel.compat.v1.SelectUtilV1._
 import viscel.{Log, Viscel}
 
 import scala.Predef.augmentString
