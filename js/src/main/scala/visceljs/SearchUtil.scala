@@ -1,8 +1,7 @@
 package visceljs
 
 
-import scala.Predef.ArrowAssoc
-import scala.Predef.augmentString
+import scala.Predef.{ArrowAssoc, augmentString}
 import scala.annotation.tailrec
 
 
@@ -11,10 +10,10 @@ object SearchUtil {
 		val lcql = query.toLowerCase.replaceAll( """\s+""", "").toList
 		if (lcql.isEmpty) items.sortBy(_._1).map(_._2)
 		else items
-				.map { item => item -> fuzzyMatch(lcql, item._1.toLowerCase.toList) }
-				.filter { _._2 > 0 }
-				.sortBy { -_._2 }
-				.map { _._1._2 }
+			.map { item => item -> fuzzyMatch(lcql, item._1.toLowerCase.toList) }
+			.filter { _._2 > 0 }
+			.sortBy { -_._2 }
+			.map { _._1._2 }
 	}
 
 	@tailrec

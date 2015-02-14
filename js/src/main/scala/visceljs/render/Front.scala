@@ -1,9 +1,8 @@
 package visceljs.render
 
-import viscel.shared.{Content, Chapter, Description, Article}
-import viscel.shared.{Gallery}
+import viscel.shared.{Article, Chapter, Content, Gallery}
 import visceljs.Definitions.{class_chapters, class_preview, link_asset, link_index}
-import visceljs.{Data, Body, Make}
+import visceljs.{Body, Data, Make}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.annotation.tailrec
@@ -21,7 +20,7 @@ object Front {
 		val Data(narration, Content(gallery, chapters), bookmark) = data
 
 
-		val top = header(s"${narration.name} ($bookmark/${narration.size})")
+		val top = header(s"${ narration.name } ($bookmark/${ narration.size })")
 
 		val navigation = Make.navigation(
 			link_index("index"),

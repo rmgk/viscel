@@ -2,8 +2,7 @@ package visceljs
 
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
-import viscel.shared.Gallery
-import viscel.shared.{Content, Article, Description}
+import viscel.shared.Description
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.{Front, Index, View}
 
@@ -76,7 +75,7 @@ object Actions {
 	}
 
 	def setBodyView(data: Data): Unit = {
-			Viscel.setBody(View.gen(data))
+		Viscel.setBody(View.gen(data))
 	}
 
 

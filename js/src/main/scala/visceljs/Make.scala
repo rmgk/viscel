@@ -1,15 +1,15 @@
 package visceljs
 
 import org.scalajs.dom.html
-import viscel.shared.{Description, Article}
+import viscel.shared.{Article, Description}
 import visceljs.Actions._
 import visceljs.Definitions._
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scalatags.JsDom.all._
 import scalatags.JsDom.attrs.{onclick, style}
-import scalatags.JsDom.tags.{p, a}
-import scalatags.JsDom.tags2.{article, aside, nav, section}
+import scalatags.JsDom.tags.a
+import scalatags.JsDom.tags2.{aside, nav, section}
 
 object Make {
 

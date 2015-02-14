@@ -1,17 +1,16 @@
 package visceljs.render
 
 import org.scalajs.dom
-import viscel.shared.Gallery
-import viscel.shared.{Content, Article, Description}
+import viscel.shared.{Article, Content, Description, Gallery}
 import visceljs.Definitions.{class_dead, class_extern, link_asset, link_front}
-import visceljs.{Data, Viscel, Actions, Body, Make}
+import visceljs.{Actions, Body, Data, Make}
 
 import scala.Predef.$conforms
 import scalatags.JsDom.all._
-import scalatags.JsDom.attrs.{href, rel, onclick}
+import scalatags.JsDom.attrs.{href, rel}
 import scalatags.JsDom.implicits.{stringAttr, stringFrag}
-import scalatags.JsDom.tags.{SeqFrag}
-import scalatags.JsDom.tags2.{section, article}
+import scalatags.JsDom.tags.SeqFrag
+import scalatags.JsDom.tags2.{article, section}
 
 object View {
 
@@ -32,7 +31,7 @@ object View {
 
 				val preload = gallery.next(1).get.map(asst => div(Make.asset(asst)).render)
 
-				val mainPart = section(gallery.get.fold[Frag](p("error, illegal image position")){asst =>
+				val mainPart = section(gallery.get.fold[Frag](p("error, illegal image position")) { asst =>
 					article(link_asset(data.next)(Make.asset(asst))) ::
 						asst.data.get("longcomment").fold(List[Tag]())(article(_) :: Nil)
 				})

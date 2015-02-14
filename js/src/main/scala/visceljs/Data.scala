@@ -1,9 +1,8 @@
 package visceljs
 
-import viscel.shared.Gallery
-import viscel.shared.{Article, Chapter, Description, Content}
+import viscel.shared.{Article, Content, Description, Gallery}
 
-case class Data(description: Description, content: Content,  bookmark: Int) {
+case class Data(description: Description, content: Content, bookmark: Int) {
 	def id: String = description.id
 	def pos: Int = content.gallery.pos
 	def gallery: Gallery[Article] = content.gallery

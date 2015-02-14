@@ -1,7 +1,6 @@
 package visceljs
 
-import viscel.shared.Gallery
-import viscel.shared.{Article, Description}
+import viscel.shared.Description
 import visceljs.Actions.{gotoFront, gotoIndex, gotoView, onLeftClick}
 
 import scala.Predef.$conforms
