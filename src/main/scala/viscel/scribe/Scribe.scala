@@ -11,7 +11,7 @@ import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpEncodings, HttpResponse}
 import viscel.scribe.crawl.{Crawler, CrawlerUtil}
-import viscel.scribe.database.{Books, Neo, NeoInstance, label}
+import viscel.scribe.database.{Archive, Books, Neo, NeoInstance, label}
 import viscel.scribe.narration.Narrator
 import viscel.scribe.store.Config.ConfigNode
 import viscel.scribe.store.{BlobStore, Config}
@@ -89,6 +89,10 @@ class Scribe(
 	val books = new Books(neo)
 
 	val runners: concurrent.Map[String, Crawler] = concurrent.TrieMap[String, Crawler]()
+
+	def purge(id: String): Boolean = neo.tx { implicit ntx =>
+		books.findExisting(id).map(b => Archive.deleteRecursive(List(b.self))).fold(false)(_ => true)
+	}
 
 	def finish(runner: Crawler): Unit = {
 		runners.remove(runner.narrator.id, runner)

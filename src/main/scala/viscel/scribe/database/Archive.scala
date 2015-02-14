@@ -17,7 +17,11 @@ object Archive {
 		layer
 	}
 
-	def deleteRecursive(nodes: List[Node])(implicit ntx: Ntx): Unit = nodes foreach (_.fold(())(_ => ntx.delete))
+	def deleteRecursive(nodes: List[Node])(implicit ntx: Ntx): Unit =
+		nodes foreach (_.fold(()) { _ => n =>
+			Option(n.to(rel.blob)).foreach(_.delete)
+			ntx.delete(n)
+		})
 
 	private def replaceLayer(oldLayer: List[Node], newNarration: List[Story])(implicit neo: Ntx): List[Node] = {
 		val oldNarration: List[Story] = oldLayer map { n => Codec.load[Story](n) }
