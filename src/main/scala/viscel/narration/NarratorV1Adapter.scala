@@ -6,7 +6,9 @@ import org.scalactic.{Every, Or}
 import viscel.compat.v1.Upgrader.translateStory
 import viscel.compat.v1.{Story => OldStory}
 import viscel.scribe.narration.{More, Narrator, Story}
-import viscel.scribe.report.{TextReport, Report}
+import viscel.scribe.report.{Report}
+
+case class ReportAdapter(override val describe: String) extends Report
 
 class NarratorV1Adapter(wrapped: NarratorV1) extends Narrator {
 
@@ -14,5 +16,5 @@ class NarratorV1Adapter(wrapped: NarratorV1) extends Narrator {
 	override def name: String = wrapped.name
 	override def archive: List[Story] = wrapped.archive map translateStory map (_.get)
 	override def wrap(doc: Document, more: More): List[Story] Or Every[Report] =
-		wrapped.wrap(doc, OldStory.More.Kind(more.data.head)).map(translateStory).combined.badMap(_.map(TextReport.apply))
+		wrapped.wrap(doc, OldStory.More.Kind(more.data.head)).map(translateStory).combined.badMap(_.map(ReportAdapter.apply))
 }
