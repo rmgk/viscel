@@ -26,35 +26,19 @@ import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
 
-class ReplUtil(val system: ActorSystem, val iopipe: SendReceive) {
-
-	def fetch(vurl: ViscelUrl): Document = {
-		val request = RunnerUtil.request(vurl)
-		val res = RunnerUtil.getResponse(request, iopipe).map { RunnerUtil.parseDocument(vurl) }
-		res.onFailure { case t: Throwable =>
-			Log.error(s"error fetching $vurl")
-			t.printStackTrace()
-		}
-		Await.result(res, Duration.Inf)
-	}
-
-	//	def updateMetarrator[T <: Narrator](metarrator: Metarrator[T]) = {
-	//		val doc = fetch(metarrator.archive)
-	//		val nars = metarrator.wrap(doc)
-	//		metarrator.save(nars.get)
-	//	}
+class ReplUtil(val system: ActorSystem, val scribe: Scribe) {
 
 	def shutdown() = {
 		system.shutdown()
-		Viscel.neo.shutdown()
+		scribe.neo.shutdown()
 	}
 }
 
 object ReplUtil {
 
 	def apply(args: String*) = {
-		val (system, ioHttp, iopipe) = Viscel.run(args: _*)
-		new ReplUtil(system, iopipe)
+		val (system, scribe) = Viscel.run(args: _*)
+		new ReplUtil(system, scribe)
 	}
 
 	def mimeToExt(mime: String, default: String = "") = mime match {
@@ -108,7 +92,7 @@ object ReplUtil {
 		val assembled = (Description(id, narname, assetList.size), content.copy(Gallery.fromList(assetList)))
 
 		val narJson = "var narration = " + upickle.write(assembled)
-		val html = "<!DOCTYPE html>" + ServerPages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
+		val html = "<!DOCTYPE html>" //+ ServerPages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
 
 
 		Files.write(p.resolve(s"${ narname }.html"), html.getBytes(StandardCharsets.UTF_8))

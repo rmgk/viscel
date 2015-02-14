@@ -13,6 +13,7 @@ import spray.client.pipelining.SendReceive
 import spray.http.HttpEncodings
 import viscel.crawler.Clockwork
 import viscel.database.{NeoInstance, label}
+import viscel.scribe.Scribe
 import viscel.server.Server
 import viscel.store.Config
 
@@ -30,14 +31,11 @@ object Viscel {
 		res
 	}
 
-	var neo: NeoInstance = _
-	var iopipe: SendReceive = _
-
 	var basepath: Path = _
 
 	def main(args: Array[String]): Unit = run(args: _*)
 
-	def run(args: String*) = {
+	def run(args: String*): (ActorSystem, Scribe) = {
 		import viscel.Viscel.Options._
 		val formatWidth = try { new jline.console.ConsoleReader().getTerminal.getWidth }
 		catch { case e: Throwable => 80 }
@@ -61,74 +59,46 @@ object Viscel {
 		basepath = Paths.get(basedir())
 		Files.createDirectories(basepath)
 
-		neo = new NeoInstance(basepath.resolve(dbpath()).toString)
+		val system = ActorSystem()
 
-		if (!nodbwarmup.?) time("warmup db") { neo.txs {} }
-
-		neo.txs {
-			if (!neo.db.schema().getConstraints(label.Collection).iterator().hasNext)
-				neo.db.schema().constraintFor(label.Collection).assertPropertyIsUnique("id").create()
-		}
-
-		val configNode = neo.tx { ntx => Config.get()(ntx) }
-
-		Log.info(s"config version: ${ neo.tx { ntx => configNode.version(ntx) } }")
-
-		implicit val system = ActorSystem()
-
-		val ioHttp = IO(Http)
-		iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
+		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"), system,
+			ExecutionContext.fromExecutor(new ThreadPoolExecutor(
+				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])))
 
 
 		if (upgradedb.?) {
-			val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"), system,
-				ExecutionContext.fromExecutor(new ThreadPoolExecutor(
-					0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])))
-
+			val neo = new NeoInstance(basepath.resolve(dbpath()).toString)
 			Upgrader.doUpgrade(scribe, neo)
-
-			scribe.neo.shutdown()
-
+			neo.shutdown()
 		}
 
 
 		if (!noserver.?) {
-			val server = system.actorOf(Props(Predef.classOf[Server], neo), "viscel-server")
-			ioHttp ! Http.Bind(server, interface = "0", port = port())
+			val server = system.actorOf(Props(Predef.classOf[Server], scribe), "viscel-server")
+			IO(Http)(system) ! Http.Bind(server, interface = "0", port = port())
 		}
 
-		if (!nocore.?) {
-			val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
-				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
-
-			Deeds.narratorHint = Clockwork.handleHints(clockworkContext, iopipe, neo)
-			Clockwork.recheckPeriodically(clockworkContext, iopipe, neo)
-
-			Deeds.jobResult = {
-				case messages@_ :: _ => Log.error(s"some job failed: $messages")
-				case Nil =>
-			}
-		}
+//		if (!nocore.?) {
+//			val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
+//				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
+//
+//			Deeds.narratorHint = Clockwork.handleHints(clockworkContext, iopipe, neo)
+//			Clockwork.recheckPeriodically(clockworkContext, iopipe, neo)
+//
+//			Deeds.jobResult = {
+//				case messages@_ :: _ => Log.error(s"some job failed: $messages")
+//				case Nil =>
+//			}
+//		}
 
 		if (shutdown.?) {
-			neo.shutdown()
+			scribe.neo.shutdown()
 			system.shutdown()
-		}
-
-
-		Deeds.responses = {
-			case Success(res) => neo.tx { ntx =>
-				configNode.download(
-					size = res.entity.data.length,
-					success = res.status.isSuccess,
-					compressed = res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.gzip)(ntx)
-			}
-			case Failure(_) => neo.tx { ntx => configNode.download(0, success = false)(ntx) }
 		}
 
 		Log.info("initialization done")
 
-		(system, ioHttp, iopipe)
+		(system, scribe)
 	}
 
 

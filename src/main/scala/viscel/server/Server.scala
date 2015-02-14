@@ -6,8 +6,9 @@ import spray.can.Http
 import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.{HttpService, Route}
-import viscel.database.{Books, Neo}
 import viscel.narration.{Metarrators, Narrators}
+import viscel.scribe.Scribe
+import viscel.scribe.database.{Books, Neo}
 import viscel.store.BlobStore.hashToPath
 import viscel.store.User
 import viscel.{Deeds, Log, ReplUtil, Viscel}
@@ -18,10 +19,12 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 
-class Server(neo: Neo) extends Actor with HttpService {
+class Server(scribe: Scribe) extends Actor with HttpService {
 
-	implicit def neoIsImplicit: Neo = neo
-
+	implicit def neo: Neo = scribe.neo
+	def books: Books = scribe.books
+	val pages = new ServerPages(scribe)
+	
 	def actorRefFactory: ActorRefFactory = context
 
 	val users = new UserStore
@@ -47,14 +50,14 @@ class Server(neo: Neo) extends Actor with HttpService {
 
 	def defaultRoute(user: User): Route =
 		path("") {
-			complete(ServerPages.landing)
+			complete(pages.landing)
 		} ~
 			path("stop") {
 				if (!user.isAdmin) reject
 				else complete {
 					Future {
 						spray.util.actorSystem.shutdown()
-						Viscel.neo.shutdown()
+						scribe.neo.shutdown()
 						Log.info("shutdown complete")
 					}
 					"shutdown"
@@ -74,14 +77,14 @@ class Server(neo: Neo) extends Actor with HttpService {
 				getFromFile("js/target/scala-2.11/viscel-js-opt.js.map")
 			} ~
 			path("bookmarks") {
-				handleBookmarksForm(user)(newUser => complete(ServerPages.bookmarks(newUser)))
+				handleBookmarksForm(user)(newUser => complete(pages.bookmarks(newUser)))
 			} ~
 			path("narrations") {
-				complete(ServerPages.jsonResponse(neo.tx(Books.allDescriptions()(_))))
+				complete(pages.narrations())
 			} ~
 			path("narration" / Segment) { collectionId =>
-				rejectNone(neo.tx { ntx => Books.find(collectionId)(ntx).map(_.content()(ntx)) }) { content =>
-					complete(ServerPages.jsonResponse(content))
+				rejectNone(pages.narration(collectionId)) { content =>
+					complete(pages.jsonResponse(content))
 				}
 			} ~
 			pathPrefix("blob" / Segment) { (sha1) =>
@@ -103,53 +106,53 @@ class Server(neo: Neo) extends Actor with HttpService {
 					}
 				}
 			} ~
-			path("stats") {
-				complete {
-					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
-						.ask(Http.GetStats)(1.second)
-						.mapTo[Stats]
-					stats.map { s => neo.tx { ServerPages.stats(s)(_) } }
-				}
-			} ~
-			path("export" / Segment) { (id) =>
-				if (!user.isAdmin) reject
-				else onComplete(Future(ReplUtil.export(id)(Viscel.neo))) {
-					case Success(v) => complete("success")
-					case Failure(e) => complete(e.toString())
-				}
-			} ~
-			path("import" / Segment) { (id) =>
-				if (!user.isAdmin) reject
-				else parameters('name.as[String], 'path.as[String]) { (name, path) =>
-					onComplete(Future(ReplUtil.importFolder(path, s"Import_$id", name)(Viscel.neo))) {
-						case Success(v) => complete("success")
-						case Failure(e) => complete(e.toString())
-					}
-				}
-			} ~
-			path("add") {
-				if (!user.isAdmin) reject
-				else parameter('url.as[String]) { url =>
-					onComplete(Metarrators.add(url, Viscel.iopipe)) {
-						case Success(v) => complete(s"found ${ v.map(_.id) }")
-						case Failure(e) => complete { e.getMessage }
-					}
-				}
-			} ~
+//			path("stats") {
+//				complete {
+//					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
+//						.ask(Http.GetStats)(1.second)
+//						.mapTo[Stats]
+//					stats.map { s => neo.tx { ServerPages.stats(s)(_) } }
+//				}
+//			} ~
+//			path("export" / Segment) { (id) =>
+//				if (!user.isAdmin) reject
+//				else onComplete(Future(ReplUtil.export(id))) {
+//					case Success(v) => complete("success")
+//					case Failure(e) => complete(e.toString())
+//				}
+//			} ~
+//			path("import" / Segment) { (id) =>
+//				if (!user.isAdmin) reject
+//				else parameters('name.as[String], 'path.as[String]) { (name, path) =>
+//					onComplete(Future(ReplUtil.importFolder(path, s"Import_$id", name))) {
+//						case Success(v) => complete("success")
+//						case Failure(e) => complete(e.toString())
+//					}
+//				}
+//			} ~
+//			path("add") {
+//				if (!user.isAdmin) reject
+//				else parameter('url.as[String]) { url =>
+//					onComplete(Metarrators.add(url, Viscel.iopipe)) {
+//						case Success(v) => complete(s"found ${ v.map(_.id) }")
+//						case Failure(e) => complete { e.getMessage }
+//					}
+//				}
+//			} ~
 			path("reload") {
 				if (!user.isAdmin) reject
 				else complete {
 					Narrators.update()
 					"done"
 				}
-			} ~
-			path("purge" / Segment) { (id) =>
-				if (!user.isAdmin) reject
-				else onComplete(Future(ReplUtil.purge(id)(Viscel.neo))) {
-					case Success(b) => complete(s"$b")
-					case Failure(e) => complete(e.toString())
-				}
 			}
+//			path("purge" / Segment) { (id) =>
+//				if (!user.isAdmin) reject
+//				else onComplete(Future(ReplUtil.purge(id))) {
+//					case Success(b) => complete(s"$b")
+//					case Failure(e) => complete(e.toString())
+//				}
+//			}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)
 }
