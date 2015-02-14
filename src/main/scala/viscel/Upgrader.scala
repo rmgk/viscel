@@ -1,21 +1,46 @@
 package viscel
 
 import org.neo4j.graphdb.Node
+import org.scalactic.{One, Bad, Good, ErrorMessage, Every, Or}
 import viscel.database.Implicits.NodeOps
 import viscel.database.{Book, NeoCodec, NeoInstance, Ntx, label}
 import viscel.scribe.Scribe
 import viscel.scribe.database.Codec
-import viscel.scribe.narration.{Normal, Volatile}
-import viscel.shared.Story
+import viscel.scribe.narration.{Asset, More, Normal, Story, Volatile}
 import viscel.shared.Story.More.{Archive, Issue}
+import viscel.shared.{Story => StoryV1}
 import viscel.store.Config
 
 import scala.Predef.ArrowAssoc
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.collection.immutable.Map
 
 object Upgrader {
 
 	import viscel.scribe.narration.SelectUtil.stringToURL
+
+	def mapToList[T](map: Map[T, T]): List[T] = map.flatMap { case (a, b) => List(a, b) }.toList
+
+	def translateStory(story: StoryV1): Story Or Every[ErrorMessage] = story match {
+		case StoryV1.More(loc, kind) =>
+			val url = stringToURL(loc.toString)
+			val policiy = kind match {
+				case Archive | Issue => Volatile
+				case _ => Normal
+			}
+			val data = List(kind.name)
+			Good(More(url, policiy, data))
+		case StoryV1.Chapter(name, meta) =>
+			Good(Asset(None, None, 1, name :: mapToList(meta)))
+		case StoryV1.Asset(source, origin, metadata, _) =>
+			Good(viscel.scribe.narration.Asset(
+				Some(source.toString),
+				Some(origin.toString),
+				0,
+				mapToList(metadata)))
+		case StoryV1.Failed(messages) => Bad(Every.from(messages).getOrElse(One("unnamed error")))
+		case StoryV1.Blob(sha1, mime) => Bad(One("can not convert blobs"))
+	}
 
 
 	def convert(oldNode: Node)(implicit ntx1: Ntx, ntx2: viscel.scribe.database.Ntx): Node = {
@@ -25,30 +50,14 @@ object Upgrader {
 				ntx2.create(viscel.scribe.database.label.Book, "id" -> book.id, "name" -> book.name)
 			}
 			else if (oldNode.hasLabel(label.More)) {
-				val more = NeoCodec.load[Story.More](oldNode)
-				val url = stringToURL(more.loc.toString)
-				val policiy = more.kind match {
-					case Archive | Issue => Volatile
-					case _ => Normal
-				}
-				val data = List(more.kind.name)
-				Codec.create(viscel.scribe.narration.More(url, policiy, data))
+				Codec.create(translateStory(NeoCodec.load[StoryV1.More](oldNode)).get)
 			}
 			else if (oldNode.hasLabel(label.Chapter)) {
-				val chapter = NeoCodec.load[Story.Chapter](oldNode)
-				Codec.create(viscel.scribe.narration.Asset(None, None, 1, List(chapter.name) ++ chapter.metadata.flatMap { case (k, v) => List(k, v) }))
-			}
-			else if (oldNode.hasLabel(label.Blob)) {
-				val blob = NeoCodec.load[Story.Blob](oldNode)
-				Codec.create(viscel.scribe.narration.Blob(blob.sha1, blob.mediatype))
+				Codec.create(translateStory(NeoCodec.load[StoryV1.Chapter](oldNode)).get)
 			}
 			else if (oldNode.hasLabel(label.Asset)) {
-				val asset = NeoCodec.load[Story.Asset](oldNode)
-				val newAsset = Codec.create(viscel.scribe.narration.Asset(
-					Some(asset.source.toString),
-					Some(asset.origin.toString),
-					0,
-					asset.metadata.flatMap { case (k, v) => List(k, v) }.toList))
+				val asset = NeoCodec.load[StoryV1.Asset](oldNode)
+				val newAsset = Codec.create(translateStory(asset).get)
 				asset.blob.foreach { blob =>
 					val bn = Codec.create(viscel.scribe.narration.Blob(blob.sha1, blob.mediatype))
 					newAsset.to_=(viscel.scribe.database.rel.blob, bn)
