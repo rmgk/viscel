@@ -17,6 +17,7 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 
 
 class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Neo, ec: ExecutionContext, runnerUtil: CrawlerUtil) extends Runnable {
+
 	import runnerUtil._
 
 	override def toString: String = s"Job(${ narrator.toString })"

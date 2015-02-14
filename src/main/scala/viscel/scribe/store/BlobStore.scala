@@ -21,6 +21,6 @@ class BlobStore(basedir: Path) {
 		sha1
 	}
 
-	def hashToPath(h: String): Path = basedir.resolve(h.substring(0,2)).resolve(h.substring(2))
+	def hashToPath(h: String): Path = basedir.resolve(h.substring(0, 2)).resolve(h.substring(2))
 
 }

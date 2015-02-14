@@ -70,7 +70,7 @@ object Scribe {
 			sendReceive = iopipe,
 			ec = executionContext,
 			blobs = blobs,
-			util= new CrawlerUtil(blobs, responseHandler),
+			util = new CrawlerUtil(blobs, responseHandler),
 			cfg = configNode)
 	}
 
@@ -103,7 +103,7 @@ class Scribe(
 			case Some(x) => Future.successful(Precondition(s"$id race on job creation") :: Nil)
 			case None =>
 				val result = runner.init()
-				result.onComplete{ _ => finish(runner) }(ec)
+				result.onComplete { _ => finish(runner) }(ec)
 				ec.execute(runner)
 				result
 		}

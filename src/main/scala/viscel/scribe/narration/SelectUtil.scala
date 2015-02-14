@@ -23,9 +23,9 @@ object SelectUtil {
 		kind = 0,
 		data =
 			getAttr(img, "alt") :::
-			getAttr(img, "title") :::
-			getAttr(img, "width") :::
-			getAttr(img, "height")))
+				getAttr(img, "title") :::
+				getAttr(img, "width") :::
+				getAttr(img, "height")))
 
 	def queryImage(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgIntoAsset)
 	def queryImages(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)

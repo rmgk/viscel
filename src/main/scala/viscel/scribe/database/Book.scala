@@ -32,7 +32,7 @@ final case class Book(self: Node) extends AnyVal {
 		})
 		val size = Try(mapped.keys.max).getOrElse(-1) + 1
 		val res = new Array[Int](size)
-		mapped.foreach{ case (k, v) => res(k) = v}
+		mapped.foreach { case (k, v) => res(k) = v }
 		res
 	}
 
