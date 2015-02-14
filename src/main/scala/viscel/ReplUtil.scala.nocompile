@@ -6,7 +6,6 @@ import java.nio.file.{Files, Paths, StandardCopyOption}
 import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
-import viscel.crawler.{Archive, RunnerUtil}
 import viscel.database.{NeoInstance, Ntx, Books, Neo}
 import viscel.narration.Narrator
 import viscel.scribe.Scribe

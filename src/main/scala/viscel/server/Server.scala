@@ -11,7 +11,7 @@ import viscel.scribe.Scribe
 import viscel.scribe.database.{Books, Neo}
 import viscel.store.BlobStore.hashToPath
 import viscel.store.User
-import viscel.{Deeds, Log, ReplUtil, Viscel}
+import viscel.{Deeds, Log}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.concurrent.duration.DurationInt

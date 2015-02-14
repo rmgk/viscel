@@ -1,8 +1,8 @@
 package viscel.narration.narrators
 
+
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, Narrator, Selection}
 import viscel.shared.Story.More
@@ -55,27 +55,5 @@ object CloneManga {
 		("witches_loops", "§III - Closed Circles", "http://manga.clone-army.org/viewer.php?series=witches_loops&page=1"),
 		("snax", "My Shut-In Vampire Princess", "http://manga.clone-army.org/viewer.php?series=snax&page=1")
 	).map { case (id, name, url) => Clone(s"CloneManga_$id", s"[CM] $name", url) }
-
-
-	object MetaClone extends Metarrator[Clone]("CloneManga") {
-
-		override def unapply(url: ViscelUrl): Option[ViscelUrl] = {
-			if (url.toString.matches("^http://\\w+.clone-army.org.*")) Some("http://manga.clone-army.org/viewer_landing.php") else None
-		}
-
-		override def wrap(doc: Document): List[Clone] Or Every[ErrorMessage] =
-			Selection(doc).many(".comicPreviewContainer").wrapEach { container =>
-				val name_? = Selection(container).first(".comicNote > h3").getOne.map(_.ownText())
-				val uri_? = Selection(container).unique("> a").wrapOne(extractUri)
-				val id_? = uri_?.flatMap { uri => """series=(\w+)""".r.findFirstMatchIn(uri.toString)
-					.fold(Bad(One("match error")): String Or One[ErrorMessage])(m => Good(m.group(1)))
-				}
-				withGood(name_?, uri_?, id_?) { (name, uri, id) =>
-					Clone(s"CloneManga_$id", s"[CM] $name", s"$uri&page=1")
-				}
-			}
-
-	}
-
 
 }

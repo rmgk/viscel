@@ -1,5 +1,7 @@
 package viscel.narration.narrators
 
+import java.net.URL
+
 import org.jsoup.nodes.Document
 import org.scalactic._
 import viscel.narration.SelectUtil._
@@ -21,7 +23,7 @@ object MangaHere {
 
 	object MetaCore extends Metarrator[Generic]("MangaHere") {
 
-		override def unapply(vurl: ViscelUrl): Option[ViscelUrl] = if (vurl.toString.startsWith("http://www.mangahere.co/manga/")) Some(vurl) else None
+		override def unapply(vurl: String): Option[URL] = if (vurl.toString.startsWith("http://www.mangahere.co/manga/")) Some(new URL(vurl)) else None
 
 		val extractID = """http://www.mangahere.co/manga/([^/]+)/""".r
 

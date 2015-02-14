@@ -11,7 +11,6 @@ import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.HttpEncodings
-import viscel.crawler.Clockwork
 import viscel.database.{NeoInstance, label}
 import viscel.scribe.Scribe
 import viscel.server.Server

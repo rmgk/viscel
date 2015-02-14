@@ -1,9 +1,9 @@
 package viscel.narration
 
-import spray.client.pipelining.SendReceive
-import viscel.crawler.RunnerUtil
+import java.net.URL
+
 import viscel.narration.narrators._
-import viscel.shared.ViscelUrl
+import viscel.scribe.Scribe
 
 import scala.collection.Set
 import scala.concurrent.{ExecutionContext, Future}
@@ -13,21 +13,21 @@ object Metarrators {
 
 	def cores(): Set[Narrator] = synchronized(metas.iterator.flatMap[Narrator](_.load()).toSet)
 
-	def add(start: String, iopipe: SendReceive)(implicit ec: ExecutionContext): Future[List[Narrator]] = {
-		def go[T <: Narrator](metarrator: Metarrator[T], url: ViscelUrl): Future[List[Narrator]] = iopipe(RunnerUtil.request(url)).map { res =>
-			val nars = metarrator.wrap(RunnerUtil.parseDocument(url)(res)).get
+	def add(start: String, scribe: Scribe): Future[List[Narrator]] = {
+		def go[T <: Narrator](metarrator: Metarrator[T], url: URL): Future[List[Narrator]] =
+			scribe.sendReceive(scribe.util.request(url)).map { res =>
+			val nars = metarrator.wrap(scribe.util.parseDocument(url)(res)).get
 			synchronized {
 				metarrator.save((metarrator.load() ++ nars).toList)
 				Narrators.update()
 				nars
 			}
-		}
+		}(scribe.ec)
 
 		try {
-			val url = SelectUtil.stringToVurl(start)
-			metas.map(m => (m, m.unapply(url)))
+			metas.map(m => (m, m.unapply(start)))
 				.collectFirst { case (m, Some(uri)) => go(m, uri) }
-				.getOrElse(Future.failed(new IllegalArgumentException(s"$url is not handled")))
+				.getOrElse(Future.failed(new IllegalArgumentException(s"$start is not handled")))
 
 		}
 		catch {

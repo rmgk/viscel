@@ -1,5 +1,7 @@
 package viscel.narration
 
+import java.net.URL
+
 import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import upickle.{Reader, Writer}
@@ -11,7 +13,7 @@ import scala.collection.Set
 
 abstract class Metarrator[T <: Narrator : Reader : Writer](id: String) {
 
-	def unapply(vurl: ViscelUrl): Option[ViscelUrl]
+	def unapply(description: String): Option[URL]
 	def wrap(document: Document): List[T] Or Every[ErrorMessage]
 
 	def path = Viscel.basepath.resolve("data").resolve(s"$id.json")

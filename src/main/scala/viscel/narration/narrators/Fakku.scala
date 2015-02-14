@@ -46,8 +46,8 @@ object Fakku {
 
 	object Meta extends Metarrator[FKU]("Fakku") {
 
-		override def unapply(url: ViscelUrl): Option[ViscelUrl] = {
-			if (new URL(url).getHost == baseURL.getHost) Some(url) else None
+		override def unapply(url: String): Option[URL] = {
+			if (new URL(url).getHost == baseURL.getHost) Some(new URL(url)) else None
 		}
 
 		def wrap(doc: Document): List[FKU] Or Every[ErrorMessage] = {
