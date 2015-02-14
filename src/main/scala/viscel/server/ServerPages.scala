@@ -4,7 +4,7 @@ import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
 import viscel.Log
-import viscel.narration.Narrators
+import viscel.narration.{Kind, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.database.{Neo, label}
 import viscel.scribe.narration.{Asset => SAsset, Page}
@@ -14,7 +14,7 @@ import viscel.store.User
 
 import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
-import scalatags.Text.attrs.{`type`, content, href, name, rel, src, title}
+import scalatags.Text.attrs.{`type`, content, href, name => attrname, rel, src, title}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, head, html, link, meta, script}
 import scalatags.Text.{Modifier, RawFrag}
@@ -25,23 +25,36 @@ class ServerPages(scribe: Scribe) {
 
 	def neo: Neo = scribe.neo
 
+	object ArticlePage {
+		def unapply(page: Page): Option[Article] = page match {
+			case Page(SAsset(source, origin, Kind.article, data), blob) =>
+				Some(Article(
+					source = source map (_.toString),
+					origin = origin map (_.toString),
+					data = data.sliding(2, 2).map(l => (l(0), l(1))).toMap,
+					blob = blob map (_.sha1),
+					mime = blob map (_.mime)))
+			case _ => None
+		}
+	}
+
+	object ChapterPage {
+		def unapply(page: Page): Option[String] = page match {
+			case Page(SAsset(None, None, Kind.chapter, name :: data), None) => Some(name)
+			case _ => None
+		}
+	}
+
 	def narration(id: String): Option[Content] = neo.tx { implicit ntx =>
 		(Narrators.get(id) match {
 			case None => findExisting(id)
 			case Some(nar) => Some(findAndUpdate(nar))
 		}).map(book => {
 			val content: (Int, List[Article], List[Chapter]) = book.pages().reverse.foldLeft((0, List[Article](), List[Chapter]())) {
-				case (state@(pos, assets, chapters), Page(SAsset(source, origin, 0, data), blob)) =>
-					val asset = Article(
-						source = source map (_.toString),
-						origin = origin map (_.toString),
-						data = data.sliding(2, 2).map(l => (l(0), l(1))).toMap,
-						blob = blob map (_.sha1),
-						mime = blob map (_.mime))
-					(pos + 1, asset :: assets, if (chapters.isEmpty) List(Chapter("", 0)) else chapters)
-				case (state@(pos, assets, chapters), Page(SAsset(None, None, 1, name :: data), None)) =>
-					val chapter = Chapter(name, pos)
-					(pos, assets, chapter :: chapters)
+				case (state@(pos, assets, chapters), ArticlePage(article)) =>
+					(pos + 1, article :: assets, if (chapters.isEmpty) List(Chapter("", 0)) else chapters)
+				case (state@(pos, assets, chapters), ChapterPage(name)) =>
+					(pos, assets, Chapter(name, pos) :: chapters)
 				case (state@(pos, assets, chapters), page) =>
 					Log.error(s"unhandled page $page")
 					state
@@ -72,7 +85,7 @@ class ServerPages(scribe: Scribe) {
 			head(
 				title := "Viscel",
 				link(href := path_css, rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
-				meta(name := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes")),
+				meta(attrname := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes")),
 
 			body("if nothing happens, your javascript does not work"),
 			script(src := path_js)

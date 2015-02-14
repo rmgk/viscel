@@ -6,6 +6,7 @@ import viscel.compat.v1.Story.More.{Archive, Issue}
 import viscel.compat.v1.database.Implicits.NodeOps
 import viscel.compat.v1.database.{Book, NeoCodec, NeoInstance, Ntx, label}
 import viscel.compat.v1.{Story => StoryV1}
+import viscel.narration.Data
 import viscel.scribe.Scribe
 import viscel.scribe.database.Codec
 import viscel.scribe.narration.{Asset, More, Normal, Story => StoryV2, Volatile}
@@ -19,7 +20,6 @@ object Upgrader {
 
 	import viscel.scribe.narration.SelectMore.stringToURL
 
-	def mapToList[T](map: Map[T, T]): List[T] = map.flatMap { case (a, b) => List(a, b) }.toList
 
 	def translateStory(story: StoryV1): StoryV2 Or Every[ErrorMessage] = story match {
 		case StoryV1.More(loc, kind) =>
@@ -31,13 +31,12 @@ object Upgrader {
 			val data = List(kind.name)
 			Good(More(url, policiy, data))
 		case StoryV1.Chapter(name, meta) =>
-			Good(Asset(None, None, 1, name :: mapToList(meta)))
+			Good(Data.chapter(name, meta))
 		case StoryV1.Asset(source, origin, metadata, _) =>
-			Good(viscel.scribe.narration.Asset(
-				Some(source.toString),
-				Some(origin.toString),
-				0,
-				mapToList(metadata)))
+			Good(Data.article(
+				blob = source.toString,
+				origin = origin.toString,
+				data = metadata))
 		case StoryV1.Failed(messages) => Bad(Every.from(messages).getOrElse(One("unnamed error")))
 		case StoryV1.Blob(sha1, mime) => Bad(One("can not convert blobs"))
 	}
