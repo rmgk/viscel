@@ -48,9 +48,7 @@ object Scribe {
 				neo.db.schema().constraintFor(label.Book).assertPropertyIsUnique("id").create()
 		}
 
-		implicit val system = ActorSystem()
-
-		val ioHttp = IO(Http)
+		val ioHttp = IO(Http)(system)
 		val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
 
 		val responseHandler: Try[HttpResponse] => Unit = {
@@ -62,9 +60,6 @@ object Scribe {
 			}
 			case Failure(_) => neo.tx { ntx => configNode.download(0, success = false)(ntx) }
 		}
-
-		val clockworkContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
-			0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
 
 		val blobs = new BlobStore(basedir.resolve("blobs"))
 
