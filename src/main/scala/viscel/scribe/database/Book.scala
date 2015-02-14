@@ -26,7 +26,7 @@ final case class Book(self: Node) extends AnyVal {
 
 	def pages()(implicit ntx: Ntx): List[Page] =
 		self.fold(List[Page]())(s => n => {
-			if (!n.hasLabel(label.Asset)) s.reverse
+			if (!n.hasLabel(label.Asset)) s
 			else {
 				val asset = Codec.load[Asset](n)
 				val blob = Option(n.to(rel.blob)).map(Codec.load[Blob])
