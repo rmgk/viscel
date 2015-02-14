@@ -11,10 +11,10 @@ import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.SendReceive
 import spray.http.HttpEncodings
-import viscel.database.{NeoInstance, label}
+import viscel.compat.v1.{Config, Upgrader}
+import viscel.compat.v1.database.{NeoInstance, label}
 import viscel.scribe.Scribe
 import viscel.server.Server
-import viscel.store.Config
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._

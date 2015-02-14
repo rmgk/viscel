@@ -1,7 +1,7 @@
-package viscel.shared
+package viscel.compat.v1
 
+import viscel.shared.{Gallery, ReaderWriter}
 import scala.collection.immutable.Map
-import scala.language.implicitConversions
 
 sealed trait Story
 

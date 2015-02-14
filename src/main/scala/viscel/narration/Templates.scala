@@ -3,9 +3,9 @@ package viscel.narration
 import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil.storyFromOr
-import viscel.shared.Story.More
-import viscel.shared.Story.More.{Archive, Kind, Page, Unused}
-import viscel.shared.{Story, ViscelUrl}
+import viscel.compat.v1.Story.More
+import viscel.compat.v1.Story.More.{Archive, Kind, Page, Unused}
+import viscel.compat.v1.{ViscelUrl, Story}
 
 object Templates {
 	def AP(

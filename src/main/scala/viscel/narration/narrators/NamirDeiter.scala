@@ -4,9 +4,9 @@ import org.jsoup.nodes.Document
 import org.scalactic.Good
 import viscel.narration.SelectUtil.{elementIntoChapterPointer, elementIntoPointer, queryImage, queryImageInAnchor, storyFromOr, stringToVurl}
 import viscel.narration.{NarratorV1, Selection}
-import viscel.shared.Story
-import viscel.shared.Story.More
-import viscel.shared.Story.More.{Archive, Issue, Kind, Page}
+import viscel.compat.v1.Story
+import viscel.compat.v1.Story.More
+import viscel.compat.v1.Story.More.{Archive, Issue, Kind, Page}
 
 object NamirDeiter extends NarratorV1 {
 	override def id: String = "NX_NamirDeiter"

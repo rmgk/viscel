@@ -1,15 +1,15 @@
-package viscel
+package viscel.compat.v1
 
 import org.neo4j.graphdb.Node
-import org.scalactic.{One, Bad, Good, ErrorMessage, Every, Or}
-import viscel.database.Implicits.NodeOps
-import viscel.database.{Book, NeoCodec, NeoInstance, Ntx, label}
+import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
+import viscel.compat.v1.database.Implicits.NodeOps
+import viscel.compat.v1.database.{Book, NeoCodec, NeoInstance, Ntx, label}
 import viscel.scribe.Scribe
 import viscel.scribe.database.Codec
-import viscel.scribe.narration.{Asset, More, Normal, Story, Volatile}
-import viscel.shared.Story.More.{Archive, Issue}
-import viscel.shared.{Story => StoryV1}
-import viscel.store.Config
+import viscel.scribe.narration.{Asset, More, Normal, Story => StoryV2, Volatile}
+import viscel.compat.v1.Story.More.{Archive, Issue}
+import viscel.compat.v1.{Story => StoryV1}
+import viscel.{Log, scribe}
 
 import scala.Predef.ArrowAssoc
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -21,7 +21,7 @@ object Upgrader {
 
 	def mapToList[T](map: Map[T, T]): List[T] = map.flatMap { case (a, b) => List(a, b) }.toList
 
-	def translateStory(story: StoryV1): Story Or Every[ErrorMessage] = story match {
+	def translateStory(story: StoryV1): StoryV2 Or Every[ErrorMessage] = story match {
 		case StoryV1.More(loc, kind) =>
 			val url = stringToURL(loc.toString)
 			val policiy = kind match {

@@ -1,4 +1,4 @@
-package viscel.shared
+package viscel.compat.v1
 
 import upickle.Js
 

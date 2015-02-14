@@ -6,12 +6,12 @@ import java.nio.file.{Files, Paths, StandardCopyOption}
 import akka.actor.ActorSystem
 import org.jsoup.nodes.Document
 import spray.client.pipelining.SendReceive
-import viscel.database.{NeoInstance, Ntx, Books, Neo}
+import viscel.compat.v1.database.{NeoInstance, Ntx, Books, Neo}
 import viscel.narration.Narrator
 import viscel.scribe.Scribe
 import viscel.server.ServerPages
-import viscel.shared.Story.More.Kind
-import viscel.shared.Story.{Asset, Chapter, Description}
+import viscel.compat.v1.Story.More.Kind
+import viscel.compat.v1.Story.{Asset, Chapter, Description}
 import viscel.shared.{Gallery, Story, ViscelUrl}
 import viscel.store.BlobStore
 

@@ -5,9 +5,9 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.SelectUtil._
 import viscel.narration.{NarratorV1, Selection}
-import viscel.shared.Story
-import viscel.shared.Story.More.{Archive, Issue, Kind, Page}
-import viscel.shared.Story.{Chapter, More}
+import viscel.compat.v1.Story
+import viscel.compat.v1.Story.More.{Archive, Issue, Kind, Page}
+import viscel.compat.v1.Story.{Chapter, More}
 
 
 object Twokinds extends NarratorV1 {

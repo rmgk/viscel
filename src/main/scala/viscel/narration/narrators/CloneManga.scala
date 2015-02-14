@@ -5,9 +5,9 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, NarratorV1, Selection}
-import viscel.shared.Story.More
-import viscel.shared.Story.More.{Kind, Page, Unused}
-import viscel.shared.{Story, ViscelUrl}
+import viscel.compat.v1.Story.More
+import viscel.compat.v1.Story.More.{Kind, Page, Unused}
+import viscel.compat.v1.Story
 
 import scala.Predef.augmentString
 import scala.collection.immutable.Set

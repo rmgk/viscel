@@ -7,8 +7,8 @@ import viscel.narration.SelectUtil._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
 import viscel.scribe.narration.Narrator
-import viscel.shared.Story.More.{Page, Unused}
-import viscel.shared.Story.{Asset, Chapter, More}
+import viscel.compat.v1.Story.More.{Page, Unused}
+import viscel.compat.v1.Story.{Asset, Chapter, More}
 
 import scala.Predef.{$conforms, ArrowAssoc, augmentString}
 import scala.collection.immutable.Set

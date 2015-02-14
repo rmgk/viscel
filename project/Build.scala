@@ -238,10 +238,10 @@ object SourceGeneration {
 			|package viscel.generated
 			|
 			|import org.neo4j.graphdb.Node
-			|import viscel.database.Implicits.NodeOps
-			|import viscel.database.Ntx
-			|import viscel.database.label.SimpleLabel
-			|import viscel.database.NeoCodec
+			|import viscel.compat.v1.database.Implicits.NodeOps
+			|import viscel.compat.v1.database.Ntx
+			|import viscel.compat.v1.database.label.SimpleLabel
+			|import viscel.compat.v1.database.NeoCodec
 			|object NeoCodecs {
 			|${ definitions.mkString("\n") }
 			|}

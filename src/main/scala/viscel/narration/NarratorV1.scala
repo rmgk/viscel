@@ -2,8 +2,8 @@ package viscel.narration
 
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.shared.Story
-import viscel.shared.Story.More.Kind
+import viscel.compat.v1.Story
+import viscel.compat.v1.Story.More.Kind
 
 trait NarratorV1 {
 	def id: String

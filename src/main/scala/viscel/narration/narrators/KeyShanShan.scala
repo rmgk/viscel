@@ -4,9 +4,9 @@ import org.jsoup.nodes.Document
 import org.scalactic.Good
 import viscel.narration.NarratorV1
 import viscel.narration.SelectUtil._
-import viscel.shared.Story
-import viscel.shared.Story.More.{Kind, Unused}
-import viscel.shared.Story.{Chapter, More}
+import viscel.compat.v1.Story
+import viscel.compat.v1.Story.More.{Kind, Unused}
+import viscel.compat.v1.Story.{Chapter, More}
 
 object KeyShanShan {
 	class Common(cid: String, cname: String, url: String) extends NarratorV1 {

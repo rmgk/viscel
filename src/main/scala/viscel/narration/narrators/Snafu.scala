@@ -5,9 +5,9 @@ import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, NarratorV1, Selection}
-import viscel.shared.Story.More
-import viscel.shared.Story.More.{Archive, Kind, Page}
-import viscel.shared.{Story, ViscelUrl}
+import viscel.compat.v1.Story.More
+import viscel.compat.v1.Story.More.{Archive, Kind, Page}
+import viscel.compat.v1.{ViscelUrl, Story}
 
 import scala.collection.immutable.Set
 

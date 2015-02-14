@@ -1,4 +1,4 @@
-package viscel.database
+package viscel.compat.v1.database
 
 import org.neo4j.graphdb.{Label, RelationshipType}
 

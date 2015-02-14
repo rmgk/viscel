@@ -6,9 +6,9 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
-import viscel.shared.Story.More.Kind
-import viscel.shared.Story.{Asset, Chapter, More}
-import viscel.shared.{Story, ViscelUrl}
+import viscel.compat.v1.Story.More.Kind
+import viscel.compat.v1.Story.{Asset, Chapter, More}
+import viscel.compat.v1.{ViscelUrl, Story}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.Set

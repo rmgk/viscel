@@ -1,9 +1,10 @@
-package viscel.database
+package viscel.compat.v1.database
 
 import org.neo4j.graphdb.Node
-import viscel.database.Implicits.NodeOps
-import viscel.shared.Story.{Asset, Chapter, Content, Description}
-import viscel.shared.{Gallery, Story}
+import viscel.compat.v1.database.Implicits.NodeOps
+import viscel.compat.v1.Story.{Asset, Chapter, Content, Description}
+import viscel.shared.{Gallery}
+import viscel.compat.v1.Story
 
 final case class Book(self: Node) extends AnyVal {
 

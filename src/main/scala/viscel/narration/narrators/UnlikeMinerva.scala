@@ -4,9 +4,9 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation.withGood
 import viscel.narration.SelectUtil.{extract, imgIntoAsset, storyFromOr, stringToVurl}
 import viscel.narration.{NarratorV1, Selection}
-import viscel.shared.Story
-import viscel.shared.Story.More
-import viscel.shared.Story.More.{Kind, Unused}
+import viscel.compat.v1.Story
+import viscel.compat.v1.Story.More
+import viscel.compat.v1.Story.More.{Kind, Unused}
 
 object UnlikeMinerva extends NarratorV1 {
 	override def id: String = "NX_UnlikeMinerva"

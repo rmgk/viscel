@@ -7,9 +7,9 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.SelectUtil._
 import viscel.narration.{Metarrator, NarratorV1, Selection}
-import viscel.shared.Story.More.{Kind, Unused}
-import viscel.shared.Story.{Asset, More}
-import viscel.shared.{Story, ViscelUrl}
+import viscel.compat.v1.Story.More.{Kind, Unused}
+import viscel.compat.v1.Story.{Asset, More}
+import viscel.compat.v1.Story
 
 import scala.Predef.augmentString
 

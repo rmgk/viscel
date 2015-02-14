@@ -3,10 +3,10 @@ package viscel.narration
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import org.scalactic.Accumulation._
-import viscel.Upgrader
-import viscel.Upgrader.translateStory
+import viscel.compat.v1.Upgrader.translateStory
+import viscel.compat.v1.Upgrader
 import viscel.scribe.narration.{Problem, Story, More, Narrator, Asset}
-import viscel.shared.{ Story => OldStory }
+import viscel.compat.v1.{Story => OldStory}
 
 import scala.collection.immutable.Map
 

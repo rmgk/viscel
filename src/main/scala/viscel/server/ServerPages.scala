@@ -8,8 +8,9 @@ import viscel.scribe.Scribe
 import viscel.scribe.database.Neo
 import viscel.scribe.narration.{Asset, Page}
 import viscel.shared.JsonCodecs.stringMapW
-import viscel.shared.Story.{Content, Description}
-import viscel.shared.{Gallery, Story}
+import viscel.compat.v1.Story.{Content, Description}
+import viscel.compat.v1.Story
+import viscel.shared.{Gallery}
 import viscel.store.User
 
 import scalatags.Text.attrs.{`type`, content, href, name, rel, src, title}

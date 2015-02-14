@@ -2,7 +2,7 @@ package viscel.narration.narrators
 
 import viscel.narration.SelectUtil._
 import viscel.narration.{NarratorV1, Templates}
-import viscel.shared.Story.More.Unused
+import viscel.compat.v1.Story.More.Unused
 
 import scala.collection.immutable.Set
 

@@ -7,9 +7,9 @@ import java.nio.file.{Files, Path}
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
 import viscel.narration.SelectUtil._
-import viscel.shared.Story.Chapter
-import viscel.shared.Story.More.Page
-import viscel.shared.{Story, ViscelUrl}
+import viscel.compat.v1.Story.Chapter
+import viscel.compat.v1.Story.More.Page
+import viscel.compat.v1.{ViscelUrl, Story}
 import viscel.{Log, Viscel}
 
 import scala.Predef.augmentString
