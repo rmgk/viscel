@@ -2,7 +2,7 @@ package viscel.scribe.database
 
 import org.neo4j.graphdb.Node
 import viscel.scribe.database.Implicits.NodeOps
-import viscel.scribe.narration.SelectUtil.stringToURL
+import viscel.scribe.narration.SelectMore.stringToURL
 import viscel.scribe.narration.{Asset, Blob, More, Policy, Story}
 
 import scala.Predef.ArrowAssoc

@@ -8,43 +8,26 @@ import org.scalactic._
 import viscel.scribe.report.ReportTools.extract
 import viscel.scribe.report.{FailedElement, QueryNotUnique, Report, UnhandledTag}
 
-import scala.collection.immutable.Set
 import scala.language.implicitConversions
 
-object SelectUtil {
-	def getAttr(e: Element, k: String): List[String] = {
-		val res = e.attr(k)
-		if (res.isEmpty) Nil else List(k, res)
-	}
-
+object SelectMore {
 
 	/** tries to extract an absolute uri from an element, extraction depends on type of tag */
-	def extractUri(element: Element): URL Or One[Report] = element.tagName() match {
+	def extractURL(element: Element): URL Or One[Report] = element.tagName() match {
 		case "a" => extract { stringToURL(element.attr("abs:href")) }
 		case "option" => extract { stringToURL(element.attr("abs:value")) }
 		case tag => Bad(One(FailedElement(s"extract uri", UnhandledTag, element)))
 	}
 
-	def selectNext(elements: List[Element]): List[More] Or Every[Report] = elements.validatedBy(elementIntoPointer).flatMap {
+	def selectMore(elements: List[Element]): List[More] Or Every[Report] = elements.validatedBy(extractMore).flatMap {
 		case pointers if elements.isEmpty => Good(Nil)
 		case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
 		case pointers => Bad(One(FailedElement("next not unique", QueryNotUnique, elements: _*)))
 	}
 
-	def elementIntoPointer(element: Element): More Or Every[Report] =
-		extractUri(element).map(uri => More(uri))
-
-
-	val ignoredClasses = Set("viscel.scribe", "java", "org.scalactic", "scala")
-	def caller: String = {
-		val stackTraceOption = Predef.wrapRefArray(Thread.currentThread().getStackTrace()).find { ste =>
-			val cname = ste.getClassName
-			!ignoredClasses.exists(cname.startsWith)
-		}
-		stackTraceOption.fold("invalid stacktrace") { ste => s"${ ste.getClassName }#${ ste.getMethodName }:${ ste.getLineNumber }" }
-	}
+	def extractMore(element: Element): More Or Every[Report] =
+		extractURL(element).map(uri => More(uri))
 
 	implicit def stringToURL(s: String): URL = new URL(s)
-
 
 }
