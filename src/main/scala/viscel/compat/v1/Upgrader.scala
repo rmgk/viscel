@@ -31,9 +31,9 @@ object Upgrader {
 			val data = List(kind.name)
 			Good(More(url, policiy, data))
 		case StoryV1.Chapter(name, meta) =>
-			Good(Data.chapter(name, meta))
+			Good(Data.Chapter(name, meta))
 		case StoryV1.Asset(source, origin, metadata, _) =>
-			Good(Data.article(
+			Good(Data.Article(
 				blob = source.toString,
 				origin = origin.toString,
 				data = metadata))
