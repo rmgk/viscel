@@ -1,4 +1,4 @@
-package viscel.narration
+package viscel.compat.v1
 
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
@@ -9,17 +9,17 @@ import viscel.narration.SelectUtil.{blame, caller, extract}
 import scala.Predef.$conforms
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
-sealed trait Selection {
+sealed trait SelectionV1 {
 	/** select exactly one element */
-	def unique(query: String): Selection
+	def unique(query: String): SelectionV1
 	/** select one ore more elements */
-	def many(query: String): Selection
+	def many(query: String): SelectionV1
 	/** select zero or one element */
-	def optional(query: String): Selection
+	def optional(query: String): SelectionV1
 	/** select any number of elements */
-	def all(query: String): Selection
+	def all(query: String): SelectionV1
 	/** selects the first matching element */
-	def first(query: String): Selection
+	def first(query: String): SelectionV1
 	/** wrap the list of elements into a result */
 	def wrap[R](fun: List[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage]
 	/** wrap the single selected element into a result */
@@ -33,15 +33,15 @@ sealed trait Selection {
 	/** get the single element */
 	def getOne: Element Or Every[ErrorMessage]
 	/** reverse the list of elements */
-	def reverse: Selection
+	def reverse: SelectionV1
 }
 
-object Selection {
-	def apply(element: Element): Selection = new GoodSelection(List(element))
-	def apply(elements: List[Element]): Selection = new GoodSelection(elements)
+object SelectionV1 {
+	def apply(element: Element): SelectionV1 = new GoodSelectionV1(List(element))
+	def apply(elements: List[Element]): SelectionV1 = new GoodSelectionV1(elements)
 }
 
-case class GoodSelection(elements: List[Element]) extends Selection {
+case class GoodSelectionV1(elements: List[Element]) extends SelectionV1 {
 
 	def validateQuery[R](query: String)(validate: Elements => R Or ErrorMessage): List[R] Or Every[ErrorMessage] = {
 		elements.validatedBy { element =>
@@ -53,39 +53,39 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 		}
 	}
 
-	override def unique(query: String): Selection = {
+	override def unique(query: String): SelectionV1 = {
 		validateQuery(query) {
 			case rs if rs.size > 1 => Bad("query not unique")
 			case rs if rs.size < 1 => Bad("query not found)")
 			case rs => Good(rs.get(0))
-		}.fold(GoodSelection, BadSelection)
+		}.fold(GoodSelectionV1, BadSelectionV1)
 	}
 
-	override def many(query: String): Selection = {
+	override def many(query: String): SelectionV1 = {
 		validateQuery(query) {
 			case rs if rs.size < 1 => Bad("query did not match")
 			case rs => Good(rs.asScala.toList)
-		}.fold(good => GoodSelection(good.flatten), BadSelection)
+		}.fold(good => GoodSelectionV1(good.flatten), BadSelectionV1)
 	}
 
-	override def all(query: String): Selection = {
+	override def all(query: String): SelectionV1 = {
 		validateQuery(query) { rs => Good(rs.asScala.toList) }
-			.fold(good => GoodSelection(good.flatten), BadSelection)
+			.fold(good => GoodSelectionV1(good.flatten), BadSelectionV1)
 	}
 
-	override def optional(query: String): Selection = {
+	override def optional(query: String): SelectionV1 = {
 		validateQuery(query) {
 			case rs if rs.size > 1 => Bad(s"query not unique ")
 			case rs => Good(rs.asScala.toList)
-		}.fold(good => GoodSelection(good.flatten), BadSelection)
+		}.fold(good => GoodSelectionV1(good.flatten), BadSelectionV1)
 	}
 
 	/** selects the first matching element */
-	override def first(query: String): Selection = {
+	override def first(query: String): SelectionV1 = {
 		validateQuery(query) {
 			case rs if rs.size < 1 => Bad("query did not match")
 			case rs => Good(rs.get(0))
-		}.fold(GoodSelection, BadSelection)
+		}.fold(GoodSelectionV1, BadSelectionV1)
 	}
 
 
@@ -104,20 +104,20 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 	override def wrapEach[R](fun: (Element) => Or[R, Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = elements.validatedBy { fun }
 	override def wrapFlat[R](fun: (Element) => Or[List[R], Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = wrapEach(fun).map(_.flatten)
 
-	override def reverse: GoodSelection = GoodSelection(elements.reverse)
+	override def reverse: GoodSelectionV1 = GoodSelectionV1(elements.reverse)
 }
 
-case class BadSelection(errors: Every[ErrorMessage]) extends Selection {
-	override def unique(query: String): BadSelection = this
-	override def many(query: String): BadSelection = this
-	override def all(query: String): Selection = this
-	override def first(query: String): Selection = this
+case class BadSelectionV1(errors: Every[ErrorMessage]) extends SelectionV1 {
+	override def unique(query: String): BadSelectionV1 = this
+	override def many(query: String): BadSelectionV1 = this
+	override def all(query: String): SelectionV1 = this
+	override def first(query: String): SelectionV1 = this
 	override def wrap[R](fun: List[Element] => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = Bad(errors)
 	override def wrapOne[R](fun: Element => R Or Every[ErrorMessage]): R Or Every[ErrorMessage] = Bad(errors)
 	override def wrapEach[R](fun: (Element) => Or[R, Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = Bad(errors)
-	override def reverse: BadSelection = this
+	override def reverse: BadSelectionV1 = this
 	override def get: Or[List[Element], Every[ErrorMessage]] = Bad(errors)
 	override def getOne: Or[Element, Every[ErrorMessage]] = Bad(errors)
-	override def optional(query: String): Selection = this
+	override def optional(query: String): SelectionV1 = this
 	override def wrapFlat[R](fun: (Element) => Or[List[R], Every[ErrorMessage]]): Or[List[R], Every[ErrorMessage]] = Bad(errors)
 }

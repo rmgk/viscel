@@ -3,11 +3,11 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.compat.v1.Story
+import viscel.compat.v1.{SelectionV1, Story}
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
 import viscel.narration.SelectUtil._
-import viscel.narration.{NarratorV1, Selection}
+import viscel.narration.NarratorV1
 
 import scala.language.implicitConversions
 
@@ -19,7 +19,7 @@ object Candi extends NarratorV1 {
 	def name: String = "Candi"
 
 	def wrapArchive(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
-		val volumes_? = Selection(doc).many("#candimidd > p:nth-child(2) a")
+		val volumes_? = SelectionV1(doc).many("#candimidd > p:nth-child(2) a")
 			.wrapEach { elementIntoPointer(Story.More.Issue) }
 		// the list of volumes is also the first volume, wrap this directly
 		val firstVolume_? = wrapVolume(doc)
@@ -30,7 +30,7 @@ object Candi extends NarratorV1 {
 	}
 
 	def wrapVolume(doc: Document): Or[List[Story], Every[ErrorMessage]] =
-		Selection(doc).many("#candimidd > table > tbody > tr > td:nth-child(2n) a").wrapFlat { elementIntoChapterPointer(Page) }
+		SelectionV1(doc).many("#candimidd > table > tbody > tr > td:nth-child(2n) a").wrapFlat { elementIntoChapterPointer(Page) }
 
 
 	def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {

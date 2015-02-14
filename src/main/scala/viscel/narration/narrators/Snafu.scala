@@ -4,9 +4,9 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
-import viscel.compat.v1.{Story, ViscelUrl}
+import viscel.compat.v1.{SelectionV1, Story, ViscelUrl}
 import viscel.narration.SelectUtil._
-import viscel.narration.{NarratorV1, Selection}
+import viscel.narration.NarratorV1
 
 import scala.collection.immutable.Set
 
@@ -17,7 +17,7 @@ object Snafu {
 		def archive = More(start, Archive) :: Nil
 
 		def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
-			case Archive => Selection(doc).unique(".pagecontentbox").many("a").wrap { anchors =>
+			case Archive => SelectionV1(doc).unique(".pagecontentbox").many("a").wrap { anchors =>
 				anchors.reverse.validatedBy(elementIntoPointer(Page))
 			}
 			case Page => queryImage("img[src~=comics/\\d{6}]")(doc)

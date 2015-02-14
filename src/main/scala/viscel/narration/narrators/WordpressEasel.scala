@@ -2,11 +2,11 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.compat.v1.Story
+import viscel.compat.v1.{SelectionV1, Story}
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Kind, Unused}
 import viscel.narration.SelectUtil._
-import viscel.narration.{NarratorV1, Selection}
+import viscel.narration.NarratorV1
 
 import scala.collection.immutable.Set
 
@@ -16,8 +16,8 @@ object WordpressEasel {
 	case class Generic(id: String, name: String, start: String) extends NarratorV1 {
 		override def archive: List[Story] = More(start, Unused) :: Nil
 		override def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr {
-			val next_? = Selection(doc).optional("a.navi.navi-next").wrap(selectNext(Unused))
-			val img_? = Selection(doc).unique("#comic img").wrapEach(imgIntoAsset)
+			val next_? = SelectionV1(doc).optional("a.navi.navi-next").wrap(selectNext(Unused))
+			val img_? = SelectionV1(doc).unique("#comic img").wrapEach(imgIntoAsset)
 			withGood(img_?, next_?) { _ ::: _ }
 		}
 	}

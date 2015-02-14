@@ -5,9 +5,9 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic._
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
-import viscel.compat.v1.{Story, ViscelUrl}
+import viscel.compat.v1.{SelectionV1, Story, ViscelUrl}
 import viscel.narration.SelectUtil._
-import viscel.narration.{Metarrator, NarratorV1, Selection}
+import viscel.narration.{Metarrator, NarratorV1}
 
 import scala.Predef.augmentString
 
@@ -16,7 +16,7 @@ object MangaHere {
 	case class Generic(id: String, name: String, archiveUri: ViscelUrl) extends NarratorV1 {
 		def archive = Story.More(archiveUri, Archive) :: Nil
 		def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
-			case Archive => Selection(doc).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { elementIntoChapterPointer(Page) }
+			case Archive => SelectionV1(doc).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { elementIntoChapterPointer(Page) }
 			case Page => queryImageNext("#image", ".next_page:not([onclick])", Page)(doc)
 		})
 	}
@@ -28,7 +28,7 @@ object MangaHere {
 		val extractID = """http://www.mangahere.co/manga/([^/]+)/""".r
 
 		override def wrap(doc: Document): List[Generic] Or Every[ErrorMessage] =
-			Selection(doc).unique("#main > article > div > div.box_w.clearfix > h1").getOne.map { anchor =>
+			SelectionV1(doc).unique("#main > article > div > div.box_w.clearfix > h1").getOne.map { anchor =>
 				val extractID(id) = doc.baseUri()
 				Generic(s"MangaHere_$id", s"[MH] ${ anchor.text() }", doc.baseUri()) :: Nil
 			}

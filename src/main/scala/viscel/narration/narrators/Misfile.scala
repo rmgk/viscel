@@ -3,11 +3,11 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Or}
-import viscel.compat.v1.Story
+import viscel.compat.v1.{SelectionV1, Story}
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
 import viscel.compat.v1.Story.{Chapter, More}
 import viscel.narration.SelectUtil._
-import viscel.narration.{NarratorV1, Selection}
+import viscel.narration.NarratorV1
 
 import scala.language.implicitConversions
 
@@ -19,7 +19,7 @@ object Misfile extends NarratorV1 {
 	def name: String = "Misfile"
 
 	def wrapArchive(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
-		val chapters_? = Selection(doc).many("#comicbody a:matchesOwn(^Book #\\d+$)").wrapFlat { anchor =>
+		val chapters_? = SelectionV1(doc).many("#comicbody a:matchesOwn(^Book #\\d+$)").wrapFlat { anchor =>
 			withGood(elementIntoPointer(Page)(anchor)) { pointer =>
 				Chapter(anchor.ownText()) :: pointer :: Nil
 			}
@@ -33,10 +33,10 @@ object Misfile extends NarratorV1 {
 	}
 
 	def wrapPage(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
-		val elements_? = Selection(doc)
+		val elements_? = SelectionV1(doc)
 			.unique(".comiclist table.wide_gallery")
 			.many("[id~=^comic_\\d+$] .picture a").wrapEach { anchor =>
-			val element_? = Selection(anchor).unique("img").wrapOne { imgIntoAsset }
+			val element_? = SelectionV1(anchor).unique("img").wrapOne { imgIntoAsset }
 			val origin_? = extractUri(anchor)
 			withGood(element_?, origin_?) { (element, origin) =>
 				element.copy(
@@ -45,7 +45,7 @@ object Misfile extends NarratorV1 {
 					metadata = element.metadata - "width" - "height")
 			}
 		}
-		val next_? = Selection(doc).all("a.next").wrap { selectNext(Page) }
+		val next_? = SelectionV1(doc).all("a.next").wrap { selectNext(Page) }
 
 		append(elements_?, next_?)
 	}

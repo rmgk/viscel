@@ -5,11 +5,11 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.compat.v1.Story
+import viscel.compat.v1.{SelectionV1, Story}
 import viscel.compat.v1.Story.More.{Kind, Unused}
 import viscel.compat.v1.Story.{Asset, More}
 import viscel.narration.SelectUtil._
-import viscel.narration.{Metarrator, NarratorV1, Selection}
+import viscel.narration.{Metarrator, NarratorV1}
 
 import scala.Predef.augmentString
 
@@ -24,7 +24,7 @@ object Fakku {
 		val findStr = "window.params.thumbs = "
 		val extractPos = ".*\\D(\\d+)\\.\\w+".r
 
-		override def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(Selection(doc).many("head script").wrap { scripts =>
+		override def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(SelectionV1(doc).many("head script").wrap { scripts =>
 			val jsSrc = scripts.map(_.html()).mkString("\n")
 			val start = jsSrc.indexOf(findStr) + findStr.length
 			val end = jsSrc.indexOf("\n", start) - 1
@@ -51,11 +51,11 @@ object Fakku {
 		}
 
 		def wrap(doc: Document): List[FKU] Or Every[ErrorMessage] = {
-			val current = Selection(doc).all("#content > div.content-wrap")
+			val current = SelectionV1(doc).all("#content > div.content-wrap")
 			val currentUrl_? = current.optional("a.button.green").wrapEach(e => Good(e.attr("abs:href")))
 			val currentName_? = current.optional("h1[itemprop=name]").wrapEach(e => Good(e.text()))
 
-			val rows_? = Selection(doc).all(".content-row a.content-title").get.map(_.map { a => (a.text, a.attr("abs:href") + "/read") })
+			val rows_? = SelectionV1(doc).all(".content-row a.content-title").get.map(_.map { a => (a.text, a.attr("abs:href") + "/read") })
 
 			val pairs = append(withGood(currentName_?, currentUrl_?) { _ zip _ }.recover(_ => Nil), rows_?)
 

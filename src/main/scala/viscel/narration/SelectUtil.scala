@@ -8,7 +8,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.compat.v1.Story.More.Kind
 import viscel.compat.v1.Story.{Asset, Chapter, More}
-import viscel.compat.v1.{Story, ViscelUrl}
+import viscel.compat.v1.{SelectionV1, Story, ViscelUrl}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.Set
@@ -29,23 +29,23 @@ object SelectUtil {
 			getAttr(img, "width") ++
 			getAttr(img, "height")).toMap))
 
-	def queryImage(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).unique(query).wrapEach(imgIntoAsset)
-	def queryImages(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = Selection(from).many(query).wrapEach(imgIntoAsset)
-	def queryImageInAnchor(query: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = Selection(from).unique(query).wrapFlat { image =>
+	def queryImage(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = SelectionV1(from).unique(query).wrapEach(imgIntoAsset)
+	def queryImages(query: String)(from: Element): List[Asset] Or Every[ErrorMessage] = SelectionV1(from).many(query).wrapEach(imgIntoAsset)
+	def queryImageInAnchor(query: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = SelectionV1(from).unique(query).wrapFlat { image =>
 		imgIntoAsset(image).map(_ :: elementIntoPointer(pagetype)(image.parent()).toOption.toList)
 	}
-	def queryNext(query: String, pagetype: Kind)(from: Element): List[More] Or Every[ErrorMessage] = Selection(from).all(query).wrap(selectNext(pagetype))
+	def queryNext(query: String, pagetype: Kind)(from: Element): List[More] Or Every[ErrorMessage] = SelectionV1(from).all(query).wrap(selectNext(pagetype))
 	def queryImageNext(imageQuery: String, nextQuery: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
 		append(queryImage(imageQuery)(from), queryNext(nextQuery, pagetype)(from))
 	}
 	def queryMixedArchive(query: String, pagetype: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
-		Selection(from).many(query).wrapEach { elem =>
+		SelectionV1(from).many(query).wrapEach { elem =>
 			if (elem.tagName() === "a") elementIntoPointer(pagetype)(elem)
 			else extract { Chapter(elem.text()) }
 		}
 	}
 	def queryChapterArchive(query: String, pagetye: Kind)(from: Element): List[Story] Or Every[ErrorMessage] = {
-		Selection(from).many(query).wrapFlat(elementIntoChapterPointer(pagetye))
+		SelectionV1(from).many(query).wrapFlat(elementIntoChapterPointer(pagetye))
 	}
 
 

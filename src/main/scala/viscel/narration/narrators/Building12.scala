@@ -3,11 +3,11 @@ package viscel.narration.narrators
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{ErrorMessage, Every, Good, Or}
-import viscel.compat.v1.Story
+import viscel.compat.v1.{SelectionV1, Story}
 import viscel.compat.v1.Story.More.{Archive, Kind, Page}
 import viscel.compat.v1.Story.{Chapter, More}
 import viscel.narration.SelectUtil._
-import viscel.narration.{NarratorV1, Selection}
+import viscel.narration.NarratorV1
 
 import scala.Predef.augmentString
 import scala.language.implicitConversions
@@ -20,8 +20,8 @@ object Building12 extends NarratorV1 {
 	def name: String = "Building 12"
 
 	def wrapIssue(doc: Document): Or[List[Story], Every[ErrorMessage]] = {
-		val elements_? = Selection(doc).many("a[href~=issue\\d+/.*\\.htm$]:has(img)").wrapEach { anchor =>
-			val element_? = Selection(anchor).unique("img").wrapOne { imgIntoAsset }
+		val elements_? = SelectionV1(doc).many("a[href~=issue\\d+/.*\\.htm$]:has(img)").wrapEach { anchor =>
+			val element_? = SelectionV1(anchor).unique("img").wrapOne { imgIntoAsset }
 			val origin_? = extractUri(anchor)
 			withGood(element_?, origin_?) { (element, origin) =>
 				element.copy(
@@ -34,7 +34,7 @@ object Building12 extends NarratorV1 {
 	}
 
 	def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
-		case Archive => Selection(doc).many("a[href~=issue\\d+\\.htm$]").wrapEach(elementIntoPointer(Page))
+		case Archive => SelectionV1(doc).many("a[href~=issue\\d+\\.htm$]").wrapEach(elementIntoPointer(Page))
 		case Page => wrapIssue(doc)
 	})
 }
