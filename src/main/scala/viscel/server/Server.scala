@@ -53,7 +53,7 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 			complete(pages.landing)
 		} ~
 			path("stop") {
-				if (!user.isAdmin) reject
+				if (!user.admin) reject
 				else complete {
 					Future {
 						spray.util.actorSystem.shutdown()
@@ -140,7 +140,7 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 //				}
 //			} ~
 			path("reload") {
-				if (!user.isAdmin) reject
+				if (!user.admin) reject
 				else complete {
 					Narrators.update()
 					"done"

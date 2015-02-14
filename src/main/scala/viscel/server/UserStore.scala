@@ -26,7 +26,7 @@ class UserStore(implicit ec: ExecutionContext) {
 				case Bad(e) =>
 					Log.warn(s"could not open user $name: $e")
 					val firstUser = Users.all().fold(_.isEmpty, _ => false)
-					User(name, password, isAdmin = firstUser, Map())
+					User(name, password, admin = firstUser, Map())
 			}))
 
 	val loginOrCreate = BasicAuth(UserPassAuthenticator[User] {

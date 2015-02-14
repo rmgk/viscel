@@ -6,16 +6,18 @@ import java.nio.file.{Files, Path}
 import org.scalactic.Accumulation._
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
 import viscel.Viscel
-import viscel.shared.JsonCodecs.{case4RW, stringMapR, stringMapW}
-import viscel.shared.ReaderWriter
+import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 object Users {
 
-	val usersDir: Path = Viscel.basepath.resolve(s"users")
+	// these are here just so intellij does not get confused and thinks they are unused
+	// they are necessary to correctly read and write Users, but only inside some implicit macros …
+	stringMapW[Int]
+	stringMapR[Int]
 
-	implicit val userRW: ReaderWriter[User] = case4RW(User.apply, User.unapply)("id", "password", "admin", "bookmarks")
+	val usersDir: Path = Viscel.basepath.resolve(s"users")
 
 	def all(): List[User] Or Every[ErrorMessage] = try {
 		if (!Files.isDirectory(usersDir)) Good(Nil)

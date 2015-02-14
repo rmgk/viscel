@@ -40,7 +40,6 @@ object Settings {
 
 		version := "5.11.0",
 		scalaVersion := "2.11.5",
-		SourceGeneration.caseCodecs,
 
 		scalacOptions ++= (
 			"-deprecation" ::
@@ -179,49 +178,6 @@ object Libraries {
 
 
 object SourceGeneration {
-	val caseCodecs = sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
-		val file = dir / "viscel" / "generated" / "UpickleCodecs.scala"
-		def sep(l: Seq[String]) = l.mkString(", ")
-		val definitions = (1 to 22).map { i =>
-			val nameList = 1 to i map ("n" + _)
-			def types(app: String) = sep(1 to i map ("I" + _ + app))
-			val writeJSs = if (i == 1) "n1 -> writeJs(a)"
-			else sep(nameList.zip(1 to i).map { case (p, j) => s"$p -> writeJs(a._$j)" })
-			val readUnapply = sep(nameList.zip(1 to i).map { case (p, j) => s"(`$p`, a$j)" })
-			val readJSs = sep(1 to i map { j => s"readJs[I$j](a$j)" })
-			val names = sep(nameList map (_ + ": String"))
-
-
-			s"""def case${ i }R[T, ${ types(":R") }](read: (${ types("") }) => T)($names): R[T] = R[T] {
-				 |case Js.Obj($readUnapply) => read($readJSs)
-				 |}
-				 |
-				 |def case${ i }W[T, ${ types(":W") }](write: T => Option[(${ types("") })])($names): W[T] = W[T] { t: T =>
-				 |val a = write(t).get
-				 |Js.Obj($writeJSs)
-				 |}
-				 |
-				 |def case${ i }RW[T, ${ types(":R:W") }](read: (${ types("") }) => T, write: T => Option[(${ types("") })])($names): ReaderWriter[T] = {
-				 |ReaderWriter(case${ i }R(read)(${ sep(nameList) }), case${ i }W(write)(${ sep(nameList) }))
-				 |}
-				 |""".stripMargin
-
-		}
-		IO.write(file,
-			s"""
-			|package viscel.generated
-			|
-			|import upickle.{Js, Reader => R, Writer => W, writeJs, readJs}
-			|import viscel.shared.ReaderWriter
-			|import scala.Predef.ArrowAssoc
-			|import scala.collection.immutable.Map
-			|trait UpickleCodecs {
-			|${ definitions.mkString("\n") }
-			|}
-			|""".stripMargin)
-		Seq(file)
-	}
-
 	val neoCodecs = sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
 		val file = dir / "viscel" / "generated" / "NeoCodecs.scala"
 		def sep(l: Seq[String]) = l.mkString(", ")
