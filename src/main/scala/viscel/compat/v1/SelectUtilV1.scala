@@ -1,4 +1,4 @@
-package viscel.narration
+package viscel.compat.v1
 
 import java.net.URL
 
@@ -8,7 +8,6 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.compat.v1.Story.More.Kind
 import viscel.compat.v1.Story.{Asset, Chapter, More}
-import viscel.compat.v1.{SelectionV1, Story, ViscelUrl}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.Set

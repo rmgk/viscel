@@ -4,8 +4,8 @@ import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Archive, Kind, Page, Unused}
-import viscel.compat.v1.{Story, ViscelUrl}
-import viscel.narration.SelectUtilV1.storyFromOr
+import viscel.compat.v1.{SelectUtilV1, Story, ViscelUrl}
+import SelectUtilV1.storyFromOr
 
 object Templates {
 	def AP(

@@ -2,10 +2,10 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Good
-import viscel.compat.v1.{SelectionV1, Story}
+import viscel.compat.v1.{SelectUtilV1, SelectionV1, Story}
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Archive, Issue, Kind, Page}
-import viscel.narration.SelectUtilV1.{elementIntoChapterPointer, elementIntoPointer, queryImage, queryImageInAnchor, storyFromOr, stringToVurl}
+import SelectUtilV1.{elementIntoChapterPointer, elementIntoPointer, queryImage, queryImageInAnchor, storyFromOr, stringToVurl}
 import viscel.narration.NarratorV1
 
 object NamirDeiter extends NarratorV1 {

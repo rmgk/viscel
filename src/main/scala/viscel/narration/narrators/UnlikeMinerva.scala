@@ -2,10 +2,10 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation.withGood
-import viscel.compat.v1.{SelectionV1, Story}
+import viscel.compat.v1.{SelectUtilV1, SelectionV1, Story}
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Kind, Unused}
-import viscel.narration.SelectUtilV1.{extract, imgIntoAsset, storyFromOr, stringToVurl}
+import SelectUtilV1.{extract, imgIntoAsset, storyFromOr, stringToVurl}
 import viscel.narration.NarratorV1
 
 object UnlikeMinerva extends NarratorV1 {

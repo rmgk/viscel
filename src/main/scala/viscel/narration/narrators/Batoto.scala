@@ -4,8 +4,8 @@ import org.jsoup.nodes.Document
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.compat.v1.Story.More.{Kind, Page}
 import viscel.compat.v1.Story.{Chapter, More}
-import viscel.compat.v1.{SelectionV1, Story, ViscelUrl}
-import viscel.narration.SelectUtilV1.{append, elementIntoPointer, imgIntoAsset, selectNext, storyFromOr, stringToVurl}
+import viscel.compat.v1.{SelectUtilV1, SelectionV1, Story, ViscelUrl}
+import SelectUtilV1.{append, elementIntoPointer, imgIntoAsset, selectNext, storyFromOr, stringToVurl}
 import viscel.narration.NarratorV1
 
 import scala.collection.immutable.Set

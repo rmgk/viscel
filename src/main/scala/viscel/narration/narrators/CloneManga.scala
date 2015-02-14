@@ -3,10 +3,10 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.compat.v1.{SelectionV1, Story}
+import viscel.compat.v1.{SelectUtilV1, SelectionV1, Story}
 import viscel.compat.v1.Story.More
 import viscel.compat.v1.Story.More.{Kind, Page, Unused}
-import viscel.narration.SelectUtilV1._
+import SelectUtilV1._
 import viscel.narration.NarratorV1
 
 import scala.collection.immutable.Set
