@@ -106,14 +106,14 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 					}
 				}
 			} ~
-//			path("stats") {
-//				complete {
-//					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
-//						.ask(Http.GetStats)(1.second)
-//						.mapTo[Stats]
-//					stats.map { s => neo.tx { ServerPages.stats(s)(_) } }
-//				}
-//			} ~
+			path("stats") {
+				complete {
+					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
+						.ask(Http.GetStats)(1.second)
+						.mapTo[Stats]
+					stats map pages.stats
+				}
+			} ~
 //			path("export" / Segment) { (id) =>
 //				if (!user.isAdmin) reject
 //				else onComplete(Future(ReplUtil.export(id))) {

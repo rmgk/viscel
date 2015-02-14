@@ -1,21 +1,23 @@
 package viscel.server
 
+import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
 import viscel.Log
 import viscel.narration.Narrators
 import viscel.scribe.Scribe
-import viscel.scribe.database.Neo
-import viscel.scribe.narration.{ Asset => SAsset, Page}
+import viscel.scribe.database.{Neo, label}
+import viscel.scribe.narration.{Asset => SAsset, Page}
 import viscel.shared.JsonCodecs.stringMapW
-import viscel.shared.{Description, Chapter, Article, Content, Gallery}
+import viscel.shared.{Article, Chapter, Content, Description, Gallery}
 import viscel.store.User
 
+import scala.Predef.ArrowAssoc
+import scala.collection.immutable.Map
 import scalatags.Text.attrs.{`type`, content, href, name, rel, src, title}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, head, html, link, meta, script}
 import scalatags.Text.{Modifier, RawFrag}
-
 
 class ServerPages(scribe: Scribe) {
 
@@ -28,7 +30,7 @@ class ServerPages(scribe: Scribe) {
 			case None => findExisting(id)
 			case Some(nar) => Some(findAndUpdate(nar))
 		}).map(book => {
-			val content: (Int, List[Article], List[Chapter])= book.pages().reverse.foldLeft((0, List[Article](), List[Chapter]())) {
+			val content: (Int, List[Article], List[Chapter]) = book.pages().reverse.foldLeft((0, List[Article](), List[Chapter]())) {
 				case (state@(pos, assets, chapters), Page(SAsset(source, origin, 0, data), blob)) =>
 					val asset = Article(
 						source = source map (_.toString),
@@ -84,24 +86,25 @@ class ServerPages(scribe: Scribe) {
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-	//	def stats(stats: Stats)(implicit ntx: Ntx): HttpResponse = jsonResponse {
-	//		val cn = Config.get()
-	//		Map[String, Long](
-	//			"Downloaded" -> cn.downloaded,
-	//			"Downloads" -> cn.downloads,
-	//			"Compressed downloads" -> cn.downloadsCompressed,
-	//			"Failed downloads" -> cn.downloadsFailed,
-	//			"Narrations" -> ntx.nodes(label.Collection).size,
-	//			"Chapters" -> ntx.nodes(label.Chapter).size,
-	//			"Assets" -> ntx.nodes(label.Asset).size,
-	//			"Uptime" -> stats.uptime.toSeconds,
-	//			"Total requests" -> stats.totalRequests,
-	//			"Open requests" -> stats.openRequests,
-	//			"Max open requests" -> stats.maxOpenRequests,
-	//			"Total connections" -> stats.totalConnections,
-	//			"Open connections" -> stats.openConnections,
-	//			"Max open connections" -> stats.maxOpenConnections,
-	//			"Requests timed out" -> stats.requestTimeouts)
-	//	}
+	def stats(stats: Stats): HttpResponse = jsonResponse {
+		val cn = scribe.cfg
+		scribe.neo.tx { implicit ntx =>
+			Map[String, Long](
+				"Downloaded" -> cn.downloaded,
+				"Downloads" -> cn.downloads,
+				"Compressed downloads" -> cn.downloadsCompressed,
+				"Failed downloads" -> cn.downloadsFailed,
+				"Books" -> ntx.nodes(label.Book).size,
+				"Assets" -> ntx.nodes(label.Asset).size,
+				"Uptime" -> stats.uptime.toSeconds,
+				"Total requests" -> stats.totalRequests,
+				"Open requests" -> stats.openRequests,
+				"Max open requests" -> stats.maxOpenRequests,
+				"Total connections" -> stats.totalConnections,
+				"Open connections" -> stats.openConnections,
+				"Max open connections" -> stats.maxOpenConnections,
+				"Requests timed out" -> stats.requestTimeouts)
+		}
+	}
 
 }
