@@ -13,6 +13,7 @@ import spray.http.{HttpEncodings, HttpResponse}
 import viscel.scribe.crawl.{Crawler, CrawlerUtil}
 import viscel.scribe.database.{Books, Neo, NeoInstance, label}
 import viscel.scribe.narration.Narrator
+import viscel.scribe.store.Config.ConfigNode
 import viscel.scribe.store.{BlobStore, Config}
 
 import scala.collection.concurrent
@@ -63,7 +64,14 @@ object Scribe {
 
 		val blobs = new BlobStore(basedir.resolve("blobs"))
 
-		new Scribe(basedir, neo, iopipe, executionContext, blobs, new CrawlerUtil(blobs, responseHandler))
+		new Scribe(
+			basedir = basedir,
+			neo = neo,
+			sendReceive = iopipe,
+			ec = executionContext,
+			blobs = blobs,
+			util= new CrawlerUtil(blobs, responseHandler),
+			cfg = configNode)
 	}
 
 }
@@ -74,7 +82,8 @@ class Scribe(
 	val sendReceive: SendReceive,
 	val ec: ExecutionContext,
 	val blobs: BlobStore,
-	val util: CrawlerUtil
+	val util: CrawlerUtil,
+	val cfg: ConfigNode
 ) {
 
 	val books = new Books(neo)
