@@ -75,6 +75,8 @@ object Viscel {
 			Deeds.narratorHint = (narrator, force) => {
 				scribe.runForNarrator(narrator)
 			}
+
+			new Clockwork(basepath.resolve("data").resolve("updateTimes.json"), scribe).recheckPeriodically()
 		}
 
 		if (shutdown.?) {
