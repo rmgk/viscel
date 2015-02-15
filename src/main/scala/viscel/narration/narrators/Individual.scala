@@ -285,10 +285,4 @@ object Individual {
 			}
 	}
 
-
-
-	val cores = Set(Building12, Candi, Flipside, Inverloch, JayNaylor.BetterDays, JayNaylor.OriginalLife,
-		KeyShanShan.Key, KeyShanShan.ShanShan, MenageA3, Misfile, NamirDeiter, Twokinds, YouSayItFirst,
-		UnlikeMinerva)
-
 }

@@ -6,6 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Data.{Article, Chapter}
 import viscel.narration.Queries._
 import viscel.narration.Templates.{AP, SF}
+import viscel.narration.narrators.Individual._
 import viscel.narration.narrators._
 import viscel.scribe.narration.SelectMore._
 import viscel.scribe.narration.{More, Narrator, Selection}
@@ -24,8 +25,9 @@ object Narrators {
 			PetiteSymphony.cores ++
 			Snafu.cores ++
 			CloneManga.cores ++
-			Individual.cores ++
-			Set()
+			Set(Building12, Candi, Flipside, Inverloch, JayNaylor.BetterDays, JayNaylor.OriginalLife,
+				KeyShanShan.Key, KeyShanShan.ShanShan, MenageA3, Misfile, NamirDeiter, Twokinds, YouSayItFirst,
+				UnlikeMinerva)
 
 	def calculateAll() = staticV2 ++ Metarrators.cores() ++ Vid.load()
 
