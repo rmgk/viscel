@@ -10,7 +10,7 @@ import scala.collection.Set
 import scala.concurrent.Future
 
 object Metarrators {
-	val metas: List[Metarrator[_ <: Narrator]] = MangaHere.MetaCore :: Fakku.Meta :: Mangafox.Meta :: Nil
+	val metas: List[Metarrator[_ <: Narrator]] = MangaHere.MetaCore :: Fakku.Meta :: Mangafox.Meta :: Comicfury.Meta :: Nil
 
 	def cores(): Set[Narrator] = synchronized(metas.iterator.flatMap[Narrator](_.load()).toSet)
 

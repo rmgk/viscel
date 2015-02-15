@@ -45,7 +45,7 @@ object Mangafox {
 			val rex"^http://mangafox.me/manga/($id[^/]+)/" = doc.baseUri()
 			name_?.map(name => {
 				val nname = name.replaceAll("\\s+Manga$", "").replaceAll("\\s+Manhwa$", "")
-				Mfox(s"Mangafox_$id", nname, doc.baseUri()) :: Nil})
+				Mfox(s"Mangafox_$id", s"[MF] $nname", doc.baseUri()) :: Nil})
 		}
 	}
 }

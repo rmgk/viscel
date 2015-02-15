@@ -3,7 +3,7 @@ package viscel.narration
 import java.net.URL
 
 import org.jsoup.nodes.Document
-import org.scalactic.{ErrorMessage, Every, Or}
+import org.scalactic.{Every, Or}
 import upickle.{Reader, Writer}
 import viscel.scribe.narration.Narrator
 import viscel.scribe.report.Report
