@@ -5,7 +5,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.narration.Data.Chapter
 import viscel.scribe.narration.SelectMore._
-import viscel.scribe.narration.{Asset, More, Selection, Story}
+import viscel.scribe.narration.{Policy, Asset, More, Selection, Story}
 import viscel.scribe.report.Report
 import viscel.scribe.report.ReportTools.{append, extract}
 
@@ -57,6 +57,11 @@ object Queries {
 	def moreData[B](or: List[Story] Or B, data: String): List[Story] Or B = or.map(_.map {
 		case More(loc, policy, Nil) => More(loc, policy, data :: Nil)
 		case m@More(_, _, _) => throw new IllegalArgumentException(s"tried to add '$data' to $m")
+		case o => o
+	})
+
+	def morePolicy[B](or: List[Story] Or B, policy: Policy): List[Story] Or B = or.map(_.map{
+		case More(loc, _, data) => More(loc, policy, data)
 		case o => o
 	})
 
