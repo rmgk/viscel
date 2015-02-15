@@ -1,27 +1,19 @@
 package viscel.narration.narrators
 
-import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.compat.v1.Story.More
-import viscel.compat.v1.Story.More.{Archive, Kind, Page}
-import viscel.compat.v1.{NarratorV1, SelectUtilV1, SelectionV1, Story, ViscelUrl}
-import SelectUtilV1._
+import viscel.narration.{Queries, Templates}
+import viscel.scribe.narration.SelectMore.{extractMore, stringToURL}
+import viscel.scribe.narration.Selection
 
 import scala.collection.immutable.Set
 
 
 object Snafu {
 
-	case class Snar(override val id: String, override val name: String, start: ViscelUrl) extends NarratorV1 {
-		def archive = More(start, Archive) :: Nil
-
-		def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(kind match {
-			case Archive => SelectionV1(doc).unique(".pagecontentbox").many("a").wrap { anchors =>
-				anchors.reverse.validatedBy(elementIntoPointer(Page))
-			}
-			case Page => queryImage("img[src~=comics/\\d{6}]")(doc)
-		})
-	}
+	def Snar(id: String, name: String, start: String) = Templates.AP(id, name, start,
+		Selection(_).unique(".pagecontentbox").many("a").wrap { _.reverse.validatedBy(extractMore) },
+		Queries.queryImage("img[src~=comics/\\d{6}]")
+	)
 
 	def cores = Set(
 		("tw", "Training Wheels", "http://tw.snafu-comics.com/archive.php"),

@@ -18,7 +18,6 @@ import viscel.scribe.report.ReportTools._
 object Narrators {
 
 	private val staticV1 =
-		Snafu.cores ++
 		CloneManga.cores ++
 		Set(Flipside, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
@@ -30,6 +29,7 @@ object Narrators {
 		KatBox.cores ++
 		Batoto.cores ++
 		PetiteSymphony.cores ++
+		Snafu.cores ++
 		Set()
 
 	def calculateAll() = staticV1.map(new NarratorV1Adapter(_): Narrator) ++ staticV2 ++ Metarrators.cores() ++ Vid.load()
