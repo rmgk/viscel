@@ -1,14 +1,15 @@
 package viscel.narration.narrators
 
-import viscel.compat.v1.{NarratorV1, TemplatesV1, SelectUtilV1}
-import viscel.compat.v1.Story.More.Unused
-import SelectUtilV1._
+import viscel.narration.Queries.queryImageNext
+import viscel.narration.Templates
+import viscel.scribe.narration.Narrator
+import viscel.scribe.narration.SelectMore.stringToURL
 
 import scala.collection.immutable.Set
 
 object PetiteSymphony {
 
-	def cores: Set[NarratorV1] = Set(
+	def cores: Set[Narrator] = Set(
 		("goyoku", "Rascals Goyoku", "http://goyoku.petitesymphony.com/comic/goyoku-prologue1/"),
 		("generation17", "Generation 17", "http://generation17.petitesymphony.com/comic/cover"),
 		("seed", "Seed", "http://seed.petitesymphony.com/comic/seedchapter1"),
@@ -22,6 +23,6 @@ object PetiteSymphony {
 		("remnantsonata", "Remnant Sonata", "http://remnantsonata.petitesymphony.com/comic/rs-pg1/"),
 		("ladycrimson", "Lady Crimson", "http://ladycrimson.petitesymphony.com/comic/ladycrimson_cover/"),
 		("yearofthecow", "Year of the Cow", "http://yearofthecow.petitesymphony.com/comic/yotc-cover/")
-	).map { case (id, name, start) => TemplatesV1.SF(s"PetiteSymphony_$id", name, start, queryImageNext("#comic-1 img", "a.navi.navi-next", Unused)) }
+	).map { case (id, name, start) => Templates.SF(s"PetiteSymphony_$id", name, start, queryImageNext("#comic-1 img", "a.navi.navi-next")) }
 
 }

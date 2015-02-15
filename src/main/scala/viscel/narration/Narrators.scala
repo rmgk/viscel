@@ -18,7 +18,6 @@ import viscel.scribe.report.ReportTools._
 object Narrators {
 
 	private val staticV1 =
-		PetiteSymphony.cores ++
 		WordpressEasel.cores ++
 		Batoto.cores ++
 		Snafu.cores ++
@@ -29,6 +28,7 @@ object Narrators {
 			KeyShanShan.Key, KeyShanShan.ShanShan)
 
 	private val staticV2 =
+		PetiteSymphony.cores ++
 		inlineCores ++
 		KatBox.cores ++
 		Set()
