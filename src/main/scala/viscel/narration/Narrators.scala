@@ -17,12 +17,6 @@ import scala.collection.immutable.Set
 
 object Narrators {
 
-	private val staticV1 =
-		Set(Flipside, CitrusSaburoUta, Misfile,
-			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
-			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter,
-			KeyShanShan.Key, KeyShanShan.ShanShan)
-
 	private val staticV2 =
 		inlineCores ++
 			KatBox.cores ++
@@ -30,9 +24,10 @@ object Narrators {
 			PetiteSymphony.cores ++
 			Snafu.cores ++
 			CloneManga.cores ++
+			Individual.cores ++
 			Set()
 
-	def calculateAll() = staticV1.map(new NarratorV1Adapter(_): Narrator) ++ staticV2 ++ Metarrators.cores() ++ Vid.load()
+	def calculateAll() = staticV2 ++ Metarrators.cores() ++ Vid.load()
 
 	def update() = {
 		cached = calculateAll()

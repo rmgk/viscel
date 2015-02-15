@@ -4,7 +4,7 @@ import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
 import viscel.Log
-import viscel.narration.{AssetKind, Narrators}
+import viscel.narration.{Data, AssetKind, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.database.{Neo, label}
 import viscel.scribe.narration.{Asset => SAsset, Page}
@@ -31,7 +31,7 @@ class ServerPages(scribe: Scribe) {
 				Some(Article(
 					source = source map (_.toString),
 					origin = origin map (_.toString),
-					data = data.sliding(2, 2).map(l => (l(0), l(1))).toMap,
+					data = Data.listToMap(data),
 					blob = blob map (_.sha1),
 					mime = blob map (_.mime)))
 			case _ => None
