@@ -3,23 +3,16 @@ package viscel.narration.narrators
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
-import viscel.compat.v1.{NarratorV1, SelectUtilV1, SelectionV1, Story}
-import viscel.compat.v1.Story.More
-import viscel.compat.v1.Story.More.{Kind, Page, Unused}
-import SelectUtilV1._
+import viscel.narration.{Queries, Templates}
+import viscel.scribe.narration.Selection
+import viscel.scribe.narration.SelectMore._
 
 import scala.collection.immutable.Set
 
 object CloneManga {
 
-	case class Clone(id: String, name: String, start: String) extends NarratorV1 {
-		override def archive = More(start, Unused) :: Nil
-		override def wrap(doc: Document, kind: Kind): List[Story] = storyFromOr(SelectionV1(doc).unique(".subsectionContainer").wrapOne { container =>
-			val next_? = SelectionV1(container).optional("> a:first-child").wrap(selectNext(Page))
-			val img_? = SelectionV1(container).unique("img").wrapOne(imgIntoAsset)
-			withGood(img_?, next_?)(_ :: _)
-		})
-	}
+	def Clone(id: String, name: String, start: String)= Templates.SF(id, name, start,
+	Queries.queryImageNext(".subsectionContainer img", ".subsectionContainer > a:first-child"))
 
 	def cores = Set(
 		("graveyard_snax", "Vampire Bride", "http://manga.clone-army.org/viewer.php?lang=english&series=graveyard_snax&page=1"),

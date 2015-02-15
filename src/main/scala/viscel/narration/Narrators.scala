@@ -4,21 +4,20 @@ import org.scalactic.Accumulation.{convertGenTraversableOnceToCombinable, withGo
 import org.scalactic.Good
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Data.{Article, Chapter}
+import viscel.narration.Queries._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators._
-import viscel.scribe.narration.{More, Selection, Narrator}
+import viscel.scribe.narration.SelectMore._
+import viscel.scribe.narration.{More, Narrator, Selection}
+import viscel.scribe.report.ReportTools._
 
 import scala.Predef.{$conforms, ArrowAssoc, augmentString}
 import scala.collection.immutable.Set
-import viscel.narration.Queries._
-import viscel.scribe.narration.SelectMore._
-import viscel.scribe.report.ReportTools._
 
 
 object Narrators {
 
 	private val staticV1 =
-		CloneManga.cores ++
 		Set(Flipside, CitrusSaburoUta, Misfile,
 			Twokinds, JayNaylor.BetterDays, JayNaylor.OriginalLife, MenageA3,
 			Building12, Candi, YouSayItFirst, Inverloch, UnlikeMinerva, NamirDeiter,
@@ -26,11 +25,12 @@ object Narrators {
 
 	private val staticV2 =
 		inlineCores ++
-		KatBox.cores ++
-		Batoto.cores ++
-		PetiteSymphony.cores ++
-		Snafu.cores ++
-		Set()
+			KatBox.cores ++
+			Batoto.cores ++
+			PetiteSymphony.cores ++
+			Snafu.cores ++
+			CloneManga.cores ++
+			Set()
 
 	def calculateAll() = staticV1.map(new NarratorV1Adapter(_): Narrator) ++ staticV2 ++ Metarrators.cores() ++ Vid.load()
 
