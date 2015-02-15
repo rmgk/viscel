@@ -9,26 +9,6 @@
 
 
 
-# comic groups to look into
-
-|       group        |                     url                      |
-| ------------------ | -------------------------------------------- |
-| ♦ Big Head Press   | <http://www.bigheadpress.com/>               |
-| ♦ Smack Jeeves     | <http://www.smackjeeves.com>                 |
-| ♦ Webcomics Nation | <http://www.webcomicsnation.com/>            |
-| ✘ Graphic Smash    | <http://www.graphicsmash.com/>               |
-| ✘ transmission-x   | <http://www.transmission-x.com/>             |
-| ✔ Clone Manga      | <http://manga.clone-army.org/index.php>      |
-| ✔ Petite Symphony  | <http://petitesymphony.com/>                 |
-| ♦ Rice Boy         | <http://www.rice-boy.com/>                   |
-| ♦ WLP              | <http://www.wlpcomics.com/adult/comics.html> |
-| ✘ Moderntales      | <http://www.moderntales.com/>                |
-| ♦ Comic Fury       | <http://comicfury.com/index.php>             |
-| ✘ Mangamagazine    | <http://www.mangamagazine.net/>              |
-| ✔ reveriecomics    | <http://reveriecomics.com/>                  |
-|                    |                                              |
-
-
 # comics with multiple strips
 
 |       comic        |                                url                                 |
@@ -63,3 +43,32 @@
 | ---------------------- | ------------------- | --------------------------------------------------- |
 | Universal_Key          | page layout changes | <http://key.shadilyn.com/pages/085.html>            |
 | Drowtales Moonless Age | flash               | <http://www.drowtales.com/mainarchive.php?sid=4065> |
+
+# groups
+
+## look into
+
+|       group        |                url                |               comment               |
+| ------------------ | --------------------------------- | ----------------------------------- |
+| ♦ Rice Boy         | <http://www.rice-boy.com/>        | three non uniform comics            |
+| ♦ Smack Jeeves     | <http://www.smackjeeves.com>      | is a listing, but no uniform comics |
+| ♦ Big Head Press   | <http://www.bigheadpress.com/>    | some comics uniform some not        |
+| ♦ Webcomics Nation | <http://www.webcomicsnation.com/> | non uniform comics                  |
+| ♦ WLP              | <http://www.wlpcomics.com/>       | non uniform comics, listing         |
+|                    |                                   |                                     |
+
+#comicimage
+
+## done
+
+|       group       |                   url                   |           comment            |
+| ----------------- | --------------------------------------- | ---------------------------- |
+| ✔ Clone Manga     | <http://manga.clone-army.org/index.php> | complete list manually in v5 |
+| ✔ reveriecomics   | <http://reveriecomics.com/>             | all added individually in v5 |
+| ✔ Petite Symphony | <http://petitesymphony.com/>            | all added individually in v5 |
+| ✔ Comic Fury      | <http://comicfury.com/index.php>        | added metacore in v6.0       |
+| ✘ Graphic Smash   | <http://www.graphicsmash.com/>          | gone                         |
+| ✘ transmission-x  | <http://www.transmission-x.com/>        | gone                         |
+| ✘ Moderntales     | <http://www.moderntales.com/>           | gone                         |
+| ✘ Mangamagazine   | <http://www.mangamagazine.net/>         | gone                         |
+|                   |                                         |                              |
