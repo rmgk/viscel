@@ -15,7 +15,7 @@ object Config {
 		def download(size: Long, success: Boolean = true, compressed: Boolean = false)(implicit neo: Ntx): Unit = {
 			self.setProperty("stat_download_size", downloaded + size)
 			self.setProperty("stat_download_count", downloads + 1)
-			self.setProperty("stat_download_count_compressed", downloadsCompressed + 1)
+			if (compressed) self.setProperty("stat_download_count_compressed", downloadsCompressed + 1)
 			if (!success) self.setProperty("stat_download_failed", downloadsFailed + 1)
 		}
 
