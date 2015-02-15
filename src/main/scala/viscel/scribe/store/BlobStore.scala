@@ -12,7 +12,8 @@ class BlobStore(basedir: Path) {
 	def write(sha1: String, bytes: Array[Byte]): Unit = {
 		val path = hashToPath(sha1)
 		Files.createDirectories(path.getParent)
-		Files.write(path, bytes)
+		if (!Files.exists(path))
+			Files.write(path, bytes)
 	}
 
 	def write(bytes: Array[Byte]): String = {
