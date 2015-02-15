@@ -21,7 +21,7 @@ object Batoto {
 		doc => {
 			val pages_? = Selection(doc).first("#page_select").many("option:not([selected=selected])").wrapEach { extractMore }
 			val currentPage_? = wrapPage(doc)
-			val nextChapter_?  = Selection(doc).first(".moderation_bar").optional("a:has(img[title=Next Chapter])").wrap(selectMore)
+			val nextChapter_?  = morePolicy(Volatile, Selection(doc).first(".moderation_bar").optional("a:has(img[title=Next Chapter])").wrap(selectMore))
 			val chapter_?  = Selection(doc).first("select[name=chapter_select]").unique("option[selected=selected]").getOne.map(e => Data.Chapter(e.text) :: Nil)
 			append(chapter_?, currentPage_?, pages_?, nextChapter_?)
 		},
