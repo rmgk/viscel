@@ -5,7 +5,6 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{Every, Or}
-import viscel.Log
 import viscel.narration.Queries._
 import viscel.narration.{Data, Metarrator, Queries}
 import viscel.scribe.narration.SelectMore.{extractURL, stringToURL}
