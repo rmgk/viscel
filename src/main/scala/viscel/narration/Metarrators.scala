@@ -10,7 +10,7 @@ import scala.collection.Set
 import scala.concurrent.Future
 
 object Metarrators {
-	val metas: List[Metarrator[_ <: Narrator]] = MangaHere.MetaCore :: Fakku.Meta :: Nil
+	val metas: List[Metarrator[_ <: Narrator]] = MangaHere.MetaCore :: Fakku.Meta :: Mangafox.Meta :: Nil
 
 	def cores(): Set[Narrator] = synchronized(metas.iterator.flatMap[Narrator](_.load()).toSet)
 
@@ -19,7 +19,7 @@ object Metarrators {
 			scribe.sendReceive(scribe.util.request(url)).map { res =>
 				val nars = metarrator.wrap(scribe.util.parseDocument(url)(res)).get
 				synchronized {
-					metarrator.save((metarrator.load() ++ nars).toList)
+					metarrator.save((nars ++ metarrator.load()).toList)
 					Narrators.update()
 					nars
 				}

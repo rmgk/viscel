@@ -135,7 +135,7 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 				if (!user.admin) reject
 				else parameter('url.as[String]) { url =>
 					onComplete(Metarrators.add(url, scribe)) {
-						case Success(v) => complete(s"found ${ v.map(_.id) }")
+						case Success(v) => complete(s"found ${ v }")
 						case Failure(e) => complete { e.getMessage }
 					}
 				}
