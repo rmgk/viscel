@@ -17,7 +17,7 @@ object Batoto {
 
 	def create(id: String, name: String, start: String) = {
 		val wrapPage: Document => List[Story] Or Every[Report] = Selection(_).unique("#comic_page").wrapEach(imgIntoAsset)
-		Templates.AP(id, name, start,
+		Templates.AP(id, s"[BT] $name", start,
 		doc => {
 			val pages_? = Selection(doc).first("#page_select").many("option:not([selected=selected])").wrapEach { extractMore }
 			val currentPage_? = wrapPage(doc)
