@@ -18,7 +18,6 @@ import viscel.scribe.report.ReportTools._
 object Narrators {
 
 	private val staticV1 =
-		WordpressEasel.cores ++
 		Batoto.cores ++
 		Snafu.cores ++
 		CloneManga.cores ++

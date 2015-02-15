@@ -397,3 +397,7 @@ http://otakunoyen.com/?p=19
 :i #comic-1 > img
 :n #sidebar-undercomic a.navi.navi-next
 :url_replace http://otakunoyen.com/\?p=1079 ::: http://otakunoyen.com/?p=547
+
+-:Zombies and Fairytales
+http://166612.webhosting66.1blu.de/zaf_de/wordpress/comic/erster-eindruck/
+:ia #comic img
