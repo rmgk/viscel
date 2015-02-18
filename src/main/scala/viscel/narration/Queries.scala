@@ -79,6 +79,11 @@ object Queries {
 		case (a :: as, t) => (t :: a) :: as
 	}.map(_.reverse).reverse
 
+	def reverse(stories: List[Story]): List[Story] =
+		groupedOn(stories) { case Asset(_, _, AssetKind.chapter, _) => true; case _ => false }.reverse.flatMap {
+			case (h :: t) => h :: t.reverse
+			case Nil => Nil
+		}
 
 	implicit class RegexContext(val sc: StringContext) {
 		object rex {

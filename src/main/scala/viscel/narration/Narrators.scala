@@ -21,7 +21,6 @@ object Narrators {
 	private val staticV2 =
 		inlineCores ++
 			KatBox.cores ++
-			Batoto.cores ++
 			PetiteSymphony.cores ++
 			Snafu.cores ++
 			CloneManga.cores ++

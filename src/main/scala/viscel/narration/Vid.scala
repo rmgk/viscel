@@ -106,13 +106,7 @@ object Vid {
 			case _ => (pageFun, archFun)
 		}
 
-		val archFunRev = if (has("archiveReverse")) transform(archFunReplace) { stories =>
-			groupedOn(stories) { case Asset(_, _, AssetKind.chapter, _) => true; case _ => false }.reverse.flatMap {
-				case (h :: t) => h :: t.reverse
-				case Nil => Nil
-			}
-		}
-		else archFunReplace
+		val archFunRev = if (has("archiveReverse")) transform(archFunReplace)(reverse) else archFunReplace
 
 		(pageFunReplace, archFunRev) match {
 			case (Some(pf), None) => Good(Templates.SF(cid, name, startUrl, pf))
