@@ -7,7 +7,7 @@ import viscel.narration.Data.Chapter
 import viscel.scribe.narration.SelectMore._
 import viscel.scribe.narration.{Policy, Asset, More, Selection, Story}
 import viscel.scribe.report.Report
-import viscel.scribe.report.ReportTools.{append, extract}
+import viscel.scribe.report.ReportTools._
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.language.implicitConversions
@@ -28,6 +28,11 @@ object Queries {
 			getAttr(img, "width") ++
 			getAttr(img, "height")).toMap))
 
+	def extractChapter(elem: Element): Asset Or Every[Report] = extract {
+		def firstNotEmpty(choices: String*) = choices.find(!_.isEmpty).getOrElse("")
+		Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
+	}
+
 	def queryImage(query: String)(from: Element): List[Asset] Or Every[Report] = Selection(from).unique(query).wrapEach(imgIntoAsset)
 	def queryImages(query: String)(from: Element): List[Asset] Or Every[Report] = Selection(from).many(query).wrapEach(imgIntoAsset)
 	def queryImageInAnchor(query: String)(from: Element): List[Story] Or Every[Report] = Selection(from).unique(query).wrapFlat { image =>
@@ -40,7 +45,7 @@ object Queries {
 	def queryMixedArchive(query: String)(from: Element): List[Story] Or Every[Report] = {
 		Selection(from).many(query).wrapEach { elem =>
 			if (elem.tagName() === "a") extractMore(elem)
-			else extract { Chapter(elem.text()) }
+			else extractChapter(elem)
 		}
 	}
 	def queryChapterArchive(query: String)(from: Element): List[Story] Or Every[Report] = {
@@ -49,9 +54,7 @@ object Queries {
 
 	/** takes an element, extracts its uri and text and generates a description pointing to that chapter */
 	def elementIntoChapterPointer(chapter: Element): List[Story] Or Every[Report] =
-		extractMore(chapter).map { pointer =>
-			Chapter(chapter.text()) :: pointer :: Nil
-		}
+		combine(extractChapter(chapter), extractMore(chapter))
 
 
 	def moreData[B](or: List[Story] Or B, data: String): List[Story] Or B = or.map(_.map {
