@@ -62,11 +62,14 @@ object Viscel {
 		}
 
 		if (!nocore.?) {
-			Deeds.narratorHint = (narrator, force) => {
-				scribe.runForNarrator(narrator)
-			}
+			val cw = new Clockwork(basepath.resolve("data").resolve("updateTimes.json"), scribe)
 
-			new Clockwork(basepath.resolve("data").resolve("updateTimes.json"), scribe).recheckPeriodically()
+			Deeds.narratorHint = (narrator, force) => {
+				cw.runNarrator(narrator, if (force) 0 else cw.dayInMillis * 1)
+			}
+			cw.recheckPeriodically()
+
+
 		}
 
 		if (shutdown.?) {
