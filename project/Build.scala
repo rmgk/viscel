@@ -77,7 +77,6 @@ object Settings {
 	lazy val main: List[Def.Setting[_]] = common ++ List(
 
 		fork := true,
-		SourceGeneration.neoCodecs,
 
 		javaOptions ++=
 			"-verbose:gc" ::
@@ -152,48 +151,5 @@ object Libraries {
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.6" :: Nil)
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.8.0") :: Nil)
-
-}
-
-
-object SourceGeneration {
-	val neoCodecs = sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
-		val file = dir / "viscel" / "generated" / "NeoCodecs.scala"
-		def sep(l: Seq[String]) = l.mkString(", ")
-		val definitions = (1 to 22).map { i =>
-			val nameList = 1 to i map ("n" + _)
-			val types = sep(1 to i map ("I" + _))
-			val writeNodes = if (i == 1) "(n1, a)"
-			else sep(nameList.zip(1 to i).map { case (p, j) => s"($p, a._$j)" })
-			val readNodes = sep(nameList.zip(1 to i).map { case (p, j) => s"node.prop[I${ j }]($p)" })
-			val names = sep(nameList map (_ + ": String"))
-
-
-			s"""
-			|def case${ i }RW[T, $types](label: SimpleLabel, $names)(readf: ($types) => T, writef: T => ($types)): NeoCodec[T] = new NeoCodec[T] {
-			| override def read(node: Node)(implicit ntx: Ntx): T = readf($readNodes)
-			| override def write(value: T)(implicit ntx: Ntx): Node = {
-			|   val a = writef(value)
-			|   ntx.create(label, $writeNodes)
-			| }
-			|}
-			|""".stripMargin
-
-		}
-		IO.write(file,
-			s"""
-			|package viscel.generated
-			|
-			|import org.neo4j.graphdb.Node
-			|import viscel.compat.v1.database.Implicits.NodeOps
-			|import viscel.compat.v1.database.Ntx
-			|import viscel.compat.v1.database.label.SimpleLabel
-			|import viscel.compat.v1.database.NeoCodec
-			|object NeoCodecs {
-			|${ definitions.mkString("\n") }
-			|}
-			|""".stripMargin)
-		Seq(file)
-	}
 
 }

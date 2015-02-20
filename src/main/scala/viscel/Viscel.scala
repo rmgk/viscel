@@ -7,8 +7,6 @@ import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
 import spray.can.Http
-import viscel.compat.v1.Upgrader
-import viscel.compat.v1.database.NeoInstance
 import viscel.scribe.Scribe
 import viscel.server.Server
 
@@ -57,14 +55,6 @@ object Viscel {
 		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"), system,
 			ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])))
-
-
-		if (upgradedb.?) {
-			val neo = new NeoInstance(basepath.resolve(dbpath()).toString)
-			Upgrader.doUpgrade(scribe, neo)
-			neo.shutdown()
-		}
-
 
 		if (!noserver.?) {
 			val server = system.actorOf(Props(Predef.classOf[Server], scribe), "viscel-server")
