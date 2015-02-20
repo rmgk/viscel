@@ -410,9 +410,6 @@ object Individual {
 					Good(Article(source, origin))
 				}
 			}),
-		AP("NX_Amya", "Amya", "http://www.amyachronicles.com/archives",
-			Selection(_).many("a:has(img[src~=images/chap\\d+)").wrapFlat(elementIntoChapterPointer),
-			queryImageInAnchor("#comic img")),
 		AP("NX_ToiletGenie", "Toilet Genie", "http://www.storyofthedoor.com/archive/",
 			queryMixedArchive("#chapter_table td[colspan=4] a h2, #chapter_table a[onmouseout=hideddrivetip()]"),
 			queryImage("#comic_image")),

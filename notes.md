@@ -1,12 +1,20 @@
 # comics to look into
 
-|        name       |                    url                    |
-| ----------------- | ----------------------------------------- |
-| Destiny Fails Us  | <http://destinyfailsus.com/comics/first/> |
-| Nevermind the Gap | <http://nmg.thecomicseries.com/>          |
-| Cheer?            | <http://imgur.com/a/GTprX/>               |
-|                   |                                           |
+|        name       |                      url                       |
+| ----------------- | ---------------------------------------------- |
+| Destiny Fails Us  | <http://destinyfailsus.com/comics/first/>      |
+| Nevermind the Gap | <http://nmg.thecomicseries.com/>               |
+| Cheer?            | <http://imgur.com/a/GTprX/>                    |
+|                   |                                                |
 
+# multi layered archive
+
+| <http://www.intrepidgirlbot.com/archive/volume-1/> |
+| <http://guildedage.net/comic/chapter-1-cover/>     |
+
+# javascript
+| <http://www.deathbulge.com/comics/1> |
+|                                      |
 
 
 # comics with multiple strips
@@ -28,7 +36,6 @@
 | ----------- | ---------------------------------- | ------------------------------------------------------------------------------ |
 | AppleGeeks  | bad next                           | <http://www.applegeeks.com/comics/viewcomic.php?issue=1>                       |
 | CounterRose | bad html                           | <http://www.counter-rose.com/page.php?p=1>                                     |
-| Carciphona  | background hack                    | <http://carciphona.com/view.php?page=cover&chapter=1>                          |
 | DeadHeaven  | all images on one page, javascript | <http://www.deadheaven.net/start.html>                                         |
 | FreakAngels | later dude                         | <http://www.freakangels.com/?p=22&page=1>                                      |
 | DrMcNinja   | not today pal                      | <http://www.drmcninja.com/mcdonalds.html>                                      |
