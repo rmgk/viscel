@@ -1,18 +1,10 @@
 package viscel.narration
 
-import org.scalactic.Accumulation.{convertGenTraversableOnceToCombinable, withGood}
-import org.scalactic.Good
-import org.scalactic.TypeCheckedTripleEquals._
-import viscel.narration.Data.{Article, Chapter}
-import viscel.narration.Queries._
-import viscel.narration.Templates.{AP, SF}
 import viscel.narration.narrators.Individual._
 import viscel.narration.narrators._
-import viscel.scribe.narration.SelectMore._
-import viscel.scribe.narration.{More, Narrator, Selection}
-import viscel.scribe.report.ReportTools._
+import viscel.scribe.narration.Narrator
 
-import scala.Predef.{$conforms, ArrowAssoc, augmentString}
+import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.Set
 
 
