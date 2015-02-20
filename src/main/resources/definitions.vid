@@ -401,3 +401,296 @@ http://otakunoyen.com/?p=19
 -:Zombies and Fairytales
 http://166612.webhosting66.1blu.de/zaf_de/wordpress/comic/erster-eindruck/
 :ia #comic img
+
+-:Amya
+http://www.amyachronicles.com/archives/comic/09292009
+-- has an archive at http://www.amyachronicles.com/archives/
+-- but thats misses content
+:ia #comic img
+
+
+
+
+
+--------------------------------------------------------------------------------------
+--most of hiveworks http://www.thehiveworks.com/index.php is below
+--------------------------------------------------------------------------------------
+
+-:Lost Nightmare
+http://www.lostnightmare.com/archive.php
+:ac #bottommid > h2 > a
+:ia #comic
+
+-:The End
+http://www.endcomic.com/archives/
+:am #castcontainer:not(:contains(BONUS CONTENT)) #cast h3 , #castcontainer:not(:contains(BONUS CONTENT)) #cast a
+:i #comic img
+
+-:Short Packed!
+http://www.shortpacked.com/archive.php
+:ac #middle > div.textbox > h3 > a
+:ia #comic
+
+-:Johnny Wander
+http://www.johnnywander.com/comics/1
+:i #content-area > div.field.field-type-image.field-field-comic-image > div > div > img
+:n #content-area > div.comicnav > a:contains(next)
+
+-:Fanboys
+http://www.fanboys-online.com/index.php?id=483
+:i #comic
+:n #comicwrap a.next
+
+-:Love Not Found
+http://www.lovenotfound.com/archive.php
+:ac #pagebox > h2 > a
+:ia #comic
+
+-:Alice and the Nightmare
+http://www.aliceandthenightmare.com/index.php?id=2
+:ia #comic
+
+-:Hijinks Ensue Classic
+http://hijinksensue.com/comic/a-soul-as-black-as-eyeliner/
+:ia #comic img
+
+-:Hijinks Ensue
+http://hijinksensue.com/comic/who-is-your-daddy-and-what-does-he-do/
+:ia #comic img
+
+-:Lo-Fijinks (Hijinks Ensue)
+http://hijinksensue.com/comic/learning-to-love-again/
+:ia #comic img
+
+-:Headless Bliss
+http://www.headlessbliss.com/archive.php
+:ac #comicarea > div > h2 > a
+:ia #comic
+
+-:Platinum Black
+http://platinumblackcomic.com/archives/comic/chapter-1-cover
+:ia #comic img
+
+-:Scenes From A Mulitverse
+http://amultiverse.com/comic/2010/06/14/parenthood/
+:ia #comic img
+
+-:Nerf Now
+http://www.nerfnow.com/archives
+:am #archives > div.archives_month , #archives a
+:i #comic img
+:archiveReverse
+
+-:Heart Shaped Skull
+http://www.heartshapedskull.com/2002/10/31/working-through-the-negativity-cover/
+:ia #comic img
+
+-:Whomp
+http://www.whompcomic.com/2010/06/14/06142010/
+:ia #comic img
+
+-:Parallax
+http://www.parallaxcomic.com/archive.php
+:ac #comicwrap > div.pagetext > h2 > a
+:ia #comic
+
+-:The Lonely Vincent Bellingham
+http://www.lonelyvincent.com/archive.php
+:ac #comicarea > h2 > a
+:ia #comic
+
+-:Oh Joy Sex Toy
+http://www.ohjoysextoy.com/introduction/
+:i #comic img
+:n #sidebar-overcomic a.navi.navi-next
+
+-:Demon Aid
+http://demonaidcomic.com/index.php?id=14
+:ia #comic
+
+-:Mare Internvm
+http://www.marecomic.com/archive/
+:am #post-9 > div > section.entry-content h3 , #post-9 > div > section.entry-content a
+:i #comic img
+
+-:The Mash
+http://www.mashcomic.com/archive.php
+:ac #pagearea > h2 > a
+:ia #comic
+
+-:Metacarpolis
+http://www.metacarpolis.com/archive.php
+:ac #newscontent > h2 > a
+:ia #comic
+
+-:Cassiopeia Quinn
+http://www.cassiopeiaquinn.com/archive.php
+:ac #blogarea > h2 > a
+:ia #comic
+
+-:Harpy Gee
+http://www.harpygee.com/archive.php
+:ac #pagearea > h2 > a
+:ia #comic
+
+-:Namesake
+http://namesakecomic.com/archives/
+:am #castcontainer:not(:nth-last-child(2)) #chara h3 , #castcontainer:not(:nth-last-child(2)) #chara a
+:ia #comic img
+
+-:Vibe
+http://www.vibecomic.com/archive.php
+:ac #pagecontent a.charchive
+:ia #comic
+
+-:Astral Aves
+http://www.astralaves.com/archive.php
+:ac #pagearea > h2 > a
+:ia #comic
+
+-:Balderdash
+http://www.balderdashcomic.com/archive.php
+:am #comicwrap img[src~=/chapter[^/]+$] , #comicwrap a[href~=/index.php\?id=\d+$]
+:i #comic
+
+-:Flight of the Binturong
+http://www.flightofthebinturong.com/archives
+:am #innerwrap div[id~=Chapter] , #innerwrap div[id~=Chapter] div.pagethumb > a
+:i #comic > img
+
+-:Trying Human
+http://tryinghuman.com/archive.php
+:am #maincontent :matchesOwn(^(Chapter\s*\w+|Prologue)$) , #maincontent a
+:i #comic
+
+-:Zombie Roomie
+http://www.zombieroomie.com/2009/10/26/issues/
+:ia #comic img
+
+-:Jailbird
+http://an.oddlookingbird.com/archives/
+-- archive seems to miss the last couple pages
+:am #post-44 > div > h3 > span:matchesOwn(^\d+:) , #post-44 a:matchesOwn(^\d+$)
+:i #webcomic > div.webcomic-image img
+
+-:Basin Vale
+http://www.basinvale.com/index.php?id=1
+:ia #comic
+
+-:Helvetica
+http://helvetica.jnwiedle.com/2011/06/24/and-so-it-begins/
+:ia #comic img
+
+-:Tove
+http://www.tovecomic.com/archive.php
+:ac #textarea > h2 > a
+:ia #comic
+
+-:Blindsprings
+http://blindsprings.com/comic/000
+-- has an archive page here http://blindsprings.com/archive
+-- but that is in a weird order
+:ia #comic img
+
+-:Flora
+http://floraverse.com/comic/flora/archive/
+:am main > section > h1 , main > section a
+:i body > main > section.comic-page > div.comic-page-image-container > img
+
+-:Last Halloween
+http://www.last-halloween.com/posts
+:ac #categories-container .archive_category:not(:has(img[alt=8cff78e6f15bc04c379aa8d4e7a2698744af05eb]))  .archive_entry a
+:is #comics-container > div.comic-container > img
+
+-:Kiwi Blitz
+http://www.kiwiblitz.com/archive.php
+:ac #leftarea > center > p > a
+:ia #comic
+
+-: Agents of the Realms
+http://www.agentsoftherealm.com/archive.php
+:ac #comicgoeshere > h2 > a
+:ia #comic
+:url_replace (http://www.agentsoftherealm.com/index.php\?id=\d+)#comic ::: $1
+
+
+-:Beeserker
+http://www.beeserker.com/archives/
+:ac #storyline li[id~=storyline-chapter] > a
+:i #comic > img
+:n #comic_navi a.navi.navi-next
+
+-:Dumbing of Age
+http://www.dumbingofage.com/archive-2/
+:am li[id~=storyline-] , li[id~=storyline-] > div.storyline-description > a
+:ia #comic img
+
+-:God Slave
+http://www.megacarter.com/godslave/?comic=godslave-page-one
+:ia #comic img
+
+-:Atomic Robo
+http://www.atomic-robo.com/comics.php
+:ac #pagearea > h3 > a
+:ia #comic
+
+-:Paranatural
+http://www.paranatural.net/archive.php
+:ac #comicseg > div > div > p > a:has(img)
+:ia #comic
+
+-:Blaster Nation
+http://www.blasternation.com/archives.php
+:ac #leftside > div > h2 > a
+:ia #comic
+
+-:The Black Brick Road of OZ
+http://www.blackbrickroadofoz.com/archive.php
+:ac #newscontent > h2 > a
+:ia #comic img
+
+-:Girl Genius
+http://www.girlgeniusonline.com/comic.php?date=20021104
+:is #comicbody img[src~=^http://www.girlgeniusonline.com/ggmain/strips/|/ggmain/doublespreads/extrabits/spy_ads/spy]
+:n #bottomnext
+
+-:I am ARG!
+http://iamarg.com/2011/05/08/05082011/
+:i #comic-1 img
+:n #sidebar-undercomic a.navi.navi-next
+
+-:Meaty Yogurt
+http://rosalarian.com/meatyyogurt/archive-2/
+:ac .entry a
+:is #comic img
+:n #content > div.nav > div.nav-next > a
+
+-:Monster Pulse
+http://www.monster-pulse.com/comic/mppage1/
+-- archive at http://www.monster-pulse.com/chapter-list/
+-- but index is off and link http://www.monster-pulse.com/comic/page-1-chapter-7/
+-- is broken
+:ia #comic img
+
+-:Manly Guys Doing Manly Things
+http://thepunchlineismachismo.com/archives/comic/02222010
+-- has archive but that misses pages and contains no chapters
+:ia #comic img
+
+-:Saint for Rent
+http://www.saintforrent.com/archive.php
+:ac #pagecontent > h2 > a
+:ia #comic
+
+-:Crazy Sunshine
+http://www.crazysunshine.com/comic/apocalypse-now/
+:ia #comic img
+
+--------------------------------------------------------------------------------------
+-- end of hiveworks
+--------------------------------------------------------------------------------------
+
+
+
+
+
