@@ -13,8 +13,10 @@ import viscel.scribe.narration.SelectMore._
 import viscel.scribe.narration.{Selection, More, Narrator, Normal, Story, Volatile}
 import viscel.scribe.report.Report
 import viscel.scribe.report.ReportTools._
+import org.scalactic.TypeCheckedTripleEquals._
 
 import scala.Predef.augmentString
+import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.Set
 
 object Individual {
