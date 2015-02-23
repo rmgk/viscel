@@ -64,7 +64,10 @@ object Archive {
 		start.layerBelow.find(_.hasLabel(label.More)).map(n => go(n, n))
 	}
 
-	def parentMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start.flatMap(_.above).map(n => (n, Codec.load[More](n)))
+	def parentMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start.flatMap(_.above).flatMap { n =>
+		if (n.hasLabel(label.More)) Some((n, Codec.load[More](n)))
+		else None
+	}
 
 	def previousMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start match {
 		case None => None
