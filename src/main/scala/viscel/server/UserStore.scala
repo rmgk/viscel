@@ -19,22 +19,23 @@ class UserStore(implicit ec: ExecutionContext) {
 		user
 	}
 
-	def getUserNode(name: String, password: String): User =
-		userCache.getOrElse(name,
-			userUpdate(Users.load(name) match {
-				case Good(g) => g
+	def getUserNode(name: String, password: String): Option[User] =
+		userCache.get(name).orElse(
+			(Users.load(name) match {
+				case Good(g) => Some(g)
 				case Bad(e) =>
 					Log.warn(s"could not open user $name: $e")
 					val firstUser = Users.all().fold(_.isEmpty, _ => false)
-					User(name, password, admin = firstUser, Map())
-			}))
+					if (firstUser) Some(User(name, password, admin = firstUser, Map()))
+					else None
+			}).map(userUpdate))
 
 	val loginOrCreate = BasicAuth(UserPassAuthenticator[User] {
 		case Some(UserPass(user, password)) =>
 			Log.trace(s"login: $user $password")
 			// time("login") {
 			if (user.matches("\\w+")) {
-				Future.successful { Some(getUserNode(user, password)).filter(_.password === password) }
+				Future.successful { getUserNode(user, password).filter(_.password === password) }
 			}
 			else { Future.successful(None) }
 		// }
