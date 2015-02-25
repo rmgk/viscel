@@ -19,7 +19,7 @@ object Archive {
 
 	def deleteRecursive(nodes: List[Node])(implicit ntx: Ntx): Unit =
 		nodes foreach (_.fold(()) { _ => n =>
-			Option(n.to(rel.blob)).foreach(_.delete)
+			Option(n.to(rel.blob)).foreach(ntx.delete)
 			ntx.delete(n)
 		})
 
