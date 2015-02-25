@@ -70,7 +70,7 @@ object Fakku {
 		def wrap(doc: Document): List[FKU] Or Every[Report] = doc.baseUri() match {
 			case rex"https://www.fakku.net/collections/($id[^/]*)" =>
 				val name_? = Selection(doc).unique("#page > div.attribute-header.collection > h1").wrapOne(e => Good(e.text()))
-				name_?.map(name => FKU(makeID(id), name, doc.baseUri(), collection = true) :: Nil)
+				name_?.map(name => FKU(makeID(id), s"[FK] ${ name }", doc.baseUri(), collection = true) :: Nil)
 			case other =>
 				val current = Selection(doc).all("#content > div.content-wrap")
 				val currentUrl_? = current.optional("a.button.green").wrapEach(e => Good(e.attr("abs:href")))
