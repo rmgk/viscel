@@ -6,9 +6,9 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.narration.Queries._
-import viscel.narration.{Queries, Data, Metarrator}
+import viscel.narration.{Data, Metarrator}
 import viscel.scribe.narration.SelectMore._
-import viscel.scribe.narration.{Asset, More, Narrator, Selection, Story}
+import viscel.scribe.narration.{More, Narrator, Normal, Selection, Story, Volatile}
 import viscel.scribe.report.Report
 import viscel.scribe.report.ReportTools._
 
@@ -18,24 +18,24 @@ object Fakku {
 
 	val baseURL = new URL("https://www.fakku.net/")
 	val extractID = ".*/(?:manga|doujinshi)/([^/]+)/read".r
-	def makeID(part: String) = s"Fakku_${part.replaceAll("\\W", "_")}"
-	
+	def makeID(part: String) = s"Fakku_${ part.replaceAll("\\W", "_") }"
+
 
 	case class FKU(override val id: String, override val name: String, url: String, collection: Boolean = false) extends Narrator {
-		override def archive: List[Story] = More(url, data = if (collection) List("col") else Nil) :: Nil
+		override def archive: List[Story] = More(url, policy = if (collection) Volatile else Normal) :: Nil
 
 		val findStr = "window.params.thumbs = "
 		val extractPos = ".*\\D(\\d+)\\.\\w+".r
 
 		override def wrap(doc: Document, more: More): List[Story] Or Every[Report] = more match {
-			case More(_, _, Nil) => wrapChapter(doc)
-			case _ => wrapCollection(doc)
+			case More(_, Normal, _) => wrapChapter(doc)
+			case More(_, Volatile, _) => wrapCollection(doc)
 		}
 
 		def wrapCollection(doc: Document): List[Story] Or Every[Report] = {
-			val next_? = moreData(queryNext("#pagination > div.results > a:contains(Next)")(doc), "col")
-			val chapters_? = queryChapterArchive("#content > div > div.content-meta > h2 > a.content-title")(doc).map(_.map{
-				case m @ More(u, _, _) => m.copy(loc = s"$u/read")
+			val next_? = morePolicy(Volatile, queryNext("#pagination > div.results > a:contains(Next)")(doc))
+			val chapters_? = queryChapterArchive("#content > div > div.content-meta > h2 > a.content-title")(doc).map(_.map {
+				case m@More(u, _, _) => m.copy(loc = s"$u/read")
 				case o => o
 			})
 			append(chapters_?, next_?)
