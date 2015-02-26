@@ -41,7 +41,7 @@ object View {
 
 
 				lazy val mainPart: Element = section(gallery.get.fold[Frag](p("error, illegal image position")) { asst =>
-					article(Make.asset(asst, data)) :: asst.data.get("longcomment").fold(List[Tag]())(article(_) :: Nil)
+					article(Make.asset(asst, data))(asst.data.get("longcomment").fold(List[Tag]())(p(_) :: Nil))
 				})(onLeftClickPrevNext(mainPart, data)).render
 
 
