@@ -5,7 +5,7 @@ import org.scalajs.dom.html.Element
 import viscel.shared.{Article, Content, Description, Gallery}
 import visceljs.Actions.{gotoView, onLeftClickPrevNext}
 import visceljs.Definitions.{class_dead, class_extern, class_post, link_asset, link_front}
-import visceljs.Make.updateBookmark
+import visceljs.Make.postBookmark
 import visceljs.{Body, Data, Make}
 
 import scala.Predef.$conforms
@@ -50,7 +50,7 @@ object View {
 					link_front(narration, "front"),
 					Make.fullscreenToggle("TFS"),
 					a(s"mode(${data.fitType % 8})", class_post, onclick := {() => gotoView(data.copy(fitType = data.fitType + 1))}),
-					if (bookmark != gallery.pos + 1) updateBookmark(narration, data, "pause") else span(class_dead, "pause"),
+					if (bookmark != gallery.pos + 1) postBookmark(narration, data.pos + 1, data, gotoView, "pause") else span(class_dead, "pause"),
 					a(href := gallery.get.flatMap(_.origin).getOrElse(""))(class_extern)("site"),
 					link_asset(next)("next", rel := "next"))
 

@@ -1,15 +1,15 @@
 package visceljs.render
 
 import viscel.shared.{Article, Chapter, Content, Gallery}
-import visceljs.Definitions.{class_chapters, class_preview, link_asset, link_index}
-import visceljs.{Body, Data, Make}
+import visceljs.Definitions.{class_chapters, class_preview, class_dead, link_asset, link_index}
+import visceljs.{Actions, Body, Data, Make}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.annotation.tailrec
 import scalatags.JsDom.Frag
 import scalatags.JsDom.all.Tag
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.{SeqFrag, fieldset, header, legend}
+import scalatags.JsDom.tags.{SeqFrag, fieldset, header, legend, span}
 import scalatags.JsDom.tags2.{article, section}
 
 object Front {
@@ -26,7 +26,8 @@ object Front {
 			link_index("index"),
 			Make.fullscreenToggle("TFS"),
 			link_asset(data.move(_.first))("first"),
-			Make.removeBookmark(narration, "remove"))
+			if (bookmark > 0) Make.postBookmark(narration, 0, data, _ => Actions.gotoFront(narration), "remove")
+			else span(class_dead, "remove"))
 
 		val preview = {
 			val preview1 = data.move(_.next(bookmark - 1).prev(2))

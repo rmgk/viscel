@@ -14,13 +14,10 @@ import scalatags.JsDom.tags2.{aside, nav, section}
 object Make {
 
 
-	def updateBookmark(nar: Description, data: Data, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
-		val bm = data.gallery.pos + 1
+	def postBookmark(nar: Description, bm: Int, data: Data, handler: Data => Unit, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
 		Viscel.postBookmark(nar, bm)
-		gotoView(data.copy(bookmark = bm))
+		handler(data.copy(bookmark = bm))
 	})
-
-	def removeBookmark(nar: Description, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, 0) })
 
 	def searchArea(narrations: List[Description]): HtmlTag = aside {
 		val results = ol.render
