@@ -59,6 +59,10 @@ img {
 	background-color: white;
 }
 
+img::selection {
+	background: transparent;
+}
+
 fieldset , header {
 	margin: 2cm 10px;
 	padding: 5px 10px 10px 10px;
@@ -166,9 +170,6 @@ body#view {
 	min-height: 100vh;
 }
 
-#view article *::selection {
-	background: transparent;
-}
 
 #view section {
 	min-width: 100%;
