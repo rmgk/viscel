@@ -19,7 +19,6 @@ body {
 	margin: 0px;
 }
 
-
 a {
 	text-decoration:none;
 	color:#3654d9;
@@ -167,8 +166,7 @@ body#view {
 	min-height: 100vh;
 }
 
-#view *::selection {
-	color: transparent;
+#view article *::selection {
 	background: transparent;
 }
 
