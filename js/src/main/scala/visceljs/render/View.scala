@@ -32,7 +32,7 @@ object View {
 					ev.keyCode match {
 						case 37 | 65 | 188 if !gallery.isFirst => gotoView(prev)
 						case 39 | 68 | 190 if !gallery.next(1).isEnd => gotoView(next)
-						case n if 48 <= n && n <= 55 => gotoView(data.copy(fitType = n - 48))
+						case n if 48 <= n && n <= 55 => gotoView(data.copy(fitType = n - 48), scrolltop = false)
 						case _ =>
 					}
 				}
@@ -50,7 +50,7 @@ object View {
 					link_front(narration, "front"),
 					Make.fullscreenToggle("TFS"),
 					a(s"mode(${data.fitType % 8})", class_post, onclick := {() => gotoView(data.copy(fitType = data.fitType + 1))}),
-					if (bookmark != gallery.pos + 1) postBookmark(narration, data.pos + 1, data, gotoView, "pause") else span(class_dead, "pause"),
+					if (bookmark != gallery.pos + 1) postBookmark(narration, data.pos + 1, data, gotoView(_, scrolltop = false), "pause") else span(class_dead, "pause"),
 					a(href := gallery.get.flatMap(_.origin).getOrElse(""))(class_extern)("site"),
 					link_asset(next)("next", rel := "next"))
 

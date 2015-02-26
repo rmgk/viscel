@@ -64,15 +64,15 @@ object Actions {
 		setBodyIndex(scrolltop = true)
 	}
 
-	def gotoFront(nar: Description): Unit = {
+	def gotoFront(nar: Description, scrolltop: Boolean = false): Unit = {
 		pushFront(nar)
-		setBodyFront(nar, scrolltop = true)
+		setBodyFront(nar, scrolltop)
 		Viscel.hint(nar)
 	}
 
-	def gotoView(data: Data): Unit = {
+	def gotoView(data: Data, scrolltop: Boolean = true): Unit = {
 		pushView(data)
-		setBodyView(data, scrolltop = true)
+		setBodyView(data, scrolltop)
 	}
 
 

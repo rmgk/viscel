@@ -30,7 +30,7 @@ object Make {
 			filtered.foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
 		}).render
 
-		form(fieldset(legend("Search"), inputField, results), action := "", onsubmit := { () => filtered.headOption.foreach(gotoFront); false })
+		form(fieldset(legend("Search"), inputField, results), action := "", onsubmit := { () => filtered.headOption.foreach(gotoFront(_)); false })
 	}
 
 	def imageStyle(data: Data): Modifier = {
