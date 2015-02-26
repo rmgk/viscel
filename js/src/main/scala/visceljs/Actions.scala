@@ -15,6 +15,7 @@ object Actions {
 
 	def dispatchPath(path: String): Unit = {
 		val paths = List(path.split("/"): _*)
+		Console.println(s"dispatch $paths")
 		paths match {
 			case Nil | "" :: Nil =>
 				setBodyIndex()
@@ -37,9 +38,9 @@ object Actions {
 	}
 
 
-	def pushIndex(): Unit = dom.history.pushState("", "main", path_main)
-	def pushFront(nar: Description): Unit = dom.history.pushState("", "front", path_front(nar))
-	def pushView(data: Data): Unit = dom.history.pushState("", "view", path_asset(data))
+	def pushIndex(): Unit = dom.history.pushState(null, "main", path_main)
+	def pushFront(nar: Description): Unit = dom.history.pushState(null, "front", path_front(nar))
+	def pushView(data: Data): Unit = dom.history.pushState(null, "view", path_asset(data))
 
 	def onLeftClick(a: => Unit): Modifier = onclick := { (e: MouseEvent) =>
 		if (e.button == 0) {
@@ -60,32 +61,32 @@ object Actions {
 
 	def gotoIndex(): Unit = {
 		pushIndex()
-		setBodyIndex()
+		setBodyIndex(scrolltop = true)
 	}
 
 	def gotoFront(nar: Description): Unit = {
 		pushFront(nar)
-		setBodyFront(nar)
+		setBodyFront(nar, scrolltop = true)
 		Viscel.hint(nar)
 	}
 
 	def gotoView(data: Data): Unit = {
 		pushView(data)
-		setBodyView(data)
+		setBodyView(data, scrolltop = true)
 	}
 
 
-	def setBodyIndex() = {
-		for (bm <- Viscel.bookmarks; nar <- Viscel.descriptions) { Viscel.setBody(Index.gen(bm, nar)) }
+	def setBodyIndex(scrolltop: Boolean = false) = {
+		for (bm <- Viscel.bookmarks; nar <- Viscel.descriptions) { Viscel.setBody(Index.gen(bm, nar), scrolltop) }
 	}
 
-	def setBodyFront(nar: Description): Unit = {
+	def setBodyFront(nar: Description, scrolltop: Boolean = false): Unit = {
 		for (bm <- Viscel.bookmarks; content <- Viscel.content(nar))
-			Viscel.setBody(Front.gen(Data(nar, content, bm.getOrElse(nar.id, 0))))
+			Viscel.setBody(Front.gen(Data(nar, content, bm.getOrElse(nar.id, 0))), scrolltop)
 	}
 
-	def setBodyView(data: Data): Unit = {
-		Viscel.setBody(View.gen(data))
+	def setBodyView(data: Data, scrolltop: Boolean = false): Unit = {
+		Viscel.setBody(View.gen(data), scrolltop)
 	}
 
 

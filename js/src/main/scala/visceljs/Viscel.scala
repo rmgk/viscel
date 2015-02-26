@@ -1,7 +1,7 @@
 package visceljs
 
 import org.scalajs.dom
-import org.scalajs.dom.Event
+import org.scalajs.dom.raw.HashChangeEvent
 import upickle._
 import viscel.shared.JsonCodecs.stringMapR
 import viscel.shared._
@@ -56,13 +56,13 @@ object Viscel {
 	}
 
 
-	def setBody(abody: Body): Unit = {
+	def setBody(abody: Body, scrolltop: Boolean): Unit = {
 		dom.document.onkeydown = abody.keypress
 		dom.document.body.innerHTML = ""
 		dom.document.title = abody.title
 		dom.document.body.setAttribute("id", abody.id)
 		dom.document.body.appendChild(abody.frag.render)
-		dom.window.scrollTo(0, 0)
+		if (scrolltop) dom.window.scrollTo(0, 0)
 	}
 
 	def toggleFullscreen(): Unit = {
@@ -94,14 +94,14 @@ object Viscel {
 	@JSExport(name = "main")
 	def main(): Unit = {
 
-		dom.onhashchange = { (ev: Event) =>
+		dom.onhashchange = { (ev: HashChangeEvent) =>
 			Actions.dispatchPath(dom.location.hash.substring(1))
 		}
 
 		bookmarks = ajax[Map[String, Int]]("bookmarks")
 		descriptions = ajax[List[Description]]("narrations").map(_.map(n => n.id -> n).toMap)
 
-		setBody(Body(frag = div("loading data …")))
+		setBody(Body(frag = div("loading data …")), scrolltop = true)
 
 		Actions.dispatchPath(dom.location.hash.substring(1))
 
@@ -113,7 +113,7 @@ object Viscel {
 
 		offlineMode = true
 
-		dom.onhashchange = { (ev: Event) =>
+		dom.onhashchange = { (ev: HashChangeEvent) =>
 			Actions.dispatchPath(dom.location.hash.substring(1))
 		}
 
@@ -122,7 +122,7 @@ object Viscel {
 		descriptions = Future.successful(Map(id -> desc))
 		contents = Map(desc.id -> Future.successful(content))
 
-		setBody(Body(frag = div("loading data …")))
+		setBody(Body(frag = div("loading data …")), scrolltop = true)
 
 		Actions.dispatchPath(id)
 
