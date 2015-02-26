@@ -105,7 +105,6 @@ object Viscel {
 
 		Actions.dispatchPath(dom.location.hash.substring(1))
 
-
 	}
 
 	@JSExport(name = "spore")
