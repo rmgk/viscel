@@ -2,6 +2,7 @@ package visceljs.render
 
 import org.scalajs.dom
 import viscel.shared.{Article, Content, Description, Gallery}
+import visceljs.Actions.{onLeftClick, gotoView}
 import visceljs.Definitions.{class_dead, class_extern, link_asset, link_front}
 import visceljs.{Actions, Body, Data, Make}
 
@@ -21,29 +22,34 @@ object View {
 			case None => Body("illegal position", "error", "error")
 			case Some(current) =>
 
+				val next = data.next
+				val prev = data.prev
+
+
 				val handleKeypress = (ev: dom.KeyboardEvent) => {
 					ev.keyCode match {
-						case 37 | 65 | 188 if !gallery.isFirst => Actions.gotoView(data.prev)
-						case 39 | 68 | 190 if !gallery.next(1).isEnd => Actions.gotoView(data.next)
+						case 37 | 65 | 188 if !gallery.isFirst => gotoView(prev)
+						case 39 | 68 | 190 if !gallery.next(1).isEnd => gotoView(next)
 						case _ =>
 					}
 				}
 
 				val preload = gallery.next(1).get.map(asst => div(Make.asset(asst)).render)
 
+
 				val mainPart = section(gallery.get.fold[Frag](p("error, illegal image position")) { asst =>
-					article(link_asset(data.next)(Make.asset(asst))) ::
+					article(Make.asset(asst))(onLeftClick(gotoView(next))) ::
 						asst.data.get("longcomment").fold(List[Tag]())(article(_) :: Nil)
 				})
 
 
 				val navigation = Make.navigation(
-					link_asset(data.prev)("prev", rel := "prev"),
+					link_asset(prev)("prev", rel := "prev"),
 					link_front(narration, "front"),
 					Make.fullscreenToggle("TFS"),
 					if (bookmark != gallery.pos + 1) Make.postBookmark(narration, gallery.pos + 1, "pause") else a(class_dead, "pause"),
 					a(href := gallery.get.flatMap(_.origin).getOrElse(""))(class_extern)("site"),
-					link_asset(data.next)("next", rel := "next"))
+					link_asset(next)("next", rel := "next"))
 
 				Body(id = "view", title = narration.name,
 					frag = List(mainPart, navigation),

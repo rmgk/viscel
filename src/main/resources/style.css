@@ -56,9 +56,21 @@ img {
 	-webkit-tap-highlight-color: transparent;
 	margin: 0;
 	padding: 0;
-	border: none; /*firefox displays a border if a link is on the image */
-	max-width: 100%;
+	border: none;
 	background-color: white;
+}
+
+.sizeInWidth {
+	max-width: 100vw;
+}
+.sizeInHeigh {
+	max-height: 100vh;
+}
+.sizeFitWidth {
+	width: 100vw;
+}
+.sizeFitHeight {
+	height: 100vh;
 }
 
 
@@ -169,7 +181,13 @@ body#view {
 	min-height: 100vh;
 }
 
+#view article {
+	display: flex;
+	flex-flow: row wrap;
+}
+
 #view section {
+	margin: auto;
 	text-align: center;
 }
 
