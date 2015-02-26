@@ -49,7 +49,7 @@ object View {
 					link_asset(prev)("prev", rel := "prev"),
 					link_front(narration, "front"),
 					Make.fullscreenToggle("TFS"),
-					a(s"mode(${data.fitType % 8})", class_post, onclick := {() => gotoView(data.copy(fitType = data.fitType + 1))}),
+					a(s"mode(${data.fitType % 8})", class_post, onclick := {() => gotoView(data.copy(fitType = data.fitType + 1), scrolltop = false)}),
 					if (bookmark != gallery.pos + 1) postBookmark(narration, data.pos + 1, data, gotoView(_, scrolltop = false), "pause") else span(class_dead, "pause"),
 					a(href := gallery.get.flatMap(_.origin).getOrElse(""))(class_extern)("site"),
 					link_asset(next)("next", rel := "next"))
