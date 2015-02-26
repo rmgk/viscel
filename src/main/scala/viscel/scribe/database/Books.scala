@@ -25,7 +25,7 @@ class Books(neo: Neo) {
 			val col = findExisting(id)
 			col.foreach { c => c.name = name }
 			col.getOrElse {
-				Log.info(s"materializing $id($name)}")
+				Log.info(s"materializing $id($name)")
 				Book(ntx.create(label.Book, "id" -> id, "name" -> name))
 			}
 		}
