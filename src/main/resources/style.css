@@ -88,20 +88,22 @@ legend {
 
 
 nav {
-	text-align:center;
-	clear:both;
-	position:static;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+
 	border-style: solid none solid none;
 	border-color: #310000;
-	border-width: 1px;
+	border-width: 1px 0px 1px 0px;
 	padding:0.2cm;
 	margin:0px 0px 0px 0px;
 	background-color:#00000b;
 	color: #808080;
 }
 
-nav * {
-	display: inline-block;
+nav > * {
+	flex: 1 0 0;
+	text-align: center;
 }
 
 aside input {
@@ -121,6 +123,9 @@ aside input {
 
 /* front specific */
 #front .preview {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-around;
 	text-align:left;
 	margin: 2cm 1cm;
 	padding: 0.5cm 0px;
@@ -135,13 +140,14 @@ aside input {
 	display: inline;
 }
 
+.preview > * {
+	margin: 0px 0.2%;
+}
 
 .preview img {
 	display: inline;
-	max-width: 32%;
+	max-width: 100%;
 	height: auto;
-	margin: 0px 0.2%;
-	padding: 0px;
 	vertical-align: top;
 }
 
@@ -155,8 +161,21 @@ aside input {
 
 /* view specific */
 
+body#view {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	min-height: 100vh;
+}
+
 #view section {
 	text-align: center;
+}
+
+#view nav {
+	align-self: flex-end;
+	width: 100vw;
 }
 
 @media only screen and (max-width: 1024px) {

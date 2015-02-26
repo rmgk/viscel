@@ -39,6 +39,5 @@ object Make {
 	def group(name: String, entries: Seq[Frag]): Tag = section(fieldset(legend(name), ul(entries.map(li(_)))))
 
 	def navigation(links: Tag*): Tag =
-		nav(links.map(e =>
-			e(style := s"text-align: center; width: ${ 100 / links.size }%; ")))
+		nav(links)
 }
