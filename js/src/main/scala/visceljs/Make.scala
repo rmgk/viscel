@@ -14,7 +14,13 @@ import scalatags.JsDom.tags2.{aside, nav, section}
 object Make {
 
 
-	def postBookmark(nar: Description, pos: Int, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, pos) })
+	def updateBookmark(nar: Description, data: Data, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
+		val bm = data.gallery.pos + 1
+		Viscel.postBookmark(nar, bm)
+		gotoView(data.copy(bookmark = bm))
+	})
+
+	def removeBookmark(nar: Description, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () => Viscel.postBookmark(nar, 0) })
 
 	def searchArea(narrations: List[Description]): HtmlTag = aside {
 		val results = ol.render
@@ -30,8 +36,23 @@ object Make {
 		form(fieldset(legend("Search"), inputField, results), action := "", onsubmit := { () => filtered.headOption.foreach(gotoFront); false })
 	}
 
-	def asset(asset: Article): List[Modifier] = {
-		asset.blob.fold[List[Modifier]](List(class_placeholder, "placeholder"))(blob => img(src := path_blob(blob)) :: Nil)
+	def imageStyle(data: Data): Modifier = {
+		def s(mw: Boolean = false, mh: Boolean = false, w: Boolean = false, h: Boolean = false) =
+			s"max-height: ${if(mh) "100vh" else "none" }; max-width: ${if(mw) "100vw" else "none" }; height: ${if(h) "100vh" else "auto" }; width: ${if(w) "100vw" else "auto" }"
+		style := (data.fitType % 8 match {
+			case 0 => ""
+			case 1 => s()
+			case 2 => s(mw = true)
+			case 3 => s(mh = true)
+			case 4 => s(mw = true, mh = true)
+			case 5 => s(w = true)
+			case 6 => s(h = true)
+			case 7 => s(w = true, h = true)
+		})
+	}
+
+	def asset(asset: Article, data: Data): List[Modifier] = {
+		asset.blob.fold[List[Modifier]](List(class_placeholder, "placeholder"))(blob => img(src := path_blob(blob))(imageStyle(data)) :: Nil)
 	}
 
 	def fullscreenToggle(stuff: Frag*): Tag = a(onclick := (() => Viscel.toggleFullscreen()))(stuff)

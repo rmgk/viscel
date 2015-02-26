@@ -48,6 +48,16 @@ object Actions {
 		}
 	}
 
+	def onLeftClickPrevNext(node: => dom.html.Element, data: Data): Modifier = onclick := { (e: MouseEvent) =>
+		if (e.button == 0) {
+			e.preventDefault()
+			val relx = e.clientX - node.offsetLeft
+			val half = node.offsetWidth / 2
+			if (relx < half) gotoView(data.prev)
+			else if (!data.next.gallery.isEnd) gotoView(data.next)
+		}
+	}
+
 	def gotoIndex(): Unit = {
 		pushIndex()
 		setBodyIndex()

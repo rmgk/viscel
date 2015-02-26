@@ -60,20 +60,6 @@ img {
 	background-color: white;
 }
 
-.sizeInWidth {
-	max-width: 100vw;
-}
-.sizeInHeigh {
-	max-height: 100vh;
-}
-.sizeFitWidth {
-	width: 100vw;
-}
-.sizeFitHeight {
-	height: 100vh;
-}
-
-
 fieldset , header {
 	margin: 2cm 10px;
 	padding: 5px 10px 10px 10px;
@@ -181,19 +167,25 @@ body#view {
 	min-height: 100vh;
 }
 
-#view article {
-	display: flex;
-	flex-flow: row wrap;
+#view *::selection {
+	color: transparent;
+	background: transparent;
 }
 
 #view section {
-	margin: auto;
+	min-width: 100%;
 	text-align: center;
+	display: flex;
+	flex: 1 0 auto;
+	flex-flow: row;
+	justify-content: space-around;
+	align-items: center;
 }
 
 #view nav {
 	align-self: flex-end;
-	width: 100vw;
+	flex: 0 0 auto;
+	width: 100%;
 }
 
 @media only screen and (max-width: 1024px) {

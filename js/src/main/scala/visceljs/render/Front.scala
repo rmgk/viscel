@@ -17,7 +17,7 @@ object Front {
 
 	def gen(data: Data): Body = {
 
-		val Data(narration, Content(gallery, chapters), bookmark) = data
+		val Data(narration, Content(gallery, chapters), bookmark, _) = data
 
 
 		val top = header(s"${ narration.name } ($bookmark/${ narration.size })")
@@ -26,7 +26,7 @@ object Front {
 			link_index("index"),
 			Make.fullscreenToggle("TFS"),
 			link_asset(data.move(_.first))("first"),
-			Make.postBookmark(narration, 0, "remove"))
+			Make.removeBookmark(narration, "remove"))
 
 		val preview = {
 			val preview1 = data.move(_.next(bookmark - 1).prev(2))
@@ -34,7 +34,7 @@ object Front {
 			val preview3 = preview2.next
 			section(class_preview)(
 				List(preview1, preview2, preview3).map(p => p -> p.gallery.get)
-					.collect { case (p, Some(a)) => link_asset(p)(article(Make.asset(a): _*)) })
+					.collect { case (p, Some(a)) => link_asset(p)(article(Make.asset(a, data): _*)) })
 		}
 
 		def chapterlist: Tag = {
