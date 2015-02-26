@@ -22,6 +22,8 @@ final case class Book(self: Node) extends AnyVal {
 		if (kind < res.length) res(kind) else 0
 	}
 
+	def invalidateSize()(implicit ntx: Ntx) = self.removeProperty("size")
+
 	private def calcSize()(implicit ntx: Ntx): Array[Int] = {
 		val mapped = self.fold(Map[Int, Int]())(s => {
 			case n if n.hasLabel(label.Asset) =>
