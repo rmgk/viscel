@@ -178,7 +178,7 @@ body#view {
 	flex: 1 0 auto;
 	flex-flow: row;
 	justify-content: space-around;
-	align-items: center;
+	align-items: flex-start;
 }
 
 #view nav {
