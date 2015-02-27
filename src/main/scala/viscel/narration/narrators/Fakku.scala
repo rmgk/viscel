@@ -74,7 +74,7 @@ object Fakku {
 			case other =>
 				val current = Selection(doc).all("#content > div.content-wrap")
 				val currentUrl_? = current.optional("a.button.green").wrapEach(e => Good(e.attr("abs:href")))
-				val currentName_? = current.optional("h1[itemprop=name]").wrapEach(e => Good(e.text()))
+				val currentName_? = current.optional("h1").wrapEach(e => Good(e.text()))
 
 				val rows_? = Selection(doc).all(".content-row a.content-title").get.map(_.map { a => (a.text, a.attr("abs:href") + "/read") })
 
