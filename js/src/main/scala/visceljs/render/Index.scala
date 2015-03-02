@@ -20,13 +20,13 @@ object Index {
 				}
 			}.flatten
 
-		val (hasNewPages, isCurrent) = bookmarkedNarrations.partition(_._3 > 0)
+		val (hasNewPages, isCurrent) = bookmarkedNarrations.partition(_._3 > 15)
 
 		val unreadTags = hasNewPages.sortBy(-_._3).map {
 			case (nr, pos, unread) => link_front(nr, s"${ nr.name } ($unread)")
 		}
 		val currentTags = isCurrent.sortBy(_._1.name).map {
-			case (nr, pos, unread) => link_front(nr, s"${ nr.name }${ if (unread >= 0) "" else s" ($unread)" }")
+			case (nr, pos, unread) => link_front(nr, s"${ nr.name }${ if (unread == 0) "" else s" ($unread)" }")
 		}
 
 		val (totalBookmarks, unreadBookmarks) = bookmarkedNarrations.foldLeft((0, 0)) { case ((pos, unread), (nar, p, u)) => (pos + p, unread + (if (u > 0) u else 0)) }
@@ -34,7 +34,7 @@ object Index {
 
 		Body(id = "index", title = "Viscel",
 			frag = List(
-				Make.group(s"New Pages ($unreadBookmarks)", unreadTags),
+				Make.group(s"Updates ($unreadBookmarks)", unreadTags),
 				Make.group(s"Bookmarks ($totalBookmarks/$totalBookmarkedPages)", currentTags),
 				Make.navigation(Make.fullscreenToggle("TFS"), link_stop("stop")),
 				Make.searchArea(descriptions.values.toList)))
