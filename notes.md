@@ -1,11 +1,15 @@
 # comics to look into
 
-|        name       |                      url                       |
-| ----------------- | ---------------------------------------------- |
-| Destiny Fails Us  | <http://destinyfailsus.com/comics/first/>      |
-| Nevermind the Gap | <http://nmg.thecomicseries.com/>               |
-| Cheer?            | <http://imgur.com/a/GTprX/>                    |
-|                   |                                                |
+|        name       |                     url                      |
+| ----------------- | -------------------------------------------- |
+| Destiny Fails Us  | <http://destinyfailsus.com/comics/first/>    |
+| Nevermind the Gap | <http://nmg.thecomicseries.com/>             |
+| Cheer?            | <http://imgur.com/a/GTprX/>                  |
+| teahouse          | <http://teahousecomic.com/comic/archive.php> |
+| the dreamer       | <http://thedreamercomic.com/>                |
+| grave             | <http://www.graveimpressions.com/index.html> |
+| replay            | <http://replaycomic.com/>                    |
+|                   |                                              |
 
 # multi layered archive
 
