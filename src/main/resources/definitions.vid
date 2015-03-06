@@ -690,7 +690,17 @@ http://www.crazysunshine.com/comic/apocalypse-now/
 -- end of hiveworks
 --------------------------------------------------------------------------------------
 
+-:Ianua
+http://www.lesserkeystudios.com/ianua/page-1/
+-- archive at http://www.lesserkeystudios.com/ianua/archive/ has broken links
+-- currently the last image has a next to a broken page
+:i #art > p:nth-child(4) > img
+:n #art > p:nth-child(3) > a:contains(Next)
 
+-:Bloop
+http://jhallcomics.com/Bloop/7204
+:i #comic-container > img
+:n a:has(img[alt=forward])
 
 
 
