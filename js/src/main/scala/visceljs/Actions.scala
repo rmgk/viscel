@@ -53,8 +53,8 @@ object Actions {
 		if (e.button == 0) {
 			e.preventDefault()
 			val relx = e.clientX - node.offsetLeft
-			val half = node.offsetWidth / 2
-			if (relx < half) gotoView(data.prev)
+			val border = math.max(node.offsetWidth / 10, 100)
+			if (relx < border) gotoView(data.prev)
 			else if (!data.next.gallery.isEnd) gotoView(data.next)
 		}
 	}
