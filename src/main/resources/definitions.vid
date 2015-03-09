@@ -139,7 +139,7 @@ http://the-qlc.com/loserz/go/1
 
 -:Love is in the Blood
 http://www.loveisintheblood.com/archive/
-:am #post-6 > div > div.entry h3.comic-archive-chapter , #post-6 > div > div.entry .comic-archive-title a
+:am #content > div > div.entry > div:has(h3:contains(Issue)) h3.comic-archive-chapter , #post-6 > div > div.entry > div:has(h3:contains(Issue)) .comic-archive-title a
 :i #comic img
 
 -:Makeshift Miracle
