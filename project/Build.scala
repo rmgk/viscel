@@ -42,7 +42,7 @@ object Settings {
 	lazy val common = List(
 
 		version := "6.1.0",
-		scalaVersion := "2.11.5",
+		scalaVersion := "2.11.6",
 
 		scalacOptions ++=
 			"-deprecation" ::
@@ -140,15 +140,15 @@ object Libraries {
 
 	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.3.9")
 
-	val jline = "jline" % "jline" % "2.12" :: Nil
+	val jline = "jline" % "jline" % "2.12.1" :: Nil
 
 	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "4.8" :: Nil
 
 	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.4" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
-	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.4.5" :: Nil)
+	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.4.6" :: Nil)
 
-	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.6" :: Nil)
+	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.8" :: Nil)
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.8.0") :: Nil)
 
