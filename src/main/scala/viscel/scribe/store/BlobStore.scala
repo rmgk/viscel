@@ -5,9 +5,11 @@ import java.security.MessageDigest
 
 class BlobStore(basedir: Path) {
 
-	val digester = MessageDigest.getInstance("SHA1")
-
-	def sha1hex(b: Array[Byte]) = Predef.wrapByteArray(digester.digest(b)).map { h => f"$h%02x" }.mkString
+	def sha1hex(b: Array[Byte]) = {
+		val digester = MessageDigest.getInstance("SHA1")
+		val sha1 = digester.digest(b)
+		Predef.wrapByteArray(sha1).map { h => f"$h%02x" }.mkString
+	}
 
 	def write(sha1: String, bytes: Array[Byte]): Unit = {
 		val path = hashToPath(sha1)
