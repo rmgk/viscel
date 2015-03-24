@@ -5,6 +5,7 @@ import org.scalajs.dom.MouseEvent
 import viscel.shared.Description
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.{Front, Index, View}
+import scala.scalajs.js.URIUtils.decodeURIComponent
 
 import scala.Predef.$conforms
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
@@ -21,13 +22,13 @@ object Actions {
 				setBodyIndex()
 			case id :: Nil =>
 				for (nar <- Viscel.descriptions) {
-					setBodyFront(nar(id))
+					setBodyFront(nar(decodeURIComponent(id)))
 				}
 			case id :: posS :: Nil =>
 				val pos = Integer.parseInt(posS)
 				for {
 					nars <- Viscel.descriptions
-					nar = nars(id)
+					nar = nars(decodeURIComponent(id))
 					content <- Viscel.content(nar)
 					bm <- Viscel.bookmarks
 				} {

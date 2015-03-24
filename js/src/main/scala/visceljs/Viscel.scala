@@ -10,6 +10,7 @@ import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import scala.scalajs.js.URIUtils.encodeURIComponent
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.div
@@ -39,17 +40,17 @@ object Viscel {
 	var contents: Map[String, Future[Content]] = Map()
 
 	def content(nar: Description): Future[Content] = contents.getOrElse(nar.id, {
-		val res = ajax[Content](s"narration/${ nar.id }")
+		val res = ajax[Content](s"narration/${ encodeURIComponent(nar.id) }")
 		contents = contents.updated(nar.id, res)
 		res
 	})
 
 
-	def hint(nar: Description): Unit = dom.ext.Ajax.post(s"hint/narrator/${ nar.id }")
+	def hint(nar: Description): Unit = dom.ext.Ajax.post(s"hint/narrator/${ encodeURIComponent(nar.id) }")
 
 	def postBookmark(nar: Description, pos: Int): Future[Map[String, Int]] = {
 
-		val res = dom.ext.Ajax.post("bookmarks", s"narration=${ nar.id }&bookmark=$pos", headers = Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
+		val res = dom.ext.Ajax.post("bookmarks", s"narration=${ encodeURIComponent(nar.id) }&bookmark=$pos", headers = Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
 			.map(res => upickle.read[Map[String, Int]](res.responseText))
 		bookmarks = res
 		res
