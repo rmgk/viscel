@@ -28,7 +28,7 @@ object Batoto {
 
 		override def wrap(document: Document): Or[List[Btt], Every[Report]] = {
 			val rex"^http://bato.to/comic/_/comics/($id[^/]+)" = document.baseUri()
-			Selection(document).unique("#content h1.ipsType_pagetitle").getOne.map(e => Btt(id, e.text(), document.baseUri()) :: Nil)
+			Selection(document).unique("#content h1.ipsType_pagetitle").getOne.map(e => Btt(java.net.URLDecoder.decode(id, "UTF-8"), e.text(), document.baseUri()) :: Nil)
 		}
 	}
 
