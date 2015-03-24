@@ -35,7 +35,7 @@ object Fakku {
 
 		def wrapCollection(doc: Document): List[Story] Or Every[Report] = {
 			val next_? = morePolicy(Volatile, queryNext("#pagination > div.results > a:contains(Next)")(doc))
-			val chapters_? = queryChapterArchive("#content > div > div.content-meta > h2 > a.content-title")(doc).map(_.map {
+			val chapters_? = queryChapterArchive("#content div.content-meta > h2 > a.content-title")(doc).map(_.map {
 				case m@More(u, _, _) => m.copy(loc = s"$u/read")
 				case o => o
 			})
