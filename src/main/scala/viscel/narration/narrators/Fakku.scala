@@ -71,7 +71,7 @@ object Fakku {
 
 		def wrap(doc: Document): List[FKU] Or Every[Report] = doc.baseUri() match {
 			case rex"https://www.fakku.net/collections/($id[^/]*)" =>
-				val name_? = Selection(doc).unique("#page > div.attribute-header.collection > h1").wrapOne(e => Good(e.text()))
+				val name_? = Selection(doc).unique("#page div.attribute-header.collection > h1").wrapOne(e => Good(e.text()))
 				name_?.map(name => FKU(makeID(id), s"[FK] ${ name }", doc.baseUri(), collection = true) :: Nil)
 			case other =>
 				val current = Selection(doc).all("div.content-wrap")
