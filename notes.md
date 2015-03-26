@@ -6,19 +6,20 @@
 | Nevermind the Gap | <http://nmg.thecomicseries.com/>             |
 | Cheer?            | <http://imgur.com/a/GTprX/>                  |
 | teahouse          | <http://teahousecomic.com/comic/archive.php> |
-| the dreamer       | <http://thedreamercomic.com/>                |
 | grave             | <http://www.graveimpressions.com/index.html> |
-| replay            | <http://replaycomic.com/>                    |
-|                   |                                              |
+
+# bad chaptername /element order
+
+* <http://www.minnasundberg.fi/comicindex.php>
 
 # multi layered archive
 
-| <http://www.intrepidgirlbot.com/archive/volume-1/> |
-| <http://guildedage.net/comic/chapter-1-cover/>     |
+* <http://www.intrepidgirlbot.com/archive/volume-1/>
+* <http://guildedage.net/comic/chapter-1-cover/>
 
 # javascript
-| <http://www.deathbulge.com/comics/1> |
-|                                      |
+
+* <http://www.deathbulge.com/comics/1>
 
 
 # comics with multiple strips
@@ -44,9 +45,7 @@
 | FreakAngels | later dude                         | <http://www.freakangels.com/?p=22&page=1>                                      |
 | DrMcNinja   | not today pal                      | <http://www.drmcninja.com/mcdonalds.html>                                      |
 | Shiniez     | deviant art                        | <http://shiniez.deviantart.com/gallery/35675685>                               |
-| BloodStain  | devian art                         | <http://sigeel.deviantart.com/art/the-title-is-out-346949185>                  |
-| Ianua       | chunked transfer encoding          | <http://www.lesserkeystudios.com/ianua/wp-content/uploads/2013/07/Pg25Big.jpg> |
-|             |                                    |                                                                                |
+| BloodStain  | deviant art                         | <http://sigeel.deviantart.com/art/the-title-is-out-346949185>                  |
 
 # broken comics
 
@@ -67,8 +66,6 @@
 | ♦ Webcomics Nation | <http://www.webcomicsnation.com/> | non uniform comics                  |
 | ♦ WLP              | <http://www.wlpcomics.com/>       | non uniform comics, listing         |
 |                    |                                   |                                     |
-
-#comicimage
 
 ## done
 
