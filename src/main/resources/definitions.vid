@@ -702,5 +702,9 @@ http://jhallcomics.com/Bloop/7204
 :i #comic-container > img
 :n a:has(img[alt=forward])
 
-
+-:Gaia
+http://www.sandraandwoo.com/gaia/archive/
+:am #column > div.post-page h3 , #column > div.post-page .archive-title a[rel=bookmark]
+:i #comic img
+:archiveReverse
 
