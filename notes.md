@@ -2,57 +2,45 @@
 
 |        name       |                     url                      |
 | ----------------- | -------------------------------------------- |
-| Destiny Fails Us  | <http://destinyfailsus.com/comics/first/>    |
-| Nevermind the Gap | <http://nmg.thecomicseries.com/>             |
 | Cheer?            | <http://imgur.com/a/GTprX/>                  |
-| teahouse          | <http://teahousecomic.com/comic/archive.php> |
-| grave             | <http://www.graveimpressions.com/index.html> |
 
-# bad chaptername /element order
+## bad chaptername /element order
 
 * <http://www.minnasundberg.fi/comicindex.php>
 
-# multi layered archive
+## multi layered archive
 
 * <http://www.intrepidgirlbot.com/archive/volume-1/>
 * <http://guildedage.net/comic/chapter-1-cover/>
+* <http://www.graveimpressions.com/index.html>
 
-# javascript
+## javascript
 
 * <http://www.deathbulge.com/comics/1>
 
 
-# comics with multiple strips
+## comics with multiple strips
 
 |       comic        |                                url                                 |
 |--------------------|--------------------------------------------------------------------|
-| AbsurdNotions      | <http://www.absurdnotions.org/page1.html>                          |
-| Skyfall            | <http://www.skyfallmanga.com/archive/cover-1.php>                  |
 | GirlVsPig          | <http://www.girlvspig.com/archives/her1.html>                      |
-| SchoolBites        | <http://schoolbites.net/d/20090817.html>                           |
-| LovecraftIsMissing | <http://lovecraftismissing.com/?p=930>                             |
-| MarshRocket        | <http://www.marsh-rocket.com/Pages.aspx?Pg_ID=0>                   |
 | AngelMoxie         | <http://www.venisproductions.com/angelmoxie/archives/0/0/001.html> |
 | Spying with Lana   | <http://www.amazingartbros.com/Lana2>                              |
 
-# comics with other problems
+## comics with other problems
 
-|    comic    |              problem               |                                      url                                       |
-| ----------- | ---------------------------------- | ------------------------------------------------------------------------------ |
-| AppleGeeks  | bad next                           | <http://www.applegeeks.com/comics/viewcomic.php?issue=1>                       |
-| CounterRose | bad html                           | <http://www.counter-rose.com/page.php?p=1>                                     |
-| DeadHeaven  | all images on one page, javascript | <http://www.deadheaven.net/start.html>                                         |
-| FreakAngels | later dude                         | <http://www.freakangels.com/?p=22&page=1>                                      |
-| DrMcNinja   | not today pal                      | <http://www.drmcninja.com/mcdonalds.html>                                      |
-| Shiniez     | deviant art                        | <http://shiniez.deviantart.com/gallery/35675685>                               |
-| BloodStain  | deviant art                         | <http://sigeel.deviantart.com/art/the-title-is-out-346949185>                  |
+|    comic    |              problem               |                              url                              |
+| ----------- | ---------------------------------- | ------------------------------------------------------------- |
+| FreakAngels | later dude                         | <http://www.freakangels.com/?p=22&page=1>                     |
+| Shiniez     | deviant art                        | <http://shiniez.deviantart.com/gallery/35675685>              |
+| BloodStain  | deviant art                        | <http://sigeel.deviantart.com/art/the-title-is-out-346949185> |
 
 # broken comics
 
-|         comic          |       problem       |                         url                         |
-| ---------------------- | ------------------- | --------------------------------------------------- |
-| Universal_Key          | page layout changes | <http://key.shadilyn.com/pages/085.html>            |
-| Drowtales Moonless Age | flash               | <http://www.drowtales.com/mainarchive.php?sid=4065> |
+|         comic          | problem |                         url                         |
+| ---------------------- | ------- | --------------------------------------------------- |
+| Drowtales Moonless Age | flash   | <http://www.drowtales.com/mainarchive.php?sid=4065> |
+| avas demons            | videos  | <http://www.avasdemon.com/0061.php#0061>            |
 
 # groups
 
