@@ -94,8 +94,7 @@ http://www.erstwhiletales.com/comicslist/
 
 -:Ever Night
 http://www.evernightcomic.com/archives/1
-:i #comic-1 > img
-:n #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
+:ia #comic img
 
 -:Falcon Twin
 http://www.falcontwin.com/archive.html
@@ -261,7 +260,7 @@ http://mangowow.zamomo.com/index.php?strip_id=1
 
 -:Undertow
 http://undertow.dreamshards.org/0/u0_0.html
-:i body > center > img:nth-child(1)
+:i body > center > img
 :n body > center > a:has(img[src~=saepoint.JPG]):not([href=http://undertow.dreamshards.org])
 
 -:Valiant
@@ -708,3 +707,70 @@ http://www.sandraandwoo.com/gaia/archive/
 :i #comic img
 :archiveReverse
 
+-:Replay
+http://replaycomic.com/comic/red-desert/
+:ia #comic img
+
+-:The Cummoner
+http://www.totempole666.com/archives-2/
+:am #post-188 > div > div.entry .comic-archive-chapter-wrap:has(a:contains(cover)) h3 , #post-188 > div > div.entry .comic-archive-chapter-wrap:has(a:contains(cover)) a[rel=bookmark]
+:i #comic img
+
+-:Applegeeks
+http://www.applegeeks.com/comics/viewcomic.php?issue=1
+:i #castheader > img
+:n #sidebar > div > p:last-of-type > a
+
+-:Counter Rose
+http://www.counter-rose.com/page.php?p=1
+:ia #cg_img img
+
+-DrMcNinja:Dr. McNinja
+http://drmcninja.com/issues/
+:ac #column > div > div > div.serieslist-content > h2 > a
+:i #comic > img
+:n #comic-head > a.next
+
+-:Lovecraft is Missing
+http://lovecraftismissing.com/?p=930
+:is #comic img[src~=comics]
+:n #column > div.post > div.comicdate > div > a[rel=next]
+
+-:Absurd Notions
+http://www.absurdnotions.org/listing.html
+:am body > center > table > tbody > tr > td:nth-child(1) , body > center > table > tbody > tr > td:nth-child(2) a
+:is body > center > img:not([src=bykp.gif])
+
+-:Why The Long Face
+http://www.absurdnotions.org/listwtlf.html
+:ac body > center > font:nth-child(2) > a[href~=wtlf\d{6}\.html]
+:is body > center > font:nth-child(1) > img[src~=lf\d{8}\.|wtlf_\d{8}]
+
+-:Ghastly’s Ghastly Comics
+http://www.ghastlycomic.com/d/20010509.html
+:i img[alt=Comic][src~=/comics/]
+:n a:has(img[alt=Next comic])
+
+-Krakow:Krakow 2.0
+http://www.marilith.com/krakow2/calendar.php
+:ac body > center > ul > li > a
+:is body > center > img
+:n a:has(img[src=images/next_day.gif])
+
+-:Marilith
+http://www.marilith.com/calendar.php
+:ac body > table > tbody > tr:nth-child(2) > td > table:nth-child(1) > tbody > tr:nth-child(2) > td > ul > li > a
+:i body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2) > table > tbody > tr:nth-child(2) > td > a > img
+:n a:has(img[src=images/next.gif])
+
+-:Teahouse
+http://teahousecomic.com/comic/archive.php
+:am #maincontent p[align=center] > img[src~=archives] , #maincontent a[href~=^/comic/\?id]
+:i #comicimg
+
+
+-:SkyFall
+http://www.skyfallmanga.com/archive_main.php
+:am body > center > table > tbody > tr:nth-child(5) > td > center > center b , body > center > table > tbody > tr:nth-child(5) > td > center > center a
+:is body > center > table > tbody > tr > td > center > img:not([src=images/blank.jpg])
+:n body > center > table > tbody > tr > td > center > a:has(img[src~=images/next.png])
