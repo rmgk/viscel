@@ -42,7 +42,7 @@ class NeoInstance(path: String) extends Neo with Ntx {
 
 	def node(label: Label, property: String, value: Any): Option[Node] = {
 		def go() =
-			db.findNodesByLabelAndProperty(label, property, value).asScala.toList match {
+			db.findNodes(label, property, value).asScala.toList match {
 				case List(node) => Some(node)
 				case Nil => None
 				case _ => throw new java.lang.IllegalStateException(s"found more than one entry for $label($property=$value)")
@@ -50,7 +50,7 @@ class NeoInstance(path: String) extends Neo with Ntx {
 		go()
 	}
 
-	def nodes(label: Label): List[Node] = tx { _ => GlobalGraphOperations.at(db).getAllNodesWithLabel(label).asScala.toList }
+	def nodes(label: Label): List[Node] = tx { _ => db.findNodes(label).asScala.toList }
 
 	def create(label: Label, attributes: (String, Any)*): Node = create(label, attributes.toMap)
 	def create(label: Label, attributes: Map[String, Any]): Node = {
