@@ -15,7 +15,7 @@ object Settings {
 
 		version := "1.0.0",
 		organization := "viscel",
-		scalaVersion := "2.11.5",
+		scalaVersion := "2.11.6",
 
 		scalacOptions ++= (
 			"-deprecation" ::
@@ -52,10 +52,10 @@ object Libraries {
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray ++ akka ++ scalactic ++ jsoup)
 
 	// gpl3
-	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.1.7")
+	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.2.0")
 
 	// apache 2
-	val spray = List("spray-client").map(n => "io.spray" %% n % "1.3.2")
+	val spray = List("spray-client").map(n => "io.spray" %% n % "1.3.3")
 
 	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.3.9")
 

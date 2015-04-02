@@ -29,7 +29,9 @@ trait Ntx {
 
 class NeoInstance(path: String) extends Neo with Ntx {
 	val db: GraphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path)
-		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE).newGraphDatabase()
+		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE)
+    .setConfig(GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE)
+    .newGraphDatabase()
 
 	sys.addShutdownHook { shutdown() }
 
