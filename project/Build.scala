@@ -133,10 +133,10 @@ object Libraries {
 		scalatags.value ::: upickle.value)
 
 	// gpl3
-	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.1.7")
+	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.2.0")
 
 	// apache 2
-	val spray = List("spray-routing").map(n => "io.spray" %% n % "1.3.2")
+	val spray = List("spray-routing").map(n => "io.spray" %% n % "1.3.3")
 
 	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.3.9")
 
@@ -146,7 +146,7 @@ object Libraries {
 
 	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.4" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
-	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.4.6" :: Nil)
+	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.5.1" :: Nil)
 
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.2.8" :: Nil)
 
