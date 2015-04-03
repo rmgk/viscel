@@ -20,7 +20,7 @@ import scala.util.Try
 class CrawlerUtil(blobs: BlobStore, responsHandler: Try[HttpResponse] => Unit) {
 
 	def urlToUri(in: URL): Uri = {
-		implicit class X(s: String) {def ? = Option(s).getOrElse("") }
+		implicit class X(s: String) {def ? = Option(s).getOrElse("")}
 		Uri.from(
 			scheme = in.getProtocol.?,
 			userinfo = in.getUserInfo.?,
@@ -36,8 +36,8 @@ class CrawlerUtil(blobs: BlobStore, responsHandler: Try[HttpResponse] => Unit) {
 
 	def getResponse(request: HttpRequest, iopipe: SendReceive): Future[HttpResponse] = {
 		val result = request ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
-		Log.info(s"get ${ request.uri } (${ request.headers })")
-		result.andThen(PartialFunction(responsHandler)).map { decode(Gzip) ~> decode(Deflate) }
+		Log.info(s"get ${request.uri} (${request.headers})")
+		result.andThen(PartialFunction(responsHandler)).map {decode(Gzip) ~> decode(Deflate)}
 	}
 
 	def request[R](source: URL, origin: Option[URL] = None): HttpRequest = {

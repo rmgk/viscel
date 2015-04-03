@@ -20,7 +20,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 
 	import runnerUtil._
 
-	override def toString: String = s"Job(${ narrator.toString })"
+	override def toString: String = s"Job(${narrator.toString})"
 
 	var assets: List[(Node, Asset)] = Nil
 	var volumes: List[(Node, More)] = Nil
@@ -42,7 +42,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 
 	def init(): Future[Boolean] = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
-			if(applyNarration(collection.self, narrator.archive)) collection.invalidateSize()
+			if (applyNarration(collection.self, narrator.archive)) collection.invalidateSize()
 			known = collectMore(collection.self).toSet
 			collection.self.fold(()) { _ => collectUnvisited }
 			pages = pages.reverse
@@ -71,15 +71,15 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 		assets match {
 			case (node, asset) :: rest =>
 				assets = rest
-				handle(request(asset.blob.get, asset.origin)) { parseBlob _ andThen writeAsset(node, asset) }
+				handle(request(asset.blob.get, asset.origin)) {parseBlob _ andThen writeAsset(node, asset)}
 			case Nil => volumes match {
 				case (node, volume) :: rest =>
 					volumes = rest
-					handle(request(volume.loc)) { parseDocument(volume.loc) _ andThen writePage(node, volume) }
+					handle(request(volume.loc)) {parseDocument(volume.loc) _ andThen writePage(node, volume)}
 				case Nil => pages match {
 					case (node, page) :: rest =>
 						pages = rest
-						handle(request(page.loc)) { parseDocument(page.loc) _ andThen writePage(node, page) }
+						handle(request(page.loc)) {parseDocument(page.loc) _ andThen writePage(node, page)}
 					case Nil =>
 						recheckOrDone()
 				}
@@ -89,8 +89,8 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 
 	def handle[T](request: HttpRequest)(handler: HttpResponse => Ntx => Unit): Unit = {
 		getResponse(request, iopipe).map { response =>
-			synchronized { neo.tx { handler(response) } }
-		}(ec).onFailure { PartialFunction(result.failure) }(ec)
+			synchronized {neo.tx {handler(response)}}
+		}(ec).onFailure {PartialFunction(result.failure)}(ec)
 	}
 
 	def tryRecovery(node: Node)(implicit ntx: Ntx) =
@@ -116,7 +116,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 	}
 
 	def writePage(node: Node, page: More)(doc: Document)(ntx: Ntx): Unit = {
-		Log.debug(s"$narrator: received ${ doc.baseUri() }, applying to $page")
+		Log.debug(s"$narrator: received ${doc.baseUri()}, applying to $page")
 		implicit def tx: Ntx = ntx
 		narrator.wrapped(doc, page) match {
 			case Good(wrapped) =>

@@ -26,7 +26,7 @@ object Scribe {
 	def time[T](desc: String = "")(f: => T): T = {
 		val start = System.nanoTime
 		val res = f
-		Console.println(s"$desc took ${ (System.nanoTime - start) / 1000000.0 } ms")
+		Console.println(s"$desc took ${(System.nanoTime - start) / 1000000.0} ms")
 		res
 	}
 
@@ -38,7 +38,7 @@ object Scribe {
 
 		val configNode = neo.tx { implicit ntx =>
 			val cfg = Config.get()(ntx)
-			if (cfg.version != 2) throw new IllegalStateException(s"config version not supported: ${ cfg.version }")
+			if (cfg.version != 2) throw new IllegalStateException(s"config version not supported: ${cfg.version}")
 
 			cfg
 		}
@@ -83,7 +83,7 @@ class Scribe(
 	val blobs: BlobStore,
 	val util: CrawlerUtil,
 	val cfg: ConfigNode
-) {
+	) {
 
 	val books = new Books(neo)
 
@@ -119,7 +119,7 @@ class Scribe(
 			Future.successful(false)
 		}
 		else {
-			Log.info(s"update ${ narrator.id }")
+			Log.info(s"update ${narrator.id}")
 			val runner = neo.tx { implicit ntx =>
 				val collection = books.findAndUpdate(narrator)
 				new Crawler(narrator, sendReceive, collection, neo, ec, util)

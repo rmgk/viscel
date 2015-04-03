@@ -29,10 +29,10 @@ trait Ntx {
 class NeoInstance(path: String) extends Neo with Ntx {
 	val db: GraphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path)
 		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE)
-    .setConfig(GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE)
-    .newGraphDatabase()
+		.setConfig(GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE)
+		.newGraphDatabase()
 
-	sys.addShutdownHook { shutdown() }
+	sys.addShutdownHook {shutdown()}
 
 
 	def shutdown(): Unit = {
@@ -62,7 +62,7 @@ class NeoInstance(path: String) extends Neo with Ntx {
 
 	def delete(node: Node) = {
 		Log.trace(s"delete node $node")
-		node.getRelationships.asScala.foreach { _.delete() }
+		node.getRelationships.asScala.foreach {_.delete()}
 		node.delete()
 	}
 

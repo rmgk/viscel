@@ -12,7 +12,7 @@ class Books(neo: Neo) {
 	def findExisting(id: String): Option[Book] =
 		Scribe.time(s"find $id") {
 			neo.tx { implicit ntx =>
-				ntx.node(label.Book, "id", id).map { Book.apply }
+				ntx.node(label.Book, "id", id).map {Book.apply}
 			}
 		}
 
