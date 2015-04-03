@@ -5,10 +5,11 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic._
 import viscel.narration.Queries._
-import viscel.narration.{Metarrator, Templates}
-import viscel.scribe.narration.SelectMore.stringToURL
-import viscel.scribe.narration.Selection
-import viscel.scribe.report.Report
+import viscel.narration.{SelectMore, Metarrator, Templates}
+import SelectMore.stringToURL
+import viscel.selection.Selection
+import viscel.selection.Report
+
 
 import viscel.store.Json.{urlReader, urlWriter}
 

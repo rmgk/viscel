@@ -5,10 +5,10 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import viscel.narration.Queries._
-import viscel.narration.{Metarrator, Templates}
-import viscel.scribe.narration.SelectMore._
-import viscel.scribe.narration.Selection
-import viscel.scribe.report.Report
+import viscel.narration.{SelectMore, Metarrator, Templates}
+import SelectMore._
+import viscel.selection.Selection
+import viscel.selection.Report
 
 object Batoto {
 

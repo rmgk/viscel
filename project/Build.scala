@@ -14,6 +14,7 @@ object Build extends sbt.Build {
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
 		.enablePlugins(JavaAppPackaging)
 		.dependsOn(scribe)
+		.dependsOn(selection)
 		.dependsOn(shared % Provided)
 		.settings(Settings.sharedSource)
 
@@ -32,6 +33,7 @@ object Build extends sbt.Build {
 		.settings(libraryDependencies ++= Libraries.shared.value)
 
 	lazy val scribe = ProjectRef(file("scribe"), "scribe")
+	lazy val selection = ProjectRef(file("selection"), "selection")
 
 }
 

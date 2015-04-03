@@ -4,9 +4,8 @@ import java.nio.file.Path
 import java.util.{Timer, TimerTask}
 
 import org.scalactic.{Bad, Good}
-import viscel.narration.Narrators
+import viscel.narration.{Narrator, Narrators}
 import viscel.scribe.Scribe
-import viscel.scribe.narration.Narrator
 import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
 import viscel.store.{Json, Users}
 

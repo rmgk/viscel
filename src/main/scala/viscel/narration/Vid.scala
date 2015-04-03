@@ -8,11 +8,11 @@ import java.nio.file.{Files, Path}
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, Every, Good, Or, attempt}
 import org.scalactic.ErrorMessage
-import viscel.scribe.narration.{Asset, More, Story, Narrator}
-import viscel.scribe.narration.SelectMore._
+import viscel.scribe.narration.{Asset, More, Story}
+import viscel.narration.SelectMore._
 import viscel.narration.Queries._
-import viscel.scribe.report.Report
-import viscel.scribe.report.ReportTools.{append, augmentBad}
+import viscel.selection.Report
+import viscel.selection.ReportTools.{append, augmentBad}
 import viscel.{Log, Viscel}
 
 import scala.Predef.augmentString

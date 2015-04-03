@@ -7,11 +7,11 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.Log
 import viscel.narration.Queries._
-import viscel.narration.{Data, Metarrator}
-import viscel.scribe.narration.SelectMore._
-import viscel.scribe.narration.{More, Narrator, Normal, Selection, Story, Volatile}
-import viscel.scribe.report.Report
-import viscel.scribe.report.ReportTools._
+import viscel.narration.{Narrator, SelectMore, Data, Metarrator}
+import viscel.narration.SelectMore._
+import viscel.scribe.narration.{More, Normal, Story, Volatile}
+import viscel.selection.{Selection, Report}
+import viscel.selection.ReportTools._
 
 import scala.Predef.augmentString
 

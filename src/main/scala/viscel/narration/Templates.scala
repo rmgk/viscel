@@ -4,8 +4,8 @@ import java.net.URL
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
-import viscel.scribe.narration.{More, Narrator, Normal, Story, Volatile}
-import viscel.scribe.report.Report
+import viscel.scribe.narration.{More, Normal, Story, Volatile}
+import viscel.selection.Report
 
 object Templates {
 	def AP(

@@ -4,10 +4,11 @@ import org.jsoup.nodes.Element
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.narration.Data.Chapter
-import viscel.scribe.narration.SelectMore._
-import viscel.scribe.narration.{Policy, Asset, More, Selection, Story}
-import viscel.scribe.report.Report
-import viscel.scribe.report.ReportTools._
+import viscel.narration.SelectMore._
+import viscel.scribe.narration.{Policy, Asset, More, Story}
+
+import viscel.selection.{Selection, Report}
+import viscel.selection.ReportTools._
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.language.implicitConversions

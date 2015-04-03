@@ -1,3 +1,6 @@
 [submodule "scribe"]
 	path = scribe
 	url = git@github.com:rmgk/viscel-scribe.git
+[submodule "selection"]
+	path = selection
+	url = git@github.com:rmgk/viscel-selection.git

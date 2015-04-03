@@ -7,12 +7,12 @@ import org.scalactic.Accumulation._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Data.{Article, Chapter, listToMap, mapToList}
 import viscel.narration.Queries._
-import viscel.narration.Templates
+import viscel.narration.{Narrator, SelectMore, Templates}
 import viscel.narration.Templates.{SF, AP}
-import viscel.scribe.narration.SelectMore._
-import viscel.scribe.narration.{Selection, More, Narrator, Normal, Story, Volatile}
-import viscel.scribe.report.Report
-import viscel.scribe.report.ReportTools._
+import SelectMore._
+import viscel.scribe.narration.{More, Normal, Story, Volatile}
+import viscel.selection.{Selection, Report}
+import viscel.selection.ReportTools._
 import org.scalactic.TypeCheckedTripleEquals._
 
 import scala.Predef.augmentString

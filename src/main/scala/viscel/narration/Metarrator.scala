@@ -5,8 +5,7 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import upickle.{Reader, Writer}
-import viscel.scribe.narration.Narrator
-import viscel.scribe.report.Report
+import viscel.selection.Report
 import viscel.store.Json
 import viscel.{Log, Viscel}
 

@@ -4,7 +4,6 @@ import java.net.URL
 
 import viscel.narration.narrators._
 import viscel.scribe.Scribe
-import viscel.scribe.narration.Narrator
 
 import scala.collection.Set
 import scala.concurrent.Future

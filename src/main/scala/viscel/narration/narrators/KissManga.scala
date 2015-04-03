@@ -5,13 +5,13 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import viscel.narration.Queries._
-import viscel.narration.{Data, Metarrator, Templates}
-import viscel.scribe.narration.SelectMore._
-import viscel.scribe.narration.Selection
-import viscel.scribe.report.Report
+import viscel.narration.{SelectMore, Data, Metarrator, Templates}
+import SelectMore._
+import viscel.selection.Selection
+import viscel.selection.Report
 import scala.Predef.augmentString
-import viscel.scribe.report.Report
-import viscel.scribe.report.ReportTools._
+import viscel.selection.Report
+import viscel.selection.ReportTools._
 
 
 object KissManga {
