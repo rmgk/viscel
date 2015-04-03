@@ -37,7 +37,10 @@ object Build extends sbt.Build {
 		.settings(Settings.common: _*)
 		.settings(Libraries.scribe: _*)
 
-	lazy val selection = ProjectRef(file("selection"), "selection")
+	lazy val selection = project.in(file("selection"))
+		.settings(name := "selection")
+		.settings(Settings.common: _*)
+		.settings(Libraries.selection: _*)
 
 }
 
@@ -139,6 +142,8 @@ object Libraries {
 		scalatags.value ::: upickle.value)
 
 	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray_client ++ akka ++ scalactic ++ jsoup)
+
+	lazy val selection: List[Def.Setting[_]] = List(libraryDependencies ++= scalactic ++ jsoup)
 
 
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
