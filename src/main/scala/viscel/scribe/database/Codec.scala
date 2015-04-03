@@ -1,8 +1,9 @@
 package viscel.scribe.database
 
+import java.net.URL
+
 import org.neo4j.graphdb.Node
 import viscel.scribe.database.Implicits.NodeOps
-import viscel.scribe.narration.SelectMore.stringToURL
 import viscel.scribe.narration.{Asset, Blob, More, Policy, Story}
 
 import scala.Predef.ArrowAssoc
@@ -16,6 +17,9 @@ trait Codec[T] {
 }
 
 object Codec {
+
+	//implicit def stringToURL(s: String): URL = new URL(s)
+
 
 	def load[S](node: Node)(implicit ntx: Ntx, codec: Codec[S]): S = codec.read(node)
 
@@ -43,8 +47,8 @@ object Codec {
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): Asset = Asset(
-			blob = node.get[String]("blob").map(stringToURL),
-			origin = node.get[String]("origin").map(stringToURL),
+			blob = node.get[String]("blob").map(new URL(_)),
+			origin = node.get[String]("origin").map(new URL(_)),
 			kind = node.prop[Byte]("kind"),
 			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)
@@ -59,7 +63,7 @@ object Codec {
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): More = More(
-			loc = node.prop[String]("loc"),
+			loc = new URL(node.prop[String]("loc")),
 			policy = Policy.int(node.get[Byte]("policy")),
 			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)

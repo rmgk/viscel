@@ -118,7 +118,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 	def writePage(node: Node, page: More)(doc: Document)(ntx: Ntx): Unit = {
 		Log.debug(s"$narrator: received ${ doc.baseUri() }, applying to $page")
 		implicit def tx: Ntx = ntx
-		narrator.wrap(doc, page) match {
+		narrator.wrapped(doc, page) match {
 			case Good(wrapped) =>
 				val wasEmpty = node.layer.isEmpty
 				val filter = known.diff(collectMore(node).reverse.tail.toSet)
@@ -134,7 +134,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 				}
 				ec.execute(this)
 			case Bad(failed) =>
-				Log.error(s"$narrator failed on $page: ${failed.map(_.describe)}")
+				Log.error(s"$narrator failed on $page: $failed")
 				tryRecovery(node)(ntx)
 		}
 	}
