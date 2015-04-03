@@ -7,7 +7,6 @@ import viscel.scribe.database.Implicits.NodeOps
 import viscel.scribe.narration.{Asset, Blob, More, Policy, Story}
 
 import scala.Predef.ArrowAssoc
-import scala.Predef.genericArrayOps
 import scala.language.implicitConversions
 
 
