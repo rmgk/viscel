@@ -5,10 +5,9 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.narration.Data.Chapter
 import viscel.narration.SelectMore._
-import viscel.scribe.narration.{Policy, Asset, More, Story}
-
-import viscel.selection.{Selection, Report}
+import viscel.scribe.narration.{Asset, More, Policy, Story}
 import viscel.selection.ReportTools._
+import viscel.selection.{Report, Selection}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.language.implicitConversions

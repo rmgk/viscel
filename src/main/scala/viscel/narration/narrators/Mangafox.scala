@@ -6,12 +6,10 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{Every, Or}
 import viscel.narration.Queries._
+import viscel.narration.SelectMore.{extractURL, stringToURL}
 import viscel.narration._
-import SelectMore.{extractURL, stringToURL}
 import viscel.scribe.narration.{More, Story, Volatile}
-import viscel.selection.Selection
-import viscel.selection.Report
-import viscel.store.Json.{urlReader, urlWriter}
+import viscel.selection.{Report, Selection}
 
 object Mangafox {
 	case class Mfox(override val id: String, override val name: String, url: URL) extends Narrator {

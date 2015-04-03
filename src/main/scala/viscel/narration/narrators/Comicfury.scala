@@ -3,11 +3,11 @@ package viscel.narration.narrators
 import java.net.URL
 
 import org.jsoup.nodes.Document
-import org.scalactic.{Good, Every, Or}
-import viscel.narration.{SelectMore, Metarrator, Queries, Templates}
-import viscel.selection.Report
+import org.scalactic.{Every, Good, Or}
 import viscel.narration.Queries.RegexContext
 import viscel.narration.SelectMore.stringToURL
+import viscel.narration.{Metarrator, Queries, Templates}
+import viscel.selection.Report
 
 object Comicfury {
 	case class Cfury(cid: String, override val name: String) extends Templates.SF(

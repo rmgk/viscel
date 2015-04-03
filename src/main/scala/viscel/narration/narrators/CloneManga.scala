@@ -1,11 +1,8 @@
 package viscel.narration.narrators
 
 
-import org.jsoup.nodes.Document
-import org.scalactic.Accumulation._
-import viscel.narration.{SelectMore, Queries, Templates}
-import viscel.selection.Selection
 import viscel.narration.SelectMore._
+import viscel.narration.{Queries, Templates}
 
 import scala.collection.immutable.Set
 

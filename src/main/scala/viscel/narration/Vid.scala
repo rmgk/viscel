@@ -6,17 +6,15 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
 import org.jsoup.nodes.Document
-import org.scalactic.{Bad, Every, Good, Or, attempt}
-import org.scalactic.ErrorMessage
-import viscel.scribe.narration.{Asset, More, Story}
-import viscel.narration.SelectMore._
+import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
 import viscel.narration.Queries._
+import viscel.narration.SelectMore._
+import viscel.scribe.narration.{More, Story}
 import viscel.selection.Report
 import viscel.selection.ReportTools.{append, augmentBad}
 import viscel.{Log, Viscel}
 
 import scala.Predef.augmentString
-import scala.Predef.genericArrayOps
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.Map

@@ -4,19 +4,18 @@ import java.net.URL
 
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
+import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Data.{Article, Chapter, listToMap, mapToList}
 import viscel.narration.Queries._
+import viscel.narration.SelectMore._
+import viscel.narration.Templates.{AP, SF}
 import viscel.narration.{Narrator, SelectMore, Templates}
-import viscel.narration.Templates.{SF, AP}
-import SelectMore._
 import viscel.scribe.narration.{More, Normal, Story, Volatile}
-import viscel.selection.{Selection, Report}
 import viscel.selection.ReportTools._
-import org.scalactic.TypeCheckedTripleEquals._
+import viscel.selection.{Report, Selection}
 
-import scala.Predef.augmentString
-import scala.Predef.{$conforms, ArrowAssoc}
+import scala.Predef.{$conforms, augmentString}
 import scala.collection.immutable.Set
 
 object Individual {

@@ -4,7 +4,7 @@ import spray.can.server.Stats
 import spray.http._
 import upickle.Writer
 import viscel.Log
-import viscel.narration.{Data, AssetKind, Narrators}
+import viscel.narration.{AssetKind, Data, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.database.{Neo, label}
 import viscel.scribe.narration.{Asset => SAsset, Page}

@@ -1,7 +1,6 @@
 package viscel.narration
 
 import org.jsoup.nodes.Document
-import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{ErrorMessage, Every, Or}
 import viscel.scribe.narration.{More, Story}
 import viscel.selection.Report

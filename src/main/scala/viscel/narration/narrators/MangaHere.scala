@@ -5,13 +5,9 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic._
 import viscel.narration.Queries._
-import viscel.narration.{SelectMore, Metarrator, Templates}
-import SelectMore.stringToURL
-import viscel.selection.Selection
-import viscel.selection.Report
-
-
-import viscel.store.Json.{urlReader, urlWriter}
+import viscel.narration.SelectMore.stringToURL
+import viscel.narration.{Metarrator, SelectMore, Templates}
+import viscel.selection.{Report, Selection}
 
 import scala.Predef.augmentString
 
