@@ -23,10 +23,10 @@ object Index {
 		val (hasNewPages, isCurrent) = bookmarkedNarrations.partition(_._3 > 15)
 
 		val unreadTags = hasNewPages.sortBy(-_._3).map {
-			case (nr, pos, unread) => link_front(nr, s"${ nr.name } ($unread)")
+			case (nr, pos, unread) => link_front(nr, s"${nr.name} ($unread)")
 		}
 		val currentTags = isCurrent.sortBy(_._1.name).map {
-			case (nr, pos, unread) => link_front(nr, s"${ nr.name }${ if (unread == 0) "" else s" ($unread)" }")
+			case (nr, pos, unread) => link_front(nr, s"${nr.name}${if (unread == 0) "" else s" ($unread)"}")
 		}
 
 		val (totalBookmarks, unreadBookmarks) = bookmarkedNarrations.foldLeft((0, 0)) { case ((pos, unread), (nar, p, u)) => (pos + p, unread + (if (u > 0) u else 0)) }

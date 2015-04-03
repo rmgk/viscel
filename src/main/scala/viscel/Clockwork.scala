@@ -31,7 +31,7 @@ class Clockwork(path: Path, scribe: Scribe) {
 					case Bad(err) => Log.error(s"could not load bookmarked collections: $err")
 					case Good(users) =>
 						val narrators = users.flatMap(_.bookmarks.keySet).distinct.map(Narrators.get).flatten
-						narrators.foreach { runNarrator(_, 7 * dayInMillis) }
+						narrators.foreach {runNarrator(_, 7 * dayInMillis)}
 				}
 			}
 		}, delay, period)
@@ -45,7 +45,7 @@ class Clockwork(path: Path, scribe: Scribe) {
 					Log.error(s"recheck failed with $t")
 					t.printStackTrace()
 				case Success(true) =>
-					Log.info(s"update ${ n.id } complete")
+					Log.info(s"update ${n.id} complete")
 					updateDates(n.id)
 				case Success(false) =>
 			}

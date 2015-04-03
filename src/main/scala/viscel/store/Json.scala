@@ -12,7 +12,7 @@ object Json {
 	implicit val urlReader: Reader[URL] = Reader[URL] {
 		case upickle.Js.Str(str) => new URL(str)
 	}
-	implicit val urlWriter: Writer[URL] = Writer[URL] {url => upickle.Js.Str(url.toString)}
+	implicit val urlWriter: Writer[URL] = Writer[URL] { url => upickle.Js.Str(url.toString) }
 
 	def store[T: Writer](p: Path, data: T) = synchronized {
 		val jsonBytes = upickle.write(data).getBytes(UTF_8)
@@ -25,7 +25,7 @@ object Json {
 			val jsonString = String.join("\n", Files.readAllLines(p, UTF_8))
 			Good(upickle.read[T](jsonString))
 		}
-		catch { case e: Exception => Bad(e) }
+		catch {case e: Exception => Bad(e)}
 	}
 
 }

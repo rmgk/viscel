@@ -11,9 +11,9 @@ object SearchUtil {
 		if (lcql.isEmpty) items.sortBy(_._1).map(_._2)
 		else items
 			.map { item => item -> fuzzyMatch(lcql, item._1.toLowerCase.toList) }
-			.filter { _._2 > 0 }
-			.sortBy { -_._2 }
-			.map { _._1._2 }
+			.filter {_._2 > 0}
+			.sortBy {-_._2}
+			.map {_._1._2}
 	}
 
 	@tailrec

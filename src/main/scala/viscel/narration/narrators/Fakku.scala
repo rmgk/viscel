@@ -19,7 +19,7 @@ object Fakku {
 
 	val baseURL = new URL("https://www.fakku.net/")
 	val extractID = ".*/(?:manga|doujinshi)/([^/]+)/read".r
-	def makeID(part: String) = s"Fakku_${ part.replaceAll("\\W", "_") }"
+	def makeID(part: String) = s"Fakku_${part.replaceAll("\\W", "_")}"
 
 
 	case class FKU(override val id: String, override val name: String, url: String, collection: Boolean = false) extends Narrator {
@@ -47,9 +47,9 @@ object Fakku {
 			val start = htmlSource.indexOf(findStr) + findStr.length
 			val end = htmlSource.indexOf("\n", start) - 1
 			Log.info(s"extract $start, $end,")
-			extract { upickle.read[List[String]](htmlSource.substring(start, end)).map(_.replaceAll("thumbs/(\\d+).thumb", "images/$1")).map(new URL(baseURL, _).toString) }.map(_.map { url =>
+			extract {upickle.read[List[String]](htmlSource.substring(start, end)).map(_.replaceAll("thumbs/(\\d+).thumb", "images/$1")).map(new URL(baseURL, _).toString)}.map(_.map { url =>
 				val extractPos(pos) = url
-				Data.Article(url, s"${ doc.baseUri() }#page=$pos")
+				Data.Article(url, s"${doc.baseUri()}#page=$pos")
 			})
 		}
 	}
@@ -59,7 +59,7 @@ object Fakku {
 			case extractID(eid) => makeID(eid)
 			case _ => throw new IllegalArgumentException(s"could not find id for $url")
 		}
-		FKU(_id, s"[FK] ${ name }", url)
+		FKU(_id, s"[FK] ${name}", url)
 	}
 
 
@@ -72,7 +72,7 @@ object Fakku {
 		def wrap(doc: Document): List[FKU] Or Every[Report] = doc.baseUri() match {
 			case rex"https://www.fakku.net/collections/($id[^/]*)" =>
 				val name_? = Selection(doc).unique("#page div.attribute-header.collection > h1").wrapOne(e => Good(e.text()))
-				name_?.map(name => FKU(makeID(id), s"[FK] ${ name }", doc.baseUri(), collection = true) :: Nil)
+				name_?.map(name => FKU(makeID(id), s"[FK] ${name}", doc.baseUri(), collection = true) :: Nil)
 			case other =>
 				val current = Selection(doc).all("div.content-wrap")
 				val currentUrl_? = current.optional("a.button.green").wrapEach(e => Good(e.attr("abs:href")))
@@ -80,7 +80,7 @@ object Fakku {
 
 				val rows_? = Selection(doc).all(".content-row a.content-title").get.map(_.map { a => (a.text, a.attr("abs:href") + "/read") })
 
-				val pairs = append(withGood(currentName_?, currentUrl_?) { _ zip _ }.recover(_ => Nil), rows_?)
+				val pairs = append(withGood(currentName_?, currentUrl_?) {_ zip _}.recover(_ => Nil), rows_?)
 
 				pairs.map(_.map((create _).tupled))
 		}

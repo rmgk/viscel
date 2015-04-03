@@ -156,7 +156,7 @@ object Vid {
 		val dynamic = if (!Files.exists(dir)) Nil
 		else {
 			val paths = Files.newDirectoryStream(dir, "*.vid")
-			paths.iterator().asScala.flatMap { load }.toList
+			paths.iterator().asScala.flatMap {load}.toList
 		}
 
 		val stream = new BufferedReader(new InputStreamReader(getClass.getClassLoader.getResourceAsStream("definitions.vid"), StandardCharsets.UTF_8)).lines()

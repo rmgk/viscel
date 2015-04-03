@@ -11,7 +11,7 @@ import scala.collection.immutable.Set
 object Snafu {
 
 	def Snar(id: String, name: String, start: String) = Templates.AP(id, name, start,
-		Selection(_).unique(".pagecontentbox").many("a").wrap { _.reverse.validatedBy(extractMore) },
+		Selection(_).unique(".pagecontentbox").many("a").wrap {_.reverse.validatedBy(extractMore)},
 		Queries.queryImage("img[src~=comics/\\d{6}]")
 	)
 

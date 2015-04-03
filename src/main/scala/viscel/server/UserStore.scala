@@ -35,9 +35,9 @@ class UserStore(implicit ec: ExecutionContext) {
 			Log.trace(s"login: $user $password")
 			// time("login") {
 			if (user.matches("\\w+")) {
-				Future.successful { getUserNode(user, password).filter(_.password === password) }
+				Future.successful {getUserNode(user, password).filter(_.password === password)}
 			}
-			else { Future.successful(None) }
+			else {Future.successful(None)}
 		// }
 		case None =>
 			Future.successful(None)

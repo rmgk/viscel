@@ -8,8 +8,8 @@ import scala.collection.immutable.Set
 
 object CloneManga {
 
-	def Clone(id: String, name: String, start: String)= Templates.SF(id, name, start,
-	Queries.queryImageNext(".subsectionContainer img", ".subsectionContainer > a:first-child"))
+	def Clone(id: String, name: String, start: String) = Templates.SF(id, name, start,
+		Queries.queryImageNext(".subsectionContainer img", ".subsectionContainer > a:first-child"))
 
 	def cores = Set(
 		("graveyard_snax", "Vampire Bride", "http://manga.clone-army.org/viewer.php?lang=english&series=graveyard_snax&page=1"),

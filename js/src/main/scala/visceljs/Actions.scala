@@ -5,10 +5,10 @@ import org.scalajs.dom.MouseEvent
 import viscel.shared.Description
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.{Front, Index, View}
-import scala.scalajs.js.URIUtils.decodeURIComponent
 
 import scala.Predef.$conforms
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
+import scala.scalajs.js.URIUtils.decodeURIComponent
 import scalatags.JsDom.all.{Modifier, bindJsAnyLike, onclick}
 
 
@@ -78,7 +78,7 @@ object Actions {
 
 
 	def setBodyIndex(scrolltop: Boolean = false) = {
-		for (bm <- Viscel.bookmarks; nar <- Viscel.descriptions) { Viscel.setBody(Index.gen(bm, nar), scrolltop) }
+		for (bm <- Viscel.bookmarks; nar <- Viscel.descriptions) {Viscel.setBody(Index.gen(bm, nar), scrolltop)}
 	}
 
 	def setBodyFront(nar: Description, scrolltop: Boolean = false): Unit = {

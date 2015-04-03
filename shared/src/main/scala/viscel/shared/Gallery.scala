@@ -14,7 +14,7 @@ final class Gallery[+A] private(val pos: Int, entries: Array[A]) {
 	def next(n: Int): Gallery[A] = copy(if (pos + n < size) pos + n else size)
 	def prev(n: Int): Gallery[A] = copy(if (pos - n >= 0) pos - n else 0)
 	def size: Int = entries.length
-	override def toString: String = s"Gallery(${ Predef.genericWrapArray(entries).mkString(", ") })"
+	override def toString: String = s"Gallery(${Predef.genericWrapArray(entries).mkString(", ")})"
 	def isFirst: Boolean = pos == 0
 	def isEnd: Boolean = pos == size
 	def isEmpty: Boolean = isFirst && isEnd

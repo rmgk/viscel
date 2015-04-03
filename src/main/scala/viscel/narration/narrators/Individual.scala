@@ -29,7 +29,7 @@ object Individual {
 
 		def wrapIssue(doc: Document): Or[List[Story], Every[Report]] = {
 			val elements_? = Selection(doc).many("a[href~=issue\\d+/.*\\.htm$]:has(img)").wrapEach { anchor =>
-				val element_? = Selection(anchor).unique("img").wrapOne { imgIntoAsset }
+				val element_? = Selection(anchor).unique("img").wrapOne {imgIntoAsset}
 				val origin_? = extractURL(anchor)
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
@@ -57,7 +57,7 @@ object Individual {
 
 		def wrapArchive(doc: Document): Or[List[Story], Every[Report]] = {
 			val volumes_? = morePolicy(Volatile,
-				Selection(doc).many("#candimidd > p:nth-child(2) a").wrapEach { extractMore })
+				Selection(doc).many("#candimidd > p:nth-child(2) a").wrapEach {extractMore})
 			// the list of volumes is also the first volume, wrap this directly
 			val firstVolume_? = wrapVolume(doc)
 
@@ -67,7 +67,7 @@ object Individual {
 		}
 
 		def wrapVolume(doc: Document): Or[List[Story], Every[Report]] =
-			Selection(doc).many("#candimidd > table > tbody > tr > td:nth-child(2n) a").wrapFlat { elementIntoChapterPointer }
+			Selection(doc).many("#candimidd > table > tbody > tr > td:nth-child(2n) a").wrapFlat {elementIntoChapterPointer}
 
 
 		def wrap(doc: Document, more: More): List[Story] Or Every[Report] = more match {
@@ -80,11 +80,11 @@ object Individual {
 
 	val Flipside = Templates.AP("NX_Flipside", "Flipside", "http://flipside.keenspot.com/chapters.php",
 		Selection(_).many("td:matches(Chapter|Intermission)").wrapFlat { data =>
-			val pages_? = Selection(data).many("a").wrapEach(extractMore).map { _.distinct }
+			val pages_? = Selection(data).many("a").wrapEach(extractMore).map {_.distinct}
 			val name_? = if (data.text.contains("Chapter"))
-				Selection(data).unique("td:root > div:first-child").getOne.map { _.text() }
+				Selection(data).unique("td:root > div:first-child").getOne.map {_.text()}
 			else
-				Selection(data).unique("p > b").getOne.map { _.text }
+				Selection(data).unique("p > b").getOne.map {_.text}
 
 			withGood(pages_?, name_?) { (pages, name) =>
 				Chapter(name) :: pages
@@ -111,7 +111,7 @@ object Individual {
 
 	object JayNaylor {
 		def common(id: String, name: String, archiveUri: URL) = Templates.AP(id, name, archiveUri,
-			doc => Selection(doc).many("#chapters li > a").wrapFlat { elementIntoChapterPointer },
+			doc => Selection(doc).many("#chapters li > a").wrapFlat {elementIntoChapterPointer},
 			queryImages("#comicentry .content img"))
 
 		def BetterDays = common("NX_BetterDays", "Better Days", "http://jaynaylor.com/betterdays/archives/chapter-1-honest-girls/")
@@ -144,19 +144,19 @@ object Individual {
 
 		def wrapArchive(doc: Document): Or[List[Story], Every[Report]] = {
 			val volumes_? = morePolicy(Volatile,
-				Selection(doc).many("#archive_browse a[href~=.*archive/volume\\d+$]").wrapEach { extractMore })
+				Selection(doc).many("#archive_browse a[href~=.*archive/volume\\d+$]").wrapEach {extractMore})
 			// the list of volumes is also the first volume, wrap this directly
 			val firstVolume_? = wrapVolume(doc)
 
 			withGood(firstVolume_?, volumes_?) { (first, volumes) =>
-				Chapter(s"Volume 1") :: first ::: volumes.drop(1).zipWithIndex.flatMap { case (v, i) => Chapter(s"Volume ${ i + 2 }") :: v :: Nil }
+				Chapter(s"Volume 1") :: first ::: volumes.drop(1).zipWithIndex.flatMap { case (v, i) => Chapter(s"Volume ${i + 2}") :: v :: Nil }
 			}
 		}
 
 		def wrapVolume(doc: Document): Or[List[Story], Every[Report]] =
 			Selection(doc)
 				.unique("#archive_chapters")
-				.many("a[href~=/strips-ma3/]").wrapEach { extractMore }
+				.many("a[href~=/strips-ma3/]").wrapEach {extractMore}
 
 
 		def wrap(doc: Document, more: More): List[Story] Or Every[Report] = more match {
@@ -192,7 +192,7 @@ object Individual {
 			val elements_? = Selection(doc)
 				.unique(".comiclist table.wide_gallery")
 				.many("[id~=^comic_\\d+$] .picture a").wrapEach { anchor =>
-				val element_? = Selection(anchor).unique("img").wrapOne { imgIntoAsset }
+				val element_? = Selection(anchor).unique("img").wrapOne {imgIntoAsset}
 				val origin_? = extractURL(anchor)
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
@@ -201,7 +201,7 @@ object Individual {
 						data = mapToList(listToMap(element.data) - "width" - "height"))
 				}
 			}
-			val next_? = Selection(doc).all("a.next").wrap { selectMore }
+			val next_? = Selection(doc).all("a.next").wrap {selectMore}
 
 			append(elements_?, next_?)
 		}
@@ -244,7 +244,7 @@ object Individual {
 		def wrapArchive(doc: Document): List[Story] Or Every[Report] = {
 			Selection(doc).many(".archive .chapter").wrapFlat { chapter =>
 				val title_? = Selection(chapter).unique("h4").getOne.map(_.ownText())
-				val links_? = Selection(chapter).many("a").wrapEach { extractMore }
+				val links_? = Selection(chapter).many("a").wrapEach {extractMore}
 				withGood(title_?, links_?) { (title, links) =>
 					Chapter(title) :: links
 				}
@@ -253,11 +253,10 @@ object Individual {
 
 		def wrap(doc: Document, more: More): Or[List[Story], Every[Report]] = more match {
 			case More(_, Volatile, "archive" :: Nil) => wrapArchive(doc)
-			case More(_, Volatile, "main" :: Nil) =>  Selection(doc).unique(".comic img[src~=images/\\d+\\.\\w+]").wrapEach { imgIntoAsset }
-			case _ => Selection(doc).unique("#cg_img img").wrapEach { imgIntoAsset }
+			case More(_, Volatile, "main" :: Nil) => Selection(doc).unique(".comic img[src~=images/\\d+\\.\\w+]").wrapEach {imgIntoAsset}
+			case _ => Selection(doc).unique("#cg_img img").wrapEach {imgIntoAsset}
 		}
 	}
-
 
 
 	object YouSayItFirst extends Narrator {
@@ -271,7 +270,6 @@ object Individual {
 				else queryImageInAnchor("body > center > div.mainwindow > center:nth-child(2) > table center img")(doc)
 		}
 	}
-
 
 
 	object UnlikeMinerva extends Narrator {
@@ -299,7 +297,7 @@ object Individual {
 		AP("NX_SixGunMage", "6 Gun Mage", "http://www.6gunmage.com/archives.php",
 			doc => Selection(doc).many("#bottomleft > select > option[value~=\\d+]").wrapFlat { elem =>
 				val tpIndex = elem.text().indexOf("Title Page")
-				val page = More(s"http://www.6gunmage.com/index.php?id=${ elem.attr("value") }") :: Nil
+				val page = More(s"http://www.6gunmage.com/index.php?id=${elem.attr("value")}") :: Nil
 				Good(if (tpIndex > 0) Chapter(elem.text().substring(tpIndex + "Title Page ".length)) :: page else page)
 			},
 			queryImage("#comic")),
@@ -320,7 +318,7 @@ object Individual {
 		AP("NX_GoGetARoomie", "Go Get a Roomie!", "http://www.gogetaroomie.com/archive.php",
 			doc => Selection(doc).unique("#comicwrap").wrapOne { comicwrap =>
 				val pages_? = Selection(comicwrap).many("> select > option[value~=^\\d+$]").wrapEach(e =>
-					extract(More(s"http://www.gogetaroomie.com/index.php?id=${ e.attr("value").toInt }")))
+					extract(More(s"http://www.gogetaroomie.com/index.php?id=${e.attr("value").toInt}")))
 				val chapters_? = Selection(comicwrap).many("h2 a").wrapEach(elementIntoChapterPointer).map(_.map(cp => (cp(0), cp(1))))
 				withGood(pages_?, chapters_?) { (pages, chapters) =>
 					placeChapters(pages, chapters)
@@ -396,13 +394,13 @@ object Individual {
 			doc => append(queryImages("body > div.comic > img")(doc), queryNext("#bottom a:has(img[alt=Next])")(doc))),
 		AP("NX_DreamScar", "dream*scar", "http://dream-scar.net/archive.php",
 			Selection(_).many("#static > b , #static > a").wrapEach { elem =>
-				if (elem.tagName() === "b") extract { Chapter(elem.text()) }
+				if (elem.tagName() === "b") extract {Chapter(elem.text())}
 				else extractMore(elem)
 			},
 			queryImage("#comic")),
 		SF("NX_Everblue", "Everblue", "http://everblue-comic.com/archive.php",
 			Selection(_).unique("#archive-thumbs").many("h3, a").wrapEach { elem =>
-				if (elem.tagName() === "h3") extract { Chapter(elem.text()) }
+				if (elem.tagName() === "h3") extract {Chapter(elem.text())}
 				else Selection(elem).unique("img").wrapOne { img =>
 					val origin = elem.attr("abs:href")
 					val source = img.attr("abs:src").replace("/admin/img/thumb/", "/img/comic/")
@@ -416,10 +414,10 @@ object Individual {
 			Selection(_).many("table[id~=chapter\\d+_table]").wrap {
 				_.zipWithIndex.map { case (elem, idx) =>
 					Selection(elem).many("a").wrap { as =>
-						Good(Chapter(s"Chapter ${ idx + 1 }") ::
+						Good(Chapter(s"Chapter ${idx + 1}") ::
 							as.sortBy(_.text()).map { a =>
 								val origin = a.attr("abs:href")
-								val source = s"http://www.avasdemon.com/pages/${ a.text() }.png"
+								val source = s"http://www.avasdemon.com/pages/${a.text()}.png"
 								Article(source, origin)
 							})
 					}

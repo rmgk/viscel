@@ -2,9 +2,9 @@ package visceljs
 
 import viscel.shared.Description
 import visceljs.Actions.{gotoFront, gotoIndex, gotoView, onLeftClick}
-import scala.scalajs.js.URIUtils.encodeURIComponent
 
 import scala.Predef.$conforms
+import scala.scalajs.js.URIUtils.encodeURIComponent
 import scalatags.JsDom.all.{Frag, SeqFrag, Tag, a, cls, href, stringAttr}
 
 
@@ -13,10 +13,10 @@ object Definitions {
 
 	def path_main = "#"
 	def path_css = "css"
-	def path_asset(data: Data) = s"#${ encodeURIComponent(data.id) }/${ data.pos + 1 }"
+	def path_asset(data: Data) = s"#${encodeURIComponent(data.id)}/${data.pos + 1}"
 	def path_search = "s"
-	def path_blob(blob: String) = if (blob.contains("/")) blob else s"blob/${ blob }"
-	def path_front(nar: Description) = s"#${ encodeURIComponent(nar.id) }"
+	def path_blob(blob: String) = if (blob.contains("/")) blob else s"blob/${blob}"
+	def path_front(nar: Description) = s"#${encodeURIComponent(nar.id)}"
 	def path_stop = "stop"
 
 	val class_post = cls := "post"

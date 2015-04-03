@@ -63,7 +63,7 @@ object Queries {
 		case o => o
 	})
 
-	def morePolicy[B](policy: Policy, or: List[Story] Or B): List[Story] Or B = or.map(_.map{
+	def morePolicy[B](policy: Policy, or: List[Story] Or B): List[Story] Or B = or.map(_.map {
 		case More(loc, _, data) => More(loc, policy, data)
 		case o => o
 	})

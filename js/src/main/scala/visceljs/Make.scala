@@ -35,7 +35,7 @@ object Make {
 
 	def imageStyle(data: Data): Modifier = {
 		def s(mw: Boolean = false, mh: Boolean = false, w: Boolean = false, h: Boolean = false) =
-			s"max-height: ${if(mh) "100vh" else "none" }; max-width: ${if(mw) "100vw" else "none" }; height: ${if(h) "100vh" else "auto" }; width: ${if(w) "100vw" else "auto" }"
+			s"max-height: ${if (mh) "100vh" else "none"}; max-width: ${if (mw) "100vw" else "none"}; height: ${if (h) "100vh" else "auto"}; width: ${if (w) "100vw" else "auto"}"
 		style := (data.fitType % 8 match {
 			case 0 => ""
 			case 1 => s()

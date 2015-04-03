@@ -18,7 +18,7 @@ object Viscel {
 	def time[T](desc: String = "")(f: => T): T = {
 		val start = System.nanoTime
 		val res = f
-		Console.println(s"$desc took ${ (System.nanoTime - start) / 1000000.0 } ms")
+		Console.println(s"$desc took ${(System.nanoTime - start) / 1000000.0} ms")
 		res
 	}
 
@@ -28,8 +28,8 @@ object Viscel {
 
 	def run(args: String*): (ActorSystem, Scribe) = {
 		import viscel.Viscel.Options._
-		val formatWidth = try { new jline.console.ConsoleReader().getTerminal.getWidth }
-		catch { case e: Throwable => 80 }
+		val formatWidth = try {new jline.console.ConsoleReader().getTerminal.getWidth}
+		catch {case e: Throwable => 80}
 		formatHelpWith(new BuiltinHelpFormatter(formatWidth, 4))
 		implicit val conf = try {
 			parse(args: _*)

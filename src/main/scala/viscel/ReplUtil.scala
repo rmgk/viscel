@@ -54,12 +54,12 @@ class ReplUtil(scribe: Scribe) {
 
 		val assetList = chapters.zipWithIndex.flatMap {
 			case ((chap, articles), cpos) =>
-				val cname = f"${ cpos + 1 }%04d"
+				val cname = f"${cpos + 1}%04d"
 				val dir = p.resolve(cname)
 				Files.createDirectories(dir)
 				articles.zipWithIndex.map {
 					case (a, apos) =>
-						val name = f"${ apos + 1 }%05d.${ mimeToExt(a.mime.getOrElse(""), default = "bmp") }"
+						val name = f"${apos + 1}%05d.${mimeToExt(a.mime.getOrElse(""), default = "bmp")}"
 						a.blob.foreach { sha1 =>
 							Files.copy(scribe.blobs.hashToPath(sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
 						}
@@ -74,7 +74,7 @@ class ReplUtil(scribe: Scribe) {
 		val html = "<!DOCTYPE html>" + pages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
 
 
-		Files.write(p.resolve(s"${ description.id }.html"), html.getBytes(StandardCharsets.UTF_8))
+		Files.write(p.resolve(s"${description.id}.html"), html.getBytes(StandardCharsets.UTF_8))
 		Files.write(p.resolve("narration"), narJson.getBytes(StandardCharsets.UTF_8))
 
 		val js = getClass.getClassLoader.getResourceAsStream("viscel-js-opt.js")
@@ -92,7 +92,7 @@ class ReplUtil(scribe: Scribe) {
 		Log.info(s"try to import $nid($nname) form $path")
 
 		val files = Files.walk(Paths.get(path))
-		val sortedFiles = try { files.iterator().asScala.toList.sortBy(_.iterator().asScala.map(_.toString).toList) }
+		val sortedFiles = try {files.iterator().asScala.toList.sortBy(_.iterator().asScala.map(_.toString).toList)}
 		finally files.close()
 		val story = sortedFiles.flatMap { p =>
 			if (Files.isDirectory(p)) Some(Page(Asset(kind = 1, data = List(p.getFileName.toString)), None))

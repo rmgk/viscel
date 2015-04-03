@@ -13,11 +13,12 @@ import viscel.store.Json.{urlReader, urlWriter}
 import scala.Predef.augmentString
 
 object MangaHere {
-	(urlReader, urlWriter) // reference so that optimize imports does not remove the import
+	(urlReader, urlWriter)
+	// reference so that optimize imports does not remove the import
 
 	case class Nar(id: String, name: String, archiveUri: URL) extends Templates.AP(
 		archiveUri,
-		Selection(_).many(".detail_list > ul:first-of-type a").reverse.wrapFlat { elementIntoChapterPointer },
+		Selection(_).many(".detail_list > ul:first-of-type a").reverse.wrapFlat {elementIntoChapterPointer},
 		queryImageNext("#image", ".next_page:not([onclick])")
 	)
 
@@ -30,7 +31,7 @@ object MangaHere {
 		override def wrap(doc: Document): List[Nar] Or Every[Report] =
 			Selection(doc).unique("#main > article > div > div.box_w.clearfix > h1").getOne.map { anchor =>
 				val extractID(id) = doc.baseUri()
-				Nar(s"MangaHere_$id", s"[MH] ${ anchor.text() }", doc.baseUri()) :: Nil
+				Nar(s"MangaHere_$id", s"[MH] ${anchor.text()}", doc.baseUri()) :: Nil
 			}
 	}
 

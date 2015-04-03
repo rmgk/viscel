@@ -21,7 +21,7 @@ object Comicfury {
 			case rex"http://($cid[^\.]+)\.thecomicseries.com/" => Some(description)
 			case _ => None
 		}
-		override def wrap(document: Document): Or[List[Cfury], Every[Report]] ={
+		override def wrap(document: Document): Or[List[Cfury], Every[Report]] = {
 			val rex"http://($cid[^\.]+)\.thecomicseries.com/" = document.baseUri()
 			Good(Cfury(cid, s"[CF] $cid") :: Nil)
 		}

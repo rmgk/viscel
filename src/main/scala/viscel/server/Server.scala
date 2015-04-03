@@ -90,7 +90,7 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 			} ~
 			pathPrefix("blob" / Segment) { (sha1) =>
 				val filename = hashToPath(sha1).toFile
-				pathEnd { getFromFile(filename) } ~
+				pathEnd {getFromFile(filename)} ~
 					path(Segment / Segment) { (part1, part2) =>
 						getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).get))
 					}
@@ -135,8 +135,8 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 				if (!user.admin) reject
 				else parameter('url.as[String]) { url =>
 					onComplete(Metarrators.add(url, scribe)) {
-						case Success(v) => complete(s"found ${ v }")
-						case Failure(e) => complete { e.getMessage }
+						case Success(v) => complete(s"found ${v}")
+						case Failure(e) => complete {e.getMessage}
 					}
 				}
 			} ~
@@ -155,5 +155,5 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 				}
 			}
 
-	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map { route }.getOrElse(reject)
+	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map {route}.getOrElse(reject)
 }
