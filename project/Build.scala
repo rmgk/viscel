@@ -32,7 +32,11 @@ object Build extends sbt.Build {
 		.settings(Settings.common: _*)
 		.settings(libraryDependencies ++= Libraries.shared.value)
 
-	lazy val scribe = ProjectRef(file("scribe"), "scribe")
+	lazy val scribe = project.in(file("scribe"))
+		.settings(name := "scribe")
+		.settings(Settings.common: _*)
+		.settings(Libraries.scribe: _*)
+
 	lazy val selection = ProjectRef(file("selection"), "selection")
 
 }
@@ -134,11 +138,17 @@ object Libraries {
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
 
+	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray_client ++ akka ++ scalactic ++ jsoup)
+
+
+	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
+
 	// gpl3
 	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.2.0")
 
 	// apache 2
 	val spray = List("spray-routing").map(n => "io.spray" %% n % "1.3.3")
+	val spray_client = List("spray-client").map(n => "io.spray" %% n % "1.3.3")
 
 	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.3.9")
 
