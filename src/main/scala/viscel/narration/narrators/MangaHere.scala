@@ -6,12 +6,14 @@ import org.jsoup.nodes.Document
 import org.scalactic._
 import viscel.narration.Queries._
 import viscel.narration.SelectMore.stringToURL
-import viscel.narration.{Metarrator, SelectMore, Templates}
+import viscel.narration.{Metarrator, Templates}
 import viscel.selection.{Report, Selection}
+import viscel.store.Json.{urlReader, urlWriter}
 
 import scala.Predef.augmentString
 
 object MangaHere {
+	(urlReader, urlWriter) // reference so that optimize imports does not remove the import
 
 	case class Nar(id: String, name: String, archiveUri: URL) extends Templates.AP(
 		archiveUri,

@@ -10,8 +10,12 @@ import viscel.narration.SelectMore.{extractURL, stringToURL}
 import viscel.narration._
 import viscel.scribe.narration.{More, Story, Volatile}
 import viscel.selection.{Report, Selection}
+import viscel.store.Json.{urlReader, urlWriter}
+
 
 object Mangafox {
+	(urlReader, urlWriter) // reference so that optimize imports does not remove the import
+
 	case class Mfox(override val id: String, override val name: String, url: URL) extends Narrator {
 
 		override def archive = More(url, Volatile) :: Nil

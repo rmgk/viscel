@@ -14,7 +14,6 @@ import viscel.selection.Report
 import viscel.selection.ReportTools.{append, augmentBad}
 import viscel.{Log, Viscel}
 
-import scala.Predef.augmentString
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.Map
