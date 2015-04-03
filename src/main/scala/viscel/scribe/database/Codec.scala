@@ -7,6 +7,7 @@ import viscel.scribe.database.Implicits.NodeOps
 import viscel.scribe.narration.{Asset, Blob, More, Policy, Story}
 
 import scala.Predef.ArrowAssoc
+import scala.Predef.genericWrapArray
 import scala.language.implicitConversions
 
 
@@ -16,9 +17,6 @@ trait Codec[T] {
 }
 
 object Codec {
-
-	//implicit def stringToURL(s: String): URL = new URL(s)
-
 
 	def load[S](node: Node)(implicit ntx: Ntx, codec: Codec[S]): S = codec.read(node)
 
