@@ -1,8 +1,8 @@
 package viscel.narration.narrators
 
 import org.scalactic.Accumulation._
-import viscel.narration.SelectMore.{extractMore, stringToURL}
-import viscel.narration.{Queries, SelectMore, Templates}
+import viscel.narration.Queries.{extractMore, stringToURL}
+import viscel.narration.{Queries, Templates}
 import viscel.selection.Selection
 
 import scala.collection.immutable.Set

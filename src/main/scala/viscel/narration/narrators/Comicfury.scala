@@ -4,8 +4,7 @@ import java.net.URL
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Good, Or}
-import viscel.narration.Queries.RegexContext
-import viscel.narration.SelectMore.stringToURL
+import viscel.narration.Queries.{RegexContext, stringToURL}
 import viscel.narration.{Metarrator, Queries, Templates}
 import viscel.selection.Report
 

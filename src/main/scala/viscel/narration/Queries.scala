@@ -1,19 +1,39 @@
 package viscel.narration
 
+import java.net.URL
+
 import org.jsoup.nodes.Element
+import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.narration.Data.Chapter
-import viscel.narration.SelectMore._
 import viscel.scribe.narration.{Asset, More, Policy, Story}
-import viscel.selection.ReportTools._
-import viscel.selection.{Report, Selection}
+import viscel.selection.ReportTools.{extract, _}
+import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.language.implicitConversions
 import scala.util.matching.Regex
 
 object Queries {
+
+	/** tries to extract an absolute uri from an element, extraction depends on type of tag */
+	def extractURL(element: Element): URL Or One[Report] = element.tagName() match {
+		case "a" => extract {stringToURL(element.attr("abs:href"))}
+		case "option" => extract {stringToURL(element.attr("abs:value"))}
+		case tag => Bad(One(FailedElement(s"extract uri", UnhandledTag, element)))
+	}
+
+	def selectMore(elements: List[Element]): List[More] Or Every[Report] = elements.validatedBy(extractMore).flatMap {
+		case pointers if elements.isEmpty => Good(Nil)
+		case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
+		case pointers => Bad(One(FailedElement("next not unique", QueryNotUnique, elements: _*)))
+	}
+
+	def extractMore(element: Element): More Or Every[Report] =
+		extractURL(element).map(uri => More(uri))
+
+	implicit def stringToURL(s: String): URL = new URL(s)
 
 	def getAttr(e: Element, k: String): Option[(String, String)] = {
 		val res = e.attr(k)

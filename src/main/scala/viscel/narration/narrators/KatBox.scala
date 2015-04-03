@@ -1,8 +1,7 @@
 package viscel.narration.narrators
 
-import viscel.narration.Queries.queryImages
-import viscel.narration.SelectMore.{extractMore, stringToURL}
-import viscel.narration.{Narrator, SelectMore, Templates}
+import viscel.narration.Queries.{extractMore, queryImages, stringToURL}
+import viscel.narration.{Narrator, Templates}
 import viscel.selection.Selection
 
 import scala.collection.immutable.Set

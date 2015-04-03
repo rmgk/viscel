@@ -5,8 +5,7 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import viscel.narration.Queries._
-import viscel.narration.SelectMore._
-import viscel.narration.{Data, Metarrator, SelectMore, Templates}
+import viscel.narration.{Data, Metarrator, Templates}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 

@@ -8,9 +8,8 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Data.{Article, Chapter, listToMap, mapToList}
 import viscel.narration.Queries._
-import viscel.narration.SelectMore._
 import viscel.narration.Templates.{AP, SF}
-import viscel.narration.{Narrator, SelectMore, Templates}
+import viscel.narration.{Narrator, Templates}
 import viscel.scribe.narration.{More, Normal, Story, Volatile}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
