@@ -2,16 +2,16 @@ package viscel.scribe.crawl
 
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
+import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpRequest, HttpResponse}
 import viscel.scribe.Log
 import viscel.scribe.database.Archive._
 import viscel.scribe.database.Implicits.NodeOps
-import viscel.scribe.database.{Book, Codec, Neo, Ntx, label, rel}
-import viscel.scribe.narration.{Asset, Blob, More, Narrator, Story, Volatile}
+import viscel.scribe.database._
+import viscel.scribe.narration._
 
-import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Set
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
@@ -22,67 +22,62 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 
 	override def toString: String = s"Job(${narrator.toString})"
 
-	var assets: List[(Node, Asset)] = Nil
-	var volumes: List[(Node, More)] = Nil
-	var pages: List[(Node, More)] = Nil
+	var layers: List[Layer] = Nil
+	var queue: List[Node] = Nil
 	var recheck: Option[Node] = None
 	var known: Set[Story] = Set.empty
 	var recover: Boolean = true
 	@volatile var cancel: Boolean = false
 	val result: Promise[Boolean] = Promise()
 
-	def collectUnvisited(node: Node)(implicit ntx: Ntx): Unit =
-		if (node.hasLabel(label.More) || node.hasLabel(label.Asset))
-			Codec.load[Story](node) match {
-				case m@More(_, Volatile, _) if node.describes eq null => volumes ::= node -> m
-				case m@More(_, _, _) if node.describes eq null => pages ::= node -> m
-				case a@Asset(Some(_), _, _, _) if node.to(rel.blob) eq null => assets ::= node -> a
-				case _ =>
-			}
+	def unvisited(node: Node)(implicit ntx: Ntx): Boolean =
+		node.hasLabel(label.More) && (node.describes eq null) ||
+			(node.hasLabel(label.Asset) && (node.to(rel.blob) eq null))
 
 	def init(): Future[Boolean] = synchronized {
-		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
-			if (collection.self.layer.replace(narrator.archive)) collection.invalidateSize()
-			known = collectMore(collection.self).toSet
-			collection.self.layer.recursive.foreach(collectUnvisited)
-			pages = pages.reverse
-			assets = assets.reverse
-			if (pages.isEmpty) {
-				recheck = Some(collection.self)
-			}
-			result.future
-		}
-		else {
+		if (queue.nonEmpty || layers.nonEmpty) {
 			Log.error("tried to initialize non empty runner")
 			Future.failed(new IllegalStateException("already initialised"))
 		}
+		else neo.tx { implicit ntx =>
+			if (collection.self.layer.replace(narrator.archive)) collection.invalidateSize()
+			known = collectMore(collection.self).toSet
+			layers = List(collection.self.layer)
+			result.future
+		}
 	}
 
-	def recheckOrDone(): Unit = recheck.flatMap(n => neo.tx(nextHub(n)(_))) match {
-		case None => result.success(true)
-		case sn@Some(node) =>
-			recheck = sn
-			val m = neo.tx(Codec.load(node)(_, Codec.moreCodec))
-			pages ::= node -> m
-			ec.execute(this)
+	def addBelow(layer: Layer, allowRedo: Boolean = false)(implicit ntx: Ntx): Unit = {
+		val nodes = layer.nodes
+		if (allowRedo && layers.isEmpty && layer.parent.hasLabel(label.More) && !nodes.exists(_.hasLabel(label.More)))
+			queue ::= layer.parent
+
+		val (unvis, visited) = nodes.partition(unvisited)
+		val more = visited.filter(_.hasLabel(label.More))
+		val (normal, special) = more.partition(Codec.load[More](_).policy === Normal)
+		layers = normal.map(_.layer) ::: layers
+		queue = unvis ::: special ::: queue
+
 	}
 
 	override def run(): Unit = if (!cancel) synchronized {
-		assets match {
-			case (node, asset) :: rest =>
-				assets = rest
-				handle(request(asset.blob.get, asset.origin)) {parseBlob _ andThen writeAsset(node, asset)}
-			case Nil => volumes match {
-				case (node, volume) :: rest =>
-					volumes = rest
-					handle(request(volume.loc)) {parseDocument(volume.loc) _ andThen writePage(node, volume)}
-				case Nil => pages match {
-					case (node, page) :: rest =>
-						pages = rest
-						handle(request(page.loc)) {parseDocument(page.loc) _ andThen writePage(node, page)}
-					case Nil =>
-						recheckOrDone()
-				}
+		neo.tx { implicit ntx =>
+			(queue, layers) match {
+				case ((node :: tail), _) if node.hasLabel(label.Asset) =>
+					queue = tail
+					val asset = Codec.load[Asset](node)
+					asset.blob.fold(ec.execute(this))(bloburl =>
+						handle(request(bloburl, asset.origin)) {parseBlob _ andThen writeAsset(node, asset)})
+				case ((node :: tail), _) if node.hasLabel(label.More) =>
+					queue = tail
+					val page = Codec.load[More](node)
+					handle(request(page.loc)) {parseDocument(page.loc) _ andThen writePage(node, page)}
+				case (Nil, layer :: tail) =>
+					layers = tail
+					addBelow(layer, allowRedo = true)
+					ec.execute(this)
+				case (Nil, Nil) =>
+					result.success(true)
 			}
 		}
 	}
@@ -100,12 +95,11 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 		}
 		else {
 			Log.info(s"trying to recover after failure in $narrator at $node")
-			volumes = Nil
-			pages = Nil
-			assets = Nil
+			queue = Nil
+			layers = Nil
 			recheck = None
 			recover = false
-			parentMore(node.prev).foreach(pages ::= _)
+			node.above.filter(_.hasLabel(label.More)).foreach(queue ::= _)
 			ec.execute(this)
 		}
 
@@ -124,13 +118,13 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 				val filter = known.diff(collectMore(node).toSet)
 				val filtered = wrapped filterNot filter
 				val changed = node.layer.replace(filtered)
+				// if we have changes at the end, we tests the more generating the end to make sure that has not changed
+				if (changed && !wasEmpty && queue.isEmpty && layers.isEmpty) node.above.filter(_.hasLabel(label.More)).foreach(queue ::= _)
+				else addBelow(node.layer)
 				if (changed) {
 					known = collectMore(collection.self).toSet
 					// remove cached size
 					collection.invalidateSize()
-					// if we have changes at the end, we tests the more generating the end to make sure that has not changed
-					if (!wasEmpty && pages.isEmpty) parentMore(node.prev).foreach(pages ::= _)
-					node.layer.nodes.reverse foreach collectUnvisited
 				}
 				ec.execute(this)
 			case Bad(failed) =>

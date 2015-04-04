@@ -7,7 +7,7 @@ import viscel.scribe.narration.Story
 
 import scala.annotation.tailrec
 
-class Layer(parent: Node) {
+final case class Layer(parent: Node) {
 	def isEmpty(implicit neo: Ntx) = parent.describes eq null
 
 	def nodes(implicit ntx: Ntx): List[Node] = {
@@ -23,7 +23,7 @@ class Layer(parent: Node) {
 			case node => layerAcc(node, Nil).reverse
 		}
 	}
-	
+
 	def recursive(implicit ntx: Ntx): List[Node] = {
 		def go(remaining: List[Node], acc: List[Node]): List[Node] = remaining match {
 			case Nil => acc

@@ -5,7 +5,6 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
-import viscel.Log
 import viscel.narration.Queries._
 import viscel.narration.{Data, Metarrator}
 import viscel.scribe.narration._
@@ -45,7 +44,6 @@ object Fakku {
 			val htmlSource = doc.html()
 			val start = htmlSource.indexOf(findStr) + findStr.length
 			val end = htmlSource.indexOf("\n", start) - 1
-			Log.info(s"extract $start, $end,")
 			extract {upickle.read[List[String]](htmlSource.substring(start, end)).map(_.replaceAll("thumbs/(\\d+).thumb", "images/$1")).map(new URL(baseURL, _).toString)}.map(_.map { url =>
 				val extractPos(pos) = url
 				Data.Article(url, s"${doc.baseUri()}#page=$pos")
