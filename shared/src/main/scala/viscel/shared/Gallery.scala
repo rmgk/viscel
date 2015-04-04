@@ -6,7 +6,7 @@ import scala.reflect.ClassTag
 
 
 final class Gallery[+A] private(val pos: Int, entries: Array[A]) {
-	def copy(position: Int) = new Gallery(position, entries)
+	private def copy(position: Int) = new Gallery(position, entries)
 	def toList: List[A] = List(entries: _*)
 	def first: Gallery[A] = copy(0)
 	def end: Gallery[A] = copy(entries.length)
@@ -17,7 +17,7 @@ final class Gallery[+A] private(val pos: Int, entries: Array[A]) {
 	override def toString: String = s"Gallery(${Predef.genericWrapArray(entries).mkString(", ")})"
 	def isFirst: Boolean = pos == 0
 	def isEnd: Boolean = pos == size
-	def isEmpty: Boolean = isFirst && isEnd
+	def isEmpty: Boolean = size == 0
 }
 
 object Gallery {
