@@ -6,8 +6,8 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.{Every, Or}
 import viscel.narration.Queries._
-import viscel.narration.{Data, Metarrator, Narrator, Queries}
-import viscel.scribe.narration.{More, Story, Volatile}
+import viscel.narration.{Data, Metarrator, Queries}
+import viscel.scribe.narration.{Narrator, More, Story, Volatile}
 import viscel.selection.{Report, Selection}
 import viscel.store.Json.{urlReader, urlWriter}
 

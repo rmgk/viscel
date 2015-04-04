@@ -8,7 +8,7 @@ import java.nio.file.{Files, Path}
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
 import viscel.narration.Queries._
-import viscel.scribe.narration.{More, Story}
+import viscel.scribe.narration.{Narrator, More, Story}
 import viscel.selection.Report
 import viscel.selection.ReportTools.{append, augmentBad}
 import viscel.{Log, Viscel}

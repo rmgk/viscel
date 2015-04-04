@@ -7,8 +7,8 @@ import org.scalactic.Accumulation._
 import org.scalactic._
 import viscel.Log
 import viscel.narration.Queries._
-import viscel.narration.{Data, Metarrator, Narrator}
-import viscel.scribe.narration.{More, Normal, Story, Volatile}
+import viscel.narration.{Data, Metarrator}
+import viscel.scribe.narration._
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 

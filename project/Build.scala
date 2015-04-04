@@ -36,6 +36,7 @@ object Build extends sbt.Build {
 		.settings(name := "scribe")
 		.settings(Settings.common: _*)
 		.settings(Libraries.scribe: _*)
+		.dependsOn(selection)
 
 	lazy val selection = project.in(file("selection"))
 		.settings(name := "selection")

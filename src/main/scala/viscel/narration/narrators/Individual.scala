@@ -9,8 +9,8 @@ import org.scalactic.{Every, Good, Or}
 import viscel.narration.Data.{Article, Chapter, listToMap, mapToList}
 import viscel.narration.Queries._
 import viscel.narration.Templates.{AP, SF}
-import viscel.narration.{Narrator, Templates}
-import viscel.scribe.narration.{More, Normal, Story, Volatile}
+import viscel.narration.Templates
+import viscel.scribe.narration._
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 
