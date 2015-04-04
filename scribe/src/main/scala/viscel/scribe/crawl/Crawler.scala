@@ -120,7 +120,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 		implicit def tx: Ntx = ntx
 		narrator.wrap(doc, page) match {
 			case Good(wrapped) =>
-				val wasEmpty = node.layer.isEmpty
+				val wasEmpty = node.layerBelow.isEmpty
 				val filter = known.diff(collectMore(node).reverse.tail.toSet)
 				val filtered = wrapped filterNot filter
 				val changed = applyNarration(node, filtered)
