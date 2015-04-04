@@ -52,11 +52,11 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 		if (allowRedo && layers.isEmpty && layer.parent.hasLabel(label.More) && !nodes.exists(_.hasLabel(label.More)))
 			queue ::= layer.parent
 
-		val (unvis, visited) = nodes.partition(unvisited)
-		val more = visited.filter(_.hasLabel(label.More))
+		val (more, other) = nodes.partition(_.hasLabel(label.More))
 		val (normal, special) = more.partition(Codec.load[More](_).policy === Normal)
-		layers = normal.map(_.layer) ::: layers
-		queue = unvis ::: special ::: queue
+		val (unvisMore, visMore) = normal.partition(unvisited)
+		layers = visMore.map(_.layer) ::: layers
+		queue = other.filter(unvisited) ::: special ::: queue ::: unvisMore
 
 	}
 
