@@ -24,7 +24,10 @@ final case class Book(self: Node) extends AnyVal {
 	def invalidateSize()(implicit ntx: Ntx) = self.removeProperty("size")
 
 	private def calcSize()(implicit ntx: Ntx): Array[Int] = {
-		val mapped = self.layer.recursive.filter(_.hasLabel(label.Asset)).groupBy(_.prop[Byte]("kind")).mapValues(_.length)
+		val mapped = self.layer.recursive
+			.filter(_.hasLabel(label.Asset))
+			.groupBy(_.prop[Byte]("kind"))
+			.mapValues(_.length)
 		val size = Try(mapped.keys.max).getOrElse[Byte](-1) + 1
 		val res = new Array[Int](size)
 		mapped.foreach { case (k, v) => res(k) = v }

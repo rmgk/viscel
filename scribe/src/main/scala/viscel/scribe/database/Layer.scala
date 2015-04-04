@@ -28,7 +28,7 @@ class Layer(parent: Node) {
 		def go(remaining: List[Node], acc: List[Node]): List[Node] = remaining match {
 			case Nil => acc
 			case h :: t =>
-				go(h.layer.nodes ::: remaining, h :: acc)
+				go(h.layer.nodes ::: t, h :: acc)
 		}
 		go(nodes, Nil).reverse
 	}

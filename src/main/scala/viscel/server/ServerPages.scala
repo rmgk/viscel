@@ -50,7 +50,7 @@ class ServerPages(scribe: Scribe) {
 			case None => findExisting(id)
 			case Some(nar) => Some(findAndUpdate(nar))
 		}).map(book => {
-			val content: (Int, List[Article], List[Chapter]) = book.pages().reverse.foldLeft((0, List[Article](), List[Chapter]())) {
+			val content: (Int, List[Article], List[Chapter]) = book.pages().foldLeft((0, List[Article](), List[Chapter]())) {
 				case (state@(pos, assets, chapters), ArticlePage(article)) =>
 					(pos + 1, article :: assets, if (chapters.isEmpty) List(Chapter("", 0)) else chapters)
 				case (state@(pos, assets, chapters), ChapterPage(name)) =>
