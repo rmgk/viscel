@@ -53,7 +53,7 @@ final case class Layer(parent: Node) {
 						oldNode
 				}
 			}
-			oldMap.foreach(n => Archive.deleteRecursive(n._2))
+			oldMap.foreach(n => n._2.deleteRecursive)
 			connectLayer(newLayer)
 			newLayer
 		}

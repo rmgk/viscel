@@ -7,7 +7,6 @@ import org.scalactic.{Bad, Good}
 import spray.client.pipelining.SendReceive
 import spray.http.{HttpRequest, HttpResponse}
 import viscel.scribe.Log
-import viscel.scribe.database.Archive._
 import viscel.scribe.database.Implicits.NodeOps
 import viscel.scribe.database._
 import viscel.scribe.narration._
@@ -33,6 +32,10 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 	def unvisited(node: Node)(implicit ntx: Ntx): Boolean =
 		node.hasLabel(label.More) && (node.describes eq null) ||
 			(node.hasLabel(label.Asset) && (node.to(rel.blob) eq null))
+
+	def collectMore(start: Node)(implicit ntx: Ntx): List[More] = start.layer.recursive.collect {
+		case n if n.hasLabel(label.More) => Codec.load[More](n)
+	}
 
 	def init(): Future[Boolean] = synchronized {
 		if (queue.nonEmpty || layers.nonEmpty) {

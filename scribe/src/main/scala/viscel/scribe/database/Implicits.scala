@@ -47,62 +47,20 @@ object Implicits {
 
 		def describing(implicit neo: Ntx): Node = from(rel.describes)
 
-		@tailrec
-		def firstInLayer(implicit neo: Ntx): Node =
-			parc match {
-				case null => self
-				case other => other.firstInLayer
-			}
 
 		@tailrec
-		def lastInLayer(implicit neo: Ntx): Node =
-			narc match {
-				case null => self
-				case other => other.lastInLayer
-			}
-
-		def above(implicit neo: Ntx): Option[Node] = Option(firstInLayer.describing)
-
-		@tailrec
-		def nextAbove(implicit neo: Ntx): Option[Node] =
-			firstInLayer.describing match {
-				case null => None
-				case other => other.narc match {
-					case null => other.nextAbove
-					case third => Some(third)
-				}
-			}
-
-		@tailrec
-		def rightmost(implicit neo: Ntx): Node = {
-			val end = self.lastInLayer
-			end.describes match {
-				case null => end
-				case other => other.rightmost
-			}
+		def above(implicit neo: Ntx): Option[Node] = parc match {
+			case null => Option(self.describing)
+			case other => other.above
 		}
-
-		def prev(implicit neo: Ntx): Option[Node] =
-			parc match {
-				case null => Option(describing)
-				case other =>
-					other.describes match {
-						case null => Some(other)
-						case third => Some(third.rightmost)
-					}
-			}
-
-		def next(implicit neo: Ntx): Option[Node] =
-			describes match {
-				case null => narc match {
-					case null => nextAbove
-					case other => Some(other)
-				}
-				case other => Some(other)
-			}
 
 		def layer: Layer = new Layer(self)
 
+		def deleteRecursive(implicit ntx: Ntx): Unit =
+			(self :: self.layer.recursive).foreach { n =>
+				Option(n.to(rel.blob)).foreach(ntx.delete)
+				ntx.delete(n)
+			}
 
 
 	}
