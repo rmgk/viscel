@@ -40,13 +40,11 @@ class NeoInstance(path: String) extends Neo with Ntx {
 	}
 
 	def node(label: Label, property: String, value: Any): Option[Node] = {
-		def go() =
-			db.findNodes(label, property, value).asScala.toList match {
-				case List(node) => Some(node)
-				case Nil => None
-				case _ => throw new java.lang.IllegalStateException(s"found more than one entry for $label($property=$value)")
-			}
-		go()
+		db.findNodes(label, property, value).asScala.toList match {
+			case List(node) => Some(node)
+			case Nil => None
+			case _ => throw new java.lang.IllegalStateException(s"found more than one entry for $label($property=$value)")
+		}
 	}
 
 	def nodes(label: Label): List[Node] = tx { _ => db.findNodes(label).asScala.toList }

@@ -2,8 +2,6 @@ package viscel.scribe.narration
 
 import java.net.URL
 
-import scala.language.implicitConversions
-
 sealed trait Story
 
 final case class More(

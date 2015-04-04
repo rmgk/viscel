@@ -5,7 +5,6 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.scribe.database.Implicits.NodeOps
 import viscel.scribe.narration.{More, Story, Volatile}
 
-import scala.Predef.ArrowAssoc
 import scala.annotation.tailrec
 
 object Archive {
@@ -25,7 +24,7 @@ object Archive {
 
 	private def replaceLayer(oldLayer: List[Node], newNarration: List[Story])(implicit neo: Ntx): List[Node] = {
 		val oldNarration: List[Story] = oldLayer map { n => Codec.load[Story](n) }
-		var oldMap: List[(Story, Node)] = List(oldNarration zip oldLayer: _*)
+		var oldMap: List[(Story, Node)] = oldNarration zip oldLayer
 		val newLayer: List[Node] = newNarration.map { story =>
 			oldMap.span(_._1 != story) match {
 				case (left, Nil) => Codec.create(story)
@@ -50,15 +49,18 @@ object Archive {
 
 	def nextHub(start: Node)(implicit ntx: Ntx): Option[Node] = {
 		@tailrec
-		def go(node: Node, saved: Node): Node = Codec.load[Story](node) match {
-			case More(_, Volatile, _) => node
-			case More(_, _, _) => node.next match {
-				case None => node
-				case Some(next) => go(next, node)
-			}
-			case _ => node.next match {
-				case None => saved
-				case Some(next) => go(next, saved)
+		def go(node: Node, saved: Node): Node = {
+
+			Codec.load[Story](node) match {
+				case More(_, Volatile, _) => node
+				case More(_, _, _) => node.next match {
+					case None => node
+					case Some(next) => go(next, node)
+				}
+				case _ => node.next match {
+					case None => saved
+					case Some(next) => go(next, saved)
+				}
 			}
 		}
 		start.layerBelow.find(_.hasLabel(label.More)).map(n => go(n, n))
@@ -67,12 +69,6 @@ object Archive {
 	def parentMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start.flatMap(_.above).flatMap { n =>
 		if (n.hasLabel(label.More)) Some((n, Codec.load[More](n)))
 		else None
-	}
-
-	def previousMore(start: Option[Node])(implicit ntx: Ntx): Option[(Node, More)] = start match {
-		case None => None
-		case Some(node) if node.hasLabel(label.More) => Some(node -> Codec.load[More](node))
-		case Some(other) => previousMore(other.prev)
 	}
 
 	def collectMore(start: Node)(implicit ntx: Ntx): List[More] = start.fold(List[More]())(s => n =>

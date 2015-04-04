@@ -82,15 +82,6 @@ object Implicits {
 			}
 		}
 
-		@tailrec
-		def origin(implicit neo: Ntx): Node = {
-			val start = self.firstInLayer
-			start.describing match {
-				case null => start
-				case other => other.origin
-			}
-		}
-
 		def prev(implicit neo: Ntx): Option[Node] =
 			parc match {
 				case null => Option(describing)
@@ -137,14 +128,6 @@ object Implicits {
 					run(nextState, below ::: ns)
 			}
 			run(state, self :: Nil)
-		}
-
-		def position(implicit ntx: Ntx): Int = {
-			def go(node: Node, acc: Int): Int = node.prev match {
-				case None => acc
-				case Some(prev) => go(prev, acc + 1)
-			}
-			go(self, 0)
 		}
 
 	}
