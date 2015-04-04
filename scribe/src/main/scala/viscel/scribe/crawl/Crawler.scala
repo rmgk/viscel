@@ -42,7 +42,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 
 	def init(): Future[Boolean] = synchronized {
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
-			if (applyNarration(collection.self, narrator.archive)) collection.invalidateSize()
+			if (collection.self.layer.replace(narrator.archive)) collection.invalidateSize()
 			known = collectMore(collection.self).toSet
 			collection.self.fold(()) { _ => collectUnvisited }
 			pages = pages.reverse
@@ -120,17 +120,17 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 		implicit def tx: Ntx = ntx
 		narrator.wrap(doc, page) match {
 			case Good(wrapped) =>
-				val wasEmpty = node.layerBelow.isEmpty
+				val wasEmpty = node.layer.isEmpty
 				val filter = known.diff(collectMore(node).reverse.tail.toSet)
 				val filtered = wrapped filterNot filter
-				val changed = applyNarration(node, filtered)
+				val changed = node.layer.replace(filtered)
 				if (changed) {
 					known = collectMore(collection.self).toSet
 					// remove cached size
 					collection.invalidateSize()
 					// if we have changes at the end, we tests the more generating the end to make sure that has not changed
 					if (!wasEmpty && pages.isEmpty) parentMore(node.prev).foreach(pages ::= _)
-					node.layerBelow.reverse foreach collectUnvisited
+					node.layer.nodes.reverse foreach collectUnvisited
 				}
 				ec.execute(this)
 			case Bad(failed) =>

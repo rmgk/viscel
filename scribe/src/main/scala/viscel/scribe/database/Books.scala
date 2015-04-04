@@ -37,8 +37,8 @@ class Books(neo: Neo) {
 
 	def importFlat(id: String, name: String, pages: List[Page]) = neo.tx { implicit ntx =>
 		val book = findAndUpdate(id, name)
-		if (Archive.applyNarration(book.self, pages.map(_.asset))) book.invalidateSize()
-		book.self.layerBelow.zip(pages.map(_.blob)).foreach {
+		if (book.self.layer.replace(pages.map(_.asset))) book.invalidateSize()
+		book.self.layer.nodes.zip(pages.map(_.blob)).foreach {
 			case (node, Some(blob)) => node.to_=(rel.blob, Codec.create(blob))
 			case _ =>
 		}

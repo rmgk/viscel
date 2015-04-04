@@ -101,29 +101,14 @@ object Implicits {
 				case other => Some(other)
 			}
 
-		def layer(implicit neo: Ntx): List[Node] = {
-			@tailrec
-			def layerAcc(current: Node, acc: List[Node]): List[Node] = {
-				current.narc match {
-					case null => current :: acc
-					case nnode => layerAcc(nnode, current :: acc)
-				}
-			}
-			layerAcc(self, Nil).reverse
-		}
-
-		def layerBelow(implicit neo: Ntx): List[Node] =
-			describes match {
-				case null => Nil
-				case other => other.layer
-			}
+		def layer: Layer = new Layer(self)
 
 		def fold[S](state: S)(f: S => Node => S)(implicit neo: Ntx): S = {
 			@tailrec
 			def run(state: S, nodes: List[Node]): S = nodes match {
 				case Nil => state
 				case node :: ns =>
-					val below = node.layerBelow
+					val below = node.layer.nodes
 					val nextState = f(state)(node)
 					run(nextState, below ::: ns)
 			}
