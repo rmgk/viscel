@@ -1,10 +1,9 @@
 package viscel.scribe.database
 
 import org.neo4j.graphdb.Node
+import org.scalactic.TypeCheckedTripleEquals._
 import viscel.scribe.database.Implicits.NodeOps
 import viscel.scribe.narration.Story
-import org.scalactic.TypeCheckedTripleEquals._
-
 
 import scala.annotation.tailrec
 

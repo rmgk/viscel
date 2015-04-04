@@ -1,7 +1,6 @@
 package viscel.scribe.database
 
 import org.neo4j.graphdb.Node
-import org.scalactic.TypeCheckedTripleEquals._
 import viscel.scribe.database.Implicits.NodeOps
 import viscel.scribe.narration.{More, Story, Volatile}
 
@@ -14,7 +13,6 @@ object Archive {
 			Option(n.to(rel.blob)).foreach(ntx.delete)
 			ntx.delete(n)
 		})
-
 
 
 	def nextHub(start: Node)(implicit ntx: Ntx): Option[Node] = {
