@@ -103,17 +103,7 @@ object Implicits {
 
 		def layer: Layer = new Layer(self)
 
-		def fold[S](state: S)(f: S => Node => S)(implicit neo: Ntx): S = {
-			@tailrec
-			def run(state: S, nodes: List[Node]): S = nodes match {
-				case Nil => state
-				case node :: ns =>
-					val below = node.layer.nodes
-					val nextState = f(state)(node)
-					run(nextState, below ::: ns)
-			}
-			run(state, self :: Nil)
-		}
+
 
 	}
 }

@@ -8,11 +8,11 @@ import scala.annotation.tailrec
 
 object Archive {
 
-	def deleteRecursive(nodes: List[Node])(implicit ntx: Ntx): Unit =
-		nodes foreach (_.fold(()) { _ => n =>
+	def deleteRecursive(node: Node)(implicit ntx: Ntx): Unit =
+		(node :: node.layer.recursive).foreach { n =>
 			Option(n.to(rel.blob)).foreach(ntx.delete)
 			ntx.delete(n)
-		})
+		}
 
 
 	def nextHub(start: Node)(implicit ntx: Ntx): Option[Node] = {
@@ -39,7 +39,7 @@ object Archive {
 		else None
 	}
 
-	def collectMore(start: Node)(implicit ntx: Ntx): List[More] = start.fold(List[More]())(s => n =>
-		if (n.hasLabel(label.More)) Codec.load[More](n) :: s
-		else s)
+	def collectMore(start: Node)(implicit ntx: Ntx): List[More] = start.layer.recursive.collect {
+		case n if n.hasLabel(label.More) => Codec.load[More](n)
+	}
 }

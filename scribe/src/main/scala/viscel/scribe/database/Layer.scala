@@ -10,7 +10,7 @@ import scala.annotation.tailrec
 class Layer(parent: Node) {
 	def isEmpty(implicit neo: Ntx) = parent.describes eq null
 
-	def nodes(implicit neo: Ntx): List[Node] = {
+	def nodes(implicit ntx: Ntx): List[Node] = {
 		@tailrec
 		def layerAcc(current: Node, acc: List[Node]): List[Node] = {
 			current.narc match {
@@ -22,6 +22,15 @@ class Layer(parent: Node) {
 			case null => Nil
 			case node => layerAcc(node, Nil).reverse
 		}
+	}
+	
+	def recursive(implicit ntx: Ntx): List[Node] = {
+		def go(remaining: List[Node], acc: List[Node]): List[Node] = remaining match {
+			case Nil => acc
+			case h :: t =>
+				go(h.layer.nodes ::: remaining, h :: acc)
+		}
+		go(nodes, Nil).reverse
 	}
 
 
@@ -44,7 +53,7 @@ class Layer(parent: Node) {
 						oldNode
 				}
 			}
-			Archive.deleteRecursive(oldMap.map(_._2))
+			oldMap.foreach(n => Archive.deleteRecursive(n._2))
 			connectLayer(newLayer)
 			newLayer
 		}

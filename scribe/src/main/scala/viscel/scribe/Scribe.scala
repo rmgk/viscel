@@ -90,7 +90,7 @@ class Scribe(
 	val runners: concurrent.Map[String, Crawler] = concurrent.TrieMap[String, Crawler]()
 
 	def purge(id: String): Boolean = neo.tx { implicit ntx =>
-		books.findExisting(id).map(b => Archive.deleteRecursive(List(b.self))).fold(false)(_ => true)
+		books.findExisting(id).map(b => Archive.deleteRecursive(b.self)).fold(false)(_ => true)
 	}
 
 	def finish(runner: Crawler): Unit = {

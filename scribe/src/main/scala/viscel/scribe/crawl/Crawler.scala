@@ -44,7 +44,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 		if (assets.isEmpty && pages.isEmpty) neo.tx { implicit ntx =>
 			if (collection.self.layer.replace(narrator.archive)) collection.invalidateSize()
 			known = collectMore(collection.self).toSet
-			collection.self.fold(()) { _ => collectUnvisited }
+			collection.self.layer.recursive.foreach(collectUnvisited)
 			pages = pages.reverse
 			assets = assets.reverse
 			if (pages.isEmpty) {
@@ -121,7 +121,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 		narrator.wrap(doc, page) match {
 			case Good(wrapped) =>
 				val wasEmpty = node.layer.isEmpty
-				val filter = known.diff(collectMore(node).reverse.tail.toSet)
+				val filter = known.diff(collectMore(node).toSet)
 				val filtered = wrapped filterNot filter
 				val changed = node.layer.replace(filtered)
 				if (changed) {
@@ -134,7 +134,7 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 				}
 				ec.execute(this)
 			case Bad(failed) =>
-				Log.error(s"$narrator failed on $page: ${failed.map{_.describe}}")
+				Log.error(s"$narrator failed on $page: ${failed.map {_.describe}}")
 				tryRecovery(node)(ntx)
 		}
 	}
