@@ -119,7 +119,8 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 				val filtered = wrapped filterNot filter
 				val changed = node.layer.replace(filtered)
 				// if we have changes at the end, we tests the more generating the end to make sure that has not changed
-				if (changed && !wasEmpty && queue.isEmpty && layers.isEmpty) node.above.filter(_.hasLabel(label.More)).foreach(queue ::= _)
+				if (changed && !wasEmpty && queue.isEmpty && layers.isEmpty)
+					node.above.filter(_.hasLabel(label.More)).fold(addBelow(node.layer))(queue ::= _)
 				else addBelow(node.layer)
 				if (changed) {
 					known = collectMore(collection.self).toSet
