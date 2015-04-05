@@ -308,11 +308,12 @@ object Individual {
 			queryChapterArchive("#bottommid > div > div > h2 > a"),
 			queryImageInAnchor("#comic")),
 		AP("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
-			doc => Selection(doc).many("#pagecontent > p > a").wrapEach(extractMore),
+			doc => Selection(doc).many("#pagecontent > div.cc-chapterrow > a").wrapFlat(elementIntoChapterPointer),
 			doc => {
-				val asset_? = Selection(doc).unique("#comic").wrapOne(imgIntoAsset)
-				val comment_? = Selection(doc).many("#newsarea > *").get.map(_.drop(2).dropRight(1).map(_.text()).mkString("\n"))
-				withGood(asset_?, comment_?) { (asset, comment) => asset.copy(data = asset.data ::: "longcomment" :: comment :: Nil) :: Nil }
+				val asset_? = Selection(doc).unique("#cc-comic").wrapOne(imgIntoAsset)
+				val next_? = queryNext("#cc-comicbody > a")(doc)
+				val comment_? = Selection(doc).unique("#commentary > div.cc-newsarea > div.cc-newsbody").getOne.map(_.text())
+				withGood(asset_?, next_?, comment_?) { (asset, next, comment) => asset.copy(data = asset.data ::: "longcomment" :: comment :: Nil) :: next }
 			}),
 		AP("NX_GoGetARoomie", "Go Get a Roomie!", "http://www.gogetaroomie.com/archive.php",
 			doc => Selection(doc).unique("#comicwrap").wrapOne { comicwrap =>
