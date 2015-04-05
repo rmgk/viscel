@@ -25,6 +25,7 @@ final case class Layer(parent: Node) {
 	}
 
 	def recursive(implicit ntx: Ntx): List[Node] = {
+		@tailrec
 		def go(remaining: List[Node], acc: List[Node]): List[Node] = remaining match {
 			case Nil => acc
 			case h :: t =>
