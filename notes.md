@@ -42,18 +42,24 @@
 | Drowtales Moonless Age | flash   | <http://www.drowtales.com/mainarchive.php?sid=4065> |
 | avas demons            | videos  | <http://www.avasdemon.com/0061.php#0061>            |
 
+## drunkduck infinit redo
+
+* Tales of the traveling Gnome http://www.theduckwebcomics.com/Tales_of_the_Traveling_Gnome/4828138/
+* Sophia Awakening http://www.theduckwebcomics.com/SOPHIA_Awakening/5043865/
+
 # groups
 
 ## look into
 
-|       group        |                url                |               comment               |
-| ------------------ | --------------------------------- | ----------------------------------- |
-| ♦ Rice Boy         | <http://www.rice-boy.com/>        | three non uniform comics            |
-| ♦ Smack Jeeves     | <http://www.smackjeeves.com>      | is a listing, but no uniform comics |
-| ♦ Big Head Press   | <http://www.bigheadpress.com/>    | some comics uniform some not        |
-| ♦ Webcomics Nation | <http://www.webcomicsnation.com/> | non uniform comics                  |
-| ♦ WLP              | <http://www.wlpcomics.com/>       | non uniform comics, listing         |
-|                    |                                   |                                     |
+|       group        |                url                 |               comment               |
+| ------------------ | ---------------------------------- | ----------------------------------- |
+| ♦ Rice Boy         | <http://www.rice-boy.com/>         | three non uniform comics            |
+| ♦ Smack Jeeves     | <http://www.smackjeeves.com>       | is a listing, but no uniform comics |
+| ♦ Big Head Press   | <http://www.bigheadpress.com/>     | some comics uniform some not        |
+| ♦ Webcomics Nation | <http://www.webcomicsnation.com/>  | non uniform comics                  |
+| ♦ WLP              | <http://www.wlpcomics.com/>        | non uniform comics, listing         |
+| drunkduck          | <http://www.theduckwebcomics.com/> | meh                                 |
+|                    |                                    |                                     |
 
 ## done
 

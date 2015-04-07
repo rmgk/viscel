@@ -202,11 +202,6 @@ http://www.sisterclaire.com/archive.php
 :i #comic
 :n #topnav > div > a.next
 
--:Sophia Awakening
-http://www.theduckwebcomics.com/SOPHIA_Awakening/5043865/
-:i #comic > img
-:n #top_arrows a:has(img.arrow_next)
-
 -:Sore Thumbs
 http://sorethumbs.keenspot.com/d/20040308.html
 :i img.ksc , img[src~=http://sorethumbs.keenspot.com/st\d{8}.jpg]
@@ -344,11 +339,6 @@ http://reila.smackjeeves.com/comics/1001394/cover/
 http://old.sakanacomic.com/archive/
 :am #leftside h2 , #leftside .pagebox a
 :i #comic-inner > img
-
--:Tales of the traveling Gnome
-http://www.theduckwebcomics.com/Tales_of_the_Traveling_Gnome/4828138/
-:i #comic > img
-:n #top_arrows a:has(img.arrow_next)
 
 -:The First Daughter
 http://thefirstdaughter.keenspot.com/d/20100704.html
