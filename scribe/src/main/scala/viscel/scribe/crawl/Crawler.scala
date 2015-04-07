@@ -1,5 +1,7 @@
 package viscel.scribe.crawl
 
+import java.net.URL
+
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import org.scalactic.{Bad, Good}
@@ -21,19 +23,27 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 	override def toString: String = s"Job(${narrator.toString})"
 
 	var queue: CrawlQueue = null
+	var visited: Set[URL] = Set.empty
 	var recheck: Option[Node] = None
 	var known: Set[Story] = Set.empty
 	var recover: Boolean = true
 	@volatile var cancel: Boolean = false
 	val result: Promise[Boolean] = Promise()
 
+	def unseen(url: URL) = {
+		if (visited.contains(url)) false
+		else {
+			visited = visited + url
+			true
+		}
+	}
 
 	def collectMore(start: Node)(implicit ntx: Ntx): List[More] = start.layer.recursive.collect {
 		case n if n.hasLabel(label.More) => Codec.load[More](n)
 	}
 
 	def init(): Future[Boolean] = synchronized {
-		if (queue.isEmpty()) {
+		if (queue ne null) {
 			Log.error("tried to initialize non empty runner")
 			Future.failed(new IllegalStateException("already initialised"))
 		}
@@ -51,11 +61,16 @@ class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo
 			queue.deque() match {
 				case Some(node) if node.hasLabel(label.Asset) =>
 					val asset = Codec.load[Asset](node)
-					asset.blob.fold(ec.execute(this))( bloburl =>
-						handle(request(bloburl, asset.origin)) {parseBlob _ andThen writeAsset(node, asset)})
+					asset.blob.fold(ec.execute(this)){ bloburl =>
+						if (unseen(bloburl))
+							handle(request(bloburl, asset.origin)) {parseBlob _ andThen writeAsset(node, asset)}
+						else ec.execute(this)
+					}
 				case Some(node)  if node.hasLabel(label.More) =>
 					val page = Codec.load[More](node)
-					handle(request(page.loc)) {parseDocument(page.loc) _ andThen writePage(node, page)}
+					if (unseen(page.loc))
+						handle(request(page.loc)) {parseDocument(page.loc) _ andThen writePage(node, page)}
+					else ec.execute(this)
 				case None =>
 					result.success(true)
 			}
