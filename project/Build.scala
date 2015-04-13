@@ -51,7 +51,7 @@ object Settings {
 
 	lazy val common = List(
 
-		version := "6.1.0",
+		version := "6.2.0",
 		scalaVersion := "2.11.6",
 
 		scalacOptions ++=
