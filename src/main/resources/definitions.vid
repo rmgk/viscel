@@ -758,9 +758,32 @@ http://teahousecomic.com/comic/archive.php
 :am #maincontent p[align=center] > img[src~=archives] , #maincontent a[href~=^/comic/\?id]
 :i #comicimg
 
-
 -:SkyFall
 http://www.skyfallmanga.com/archive_main.php
 :am body > center > table > tbody > tr:nth-child(5) > td > center > center b , body > center > table > tbody > tr:nth-child(5) > td > center > center a
 :is body > center > table > tbody > tr > td > center > img:not([src=images/blank.jpg])
 :n body > center > table > tbody > tr > td > center > a:has(img[src~=images/next.png])
+
+-:Wonder Kittens
+http://www.wonderkittens.com/comics/index.php?date=20130204&until=week
+:is img[src~=/comics/\d{8}]
+:n a:contains(Next)
+
+-:Stick in the Mud
+http://www.konradokonski.com/SITM/comic/title-0001/
+:ia #comic img
+
+-:A Quartz Bead
+http://www.konradokonski.com/aquartzbead/?page_id=2
+:am #post-2 > div > div.entry > div.comic-archive-chapter-wrap > h3, #post-2 > div > div.entry > div.comic-archive-chapter-wrap > div.comic-archive-list-wrap  a
+:i #comic img
+
+-:Sawdust
+http://www.konradokonski.com/sawdust/archives/
+:am #post-554 > div > div.entry > div.comic-archive-chapter-wrap > h3, #post-554 > div > div.entry > div.comic-archive-chapter-wrap > div.comic-archive-list-wrap  a
+:i #comic img
+
+-:Romantically Apocalyptic
+http://romanticallyapocalyptic.com/0
+:i div.comicmid img
+:n div.comicright > a[accesskey=n]
