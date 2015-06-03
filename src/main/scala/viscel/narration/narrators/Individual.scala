@@ -428,7 +428,14 @@ object Individual {
 			queryImage("#comic-image")),
 		AP("NX_Anathema", "Anathema", "http://anathema-comics.smackjeeves.com/archive/",
 			queryMixedArchive("#chapter_table td[colspan=4] a h2, #chapter_table a[onmouseout=hideddrivetip()]"),
-			queryImage("#comic_image"))
+			queryImage("#comic_image")),
+		SF("NX_xkcd", "xkcd", "http://xkcd.com/1/",
+			doc => {
+				val asset_? = queryImage("#comic img")(doc)
+				val next_? = queryNext("a[rel=next]")(doc)
+				val comment_? = Selection(doc).unique("#comic img").getOne.map(_.attr("title"))
+				withGood(asset_?, next_?, comment_?) { (asset, next, comment) => asset.head.copy(data = asset.head.data ::: "longcomment" :: comment :: Nil) :: next }
+			})
 	)
 
 }
