@@ -787,3 +787,7 @@ http://www.konradokonski.com/sawdust/archives/
 http://romanticallyapocalyptic.com/0
 :i div.comicmid img
 :n div.comicright > a[accesskey=n]
+
+-:Questionable Content
+http://questionablecontent.net/view.php?comic=1
+:ia #strip
