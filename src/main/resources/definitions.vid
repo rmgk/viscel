@@ -436,8 +436,9 @@ http://www.lovenotfound.com/archive.php
 :ia #comic
 
 -:Alice and the Nightmare
-http://www.aliceandthenightmare.com/index.php?id=2
-:ia #comic
+http://www.aliceandthenightmare.com/comic/archive
+:ac #bottommid > div > a
+:ia #cc-comic
 
 -:Hijinks Ensue Classic
 http://hijinksensue.com/comic/a-soul-as-black-as-eyeliner/
