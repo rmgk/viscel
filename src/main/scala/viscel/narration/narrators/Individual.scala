@@ -12,7 +12,7 @@ import viscel.narration.Templates.{AP, SF}
 import viscel.narration.Templates
 import viscel.scribe.narration._
 import viscel.selection.ReportTools._
-import viscel.selection.{Report, Selection}
+import viscel.selection.{Selection, Report}
 
 import scala.Predef.{$conforms, augmentString}
 import scala.collection.immutable.Set
@@ -431,10 +431,12 @@ object Individual {
 			queryImage("#comic_image")),
 		SF("NX_xkcd", "xkcd", "http://xkcd.com/1/",
 			doc => {
-				val asset_? = queryImage("#comic img")(doc)
-				val next_? = queryNext("a[rel=next]")(doc)
-				val comment_? = Selection(doc).unique("#comic img").getOne.map(_.attr("title"))
-				withGood(asset_?, next_?, comment_?) { (asset, next, comment) => asset.head.copy(data = asset.head.data ::: "longcomment" :: comment :: Nil) :: next }
+				val assets_? = Selection(doc).all("#comic img").wrapEach(imgIntoAsset)
+				val next_? = queryNext("a[rel=next]:not([href=#])")(doc)
+				val assets_with_comment_? = assets_?.map(_.map{a =>
+					val datamap = listToMap(a.data)
+					datamap.get("title").fold(a)(t => a.copy(data = a.data ::: "longcomment" :: t :: Nil))})
+				append(assets_with_comment_?, next_?)
 			})
 	)
 
