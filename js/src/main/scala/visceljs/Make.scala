@@ -49,7 +49,8 @@ object Make {
 	}
 
 	def asset(asset: Article, data: Data): List[Modifier] = {
-		asset.blob.fold[List[Modifier]](List(class_placeholder, "placeholder"))(blob => img(src := path_blob(blob))(imageStyle(data)) :: Nil)
+		asset.blob.fold[List[Modifier]](List(class_placeholder, "placeholder"))(blob =>
+			img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt",""))(imageStyle(data)) :: Nil)
 	}
 
 	def fullscreenToggle(stuff: Frag*): Tag = a(onclick := (() => Viscel.toggleFullscreen()))(stuff)
