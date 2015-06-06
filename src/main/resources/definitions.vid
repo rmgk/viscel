@@ -421,9 +421,9 @@ http://www.shortpacked.com/archive.php
 :ia #comic
 
 -:Johnny Wander
-http://www.johnnywander.com/comics/1
-:i #content-area > div.field.field-type-image.field-field-comic-image > div > div > img
-:n #content-area > div.comicnav > a:contains(next)
+http://www.johnnywander.com/comic/i
+:i #cc-comic
+:n #leftcontainer > div.nav > a.next
 
 -:Fanboys
 http://www.fanboys-online.com/index.php?id=483
