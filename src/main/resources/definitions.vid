@@ -599,10 +599,8 @@ http://www.kiwiblitz.com/archive.php
 
 -: Agents of the Realms
 http://www.agentsoftherealm.com/archive.php
-:ac #comicgoeshere > h2 > a
-:ia #comic
-:url_replace (http://www.agentsoftherealm.com/index.php\?id=\d+)#comic ::: $1
-
+:ac #comicgoeshere > div.cc-chapterrow[style=margin-left:100px] > a
+:ia #cc-comic
 
 -:Beeserker
 http://www.beeserker.com/archives/
