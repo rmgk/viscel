@@ -593,9 +593,9 @@ http://www.last-halloween.com/posts
 :is #comics-container > div.comic-container > img
 
 -:Kiwi Blitz
-http://www.kiwiblitz.com/archive.php
-:ac #leftarea > center > p > a
-:ia #comic
+http://www.kiwiblitz.com/comic/archive/
+:ac #leftarea > .cc-chapterrow > a
+:ia #cc-comic
 
 -: Agents of the Realms
 http://www.agentsoftherealm.com/archive.php
