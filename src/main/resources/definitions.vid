@@ -790,3 +790,8 @@ http://romanticallyapocalyptic.com/0
 -:Questionable Content
 http://questionablecontent.net/view.php?comic=1
 :ia #strip
+
+-:By Moon Alone
+http://www.bymoonalone.com/comic.php?date=2008-01-01
+:i img[src~=^comic/pages/]
+:n a:has(img[src=img/forward01.gif])
