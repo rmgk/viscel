@@ -303,7 +303,7 @@ object Individual {
 		AP("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/archives.php",
 			Selection(_).many("#leftarea > h3 > a").wrapFlat(elementIntoChapterPointer),
 			queryImageInAnchor("#comic")),
-		SF("NX_TheRockCocks", "The Rock Cocks", "http://www.therockcocks.com/index.php?id=1", queryImageInAnchor("#comic")),
+		SF("NX_TheRockCocks", "The Rock Cocks", "http://www.therockcocks.com/index.php?id=1", queryImageInAnchor("#cc-comic")),
 		AP("NX_PragueRace", "Prague Race", "http://www.praguerace.com/archive.php",
 			queryChapterArchive("#bottommid > div > div > h2 > a"),
 			queryImageInAnchor("#comic")),
