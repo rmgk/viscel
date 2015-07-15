@@ -582,11 +582,6 @@ http://blindsprings.com/comic/000
 -- but that is in a weird order
 :ia #comic img
 
--:Flora
-http://floraverse.com/comic/flora/archive/
-:am main > section > h1 , main > section a
-:i body > main > section.comic-page > div.comic-page-image-container > img
-
 -:Last Halloween
 http://www.last-halloween.com/posts
 :ac #categories-container .archive_category:not(:has(img[alt=8cff78e6f15bc04c379aa8d4e7a2698744af05eb]))  .archive_entry a
