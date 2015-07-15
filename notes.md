@@ -8,6 +8,10 @@
 
 * <http://www.minnasundberg.fi/comicindex.php>
 
+## non linear archives
+
+* <http://floraverse.com/comic/>
+
 ## multi layered archive
 
 * <http://www.intrepidgirlbot.com/archive/volume-1/>
