@@ -46,7 +46,7 @@ object Viscel {
 	})
 
 
-	def hint(nar: Description): Unit = dom.ext.Ajax.post(s"hint/narrator/${encodeURIComponent(nar.id)}")
+	def hint(nar: Description, force: Boolean = false): Unit = dom.ext.Ajax.post(s"hint/narrator/${encodeURIComponent(nar.id)}" + (if (force) "?force=true" else ""))
 
 	def postBookmark(nar: Description, pos: Int): Future[Map[String, Int]] = {
 

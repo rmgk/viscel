@@ -19,6 +19,10 @@ object Make {
 		handler(data.copy(bookmark = bm))
 	})
 
+	def postForceHint(nar: Description, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
+		Viscel.hint(nar, force = true)
+	})
+
 	def searchArea(narrations: List[Description]): HtmlTag = aside {
 		val results = ol.render
 		var filtered = narrations

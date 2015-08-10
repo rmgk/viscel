@@ -790,3 +790,8 @@ http://questionablecontent.net/view.php?comic=1
 http://www.bymoonalone.com/comic.php?date=2008-01-01
 :i img[src~=^comic/pages/]
 :n a:has(img[src=img/forward01.gif])
+
+-:Weirding Willows
+http://weirdingwillows.keenspot.com/d/20140915.html
+:i #comicpage img
+:n a:has(#anext)
