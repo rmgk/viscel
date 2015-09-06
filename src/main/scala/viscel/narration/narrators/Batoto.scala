@@ -4,6 +4,7 @@ import java.net.URL
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
+import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Templates}
 import viscel.selection.{Report, Selection}
@@ -19,10 +20,14 @@ object Batoto {
 	}
 
 	object Meta extends Metarrator[Btt]("Batoto") {
+		override def reader: default.Reader[Btt] = implicitly[default.Reader[Btt]]
+		override def writer: default.Writer[Btt] = implicitly[default.Writer[Btt]]
+
 		override def unapply(description: String): Option[URL] = description match {
 			case rex"^http://bato.to/comic/_/comics/" => Some(stringToURL(description))
 			case _ => None
 		}
+
 
 		override def wrap(document: Document): Or[List[Btt], Every[Report]] = {
 			val rex"^http://bato.to/comic/_/comics/($id[^/]+)" = document.baseUri()

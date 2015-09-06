@@ -4,7 +4,10 @@ import java.net.URL
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Good, Or}
+import upickle.default
+import upickle.default.ReadWriter
 import viscel.narration.Queries.{RegexContext, stringToURL}
+import viscel.narration.narrators.Batoto.Btt
 import viscel.narration.{Metarrator, Queries, Templates}
 import viscel.selection.Report
 
@@ -16,6 +19,8 @@ object Comicfury {
 	}
 
 	object Meta extends Metarrator[Cfury]("Comicfury") {
+		override def reader: default.Reader[Cfury] = implicitly[default.Reader[Cfury]]
+		override def writer: default.Writer[Cfury] = implicitly[default.Writer[Cfury]]
 		override def unapply(description: String): Option[URL] = description match {
 			case rex"http://($cid[^\.]+)\.thecomicseries.com/" => Some(description)
 			case _ => None

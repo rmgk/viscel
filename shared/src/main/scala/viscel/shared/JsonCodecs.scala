@@ -18,7 +18,3 @@ object JsonCodecs {
 
 }
 
-case class ReaderWriter[T](reader: R[T], writer: W[T]) extends R[T] with W[T] {
-	override def read0: PartialFunction[Value, T] = reader.read
-	override def write0: (T) => Value = writer.write
-}

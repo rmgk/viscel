@@ -5,6 +5,7 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation.withGood
 import org.scalactic.{Every, Or}
+import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Data, Metarrator, Queries}
 import viscel.scribe.narration.{Narrator, More, Story, Volatile}
@@ -40,6 +41,9 @@ object Mangafox {
 
 
 	object Meta extends Metarrator[Mfox]("Mangafox") {
+		override def reader: default.Reader[Mfox] = implicitly[default.Reader[Mfox]]
+		override def writer: default.Writer[Mfox] = implicitly[default.Writer[Mfox]]
+
 		override def unapply(description: String): Option[URL] = description match {
 			case rex"^(${url}http://mangafox.me/manga/[^/]+/)" => Some(new URL(url))
 			case _ => None

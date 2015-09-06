@@ -5,6 +5,8 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic._
+import upickle.default
+import upickle.default.{Reader}
 import viscel.narration.Queries._
 import viscel.narration.{Data, Metarrator}
 import viscel.scribe.narration._
@@ -60,7 +62,8 @@ object Fakku {
 
 
 	object Meta extends Metarrator[FKU]("Fakku") {
-
+		override def reader: default.Reader[FKU] = implicitly[default.Reader[FKU]]
+		override def writer: default.Writer[FKU] = implicitly[default.Writer[FKU]]
 		override def unapply(url: String): Option[URL] = {
 			if (new URL(url).getHost == baseURL.getHost) Some(new URL(url)) else None
 		}
