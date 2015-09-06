@@ -26,8 +26,8 @@ class CrawlerUtil(blobs: BlobStore, responsHandler: Try[HttpResponse] => Unit) {
 			userinfo = in.getUserInfo.?,
 			host = in.getHost.?,
 			port = if (in.getPort < 0) 0 else in.getPort,
-			path = in.getPath.?,
-			query = Uri.Query(Option(in.getQuery)),
+			path = in.getPath.?.replaceAll("\"", ""),
+			query = Uri.Query(Option(in.getQuery).map(_.replaceAll("\"", ""))),
 			fragment = Option(in.getRef)
 		)
 	}
