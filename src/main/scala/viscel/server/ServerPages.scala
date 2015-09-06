@@ -2,7 +2,7 @@ package viscel.server
 
 import spray.can.server.Stats
 import spray.http._
-import upickle.Writer
+import upickle.default.Writer
 import viscel.Log
 import viscel.narration.{AssetKind, Data, Narrators}
 import viscel.scribe.Scribe
@@ -12,7 +12,6 @@ import viscel.shared.JsonCodecs.stringMapW
 import viscel.shared.{Article, Chapter, Content, Description, Gallery}
 import viscel.store.User
 
-import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
 import scalatags.Text.attrs.{`type`, content, href, name => attrname, rel, src, title}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
@@ -100,7 +99,7 @@ class ServerPages(scribe: Scribe) {
 
 	def jsonResponse[T: Writer](value: T): HttpResponse = HttpResponse(entity = HttpEntity(
 		ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-8`),
-		upickle.write(value)))
+		upickle.default.write(value)))
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 

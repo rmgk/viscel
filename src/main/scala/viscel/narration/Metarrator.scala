@@ -4,7 +4,7 @@ import java.net.URL
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
-import upickle.{Reader, Writer}
+import upickle.default.{Reader, Writer}
 import viscel.scribe.narration.Narrator
 import viscel.selection.Report
 import viscel.store.Json

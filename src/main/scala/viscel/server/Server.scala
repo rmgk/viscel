@@ -6,13 +6,14 @@ import spray.can.Http
 import spray.can.server.Stats
 import spray.http.{ContentType, MediaTypes}
 import spray.routing.{HttpService, Route}
+import upickle.default
 import viscel.narration.{Metarrators, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.database.{Books, Neo}
+import viscel.shared.{Chapter, Article, Gallery, Content}
 import viscel.store.User
 import viscel.{Deeds, Log, ReplUtil}
 
-import scala.Predef.{$conforms, ArrowAssoc}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}

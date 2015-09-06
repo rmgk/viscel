@@ -9,8 +9,6 @@ import viscel.narration.{Data, Metarrator, Templates}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 
-import scala.Predef.augmentString
-
 
 object KissManga {
 

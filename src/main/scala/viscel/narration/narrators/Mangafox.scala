@@ -3,7 +3,7 @@ package viscel.narration.narrators
 import java.net.URL
 
 import org.jsoup.nodes.Document
-import org.scalactic.Accumulation._
+import org.scalactic.Accumulation.withGood
 import org.scalactic.{Every, Or}
 import viscel.narration.Queries._
 import viscel.narration.{Data, Metarrator, Queries}
@@ -37,6 +37,7 @@ object Mangafox {
 			case _ => Queries.queryImageNext("#viewer img", "#top_bar .next_page:not([onclick])")(doc)
 		}
 	}
+
 
 	object Meta extends Metarrator[Mfox]("Mangafox") {
 		override def unapply(description: String): Option[URL] = description match {

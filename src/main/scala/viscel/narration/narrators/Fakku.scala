@@ -11,7 +11,6 @@ import viscel.scribe.narration._
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 
-import scala.Predef.augmentString
 
 object Fakku {
 
@@ -44,7 +43,7 @@ object Fakku {
 			val htmlSource = doc.html()
 			val start = htmlSource.indexOf(findStr) + findStr.length
 			val end = htmlSource.indexOf("\n", start) - 1
-			extract {upickle.read[List[String]](htmlSource.substring(start, end)).map(_.replaceAll("thumbs/(\\d+).thumb", "images/$1")).map(new URL(baseURL, _).toString)}.map(_.map { url =>
+			extract {upickle.default.read[List[String]](htmlSource.substring(start, end)).map(_.replaceAll("thumbs/(\\d+).thumb", "images/$1")).map(new URL(baseURL, _).toString)}.map(_.map { url =>
 				val extractPos(pos) = url
 				Data.Article(url, s"${doc.baseUri()}#page=$pos")
 			})

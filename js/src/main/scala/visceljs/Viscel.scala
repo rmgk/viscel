@@ -2,11 +2,10 @@ package visceljs
 
 import org.scalajs.dom
 import org.scalajs.dom.raw.HashChangeEvent
-import upickle._
+import upickle.default.{Reader, Writer}
 import viscel.shared.JsonCodecs.stringMapR
 import viscel.shared._
 
-import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -25,7 +24,7 @@ object Viscel {
 		if (offlineMode) Future.failed(new Throwable("offline mode"))
 		else {
 			val res = dom.ext.Ajax.get(url = path)
-				.map { res => upickle.read[R](res.responseText) }
+				.map { res => upickle.default.read[R](res.responseText) }
 			res.onFailure {
 				case e => Console.println(s"request $path failed with $e")
 			}
@@ -51,7 +50,7 @@ object Viscel {
 	def postBookmark(nar: Description, pos: Int): Future[Map[String, Int]] = {
 
 		val res = dom.ext.Ajax.post("bookmarks", s"narration=${encodeURIComponent(nar.id)}&bookmark=$pos", headers = Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
-			.map(res => upickle.read[Map[String, Int]](res.responseText))
+			.map(res => upickle.default.read[Map[String, Int]](res.responseText))
 		bookmarks = res
 		res
 	}
@@ -121,7 +120,7 @@ object Viscel {
 		}
 
 		bookmarks = Future.successful(Map())
-		val (desc, content) = upickle.read[(Description, Content)](dataJson)
+		val (desc, content) = upickle.default.read[(Description, Content)](dataJson)
 		descriptions = Future.successful(Map(id -> desc))
 		contents = Map(desc.id -> Future.successful(content))
 

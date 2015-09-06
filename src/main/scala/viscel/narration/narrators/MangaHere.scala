@@ -9,8 +9,6 @@ import viscel.narration.{Metarrator, Templates}
 import viscel.selection.{Report, Selection}
 import viscel.store.Json.{urlReader, urlWriter}
 
-import scala.Predef.augmentString
-
 object MangaHere {
 	(urlReader, urlWriter)
 	// reference so that optimize imports does not remove the import

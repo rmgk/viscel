@@ -1,6 +1,6 @@
 package viscel.shared
 
-import upickle.{Reader, Writer, writeJs}
+import upickle.default.{Reader, Writer, writeJs}
 
 import scala.reflect.ClassTag
 
@@ -8,6 +8,7 @@ import scala.reflect.ClassTag
 final class Gallery[+A] private(val pos: Int, entries: Array[A]) {
 	private def copy(position: Int) = new Gallery(position, entries)
 	def toList: List[A] = List(entries: _*)
+	def toSeq: Seq[A] = genericWrapArray(entries)
 	def first: Gallery[A] = copy(0)
 	def end: Gallery[A] = copy(entries.length)
 	def get: Option[A] = if (pos < size) Some(entries(pos)) else None
@@ -24,6 +25,6 @@ object Gallery {
 	def fromList[A: ClassTag](l: List[A]): Gallery[A] = fromArray(l.toArray)
 	def fromArray[A](a: Array[A]): Gallery[A] = new Gallery(0, a)
 	val empty: Gallery[Nothing] = Gallery.fromList(Nil)
-	implicit def galleryR[A: Reader : ClassTag]: Reader[Gallery[A]] = Reader[Gallery[A]](upickle.SeqishR[A, Seq].read.andThen(w => fromArray(w.toArray)))
-	implicit def galleryW[A: Writer]: Writer[Gallery[A]] = Writer[Gallery[A]](g => writeJs(g.toList))
+	implicit def galleryR[A: Reader : ClassTag]: Reader[Gallery[A]] = Reader[Gallery[A]](upickle.default.ArrayR[A].read.andThen(w => fromArray(w)))
+	implicit def galleryW[A: Writer : ClassTag]: Writer[Gallery[A]] = Writer[Gallery[A]](g => writeJs(g.toSeq.toArray))
 }
