@@ -29,6 +29,7 @@ trait Ntx {
 class NeoInstance(path: String) extends Neo with Ntx {
 	val db: GraphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path)
 		.setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE)
+		.setConfig(GraphDatabaseSettings.cache_type, "none")
 		.setConfig(GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE)
 		.newGraphDatabase()
 
