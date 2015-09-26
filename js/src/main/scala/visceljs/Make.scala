@@ -46,14 +46,25 @@ object Make {
 
 	def group(name: String, entries: Signal[Seq[(Description, Int, Int)]]): Tag = {
 		val elements: UList = ul.render
+		val rLegend = legend(name).render
 		entries.observe { es =>
 			elements.innerHTML = ""
+			var cUnread = 0
+			var cTotal = 0
+			var cPos = 0
 			es.foreach { case (nr, pos, unread) =>
-					val e = link_front(nr, s"${nr.name}${if (unread == 0) "" else s" ($unread)"}")
-					elements.appendChild(li(e).render)
+				val e = link_front(nr, s"${nr.name}${if (unread == 0) "" else s" ($unread)"}")
+				elements.appendChild(li(e).render)
+				if (unread > 0) cUnread += unread
+				cTotal += nr.size
+				cPos += pos
 			}
+				rLegend.textContent = s"$name $cUnread ($cPos/$cTotal)"
 		}
-		section(fieldset(legend(name), elements))
+
+
+
+		section(fieldset(rLegend, elements))
 	}
 
 	def navigation(links: Tag*): Tag =

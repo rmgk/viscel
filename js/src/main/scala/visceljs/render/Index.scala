@@ -50,18 +50,13 @@ object Index {
 			(n, c, a) => n.headOption.orElse(c.headOption).orElse(a.headOption).map(_._1)
 		}
 
-
-
-		val (totalBookmarks, unreadBookmarks) = bookmarkedNarrations.foldLeft((0, 0)) { case ((pos, unread), (nar, p, u)) => (pos + p, unread + (if (u > 0) u else 0)) }
-		val totalBookmarkedPages = descriptions.filterKeys(bookmarks.contains).values.map(_.size).sum
-
 		val searchForm = form(inputField, action := "", onsubmit := { () => firstSelected.now.foreach(gotoFront(_)); false })
 
 		Body(id = "index", title = "Viscel",
 			frag = List(
 				Make.navigation(Make.fullscreenToggle("TFS"), searchForm, link_stop("stop")),
-				Make.group(s"Updates ($unreadBookmarks)", filteredHasNewPages),
-				Make.group(s"Bookmarks ($totalBookmarks/$totalBookmarkedPages)", filteredIsCurrent),
+				Make.group(s"Updates", filteredHasNewPages),
+				Make.group(s"Bookmarks", filteredIsCurrent),
 				Make.group(s"Available", filteredAvailable)))
 	}
 
