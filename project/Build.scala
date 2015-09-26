@@ -81,8 +81,9 @@ object Settings {
 			// ("spray nightlies repo" at "http://nightlies.spray.io") ::
 			("spray repo" at "http://repo.spray.io") ::
 			("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/") ::
+			// Resolver.bintrayRepo("rmgk", "maven") ::
+			Resolver.url("bintray rmgk maven", url("http://dl.bintray.com/rmgk/maven"))(Resolver.ivyStylePatterns) ::
 			Nil)
-
 
 	lazy val main: List[Def.Setting[_]] = common ++ List(
 
@@ -137,7 +138,7 @@ object Libraries {
 		jline ::: jopt  ::: scalactic ::: shared.value)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++=
-		scalajsdom.value ::: shared.value)
+		scalajsdom.value ::: shared.value ::: rescala.value)
 
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
@@ -169,5 +170,7 @@ object Libraries {
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.3.6" :: Nil)
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.8.0") :: Nil)
+
+	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.14.0") :: Nil)
 
 }

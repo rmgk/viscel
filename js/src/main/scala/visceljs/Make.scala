@@ -1,18 +1,17 @@
 package visceljs
 
-import org.scalajs.dom.html
+import org.scalajs.dom.html.UList
+import rescala.turns.Engines.synchron
+import rescala.turns.Engines.synchron.Signal
 import viscel.shared.{Article, Description}
-import visceljs.Actions._
 import visceljs.Definitions._
 
-import scala.Predef.{$conforms, ArrowAssoc}
 import scalatags.JsDom.all._
 import scalatags.JsDom.attrs.{onclick, style}
 import scalatags.JsDom.tags.a
-import scalatags.JsDom.tags2.{aside, nav, section}
+import scalatags.JsDom.tags2.{nav, section}
 
 object Make {
-
 
 	def postBookmark(nar: Description, bm: Int, data: Data, handler: Data => Unit, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
 		Viscel.postBookmark(nar, bm)
@@ -22,20 +21,6 @@ object Make {
 	def postForceHint(nar: Description, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
 		Viscel.hint(nar, force = true)
 	})
-
-	def searchArea(narrations: List[Description]): HtmlTag = aside {
-		val results = ol.render
-		var filtered = narrations
-		filtered.sortBy(_.name).foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
-		lazy val inputField: html.Input = input(`type` := "textfield", tabindex := "1", onkeyup := { () =>
-			results.innerHTML = ""
-			val query = inputField.value.toString.toLowerCase
-			filtered = SearchUtil.search(query, narrations.map(n => n.name -> n))
-			filtered.foreach(nar => results.appendChild(li(link_front(nar, nar.name)).render))
-		}).render
-
-		form(fieldset(legend("Search"), inputField, results), action := "", onsubmit := { () => filtered.headOption.foreach(gotoFront(_)); false })
-	}
 
 	def imageStyle(data: Data): Modifier = {
 		def s(mw: Boolean = false, mh: Boolean = false, w: Boolean = false, h: Boolean = false) =
@@ -54,12 +39,22 @@ object Make {
 
 	def asset(asset: Article, data: Data): List[Modifier] = {
 		asset.blob.fold[List[Modifier]](List(class_placeholder, "placeholder"))(blob =>
-			img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt",""))(imageStyle(data)) :: Nil)
+			img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(imageStyle(data)) :: Nil)
 	}
 
 	def fullscreenToggle(stuff: Frag*): Tag = a(onclick := (() => Viscel.toggleFullscreen()))(stuff)
 
-	def group(name: String, entries: Seq[Frag]): Tag = section(fieldset(legend(name), ul(entries.map(li(_)))))
+	def group(name: String, entries: Signal[Seq[(Description, Int, Int)]]): Tag = {
+		val elements: UList = ul.render
+		entries.observe { es =>
+			elements.innerHTML = ""
+			es.foreach { case (nr, pos, unread) =>
+					val e = link_front(nr, s"${nr.name}${if (unread == 0) "" else s" ($unread)"}")
+					elements.appendChild(li(e).render)
+			}
+		}
+		section(fieldset(legend(name), elements))
+	}
 
 	def navigation(links: Tag*): Tag =
 		nav(links)
