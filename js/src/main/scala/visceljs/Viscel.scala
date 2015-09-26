@@ -14,7 +14,7 @@ import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.div
 import rescala.turns.Engines.synchron
-import rescala.turns.Engines.synchron.{Var, Signal}
+import rescala.turns.Engines.synchron.{Var, Evt, Signal}
 
 
 @JSExport(name = "Viscel")
@@ -40,8 +40,12 @@ object Viscel {
 	var descriptions: Future[Map[String, Description]] = _
 	var contents: Map[String, Future[Content]] = Map()
 
-	val currentHash: Var[String] = Var(dom.location.hash.substring(1))
-
+	val triggerDispatch: Evt[Unit] = Evt[Unit]()
+	triggerDispatch.observe(_ => Actions.dispatchPath(dom.location.hash.substring(1)))
+	dom.onhashchange = { (ev: HashChangeEvent) =>
+		triggerDispatch(())
+	}
+	
 	def content(nar: Description): Future[Content] = contents.getOrElse(nar.id, {
 		val res = ajax[Content](s"narration/${encodeURIComponent(nar.id)}")
 		contents = contents.updated(nar.id, res)
@@ -101,17 +105,12 @@ object Viscel {
 	@JSExport(name = "main")
 	def main(): Unit = {
 
-		dom.onhashchange = { (ev: HashChangeEvent) =>
-			currentHash.set(dom.location.hash.substring(1))
-		}
-
-
 		bookmarks = ajax[Map[String, Int]]("bookmarks")
 		descriptions = ajax[List[Description]]("narrations").map(_.map(n => n.id -> n).toMap)
 
 		setBody(Body(frag = div("loading data …")), scrolltop = true)
 
-		currentHash.observe(Actions.dispatchPath)
+		triggerDispatch(())
 
 	}
 
@@ -120,10 +119,6 @@ object Viscel {
 
 		offlineMode = true
 
-		dom.onhashchange = { (ev: HashChangeEvent) =>
-			currentHash.set(dom.location.hash.substring(1))
-		}
-
 		bookmarks = Future.successful(Map())
 		val (desc, content) = upickle.default.read[(Description, Content)](dataJson)
 		descriptions = Future.successful(Map(id -> desc))
@@ -131,7 +126,7 @@ object Viscel {
 
 		setBody(Body(frag = div("loading data …")), scrolltop = true)
 
-		currentHash.observe(Actions.dispatchPath)
+		triggerDispatch(())
 
 
 	}
