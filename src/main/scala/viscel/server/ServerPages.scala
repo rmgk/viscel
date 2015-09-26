@@ -84,7 +84,7 @@ class ServerPages(scribe: Scribe) {
 			head(
 				title := "Viscel",
 				link(href := path_css, rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
-				meta(attrname := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes")),
+				meta(attrname := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes, minimal-ui")),
 
 			body("if nothing happens, your javascript does not work"),
 			script(src := path_js)

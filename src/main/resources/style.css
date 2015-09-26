@@ -12,11 +12,17 @@ please improve :D */
 	background-color : black;
 }
 
+/* disable scrollbar in webkit based browsers */
+::-webkit-scrollbar {
+    display: none;
+}
 
 body {
 	color : #68e466;
 	background-color : black;
 	margin: 0px;
+	/* disable scrollbar in IE … untested so disabled
+	-ms-overflow-style: none; */
 }
 
 a {
