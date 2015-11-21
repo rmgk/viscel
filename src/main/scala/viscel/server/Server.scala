@@ -58,7 +58,7 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 				if (!user.admin) reject
 				else complete {
 					Future {
-						spray.util.actorSystem.shutdown()
+						spray.util.actorSystem.terminate()
 						scribe.neo.shutdown()
 						Log.info("shutdown complete")
 					}

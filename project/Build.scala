@@ -3,6 +3,8 @@ import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt.Keys._
 import sbt._
+import xsbtCapsule.CapsulePlugin
+import xsbtCapsule.Import._
 
 object Build extends sbt.Build {
 
@@ -13,6 +15,7 @@ object Build extends sbt.Build {
 		//.settings(compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in(js, Compile)))
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
 		.enablePlugins(JavaAppPackaging)
+		.enablePlugins(CapsulePlugin)
 		.dependsOn(scribe)
 		.dependsOn(selection)
 		.dependsOn(shared % Provided)
@@ -89,6 +92,11 @@ object Settings {
 
 		fork := true,
 
+		capsuleMainClass := Some("viscel.Viscel"),
+		capsuleVmOptions := Seq("-Xmx128m"),
+		capsuleSystemProperties := Map.empty,
+		capsuleMinJavaVersion := Some("1.7.0"),
+
 		javaOptions ++=
 			"-verbose:gc" ::
 			"-XX:+PrintGCDetails" ::
@@ -151,13 +159,13 @@ object Libraries {
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 
 	// gpl3
-	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.2.5")
+	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.3.1")
 
 	// apache 2
 	val spray = List("spray-routing").map(n => "io.spray" %% n % "1.3.3")
 	val spray_client = List("spray-client").map(n => "io.spray" %% n % "1.3.3")
 
-	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.3.13")
+	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.4.0")
 
 	val jline = "jline" % "jline" % "2.13" :: Nil
 

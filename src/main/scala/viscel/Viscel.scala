@@ -74,7 +74,7 @@ object Viscel {
 
 		if (shutdown.?) {
 			scribe.neo.shutdown()
-			system.shutdown()
+			system.terminate()
 		}
 
 		Log.info("initialization done")
