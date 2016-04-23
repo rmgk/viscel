@@ -7,7 +7,7 @@ import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.{Front, Index, View}
 
 import scala.Predef.$conforms
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.URIUtils.decodeURIComponent
 import scalatags.JsDom.all.{Modifier, bindJsAnyLike, onclick}
 
