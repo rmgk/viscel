@@ -55,7 +55,7 @@ object Settings {
 	lazy val common = List(
 
 		version := "6.2.0",
-		scalaVersion := "2.11.7",
+		scalaVersion := "2.11.8",
 
 		scalacOptions ++=
 			"-deprecation" ::
@@ -159,23 +159,23 @@ object Libraries {
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 
 	// gpl3
-	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.3.2")
+	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "2.3.3")
 
 	// apache 2
 	val spray = List("spray-routing").map(n => "io.spray" %% n % "1.3.3")
 	val spray_client = List("spray-client").map(n => "io.spray" %% n % "1.3.3")
 
-	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.4.2")
+	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.4.4")
 
-	val jline = "jline" % "jline" % "2.13" :: Nil
+	val jline = "jline" % "jline" % "2.14.1" :: Nil
 
-	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "4.9" :: Nil
+	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.1" :: Nil
 
 	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.6" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
 	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.5.4" :: Nil)
 
-	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.3.8" :: Nil)
+	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.3.9" :: Nil)
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.8.0") :: Nil)
 
