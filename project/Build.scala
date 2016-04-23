@@ -3,8 +3,6 @@ import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt.Keys._
 import sbt._
-import xsbtCapsule.CapsulePlugin
-import xsbtCapsule.Import._
 
 object Build extends sbt.Build {
 
@@ -15,7 +13,6 @@ object Build extends sbt.Build {
 		//.settings(compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in(js, Compile)))
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
 		.enablePlugins(JavaAppPackaging)
-		.enablePlugins(CapsulePlugin)
 		.dependsOn(scribe)
 		.dependsOn(selection)
 		.dependsOn(shared % Provided)
@@ -91,11 +88,6 @@ object Settings {
 	lazy val main: List[Def.Setting[_]] = common ++ List(
 
 		fork := true,
-
-		capsuleMainClass := Some("viscel.Viscel"),
-		capsuleVmOptions := Seq("-Xmx128m"),
-		capsuleSystemProperties := Map.empty,
-		capsuleMinJavaVersion := Some("1.7.0"),
 
 		javaOptions ++=
 			"-verbose:gc" ::
