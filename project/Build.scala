@@ -165,11 +165,11 @@ object Libraries {
 
 	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.6" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
-	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.5.4" :: Nil)
+	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.5.5" :: Nil)
 
-	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.3.9" :: Nil)
+	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.0" :: Nil)
 
-	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.8.0") :: Nil)
+	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.8.2") :: Nil)
 
 	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.14.0") :: Nil)
 
