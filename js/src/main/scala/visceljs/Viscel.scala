@@ -13,8 +13,8 @@ import scala.scalajs.js.URIUtils.encodeURIComponent
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.div
-import rescala.turns.Engines.synchron
-import rescala.turns.Engines.synchron.{Var, Evt, Signal}
+import rescala.engines.Engines.default
+import rescala.engines.Engines.default.{Var, Evt, Signal}
 
 
 @JSExport(name = "Viscel")
@@ -41,8 +41,8 @@ object Viscel {
 	var contents: Map[String, Future[Content]] = Map()
 
 	val triggerDispatch: Evt[Unit] = Evt[Unit]()
-	triggerDispatch.observe(_ => Actions.dispatchPath(dom.location.hash.substring(1)))
-	dom.onhashchange = { (ev: HashChangeEvent) =>
+	triggerDispatch.observe(_ => Actions.dispatchPath(dom.window.location.hash.substring(1)))
+	dom.window.onhashchange = { (ev: HashChangeEvent) =>
 		triggerDispatch(())
 	}
 	

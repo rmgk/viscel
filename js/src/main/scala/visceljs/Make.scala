@@ -1,8 +1,8 @@
 package visceljs
 
 import org.scalajs.dom.html.UList
-import rescala.turns.Engines.synchron
-import rescala.turns.Engines.synchron.Signal
+import rescala.engines.Engines.default
+import rescala.engines.Engines.default.{Signal}
 import viscel.shared.{Article, Description}
 import visceljs.Definitions._
 

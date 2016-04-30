@@ -1,8 +1,9 @@
 package visceljs.render
 
 import org.scalajs.dom.html
-import rescala.turns.Engines.synchron
-import rescala.turns.Engines.synchron.{Signal, Var}
+import rescala.engines.Engines.default
+import rescala.engines.Engines.default.{Signal, Var}
+import rescala.reactives.Signals
 import viscel.shared.Description
 import visceljs.Actions._
 import visceljs.Definitions.{link_front, link_stop}
@@ -46,7 +47,7 @@ object Index {
 
 		val filteredAvailable = inputQuery.map { query => SearchUtil.search(query, available.map(n => n._1.name -> n)) }
 
-		val firstSelected = rescala.Signals.lift(filteredHasNewPages, filteredIsCurrent, filteredAvailable) {
+		val firstSelected = Signals.lift(filteredHasNewPages, filteredIsCurrent, filteredAvailable) {
 			(n, c, a) => n.headOption.orElse(c.headOption).orElse(a.headOption).map(_._1)
 		}
 

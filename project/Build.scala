@@ -169,8 +169,8 @@ object Libraries {
 
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.0" :: Nil)
 
-	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.8.2") :: Nil)
+	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.0") :: Nil)
 
-	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.14.0") :: Nil)
+	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.16.0") :: Nil)
 
 }

@@ -39,9 +39,9 @@ object Actions {
 	}
 
 
-	def pushIndex(): Unit = dom.history.pushState(null, "main", path_main)
-	def pushFront(nar: Description): Unit = dom.history.pushState(null, "front", path_front(nar))
-	def pushView(data: Data): Unit = dom.history.pushState(null, "view", path_asset(data))
+	def pushIndex(): Unit = dom.window.history.pushState(null, "main", path_main)
+	def pushFront(nar: Description): Unit = dom.window.history.pushState(null, "front", path_front(nar))
+	def pushView(data: Data): Unit = dom.window.history.pushState(null, "view", path_asset(data))
 
 	def onLeftClick(a: => Unit): Modifier = onclick := { (e: MouseEvent) =>
 		if (e.button == 0) {
