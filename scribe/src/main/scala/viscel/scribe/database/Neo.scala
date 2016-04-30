@@ -4,7 +4,6 @@ import java.io.File
 
 import org.neo4j.graphdb.factory.{GraphDatabaseFactory, GraphDatabaseSettings}
 import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
-import org.neo4j.helpers.Settings
 import viscel.scribe.Log
 
 import scala.collection.JavaConverters._
@@ -30,7 +29,7 @@ trait Ntx {
 
 class NeoInstance(path: String) extends Neo with Ntx {
 	val db: GraphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(new File(path))
-		.setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
+		.setConfig(GraphDatabaseSettings.keep_logical_logs, "20M size")
 		//.setConfig(GraphDatabaseSettings.pagecache_memory, "20m")
 		.setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
 		.newGraphDatabase()
