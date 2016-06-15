@@ -1,19 +1,19 @@
 package viscel.server
 
+import akka.http.scaladsl.model._
 import spray.can.server.Stats
-import spray.http._
 import upickle.default.Writer
 import viscel.Log
 import viscel.narration.{AssetKind, Data, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.database.{Neo, label}
-import viscel.scribe.narration.{Asset => SAsset, Page}
+import viscel.scribe.narration.{Page, Asset => SAsset}
 import viscel.shared.JsonCodecs.stringMapW
 import viscel.shared.{Article, Chapter, Content, Description, Gallery}
 import viscel.store.User
 
 import scala.collection.immutable.Map
-import scalatags.Text.attrs.{`type`, content, href, name => attrname, rel, src, title}
+import scalatags.Text.attrs.{`type`, content, href, rel, src, title, name => attrname}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, head, html, link, meta, script}
 import scalatags.Text.{Modifier, RawFrag}
@@ -98,12 +98,12 @@ class ServerPages(scribe: Scribe) {
 		"<!DOCTYPE html>" + fullHtml.render))
 
 	def jsonResponse[T: Writer](value: T): HttpResponse = HttpResponse(entity = HttpEntity(
-		ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-8`),
+		ContentType(MediaTypes.`application/json`),
 		upickle.default.write(value)))
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-	def stats(stats: Stats): HttpResponse = jsonResponse {
+	def stats(): HttpResponse = jsonResponse {
 		val cn = scribe.cfg
 		scribe.neo.tx { implicit ntx =>
 			Map[String, Long](
@@ -112,15 +112,7 @@ class ServerPages(scribe: Scribe) {
 				"Compressed downloads" -> cn.downloadsCompressed,
 				"Failed downloads" -> cn.downloadsFailed,
 				"Books" -> ntx.nodes(label.Book).size,
-				"Assets" -> ntx.nodes(label.Asset).size,
-				"Uptime" -> stats.uptime.toSeconds,
-				"Total requests" -> stats.totalRequests,
-				"Open requests" -> stats.openRequests,
-				"Max open requests" -> stats.maxOpenRequests,
-				"Total connections" -> stats.totalConnections,
-				"Open connections" -> stats.openConnections,
-				"Max open connections" -> stats.maxOpenConnections,
-				"Requests timed out" -> stats.requestTimeouts)
+				"Assets" -> ntx.nodes(label.Asset).size)
 		}
 	}
 

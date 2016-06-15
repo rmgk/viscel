@@ -4,9 +4,13 @@ import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.{ActorSystem, Props}
+import akka.http.scaladsl._
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.settings._
+import akka.http.scaladsl.server.RouteResult
 import akka.io.IO
+import akka.stream.ActorMaterializer
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
-import spray.can.Http
 import viscel.scribe.Scribe
 import viscel.server.Server
 
@@ -57,8 +61,9 @@ object Viscel {
 				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])))
 
 		if (!noserver.?) {
-			val server = system.actorOf(Props(Predef.classOf[Server], scribe), "viscel-server")
-			IO(Http)(system) ! Http.Bind(server, interface = "0", port = port())
+			val server = new Server(scribe)(system)
+			val materializer = ActorMaterializer()(system)
+			Http()(system).bindAndHandle(RouteResult.route2HandlerFlow(server.route)(RoutingSettings.default(system), ParserSettings.default(system), materializer, RoutingLog.fromActorSystem(system)), "0", port())(materializer)
 		}
 
 		if (!nocore.?) {

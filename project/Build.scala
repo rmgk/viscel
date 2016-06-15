@@ -134,7 +134,7 @@ object Settings {
 object Libraries {
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++=
-		neo ::: spray ::: akka :::
+		neo ::: spray ::: akka ::: akkaHTTP :::
 		jline ::: jopt  ::: scalactic ::: shared.value)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++=
@@ -151,23 +151,25 @@ object Libraries {
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 
 	// gpl3
-	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "3.0.0")
+	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "3.0.3")
 
 	// apache 2
 	val spray = List("spray-routing").map(n => "io.spray" %% n % "1.3.3")
 	val spray_client = List("spray-client").map(n => "io.spray" %% n % "1.3.3")
 
-	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.4.4")
+	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.4.7")
 
-	val jline = "jline" % "jline" % "2.14.1" :: Nil
+	val akkaHTTP = List("akka-http-core", "akka-http-experimental").map(n => "com.typesafe.akka" %% n % "2.4.7")
 
-	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.1" :: Nil
+	val jline = "jline" % "jline" % "2.14.2" :: Nil
+
+	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.2" :: Nil
 
 	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.6" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
 	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.5.5" :: Nil)
 
-	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.0" :: Nil)
+	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.1" :: Nil)
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.0") :: Nil)
 

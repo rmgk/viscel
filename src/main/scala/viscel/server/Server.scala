@@ -1,11 +1,16 @@
 package viscel.server
 
-import akka.actor.{Actor, ActorRefFactory}
+import akka.actor.{Actor, ActorRefFactory, ActorSystem}
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.BasicHttpCredentials
+import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
+import akka.http.scaladsl.server.directives.{AuthenticationResult, Credentials}
 import akka.pattern.ask
-import spray.can.Http
-import spray.can.server.Stats
-import spray.http.{ContentType, MediaTypes}
-import spray.routing.{HttpService, Route}
+//import spray.can.Http
+//import spray.can.server.Stats
+//import spray.http.{ContentType, MediaTypes}
+//import spray.routing.{HttpService, Route}
 import upickle.default
 import viscel.narration.{Metarrators, Narrators}
 import viscel.scribe.Scribe
@@ -14,12 +19,22 @@ import viscel.shared.{Chapter, Article, Gallery, Content}
 import viscel.store.User
 import viscel.{Deeds, Log, ReplUtil}
 
+import akka.http.scaladsl.util.FastFuture
+import akka.http.scaladsl.util.FastFuture._
+import scala.concurrent.Future
+
+
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.Directives._
+import akka.stream.ActorMaterializer
+import scala.io.StdIn
 
-class Server(scribe: Scribe) extends Actor with HttpService {
+
+class Server(scribe: Scribe)(implicit val system: ActorSystem) {
 
 	implicit def neo: Neo = scribe.neo
 	def books: Books = scribe.books
@@ -27,22 +42,30 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 
 	import scribe.blobs.hashToPath
 
-	def actorRefFactory: ActorRefFactory = context
 
 	val users = new UserStore
 
-	override def receive: Receive = runRoute {
+	def sprayLikeBasicAuth[T](realm: String, authenticator: Option[BasicHttpCredentials] => Option[T]) = extractExecutionContext.flatMap { implicit ec ⇒
+		authenticateOrRejectWithChallenge[BasicHttpCredentials, T] { cred ⇒
+			authenticator(cred) match {
+				case Some(t) ⇒ Future.successful(AuthenticationResult.success(t))
+				case None    ⇒ Future.successful(AuthenticationResult.failWithChallenge(challengeFor(realm)))
+			}
+		}
+	}
+
+	def route: Route = {
 		//(encodeResponse(Gzip) | encodeResponse(Deflate) | encodeResponse(NoEncoding)) {
-		authenticate(users.loginOrCreate) { user => defaultRoute(user) }
+		sprayLikeBasicAuth("Username is used to store configuration; Passwords are saved in plain text; User is created on first login", users.authenticate){ user => defaultRoute(user) }
 		//}
 	}
 
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
-	implicit def implicitExecutionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
+	implicit def implicitExecutionContext: ExecutionContextExecutor = system.dispatcher
 
 
 	def handleBookmarksForm(user: User)(continue: User => Route): Route =
-		formFields(('narration.?.as[Option[String]], 'bookmark.?.as[Option[Int]])) { (colidOption, bmposOption) =>
+		formFields(('narration.as[String].?, 'bookmark.as[Int].?)) { (colidOption, bmposOption) =>
 			val newUser = for (bmpos <- bmposOption; colid <- colidOption) yield {
 				if (bmpos > 0) users.userUpdate(user.setBookmark(colid, bmpos))
 				else users.userUpdate(user.removeBookmark(colid))
@@ -93,13 +116,15 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 				val filename = hashToPath(sha1).toFile
 				pathEnd {getFromFile(filename)} ~
 					path(Segment / Segment) { (part1, part2) =>
-						getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).get))
+						getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).get, () => HttpCharsets.`UTF-8`))
 					}
 			} ~
 			pathPrefix("hint") {
+				println(s"got hint")
 				path("narrator" / Segment) { narratorID =>
+					println(s"got hint $narratorID")
 					rejectNone(Narrators.get(narratorID)) { nar =>
-						parameters('force.?.as[Option[Boolean]]) { force =>
+						parameters('force.as[Option[Boolean]]) { force =>
 							complete {
 								Deeds.narratorHint(nar, force.getOrElse(false))
 								force.toString
@@ -109,12 +134,7 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 				}
 			} ~
 			path("stats") {
-				complete {
-					val stats = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
-						.ask(Http.GetStats)(1.second)
-						.mapTo[Stats]
-					stats map pages.stats
-				}
+				complete { pages.stats() }
 			} ~
 			path("export" / Segment) { (id) =>
 				if (!user.admin) reject
@@ -125,7 +145,7 @@ class Server(scribe: Scribe) extends Actor with HttpService {
 			} ~
 			path("import" / Segment) { (id) =>
 				if (!user.admin) reject
-				else parameters('name.as[String], 'path.as[String]) { (name, path) =>
+				else parameters(('name.as[String], 'path.as[String])) { (name, path) =>
 					onComplete(Future(new ReplUtil(scribe).importFolder(path, s"Import_$id", name))) {
 						case Success(v) => complete("success")
 						case Failure(e) => complete(e.toString())
