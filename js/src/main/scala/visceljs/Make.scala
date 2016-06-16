@@ -38,8 +38,11 @@ object Make {
 	}
 
 	def asset(asset: Article, data: Data): List[Modifier] = {
-		asset.blob.fold[List[Modifier]](List(class_placeholder, "placeholder"))(blob =>
-			img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(imageStyle(data)) :: Nil)
+		asset.blob match {
+			case None => List(class_placeholder, "placeholder")
+			case Some(blob) =>
+				img(src := path_blob(blob, asset.mime), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(imageStyle(data)) :: Nil
+		}
 	}
 
 	def fullscreenToggle(stuff: Frag*): Tag = a(onclick := (() => Viscel.toggleFullscreen()))(stuff)
@@ -59,7 +62,7 @@ object Make {
 				cTotal += nr.size
 				cPos += pos
 			}
-				rLegend.textContent = s"$name $cUnread ($cPos/$cTotal)"
+			rLegend.textContent = s"$name $cUnread ($cPos/$cTotal)"
 		}
 
 
