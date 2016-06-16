@@ -143,7 +143,7 @@ object Libraries {
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
 
-	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray_client ++ akka ++ akkaHTTP ++ scalactic ++ jsoup)
+	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ akkaHTTP ++ scalactic ++ jsoup)
 
 	lazy val selection: List[Def.Setting[_]] = List(libraryDependencies ++= scalactic ++ jsoup)
 
@@ -152,10 +152,6 @@ object Libraries {
 
 	// gpl3
 	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "3.0.3")
-
-	// apache 2
-	val spray = List("spray-routing").map(n => "io.spray" %% n % "1.3.3")
-	val spray_client = List("spray-client").map(n => "io.spray" %% n % "1.3.3")
 
 	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.4.7")
 
