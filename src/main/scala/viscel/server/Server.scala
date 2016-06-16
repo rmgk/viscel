@@ -7,10 +7,6 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
 import akka.http.scaladsl.server.directives.{AuthenticationResult, Credentials}
 import akka.pattern.ask
-//import spray.can.Http
-//import spray.can.server.Stats
-//import spray.http.{ContentType, MediaTypes}
-//import spray.routing.{HttpService, Route}
 import upickle.default
 import viscel.narration.{Metarrators, Narrators}
 import viscel.scribe.Scribe
@@ -120,9 +116,7 @@ class Server(scribe: Scribe)(implicit val system: ActorSystem) {
 					}
 			} ~
 			pathPrefix("hint") {
-				println(s"got hint")
 				path("narrator" / Segment) { narratorID =>
-					println(s"got hint $narratorID")
 					rejectNone(Narrators.get(narratorID)) { nar =>
 						parameters('force.as[Option[Boolean]]) { force =>
 							complete {
