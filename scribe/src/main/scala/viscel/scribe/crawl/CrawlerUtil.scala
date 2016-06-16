@@ -35,7 +35,7 @@ class CrawlerUtil(blobs: BlobStore, responseHandler: Try[HttpResponse] => Unit)(
 
 	def getResponse(request: HttpRequest, iopipe: HttpRequest => Future[HttpResponse]): Future[HttpResponse] = {
 		val result: Future[HttpResponse] = iopipe(request).flatMap(_.toStrict(FiniteDuration(300, SECONDS)))
-		Log.info(s"get ${request.uri} (${request.headers})")
+		Log.info(s"get ${request.uri} (${request.header[Referer]})")
 		result.andThen(PartialFunction(responseHandler))
 	}
 
