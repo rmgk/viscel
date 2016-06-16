@@ -134,7 +134,7 @@ object Settings {
 object Libraries {
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++=
-		neo ::: spray ::: akka ::: akkaHTTP :::
+		neo ::: akka ::: akkaHTTP :::
 		jline ::: jopt  ::: scalactic ::: shared.value)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++=
@@ -143,7 +143,7 @@ object Libraries {
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
 
-	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray_client ++ akka ++ scalactic ++ jsoup)
+	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ spray_client ++ akka ++ akkaHTTP ++ scalactic ++ jsoup)
 
 	lazy val selection: List[Def.Setting[_]] = List(libraryDependencies ++= scalactic ++ jsoup)
 

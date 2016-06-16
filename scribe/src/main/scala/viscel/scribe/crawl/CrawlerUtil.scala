@@ -2,22 +2,23 @@ package viscel.scribe.crawl
 
 import java.net.URL
 
+import akka.http.scaladsl.coding.{Deflate, Gzip}
+import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Accept-Encoding`, `Content-Type`}
+import akka.http.scaladsl.model.{ContentType, HttpCharsets, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import spray.client.pipelining.{Get, SendReceive, WithTransformation, WithTransformerConcatenation, addHeader, decode}
-import spray.http.HttpHeaders.{Location, `Accept-Encoding`, `Content-Type`}
-import spray.http.{HttpCharsets, HttpEncodings, HttpRequest, HttpResponse, Uri}
-import spray.httpx.encoding.{Deflate, Gzip}
 import viscel.scribe.Log
 import viscel.scribe.narration.Blob
 import viscel.scribe.store.BlobStore
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.duration.{FiniteDuration, SECONDS}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
 
 
-class CrawlerUtil(blobs: BlobStore, responsHandler: Try[HttpResponse] => Unit) {
+class CrawlerUtil(blobs: BlobStore, responseHandler: Try[HttpResponse] => Unit)(implicit ec: ExecutionContext, materializer: Materializer) {
 
 	def urlToUri(in: URL): Uri = {
 		implicit class X(s: String) {def ? = Option(s).getOrElse("")}
@@ -27,33 +28,38 @@ class CrawlerUtil(blobs: BlobStore, responsHandler: Try[HttpResponse] => Unit) {
 			host = in.getHost.?,
 			port = if (in.getPort < 0) 0 else in.getPort,
 			path = in.getPath.?.replaceAll("\"", ""),
-			query = Uri.Query(Option(in.getQuery).map(_.replaceAll("\"", ""))),
+			queryString = Option(in.getQuery).map(_.replaceAll("\"", "")),
 			fragment = Option(in.getRef)
 		)
 	}
 
-	def addReferrer(referrer: Uri): (HttpRequest) => HttpRequest = addHeader("Referer" /*[sic, http spec]*/ , referrer.toString())
-
-	def getResponse(request: HttpRequest, iopipe: SendReceive): Future[HttpResponse] = {
-		val result = request ~> addHeader(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)) ~> iopipe
+	def getResponse(request: HttpRequest, iopipe: HttpRequest => Future[HttpResponse]): Future[HttpResponse] = {
+		val result: Future[HttpResponse] = iopipe(request).flatMap(_.toStrict(FiniteDuration(300, SECONDS)))
 		Log.info(s"get ${request.uri} (${request.headers})")
-		result.andThen(PartialFunction(responsHandler)).map {decode(Gzip) ~> decode(Deflate)}
+		result.andThen(PartialFunction(responseHandler))
 	}
 
 	def request[R](source: URL, origin: Option[URL] = None): HttpRequest = {
-		Get(urlToUri(source)) ~> origin.fold[HttpRequest => HttpRequest](x => x)(origin => addReferrer(urlToUri(origin)))
+		HttpRequest(
+			method = HttpMethods.GET,
+			uri = urlToUri(source),
+			headers =
+				`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip) ::
+				origin.map(x => Referer.apply(urlToUri(x))).toList)
 	}
 
+	def awaitEntity(res: HttpResponse): HttpEntity.Strict = Await.result(res.entity.toStrict(FiniteDuration(5, SECONDS)), FiniteDuration(5, SECONDS))
+
 	def parseDocument(absUri: URL)(res: HttpResponse): Document = Jsoup.parse(
-		res.entity.asString(defaultCharset = HttpCharsets.`UTF-8`),
+		Await.result(Unmarshal(res).to[String], FiniteDuration(5, SECONDS)),
 		res.header[Location].fold(ifEmpty = urlToUri(absUri))(_.uri).toString())
 
 	def parseBlob[R](res: HttpResponse): Blob = {
-		val bytes = res.entity.data.toByteArray
+		val bytes = awaitEntity(res).data.toArray[Byte]
 		val sha1 = blobs.write(bytes)
 		Blob(
 			sha1 = sha1,
-			mime = res.header[`Content-Type`].fold("")(_.contentType.mediaType.toString()))
+			mime = res.entity.contentType.mediaType.toString())
 	}
 
 }

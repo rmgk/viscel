@@ -55,14 +55,14 @@ object Viscel {
 		Files.createDirectories(basepath)
 
 		val system = ActorSystem()
+		val materializer = ActorMaterializer()(system)
 
-		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"), system,
+		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"), system, materializer,
 			ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])))
 
 		if (!noserver.?) {
 			val server = new Server(scribe)(system)
-			val materializer = ActorMaterializer()(system)
 			Http()(system).bindAndHandle(RouteResult.route2HandlerFlow(server.route)(RoutingSettings.default(system), ParserSettings.default(system), materializer, RoutingLog.fromActorSystem(system)), "0", port())(materializer)
 		}
 

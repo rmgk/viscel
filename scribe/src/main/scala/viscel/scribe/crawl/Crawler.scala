@@ -2,11 +2,10 @@ package viscel.scribe.crawl
 
 import java.net.URL
 
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import org.jsoup.nodes.Document
 import org.neo4j.graphdb.Node
 import org.scalactic.{Bad, Good}
-import spray.client.pipelining.SendReceive
-import spray.http.{HttpRequest, HttpResponse}
 import viscel.scribe.Log
 import viscel.scribe.database.Implicits.NodeOps
 import viscel.scribe.database._
@@ -16,7 +15,7 @@ import scala.collection.immutable.Set
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
 
-class Crawler(val narrator: Narrator, iopipe: SendReceive, collection: Book, neo: Neo, ec: ExecutionContext, runnerUtil: CrawlerUtil) extends Runnable {
+class Crawler(val narrator: Narrator, iopipe: HttpRequest => Future[HttpResponse], collection: Book, neo: Neo, ec: ExecutionContext, runnerUtil: CrawlerUtil) extends Runnable {
 
 	import runnerUtil._
 

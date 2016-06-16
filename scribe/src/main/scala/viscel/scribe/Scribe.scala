@@ -3,12 +3,11 @@ package viscel.scribe
 import java.nio.file.{Files, Path}
 
 import akka.actor.ActorSystem
-import akka.io.IO
+import akka.http.scaladsl.model.headers.HttpEncodings
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.http.scaladsl.{Http, HttpExt}
+import akka.stream.Materializer
 import org.scalactic.TypeCheckedTripleEquals._
-import spray.can.Http
-import spray.client.pipelining
-import spray.client.pipelining.SendReceive
-import spray.http.{HttpEncodings, HttpResponse}
 import viscel.scribe.crawl.{Crawler, CrawlerUtil}
 import viscel.scribe.database.{Books, NeoInstance, label}
 import viscel.scribe.narration.Narrator
@@ -17,8 +16,8 @@ import viscel.scribe.store.{BlobStore, Config}
 import viscel.scribe.database.Implicits.NodeOps
 
 import scala.collection.concurrent
-import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.{FiniteDuration, SECONDS}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
@@ -31,7 +30,7 @@ object Scribe {
 		res
 	}
 
-	def apply(basedir: Path, system: ActorSystem, executionContext: ExecutionContext): Scribe = {
+	def apply(basedir: Path, system: ActorSystem, materializer: Materializer, executionContext: ExecutionContext): Scribe = {
 
 		Files.createDirectories(basedir)
 
@@ -49,13 +48,13 @@ object Scribe {
 				neo.db.schema().constraintFor(label.Book).assertPropertyIsUnique("id").create()
 		}
 
-		val ioHttp = IO(Http)(system)
-		val iopipe = pipelining.sendReceive(ioHttp)(system.dispatcher, 300.seconds)
+		val ioHttp: HttpExt = Http(system)
+		val iopipe = (request: HttpRequest) => ioHttp.singleRequest(request)(materializer)
 
 		val responseHandler: Try[HttpResponse] => Unit = {
 			case Success(res) => neo.tx { ntx =>
 				configNode.download(
-					size = res.entity.data.length,
+					size = Await.result(res.entity.toStrict(FiniteDuration(5, SECONDS))(materializer), FiniteDuration(5, SECONDS)).contentLength,
 					success = res.status.isSuccess,
 					compressed = res.encoding === HttpEncodings.deflate || res.encoding === HttpEncodings.gzip)(ntx)
 			}
@@ -70,7 +69,7 @@ object Scribe {
 			sendReceive = iopipe,
 			ec = executionContext,
 			blobs = blobs,
-			util = new CrawlerUtil(blobs, responseHandler),
+			util = new CrawlerUtil(blobs, responseHandler)(executionContext, materializer),
 			cfg = configNode)
 	}
 
@@ -79,7 +78,7 @@ object Scribe {
 class Scribe(
 	val basedir: Path,
 	val neo: NeoInstance,
-	val sendReceive: SendReceive,
+	val sendReceive: HttpRequest => Future[HttpResponse],
 	val ec: ExecutionContext,
 	val blobs: BlobStore,
 	val util: CrawlerUtil,
