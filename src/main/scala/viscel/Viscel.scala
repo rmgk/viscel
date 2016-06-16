@@ -3,13 +3,11 @@ package viscel
 import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl._
-import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.{RouteResult, _}
 import akka.http.scaladsl.settings._
-import akka.http.scaladsl.server.RouteResult
-import akka.io.IO
 import akka.stream.ActorMaterializer
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
 import viscel.scribe.Scribe

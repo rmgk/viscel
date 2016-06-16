@@ -9,7 +9,6 @@ import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
 import viscel.narration.{Metarrators, Narrators}
 import viscel.scribe.Scribe
-import viscel.scribe.database.{Books, Neo}
 import viscel.store.User
 import viscel.{Deeds, Log, ReplUtil}
 

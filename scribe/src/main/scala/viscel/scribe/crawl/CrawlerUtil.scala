@@ -2,9 +2,8 @@ package viscel.scribe.crawl
 
 import java.net.URL
 
-import akka.http.scaladsl.coding.{Deflate, Gzip}
-import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Accept-Encoding`, `Content-Type`}
-import akka.http.scaladsl.model.{ContentType, HttpCharsets, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Accept-Encoding`}
+import akka.http.scaladsl.model.{HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import org.jsoup.Jsoup
