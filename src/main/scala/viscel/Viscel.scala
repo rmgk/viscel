@@ -4,6 +4,7 @@ import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.{ActorSystem, Props}
+import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.settings._
@@ -14,7 +15,7 @@ import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSe
 import viscel.scribe.Scribe
 import viscel.server.Server
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.language.implicitConversions
 
 object Viscel {
@@ -62,8 +63,28 @@ object Viscel {
 				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])))
 
 		if (!noserver.?) {
-			val server = new Server(scribe)(system)
-			Http()(system).bindAndHandle(RouteResult.route2HandlerFlow(server.route)(RoutingSettings.default(system), ParserSettings.default(system), materializer, RoutingLog.fromActorSystem(system)), "0", port())(materializer)
+
+			val boundServer = Promise[ServerBinding]()
+
+			def terminate(): Unit = {
+				boundServer.future
+					.flatMap(_.unbind())(system.dispatcher)
+					.onComplete { _ =>
+						system.terminate()
+						scribe.neo.shutdown()
+					}(system.dispatcher)
+			}
+
+			val server = new Server(scribe, terminate)(system)
+			val boundSocket: Future[ServerBinding] = Http()(system).bindAndHandle(
+				RouteResult.route2HandlerFlow(server.route)(
+					RoutingSettings.default(system),
+					ParserSettings.default(system),
+					materializer,
+					RoutingLog.fromActorSystem(system)),
+				"0", port())(materializer)
+
+			boundServer.completeWith(boundSocket)
 		}
 
 		if (!nocore.?) {

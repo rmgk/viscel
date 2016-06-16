@@ -1,39 +1,24 @@
 package viscel.server
 
-import akka.actor.{Actor, ActorRefFactory, ActorSystem}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
-import akka.http.scaladsl.server.directives.{AuthenticationResult, Credentials}
-import akka.pattern.ask
-import upickle.default
 import viscel.narration.{Metarrators, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.database.{Books, Neo}
-import viscel.shared.{Chapter, Article, Gallery, Content}
 import viscel.store.User
 import viscel.{Deeds, Log, ReplUtil}
 
-import akka.http.scaladsl.util.FastFuture
-import akka.http.scaladsl.util.FastFuture._
-import scala.concurrent.Future
-
-
-import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Directives._
-import akka.stream.ActorMaterializer
-import scala.io.StdIn
 
+class Server(scribe: Scribe, terminate: () => Unit)(implicit val system: ActorSystem) {
 
-class Server(scribe: Scribe)(implicit val system: ActorSystem) {
-
-	implicit def neo: Neo = scribe.neo
-	def books: Books = scribe.books
 	val pages = new ServerPages(scribe)
 
 	import scribe.blobs.hashToPath
@@ -77,8 +62,8 @@ class Server(scribe: Scribe)(implicit val system: ActorSystem) {
 				if (!user.admin) reject
 				else complete {
 					Future {
-						spray.util.actorSystem.terminate()
-						scribe.neo.shutdown()
+						Thread.sleep(100)
+						terminate()
 						Log.info("shutdown complete")
 					}
 					"shutdown"

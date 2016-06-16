@@ -1,7 +1,6 @@
 package viscel.server
 
 import akka.http.scaladsl.model._
-import spray.can.server.Stats
 import upickle.default.Writer
 import viscel.Log
 import viscel.narration.{AssetKind, Data, Narrators}
