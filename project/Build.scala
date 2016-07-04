@@ -78,11 +78,9 @@ object Settings {
 		resolvers ++=
 			("Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/") ::
 			("Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/") ::
-			// ("spray nightlies repo" at "http://nightlies.spray.io") ::
-			("spray repo" at "http://repo.spray.io") ::
 			("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/") ::
 			// Resolver.bintrayRepo("rmgk", "maven") ::
-			Resolver.url("bintray rmgk maven", url("http://dl.bintray.com/rmgk/maven"))(Resolver.ivyStylePatterns) ::
+			Resolver.bintrayRepo("rmgk", "maven") ::
 			Nil)
 
 	lazy val main: List[Def.Setting[_]] = common ++ List(
@@ -117,9 +115,6 @@ object Settings {
 				|import scala.concurrent._
 				|import scala.concurrent.duration._
 				|import scala.concurrent.ExecutionContext.Implicits.global
-				|import spray.can._
-				|import spray.client.pipelining._
-				|import spray.http._
 				|import viscel._
 				|import viscel.server._
 				|import viscel.store._
@@ -169,6 +164,6 @@ object Libraries {
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.0") :: Nil)
 
-	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.16.0") :: Nil)
+	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.17.0") :: Nil)
 
 }
