@@ -88,7 +88,7 @@ class Server(scribe: Scribe, terminate: () => Unit)(implicit val system: ActorSy
 				complete(pages.narrations())
 			} ~
 			path("narration" / Segment) { collectionId =>
-				rejectNone(pages.narration(collectionId)) { content =>
+				rejectNone(pages.appendLogNarration(collectionId)) { content =>
 					complete(pages.jsonResponse(content))
 				}
 			} ~

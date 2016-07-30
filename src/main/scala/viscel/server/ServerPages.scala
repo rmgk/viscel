@@ -1,10 +1,16 @@
 package viscel.server
 
+import java.net.URL
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
+import java.time.{Duration, Instant}
+
 import akka.http.scaladsl.model._
 import upickle.default.Writer
 import viscel.Log
 import viscel.narration.{AssetKind, Data, Narrators}
 import viscel.scribe.Scribe
+import viscel.scribe.appendstore.{AppendLogArticle, AppendLogBlob, AppendLogChapter, AppendLogElements, AppendLogEntry, AppendLogMore, AppendLogPage}
 import viscel.scribe.database.{Neo, label}
 import viscel.scribe.narration.{Page, Asset => SAsset}
 import viscel.shared.JsonCodecs.stringMapW
@@ -16,6 +22,11 @@ import scalatags.Text.attrs.{`type`, content, href, rel, src, title, name => att
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, head, html, link, meta, script}
 import scalatags.Text.{Modifier, RawFrag}
+import scala.collection.JavaConverters._
+import viscel.store.Json._
+
+import scala.collection.mutable
+
 
 class ServerPages(scribe: Scribe) {
 
@@ -41,6 +52,62 @@ class ServerPages(scribe: Scribe) {
 			case Page(SAsset(None, None, AssetKind.chapter, name :: data), None) => Some(name)
 			case _ => None
 		}
+	}
+
+	def appendLogNarration(id: String): Option[Content] = {
+
+		val entries = Files.lines(Paths.get(s"logs/$id"), StandardCharsets.UTF_8).iterator.asScala.map{ line =>
+			upickle.default.read[AppendLogEntry](line)
+		}.toList
+
+		val size = entries.size
+
+		val pages = new java.util.HashMap[String, AppendLogPage](size)
+		val blobs = new java.util.HashMap[String, AppendLogBlob](size)
+		entries.foreach {
+			case alb@AppendLogBlob(il, rl, sha1, mime, _) => blobs.put(il.toString, alb)
+			case alp@AppendLogPage(il, rl, contents, _) => pages.put(il.toString, alp)
+		}
+
+		@scala.annotation.tailrec
+		def flatten(remaining: List[AppendLogElements], acc: List[AppendLogElements]): List[AppendLogElements] = {
+			remaining match {
+				case Nil => acc.reverse
+				case h :: t => h match {
+					case AppendLogMore(loc, policy, data) =>
+						pages.get(loc.toString) match {
+							case null => flatten(t, acc)
+							case alp => flatten(alp.contents ::: t, acc)
+						}
+					case other => flatten(t,  other :: acc)
+				}
+			}
+		}
+
+		val elements = flatten(pages.get("http://initial.entry").contents, Nil)
+
+		def recurse(content: List[AppendLogElements], art: List[Article], chap: List[Chapter], c: Int): (List[Article], List[Chapter]) = {
+			content match {
+				case Nil => (art, chap)
+				case h :: t => h match {
+					case AppendLogChapter(name) => recurse(t, art, Chapter(name, c) :: chap, c)
+					case AppendLogArticle(blob, origin, data) =>
+						val article = blobs.get(blob.toString) match {
+							case null =>
+								Article(Some(blob.toString), origin.map(_.toString))
+							case AppendLogBlob(il, rl, sha1, mime, _) =>
+								Article(Some(blob.toString), origin.map(_.toString), Some(sha1), Some(mime),  Data.listToMap(data))
+						}
+						recurse(t, article :: art, if (chap.isEmpty) List(Chapter("", 0)) else chap, c + 1)
+					case AppendLogMore(_, _, _) => throw new IllegalStateException("append log mores should already be excluded")
+				}
+			}
+		}
+
+		val (articles, chapters) = recurse(elements, Nil, Nil, 0)
+
+		Some(Content(Gallery.fromList(articles.reverse), chapters))
+
 	}
 
 	def narration(id: String): Option[Content] = neo.tx { implicit ntx =>
