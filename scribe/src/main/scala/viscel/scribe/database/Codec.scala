@@ -40,7 +40,7 @@ object Codec {
 				value.blob.map(b => "blob" -> b.toExternalForm),
 				value.origin.map(o => "origin" -> o.toExternalForm),
 				Some("kind" -> value.kind),
-				if (value.data.length == 0) None else Some("data" -> value.data.toArray)
+				if (value.data.isEmpty) None else Some("data" -> value.data.toArray)
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): Asset = Asset(
@@ -56,7 +56,7 @@ object Codec {
 			ntx.create(label.More, List(
 				Some("loc" -> value.loc.toExternalForm),
 				value.policy.ext.map("policy" -> _),
-				if (value.data.length == 0) None else Some("data" -> value.data.toArray)
+				if (value.data.isEmpty) None else Some("data" -> value.data.toArray)
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): More = More(
