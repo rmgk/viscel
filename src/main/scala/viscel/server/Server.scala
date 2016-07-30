@@ -2,7 +2,7 @@ package viscel.server
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.BasicHttpCredentials
+import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenges}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.AuthenticationResult
@@ -29,7 +29,7 @@ class Server(scribe: Scribe, terminate: () => Unit)(implicit val system: ActorSy
 		authenticateOrRejectWithChallenge[BasicHttpCredentials, T] { cred ⇒
 			authenticator(cred) match {
 				case Some(t) ⇒ Future.successful(AuthenticationResult.success(t))
-				case None    ⇒ Future.successful(AuthenticationResult.failWithChallenge(challengeFor(realm)))
+				case None    ⇒ Future.successful(AuthenticationResult.failWithChallenge(HttpChallenges.basic(realm)))
 			}
 		}
 	}

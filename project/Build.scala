@@ -129,7 +129,7 @@ object Settings {
 object Libraries {
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++=
-		neo ::: akka ::: akkaHTTP :::
+		neo ::: akkaHTTP :::
 		jline ::: jopt  ::: scalactic ::: shared.value)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++=
@@ -146,11 +146,9 @@ object Libraries {
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 
 	// gpl3
-	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "3.0.3")
+	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "3.0.4")
 
-	val akka = List("akka-actor").map(n => "com.typesafe.akka" %% n % "2.4.7")
-
-	val akkaHTTP = List("akka-http-core", "akka-http-experimental").map(n => "com.typesafe.akka" %% n % "2.4.7")
+	val akkaHTTP = List("akka-http-core", "akka-http-experimental").map(n => "com.typesafe.akka" %% n % "2.4.8")
 
 	val jline = "jline" % "jline" % "2.14.2" :: Nil
 
@@ -158,7 +156,7 @@ object Libraries {
 
 	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.6" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
-	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.5.5" :: Nil)
+	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.0" :: Nil)
 
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.1" :: Nil)
 
