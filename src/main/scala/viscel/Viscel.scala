@@ -60,6 +60,10 @@ object Viscel {
 			ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])))
 
+		if (makelog.?) {
+			new ReplUtil(scribe).makeLog()
+		}
+
 		if (!noserver.?) {
 
 			val boundServer = Promise[ServerBinding]()
@@ -122,6 +126,7 @@ object Viscel {
 		val shutdown = accepts("shutdown", "shutdown after main")
 		val help = accepts("help").forHelp()
 		val upgradedb = accepts("upgradedb", "upgrade the db from version 1 to version 2")
+		val makelog = accepts("makelog", "convert to appendlog")
 
 		implicit def optToBool(opt: OptionSpecBuilder)(implicit oset: OptionSet): Boolean = oset.has(opt)
 

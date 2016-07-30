@@ -1,9 +1,10 @@
 package viscel
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths, StandardCopyOption}
+import java.nio.file.{FileAlreadyExistsException, Files, Paths, StandardCopyOption, StandardOpenOption}
 
 import viscel.scribe.Scribe
+import viscel.scribe.appendstore.{AppendLogEntry, AppendLogPage}
 import viscel.scribe.narration.{Asset, Blob, Page}
 import viscel.server.ServerPages
 import viscel.shared.{Article, Chapter, Description, Gallery}
@@ -13,7 +14,8 @@ import scalatags.Text.RawFrag
 import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
-
+import scala.collection.JavaConverters._
+import viscel.store.Json._
 
 class ReplUtil(scribe: Scribe) {
 	def mimeToExt(mime: String, default: String = "") = mime match {
@@ -22,6 +24,20 @@ class ReplUtil(scribe: Scribe) {
 		case "image/png" => "png"
 		case "image/bmp" => "bmp"
 		case _ => default
+	}
+
+	def makeLog(): Unit = {
+		try { Files.createDirectory(Paths.get("logs")) } catch {
+			case e : FileAlreadyExistsException =>
+		}
+		scribe.books.all().foreach { book =>
+			val id = scribe.neo.tx { implicit ntx => book.id }
+			Log.info(s"make append log for $id")
+			val entries = scribe.neo.tx { implicit ntx => book.entries }
+
+			val encoded = entries.map(upickle.default.write[AppendLogEntry](_))
+			Files.write(Paths.get(s"logs/$id"), encoded.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
+		}
 	}
 
 	def export(id: String): Unit = {

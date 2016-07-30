@@ -138,7 +138,7 @@ object Libraries {
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
 
-	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ akkaHTTP ++ scalactic ++ jsoup)
+	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ akkaHTTP ++ scalactic ++ jsoup ++ upickle.value)
 
 	lazy val selection: List[Def.Setting[_]] = List(libraryDependencies ++= scalactic ++ jsoup)
 

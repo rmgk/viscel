@@ -30,7 +30,7 @@ object Codec {
 		override def read(node: Node)(implicit ntx: Ntx): Story =
 			if (node.hasLabel(label.Asset)) load[Asset](node)
 			else if (node.hasLabel(label.More)) load[More](node)
-			else throw new IllegalArgumentException(s"unknown node type ${node}")
+			else throw new IllegalArgumentException(s"unknown node type $node")
 	}
 
 
