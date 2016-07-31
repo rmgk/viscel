@@ -32,7 +32,7 @@ class Clockwork(path: Path, scribe: Scribe) {
 				Users.all() match {
 					case Bad(err) => Log.error(s"could not load bookmarked collections: $err")
 					case Good(users) =>
-						val narrators = users.flatMap(_.bookmarks.keySet).distinct.map(Narrators.get).flatten
+						val narrators = users.flatMap(_.bookmarks.keySet).distinct.flatMap(Narrators.get)
 						narrators.foreach {runNarrator(_, 7 * dayInMillis)}
 				}
 			}
