@@ -7,7 +7,7 @@ import java.time.{Duration, Instant}
 
 import akka.http.scaladsl.model._
 import upickle.default.Writer
-import viscel.Log
+import viscel.{Log, Viscel}
 import viscel.narration.{AssetKind, Data, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.appendstore.{AppendLogArticle, AppendLogBlob, AppendLogChapter, AppendLogElements, AppendLogEntry, AppendLogMore, AppendLogPage}
@@ -56,7 +56,9 @@ class ServerPages(scribe: Scribe) {
 
 	def appendLogNarration(id: String): Option[Content] = {
 
-		val entries = Files.lines(Paths.get(s"logs/$id"), StandardCharsets.UTF_8).iterator.asScala.map{ line =>
+		val path = Viscel.basepath.resolve("scribe").resolve("db3")
+
+		val entries = Files.lines(path.resolve(s"$id.json"), StandardCharsets.UTF_8).iterator.asScala.map{ line =>
 			upickle.default.read[AppendLogEntry](line)
 		}.toList
 

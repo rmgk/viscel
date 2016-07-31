@@ -27,16 +27,15 @@ class ReplUtil(scribe: Scribe) {
 	}
 
 	def makeLog(): Unit = {
-		try { Files.createDirectory(Paths.get("logs")) } catch {
-			case e : FileAlreadyExistsException =>
-		}
+		val dir = Viscel.basepath.resolve("scribe").resolve("db3")
+		Files.createDirectories(dir)
 		scribe.books.all().foreach { book =>
 			val id = scribe.neo.tx { implicit ntx => book.id }
 			Log.info(s"make append log for $id")
 			val entries = scribe.neo.tx { implicit ntx => book.entries }
 
 			val encoded = entries.map(upickle.default.write[AppendLogEntry](_))
-			Files.write(Paths.get(s"logs/$id"), encoded.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
+			Files.write(dir.resolve(s"$id.json"), encoded.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
 		}
 	}
 
