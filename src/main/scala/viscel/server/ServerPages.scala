@@ -10,7 +10,7 @@ import upickle.default.Writer
 import viscel.{Log, Viscel}
 import viscel.narration.{AssetKind, Data, Narrators}
 import viscel.scribe.Scribe
-import viscel.scribe.appendstore.{AppendLogArticle, AppendLogBlob, AppendLogChapter, AppendLogElements, AppendLogEntry, AppendLogMore, AppendLogPage}
+import viscel.scribe.appendlog.{AppendLogArticle, AppendLogBlob, AppendLogChapter, AppendLogElements, AppendLogEntry, AppendLogMore, AppendLogPage}
 import viscel.scribe.database.{Neo, label}
 import viscel.scribe.narration.{Page, Asset => SAsset}
 import viscel.shared.JsonCodecs.stringMapW

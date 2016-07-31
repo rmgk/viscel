@@ -1,4 +1,4 @@
-package viscel.scribe.appendstore
+package viscel.scribe.appendlog
 
 import java.net.URL
 import java.time.Instant

@@ -1,4 +1,4 @@
-package viscel.scribe.appendstore
+package viscel.scribe.appendlog
 
 import java.net.URL
 
@@ -9,7 +9,7 @@ import viscel.scribe.narration.{Asset, Blob, More, Story}
 
 import scala.annotation.tailrec
 
-object FromNeoBook {
+object BookToAppendLog {
 
 	def bookToEntries(book: Book)(implicit ntx: Ntx): List[AppendLogEntry] = {
 		def loadEntries(node: Node): AppendLogElements = {

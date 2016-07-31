@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{FileAlreadyExistsException, Files, Paths, StandardCopyOption, StandardOpenOption}
 
 import viscel.scribe.Scribe
-import viscel.scribe.appendstore.{AppendLogEntry, AppendLogPage}
+import viscel.scribe.appendlog.{AppendLogEntry, AppendLogPage}
 import viscel.scribe.narration.{Asset, Blob, Page}
 import viscel.server.ServerPages
 import viscel.shared.{Article, Chapter, Description, Gallery}
