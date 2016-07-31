@@ -134,7 +134,7 @@ class Scribe(
 		}
 	}
 
-	def convertToAppendLog(): Unit = {
+	def convertToAppendLog()(implicit w: upickle.default.Writer[AppendLogEntry]): Unit = {
 		val dir = basedir.resolve("db3")
 		Files.createDirectories(dir)
 		books.all().foreach { book =>

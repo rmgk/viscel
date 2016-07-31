@@ -5,6 +5,7 @@ import java.time.Instant
 
 import derive.key
 import viscel.scribe.narration.{Normal, Policy}
+import viscel.scribe.store.Json._
 
 sealed trait AppendLogEntry
 @key("Page") case class AppendLogPage(
@@ -24,6 +25,8 @@ sealed trait AppendLogEntry
 	mime: String,
 	date: Instant = Instant.now()
 ) extends AppendLogEntry
+
+
 
 sealed trait AppendLogElements
 @key("Chapter") case class AppendLogChapter(name: String) extends AppendLogElements

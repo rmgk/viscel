@@ -15,6 +15,7 @@ import viscel.server.Server
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.language.implicitConversions
+import viscel.scribe.store.Json._
 
 object Viscel {
 
