@@ -8,7 +8,7 @@ import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Templates}
 import viscel.selection.{Report, Selection}
-import viscel.store.Json.{urlReader, urlWriter}
+import viscel.scribe.store.Json.{urlReader, urlWriter}
 
 object MangaHere {
 	(urlReader, urlWriter)

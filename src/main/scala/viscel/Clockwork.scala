@@ -7,8 +7,9 @@ import org.scalactic.{Bad, Good}
 import viscel.narration.Narrators
 import viscel.scribe.Scribe
 import viscel.scribe.narration.Narrator
+import viscel.scribe.store.Json
 import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
-import viscel.store.{Json, Users}
+import viscel.store.Users
 
 import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext.Implicits.global

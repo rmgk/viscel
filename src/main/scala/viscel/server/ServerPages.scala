@@ -23,7 +23,7 @@ import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, head, html, link, meta, script}
 import scalatags.Text.{Modifier, RawFrag}
 import scala.collection.JavaConverters._
-import viscel.store.Json._
+import viscel.scribe.store.Json._
 
 import scala.collection.mutable
 

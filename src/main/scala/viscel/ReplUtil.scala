@@ -14,8 +14,6 @@ import scalatags.Text.RawFrag
 import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
-import scala.collection.JavaConverters._
-import viscel.store.Json._
 
 class ReplUtil(scribe: Scribe) {
 	def mimeToExt(mime: String, default: String = "") = mime match {
@@ -24,19 +22,6 @@ class ReplUtil(scribe: Scribe) {
 		case "image/png" => "png"
 		case "image/bmp" => "bmp"
 		case _ => default
-	}
-
-	def makeLog(): Unit = {
-		val dir = Viscel.basepath.resolve("scribe").resolve("db3")
-		Files.createDirectories(dir)
-		scribe.books.all().foreach { book =>
-			val id = scribe.neo.tx { implicit ntx => book.id }
-			Log.info(s"make append log for $id")
-			val entries = scribe.neo.tx { implicit ntx => book.entries }
-
-			val encoded = entries.map(upickle.default.write[AppendLogEntry](_))
-			Files.write(dir.resolve(s"$id.json"), encoded.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
-		}
 	}
 
 	def export(id: String): Unit = {

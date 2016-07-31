@@ -23,7 +23,6 @@ class Crawler(val narrator: Narrator, iopipe: HttpRequest => Future[HttpResponse
 
 	var queue: CrawlQueue = null
 	var visited: Set[URL] = Set.empty
-	var recheck: Option[Node] = None
 	var known: Set[Story] = Set.empty
 	var recover: Boolean = true
 	@volatile var cancel: Boolean = false
@@ -90,7 +89,6 @@ class Crawler(val narrator: Narrator, iopipe: HttpRequest => Future[HttpResponse
 		else {
 			Log.info(s"trying to recover after failure in $narrator at $node")
 			queue.drain()
-			recheck = None
 			recover = false
 			node.above.filter(_.hasLabel(label.More)).foreach(queue.redo)
 			ec.execute(this)

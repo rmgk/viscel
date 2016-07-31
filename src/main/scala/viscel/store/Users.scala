@@ -6,6 +6,7 @@ import java.nio.file.{Files, Path}
 import org.scalactic.Accumulation._
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
 import viscel.Viscel
+import viscel.scribe.store.Json
 import viscel.shared.JsonCodecs.{stringMapR, stringMapW}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter

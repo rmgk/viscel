@@ -61,7 +61,7 @@ object Viscel {
 				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])))
 
 		if (makelog.?) {
-			new ReplUtil(scribe).makeLog()
+			scribe.convertToAppendLog()
 		}
 
 		if (!noserver.?) {

@@ -10,7 +10,7 @@ import viscel.narration.Queries._
 import viscel.narration.{Data, Metarrator, Queries}
 import viscel.scribe.narration.{Narrator, More, Story, Volatile}
 import viscel.selection.{Report, Selection}
-import viscel.store.Json.{urlReader, urlWriter}
+import viscel.scribe.store.Json.{urlReader, urlWriter}
 
 
 object Mangafox {

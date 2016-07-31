@@ -1,6 +1,7 @@
 package viscel.scribe
 
-import java.nio.file.{Files, Path}
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path, StandardOpenOption}
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.headers.HttpEncodings
@@ -8,6 +9,7 @@ import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.Materializer
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.scribe.appendstore.AppendLogEntry
 import viscel.scribe.crawl.{Crawler, CrawlerUtil}
 import viscel.scribe.database.{Books, NeoInstance, label}
 import viscel.scribe.narration.Narrator
@@ -20,6 +22,9 @@ import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
+
+import scala.collection.JavaConverters._
+import viscel.scribe.store.Json._
 
 object Scribe {
 
@@ -90,7 +95,9 @@ class Scribe(
 	val runners: concurrent.Map[String, Crawler] = concurrent.TrieMap[String, Crawler]()
 
 	def purge(id: String): Boolean = neo.tx { implicit ntx =>
-		books.findExisting(id).map(b => b.self.deleteRecursive).fold(false)(_ => true)
+		val book = books.findExisting(id)
+		book.foreach(_.self.deleteRecursive)
+		book.isDefined
 	}
 
 	def finish(runner: Crawler): Unit = {
@@ -125,6 +132,19 @@ class Scribe(
 				new Crawler(narrator, sendReceive, collection, neo, ec, util)
 			}
 			ensureRunner(id, runner)
+		}
+	}
+
+	def convertToAppendLog(): Unit = {
+		val dir = basedir.resolve("db3")
+		Files.createDirectories(dir)
+		books.all().foreach { book =>
+			val id = neo.tx { implicit ntx => book.id }
+			Log.info(s"make append log for $id")
+			val entries = neo.tx { implicit ntx => book.entries }
+
+			val encoded = entries.map(upickle.default.write[AppendLogEntry](_))
+			Files.write(dir.resolve(s"$id.json"), encoded.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
 		}
 	}
 }
