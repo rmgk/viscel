@@ -19,7 +19,7 @@ object Metarrators {
 			scribe.sendReceive(scribe.util.request(url)).map { res =>
 				val nars = metarrator.wrap(scribe.util.parseDocument(url)(res)).get
 				synchronized {
-					metarrator.save((nars ++ metarrator.load()).toList)
+					metarrator.save(nars ++ metarrator.load())
 					Narrators.update()
 					nars
 				}

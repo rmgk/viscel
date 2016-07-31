@@ -9,7 +9,7 @@ import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.Materializer
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.scribe.appendstore.AppendLogEntry
+import viscel.scribe.appendstore.{AppendLogEntry, FromNeoBook}
 import viscel.scribe.crawl.{Crawler, CrawlerUtil}
 import viscel.scribe.database.{Books, NeoInstance, label}
 import viscel.scribe.narration.Narrator
@@ -22,7 +22,6 @@ import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
-
 import scala.collection.JavaConverters._
 import viscel.scribe.store.Json._
 
@@ -141,7 +140,7 @@ class Scribe(
 		books.all().foreach { book =>
 			val id = neo.tx { implicit ntx => book.id }
 			Log.info(s"make append log for $id")
-			val entries = neo.tx { implicit ntx => book.entries }
+			val entries = neo.tx { ntx => FromNeoBook.bookToEntries(book)(ntx) }
 
 			val encoded = entries.map(upickle.default.write[AppendLogEntry](_))
 			Files.write(dir.resolve(s"$id.json"), encoded.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
