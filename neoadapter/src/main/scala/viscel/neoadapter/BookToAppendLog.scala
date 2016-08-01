@@ -4,7 +4,7 @@ import java.net.URL
 
 import org.neo4j.graphdb.Node
 import Implicits.NodeOps
-import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Article => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore, PageContent => AppendLogElements}
+import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Article => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore, WebContent => AppendLogElements}
 import viscel.shared.Blob
 
 import scala.annotation.tailrec

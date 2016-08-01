@@ -5,12 +5,12 @@ import java.nio.file.{Files, Path}
 
 import scala.collection.JavaConverters._
 import viscel.scribe.store.Json._
-import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Article, Chapter, Link, Page, PageContent, Story}
+import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Article, Chapter, Link, ArticleBlob, WebContent, Entry}
 import viscel.shared.Log
 
 class Book(path: Path)(implicit r: upickle.default.Reader[AppendLogEntry]) {
 	def size(): Int = pages().count{
-		case Page(_, _) => true
+		case ArticleBlob(_, _) => true
 		case _ => false
 	}
 
@@ -18,7 +18,7 @@ class Book(path: Path)(implicit r: upickle.default.Reader[AppendLogEntry]) {
 
 	lazy val id: String = path.getFileName.toString
 
-	def pages(): List[Story] = {
+	def pages(): List[Entry] = {
 
 		val entries = Files.lines(path, StandardCharsets.UTF_8).skip(1).iterator.asScala.map{ line =>
 			upickle.default.read[AppendLogEntry](line)
@@ -34,7 +34,7 @@ class Book(path: Path)(implicit r: upickle.default.Reader[AppendLogEntry]) {
 		}
 
 		@scala.annotation.tailrec
-		def flatten(remaining: List[PageContent], acc: List[Story]): List[Story] = {
+		def flatten(remaining: List[WebContent], acc: List[Entry]): List[Entry] = {
 			remaining match {
 				case Nil => acc.reverse
 				case h :: t => h match {
@@ -49,7 +49,7 @@ class Book(path: Path)(implicit r: upickle.default.Reader[AppendLogEntry]) {
 					case art @ Article(blob, origin, data) =>
 						blobs.get(blob.toString) match {
 							case null => flatten(t, acc)
-							case alb => flatten(t, Page(art, alb) :: acc)
+							case alb => flatten(t, ArticleBlob(art, alb) :: acc)
 						}
 					case chap @ Chapter(_) => flatten(t,  chap :: acc)
 				}

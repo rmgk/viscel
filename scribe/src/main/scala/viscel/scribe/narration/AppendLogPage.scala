@@ -12,7 +12,7 @@ sealed trait AppendLogEntry
 	ref: URL,
 	/** location that was finally resolved and downloaded */
 	loc: URL,
-	contents: List[PageContent],
+	contents: List[WebContent],
 	date: Instant = Instant.now()
 ) extends AppendLogEntry
 @key("Blob") case class AppendLogBlob(
@@ -25,13 +25,13 @@ sealed trait AppendLogEntry
 ) extends AppendLogEntry
 
 
-sealed trait Story
-case class Page(article: Article, blob: AppendLogBlob) extends Story
+sealed trait Entry
+case class ArticleBlob(article: Article, blob: AppendLogBlob) extends Entry
 
-sealed trait PageContent
-@key("Chapter") case class Chapter(name: String) extends PageContent with Story
-@key("Article") case class Article(ref: URL, origin: URL, data: Map[String, String] = Map()) extends PageContent
-@key("Link") case class Link(ref: URL, policy: Policy = Normal, data: List[String] = Nil) extends PageContent
+sealed trait WebContent
+@key("Chapter") case class Chapter(name: String) extends WebContent with Entry
+@key("Article") case class Article(ref: URL, origin: URL, data: Map[String, String] = Map()) extends WebContent
+@key("Link") case class Link(ref: URL, policy: Policy = Normal, data: List[String] = Nil) extends WebContent
 
 
 sealed trait Policy

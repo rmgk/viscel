@@ -8,7 +8,7 @@ import upickle.default.Writer
 import viscel.Viscel
 import viscel.narration.Narrators
 import viscel.scribe.Scribe
-import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Link, Page, PageContent, Story, Article => SArticle, Chapter => SChapter}
+import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Link, ArticleBlob, WebContent, Entry, Article => SArticle, Chapter => SChapter}
 import viscel.scribe.store.Json._
 import viscel.shared.{Article, Blob, Chapter, Content, Description, Gallery, Log}
 import viscel.store.User
@@ -26,12 +26,12 @@ class ServerPages(scribe: Scribe) {
 
 
 		@scala.annotation.tailrec
-		def recurse(content: List[Story], art: List[Article], chap: List[Chapter], c: Int): (List[Article], List[Chapter]) = {
+		def recurse(content: List[Entry], art: List[Article], chap: List[Chapter], c: Int): (List[Article], List[Chapter]) = {
 			content match {
 				case Nil => (art, chap)
 				case h :: t => {
 					h match {
-						case Page(SArticle(ref, origin, data), blob) =>
+						case ArticleBlob(SArticle(ref, origin, data), blob) =>
 							val article = Article(origin = origin.toString, Some(blob.blob), data)
 							recurse(t, article :: art, if (chap.isEmpty) List(Chapter("", 0)) else chap, c + 1)
 						case SChapter(name) => recurse(t, art, Chapter(name, c) :: chap, c)

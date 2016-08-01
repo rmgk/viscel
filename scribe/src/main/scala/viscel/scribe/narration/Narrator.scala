@@ -8,8 +8,8 @@ import org.scalactic.TypeCheckedTripleEquals._
 trait Narrator {
 	def id: String
 	def name: String
-	def archive: List[PageContent]
-	def wrap(doc: Document, more: Link): List[PageContent] Or Every[Report]
+	def archive: List[WebContent]
+	def wrap(doc: Document, more: Link): List[WebContent] Or Every[Report]
 	final override def equals(other: Any) = other match {
 		case o: Narrator => id === o.id
 		case _ => false
