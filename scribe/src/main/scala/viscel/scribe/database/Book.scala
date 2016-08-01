@@ -1,10 +1,12 @@
 package viscel.scribe.database
 
-class Book {
-	def size(i: Int): Int = ???
+import java.nio.file.{Files, Path}
 
-	def name: String = ???
+class Book(path: Path) {
+	def size(i: Int): Int = 0
 
-	def id: String = ???
+	lazy val name: String = upickle.default.read[String](Files.lines(path).findFirst().get())
+
+	lazy val id: String = path.getFileName.toString
 
 }

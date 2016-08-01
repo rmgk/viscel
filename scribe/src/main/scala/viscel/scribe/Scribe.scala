@@ -35,7 +35,7 @@ object Scribe {
 	def apply(basedir: Path, system: ActorSystem, materializer: Materializer, executionContext: ExecutionContext): Scribe = {
 
 		Files.createDirectories(basedir)
-		val bookdir = basedir.resolve("db3")
+		val bookdir = basedir.resolve("db3/books")
 		Files.createDirectories(bookdir)
 
 

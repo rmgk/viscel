@@ -64,7 +64,7 @@ class NeoAdapter(
 
 				val encoded: List[String] = entries.map(upickle.default.write[AppendLogEntry](_))
 				val output: List[String] = upickle.default.write[String](book.name(ntx)) :: encoded
-				Files.write(bookdir.resolve(s"$id.json"), output.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
+				Files.write(bookdir.resolve(s"$id"), output.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
 			}
 		}
 	}

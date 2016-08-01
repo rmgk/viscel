@@ -51,9 +51,9 @@ class ServerPages(scribe: Scribe) {
 
 	def narration(id: String): Option[Content] = {
 
-		val path = Viscel.basepath.resolve("scribe").resolve("db3")
+		val path = Viscel.basepath.resolve("scribe").resolve("db3").resolve("books")
 
-		val entries = Files.lines(path.resolve(s"$id.json"), StandardCharsets.UTF_8).iterator.asScala.map{ line =>
+		val entries = Files.lines(path.resolve(s"$id"), StandardCharsets.UTF_8).skip(1).iterator.asScala.map{ line =>
 			upickle.default.read[AppendLogEntry](line)
 		}.toList
 
