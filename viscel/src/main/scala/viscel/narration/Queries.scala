@@ -6,8 +6,7 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
-import viscel.narration.Data.Chapter
-import viscel.scribe.narration.{Asset, More, Policy, Story}
+import viscel.scribe.narration.{Article, Chapter, More, Policy, Story}
 import viscel.selection.ReportTools.{extract, _}
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
 
@@ -40,7 +39,7 @@ object Queries {
 		if (res.isEmpty) None else Some(k -> res)
 	}
 
-	def imgIntoAsset(img: Element): Asset Or Every[Report] = extract(Data.Article(
+	def imgIntoAsset(img: Element): Article Or Every[Report] = extract(Data.Article(
 		blob = img.attr("abs:src"),
 		origin = img.ownerDocument().location(),
 		data = (getAttr(img, "alt") ++
@@ -48,13 +47,13 @@ object Queries {
 			getAttr(img, "width") ++
 			getAttr(img, "height")).toMap))
 
-	def extractChapter(elem: Element): Asset Or Every[Report] = extract {
+	def extractChapter(elem: Element): Chapter Or Every[Report] = extract {
 		def firstNotEmpty(choices: String*) = choices.find(!_.isEmpty).getOrElse("")
 		Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
 	}
 
-	def queryImage(query: String)(from: Element): List[Asset] Or Every[Report] = Selection(from).unique(query).wrapEach(imgIntoAsset)
-	def queryImages(query: String)(from: Element): List[Asset] Or Every[Report] = Selection(from).many(query).wrapEach(imgIntoAsset)
+	def queryImage(query: String)(from: Element): List[Article] Or Every[Report] = Selection(from).unique(query).wrapEach(imgIntoAsset)
+	def queryImages(query: String)(from: Element): List[Article] Or Every[Report] = Selection(from).many(query).wrapEach(imgIntoAsset)
 	def queryImageInAnchor(query: String)(from: Element): List[Story] Or Every[Report] = Selection(from).unique(query).wrapFlat { image =>
 		imgIntoAsset(image).map(_ :: extractMore(image.parent()).toOption.toList)
 	}
@@ -103,7 +102,7 @@ object Queries {
 	}.map(_.reverse).reverse
 
 	def reverse(stories: List[Story]): List[Story] =
-		groupedOn(stories) { case Asset(_, _, AssetKind.chapter, _) => true; case _ => false }.reverse.flatMap {
+		groupedOn(stories) { case Chapter(_) => true; case _ => false }.reverse.flatMap {
 			case (h :: t) => h :: t.reverse
 			case Nil => Nil
 		}

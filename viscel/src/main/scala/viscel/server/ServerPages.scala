@@ -1,57 +1,33 @@
 package viscel.server
 
-import java.net.URL
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
-import java.time.{Duration, Instant}
+import java.nio.file.Files
+import java.time.Instant
 
 import akka.http.scaladsl.model._
 import upickle.default.Writer
-import viscel.{Log, Viscel}
-import viscel.narration.{AssetKind, Data, Narrators}
+import viscel.Viscel
+import viscel.narration.{Data, Narrators}
 import viscel.scribe.Scribe
-import viscel.scribe.appendlog.{AppendLogArticle, AppendLogBlob, AppendLogChapter, AppendLogElements, AppendLogEntry, AppendLogMore, AppendLogPage}
-import viscel.scribe.narration.{Page, Asset => SAsset}
+import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Article => SArticle, More, Story, Chapter => SChapter}
+import viscel.scribe.store.Json._
 import viscel.shared.JsonCodecs.stringMapW
 import viscel.shared.{Article, Chapter, Content, Description, Gallery}
 import viscel.store.User
 
-import scala.collection.immutable.Map
+import scala.collection.JavaConverters._
 import scalatags.Text.attrs.{`type`, content, href, rel, src, title, name => attrname}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, head, html, link, meta, script}
 import scalatags.Text.{Modifier, RawFrag}
-import scala.collection.JavaConverters._
-import viscel.scribe.store.Json._
-
-import scala.collection.mutable
 
 
 class ServerPages(scribe: Scribe) {
 
-	object ArticlePage {
-		def unapply(page: Page): Option[Article] = page match {
-			case Page(SAsset(source, origin, AssetKind.article, data), blob) =>
-				Some(Article(
-					source = source map (_.toString),
-					origin = origin map (_.toString),
-					data = Data.listToMap(data),
-					blob = blob map (_.sha1),
-					mime = blob map (_.mime)))
-			case _ => None
-		}
-	}
-
-	object ChapterPage {
-		def unapply(page: Page): Option[String] = page match {
-			case Page(SAsset(None, None, AssetKind.chapter, name :: data), None) => Some(name)
-			case _ => None
-		}
-	}
-
 	def narration(id: String): Option[Content] = {
 
 		val path = Viscel.basepath.resolve("scribe").resolve("db3").resolve("books")
+
 
 		val entries = Files.lines(path.resolve(s"$id"), StandardCharsets.UTF_8).skip(1).iterator.asScala.map{ line =>
 			upickle.default.read[AppendLogEntry](line)
@@ -67,11 +43,11 @@ class ServerPages(scribe: Scribe) {
 		}
 
 		@scala.annotation.tailrec
-		def flatten(remaining: List[AppendLogElements], acc: List[AppendLogElements]): List[AppendLogElements] = {
+		def flatten(remaining: List[Story], acc: List[Story]): List[Story] = {
 			remaining match {
 				case Nil => acc.reverse
 				case h :: t => h match {
-					case AppendLogMore(loc, policy, data) =>
+					case More(loc, policy, data) =>
 						pages.get(loc.toString) match {
 							case null => flatten(t, acc)
 							case alp => flatten(alp.contents ::: t, acc)
@@ -83,12 +59,12 @@ class ServerPages(scribe: Scribe) {
 
 		val elements = flatten(pages.get("http://initial.entry").contents, Nil)
 
-		def recurse(content: List[AppendLogElements], art: List[Article], chap: List[Chapter], c: Int): (List[Article], List[Chapter]) = {
+		def recurse(content: List[Story], art: List[Article], chap: List[Chapter], c: Int): (List[Article], List[Chapter]) = {
 			content match {
 				case Nil => (art, chap)
 				case h :: t => h match {
-					case AppendLogChapter(name) => recurse(t, art, Chapter(name, c) :: chap, c)
-					case AppendLogArticle(blob, origin, data) =>
+					case SChapter(name) => recurse(t, art, Chapter(name, c) :: chap, c)
+					case SArticle(blob, origin, data) =>
 						val article = blobs.get(blob.toString) match {
 							case null =>
 								Article(Some(blob.toString), origin.map(_.toString))
@@ -96,7 +72,7 @@ class ServerPages(scribe: Scribe) {
 								Article(Some(blob.toString), origin.map(_.toString), Some(sha1), Some(mime),  Data.listToMap(data))
 						}
 						recurse(t, article :: art, if (chap.isEmpty) List(Chapter("", 0)) else chap, c + 1)
-					case AppendLogMore(_, _, _) => throw new IllegalStateException("append log mores should already be excluded")
+					case More(_, _, _) => throw new IllegalStateException("append log mores should already be excluded")
 				}
 			}
 		}

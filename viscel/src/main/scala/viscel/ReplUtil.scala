@@ -1,13 +1,13 @@
 package viscel
 
+import java.net.URL
 import java.nio.charset.StandardCharsets
-import java.nio.file.{FileAlreadyExistsException, Files, Paths, StandardCopyOption, StandardOpenOption}
+import java.nio.file.{Files, Paths, StandardCopyOption}
 
 import viscel.scribe.Scribe
-import viscel.scribe.appendlog.{AppendLogEntry, AppendLogPage}
-import viscel.scribe.narration.{Asset, Blob, Page}
 import viscel.server.ServerPages
 import viscel.shared.{Article, Chapter, Description, Gallery}
+import viscel.scribe.narration.{Blob, Story, Article => SArticle, Chapter => SChapter}
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scalatags.Text.RawFrag
@@ -84,6 +84,8 @@ class ReplUtil(scribe: Scribe) {
 
 	def importFolder(path: String, nid: String, nname: String): Unit = {
 
+		final case class Page(asset: Story, blob: Option[Blob])
+
 		import scala.math.Ordering.Implicits.seqDerivedOrdering
 
 		Log.info(s"try to import $nid($nname) form $path")
@@ -91,8 +93,8 @@ class ReplUtil(scribe: Scribe) {
 		val files = Files.walk(Paths.get(path))
 		val sortedFiles = try {files.iterator().asScala.toList.sortBy(_.iterator().asScala.map(_.toString).toList)}
 		finally files.close()
-		val story = sortedFiles.flatMap { p =>
-			if (Files.isDirectory(p)) Some(Page(Asset(kind = 1, data = List(p.getFileName.toString)), None))
+		val story: List[Page] = sortedFiles.flatMap { p =>
+			if (Files.isDirectory(p)) Some(Page(SChapter(name = p.getFileName.toString), None))
 			else if (Files.isRegularFile(p)) {
 				val mime = Files.probeContentType(p)
 				if (mimeToExt(mime, default = "") == "") None
@@ -100,7 +102,7 @@ class ReplUtil(scribe: Scribe) {
 					Log.info(s"processing $p")
 					val sha1 = scribe.blobs.write(Files.readAllBytes(p))
 					val blob = Blob(sha1, mime)
-					Some(Page(Asset(kind = 0), Some(blob)))
+					Some(Page(SArticle(new URL(s"http://$sha1.sha1")), Some(blob)))
 				}
 			}
 			else None

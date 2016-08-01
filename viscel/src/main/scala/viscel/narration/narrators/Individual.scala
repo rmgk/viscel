@@ -32,7 +32,7 @@ object Individual {
 				val origin_? = extractURL(anchor)
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
-						blob = element.blob.map(_.toString.replace("sm.", ".")),
+						blob = element.blob.toString.replace("sm.", "."),
 						origin = Some(origin),
 						data = mapToList(listToMap(element.data) - "width" - "height"))
 				}
@@ -195,7 +195,7 @@ object Individual {
 				val origin_? = extractURL(anchor)
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
-						blob = element.blob.map(_.toString.replace("/t", "/")),
+						blob = element.blob.toString.replace("/t", "/"),
 						origin = Some(origin),
 						data = mapToList(listToMap(element.data) - "width" - "height"))
 				}
