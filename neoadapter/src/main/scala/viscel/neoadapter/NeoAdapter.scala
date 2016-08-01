@@ -5,6 +5,8 @@ import java.nio.file.{Files, Path, StandardOpenOption}
 
 import viscel.neoadapter.appendlog.{AppendLogEntry, BookToAppendLog}
 import viscel.neoadapter.database.{Books, NeoInstance, label}
+import viscel.neoadapter.store.{Config, Json}
+import viscel.neoadapter.store.Config.ConfigNode
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext
@@ -30,12 +32,19 @@ object NeoAdapter {
 				neo.db.schema().constraintFor(label.Book).assertPropertyIsUnique("id").create()
 		}
 
+		val configNode = neo.tx { implicit ntx =>
+			val cfg = Config.get()(ntx)
+			if (cfg.version != 2) throw new IllegalStateException(s"config version not supported: ${cfg.version}")
+
+			cfg
+		}
 
 
 		new NeoAdapter(
 			basedir = basedir,
 			neo = neo,
-			ec = executionContext
+			ec = executionContext,
+			cfg = configNode
 		)
 	}
 
@@ -44,22 +53,35 @@ object NeoAdapter {
 class NeoAdapter(
 	val basedir: Path,
 	val neo: NeoInstance,
-	val ec: ExecutionContext
-	) {
+	val ec: ExecutionContext,
+	val cfg: ConfigNode
+) {
 
 	val books = new Books(neo)
 
 
 	def convertToAppendLog()(implicit w: upickle.default.Writer[AppendLogEntry]): Unit = {
-		val dir = basedir.resolve("db3")
-		Files.createDirectories(dir)
-		books.all().foreach { book =>
-			val id = neo.tx { implicit ntx => book.id }
-			Log.info(s"make append log for $id")
-			val entries = neo.tx { ntx => BookToAppendLog.bookToEntries(book)(ntx) }
+		neo.tx { implicit ntx =>
+			val stats = Map(
+				"downloaded" -> cfg.downloaded.toString,
+				"" -> cfg.downloads.toString,
+				"" -> cfg.downloadsCompressed.toString,
+				"" -> cfg.downloadsFailed.toString)
 
-			val encoded = entries.map(upickle.default.write[AppendLogEntry](_))
-			Files.write(dir.resolve(s"$id.json"), encoded.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
+			Json.store(basedir.resolve("config.json"), stats)(Json.stringMapW)
+
+
+			val dir = basedir.resolve("db3")
+			Files.createDirectories(dir)
+			books.all().foreach { book =>
+				val id = book.id
+				Log.info(s"make append log for $id")
+				val entries = BookToAppendLog.bookToEntries(book)(ntx)
+
+				val encoded = entries.map(upickle.default.write[AppendLogEntry](_))
+				Files.write(dir.resolve(s"$id.json"), encoded.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
+			}
 		}
 	}
+
 }
