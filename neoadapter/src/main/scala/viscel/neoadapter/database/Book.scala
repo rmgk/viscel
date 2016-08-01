@@ -1,8 +1,8 @@
-package viscel.db2to3.database
+package viscel.neoadapter.database
 
 import org.neo4j.graphdb.Node
-import viscel.db2to3.database.Implicits.NodeOps
-import viscel.db2to3.narration.{Asset, Blob, Page}
+import viscel.neoadapter.database.Implicits.NodeOps
+import viscel.neoadapter.narration.{Asset, Blob, Page}
 
 import scala.util.Try
 

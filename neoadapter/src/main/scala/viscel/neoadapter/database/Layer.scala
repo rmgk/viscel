@@ -1,9 +1,9 @@
-package viscel.db2to3.database
+package viscel.neoadapter.database
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.db2to3.database.Implicits.NodeOps
-import viscel.db2to3.narration.Story
+import viscel.neoadapter.database.Implicits.NodeOps
+import viscel.neoadapter.narration.Story
 
 import scala.annotation.tailrec
 

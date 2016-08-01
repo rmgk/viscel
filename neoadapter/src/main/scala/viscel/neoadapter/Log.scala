@@ -1,4 +1,4 @@
-package viscel.db2to3
+package viscel.neoadapter
 
 object Log {
 	def trace(m: String) = /*Console.println(m)*/ ()

@@ -1,10 +1,10 @@
-package viscel.db2to3.appendlog
+package viscel.neoadapter.appendlog
 
 import java.net.URL
 import java.time.Instant
 
 import derive.key
-import viscel.db2to3.narration.{Normal, Policy}
+import viscel.neoadapter.narration.{Normal, Policy}
 
 sealed trait AppendLogEntry
 @key("Page") case class AppendLogPage(

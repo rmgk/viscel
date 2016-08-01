@@ -1,4 +1,4 @@
-package viscel.db2to3.narration
+package viscel.neoadapter.narration
 
 import org.jsoup.nodes.Document
 import viscel.selection.Report

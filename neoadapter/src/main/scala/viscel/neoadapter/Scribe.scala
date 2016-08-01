@@ -1,4 +1,4 @@
-package viscel.db2to3
+package viscel.neoadapter
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
@@ -7,8 +7,8 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.Materializer
-import viscel.db2to3.appendlog.{AppendLogEntry, BookToAppendLog}
-import viscel.db2to3.database.{Books, NeoInstance, label}
+import viscel.neoadapter.appendlog.{AppendLogEntry, BookToAppendLog}
+import viscel.neoadapter.database.{Books, NeoInstance, label}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}

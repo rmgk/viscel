@@ -1,4 +1,4 @@
-package viscel.db2to3.narration
+package viscel.neoadapter.narration
 
 import java.net.URL
 

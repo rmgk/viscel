@@ -1,11 +1,11 @@
-package viscel.db2to3.appendlog
+package viscel.neoadapter.appendlog
 
 import java.net.URL
 
 import org.neo4j.graphdb.Node
-import viscel.db2to3.database.Implicits.NodeOps
-import viscel.db2to3.database.{Book, Codec, Ntx, label, rel}
-import viscel.db2to3.narration.{Asset, Blob, More, Story}
+import viscel.neoadapter.database.Implicits.NodeOps
+import viscel.neoadapter.database.{Book, Codec, Ntx, label, rel}
+import viscel.neoadapter.narration.{Asset, Blob, More, Story}
 
 import scala.annotation.tailrec
 
