@@ -20,6 +20,7 @@ object Build extends sbt.Build {
 		.dependsOn(selection)
 		.dependsOn(shared % Provided)
 		.settings(Settings.sharedSource)
+		.dependsOn(neoadapter)
 
 
 	lazy val js = project.in(file("js"))
@@ -40,7 +41,6 @@ object Build extends sbt.Build {
 		.settings(Settings.common: _*)
 		.settings(Libraries.scribe: _*)
 		.dependsOn(selection)
-		.dependsOn(neoadapter)
 
 	lazy val neoadapter = project.in(file("neoadapter"))
 		.settings(name := "neoadapter")

@@ -88,7 +88,7 @@ class Server(scribe: Scribe, terminate: () => Unit)(implicit val system: ActorSy
 				complete(pages.narrations())
 			} ~
 			path("narration" / Segment) { collectionId =>
-				rejectNone(pages.appendLogNarration(collectionId)) { content =>
+				rejectNone(pages.narration(collectionId)) { content =>
 					complete(pages.jsonResponse(content))
 				}
 			} ~
@@ -144,13 +144,6 @@ class Server(scribe: Scribe, terminate: () => Unit)(implicit val system: ActorSy
 				else complete {
 					Narrators.update()
 					"done"
-				}
-			} ~
-			path("purge" / Segment) { (id) =>
-				if (!user.admin) reject
-				else onComplete(Future(scribe.purge(id))) {
-					case Success(b) => complete(s"$b")
-					case Failure(e) => complete(e.toString())
 				}
 			}
 

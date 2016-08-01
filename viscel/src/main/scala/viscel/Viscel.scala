@@ -57,12 +57,15 @@ object Viscel {
 		val system = ActorSystem()
 		val materializer = ActorMaterializer()(system)
 
-		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"), system, materializer,
-			ExecutionContext.fromExecutor(new ThreadPoolExecutor(
-				0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable])))
+		val executionContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
+			0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
+
+		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"), system, materializer, executionContext)
 
 		if (makelog.?) {
-			scribe.convertToAppendLog()
+			val dbconverter = viscel.neoadapter.NeoAdapter(basepath.resolve("scribe"))
+			dbconverter.convertToAppendLog()
+			dbconverter.neo.shutdown()
 		}
 
 		if (!noserver.?) {
@@ -74,7 +77,6 @@ object Viscel {
 					.flatMap(_.unbind())(system.dispatcher)
 					.onComplete { _ =>
 						system.terminate()
-						scribe.neo.shutdown()
 					}(system.dispatcher)
 			}
 
@@ -102,7 +104,6 @@ object Viscel {
 		}
 
 		if (shutdown.?) {
-			scribe.neo.shutdown()
 			system.terminate()
 		}
 

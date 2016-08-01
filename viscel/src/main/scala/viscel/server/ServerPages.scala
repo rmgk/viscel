@@ -11,7 +11,6 @@ import viscel.{Log, Viscel}
 import viscel.narration.{AssetKind, Data, Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.appendlog.{AppendLogArticle, AppendLogBlob, AppendLogChapter, AppendLogElements, AppendLogEntry, AppendLogMore, AppendLogPage}
-import viscel.scribe.database.{Neo, label}
 import viscel.scribe.narration.{Page, Asset => SAsset}
 import viscel.shared.JsonCodecs.stringMapW
 import viscel.shared.{Article, Chapter, Content, Description, Gallery}
@@ -29,10 +28,6 @@ import scala.collection.mutable
 
 
 class ServerPages(scribe: Scribe) {
-
-	import scribe.books._
-
-	def neo: Neo = scribe.neo
 
 	object ArticlePage {
 		def unapply(page: Page): Option[Article] = page match {
@@ -54,7 +49,7 @@ class ServerPages(scribe: Scribe) {
 		}
 	}
 
-	def appendLogNarration(id: String): Option[Content] = {
+	def narration(id: String): Option[Content] = {
 
 		val path = Viscel.basepath.resolve("scribe").resolve("db3")
 
@@ -112,31 +107,9 @@ class ServerPages(scribe: Scribe) {
 
 	}
 
-	def narration(id: String): Option[Content] = neo.tx { implicit ntx =>
-		(Narrators.get(id) match {
-			case None => findExisting(id)
-			case Some(nar) => Some(findAndUpdate(nar))
-		}).map(book => {
-			val content: (Int, List[Article], List[Chapter]) = book.pages().foldLeft((0, List[Article](), List[Chapter]())) {
-				case (state@(pos, assets, chapters), ArticlePage(article)) =>
-					(pos + 1, article :: assets, if (chapters.isEmpty) List(Chapter("", 0)) else chapters)
-				case (state@(pos, assets, chapters), ChapterPage(name)) =>
-					(pos, assets, Chapter(name, pos) :: chapters)
-				case (state@(pos, assets, chapters), page) =>
-					Log.error(s"unhandled page $page")
-					state
-			}
-
-			Content(Gallery.fromList(content._2.reverse), content._3)
-
-		})
-	}
-
 	def narrations(): HttpResponse =
 		jsonResponse {
-			val books = neo.tx { implicit ntx =>
-				scribe.books.all().map(b => Description(b.id, b.name, b.size(0)))
-			}
+			val books = scribe.books.all().map(b => Description(b.id, b.name, b.size(0)))
 			val known = books.map(_.id).toSet
 			val nars = Narrators.all.filterNot(n => known.contains(n.id)).map(n => Description(n.id, n.name, 0))
 			nars.toList reverse_::: books
@@ -171,17 +144,6 @@ class ServerPages(scribe: Scribe) {
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-	def stats(): HttpResponse = jsonResponse {
-		val cn = scribe.cfg
-		scribe.neo.tx { implicit ntx =>
-			Map[String, Long](
-				"Downloaded" -> cn.downloaded,
-				"Downloads" -> cn.downloads,
-				"Compressed downloads" -> cn.downloadsCompressed,
-				"Failed downloads" -> cn.downloadsFailed,
-				"Books" -> ntx.nodes(label.Book).size,
-				"Assets" -> ntx.nodes(label.Asset).size)
-		}
-	}
+	def stats(): HttpResponse = ???
 
 }

@@ -41,10 +41,7 @@ class ReplUtil(scribe: Scribe) {
 
 
 		val content = narrationOption.get
-		val description = scribe.neo.tx { implicit nxt =>
-			val b = scribe.books.findExisting(id).get
-			Description(b.id, b.name, b.size(0))
-		}
+		val description: Description = ???
 
 		val chapters: List[(Chapter, Seq[Article])] =
 			content.chapters.foldLeft((content.gallery.size, List[(Chapter, Seq[Article])]())) {
@@ -85,7 +82,7 @@ class ReplUtil(scribe: Scribe) {
 
 	}
 
-	def importFolder(path: String, nid: String, nname: String) = {
+	def importFolder(path: String, nid: String, nname: String): Unit = {
 
 		import scala.math.Ordering.Implicits.seqDerivedOrdering
 
@@ -109,7 +106,7 @@ class ReplUtil(scribe: Scribe) {
 			else None
 		}
 
-		scribe.books.importFlat(nid, nname, story)
+		???  //scribe.books.importFlat(nid, nname, story)
 
 
 	}

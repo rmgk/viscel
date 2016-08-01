@@ -21,7 +21,7 @@ object NeoAdapter {
 		res
 	}
 
-	def apply(basedir: Path, executionContext: ExecutionContext): NeoAdapter = {
+	def apply(basedir: Path): NeoAdapter = {
 
 		Files.createDirectories(basedir)
 
@@ -43,7 +43,6 @@ object NeoAdapter {
 		new NeoAdapter(
 			basedir = basedir,
 			neo = neo,
-			ec = executionContext,
 			cfg = configNode
 		)
 	}
@@ -53,7 +52,6 @@ object NeoAdapter {
 class NeoAdapter(
 	val basedir: Path,
 	val neo: NeoInstance,
-	val ec: ExecutionContext,
 	val cfg: ConfigNode
 ) {
 
