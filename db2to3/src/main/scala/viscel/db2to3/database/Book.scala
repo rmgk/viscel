@@ -1,12 +1,9 @@
 package viscel.db2to3.database
 
-import java.net.URL
-
 import org.neo4j.graphdb.Node
 import viscel.db2to3.database.Implicits.NodeOps
-import viscel.db2to3.narration.{Asset, Blob, More, Page, Story}
+import viscel.db2to3.narration.{Asset, Blob, Page}
 
-import scala.annotation.tailrec
 import scala.util.Try
 
 final case class Book(self: Node) extends AnyVal {

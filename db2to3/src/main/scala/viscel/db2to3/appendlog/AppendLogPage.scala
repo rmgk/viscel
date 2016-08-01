@@ -5,7 +5,6 @@ import java.time.Instant
 
 import derive.key
 import viscel.db2to3.narration.{Normal, Policy}
-import viscel.db2to3.store.Json._
 
 sealed trait AppendLogEntry
 @key("Page") case class AppendLogPage(
