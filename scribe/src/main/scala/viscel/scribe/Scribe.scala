@@ -12,7 +12,7 @@ import akka.stream.Materializer
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.scribe.crawl.CrawlerUtil
 import viscel.scribe.database.Books
-import viscel.scribe.narration.Narrator
+import viscel.scribe.narration.{AppendLogEntry, Narrator}
 import viscel.scribe.store.BlobStore
 
 import scala.collection.concurrent
@@ -25,7 +25,7 @@ import viscel.scribe.store.Json._
 
 object Scribe {
 
-	def apply(basedir: Path, system: ActorSystem, materializer: Materializer, executionContext: ExecutionContext): Scribe = {
+	def apply(basedir: Path, system: ActorSystem, materializer: Materializer, executionContext: ExecutionContext)(implicit r: upickle.default.Reader[AppendLogEntry]): Scribe = {
 
 		Files.createDirectories(basedir)
 		val bookdir = basedir.resolve("db3/books")
