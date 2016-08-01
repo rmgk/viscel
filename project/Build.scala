@@ -41,6 +41,7 @@ object Build extends sbt.Build {
 		.settings(Settings.common: _*)
 		.settings(Libraries.scribe: _*)
 		.dependsOn(selection)
+		.dependsOn(shared)
 
 	lazy val neoadapter = project.in(file("neoadapter"))
 		.settings(name := "neoadapter")

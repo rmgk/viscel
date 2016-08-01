@@ -42,5 +42,4 @@ sealed trait Policy {
 	override def ext: Option[Byte] = Some(0)
 }
 
-final case class Blob(sha1: String, mime: String)
 

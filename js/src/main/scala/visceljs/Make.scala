@@ -2,7 +2,7 @@ package visceljs
 
 import org.scalajs.dom.html.UList
 import rescala.engines.Engines.default
-import rescala.engines.Engines.default.{Signal}
+import rescala.engines.Engines.default.Signal
 import viscel.shared.{Article, Description}
 import visceljs.Definitions._
 
@@ -41,7 +41,7 @@ object Make {
 		asset.blob match {
 			case None => List(class_placeholder, "placeholder")
 			case Some(blob) =>
-				img(src := path_blob(blob, asset.mime), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(imageStyle(data)) :: Nil
+				img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(imageStyle(data)) :: Nil
 		}
 	}
 
@@ -64,8 +64,6 @@ object Make {
 			}
 			rLegend.textContent = s"$name $cUnread ($cPos/$cTotal)"
 		}
-
-
 
 		section(fieldset(rLegend, elements))
 	}

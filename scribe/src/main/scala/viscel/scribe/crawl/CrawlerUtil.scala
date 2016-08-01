@@ -9,7 +9,7 @@ import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import viscel.scribe.Log
-import viscel.scribe.narration.Blob
+import viscel.shared.Blob
 import viscel.scribe.store.BlobStore
 
 import scala.concurrent.duration.{FiniteDuration, SECONDS}

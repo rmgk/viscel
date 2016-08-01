@@ -7,7 +7,8 @@ import java.nio.file.{Files, Paths, StandardCopyOption}
 import viscel.scribe.Scribe
 import viscel.server.ServerPages
 import viscel.shared.{Article, Chapter, Description, Gallery}
-import viscel.scribe.narration.{Blob, Story, Article => SArticle, Chapter => SChapter}
+import viscel.scribe.narration.{Story, Article => SArticle, Chapter => SChapter}
+import viscel.shared.Blob
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scalatags.Text.RawFrag
@@ -56,11 +57,11 @@ class ReplUtil(scribe: Scribe) {
 				Files.createDirectories(dir)
 				articles.zipWithIndex.map {
 					case (a, apos) =>
-						val name = f"${apos + 1}%05d.${mimeToExt(a.mime.getOrElse(""), default = "bmp")}"
-						a.blob.foreach { sha1 =>
-							Files.copy(scribe.blobs.hashToPath(sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
-						}
-						a.copy(blob = a.blob.map(_ => s"$cname/$name"))
+						a.copy(blob = a.blob.map { blob =>
+							val name = f"${apos + 1}%05d.${mimeToExt(blob.mime, default = "bmp")}"
+							Files.copy(scribe.blobs.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
+							blob.copy(sha1 = s"$cname/$name")
+						})
 				}
 		}
 
