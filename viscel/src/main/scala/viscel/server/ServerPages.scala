@@ -67,9 +67,9 @@ class ServerPages(scribe: Scribe) {
 					case SArticle(blob, origin, data) =>
 						val article = blobs.get(blob.toString) match {
 							case null =>
-								Article(Some(blob.toString), Some(origin.toString))
+								Article(source = blob.toString, origin = origin.toString)
 							case AppendLogBlob(il, rl, sha1, mime, _) =>
-								Article(Some(blob.toString), Some(origin.toString), Some(sha1), Some(mime),  Data.listToMap(data))
+								Article(source = blob.toString, origin = origin.toString, Some(sha1), Some(mime),  Data.listToMap(data))
 						}
 						recurse(t, article :: art, if (chap.isEmpty) List(Chapter("", 0)) else chap, c + 1)
 					case More(_, _, _) => throw new IllegalStateException("append log mores should already be excluded")
