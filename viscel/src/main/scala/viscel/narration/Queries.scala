@@ -35,14 +35,14 @@ object Queries {
 	implicit def stringToURL(s: String): URL = new URL(s)
 
 	def imgIntoAsset(img: Element): Article Or Every[Report] = {
-		def getAttr(k: String): List[String] = {
+		def getAttr(k: String): Option[(String, String)] = {
 			val res = img.attr(k)
-			if (res.isEmpty) Nil else List(k, res)
+			if (res.isEmpty) None else Some(k -> res)
 		}
 		extract(Article(
 			blob = img.attr("abs:src"),
 			origin = img.ownerDocument().location(),
-			data = List("alt", "title", "width", "height").flatMap(getAttr)))
+			data = List("alt", "title", "width", "height").flatMap(getAttr).toMap))
 	}
 
 	def extractChapter(elem: Element): Chapter Or Every[Report] = extract {

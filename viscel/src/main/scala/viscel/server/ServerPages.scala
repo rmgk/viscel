@@ -7,11 +7,10 @@ import java.time.Instant
 import akka.http.scaladsl.model._
 import upickle.default.Writer
 import viscel.Viscel
-import viscel.narration.{Data, Narrators}
+import viscel.narration.{Narrators}
 import viscel.scribe.Scribe
 import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, More, Story, Article => SArticle, Chapter => SChapter}
 import viscel.scribe.store.Json._
-import viscel.shared.JsonCodecs.stringMapW
 import viscel.shared.{Article, Blob, Chapter, Content, Description, Gallery}
 import viscel.store.User
 
@@ -69,7 +68,7 @@ class ServerPages(scribe: Scribe) {
 							case null =>
 								Article(source = blob.toString, origin = origin.toString)
 							case AppendLogBlob(il, rl, sha1, mime, _) =>
-								Article(source = blob.toString, origin = origin.toString, Some(Blob(sha1, mime)),  Data.listToMap(data))
+								Article(source = blob.toString, origin = origin.toString, Some(Blob(sha1, mime)),  data)
 						}
 						recurse(t, article :: art, if (chap.isEmpty) List(Chapter("", 0)) else chap, c + 1)
 					case More(_, _, _) => throw new IllegalStateException("append log mores should already be excluded")

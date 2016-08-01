@@ -54,7 +54,7 @@ class NeoAdapter(
 				"compressed" -> cfg.downloadsCompressed.toString,
 				"failed" -> cfg.downloadsFailed.toString)
 
-			Json.store(dir.resolve("config.json"), stats)(Json.stringMapW)
+			Json.store(dir.resolve("config.json"), stats)
 
 			val allBooks = ntx.nodes(label.Book).map { n => Book.apply(n) }
 			allBooks.foreach { (book: Book) =>

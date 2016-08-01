@@ -29,5 +29,5 @@ sealed trait AppendLogEntry
 
 sealed trait AppendLogElements
 @key("Chapter") case class AppendLogChapter(name: String) extends AppendLogElements
-@key("Article") case class AppendLogArticle(blob: URL, origin: URL, data: List[String] = Nil) extends AppendLogElements
+@key("Article") case class AppendLogArticle(blob: URL, origin: URL, data: Map[String, String] = Map()) extends AppendLogElements
 @key("More") case class AppendLogMore(loc: URL, policy: Policy = Normal, data: List[String] = Nil) extends AppendLogElements

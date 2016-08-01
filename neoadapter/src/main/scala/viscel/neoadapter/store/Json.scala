@@ -26,12 +26,12 @@ object Json {
 		case upickle.Js.Str(str) => Instant.parse(str)
 	}
 
-	implicit def stringMapR[V: Reader]: Reader[Map[String, V]] = Reader[Map[String, V]] {
-		case Js.Obj(kv@_*) => kv.map { case (k, jsv) => k -> readJs[V](jsv) }.toMap
-	}
-	implicit def stringMapW[V: Writer]: Writer[Map[String, V]] = Writer[Map[String, V]] { m =>
-		Js.Obj(m.mapValues(writeJs[V]).toSeq: _*)
-	}
+//	implicit def stringMapR[V: Reader]: Reader[Map[String, V]] = Reader[Map[String, V]] {
+//		case Js.Obj(kv@_*) => kv.map { case (k, jsv) => k -> readJs[V](jsv) }.toMap
+//	}
+//	implicit def stringMapW[V: Writer]: Writer[Map[String, V]] = Writer[Map[String, V]] { m =>
+//		Js.Obj(m.mapValues(writeJs[V]).toSeq: _*)
+//	}
 
 	def store[T: Writer](p: Path, data: T) = synchronized {
 		val jsonBytes = upickle.default.write(data).getBytes(UTF_8)

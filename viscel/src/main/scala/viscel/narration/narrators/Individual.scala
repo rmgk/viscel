@@ -6,7 +6,6 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
-import viscel.narration.Data.{listToMap, mapToList}
 import viscel.narration.Queries._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.Templates
@@ -34,7 +33,7 @@ object Individual {
 					element.copy(
 						blob = element.blob.toString.replace("sm.", "."),
 						origin = origin,
-						data = mapToList(listToMap(element.data) - "width" - "height"))
+						data = element.data - "width" - "height")
 				}
 			}
 			cons(Good(Chapter("issue\\d+".r.findFirstIn(doc.baseUri()).getOrElse("Unknown Issue"))), elements_?)
@@ -197,7 +196,7 @@ object Individual {
 					element.copy(
 						blob = element.blob.toString.replace("/t", "/"),
 						origin = origin,
-						data = mapToList(listToMap(element.data) - "width" - "height"))
+						data = element.data - "width" - "height")
 				}
 			}
 			val next_? = Selection(doc).all("a.next").wrap {selectMore}
@@ -278,8 +277,8 @@ object Individual {
 			Range.inclusive(26, 130).map(i => More(s"http://www.unlikeminerva.com/archive/index.php?week=$i")).toList
 		override def wrap(doc: Document, more: More): Or[List[Story], Every[Report]] =
 			Selection(doc).many("center > img[src~=http://www.unlikeminerva.com/archive/]").wrapEach { img =>
-				withGood(imgIntoAsset(img), extract(img.parent().nextElementSibling().text())) { (a, txt) =>
-					a.copy(data = a.data ::: "longcomment" :: txt :: Nil)
+				withGood(imgIntoAsset(img), extract(img.parent().nextElementSibling().text())) { (article, txt) =>
+					article.copy(data = article.data.updated("longcomment", txt))
 				}
 			}
 	}
@@ -313,7 +312,7 @@ object Individual {
 				val asset_? = Selection(doc).unique("#cc-comic").wrapOne(imgIntoAsset)
 				val next_? = queryNext("#cc-comicbody > a")(doc)
 				val comment_? = Selection(doc).unique("#commentary > div.cc-newsarea > div.cc-newsbody").getOne.map(_.text())
-				withGood(asset_?, next_?, comment_?) { (asset, next, comment) => asset.copy(data = asset.data ::: "longcomment" :: comment :: Nil) :: next }
+				withGood(asset_?, next_?, comment_?) { (asset, next, comment) => asset.copy(data = asset.data.updated("longcomment", comment)) :: next }
 			}),
 		AP("NX_GoGetARoomie", "Go Get a Roomie!", "http://www.gogetaroomie.com/archive.php",
 			doc => Selection(doc).unique("#comicwrap").wrapOne { comicwrap =>
@@ -433,9 +432,8 @@ object Individual {
 			doc => {
 				val assets_? = Selection(doc).all("#comic img").wrapEach(imgIntoAsset)
 				val next_? = queryNext("a[rel=next]:not([href=#])")(doc)
-				val assets_with_comment_? = assets_?.map(_.map{a =>
-					val datamap = listToMap(a.data)
-					datamap.get("title").fold(a)(t => a.copy(data = a.data ::: "longcomment" :: t :: Nil))})
+				val assets_with_comment_? = assets_?.map(_.map{ article =>
+						article.data.get("title").fold(article)(t => article.copy(data = article.data.updated("longcomment", t)))})
 				append(assets_with_comment_?, next_?)
 			})
 	)

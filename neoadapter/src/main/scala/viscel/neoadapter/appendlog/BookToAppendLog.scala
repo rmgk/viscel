@@ -8,8 +8,13 @@ import viscel.neoadapter.database.{Book, Codec, Ntx, label, rel}
 import viscel.neoadapter.narration.{Asset, Blob, More, Story}
 
 import scala.annotation.tailrec
+import scala.collection.immutable.Map
 
 object BookToAppendLog {
+
+	def listToMap[T](data: List[T]): Map[T, T] = data.sliding(2, 2).map(l => (l(0), l(1))).toMap
+	def mapToList[T](map: Map[T, T]): List[T] = map.flatMap { case (a, b) => List(a, b) }.toList
+
 
 	def bookToEntries(book: Book)(implicit ntx: Ntx): List[AppendLogEntry] = {
 		def loadEntries(node: Node): AppendLogElements = {
@@ -21,7 +26,7 @@ object BookToAppendLog {
 						new URL(s"http://${blob.sha1}.sha1")
 					}
 					val originUrl = origin.getOrElse(blobUrl)
-					AppendLogArticle(blobUrl, originUrl, data)
+					AppendLogArticle(blobUrl, originUrl, listToMap(data))
 				}
 				case Asset(blob, origin, 1, data) => AppendLogChapter(data.head)
 				case a@Asset(_, _, _, _) => throw new IllegalArgumentException(s"unknown asset kind: $a")

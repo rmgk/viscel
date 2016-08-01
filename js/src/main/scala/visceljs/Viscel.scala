@@ -3,7 +3,6 @@ package visceljs
 import org.scalajs.dom
 import org.scalajs.dom.raw.HashChangeEvent
 import upickle.default.{Reader, Writer}
-import viscel.shared.JsonCodecs.stringMapR
 import viscel.shared._
 
 import scala.collection.immutable.Map
@@ -45,7 +44,7 @@ object Viscel {
 	dom.window.onhashchange = { (ev: HashChangeEvent) =>
 		triggerDispatch(())
 	}
-	
+
 	def content(nar: Description): Future[Content] = contents.getOrElse(nar.id, {
 		val res = ajax[Content](s"narration/${encodeURIComponent(nar.id)}")
 		contents = contents.updated(nar.id, res)
