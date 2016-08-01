@@ -14,6 +14,7 @@ object Build extends sbt.Build {
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
 		.enablePlugins(JavaAppPackaging)
 		.dependsOn(scribe)
+		.dependsOn(db2to3)
 		.dependsOn(selection)
 		.dependsOn(shared % Provided)
 		.settings(Settings.sharedSource)
@@ -34,6 +35,12 @@ object Build extends sbt.Build {
 
 	lazy val scribe = project.in(file("scribe"))
 		.settings(name := "scribe")
+		.settings(Settings.common: _*)
+		.settings(Libraries.scribe: _*)
+		.dependsOn(selection)
+
+	lazy val db2to3 = project.in(file("db2to3"))
+		.settings(name := "db2to3")
 		.settings(Settings.common: _*)
 		.settings(Libraries.scribe: _*)
 		.dependsOn(selection)
