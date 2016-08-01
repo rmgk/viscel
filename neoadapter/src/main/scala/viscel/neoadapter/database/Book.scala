@@ -7,5 +7,5 @@ final case class Book(self: Node) extends AnyVal {
 
 	def id(implicit ntx: Ntx): String = self.prop[String]("id")
 	def name(implicit ntx: Ntx): String = self.get[String]("name").getOrElse(id)
-	def name_=(value: String)(implicit neo: Ntx) = self.setProperty("name", value)
+
 }
