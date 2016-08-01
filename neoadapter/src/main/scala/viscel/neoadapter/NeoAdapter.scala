@@ -3,18 +3,14 @@ package viscel.neoadapter
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.{Http, HttpExt}
-import akka.stream.Materializer
 import viscel.neoadapter.appendlog.{AppendLogEntry, BookToAppendLog}
 import viscel.neoadapter.database.{Books, NeoInstance, label}
 
 import scala.collection.JavaConverters._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
 
-object Scribe {
+object NeoAdapter {
 
 	def time[T](desc: String = "")(f: => T): T = {
 		val start = System.nanoTime
@@ -23,7 +19,7 @@ object Scribe {
 		res
 	}
 
-	def apply(basedir: Path, system: ActorSystem, materializer: Materializer, executionContext: ExecutionContext): Scribe = {
+	def apply(basedir: Path, executionContext: ExecutionContext): NeoAdapter = {
 
 		Files.createDirectories(basedir)
 
@@ -34,25 +30,20 @@ object Scribe {
 				neo.db.schema().constraintFor(label.Book).assertPropertyIsUnique("id").create()
 		}
 
-		val ioHttp: HttpExt = Http(system)
-		val iopipe = (request: HttpRequest) => ioHttp.singleRequest(request)(materializer)
 
 
-
-		new Scribe(
+		new NeoAdapter(
 			basedir = basedir,
 			neo = neo,
-			sendReceive = iopipe,
 			ec = executionContext
 		)
 	}
 
 }
 
-class Scribe(
+class NeoAdapter(
 	val basedir: Path,
 	val neo: NeoInstance,
-	val sendReceive: HttpRequest => Future[HttpResponse],
 	val ec: ExecutionContext
 	) {
 

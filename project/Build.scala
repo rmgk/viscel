@@ -45,7 +45,7 @@ object Build extends sbt.Build {
 	lazy val neoadapter = project.in(file("neoadapter"))
 		.settings(name := "neoadapter")
 		.settings(Settings.common: _*)
-		.settings(Libraries.scribe: _*)
+		.settings(Libraries.neoadapter: _*)
 		.dependsOn(selection)
 
 	lazy val selection = project.in(file("selection"))
@@ -61,7 +61,7 @@ object Settings {
 
 	lazy val common = List(
 
-		version := "6.3.0",
+		version := "7.0.0",
 		scalaVersion := "2.11.8",
 
 		scalacOptions ++=
@@ -148,7 +148,9 @@ object Libraries {
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
 
-	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ akkaHTTP ++ scalactic ++ jsoup ++ upickle.value)
+	lazy val neoadapter: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ upickle.value)
+
+	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++=  akkaHTTP ++ scalactic ++ jsoup ++ upickle.value)
 
 	lazy val selection: List[Def.Setting[_]] = List(libraryDependencies ++= scalactic ++ jsoup)
 
