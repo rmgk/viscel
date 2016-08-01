@@ -25,13 +25,6 @@ import viscel.scribe.store.Json._
 
 object Scribe {
 
-	def time[T](desc: String = "")(f: => T): T = {
-		val start = System.nanoTime
-		val res = f
-		Console.println(s"$desc took ${(System.nanoTime - start) / 1000000.0} ms")
-		res
-	}
-
 	def apply(basedir: Path, system: ActorSystem, materializer: Materializer, executionContext: ExecutionContext): Scribe = {
 
 		Files.createDirectories(basedir)
