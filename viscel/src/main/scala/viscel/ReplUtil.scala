@@ -6,9 +6,8 @@ import java.nio.file.{Files, Paths, StandardCopyOption}
 
 import viscel.scribe.Scribe
 import viscel.server.ServerPages
-import viscel.shared.{Article, Chapter, Description, Gallery}
+import viscel.shared.{Article, Blob, Chapter, Description, Gallery, Log}
 import viscel.scribe.narration.{Story, Article => SArticle, Chapter => SChapter}
-import viscel.shared.Blob
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scalatags.Text.RawFrag

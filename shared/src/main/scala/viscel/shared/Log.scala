@@ -1,4 +1,4 @@
-package viscel.scribe
+package viscel.shared
 
 object Log {
 	def trace(m: String) = /*Console.println(m)*/ ()

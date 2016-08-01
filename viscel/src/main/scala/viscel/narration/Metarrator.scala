@@ -8,7 +8,8 @@ import upickle.default.{ReadWriter, Reader, Writer}
 import viscel.scribe.narration.Narrator
 import viscel.scribe.store.Json
 import viscel.selection.Report
-import viscel.{Log, Viscel}
+import viscel.Viscel
+import viscel.shared.Log
 
 import scala.collection.Set
 

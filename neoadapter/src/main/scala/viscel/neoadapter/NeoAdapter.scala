@@ -4,8 +4,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
 import viscel.scribe.narration.AppendLogEntry
-import Config.ConfigNode
-import viscel.scribe.Log
+import viscel.neoadapter.Config.ConfigNode
+import viscel.shared.Log
 import viscel.scribe.store.Json
 
 import scala.collection.JavaConverters._

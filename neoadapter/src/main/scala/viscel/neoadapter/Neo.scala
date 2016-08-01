@@ -4,7 +4,7 @@ import java.io.File
 
 import org.neo4j.graphdb.factory.{GraphDatabaseFactory, GraphDatabaseSettings}
 import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
-import viscel.scribe.Log
+import viscel.shared.Log
 
 import scala.collection.JavaConverters._
 import scala.collection.Map

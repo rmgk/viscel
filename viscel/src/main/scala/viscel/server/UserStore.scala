@@ -4,9 +4,9 @@ import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.http.scaladsl.server.directives.Credentials
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Bad, Good}
+import viscel.shared.Log
 
 //import spray.routing.authentication.{BasicAuth, BasicHttpAuthenticator, UserPass, UserPassAuthenticator}
-import viscel.Log
 import viscel.store.{User, Users}
 
 import scala.Predef.ArrowAssoc

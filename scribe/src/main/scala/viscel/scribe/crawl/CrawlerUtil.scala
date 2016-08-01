@@ -8,7 +8,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import viscel.scribe.Log
+import viscel.shared.Log
 import viscel.shared.Blob
 import viscel.scribe.store.BlobStore
 
