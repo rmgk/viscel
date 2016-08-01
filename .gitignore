@@ -1,9 +1,6 @@
 *.sublime-project
 *.sublime-workspace
 .idea/
-store/
 target/
 Uclist.pm
-users/
 log.txt
-data/
