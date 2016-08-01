@@ -4,7 +4,6 @@ import java.net.URL
 
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.database.Implicits.NodeOps
-import viscel.neoadapter.narration.{Asset, Blob, More, Policy, Story}
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.genericWrapArray

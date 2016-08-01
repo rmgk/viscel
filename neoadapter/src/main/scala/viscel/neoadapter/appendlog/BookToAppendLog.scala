@@ -4,8 +4,8 @@ import java.net.URL
 
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.database.Implicits.NodeOps
-import viscel.neoadapter.database.{Book, Codec, Ntx, label, rel}
-import viscel.neoadapter.narration.{Asset, Blob, More, Story}
+import viscel.neoadapter.database.{Asset, Blob, Book, Codec, More, Ntx, Story, label, rel}
+import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Article => AppendLogArticle, Chapter => AppendLogChapter, More => AppendLogMore, Story => AppendLogElements}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Map

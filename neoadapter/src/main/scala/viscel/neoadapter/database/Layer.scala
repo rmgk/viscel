@@ -3,7 +3,6 @@ package viscel.neoadapter.database
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.neoadapter.database.Implicits.NodeOps
-import viscel.neoadapter.narration.Story
 
 import scala.annotation.tailrec
 

@@ -3,7 +3,8 @@ package viscel.neoadapter
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
-import viscel.neoadapter.appendlog.{AppendLogEntry, BookToAppendLog}
+import viscel.neoadapter.appendlog.BookToAppendLog
+import viscel.scribe.narration.AppendLogEntry
 import viscel.neoadapter.database.{Book, NeoInstance, label}
 import viscel.neoadapter.store.Config.ConfigNode
 import viscel.neoadapter.store.{Config, Json}

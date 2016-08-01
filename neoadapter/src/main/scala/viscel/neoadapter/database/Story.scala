@@ -1,14 +1,14 @@
-package viscel.neoadapter.narration
+package viscel.neoadapter.database
 
 import java.net.URL
 
-import derive.key
+import viscel.scribe.narration.{Normal, Policy => AppendLogPolicy, Volatile}
 
 sealed trait Story
 
 final case class More(
 	loc: URL,
-	policy: Policy = Normal,
+	policy: AppendLogPolicy = Normal,
 	data: List[String] = List()) extends Story
 
 final case class Asset(
@@ -21,17 +21,8 @@ final case class Blob(sha1: String, mime: String)
 
 final case class Page(asset: Asset, blob: Option[Blob])
 
-sealed trait Policy {
-	def ext: Option[Byte]
-}
-@key("Normal") case object Normal extends Policy {
-	override def ext: Option[Byte] = None
-}
-@key("Volatile") case object Volatile extends Policy {
-	override def ext: Option[Byte] = Some(0)
-}
 object Policy {
-	def int(s: Option[Byte]): Policy = s match {
+	def int(s: Option[Byte]): AppendLogPolicy = s match {
 		case None => Normal
 		case Some(0) => Volatile
 		case Some(s) => throw new IllegalStateException(s"unknown policy $s")

@@ -47,7 +47,7 @@ object Build extends sbt.Build {
 		.settings(name := "neoadapter")
 		.settings(Settings.common: _*)
 		.settings(Libraries.neoadapter: _*)
-		.dependsOn(selection)
+	  .dependsOn(scribe)
 
 	lazy val selection = project.in(file("selection"))
 		.settings(name := "selection")

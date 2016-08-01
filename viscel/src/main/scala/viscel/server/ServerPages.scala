@@ -2,12 +2,11 @@ package viscel.server
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import java.time.Instant
 
 import akka.http.scaladsl.model._
 import upickle.default.Writer
 import viscel.Viscel
-import viscel.narration.{Narrators}
+import viscel.narration.Narrators
 import viscel.scribe.Scribe
 import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, More, Story, Article => SArticle, Chapter => SChapter}
 import viscel.scribe.store.Json._
