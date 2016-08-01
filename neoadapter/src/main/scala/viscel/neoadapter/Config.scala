@@ -1,8 +1,7 @@
-package viscel.neoadapter.store
+package viscel.neoadapter
 
 import org.neo4j.graphdb.Node
-import viscel.neoadapter.database.Implicits.NodeOps
-import viscel.neoadapter.database.{Ntx, label}
+import viscel.neoadapter.Implicits.NodeOps
 
 import scala.Predef.ArrowAssoc
 

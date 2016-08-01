@@ -1,7 +1,7 @@
-package viscel.neoadapter.database
+package viscel.neoadapter
 
 import org.neo4j.graphdb.Node
-import viscel.neoadapter.database.Implicits.NodeOps
+import Implicits.NodeOps
 
 final case class Book(self: Node) extends AnyVal {
 

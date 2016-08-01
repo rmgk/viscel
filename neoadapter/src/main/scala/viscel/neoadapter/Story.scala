@@ -1,8 +1,8 @@
-package viscel.neoadapter.database
+package viscel.neoadapter
 
 import java.net.URL
 
-import viscel.scribe.narration.{Normal, Policy => AppendLogPolicy, Volatile}
+import viscel.scribe.narration.{Normal, Volatile, Policy => AppendLogPolicy}
 
 sealed trait Story
 

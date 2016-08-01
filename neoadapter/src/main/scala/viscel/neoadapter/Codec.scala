@@ -1,9 +1,9 @@
-package viscel.neoadapter.database
+package viscel.neoadapter
 
 import java.net.URL
 
 import org.neo4j.graphdb.Node
-import viscel.neoadapter.database.Implicits.NodeOps
+import viscel.neoadapter.Implicits.NodeOps
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.genericWrapArray

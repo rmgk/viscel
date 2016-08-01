@@ -1,10 +1,9 @@
-package viscel.neoadapter.appendlog
+package viscel.neoadapter
 
 import java.net.URL
 
 import org.neo4j.graphdb.Node
-import viscel.neoadapter.database.Implicits.NodeOps
-import viscel.neoadapter.database.{Asset, Blob, Book, Codec, More, Ntx, Story, label, rel}
+import Implicits.NodeOps
 import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Article => AppendLogArticle, Chapter => AppendLogChapter, More => AppendLogMore, Story => AppendLogElements}
 
 import scala.annotation.tailrec

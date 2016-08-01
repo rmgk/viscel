@@ -1,8 +1,8 @@
-package viscel.neoadapter.database
+package viscel.neoadapter
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.neoadapter.database.Implicits.NodeOps
+import Implicits.NodeOps
 
 import scala.annotation.tailrec
 

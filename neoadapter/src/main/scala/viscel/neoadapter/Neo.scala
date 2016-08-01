@@ -1,10 +1,10 @@
-package viscel.neoadapter.database
+package viscel.neoadapter
 
 import java.io.File
 
 import org.neo4j.graphdb.factory.{GraphDatabaseFactory, GraphDatabaseSettings}
 import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
-import viscel.neoadapter.Log
+import viscel.scribe.Log
 
 import scala.collection.JavaConverters._
 import scala.collection.Map
