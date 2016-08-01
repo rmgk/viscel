@@ -1,4 +1,4 @@
-package viscel.scribe.crawl
+package viscel.crawl
 
 import java.net.URL
 
@@ -17,7 +17,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
 
 
-class CrawlerUtil(blobs: BlobStore, responseHandler: Try[HttpResponse] => Unit)(implicit ec: ExecutionContext, materializer: Materializer) {
+class CrawlerUtil(blobs: BlobStore)(implicit ec: ExecutionContext, materializer: Materializer) {
 
 	def urlToUri(in: URL): Uri = {
 		implicit class X(s: String) {def ? = Option(s).getOrElse("")}
@@ -35,7 +35,7 @@ class CrawlerUtil(blobs: BlobStore, responseHandler: Try[HttpResponse] => Unit)(
 	def getResponse(request: HttpRequest, iopipe: HttpRequest => Future[HttpResponse]): Future[HttpResponse] = {
 		val result: Future[HttpResponse] = iopipe(request).flatMap(_.toStrict(FiniteDuration(300, SECONDS)))
 		Log.info(s"get ${request.uri} (${request.header[Referer]})")
-		result.andThen(PartialFunction(responseHandler))
+		result//.andThen(PartialFunction(responseHandler))
 	}
 
 	def request[R](source: URL, origin: Option[URL] = None): HttpRequest = {

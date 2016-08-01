@@ -40,7 +40,7 @@ class ServerPages(scribe: Scribe) {
 			}
 		}
 
-		scribe.books.find(id).map { book =>
+		scribe.find(id).map { book =>
 
 			val (articles, chapters) = recurse(book.pages(), Nil, Nil, 0)
 
@@ -51,7 +51,7 @@ class ServerPages(scribe: Scribe) {
 
 	def narrations(): HttpResponse =
 		jsonResponse {
-			val books = scribe.books.all().map(b => Description(b.id, b.name, b.size()))
+			val books = scribe.all().map(b => Description(b.id, b.name, b.size()))
 			val known = books.map(_.id).toSet
 			val nars = Narrators.all.filterNot(n => known.contains(n.id)).map(n => Description(n.id, n.name, 0))
 			nars.toList reverse_::: books

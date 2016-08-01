@@ -4,6 +4,7 @@ import java.nio.file.Path
 import java.util.{Timer, TimerTask}
 
 import org.scalactic.{Bad, Good}
+import viscel.crawl.Crawl
 import viscel.narration.Narrators
 import viscel.scribe.Scribe
 import viscel.scribe.narration.Narrator
@@ -16,7 +17,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 
-class Clockwork(path: Path, scribe: Scribe) {
+class Clockwork(path: Path, crawl: Crawl, scribe: Scribe) {
 
 	val dayInMillis = 24L * 60L * 60L * 1000L
 
@@ -42,7 +43,7 @@ class Clockwork(path: Path, scribe: Scribe) {
 
 	def runNarrator(n: Narrator, recheckInterval: Long) = {
 		if (needsRecheck(n.id, recheckInterval)) {
-			scribe.runForNarrator(n).onComplete {
+			crawl.runForNarrator(n).onComplete {
 				case Failure(t) =>
 					Log.error(s"recheck failed with $t")
 					t.printStackTrace()

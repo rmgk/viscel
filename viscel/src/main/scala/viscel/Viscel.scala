@@ -61,7 +61,9 @@ object Viscel {
 		val executionContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 			0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
 
-		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"), system, materializer, executionContext)
+		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"))
+
+		val crawl = new viscel.crawl.Crawl(basedir = basepath, scribe.blobs, system, materializer, executionContext)
 
 		if (makelog.?) {
 			val dbconverter = viscel.neoadapter.NeoAdapter(basepath.resolve("scribe"))
@@ -81,7 +83,7 @@ object Viscel {
 					}(system.dispatcher)
 			}
 
-			val server = new Server(scribe, terminate)(system)
+			val server = new Server(scribe, crawl, terminate)(system)
 			val boundSocket: Future[ServerBinding] = Http()(system).bindAndHandle(
 				RouteResult.route2HandlerFlow(server.route)(
 					RoutingSettings.default(system),
@@ -94,7 +96,7 @@ object Viscel {
 		}
 
 		if (!nocore.?) {
-			val cw = new Clockwork(basepath.resolve("data").resolve("updateTimes.json"), scribe)
+			val cw = new Clockwork(basepath.resolve("data").resolve("updateTimes.json"), crawl, scribe)
 
 			Deeds.narratorHint = (narrator, force) => {
 				cw.runNarrator(narrator, if (force) 0 else cw.dayInMillis * 1)

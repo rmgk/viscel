@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
+import viscel.crawl.Crawl
 import viscel.narration.{Metarrators, Narrators}
 import viscel.scribe.Scribe
 import viscel.shared.Log
@@ -17,7 +18,7 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 
-class Server(scribe: Scribe, terminate: () => Unit)(implicit val system: ActorSystem) {
+class Server(scribe: Scribe, crawl: Crawl, terminate: () => Unit)(implicit val system: ActorSystem) {
 
 	val pages = new ServerPages(scribe)
 
@@ -134,7 +135,7 @@ class Server(scribe: Scribe, terminate: () => Unit)(implicit val system: ActorSy
 			path("add") {
 				if (!user.admin) reject
 				else parameter('url.as[String]) { url =>
-					onComplete(Metarrators.add(url, scribe)) {
+					onComplete(Metarrators.add(url, crawl)) {
 						case Success(v) => complete(s"found $v")
 						case Failure(e) => complete {e.getMessage}
 					}

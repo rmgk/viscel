@@ -21,6 +21,7 @@ object Build extends sbt.Build {
 		.dependsOn(shared % Provided)
 		.settings(Settings.sharedSource)
 		.dependsOn(neoadapter)
+		.dependsOn(crawler)
 
 
 	lazy val js = project.in(file("js"))
@@ -42,6 +43,12 @@ object Build extends sbt.Build {
 		.settings(Libraries.scribe: _*)
 		.dependsOn(selection)
 		.dependsOn(shared)
+
+	lazy val crawler = project.in(file("crawler"))
+		.settings(name := "crawler")
+		.settings(Settings.common: _*)
+		.settings(Libraries.crawl: _*)
+		.dependsOn(scribe)
 
 	lazy val neoadapter = project.in(file("neoadapter"))
 		.settings(name := "neoadapter")
@@ -151,7 +158,9 @@ object Libraries {
 
 	lazy val neoadapter: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ upickle.value)
 
-	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++=  akkaHTTP ++ scalactic ++ jsoup ++ upickle.value)
+	lazy val crawl: List[Def.Setting[_]] = List(libraryDependencies ++= akkaHTTP ++ jsoup ++ scalactic)
+
+	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++=  scalactic ++ upickle.value)
 
 	lazy val selection: List[Def.Setting[_]] = List(libraryDependencies ++= scalactic ++ jsoup)
 
