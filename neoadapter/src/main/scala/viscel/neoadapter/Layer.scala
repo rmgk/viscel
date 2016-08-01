@@ -34,7 +34,7 @@ final case class Layer(parent: Node) {
 	}
 
 
-	def replace(narration: List[Story])(implicit neo: Ntx): Boolean = {
+	def replace(narration: List[NeoStory])(implicit neo: Ntx): Boolean = {
 
 		def connectLayer(layer: List[Node])(implicit neo: Ntx): Unit = {
 			layer.reduceLeftOption { (prev, next) => prev narc_= next; next }
@@ -42,9 +42,9 @@ final case class Layer(parent: Node) {
 			layer.headOption.foreach(_.incoming(rel.narc).foreach(_.delete()))
 		}
 
-		def replaceLayer(oldLayer: List[Node], newNarration: List[Story])(implicit neo: Ntx): List[Node] = {
-			val oldNarration: List[Story] = oldLayer map { n => Codec.load[Story](n) }
-			var oldMap: List[(Story, Node)] = oldNarration zip oldLayer
+		def replaceLayer(oldLayer: List[Node], newNarration: List[NeoStory])(implicit neo: Ntx): List[Node] = {
+			val oldNarration: List[NeoStory] = oldLayer map { n => Codec.load[NeoStory](n) }
+			var oldMap: List[(NeoStory, Node)] = oldNarration zip oldLayer
 			val newLayer: List[Node] = newNarration.map { story =>
 				oldMap.span(_._1 != story) match {
 					case (left, Nil) => Codec.create(story)

@@ -4,6 +4,8 @@ import java.net.URL
 
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.Implicits.NodeOps
+import viscel.scribe.narration.{Normal, Volatile}
+import viscel.shared.Blob
 
 import scala.Predef.ArrowAssoc
 import scala.Predef.genericWrapArray
@@ -21,12 +23,12 @@ object Codec {
 
 	def create[S](desc: S)(implicit neo: Ntx, codec: Codec[S]): Node = codec.write(desc)
 
-	implicit val storyCodec: Codec[Story] = new Codec[Story] {
-		override def write(value: Story)(implicit ntx: Ntx): Node = value match {
+	implicit val storyCodec: Codec[NeoStory] = new Codec[NeoStory] {
+		override def write(value: NeoStory)(implicit ntx: Ntx): Node = value match {
 			case s@More(_, _, _) => create(s)
 			case s@Asset(_, _, _, _) => create(s)
 		}
-		override def read(node: Node)(implicit ntx: Ntx): Story =
+		override def read(node: Node)(implicit ntx: Ntx): NeoStory =
 			if (node.hasLabel(label.Asset)) load[Asset](node)
 			else if (node.hasLabel(label.More)) load[More](node)
 			else throw new IllegalArgumentException(s"unknown node type $node")
@@ -54,7 +56,10 @@ object Codec {
 		override def write(value: More)(implicit ntx: Ntx): Node =
 			ntx.create(label.More, List(
 				Some("loc" -> value.loc.toExternalForm),
-				value.policy.ext.map("policy" -> _),
+				value.policy match {
+					case Normal => None
+					case Volatile => Some("policy" -> 0)
+				},
 				if (value.data.isEmpty) None else Some("data" -> value.data.toArray)
 			).flatten.toMap)
 

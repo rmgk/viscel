@@ -8,7 +8,7 @@ import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Queries}
-import viscel.scribe.narration.{Chapter, More, Narrator, Story, Volatile}
+import viscel.scribe.narration.{Chapter, Link, Narrator, PageContent, Volatile}
 import viscel.scribe.store.Json.{urlReader, urlWriter}
 import viscel.selection.{Report, Selection}
 
@@ -19,22 +19,22 @@ object Mangafox {
 
 	case class Mfox(override val id: String, override val name: String, url: URL) extends Narrator {
 
-		override def archive = More(url, Volatile) :: Nil
+		override def archive = Link(url, Volatile) :: Nil
 
-		def wrapArchive(doc: Document): List[Story] Or Every[Report] = {
+		def wrapArchive(doc: Document): List[PageContent] Or Every[Report] = {
 			Selection(doc).many(".chlist li div:has(.tips):has(.title)").reverse.wrapFlat { chapter =>
 				val title_? = Selection(chapter).unique(".title").getOne.map(_.ownText())
 				val anchorSel = Selection(chapter).unique("a.tips")
 				val uri_? = anchorSel.wrapOne {extractURL}
 				val text_? = anchorSel.getOne.map {_.ownText()}
 				withGood(title_?, uri_?, text_?) { (title, uri, text) =>
-					Chapter(s"$text $title") :: More(uri) :: Nil
+					Chapter(s"$text $title") :: Link(uri) :: Nil
 				}
 			}
 		}
 
-		def wrap(doc: Document, more: More): List[Story] Or Every[Report] = more match {
-			case More(_, Volatile, _) => wrapArchive(doc)
+		def wrap(doc: Document, more: Link): List[PageContent] Or Every[Report] = more match {
+			case Link(_, Volatile, _) => wrapArchive(doc)
 			case _ => Queries.queryImageNext("#viewer img", "#top_bar .next_page:not([onclick])")(doc)
 		}
 	}

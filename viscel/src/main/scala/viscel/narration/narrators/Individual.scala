@@ -19,19 +19,19 @@ import scala.collection.immutable.Set
 object Individual {
 
 	object Building12 extends Narrator {
-		def archive = More("http://www.building12.net/archives.htm", Volatile) :: Nil
+		def archive = Link("http://www.building12.net/archives.htm", Volatile) :: Nil
 
 		def id: String = "NX_Building12"
 
 		def name: String = "Building 12"
 
-		def wrapIssue(doc: Document): Or[List[Story], Every[Report]] = {
+		def wrapIssue(doc: Document): Or[List[PageContent], Every[Report]] = {
 			val elements_? = Selection(doc).many("a[href~=issue\\d+/.*\\.htm$]:has(img)").wrapEach { anchor =>
 				val element_? = Selection(anchor).unique("img").wrapOne {imgIntoAsset}
 				val origin_? = extractURL(anchor)
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
-						blob = element.blob.toString.replace("sm.", "."),
+						ref = element.ref.toString.replace("sm.", "."),
 						origin = origin,
 						data = element.data - "width" - "height")
 				}
@@ -39,21 +39,21 @@ object Individual {
 			cons(Good(Chapter("issue\\d+".r.findFirstIn(doc.baseUri()).getOrElse("Unknown Issue"))), elements_?)
 		}
 
-		def wrap(doc: Document, more: More): List[Story] Or Every[Report] = more match {
-			case More(_, Volatile, _) => Selection(doc).many("a[href~=issue\\d+\\.htm$]").wrapEach(extractMore)
+		def wrap(doc: Document, more: Link): List[PageContent] Or Every[Report] = more match {
+			case Link(_, Volatile, _) => Selection(doc).many("a[href~=issue\\d+\\.htm$]").wrapEach(extractMore)
 			case _ => wrapIssue(doc)
 		}
 	}
 
 
 	object Candi extends Narrator {
-		def archive = More("http://candicomics.com/archive.html", Volatile, "archive" :: Nil) :: Nil
+		def archive = Link("http://candicomics.com/archive.html", Volatile, "archive" :: Nil) :: Nil
 
 		def id: String = "NX_Candi"
 
 		def name: String = "Candi"
 
-		def wrapArchive(doc: Document): Or[List[Story], Every[Report]] = {
+		def wrapArchive(doc: Document): Or[List[PageContent], Every[Report]] = {
 			val volumes_? = morePolicy(Volatile,
 				Selection(doc).many("#candimidd > p:nth-child(2) a").wrapEach {extractMore})
 			// the list of volumes is also the first volume, wrap this directly
@@ -64,13 +64,13 @@ object Individual {
 			}
 		}
 
-		def wrapVolume(doc: Document): Or[List[Story], Every[Report]] =
+		def wrapVolume(doc: Document): Or[List[PageContent], Every[Report]] =
 			Selection(doc).many("#candimidd > table > tbody > tr > td:nth-child(2n) a").wrapFlat {elementIntoChapterPointer}
 
 
-		def wrap(doc: Document, more: More): List[Story] Or Every[Report] = more match {
-			case More(_, Volatile, "archive" :: Nil) => wrapArchive(doc)
-			case More(_, Volatile, Nil) => wrapVolume(doc)
+		def wrap(doc: Document, more: Link): List[PageContent] Or Every[Report] = more match {
+			case Link(_, Volatile, "archive" :: Nil) => wrapArchive(doc)
+			case Link(_, Volatile, Nil) => wrapVolume(doc)
 			case _ => queryImageNext("#comicplace > span > img", "#comicnav a:has(img#next_day2)")(doc)
 		}
 	}
@@ -94,9 +94,9 @@ object Individual {
 	object Inverloch extends Narrator {
 		override def id: String = "NX_Inverloch"
 		override def name: String = "Inverloch"
-		override def archive: List[Story] = Range.inclusive(1, 5).map(i => More(s"http://inverloch.seraph-inn.com/volume$i.html", Normal, "archive" :: Nil)).toList
-		override def wrap(doc: Document, more: More): List[Story] Or Every[Report] = more match {
-			case More(_, _, "archive" :: Nil) => Selection(doc).many("#main p:containsOwn(Chapter)").wrapFlat { chap =>
+		override def archive: List[PageContent] = Range.inclusive(1, 5).map(i => Link(s"http://inverloch.seraph-inn.com/volume$i.html", Normal, "archive" :: Nil)).toList
+		override def wrap(doc: Document, more: Link): List[PageContent] Or Every[Report] = more match {
+			case Link(_, _, "archive" :: Nil) => Selection(doc).many("#main p:containsOwn(Chapter)").wrapFlat { chap =>
 				cons(
 					extract(Chapter(chap.ownText())),
 					Selection(chap).many("a").wrapEach(extractMore))
@@ -134,13 +134,13 @@ object Individual {
 
 
 	object MenageA3 extends Narrator {
-		def archive = More("http://www.ma3comic.com/archive/volume1", Volatile, "archive" :: Nil) :: Nil
+		def archive = Link("http://www.ma3comic.com/archive/volume1", Volatile, "archive" :: Nil) :: Nil
 
 		def id: String = "NX_MenageA3"
 
 		def name: String = "Ménage à 3"
 
-		def wrapArchive(doc: Document): Or[List[Story], Every[Report]] = {
+		def wrapArchive(doc: Document): Or[List[PageContent], Every[Report]] = {
 			val volumes_? = morePolicy(Volatile,
 				Selection(doc).many("#archive_browse a[href~=.*archive/volume\\d+$]").wrapEach {extractMore})
 			// the list of volumes is also the first volume, wrap this directly
@@ -151,28 +151,28 @@ object Individual {
 			}
 		}
 
-		def wrapVolume(doc: Document): Or[List[Story], Every[Report]] =
+		def wrapVolume(doc: Document): Or[List[PageContent], Every[Report]] =
 			Selection(doc)
 				.unique("#archive_chapters")
 				.many("a[href~=/strips-ma3/]").wrapEach {extractMore}
 
 
-		def wrap(doc: Document, more: More): List[Story] Or Every[Report] = more match {
-			case More(_, Volatile, "archive" :: Nil) => wrapArchive(doc)
-			case More(_, Volatile, Nil) => wrapVolume(doc)
+		def wrap(doc: Document, more: Link): List[PageContent] Or Every[Report] = more match {
+			case Link(_, Volatile, "archive" :: Nil) => wrapArchive(doc)
+			case Link(_, Volatile, Nil) => wrapVolume(doc)
 			case _ => queryImage("#cc img")(doc)
 		}
 	}
 
 
 	object Misfile extends Narrator {
-		def archive = More("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", Volatile) :: Nil
+		def archive = Link("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", Volatile) :: Nil
 
 		def id: String = "NX_Misfile"
 
 		def name: String = "Misfile"
 
-		def wrapArchive(doc: Document): Or[List[Story], Every[Report]] = {
+		def wrapArchive(doc: Document): Or[List[PageContent], Every[Report]] = {
 			val chapters_? = Selection(doc).many("#comicbody a:matchesOwn(^Book #\\d+$)").wrapFlat { anchor =>
 				withGood(extractMore(anchor)) { pointer =>
 					Chapter(anchor.ownText()) :: pointer :: Nil
@@ -186,7 +186,7 @@ object Individual {
 			}
 		}
 
-		def wrapPage(doc: Document): Or[List[Story], Every[Report]] = {
+		def wrapPage(doc: Document): Or[List[PageContent], Every[Report]] = {
 			val elements_? = Selection(doc)
 				.unique(".comiclist table.wide_gallery")
 				.many("[id~=^comic_\\d+$] .picture a").wrapEach { anchor =>
@@ -194,7 +194,7 @@ object Individual {
 				val origin_? = extractURL(anchor)
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
-						blob = element.blob.toString.replace("/t", "/"),
+						ref = element.ref.toString.replace("/t", "/"),
 						origin = origin,
 						data = element.data - "width" - "height")
 				}
@@ -204,8 +204,8 @@ object Individual {
 			append(elements_?, next_?)
 		}
 
-		def wrap(doc: Document, more: More): Or[List[Story], Every[Report]] = more match {
-			case More(_, Volatile, _) => wrapArchive(doc)
+		def wrap(doc: Document, more: Link): Or[List[PageContent], Every[Report]] = more match {
+			case Link(_, Volatile, _) => wrapArchive(doc)
 			case _ => wrapPage(doc)
 		}
 	}
@@ -214,15 +214,15 @@ object Individual {
 	object NamirDeiter extends Narrator {
 		override def id: String = "NX_NamirDeiter"
 		override def name: String = "Namir Deiter"
-		override def archive: List[Story] = More(s"http://www.namirdeiter.com/archive/index.php?year=1", Volatile, "archive" :: Nil) :: Nil
+		override def archive: List[PageContent] = Link(s"http://www.namirdeiter.com/archive/index.php?year=1", Volatile, "archive" :: Nil) :: Nil
 
-		def wrapIssue(doc: Document): Or[List[Story], Every[Report]] = Selection(doc).many("table #arctitle > a").wrapFlat(elementIntoChapterPointer)
+		def wrapIssue(doc: Document): Or[List[PageContent], Every[Report]] = Selection(doc).many("table #arctitle > a").wrapFlat(elementIntoChapterPointer)
 
-		override def wrap(doc: Document, more: More): Or[List[Story], Every[Report]] = more match {
-			case More(_, Volatile, "archive" :: Nil) => append(
+		override def wrap(doc: Document, more: Link): Or[List[PageContent], Every[Report]] = more match {
+			case Link(_, Volatile, "archive" :: Nil) => append(
 				wrapIssue(doc),
 				morePolicy(Volatile, Selection(doc).many("body > center > div > center > h2 > a").wrapEach(extractMore)))
-			case More(_, Volatile, Nil) => wrapIssue(doc)
+			case Link(_, Volatile, Nil) => wrapIssue(doc)
 			case _ =>
 				if (doc.baseUri() == "http://www.namirdeiter.com/comics/index.php?date=20020819") Good(Nil)
 				else if (doc.baseUri() == "http://www.namirdeiter.com/") queryImage("#comic > img")(doc)
@@ -233,13 +233,13 @@ object Individual {
 
 	object Twokinds extends Narrator {
 
-		def archive = More("http://twokinds.keenspot.com/?p=archive", Volatile, "archive" :: Nil) :: More("http://twokinds.keenspot.com/index.php", Volatile, "main" :: Nil) :: Nil
+		def archive = Link("http://twokinds.keenspot.com/?p=archive", Volatile, "archive" :: Nil) :: Link("http://twokinds.keenspot.com/index.php", Volatile, "main" :: Nil) :: Nil
 
 		def id: String = "NX_Twokinds"
 
 		def name: String = "Twokinds"
 
-		def wrapArchive(doc: Document): List[Story] Or Every[Report] = {
+		def wrapArchive(doc: Document): List[PageContent] Or Every[Report] = {
 			Selection(doc).many(".archive .chapter").wrapFlat { chapter =>
 				val title_? = Selection(chapter).unique("h4").getOne.map(_.ownText())
 				val links_? = Selection(chapter).many("a").wrapEach {extractMore}
@@ -249,9 +249,9 @@ object Individual {
 			}
 		}
 
-		def wrap(doc: Document, more: More): Or[List[Story], Every[Report]] = more match {
-			case More(_, Volatile, "archive" :: Nil) => wrapArchive(doc)
-			case More(_, Volatile, "main" :: Nil) => Selection(doc).unique(".comic img[src~=images/\\d+\\.\\w+]").wrapEach {imgIntoAsset}
+		def wrap(doc: Document, more: Link): Or[List[PageContent], Every[Report]] = more match {
+			case Link(_, Volatile, "archive" :: Nil) => wrapArchive(doc)
+			case Link(_, Volatile, "main" :: Nil) => Selection(doc).unique(".comic img[src~=images/\\d+\\.\\w+]").wrapEach {imgIntoAsset}
 			case _ => Selection(doc).unique("#cg_img img").wrapEach {imgIntoAsset}
 		}
 	}
@@ -260,9 +260,9 @@ object Individual {
 	object YouSayItFirst extends Narrator {
 		override def id: String = "NX_YouSayItFirst"
 		override def name: String = "You Say It First"
-		override def archive: List[Story] = Range.inclusive(1, 9).map(i => More(s"http://www.yousayitfirst.com/archive/index.php?year=$i", Volatile)).toList
-		override def wrap(doc: Document, more: More): Or[List[Story], Every[Report]] = more match {
-			case More(_, Volatile, _) => Selection(doc).many("table #number a").wrapFlat(elementIntoChapterPointer)
+		override def archive: List[PageContent] = Range.inclusive(1, 9).map(i => Link(s"http://www.yousayitfirst.com/archive/index.php?year=$i", Volatile)).toList
+		override def wrap(doc: Document, more: Link): Or[List[PageContent], Every[Report]] = more match {
+			case Link(_, Volatile, _) => Selection(doc).many("table #number a").wrapFlat(elementIntoChapterPointer)
 			case _ =>
 				if (doc.baseUri() == "http://www.soapylemon.com/") Good(Nil)
 				else queryImageInAnchor("body > center > div.mainwindow > center:nth-child(2) > table center img")(doc)
@@ -273,9 +273,9 @@ object Individual {
 	object UnlikeMinerva extends Narrator {
 		override def id: String = "NX_UnlikeMinerva"
 		override def name: String = "Unlike Minerva"
-		override def archive: List[Story] = Range.inclusive(1, 25).map(i => More(s"http://www.unlikeminerva.com/archive/phase1.php?week=$i")).toList :::
-			Range.inclusive(26, 130).map(i => More(s"http://www.unlikeminerva.com/archive/index.php?week=$i")).toList
-		override def wrap(doc: Document, more: More): Or[List[Story], Every[Report]] =
+		override def archive: List[PageContent] = Range.inclusive(1, 25).map(i => Link(s"http://www.unlikeminerva.com/archive/phase1.php?week=$i")).toList :::
+			Range.inclusive(26, 130).map(i => Link(s"http://www.unlikeminerva.com/archive/index.php?week=$i")).toList
+		override def wrap(doc: Document, more: Link): Or[List[PageContent], Every[Report]] =
 			Selection(doc).many("center > img[src~=http://www.unlikeminerva.com/archive/]").wrapEach { img =>
 				withGood(imgIntoAsset(img), extract(img.parent().nextElementSibling().text())) { (article, txt) =>
 					article.copy(data = article.data.updated("longcomment", txt))
@@ -295,7 +295,7 @@ object Individual {
 		AP("NX_SixGunMage", "6 Gun Mage", "http://www.6gunmage.com/archives.php",
 			doc => Selection(doc).many("#bottomleft > select > option[value~=\\d+]").wrapFlat { elem =>
 				val tpIndex = elem.text().indexOf("Title Page")
-				val page = More(s"http://www.6gunmage.com/index.php?id=${elem.attr("value")}") :: Nil
+				val page = Link(s"http://www.6gunmage.com/index.php?id=${elem.attr("value")}") :: Nil
 				Good(if (tpIndex > 0) Chapter(elem.text().substring(tpIndex + "Title Page ".length)) :: page else page)
 			},
 			queryImage("#comic")),
@@ -317,7 +317,7 @@ object Individual {
 		AP("NX_GoGetARoomie", "Go Get a Roomie!", "http://www.gogetaroomie.com/archive.php",
 			doc => Selection(doc).unique("#comicwrap").wrapOne { comicwrap =>
 				val pages_? = Selection(comicwrap).many("> select > option[value~=^.+$]").wrapEach(e =>
-					extract(More(s"http://www.gogetaroomie.com/comic/${e.attr("value")}")))
+					extract(Link(s"http://www.gogetaroomie.com/comic/${e.attr("value")}")))
 				val chapters_? = Selection(comicwrap).many(".cc-chapterrow a").wrapEach(elementIntoChapterPointer).map(_.map(cp => (cp(0), cp(1))))
 				withGood(pages_?, chapters_?) { (pages, chapters) =>
 					placeChapters(pages, chapters)

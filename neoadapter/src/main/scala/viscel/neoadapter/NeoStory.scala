@@ -3,21 +3,20 @@ package viscel.neoadapter
 import java.net.URL
 
 import viscel.scribe.narration.{Normal, Volatile, Policy => AppendLogPolicy}
+import viscel.shared.Blob
 
-sealed trait Story
+sealed trait NeoStory
 
 final case class More(
 	loc: URL,
 	policy: AppendLogPolicy = Normal,
-	data: List[String] = List()) extends Story
+	data: List[String] = List()) extends NeoStory
 
 final case class Asset(
 	blob: Option[URL] = None,
 	origin: Option[URL] = None,
 	kind: Byte,
-	data: List[String] = List()) extends Story
-
-final case class Blob(sha1: String, mime: String)
+	data: List[String] = List()) extends NeoStory
 
 final case class Page(asset: Asset, blob: Option[Blob])
 

@@ -4,6 +4,7 @@ import java.net.URL
 import java.time.Instant
 
 import derive.key
+import viscel.shared.Blob
 
 sealed trait AppendLogEntry
 @key("Page") case class AppendLogPage(
@@ -11,7 +12,7 @@ sealed trait AppendLogEntry
 	ref: URL,
 	/** location that was finally resolved and downloaded */
 	loc: URL,
-	contents: List[Story],
+	contents: List[PageContent],
 	date: Instant = Instant.now()
 ) extends AppendLogEntry
 @key("Blob") case class AppendLogBlob(
@@ -19,27 +20,22 @@ sealed trait AppendLogEntry
 	ref: URL,
 	/** location that was finally resolved and downloaded */
 	loc: URL,
-	sha1: String,
-	mime: String,
+	blob: Blob,
 	date: Instant = Instant.now()
 ) extends AppendLogEntry
 
 
-
 sealed trait Story
-@key("Chapter") case class Chapter(name: String) extends Story
-@key("Article") case class Article(blob: URL, origin: URL, data: Map[String, String] = Map()) extends Story
-@key("More") case class More(loc: URL, policy: Policy = Normal, data: List[String] = Nil) extends Story
+case class Page(article: Article, blob: AppendLogBlob) extends Story
+
+sealed trait PageContent
+@key("Chapter") case class Chapter(name: String) extends PageContent with Story
+@key("Article") case class Article(ref: URL, origin: URL, data: Map[String, String] = Map()) extends PageContent
+@key("Link") case class Link(ref: URL, policy: Policy = Normal, data: List[String] = Nil) extends PageContent
 
 
-sealed trait Policy {
-	def ext: Option[Byte]
-}
-@key("Normal") case object Normal extends Policy {
-	override def ext: Option[Byte] = None
-}
-@key("Volatile") case object Volatile extends Policy {
-	override def ext: Option[Byte] = Some(0)
-}
+sealed trait Policy
+@key("Normal") case object Normal extends Policy
+@key("Volatile") case object Volatile extends Policy
 
 

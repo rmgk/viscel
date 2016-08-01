@@ -8,7 +8,7 @@ import java.nio.file.{Files, Path}
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
 import viscel.narration.Queries._
-import viscel.scribe.narration.{More, Narrator, Story}
+import viscel.scribe.narration.{Link, Narrator, PageContent}
 import viscel.selection.Report
 import viscel.selection.ReportTools.{append, augmentBad}
 import viscel.Viscel
@@ -59,10 +59,10 @@ object Vid {
 
 	def makeNarrator(id: String, name: String, pos: Int, startUrl: URL, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
-		type Wrap = Document => List[Story] Or Every[Report]
+		type Wrap = Document => List[PageContent] Or Every[Report]
 		def has(keys: String*): Boolean = keys.forall(attrs.contains)
 		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(augmentBad(_)(AdditionalPosition(lines, _))))
-		def transform(ow: Option[Wrap])(f: List[Story] => List[Story]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
+		def transform(ow: Option[Wrap])(f: List[PageContent] => List[PageContent]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
 
 		val pageFun: Option[Wrap] = attrs match {
 			case extract"ia $img" => annotate(queryImageInAnchor(img.s), img)
@@ -87,13 +87,13 @@ object Vid {
 		val (pageFunReplace, archFunReplace) = attrs match {
 			case extract"url_replace $replacer" =>
 				val replacements = replacer.s.split("\\s+:::\\s+").sliding(2, 2).toList
-				val doReplace: List[Story] => List[Story] = { stories =>
+				val doReplace: List[PageContent] => List[PageContent] = { stories =>
 					stories.map {
-						case More(url, policy, data) =>
+						case Link(url, policy, data) =>
 							val newUrl = replacements.foldLeft(url.toString) {
 								case (u, Array(matches, replace)) => u.replaceAll(matches, replace)
 							}
-							More(newUrl, policy, data)
+							Link(newUrl, policy, data)
 						case o => o
 					}
 				}

@@ -8,9 +8,9 @@ import upickle.default.Writer
 import viscel.Viscel
 import viscel.narration.Narrators
 import viscel.scribe.Scribe
-import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, More, Story, Article => SArticle, Chapter => SChapter}
+import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Link, Page, PageContent, Story, Article => SArticle, Chapter => SChapter}
 import viscel.scribe.store.Json._
-import viscel.shared.{Article, Blob, Chapter, Content, Description, Gallery}
+import viscel.shared.{Article, Blob, Chapter, Content, Description, Gallery, Log}
 import viscel.store.User
 
 import scala.collection.JavaConverters._
@@ -24,60 +24,28 @@ class ServerPages(scribe: Scribe) {
 
 	def narration(id: String): Option[Content] = {
 
-		val path = Viscel.basepath.resolve("scribe").resolve("db3").resolve("books")
-
-
-		val entries = Files.lines(path.resolve(s"$id"), StandardCharsets.UTF_8).skip(1).iterator.asScala.map{ line =>
-			upickle.default.read[AppendLogEntry](line)
-		}.toList
-
-		val size = entries.size
-
-		val pages = new java.util.HashMap[String, AppendLogPage](size)
-		val blobs = new java.util.HashMap[String, AppendLogBlob](size)
-		entries.foreach {
-			case alb@AppendLogBlob(il, rl, sha1, mime, _) => blobs.put(il.toString, alb)
-			case alp@AppendLogPage(il, rl, contents, _) => pages.put(il.toString, alp)
-		}
 
 		@scala.annotation.tailrec
-		def flatten(remaining: List[Story], acc: List[Story]): List[Story] = {
-			remaining match {
-				case Nil => acc.reverse
-				case h :: t => h match {
-					case More(loc, policy, data) =>
-						pages.get(loc.toString) match {
-							case null => flatten(t, acc)
-							case alp => flatten(alp.contents ::: t, acc)
-						}
-					case other => flatten(t,  other :: acc)
-				}
-			}
-		}
-
-		val elements = flatten(pages.get("http://initial.entry").contents, Nil)
-
 		def recurse(content: List[Story], art: List[Article], chap: List[Chapter], c: Int): (List[Article], List[Chapter]) = {
 			content match {
 				case Nil => (art, chap)
-				case h :: t => h match {
-					case SChapter(name) => recurse(t, art, Chapter(name, c) :: chap, c)
-					case SArticle(blob, origin, data) =>
-						val article = blobs.get(blob.toString) match {
-							case null =>
-								Article(source = blob.toString, origin = origin.toString)
-							case AppendLogBlob(il, rl, sha1, mime, _) =>
-								Article(source = blob.toString, origin = origin.toString, Some(Blob(sha1, mime)),  data)
-						}
-						recurse(t, article :: art, if (chap.isEmpty) List(Chapter("", 0)) else chap, c + 1)
-					case More(_, _, _) => throw new IllegalStateException("append log mores should already be excluded")
+				case h :: t => {
+					h match {
+						case Page(SArticle(ref, origin, data), blob) =>
+							val article = Article(origin = origin.toString, Some(blob.blob), data)
+							recurse(t, article :: art, if (chap.isEmpty) List(Chapter("", 0)) else chap, c + 1)
+						case SChapter(name) => recurse(t, art, Chapter(name, c) :: chap, c)
+					}
 				}
 			}
 		}
 
-		val (articles, chapters) = recurse(elements, Nil, Nil, 0)
+		scribe.books.find(id).map { book =>
 
-		Some(Content(Gallery.fromList(articles.reverse), chapters))
+			val (articles, chapters) = recurse(book.pages(), Nil, Nil, 0)
+
+			Content(Gallery.fromList(articles.reverse), chapters)
+		}
 
 	}
 

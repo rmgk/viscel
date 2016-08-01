@@ -97,7 +97,7 @@ class Server(scribe: Scribe, terminate: () => Unit)(implicit val system: ActorSy
 				val filename = hashToPath(sha1).toFile
 				pathEnd {getFromFile(filename)} ~
 					path(Segment / Segment) { (part1, part2) =>
-						getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).get, () => HttpCharsets.`UTF-8`))
+						getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).getOrElse(MediaTypes.`image/jpeg`), () => HttpCharsets.`UTF-8`))
 					}
 			} ~
 			pathPrefix("hint") {

@@ -7,7 +7,7 @@ import java.nio.file.{Files, Paths, StandardCopyOption}
 import viscel.scribe.Scribe
 import viscel.server.ServerPages
 import viscel.shared.{Article, Blob, Chapter, Description, Gallery, Log}
-import viscel.scribe.narration.{Story, Article => SArticle, Chapter => SChapter}
+import viscel.scribe.narration.{PageContent, Article => SArticle, Chapter => SChapter}
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scalatags.Text.RawFrag
@@ -84,7 +84,7 @@ class ReplUtil(scribe: Scribe) {
 
 	def importFolder(path: String, nid: String, nname: String): Unit = {
 
-		final case class Page(asset: Story, blob: Option[Blob])
+		final case class Page(asset: PageContent, blob: Option[Blob])
 
 		import scala.math.Ordering.Implicits.seqDerivedOrdering
 
