@@ -9,18 +9,18 @@ import viscel.scribe.store.Json._
 
 sealed trait AppendLogEntry
 @key("Page") case class AppendLogPage(
-	/** location that spawned this entry */
-	initialLocation: URL,
+	/** reference that spawned this entry */
+	ref: URL,
 	/** location that was finally resolved and downloaded */
-	resolvedLocation: URL,
+	loc: URL,
 	contents: List[AppendLogElements],
 	date: Instant = Instant.now()
 ) extends AppendLogEntry
 @key("Blob") case class AppendLogBlob(
-	/** location that spawned this entry */
-	initialLocation: URL,
+	/** reference that spawned this entry */
+	ref: URL,
 	/** location that was finally resolved and downloaded */
-	resolvedLocation: URL,
+	loc: URL,
 	sha1: String,
 	mime: String,
 	date: Instant = Instant.now()

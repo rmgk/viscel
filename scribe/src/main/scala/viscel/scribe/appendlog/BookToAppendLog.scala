@@ -36,7 +36,7 @@ object BookToAppendLog {
 					val blobUrl = asset.blob.getOrElse {
 						new URL(s"http://${blob.sha1}.sha1")
 					}
-					val entry = AppendLogBlob(initialLocation = blobUrl, resolvedLocation = blobUrl, sha1 = blob.sha1, mime = blob.mime)
+					val entry = AppendLogBlob(ref = blobUrl, loc = blobUrl, sha1 = blob.sha1, mime = blob.mime)
 					go(t, entry :: acc)
 				}
 				else if (h.layer.isEmpty) {
@@ -46,7 +46,7 @@ object BookToAppendLog {
 					val nodes = h.layer.nodes
 					val location = if (h.hasLabel(label.More)) Codec.load[More](h).loc else new URL("http://initial.entry")
 					val stories: List[AppendLogElements] = nodes.map {loadEntries}
-					val entry = AppendLogPage(contents = stories, initialLocation = location, resolvedLocation = location)
+					val entry = AppendLogPage(contents = stories, ref = location, loc = location)
 					go(nodes ::: t, entry :: acc)
 				}
 		}

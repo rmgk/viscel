@@ -2,6 +2,8 @@ package viscel.scribe.narration
 
 import java.net.URL
 
+import derive.key
+
 sealed trait Story
 
 final case class More(
@@ -22,10 +24,10 @@ final case class Page(asset: Asset, blob: Option[Blob])
 sealed trait Policy {
 	def ext: Option[Byte]
 }
-case object Normal extends Policy {
+@key("Normal") case object Normal extends Policy {
 	override def ext: Option[Byte] = None
 }
-case object Volatile extends Policy {
+@key("Volatile") case object Volatile extends Policy {
 	override def ext: Option[Byte] = Some(0)
 }
 object Policy {
