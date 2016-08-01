@@ -6,7 +6,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
-import viscel.narration.Data.{Article, Chapter, listToMap, mapToList}
+import viscel.narration.Data.{listToMap, mapToList}
 import viscel.narration.Queries._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.Templates
@@ -33,7 +33,7 @@ object Individual {
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
 						blob = element.blob.toString.replace("sm.", "."),
-						origin = Some(origin),
+						origin = origin,
 						data = mapToList(listToMap(element.data) - "width" - "height"))
 				}
 			}
@@ -196,7 +196,7 @@ object Individual {
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
 						blob = element.blob.toString.replace("/t", "/"),
-						origin = Some(origin),
+						origin = origin,
 						data = mapToList(listToMap(element.data) - "width" - "height"))
 				}
 			}

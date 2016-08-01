@@ -67,9 +67,9 @@ class ServerPages(scribe: Scribe) {
 					case SArticle(blob, origin, data) =>
 						val article = blobs.get(blob.toString) match {
 							case null =>
-								Article(Some(blob.toString), origin.map(_.toString))
+								Article(Some(blob.toString), Some(origin.toString))
 							case AppendLogBlob(il, rl, sha1, mime, _) =>
-								Article(Some(blob.toString), origin.map(_.toString), Some(sha1), Some(mime),  Data.listToMap(data))
+								Article(Some(blob.toString), Some(origin.toString), Some(sha1), Some(mime),  Data.listToMap(data))
 						}
 						recurse(t, article :: art, if (chap.isEmpty) List(Chapter("", 0)) else chap, c + 1)
 					case More(_, _, _) => throw new IllegalStateException("append log mores should already be excluded")
@@ -85,7 +85,7 @@ class ServerPages(scribe: Scribe) {
 
 	def narrations(): HttpResponse =
 		jsonResponse {
-			val books = scribe.books.all().map(b => Description(b.id, b.name, b.size(0)))
+			val books = scribe.books.all().map(b => Description(b.id, b.name, b.size()))
 			val known = books.map(_.id).toSet
 			val nars = Narrators.all.filterNot(n => known.contains(n.id)).map(n => Description(n.id, n.name, 0))
 			nars.toList reverse_::: books

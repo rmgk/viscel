@@ -34,18 +34,16 @@ object Queries {
 
 	implicit def stringToURL(s: String): URL = new URL(s)
 
-	def getAttr(e: Element, k: String): Option[(String, String)] = {
-		val res = e.attr(k)
-		if (res.isEmpty) None else Some(k -> res)
+	def imgIntoAsset(img: Element): Article Or Every[Report] = {
+		def getAttr(k: String): List[String] = {
+			val res = img.attr(k)
+			if (res.isEmpty) Nil else List(k, res)
+		}
+		extract(Article(
+			blob = img.attr("abs:src"),
+			origin = img.ownerDocument().location(),
+			data = List("alt", "title", "width", "height").flatMap(getAttr)))
 	}
-
-	def imgIntoAsset(img: Element): Article Or Every[Report] = extract(Data.Article(
-		blob = img.attr("abs:src"),
-		origin = img.ownerDocument().location(),
-		data = (getAttr(img, "alt") ++
-			getAttr(img, "title") ++
-			getAttr(img, "width") ++
-			getAttr(img, "height")).toMap))
 
 	def extractChapter(elem: Element): Chapter Or Every[Report] = extract {
 		def firstNotEmpty(choices: String*) = choices.find(!_.isEmpty).getOrElse("")

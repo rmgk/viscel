@@ -20,7 +20,8 @@ object BookToAppendLog {
 						val blob = Codec.load[Blob](node.to(rel.blob))
 						new URL(s"http://${blob.sha1}.sha1")
 					}
-					AppendLogArticle(blobUrl, origin, data)
+					val originUrl = origin.getOrElse(blobUrl)
+					AppendLogArticle(blobUrl, originUrl, data)
 				}
 				case Asset(blob, origin, 1, data) => AppendLogChapter(data.head)
 				case a@Asset(_, _, _, _) => throw new IllegalArgumentException(s"unknown asset kind: $a")

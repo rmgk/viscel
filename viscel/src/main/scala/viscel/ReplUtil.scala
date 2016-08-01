@@ -102,7 +102,7 @@ class ReplUtil(scribe: Scribe) {
 					Log.info(s"processing $p")
 					val sha1 = scribe.blobs.write(Files.readAllBytes(p))
 					val blob = Blob(sha1, mime)
-					Some(Page(SArticle(new URL(s"http://$sha1.sha1")), Some(blob)))
+					Some(Page(SArticle(new URL(s"http://$sha1.sha1"), new URL(s"http://$sha1.sha1")), Some(blob)))
 				}
 			}
 			else None

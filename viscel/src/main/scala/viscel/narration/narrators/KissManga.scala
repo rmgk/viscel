@@ -6,7 +6,8 @@ import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
-import viscel.narration.{Data, Metarrator, Templates}
+import viscel.narration.{Metarrator, Templates}
+import viscel.scribe.narration.Article
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 
@@ -21,7 +22,7 @@ object KissManga {
 			extract {
 				re.findAllIn(html).matchData.map { md =>
 					val url = md.subgroups(0)
-					Data.Article(url, doc.baseUri())
+					Article(url, doc.baseUri())
 				}.toList
 			}
 		}

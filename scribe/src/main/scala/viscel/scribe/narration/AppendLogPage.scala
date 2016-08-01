@@ -28,7 +28,7 @@ sealed trait AppendLogEntry
 
 sealed trait Story
 @key("Chapter") case class Chapter(name: String) extends Story
-@key("Article") case class Article(blob: URL, origin: Option[URL] = None, data: List[String] = Nil) extends Story
+@key("Article") case class Article(blob: URL, origin: URL, data: List[String] = Nil) extends Story
 @key("More") case class More(loc: URL, policy: Policy = Normal, data: List[String] = Nil) extends Story
 
 

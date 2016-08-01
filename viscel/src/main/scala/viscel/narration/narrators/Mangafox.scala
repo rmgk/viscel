@@ -7,15 +7,15 @@ import org.scalactic.Accumulation.withGood
 import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
-import viscel.narration.{Data, Metarrator, Queries}
-import viscel.scribe.narration.{Narrator, More, Story, Volatile}
-import viscel.selection.{Report, Selection}
+import viscel.narration.{Metarrator, Queries}
+import viscel.scribe.narration.{Chapter, More, Narrator, Story, Volatile}
 import viscel.scribe.store.Json.{urlReader, urlWriter}
+import viscel.selection.{Report, Selection}
 
 
 object Mangafox {
-	(urlReader, urlWriter)
 	// reference so that optimize imports does not remove the import
+	(urlReader, urlWriter)
 
 	case class Mfox(override val id: String, override val name: String, url: URL) extends Narrator {
 
@@ -28,7 +28,7 @@ object Mangafox {
 				val uri_? = anchorSel.wrapOne {extractURL}
 				val text_? = anchorSel.getOne.map {_.ownText()}
 				withGood(title_?, uri_?, text_?) { (title, uri, text) =>
-					Data.Chapter(s"$text $title") :: More(uri) :: Nil
+					Chapter(s"$text $title") :: More(uri) :: Nil
 				}
 			}
 		}
