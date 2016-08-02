@@ -7,7 +7,7 @@ import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Templates}
-import viscel.scribe.narration.Article
+import viscel.scribe.Article
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 

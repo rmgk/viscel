@@ -1,12 +1,11 @@
-package viscel.scribe.database
+package viscel.scribe
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
-import scala.collection.JavaConverters._
-import viscel.scribe.store.Json._
-import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Article, Chapter, Link, ArticleBlob, WebContent, Entry}
 import viscel.shared.Log
+
+import scala.collection.JavaConverters._
 
 class Book(path: Path)(implicit r: upickle.default.Reader[AppendLogEntry]) {
 	def size(): Int = pages().count{

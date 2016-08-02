@@ -9,9 +9,9 @@ import org.scalactic.{Every, Good, Or}
 import viscel.narration.Queries._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.Templates
-import viscel.scribe.narration._
+import viscel.scribe.{Article, Chapter, Link, Narrator, Normal, Volatile, WebContent}
 import viscel.selection.ReportTools._
-import viscel.selection.{Selection, Report}
+import viscel.selection.{Report, Selection}
 
 import scala.Predef.{$conforms, augmentString}
 import scala.collection.immutable.Set

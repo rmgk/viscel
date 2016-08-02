@@ -1,4 +1,4 @@
-package viscel.scribe.narration
+package viscel.scribe
 
 import java.net.URL
 import java.time.Instant

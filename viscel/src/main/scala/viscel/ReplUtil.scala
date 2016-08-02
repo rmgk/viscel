@@ -4,10 +4,10 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths, StandardCopyOption}
 
-import viscel.scribe.Scribe
+import viscel.scribe.{Scribe, WebContent}
 import viscel.server.ServerPages
 import viscel.shared.{Article, Blob, Chapter, Description, Gallery, Log}
-import viscel.scribe.narration.{WebContent, Article => SArticle, Chapter => SChapter}
+import viscel.scribe.{Article => SArticle, Chapter => SChapter}
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scalatags.Text.RawFrag

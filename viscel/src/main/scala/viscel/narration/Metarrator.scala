@@ -5,10 +5,9 @@ import java.net.URL
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import upickle.default.{ReadWriter, Reader, Writer}
-import viscel.scribe.narration.Narrator
-import viscel.scribe.store.Json
 import viscel.selection.Report
 import viscel.Viscel
+import viscel.scribe.{Json, Narrator}
 import viscel.shared.Log
 
 import scala.collection.Set

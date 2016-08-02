@@ -8,8 +8,8 @@ import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Queries}
-import viscel.scribe.narration.{Chapter, Link, Narrator, WebContent, Volatile}
-import viscel.scribe.store.Json.{urlReader, urlWriter}
+import viscel.scribe.{Chapter, Link, Narrator, Volatile, WebContent}
+import viscel.scribe.Json.{urlReader, urlWriter}
 import viscel.selection.{Report, Selection}
 
 

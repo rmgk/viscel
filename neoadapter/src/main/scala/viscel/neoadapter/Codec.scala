@@ -4,7 +4,7 @@ import java.net.URL
 
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.Implicits.NodeOps
-import viscel.scribe.narration.{Normal, Volatile}
+import viscel.scribe.{Normal, Volatile}
 import viscel.shared.Blob
 
 import scala.Predef.ArrowAssoc
@@ -65,7 +65,7 @@ object Codec {
 
 		override def read(node: Node)(implicit ntx: Ntx): More = More(
 			loc = new URL(node.prop[String]("loc")),
-			policy = Policy.int(node.get[Byte]("policy")),
+			policy = GetPolicy.int(node.get[Byte]("policy")),
 			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)
 	}

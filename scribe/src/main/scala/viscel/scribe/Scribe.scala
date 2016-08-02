@@ -2,10 +2,6 @@ package viscel.scribe
 
 import java.nio.file.{Files, Path}
 
-import viscel.scribe.database.Book
-import viscel.scribe.narration.AppendLogEntry
-import viscel.scribe.store.BlobStore
-
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 

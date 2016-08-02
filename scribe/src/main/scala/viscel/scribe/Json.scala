@@ -1,4 +1,4 @@
-package viscel.scribe.store
+package viscel.scribe
 
 import java.net.URL
 import java.nio.charset.StandardCharsets.UTF_8

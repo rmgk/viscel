@@ -6,9 +6,7 @@ import java.util.{Timer, TimerTask}
 import org.scalactic.{Bad, Good}
 import viscel.crawl.Crawl
 import viscel.narration.Narrators
-import viscel.scribe.Scribe
-import viscel.scribe.narration.Narrator
-import viscel.scribe.store.Json
+import viscel.scribe.{Json, Narrator, Scribe}
 import viscel.shared.Log
 import viscel.store.Users
 

@@ -3,10 +3,9 @@ package viscel.neoadapter
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
-import viscel.scribe.narration.AppendLogEntry
 import viscel.neoadapter.Config.ConfigNode
+import viscel.scribe.{AppendLogEntry, Json}
 import viscel.shared.Log
-import viscel.scribe.store.Json
 
 import scala.collection.JavaConverters._
 

@@ -4,7 +4,7 @@ import java.net.URL
 
 import org.neo4j.graphdb.Node
 import Implicits.NodeOps
-import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Article => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore, WebContent => AppendLogElements}
+import viscel.scribe.{AppendLogPage, AppendLogBlob, AppendLogEntry, Article => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore, WebContent}
 import viscel.shared.Blob
 
 import scala.annotation.tailrec
@@ -17,7 +17,7 @@ object BookToAppendLog {
 
 
 	def bookToEntries(book: Book)(implicit ntx: Ntx): List[AppendLogEntry] = {
-		def loadEntries(node: Node): AppendLogElements = {
+		def loadEntries(node: Node): WebContent = {
 			Codec.load[NeoStory](node) match {
 				case More(loc, policy, data) => AppendLogMore(loc, policy, data)
 				case a@Asset(blob, origin, 0, data) => {
@@ -51,7 +51,7 @@ object BookToAppendLog {
 				else {
 					val nodes = h.layer.nodes
 					val location = if (h.hasLabel(label.More)) Codec.load[More](h).loc else new URL("http://initial.entry")
-					val stories: List[AppendLogElements] = nodes.map {loadEntries}
+					val stories: List[WebContent] = nodes.map {loadEntries}
 					val entry = AppendLogPage(contents = stories, ref = location, loc = location)
 					go(nodes ::: t, entry :: acc)
 				}

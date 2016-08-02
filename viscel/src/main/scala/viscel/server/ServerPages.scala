@@ -7,9 +7,9 @@ import akka.http.scaladsl.model._
 import upickle.default.Writer
 import viscel.Viscel
 import viscel.narration.Narrators
-import viscel.scribe.Scribe
-import viscel.scribe.narration.{AppendLogBlob, AppendLogEntry, AppendLogPage, Link, ArticleBlob, WebContent, Entry, Article => SArticle, Chapter => SChapter}
-import viscel.scribe.store.Json._
+import viscel.scribe.{Entry, Scribe}
+import viscel.scribe.{ArticleBlob, Link, WebContent, Article => SArticle, Chapter => SChapter}
+import viscel.scribe.Json._
 import viscel.shared.{Article, Blob, Chapter, Content, Description, Gallery, Log}
 import viscel.store.User
 

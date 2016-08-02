@@ -4,7 +4,7 @@ import java.net.URL
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
-import viscel.scribe.narration._
+import viscel.scribe.{Link, Narrator, Normal, Volatile, WebContent}
 import viscel.selection.Report
 
 object Templates {

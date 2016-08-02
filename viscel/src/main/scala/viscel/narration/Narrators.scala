@@ -2,7 +2,7 @@ package viscel.narration
 
 import viscel.narration.narrators.Individual._
 import viscel.narration.narrators._
-import viscel.scribe.narration.Narrator
+import viscel.scribe.Narrator
 
 import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.Set

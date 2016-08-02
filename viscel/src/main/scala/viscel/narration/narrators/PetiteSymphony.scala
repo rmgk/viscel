@@ -2,7 +2,7 @@ package viscel.narration.narrators
 
 import viscel.narration.Queries.{queryImageNext, stringToURL}
 import viscel.narration.Templates
-import viscel.scribe.narration.Narrator
+import viscel.scribe.Narrator
 
 import scala.collection.immutable.Set
 

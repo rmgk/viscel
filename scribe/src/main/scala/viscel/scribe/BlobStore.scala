@@ -1,4 +1,4 @@
-package viscel.scribe.store
+package viscel.scribe
 
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
