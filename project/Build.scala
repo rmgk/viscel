@@ -7,7 +7,7 @@ import sbt._
 object Build extends sbt.Build {
 
 	lazy val root = project.in(file("."))
-		  .aggregate(viscel, js, shared, scribe, neoadapter, selection)
+		  .aggregate(viscel, js, shared)
 
 	lazy val viscel = project.in(file("viscel"))
 		.settings(name := "viscel")
@@ -16,12 +16,8 @@ object Build extends sbt.Build {
 		//.settings(compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in(js, Compile)))
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
 		.enablePlugins(JavaAppPackaging)
-		.dependsOn(scribe)
-		.dependsOn(selection)
 		.dependsOn(shared % Provided)
 		.settings(Settings.sharedSource)
-		.dependsOn(neoadapter)
-		.dependsOn(crawler)
 
 
 	lazy val js = project.in(file("js"))
@@ -36,30 +32,6 @@ object Build extends sbt.Build {
 		.settings(name := "viscel-shared")
 		.settings(Settings.common: _*)
 		.settings(libraryDependencies ++= Libraries.shared.value)
-
-	lazy val scribe = project.in(file("scribe"))
-		.settings(name := "scribe")
-		.settings(Settings.common: _*)
-		.settings(Libraries.scribe: _*)
-		.dependsOn(selection)
-		.dependsOn(shared)
-
-	lazy val crawler = project.in(file("crawler"))
-		.settings(name := "crawler")
-		.settings(Settings.common: _*)
-		.settings(Libraries.crawl: _*)
-		.dependsOn(scribe)
-
-	lazy val neoadapter = project.in(file("neoadapter"))
-		.settings(name := "neoadapter")
-		.settings(Settings.common: _*)
-		.settings(Libraries.neoadapter: _*)
-	  .dependsOn(scribe)
-
-	lazy val selection = project.in(file("selection"))
-		.settings(name := "selection")
-		.settings(Settings.common: _*)
-		.settings(Libraries.selection: _*)
 
 }
 
@@ -148,22 +120,13 @@ object Libraries {
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++=
 		neo ::: akkaHTTP :::
-		jline ::: jopt  ::: scalactic ::: shared.value)
+		jline ::: jopt  ::: scalactic ::: shared.value ::: upickle.value ::: jsoup)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++=
 		scalajsdom.value ::: shared.value ::: rescala.value)
 
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
-
-	lazy val neoadapter: List[Def.Setting[_]] = List(libraryDependencies ++= neo ++ upickle.value)
-
-	lazy val crawl: List[Def.Setting[_]] = List(libraryDependencies ++= akkaHTTP ++ jsoup ++ scalactic)
-
-	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++=  akkaHTTP ++ scalactic ++ upickle.value)
-
-	lazy val selection: List[Def.Setting[_]] = List(libraryDependencies ++= scalactic ++ jsoup)
-
 
 	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
 

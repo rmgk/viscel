@@ -7,15 +7,12 @@ import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Queries}
-import viscel.scribe.Json.{urlReader, urlWriter}
 import viscel.scribe.Vurl.fromString
 import viscel.scribe.{Chapter, Link, Narrator, Volatile, Vurl, WebContent}
 import viscel.selection.{Report, Selection}
 
 
 object Mangafox {
-	// reference so that optimize imports does not remove the import
-	(urlReader, urlWriter)
 
 	case class Mfox(override val id: String, override val name: String, url: Vurl) extends Narrator {
 

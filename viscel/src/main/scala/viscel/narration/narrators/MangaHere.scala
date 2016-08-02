@@ -5,13 +5,10 @@ import org.scalactic._
 import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Templates}
-import viscel.scribe.Json.{urlReader, urlWriter}
 import viscel.scribe.Vurl
 import viscel.selection.{Report, Selection}
 
 object MangaHere {
-	(urlReader, urlWriter)
-	// reference so that optimize imports does not remove the import
 
 	case class Nar(id: String, name: String, archiveUri: Vurl) extends Templates.AP(
 		archiveUri,

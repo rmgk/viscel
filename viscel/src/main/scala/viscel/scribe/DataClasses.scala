@@ -4,6 +4,8 @@ import java.time.Instant
 
 import derive.key
 import viscel.shared.Blob
+import upickle.default.ReadWriter
+import viscel.scribe.Json._
 
 sealed trait AppendLogEntry
 @key("Page") case class AppendLogPage(
@@ -22,6 +24,10 @@ sealed trait AppendLogEntry
 	blob: Blob,
 	date: Instant = Instant.now()
 ) extends AppendLogEntry
+
+
+object AppendLogEntry {
+}
 
 
 sealed trait Entry
