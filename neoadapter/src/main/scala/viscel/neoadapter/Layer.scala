@@ -2,7 +2,7 @@ package viscel.neoadapter
 
 import org.neo4j.graphdb.Node
 import org.scalactic.TypeCheckedTripleEquals._
-import Implicits.NodeOps
+import viscel.neoadapter.Implicits.NodeOps
 
 import scala.annotation.tailrec
 
