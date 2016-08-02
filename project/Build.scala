@@ -6,10 +6,7 @@ import sbt._
 
 object Build extends sbt.Build {
 
-	lazy val root = project.in(file("."))
-		  .aggregate(viscel, js, shared)
-
-	lazy val viscel = project.in(file("viscel"))
+	lazy val viscel = project.in(file("."))
 		.settings(name := "viscel")
 		.settings(Settings.main: _*)
 		.settings(Libraries.main: _*)
