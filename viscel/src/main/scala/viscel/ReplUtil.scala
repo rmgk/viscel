@@ -1,11 +1,8 @@
 package viscel
 
-import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths, StandardCopyOption}
 
-import viscel.narration.Queries
-import viscel.neoadapter.Codec
 import viscel.scribe.{Scribe, Vurl, WebContent, Article => SArticle, Chapter => SChapter}
 import viscel.server.ServerPages
 import viscel.shared.{Article, Blob, Chapter, Description, Gallery, Log}
