@@ -2,9 +2,10 @@ package viscel.neoadapter
 
 import java.net.URL
 
+import akka.http.scaladsl.model.Uri
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.Implicits.NodeOps
-import viscel.scribe.{Normal, Volatile}
+import viscel.scribe.{Normal, Volatile, Vuri}
 import viscel.shared.Blob
 
 import scala.Predef.ArrowAssoc
@@ -18,6 +19,7 @@ trait Codec[T] {
 }
 
 object Codec {
+
 
 	def load[S](node: Node)(implicit ntx: Ntx, codec: Codec[S]): S = codec.read(node)
 
@@ -38,15 +40,15 @@ object Codec {
 	implicit val assetCodec: Codec[Asset] = new Codec[Asset] {
 		override def write(value: Asset)(implicit ntx: Ntx): Node =
 			ntx.create(label.Asset, List(
-				value.blob.map(b => "blob" -> b.toExternalForm),
-				value.origin.map(o => "origin" -> o.toExternalForm),
+				value.blob.map(b => "blob" -> b.toString()),
+				value.origin.map(o => "origin" -> o.toString()),
 				Some("kind" -> value.kind),
 				if (value.data.isEmpty) None else Some("data" -> value.data.toArray)
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): Asset = Asset(
-			blob = node.get[String]("blob").map(new URL(_)),
-			origin = node.get[String]("origin").map(new URL(_)),
+			blob = node.get[String]("blob").map(Vuri.fromString),
+			origin = node.get[String]("origin").map(Vuri.fromString),
 			kind = node.prop[Byte]("kind"),
 			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)
@@ -55,7 +57,7 @@ object Codec {
 	implicit val moreCodec: Codec[More] = new Codec[More] {
 		override def write(value: More)(implicit ntx: Ntx): Node =
 			ntx.create(label.More, List(
-				Some("loc" -> value.loc.toExternalForm),
+				Some("loc" -> value.loc.toString()),
 				value.policy match {
 					case Normal => None
 					case Volatile => Some("policy" -> 0)
@@ -64,7 +66,7 @@ object Codec {
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): More = More(
-			loc = new URL(node.prop[String]("loc")),
+			loc = Vuri.fromString(node.prop[String]("loc")),
 			policy = GetPolicy.int(node.get[Byte]("policy")),
 			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)

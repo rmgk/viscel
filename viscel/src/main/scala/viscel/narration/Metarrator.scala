@@ -1,20 +1,18 @@
 package viscel.narration
 
-import java.net.URL
-
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import upickle.default.{ReadWriter, Reader, Writer}
-import viscel.selection.Report
 import viscel.Viscel
-import viscel.scribe.{Json, Narrator}
+import viscel.scribe.{Json, Narrator, Vuri}
+import viscel.selection.Report
 import viscel.shared.Log
 
 import scala.collection.Set
 
 abstract class Metarrator[T <: Narrator](id: String) {
 
-	def unapply(description: String): Option[URL]
+	def unapply(description: String): Option[Vuri]
 	def wrap(document: Document): List[T] Or Every[Report]
 
 	def reader: Reader[T]

@@ -1,7 +1,6 @@
 package viscel.narration.narrators
 
 
-import viscel.narration.Queries.stringToURL
 import viscel.narration.{Queries, Templates}
 
 import scala.collection.immutable.Set

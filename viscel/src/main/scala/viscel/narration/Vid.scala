@@ -5,13 +5,14 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
+import akka.http.scaladsl.model.Uri
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
 import viscel.narration.Queries._
 import viscel.selection.Report
 import viscel.selection.ReportTools.{append, augmentBad}
 import viscel.Viscel
-import viscel.scribe.{Link, Narrator, WebContent}
+import viscel.scribe.{Link, Narrator, Vuri, WebContent}
 import viscel.shared.Log
 
 import scala.annotation.tailrec
@@ -26,9 +27,9 @@ object Vid {
 	val extractIDAndName = """^-(\w*):(.+)$""".r
 	val extractAttribute = """^:(\w+)\s*(.*)$""".r
 
-	def parseURL(it: It): URL Or ErrorMessage = {
+	def parseURL(it: It): Vuri Or ErrorMessage = {
 		val Line(url, pos) = it.next()
-		attempt(stringToURL(url)).badMap(_ => s"malformed URL at line $pos: $url")
+		attempt(Vuri.fromString(url)).badMap(_ => s"malformed URL at line $pos: $url")
 	}
 
 	@tailrec
@@ -57,7 +58,7 @@ object Vid {
 		override def describe: String = s"${annotated.describe} at lines '${lines.map(_.p)}'"
 	}
 
-	def makeNarrator(id: String, name: String, pos: Int, startUrl: URL, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
+	def makeNarrator(id: String, name: String, pos: Int, startUrl: Vuri, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
 		type Wrap = Document => List[WebContent] Or Every[Report]
 		def has(keys: String*): Boolean = keys.forall(attrs.contains)

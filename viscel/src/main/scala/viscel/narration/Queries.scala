@@ -2,11 +2,12 @@ package viscel.narration
 
 import java.net.URL
 
+import akka.http.scaladsl.model.Uri
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
-import viscel.scribe.{Article, Chapter, Link, Policy, WebContent}
+import viscel.scribe.{Article, Chapter, Link, Policy, Vuri, WebContent}
 import viscel.selection.ReportTools.{extract, _}
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
 
@@ -17,9 +18,9 @@ import scala.util.matching.Regex
 object Queries {
 
 	/** tries to extract an absolute uri from an element, extraction depends on type of tag */
-	def extractURL(element: Element): URL Or One[Report] = element.tagName() match {
-		case "a" => extract {stringToURL(element.attr("abs:href"))}
-		case "option" => extract {stringToURL(element.attr("abs:value"))}
+	def extractURL(element: Element): Vuri Or One[Report] = element.tagName() match {
+		case "a" => extract {Vuri.fromString(element.attr("abs:href"))}
+		case "option" => extract {Vuri.fromString(element.attr("abs:value"))}
 		case tag => Bad(One(FailedElement(s"extract uri", UnhandledTag, element)))
 	}
 
@@ -32,16 +33,14 @@ object Queries {
 	def extractMore(element: Element): Link Or Every[Report] =
 		extractURL(element).map(uri => Link(uri))
 
-	implicit def stringToURL(s: String): URL = new URL(s)
-
 	def imgIntoAsset(img: Element): Article Or Every[Report] = {
 		def getAttr(k: String): Option[(String, String)] = {
 			val res = img.attr(k)
 			if (res.isEmpty) None else Some(k -> res)
 		}
 		extract(Article(
-			ref = img.attr("abs:src"),
-			origin = img.ownerDocument().location(),
+			ref = Vuri.fromString(img.attr("abs:src")),
+			origin = Vuri.fromString(img.ownerDocument().location()),
 			data = List("alt", "title", "width", "height").flatMap(getAttr).toMap))
 	}
 

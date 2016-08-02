@@ -8,7 +8,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import viscel.scribe.BlobStore
+import viscel.scribe.{BlobStore, Vuri}
 import viscel.shared.Log
 import viscel.shared.Blob
 
@@ -19,39 +19,27 @@ import scala.util.Try
 
 class CrawlerUtil(blobs: BlobStore)(implicit ec: ExecutionContext, materializer: Materializer) {
 
-	def urlToUri(in: URL): Uri = {
-		implicit class X(s: String) {def ? = Option(s).getOrElse("")}
-		Uri.from(
-			scheme = in.getProtocol.?,
-			userinfo = in.getUserInfo.?,
-			host = in.getHost.?,
-			port = if (in.getPort < 0) 0 else in.getPort,
-			path = in.getPath.?.replaceAll("\"", ""),
-			queryString = Option(in.getQuery).map(_.replaceAll("\"", "")),
-			fragment = Option(in.getRef)
-		)
-	}
-
+	
 	def getResponse(request: HttpRequest, iopipe: HttpRequest => Future[HttpResponse]): Future[HttpResponse] = {
 		val result: Future[HttpResponse] = iopipe(request).flatMap(_.toStrict(FiniteDuration(300, SECONDS)))
 		Log.info(s"get ${request.uri} (${request.header[Referer]})")
 		result//.andThen(PartialFunction(responseHandler))
 	}
 
-	def request[R](source: URL, origin: Option[URL] = None): HttpRequest = {
+	def request[R](source: Vuri, origin: Option[Uri] = None): HttpRequest = {
 		HttpRequest(
 			method = HttpMethods.GET,
-			uri = urlToUri(source),
+			uri = source.uri,
 			headers =
 				`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip) ::
-				origin.map(x => Referer.apply(urlToUri(x))).toList)
+				origin.map(x => Referer.apply(x)).toList)
 	}
 
 	def awaitEntity(res: HttpResponse): HttpEntity.Strict = Await.result(res.entity.toStrict(FiniteDuration(5, SECONDS)), FiniteDuration(5, SECONDS))
 
-	def parseDocument(absUri: URL)(res: HttpResponse): Document = Jsoup.parse(
+	def parseDocument(absUri: Vuri)(res: HttpResponse): Document = Jsoup.parse(
 		Await.result(Unmarshal(res).to[String], FiniteDuration(5, SECONDS)),
-		res.header[Location].fold(ifEmpty = urlToUri(absUri))(_.uri).toString())
+		res.header[Location].fold(ifEmpty = absUri.uri)(_.uri).toString())
 
 	def parseBlob[R](res: HttpResponse): Blob = {
 		val bytes = awaitEntity(res).data.toArray[Byte]

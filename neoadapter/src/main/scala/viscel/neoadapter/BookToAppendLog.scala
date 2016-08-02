@@ -1,10 +1,8 @@
 package viscel.neoadapter
 
-import java.net.URL
-
 import org.neo4j.graphdb.Node
-import Implicits.NodeOps
-import viscel.scribe.{AppendLogPage, AppendLogBlob, AppendLogEntry, Article => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore, WebContent}
+import viscel.neoadapter.Implicits.NodeOps
+import viscel.scribe.{AppendLogBlob, AppendLogEntry, AppendLogPage, Vuri, WebContent, Article => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore}
 import viscel.shared.Blob
 
 import scala.annotation.tailrec
@@ -16,6 +14,8 @@ object BookToAppendLog {
 	def mapToList[T](map: Map[T, T]): List[T] = map.flatMap { case (a, b) => List(a, b) }.toList
 
 
+
+
 	def bookToEntries(book: Book)(implicit ntx: Ntx): List[AppendLogEntry] = {
 		def loadEntries(node: Node): WebContent = {
 			Codec.load[NeoStory](node) match {
@@ -23,7 +23,7 @@ object BookToAppendLog {
 				case a@Asset(blob, origin, 0, data) => {
 					val blobUrl = blob.getOrElse {
 						val blob = Codec.load[Blob](node.to(rel.blob))
-						new URL(s"http://${blob.sha1}.sha1")
+						Vuri.fromString(s"http://${blob.sha1}.sha1")
 					}
 					val originUrl = origin.getOrElse(blobUrl)
 					AppendLogArticle(blobUrl, originUrl, listToMap(data))
@@ -40,7 +40,7 @@ object BookToAppendLog {
 					val asset = Codec.load[Asset](h)
 					val blob = Codec.load[Blob](h.to(rel.blob))
 					val blobUrl = asset.blob.getOrElse {
-						new URL(s"http://${blob.sha1}.sha1")
+						Vuri.fromString(s"http://${blob.sha1}.sha1")
 					}
 					val entry = AppendLogBlob(ref = blobUrl, loc = blobUrl, blob = blob)
 					go(t, entry :: acc)
@@ -50,7 +50,7 @@ object BookToAppendLog {
 				}
 				else {
 					val nodes = h.layer.nodes
-					val location = if (h.hasLabel(label.More)) Codec.load[More](h).loc else new URL("http://initial.entry")
+					val location = if (h.hasLabel(label.More)) Codec.load[More](h).loc else Vuri.fromString("http://initial.entry")
 					val stories: List[WebContent] = nodes.map {loadEntries}
 					val entry = AppendLogPage(contents = stories, ref = location, loc = location)
 					go(nodes ::: t, entry :: acc)

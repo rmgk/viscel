@@ -1,15 +1,14 @@
 package viscel.narration.narrators
 
-import java.net.URL
-
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Queries._
-import viscel.narration.Templates.{AP, SF}
 import viscel.narration.Templates
-import viscel.scribe.{Article, Chapter, Link, Narrator, Normal, Volatile, WebContent}
+import viscel.narration.Templates.{AP, SF}
+import viscel.scribe.Vuri.fromString
+import viscel.scribe.{Article, Chapter, Link, Narrator, Normal, Volatile, Vuri, WebContent}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 
@@ -108,7 +107,7 @@ object Individual {
 	}
 
 	object JayNaylor {
-		def common(id: String, name: String, archiveUri: URL) = Templates.AP(id, name, archiveUri,
+		def common(id: String, name: String, archiveUri: Vuri) = Templates.AP(id, name, archiveUri,
 			doc => Selection(doc).many("#chapters li > a").wrapFlat {elementIntoChapterPointer},
 			queryImages("#comicentry .content img"))
 

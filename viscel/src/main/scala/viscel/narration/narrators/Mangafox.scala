@@ -1,15 +1,15 @@
 package viscel.narration.narrators
 
-import java.net.URL
-
+import akka.http.scaladsl.model.Uri
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation.withGood
 import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Queries}
-import viscel.scribe.{Chapter, Link, Narrator, Volatile, WebContent}
 import viscel.scribe.Json.{urlReader, urlWriter}
+import viscel.scribe.Vuri.fromString
+import viscel.scribe.{Chapter, Link, Narrator, Volatile, Vuri, WebContent}
 import viscel.selection.{Report, Selection}
 
 
@@ -17,7 +17,7 @@ object Mangafox {
 	// reference so that optimize imports does not remove the import
 	(urlReader, urlWriter)
 
-	case class Mfox(override val id: String, override val name: String, url: URL) extends Narrator {
+	case class Mfox(override val id: String, override val name: String, url: Vuri) extends Narrator {
 
 		override def archive = Link(url, Volatile) :: Nil
 
@@ -44,8 +44,8 @@ object Mangafox {
 		override def reader: default.Reader[Mfox] = implicitly[default.Reader[Mfox]]
 		override def writer: default.Writer[Mfox] = implicitly[default.Writer[Mfox]]
 
-		override def unapply(description: String): Option[URL] = description match {
-			case rex"^(${url}http://mangafox.me/manga/[^/]+/)" => Some(new URL(url))
+		override def unapply(description: String): Option[Vuri] = description match {
+			case rex"^(${url}http://mangafox.me/manga/[^/]+/)" => Some(Vuri.fromString(url))
 			case _ => None
 		}
 		override def wrap(doc: Document): List[Mfox] Or Every[Report] = {

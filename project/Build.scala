@@ -160,7 +160,7 @@ object Libraries {
 
 	lazy val crawl: List[Def.Setting[_]] = List(libraryDependencies ++= akkaHTTP ++ jsoup ++ scalactic)
 
-	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++=  scalactic ++ upickle.value)
+	lazy val scribe: List[Def.Setting[_]] = List(libraryDependencies ++=  akkaHTTP ++ scalactic ++ upickle.value)
 
 	lazy val selection: List[Def.Setting[_]] = List(libraryDependencies ++= scalactic ++ jsoup)
 

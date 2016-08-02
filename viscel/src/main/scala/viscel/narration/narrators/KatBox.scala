@@ -1,6 +1,6 @@
 package viscel.narration.narrators
 
-import viscel.narration.Queries.{extractMore, queryImages, stringToURL}
+import viscel.narration.Queries.{extractMore, queryImages}
 import viscel.narration.Templates
 import viscel.scribe.Narrator
 import viscel.selection.Selection

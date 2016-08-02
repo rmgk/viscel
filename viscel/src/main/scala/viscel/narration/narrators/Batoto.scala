@@ -1,12 +1,11 @@
 package viscel.narration.narrators
 
-import java.net.URL
-
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Templates}
+import viscel.scribe.Vuri
 import viscel.selection.{Report, Selection}
 
 object Batoto {
@@ -23,8 +22,8 @@ object Batoto {
 		override def reader: default.Reader[Btt] = implicitly[default.Reader[Btt]]
 		override def writer: default.Writer[Btt] = implicitly[default.Writer[Btt]]
 
-		override def unapply(description: String): Option[URL] = description match {
-			case rex"^http://bato.to/comic/_/comics/" => Some(stringToURL(description))
+		override def unapply(description: String): Option[Vuri] = description match {
+			case rex"^http://bato.to/comic/_/comics/" => Some(Vuri.fromString(description))
 			case _ => None
 		}
 

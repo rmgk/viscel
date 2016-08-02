@@ -1,20 +1,18 @@
 package viscel.neoadapter
 
-import java.net.URL
-
-import viscel.scribe.{Normal, Volatile, Policy}
+import viscel.scribe.{Normal, Policy, Volatile, Vuri}
 import viscel.shared.Blob
 
 sealed trait NeoStory
 
 final case class More(
-	loc: URL,
+	loc: Vuri,
 	policy: Policy = Normal,
 	data: List[String] = List()) extends NeoStory
 
 final case class Asset(
-	blob: Option[URL] = None,
-	origin: Option[URL] = None,
+	blob: Option[Vuri] = None,
+	origin: Option[Vuri] = None,
 	kind: Byte,
 	data: List[String] = List()) extends NeoStory
 

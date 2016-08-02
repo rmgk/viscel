@@ -5,12 +5,12 @@ import viscel.narration.narrators._
 import viscel.scribe.Narrator
 
 import scala.Predef.{$conforms, ArrowAssoc}
-import scala.collection.immutable.Set
+import scala.collection.immutable.{Set, Map}
 
 
 object Narrators {
 
-	private val staticV2 =
+	private val staticV2: Set[Narrator] =
 		Individual.inlineCores ++
 			KatBox.cores ++
 			PetiteSymphony.cores ++
@@ -20,9 +20,9 @@ object Narrators {
 				KeyShanShan.Key, KeyShanShan.ShanShan, MenageA3, Misfile, NamirDeiter, Twokinds, YouSayItFirst,
 				UnlikeMinerva)
 
-	def calculateAll() = staticV2 ++ Metarrators.cores() ++ Vid.load()
+	def calculateAll(): Set[Narrator] = staticV2 ++ Metarrators.cores() ++ Vid.load()
 
-	def update() = {
+	def update(): Unit = {
 		cached = calculateAll()
 		narratorMap = all.map(n => n.id -> n).toMap
 	}
@@ -30,7 +30,7 @@ object Narrators {
 	@volatile private var cached: Set[Narrator] = calculateAll()
 	def all: Set[Narrator] = synchronized(cached)
 
-	@volatile private var narratorMap = all.map(n => n.id -> n).toMap
+	@volatile private var narratorMap: Map[String, Narrator] = all.map(n => n.id -> n).toMap
 	def get(id: String): Option[Narrator] = narratorMap.get(id)
 
 }

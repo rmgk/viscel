@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.{Files, Path}
 import java.time.Instant
 
+import akka.http.scaladsl.model.Uri
 import org.scalactic.{Bad, Good, Or}
 import upickle.default.{Reader, Writer}
 
@@ -14,6 +15,12 @@ object Json {
 		case upickle.Js.Str(str) => new URL(str)
 	}
 	implicit val urlWriter: Writer[URL] = Writer[URL] { url => upickle.Js.Str(url.toString) }
+
+
+	implicit val uriReader: Reader[Uri] = Reader[Uri] {
+		case upickle.Js.Str(str) => Uri.parseHttpRequestTarget(str)
+	}
+	implicit val uriWriter: Writer[Uri] = Writer[Uri] { url => upickle.Js.Str(url.toString) }
 
 	implicit val instantWriter: Writer[Instant] = Writer[Instant] { instant =>
 		upickle.Js.Str(instant.toString)

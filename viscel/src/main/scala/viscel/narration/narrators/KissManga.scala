@@ -1,13 +1,11 @@
 package viscel.narration.narrators
 
-import java.net.URL
-
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Templates}
-import viscel.scribe.Article
+import viscel.scribe.{Article, Vuri}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 
@@ -35,8 +33,8 @@ object KissManga {
 		override def reader: default.Reader[Kss] = implicitly[default.Reader[Kss]]
 		override def writer: default.Writer[Kss] = implicitly[default.Writer[Kss]]
 
-		override def unapply(description: String): Option[URL] = description match {
-			case rex"^http://kissmanga.com/Manga/.*" => Some(stringToURL(description))
+		override def unapply(description: String): Option[Vuri] = description match {
+			case rex"^http://kissmanga.com/Manga/.*" => Some(Vuri.fromString(description))
 			case _ => None
 		}
 

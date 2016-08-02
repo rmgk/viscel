@@ -1,6 +1,6 @@
 package viscel.narration.narrators
 
-import viscel.narration.Queries.{queryImageNext, stringToURL}
+import viscel.narration.Queries.queryImageNext
 import viscel.narration.Templates
 import viscel.scribe.Narrator
 

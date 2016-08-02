@@ -2,16 +2,17 @@ package viscel.narration
 
 import java.net.URL
 
+import akka.http.scaladsl.model.Uri
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
-import viscel.scribe.{Link, Narrator, Normal, Volatile, WebContent}
+import viscel.scribe.{Link, Narrator, Normal, Volatile, Vuri, WebContent}
 import viscel.selection.Report
 
 object Templates {
 	def AP(
 		pid: String,
 		pname: String,
-		start: URL,
+		start: Vuri,
 		wrapArchive: Document => List[WebContent] Or Every[Report],
 		wrapPage: Document => List[WebContent] Or Every[Report]
 		): Narrator = new AP(start, wrapArchive, wrapPage) {
@@ -20,7 +21,7 @@ object Templates {
 	}
 
 	abstract class AP(
-		start: URL,
+		start: Vuri,
 		wrapArchive: Document => List[WebContent] Or Every[Report],
 		wrapPage: Document => List[WebContent] Or Every[Report]
 		) extends Narrator {
@@ -34,7 +35,7 @@ object Templates {
 	def SF(
 		pid: String,
 		pname: String,
-		start: URL,
+		start: Vuri,
 		wrapPage: Document => List[WebContent] Or Every[Report]
 		): Narrator = new SF(start, wrapPage) {
 		override def id: String = pid
@@ -42,7 +43,7 @@ object Templates {
 	}
 
 	abstract class SF(
-		start: URL,
+		start: Vuri,
 		wrapPage: Document => List[WebContent] Or Every[Report]
 		) extends Narrator {
 		override def archive: List[WebContent] = Link(start) :: Nil
