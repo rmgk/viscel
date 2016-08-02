@@ -8,7 +8,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import viscel.scribe.{BlobStore, Vuri}
+import viscel.scribe.{BlobStore, Vurl}
 import viscel.shared.Log
 import viscel.shared.Blob
 
@@ -19,14 +19,14 @@ import scala.util.Try
 
 class CrawlerUtil(blobs: BlobStore)(implicit ec: ExecutionContext, materializer: Materializer) {
 
-	
+
 	def getResponse(request: HttpRequest, iopipe: HttpRequest => Future[HttpResponse]): Future[HttpResponse] = {
 		val result: Future[HttpResponse] = iopipe(request).flatMap(_.toStrict(FiniteDuration(300, SECONDS)))
 		Log.info(s"get ${request.uri} (${request.header[Referer]})")
 		result//.andThen(PartialFunction(responseHandler))
 	}
 
-	def request[R](source: Vuri, origin: Option[Uri] = None): HttpRequest = {
+	def request[R](source: Vurl, origin: Option[Uri] = None): HttpRequest = {
 		HttpRequest(
 			method = HttpMethods.GET,
 			uri = source.uri,
@@ -37,7 +37,7 @@ class CrawlerUtil(blobs: BlobStore)(implicit ec: ExecutionContext, materializer:
 
 	def awaitEntity(res: HttpResponse): HttpEntity.Strict = Await.result(res.entity.toStrict(FiniteDuration(5, SECONDS)), FiniteDuration(5, SECONDS))
 
-	def parseDocument(absUri: Vuri)(res: HttpResponse): Document = Jsoup.parse(
+	def parseDocument(absUri: Vurl)(res: HttpResponse): Document = Jsoup.parse(
 		Await.result(Unmarshal(res).to[String], FiniteDuration(5, SECONDS)),
 		res.header[Location].fold(ifEmpty = absUri.uri)(_.uri).toString())
 

@@ -6,7 +6,7 @@ import org.scalactic.{Every, Good, Or}
 import upickle.default
 import viscel.narration.Queries.RegexContext
 import viscel.narration.{Metarrator, Queries, Templates}
-import viscel.scribe.Vuri
+import viscel.scribe.Vurl
 import viscel.selection.Report
 
 object Comicfury {
@@ -19,8 +19,8 @@ object Comicfury {
 	object Meta extends Metarrator[Cfury]("Comicfury") {
 		override def reader: default.Reader[Cfury] = implicitly[default.Reader[Cfury]]
 		override def writer: default.Writer[Cfury] = implicitly[default.Writer[Cfury]]
-		override def unapply(description: String): Option[Vuri] = description match {
-			case rex"http://($cid[^\.]+)\.thecomicseries.com/" => Some(Vuri.fromString(description))
+		override def unapply(description: String): Option[Vurl] = description match {
+			case rex"http://($cid[^\.]+)\.thecomicseries.com/" => Some(Vurl.fromString(description))
 			case _ => None
 		}
 		override def wrap(document: Document): Or[List[Cfury], Every[Report]] = {

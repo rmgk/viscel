@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import upickle.default.{ReadWriter, Reader, Writer}
 import viscel.Viscel
-import viscel.scribe.{Json, Narrator, Vuri}
+import viscel.scribe.{Json, Narrator, Vurl}
 import viscel.selection.Report
 import viscel.shared.Log
 
@@ -12,7 +12,7 @@ import scala.collection.Set
 
 abstract class Metarrator[T <: Narrator](id: String) {
 
-	def unapply(description: String): Option[Vuri]
+	def unapply(description: String): Option[Vurl]
 	def wrap(document: Document): List[T] Or Every[Report]
 
 	def reader: Reader[T]

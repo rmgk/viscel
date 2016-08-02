@@ -8,17 +8,17 @@ import viscel.shared.Blob
 sealed trait AppendLogEntry
 @key("Page") case class AppendLogPage(
 	/** reference that spawned this entry */
-	ref: Vuri,
+	ref: Vurl,
 	/** location that was finally resolved and downloaded */
-	loc: Vuri,
+	loc: Vurl,
 	contents: List[WebContent],
 	date: Instant = Instant.now()
 ) extends AppendLogEntry
 @key("Blob") case class AppendLogBlob(
 	/** reference that spawned this entry */
-	ref: Vuri,
+	ref: Vurl,
 	/** location that was finally resolved and downloaded */
-	loc: Vuri,
+	loc: Vurl,
 	blob: Blob,
 	date: Instant = Instant.now()
 ) extends AppendLogEntry
@@ -29,8 +29,8 @@ case class ArticleBlob(article: Article, blob: AppendLogBlob) extends Entry
 
 sealed trait WebContent
 @key("Chapter") case class Chapter(name: String) extends WebContent with Entry
-@key("Article") case class Article(ref: Vuri, origin: Vuri, data: Map[String, String] = Map()) extends WebContent
-@key("Link") case class Link(ref: Vuri, policy: Policy = Normal, data: List[String] = Nil) extends WebContent
+@key("Article") case class Article(ref: Vurl, origin: Vurl, data: Map[String, String] = Map()) extends WebContent
+@key("Link") case class Link(ref: Vurl, policy: Policy = Normal, data: List[String] = Nil) extends WebContent
 
 
 sealed trait Policy

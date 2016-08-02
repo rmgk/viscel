@@ -8,16 +8,16 @@ import upickle.default.{Reader, Writer}
 
 import scala.language.implicitConversions
 
-class Vuri private(val uri: Uri) {
+class Vurl private(val uri: Uri) {
 	override def toString: String = uri.toString()
 }
 
-object Vuri {
+object Vurl {
 
-	implicit val uriReader: Reader[Vuri] = Reader[Vuri] {
+	implicit val uriReader: Reader[Vurl] = Reader[Vurl] {
 		case upickle.Js.Str(str) => fromString(str)
 	}
-	implicit val uriWriter: Writer[Vuri] = Writer[Vuri] { url => upickle.Js.Str(url.toString) }
+	implicit val uriWriter: Writer[Vurl] = Writer[Vurl] { url => upickle.Js.Str(url.toString) }
 
 	def urlToUri(in: URL): Uri = {
 		implicit class X(s: String) {def ? = Option(s).getOrElse("")}
@@ -32,5 +32,5 @@ object Vuri {
 		)
 	}
 
-	implicit def fromString(uri: String): Vuri = new Vuri(urlToUri(new URL(uri)))
+	implicit def fromString(uri: String): Vurl = new Vurl(urlToUri(new URL(uri)))
 }

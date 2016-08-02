@@ -8,8 +8,8 @@ import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Queries}
 import viscel.scribe.Json.{urlReader, urlWriter}
-import viscel.scribe.Vuri.fromString
-import viscel.scribe.{Chapter, Link, Narrator, Volatile, Vuri, WebContent}
+import viscel.scribe.Vurl.fromString
+import viscel.scribe.{Chapter, Link, Narrator, Volatile, Vurl, WebContent}
 import viscel.selection.{Report, Selection}
 
 
@@ -17,7 +17,7 @@ object Mangafox {
 	// reference so that optimize imports does not remove the import
 	(urlReader, urlWriter)
 
-	case class Mfox(override val id: String, override val name: String, url: Vuri) extends Narrator {
+	case class Mfox(override val id: String, override val name: String, url: Vurl) extends Narrator {
 
 		override def archive = Link(url, Volatile) :: Nil
 
@@ -44,8 +44,8 @@ object Mangafox {
 		override def reader: default.Reader[Mfox] = implicitly[default.Reader[Mfox]]
 		override def writer: default.Writer[Mfox] = implicitly[default.Writer[Mfox]]
 
-		override def unapply(description: String): Option[Vuri] = description match {
-			case rex"^(${url}http://mangafox.me/manga/[^/]+/)" => Some(Vuri.fromString(url))
+		override def unapply(description: String): Option[Vurl] = description match {
+			case rex"^(${url}http://mangafox.me/manga/[^/]+/)" => Some(Vurl.fromString(url))
 			case _ => None
 		}
 		override def wrap(doc: Document): List[Mfox] Or Every[Report] = {

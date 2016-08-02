@@ -7,7 +7,7 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
-import viscel.scribe.{Article, Chapter, Link, Policy, Vuri, WebContent}
+import viscel.scribe.{Article, Chapter, Link, Policy, Vurl, WebContent}
 import viscel.selection.ReportTools.{extract, _}
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
 
@@ -18,9 +18,9 @@ import scala.util.matching.Regex
 object Queries {
 
 	/** tries to extract an absolute uri from an element, extraction depends on type of tag */
-	def extractURL(element: Element): Vuri Or One[Report] = element.tagName() match {
-		case "a" => extract {Vuri.fromString(element.attr("abs:href"))}
-		case "option" => extract {Vuri.fromString(element.attr("abs:value"))}
+	def extractURL(element: Element): Vurl Or One[Report] = element.tagName() match {
+		case "a" => extract {Vurl.fromString(element.attr("abs:href"))}
+		case "option" => extract {Vurl.fromString(element.attr("abs:value"))}
 		case tag => Bad(One(FailedElement(s"extract uri", UnhandledTag, element)))
 	}
 
@@ -39,8 +39,8 @@ object Queries {
 			if (res.isEmpty) None else Some(k -> res)
 		}
 		extract(Article(
-			ref = Vuri.fromString(img.attr("abs:src")),
-			origin = Vuri.fromString(img.ownerDocument().location()),
+			ref = Vurl.fromString(img.attr("abs:src")),
+			origin = Vurl.fromString(img.ownerDocument().location()),
 			data = List("alt", "title", "width", "height").flatMap(getAttr).toMap))
 	}
 

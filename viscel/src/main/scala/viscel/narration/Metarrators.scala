@@ -2,7 +2,7 @@ package viscel.narration
 
 import viscel.crawl.Crawl
 import viscel.narration.narrators._
-import viscel.scribe.{Narrator, Vuri}
+import viscel.scribe.{Narrator, Vurl}
 
 import scala.collection.Set
 import scala.concurrent.Future
@@ -13,7 +13,7 @@ object Metarrators {
 	def cores(): Set[Narrator] = synchronized(metas.iterator.flatMap[Narrator](_.load()).toSet)
 
 	def add(start: String, crawl: Crawl): Future[List[Narrator]] = {
-		def go[T <: Narrator](metarrator: Metarrator[T], url: Vuri): Future[List[Narrator]] =
+		def go[T <: Narrator](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
 			crawl.iopipe(crawl.util.request(url)).map { res =>
 				val nars = metarrator.wrap(crawl.util.parseDocument(url)(res)).get
 				synchronized {

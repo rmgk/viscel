@@ -6,7 +6,7 @@ import java.nio.file.{Files, Paths, StandardCopyOption}
 
 import viscel.narration.Queries
 import viscel.neoadapter.Codec
-import viscel.scribe.{Scribe, Vuri, WebContent, Article => SArticle, Chapter => SChapter}
+import viscel.scribe.{Scribe, Vurl, WebContent, Article => SArticle, Chapter => SChapter}
 import viscel.server.ServerPages
 import viscel.shared.{Article, Blob, Chapter, Description, Gallery, Log}
 
@@ -103,7 +103,7 @@ class ReplUtil(scribe: Scribe) {
 					Log.info(s"processing $p")
 					val sha1 = scribe.blobs.write(Files.readAllBytes(p))
 					val blob = Blob(sha1, mime)
-					Some(Page(SArticle(Vuri.fromString(s"http://$sha1.sha1"), Vuri.fromString(s"http://$sha1.sha1")), Some(blob)))
+					Some(Page(SArticle(Vurl.fromString(s"http://$sha1.sha1"), Vurl.fromString(s"http://$sha1.sha1")), Some(blob)))
 				}
 			}
 			else None

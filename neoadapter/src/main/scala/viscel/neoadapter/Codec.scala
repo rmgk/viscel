@@ -5,7 +5,7 @@ import java.net.URL
 import akka.http.scaladsl.model.Uri
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.Implicits.NodeOps
-import viscel.scribe.{Normal, Volatile, Vuri}
+import viscel.scribe.{Normal, Volatile, Vurl}
 import viscel.shared.Blob
 
 import scala.Predef.ArrowAssoc
@@ -47,8 +47,8 @@ object Codec {
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): Asset = Asset(
-			blob = node.get[String]("blob").map(Vuri.fromString),
-			origin = node.get[String]("origin").map(Vuri.fromString),
+			blob = node.get[String]("blob").map(Vurl.fromString),
+			origin = node.get[String]("origin").map(Vurl.fromString),
 			kind = node.prop[Byte]("kind"),
 			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)
@@ -66,7 +66,7 @@ object Codec {
 			).flatten.toMap)
 
 		override def read(node: Node)(implicit ntx: Ntx): More = More(
-			loc = Vuri.fromString(node.prop[String]("loc")),
+			loc = Vurl.fromString(node.prop[String]("loc")),
 			policy = GetPolicy.int(node.get[Byte]("policy")),
 			data = node.get[Array[String]]("data").fold(List[String]())(a => a.toList)
 		)
