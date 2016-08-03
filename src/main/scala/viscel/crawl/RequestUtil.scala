@@ -1,5 +1,8 @@
 package viscel.crawl
 
+import java.time.Instant
+
+import akka.http.javadsl.model.headers.LastModified
 import akka.http.scaladsl.HttpExt
 import akka.http.scaladsl.coding.{Deflate, Gzip}
 import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Accept-Encoding`}
@@ -25,8 +28,12 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 		result //.andThen(PartialFunction(responseHandler))
 	}
 
-	def getResponseLocation(httpResponse: HttpResponse): Option[Vurl] = {
+	def extractResponseLocation(httpResponse: HttpResponse): Option[Vurl] = {
 		httpResponse.header[Location].map(l => new Vurl(l.uri))
+	}
+
+	def extractLastModified(httpResponse: HttpResponse): Option[Instant] = {
+		httpResponse.header[LastModified].map(h => Instant.ofEpochMilli(h.date().clicks()))
 	}
 
 	def request[R](source: Vurl, origin: Option[Vurl] = None): Future[HttpResponse] = {
@@ -39,11 +46,9 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 		getResponse(req).map(r => Deflate.decode(Gzip.decode(r)))
 	}
 
-	def requestDocument(source: Vurl, origin: Option[Vurl] = None): Future[Document] = {
-		request(source, origin).flatMap { (res: HttpResponse) =>
-			Unmarshal(res).to[String].map { html =>
-				Jsoup.parse(html, getResponseLocation(res).getOrElse(source.uri).toString())
-			}
+	def extractDocument(baseuri: Vurl)(httpResponse: HttpResponse): Future[Document] = {
+		Unmarshal(httpResponse).to[String].map { html =>
+			Jsoup.parse(html, extractResponseLocation(httpResponse).getOrElse(baseuri).toString())
 		}
 	}
 
@@ -53,10 +58,11 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 			res.entity.toStrict(timeout).map { entity =>
 				val bytes = entity.data.toArray[Byte]
 				val sha1 = blobs.write(bytes)
-				AppendLogBlob(source, getResponseLocation(res).getOrElse(source),
-					Blob(
+				AppendLogBlob(source, extractResponseLocation(res).getOrElse(source),
+					blob = Blob(
 						sha1 = sha1,
-						mime = res.entity.contentType.mediaType.toString()))
+						mime = res.entity.contentType.mediaType.toString()),
+					date = extractLastModified(res).getOrElse(Instant.now()))
 			}
 		}
 	}

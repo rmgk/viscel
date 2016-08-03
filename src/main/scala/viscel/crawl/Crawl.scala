@@ -1,5 +1,7 @@
 package viscel.crawl
 
+import java.time.Instant
+
 import org.scalactic.{Bad, Good}
 import viscel.narration.Narrator
 import viscel.scribe.{AppendLogPage, Book, Scribe, Vurl}
@@ -46,19 +48,26 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 			case Nil =>
 				Log.info(s"done $narrator")
 				promise.success(false)
-			case h :: t => requestUtil.requestDocument(h.ref).onComplete {
-				case Failure(e) => promise.failure(e)
-				case Success(doc) =>
-					narrator.wrap(doc, h) match {
-						case Bad(reports) => throw new IllegalArgumentException(s"could not parse ${h.ref}: ${reports.mkString(", ")}")
-						case Good(contents) =>
-							val page = AppendLogPage(h.ref, Vurl.fromString(doc.location()), contents)
-							links = t
-							book.add(page)
-							ec.execute(this)
+			case h :: t =>
+				requestUtil.request(h.ref).flatMap { res =>
+					requestUtil.extractDocument(h.ref)(res).map { doc =>
+						narrator.wrap(doc, h) match {
+							case Bad(reports) =>
+								throw new IllegalArgumentException(s"could not parse ${h.ref}: ${reports.mkString(", ")}")
+							case Good(contents) =>
+								AppendLogPage(h.ref, Vurl.fromString(doc.location()),
+									contents = contents,
+									date = requestUtil.extractLastModified(res).getOrElse(Instant.now()))
+						}
 					}
-
-			}
+				}.onComplete {
+					case Failure(e) =>
+						promise.failure(e)
+					case Success(page) =>
+						links = t
+						book.add(page)
+						ec.execute(this)
+				}
 		}
 	}
 

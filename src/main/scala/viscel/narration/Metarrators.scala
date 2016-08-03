@@ -13,15 +13,16 @@ object Metarrators {
 	def cores(): Set[Narrator] = synchronized(metas.iterator.flatMap[Narrator](_.load()).toSet)
 
 	def add(start: String, requestUtil: RequestUtil): Future[List[Narrator]] = {
+		import requestUtil.ec
 		def go[T <: Narrator](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
-			requestUtil.requestDocument(url).map { res =>
+			requestUtil.request(url).flatMap(requestUtil.extractDocument(url)).map { res =>
 				val nars = metarrator.wrap(res).get
 				synchronized {
 					metarrator.save(nars ++ metarrator.load())
 					Narrators.update()
 					nars
 				}
-			}(requestUtil.ec)
+			}
 
 		try {
 			metas.map(m => (m, m.unapply(start)))

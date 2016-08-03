@@ -16,13 +16,13 @@ class Book(path: Path) {
 	}
 
 	def emptyArticles(): List[Article] = entries.collect {
-		case AppendLogPage(ref, _, contents, _) => contents
+		case AppendLogPage(ref, _, _, contents) => contents
 	}.flatten.collect {
 		case art@Article(ref, _, _) if !blobMap.contains(ref) => art
 	}
 
 	def emptyLinks(): List[Link] = entries.collect {
-		case AppendLogPage(ref, _, contents, _) => contents
+		case AppendLogPage(ref, _, _, contents) => contents
 	}.flatten.collect {
 		case link@Link(ref, _, _) if !pageMap.contains(ref) => link
 	}

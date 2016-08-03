@@ -11,16 +11,16 @@ sealed trait AppendLogEntry
 	ref: Vurl,
 	/** location that was finally resolved and downloaded */
 	loc: Vurl,
-	contents: List[WebContent],
-	date: Instant = Instant.now()
+	date: Instant,
+	contents: List[WebContent]
 ) extends AppendLogEntry
 @key("Blob") case class AppendLogBlob(
 	/** reference that spawned this entry */
 	ref: Vurl,
 	/** location that was finally resolved and downloaded */
 	loc: Vurl,
-	blob: Blob,
-	date: Instant = Instant.now()
+	date: Instant,
+	blob: Blob
 ) extends AppendLogEntry
 
 

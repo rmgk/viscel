@@ -1,5 +1,7 @@
 package viscel.neoadapter
 
+import java.time.Instant
+
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.Implicits.NodeOps
 import viscel.scribe.{AppendLogBlob, AppendLogEntry, AppendLogPage, Vurl, WebContent, Article => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore}
@@ -42,7 +44,7 @@ object BookToAppendLog {
 					val blobUrl = asset.blob.getOrElse {
 						Vurl.blobPlaceholder(blob)
 					}
-					val entry = AppendLogBlob(ref = blobUrl, loc = blobUrl, blob = blob)
+					val entry = AppendLogBlob(ref = blobUrl, loc = blobUrl, blob = blob, date = Instant.now())
 					go(t, entry :: acc)
 				}
 				else if (h.layer.isEmpty) {
@@ -52,7 +54,7 @@ object BookToAppendLog {
 					val nodes = h.layer.nodes
 					val location = if (h.hasLabel(label.More)) Codec.load[More](h).loc else Vurl.entrypoint
 					val stories: List[WebContent] = nodes.map {loadEntries}
-					val entry = AppendLogPage(contents = stories, ref = location, loc = location)
+					val entry = AppendLogPage(contents = stories, ref = location, loc = location, date = Instant.now())
 					go(nodes ::: t, entry :: acc)
 				}
 		}
