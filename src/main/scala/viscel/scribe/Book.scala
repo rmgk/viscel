@@ -7,19 +7,24 @@ import viscel.scribe.Json._
 import viscel.shared.Log
 
 import scala.collection.JavaConverters._
-import scala.collection.immutable.HashSet
 import scala.collection.mutable
 
 class Book(path: Path) {
 
-	def add(blob: AppendLogBlob): Unit = {
-		Files.write(path, List(upickle.default.write(blob)).asJava, StandardOpenOption.APPEND)
+	def add(blob: AppendLogEntry): Unit = {
+		Files.write(path, List(upickle.default.write[AppendLogEntry](blob)).asJava, StandardOpenOption.APPEND)
 	}
 
 	def emptyArticles(): List[Article] = entries.collect {
 		case AppendLogPage(ref, _, contents, _) => contents
 	}.flatten.collect {
 		case art@Article(ref, _, _) if !blobMap.contains(ref) => art
+	}
+
+	def emptyLinks(): List[Link] = entries.collect {
+		case AppendLogPage(ref, _, contents, _) => contents
+	}.flatten.collect {
+		case link@Link(ref, _, _) if !pageMap.contains(ref) => link
 	}
 
 	lazy val size: Int = pages().count {

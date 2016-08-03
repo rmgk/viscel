@@ -1,7 +1,8 @@
 package viscel.crawl
 
+import org.scalactic.{Bad, Good}
 import viscel.narration.Narrator
-import viscel.scribe.{Book, Scribe}
+import viscel.scribe.{AppendLogPage, Book, Scribe, Vurl}
 import viscel.shared.Log
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -14,6 +15,7 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	val promise = Promise[Boolean]()
 
 	var articles = book.emptyArticles()
+	var links = book.emptyLinks()
 
 	def start(): Future[Boolean] = {
 		ec.execute(this)
@@ -22,16 +24,40 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 
 	override def run(): Unit = synchronized {
 		Log.info(s"running $narrator")
+		nextArticle()
+	}
+
+	def nextArticle(): Unit = {
 		articles match {
 			case Nil =>
-				Log.info(s"done $narrator")
-				promise.success(false)
+				nextLink()
 			case h :: t => requestUtil.requestBlob(h.ref, Some(h.origin)).onComplete {
 				case Failure(e) => promise.failure(e)
 				case Success(blob) =>
 					articles = t
 					book.add(blob)
 					ec.execute(this)
+			}
+		}
+	}
+
+	def nextLink(): Unit = {
+		links match {
+			case Nil =>
+				Log.info(s"done $narrator")
+				promise.success(false)
+			case h :: t => requestUtil.requestDocument(h.ref).onComplete {
+				case Failure(e) => promise.failure(e)
+				case Success(doc) =>
+					narrator.wrap(doc, h) match {
+						case Bad(reports) => throw new IllegalArgumentException(s"could not parse ${h.ref}: ${reports.mkString(", ")}")
+						case Good(contents) =>
+							val page = AppendLogPage(h.ref, Vurl.fromString(doc.location()), contents)
+							links = t
+							book.add(page)
+							ec.execute(this)
+					}
+
 			}
 		}
 	}

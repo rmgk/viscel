@@ -1,9 +1,10 @@
 package viscel.crawl
 
 import akka.http.scaladsl.HttpExt
+import akka.http.scaladsl.coding.{Deflate, Gzip}
 import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Accept-Encoding`}
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, Uri}
-import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -35,11 +36,11 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 			headers =
 				`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip) ::
 					origin.map(x => Referer.apply(x.uri)).toList)
-		getResponse(req)
+		getResponse(req).map(r => Deflate.decode(Gzip.decode(r)))
 	}
 
 	def requestDocument(source: Vurl, origin: Option[Vurl] = None): Future[Document] = {
-		request(source, origin).flatMap { res =>
+		request(source, origin).flatMap { (res: HttpResponse) =>
 			Unmarshal(res).to[String].map { html =>
 				Jsoup.parse(html, getResponseLocation(res).getOrElse(source.uri).toString())
 			}
