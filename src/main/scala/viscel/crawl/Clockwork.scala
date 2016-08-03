@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 
-class Clockwork(path: Path, crawl: Crawl, scribe: Scribe) {
+class Clockwork(path: Path, scribe: Scribe, requestUtil: RequestUtil) {
 
 	val dayInMillis = 24L * 60L * 60L * 1000L
 
@@ -40,7 +40,8 @@ class Clockwork(path: Path, crawl: Crawl, scribe: Scribe) {
 
 	def runNarrator(n: Narrator, recheckInterval: Long) = {
 		if (needsRecheck(n.id, recheckInterval)) {
-			crawl.runForNarrator(n).onComplete {
+			val crawl = new Crawl(n, scribe, requestUtil)
+			crawl.start().onComplete {
 				case Failure(t) =>
 					Log.error(s"recheck failed with $t")
 					t.printStackTrace()

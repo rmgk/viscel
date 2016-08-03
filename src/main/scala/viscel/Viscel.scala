@@ -67,8 +67,6 @@ object Viscel {
 
 		val requests = new RequestUtil(scribe.blobs, http)(executionContext, materializer)
 
-		val crawl = new viscel.crawl.Crawl(requests)
-
 		if (makelog.?) {
 			val dbconverter = viscel.neoadapter.NeoAdapter(basepath.resolve("scribe"))
 			dbconverter.convertToAppendLog()
@@ -100,7 +98,7 @@ object Viscel {
 		}
 
 		if (!nocore.?) {
-			val cw = new Clockwork(basepath.resolve("data").resolve("updateTimes.json"), crawl, scribe)
+			val cw = new Clockwork(basepath.resolve("data").resolve("updateTimes.json"), scribe, requests)
 
 			Deeds.narratorHint = (narrator, force) => {
 				cw.runNarrator(narrator, if (force) 0 else cw.dayInMillis * 1)

@@ -7,7 +7,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
-import viscel.crawl.{Crawl, RequestUtil}
+import viscel.crawl.RequestUtil
 import viscel.narration.{Metarrators, Narrators}
 import viscel.scribe.Scribe
 import viscel.shared.Log

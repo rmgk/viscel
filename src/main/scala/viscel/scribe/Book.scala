@@ -7,8 +7,9 @@ import viscel.shared.Log
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import viscel.scribe.Json._
 
-class Book(path: Path)(implicit r: upickle.default.Reader[AppendLogEntry]) {
+class Book(path: Path) {
 	def size(): Int = pages().count{
 		case ArticleBlob(_, _) => true
 		case _ => false

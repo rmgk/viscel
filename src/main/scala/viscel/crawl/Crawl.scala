@@ -1,21 +1,21 @@
 package viscel.crawl
 
-import java.nio.file.Path
-
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.{Http, HttpExt}
-import akka.stream.Materializer
 import viscel.narration.Narrator
-import viscel.scribe.BlobStore
+import viscel.scribe.{Book, Scribe}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, Promise}
 
-class Crawl(requestUtil: RequestUtil) {
+class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil) {
 
 
+	val book: Book = scribe.findOrCreate(narrator)
+	val promise = Promise[Boolean]()
 
-	def runForNarrator(narrator: Narrator): Future[Boolean] = ???
+
+	def start(): Future[Boolean] = {
+		promise.future
+	}
+
 
 	//	val books = new Books(neo)
 	//
