@@ -6,6 +6,7 @@ import java.nio.file.{Files, Path}
 import viscel.shared.Log
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 class Book(path: Path)(implicit r: upickle.default.Reader[AppendLogEntry]) {
 	def size(): Int = pages().count{
@@ -25,11 +26,11 @@ class Book(path: Path)(implicit r: upickle.default.Reader[AppendLogEntry]) {
 
 		val size = entries.size
 
-		val pages = new java.util.HashMap[String, AppendLogPage](size)
-		val blobs = new java.util.HashMap[String, AppendLogBlob](size)
+		val pages = mutable.HashMap[Vurl, AppendLogPage]()
+		val blobs = mutable.HashMap[Vurl, AppendLogBlob]()
 		entries.foreach {
-			case alb@AppendLogBlob(il, rl, _, _) => blobs.put(il.toString, alb)
-			case alp@AppendLogPage(il, rl, contents, _) => pages.put(il.toString, alp)
+			case alb@AppendLogBlob(il, rl, _, _) => blobs.put(il, alb)
+			case alp@AppendLogPage(il, rl, contents, _) => pages.put(il, alp)
 		}
 
 		@scala.annotation.tailrec
@@ -38,29 +39,29 @@ class Book(path: Path)(implicit r: upickle.default.Reader[AppendLogEntry]) {
 				case Nil => acc.reverse
 				case h :: t => h match {
 					case Link(loc, policy, data) =>
-						pages.get(loc.toString) match {
-							case null => flatten(t, acc)
-							case alp => {
-								pages.remove(loc.toString)
+						pages.get(loc) match {
+							case None => flatten(t, acc)
+							case Some(alp) =>
+								pages.remove(loc)
 								flatten(alp.contents ::: t, acc)
-							}
 						}
 					case art @ Article(blob, origin, data) =>
-						blobs.get(blob.toString) match {
-							case null => flatten(t, acc)
-							case alb => flatten(t, ArticleBlob(art, alb) :: acc)
+						blobs.get(blob) match {
+							case None => flatten(t, acc)
+							case Some(alb) => flatten(t, ArticleBlob(art, alb) :: acc)
 						}
 					case chap @ Chapter(_) => flatten(t,  chap :: acc)
 				}
 			}
 		}
 
-		val initialPage = pages.get("http://initial.entry")
-		if (initialPage == null) {
-			Log.warn(s"Book $id was emtpy")
-			Nil
+		pages.get(Vurl.fromString("http://initial.entry")) match {
+			case None =>
+				Log.warn(s"Book $id was emtpy")
+				Nil
+			case Some(initialPage) =>
+				flatten(initialPage.contents, Nil)
 		}
-		else flatten(initialPage.contents, Nil)
 
 	}
 

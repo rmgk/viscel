@@ -1,10 +1,9 @@
-package viscel
+package viscel.crawl
 
 import java.nio.file.Path
 import java.util.{Timer, TimerTask}
 
 import org.scalactic.{Bad, Good}
-import viscel.crawl.Crawl
 import viscel.narration.{Narrator, Narrators}
 import viscel.scribe.{Json, Scribe}
 import viscel.shared.Log

@@ -7,8 +7,13 @@ import upickle.default.{Reader, Writer}
 
 import scala.language.implicitConversions
 
-class Vurl private(val uri: Uri) {
+final class Vurl(val uri: Uri) {
 	override def toString: String = uri.toString()
+	override def hashCode(): Int = uri.hashCode()
+	override def equals(other: scala.Any): Boolean = other match {
+		case o: Vurl => uri.equals(o.uri)
+		case _ => false
+	}
 }
 
 object Vurl {
