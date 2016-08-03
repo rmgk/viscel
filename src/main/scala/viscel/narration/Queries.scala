@@ -1,8 +1,5 @@
 package viscel.narration
 
-import java.net.URL
-
-import akka.http.scaladsl.model.Uri
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._

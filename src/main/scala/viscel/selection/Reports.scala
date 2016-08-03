@@ -1,7 +1,7 @@
 package viscel.selection
 
 import org.jsoup.nodes.Element
-import org.scalactic.Accumulation.{convertGenTraversableOnceToCombinable => combinable, withGood}
+import org.scalactic.Accumulation.{withGood, convertGenTraversableOnceToCombinable => combinable}
 import org.scalactic.{Every, One, Or, attempt}
 import viscel.selection.ReportTools.show
 

@@ -1,18 +1,16 @@
 package viscel.narration
 
 import java.io.{BufferedReader, InputStreamReader}
-import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
-import akka.http.scaladsl.model.Uri
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
+import viscel.Viscel
 import viscel.narration.Queries._
+import viscel.scribe.{Link, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.selection.ReportTools.{append, augmentBad}
-import viscel.Viscel
-import viscel.scribe.{Link, Vurl, WebContent}
 import viscel.shared.Log
 
 import scala.annotation.tailrec

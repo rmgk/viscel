@@ -1,7 +1,6 @@
 package viscel.server
 
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
-import akka.http.scaladsl.server.directives.Credentials
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Bad, Good}
 import viscel.shared.Log

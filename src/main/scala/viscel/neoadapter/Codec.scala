@@ -1,15 +1,10 @@
 package viscel.neoadapter
 
-import java.net.URL
-
-import akka.http.scaladsl.model.Uri
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.Implicits.NodeOps
 import viscel.scribe.{Normal, Volatile, Vurl}
 import viscel.shared.Blob
 
-import scala.Predef.ArrowAssoc
-import scala.Predef.genericWrapArray
 import scala.language.implicitConversions
 
 

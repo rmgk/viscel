@@ -1,6 +1,5 @@
 package viscel.narration.narrators
 
-import akka.http.scaladsl.model.Uri
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation.withGood
 import org.scalactic.{Every, Or}

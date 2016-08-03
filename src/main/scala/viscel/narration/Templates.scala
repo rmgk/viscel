@@ -1,8 +1,5 @@
 package viscel.narration
 
-import java.net.URL
-
-import akka.http.scaladsl.model.Uri
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import viscel.scribe.{Link, Normal, Volatile, Vurl, WebContent}

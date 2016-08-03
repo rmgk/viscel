@@ -1,19 +1,12 @@
 package viscel.server
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-
 import akka.http.scaladsl.model._
 import upickle.default.Writer
-import viscel.Viscel
 import viscel.narration.Narrators
-import viscel.scribe.{Entry, Scribe}
-import viscel.scribe.{ArticleBlob, Link, WebContent, Article => SArticle, Chapter => SChapter}
-import viscel.scribe.Json._
-import viscel.shared.{Article, Blob, Chapter, Content, Description, Gallery, Log}
+import viscel.scribe.{ArticleBlob, Entry, Scribe, Article => SArticle, Chapter => SChapter}
+import viscel.shared.{Article, Chapter, Content, Description, Gallery}
 import viscel.store.User
 
-import scala.collection.JavaConverters._
 import scalatags.Text.attrs.{`type`, content, href, rel, src, title, name => attrname}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, head, html, link, meta, script}

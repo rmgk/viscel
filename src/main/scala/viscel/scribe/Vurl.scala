@@ -5,7 +5,6 @@ import java.net.URL
 import akka.http.scaladsl.model.Uri
 import upickle.default.{Reader, Writer}
 
-
 import scala.language.implicitConversions
 
 class Vurl private(val uri: Uri) {

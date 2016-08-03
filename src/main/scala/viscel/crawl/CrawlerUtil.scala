@@ -1,7 +1,5 @@
 package viscel.crawl
 
-import java.net.URL
-
 import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Accept-Encoding`}
 import akka.http.scaladsl.model.{HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -9,12 +7,10 @@ import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import viscel.scribe.{BlobStore, Vurl}
-import viscel.shared.Log
-import viscel.shared.Blob
+import viscel.shared.{Blob, Log}
 
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.Try
 
 
 class CrawlerUtil(blobs: BlobStore)(implicit ec: ExecutionContext, materializer: Materializer) {

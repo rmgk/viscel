@@ -10,13 +10,13 @@ import akka.http.scaladsl.server.{RouteResult, _}
 import akka.http.scaladsl.settings._
 import akka.stream.ActorMaterializer
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
+import viscel.scribe.Json._
 import viscel.scribe.Scribe
 import viscel.server.Server
+import viscel.shared.Log
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.language.implicitConversions
-import viscel.scribe.Json._
-import viscel.shared.Log
 
 object Viscel {
 
