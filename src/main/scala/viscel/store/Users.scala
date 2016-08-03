@@ -12,8 +12,6 @@ import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 object Users {
 
-
-
 	val usersDir: Path = Viscel.basepath.resolve(s"users")
 
 	def all(): List[User] Or Every[ErrorMessage] = try {

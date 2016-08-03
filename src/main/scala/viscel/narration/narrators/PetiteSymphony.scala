@@ -1,8 +1,7 @@
 package viscel.narration.narrators
 
 import viscel.narration.Queries.queryImageNext
-import viscel.narration.Templates
-import viscel.scribe.Narrator
+import viscel.narration.{Narrator, Templates}
 
 import scala.collection.immutable.Set
 

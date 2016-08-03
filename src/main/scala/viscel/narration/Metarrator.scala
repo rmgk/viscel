@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import upickle.default.{ReadWriter, Reader, Writer}
 import viscel.Viscel
-import viscel.scribe.{Json, Narrator, Vurl}
+import viscel.scribe.{Json, Vurl}
 import viscel.selection.Report
 import viscel.shared.Log
 

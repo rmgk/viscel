@@ -1,8 +1,9 @@
-package viscel.scribe
+package viscel.narration
 
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Or}
+import viscel.scribe.{Link, WebContent}
 import viscel.selection.Report
 
 trait Narrator {

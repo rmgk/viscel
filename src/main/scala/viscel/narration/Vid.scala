@@ -12,7 +12,7 @@ import viscel.narration.Queries._
 import viscel.selection.Report
 import viscel.selection.ReportTools.{append, augmentBad}
 import viscel.Viscel
-import viscel.scribe.{Link, Narrator, Vurl, WebContent}
+import viscel.scribe.{Link, Vurl, WebContent}
 import viscel.shared.Log
 
 import scala.annotation.tailrec

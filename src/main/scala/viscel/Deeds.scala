@@ -1,6 +1,6 @@
 package viscel
 
-import viscel.scribe.Narrator
+import viscel.narration.Narrator
 
 object Deeds {
 	var narratorHint: (Narrator, Boolean) => Unit = (n, b) => ()

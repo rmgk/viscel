@@ -6,9 +6,9 @@ import org.scalactic.Accumulation.withGood
 import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
-import viscel.narration.{Metarrator, Queries}
+import viscel.narration.{Metarrator, Narrator, Queries}
 import viscel.scribe.Vurl.fromString
-import viscel.scribe.{Chapter, Link, Narrator, Volatile, Vurl, WebContent}
+import viscel.scribe.{Chapter, Link, Volatile, Vurl, WebContent}
 import viscel.selection.{Report, Selection}
 
 

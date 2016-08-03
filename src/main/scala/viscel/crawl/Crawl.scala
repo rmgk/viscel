@@ -6,7 +6,8 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.http.scaladsl.model.HttpRequest
 import akka.stream.Materializer
-import viscel.scribe.{BlobStore, Narrator}
+import viscel.narration.Narrator
+import viscel.scribe.BlobStore
 
 import scala.concurrent.{ExecutionContext, Future}
 

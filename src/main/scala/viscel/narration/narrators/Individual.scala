@@ -5,10 +5,10 @@ import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Queries._
-import viscel.narration.Templates
+import viscel.narration.{Narrator, Templates}
 import viscel.narration.Templates.{AP, SF}
 import viscel.scribe.Vurl.fromString
-import viscel.scribe.{Article, Chapter, Link, Narrator, Normal, Volatile, Vurl, WebContent}
+import viscel.scribe.{Article, Chapter, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 

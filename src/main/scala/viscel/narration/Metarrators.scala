@@ -2,7 +2,7 @@ package viscel.narration
 
 import viscel.crawl.Crawl
 import viscel.narration.narrators._
-import viscel.scribe.{Narrator, Vurl}
+import viscel.scribe.Vurl
 
 import scala.collection.Set
 import scala.concurrent.Future
