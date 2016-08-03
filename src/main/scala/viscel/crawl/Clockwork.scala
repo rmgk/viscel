@@ -10,11 +10,12 @@ import viscel.shared.Log
 import viscel.store.Users
 
 import scala.collection.immutable.Map
+import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 
-class Clockwork(path: Path, scribe: Scribe, requestUtil: RequestUtil) {
+class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: RequestUtil) {
 
 	val dayInMillis = 24L * 60L * 60L * 1000L
 
@@ -40,7 +41,7 @@ class Clockwork(path: Path, scribe: Scribe, requestUtil: RequestUtil) {
 
 	def runNarrator(n: Narrator, recheckInterval: Long) = {
 		if (needsRecheck(n.id, recheckInterval)) {
-			val crawl = new Crawl(n, scribe, requestUtil)
+			val crawl = new Crawl(n, scribe, requestUtil)(ec)
 			crawl.start().onComplete {
 				case Failure(t) =>
 					Log.error(s"recheck failed with $t")
@@ -65,10 +66,11 @@ class Clockwork(path: Path, scribe: Scribe, requestUtil: RequestUtil) {
 	}
 
 	def needsRecheck(id: String, recheckInterval: Long): Boolean = synchronized {
-		Log.trace(s"calculating recheck for $id")
 		val lastRun = updateTimes.get(id)
 		val time = System.currentTimeMillis()
-		lastRun.isEmpty || (time - lastRun.get > recheckInterval)
+		val res = lastRun.isEmpty || (time - lastRun.get > recheckInterval)
+		Log.trace(s"calculating recheck for $id: $res")
+		res
 	}
 
 }

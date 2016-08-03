@@ -2,18 +2,38 @@ package viscel.crawl
 
 import viscel.narration.Narrator
 import viscel.scribe.{Book, Scribe}
+import viscel.shared.Log
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.util.{Failure, Success}
 
-class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil) {
+class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implicit ec: ExecutionContext) extends Runnable {
 
 
 	val book: Book = scribe.findOrCreate(narrator)
 	val promise = Promise[Boolean]()
 
+	var articles = book.emptyArticles()
 
 	def start(): Future[Boolean] = {
+		ec.execute(this)
 		promise.future
+	}
+
+	override def run(): Unit = synchronized {
+		Log.info(s"running $narrator")
+		articles match {
+			case Nil =>
+				Log.info(s"done $narrator")
+				promise.success(false)
+			case h :: t => requestUtil.requestBlob(h.ref, Some(h.origin)).onComplete {
+				case Failure(e) => promise.failure(e)
+				case Success(blob) =>
+					articles = t
+					book.add(blob)
+					ec.execute(this)
+			}
+		}
 	}
 
 
@@ -61,8 +81,4 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil) {
 	//			ensureRunner(id, runner)
 	//		}
 	//	}
-
-
-
-
 }

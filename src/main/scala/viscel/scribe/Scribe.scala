@@ -3,8 +3,10 @@ package viscel.scribe
 import java.nio.file.{Files, Path}
 
 import viscel.narration.Narrator
+import viscel.shared.Log
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.language.implicitConversions
 
 object Scribe {
@@ -24,6 +26,8 @@ object Scribe {
 
 class Scribe(val basepath: Path, val blobs: BlobStore) {
 
+	var bookCache = mutable.HashMap[String, Book]()
+
 	def findOrCreate(narrator: Narrator): Book = find(narrator.id).getOrElse{create(narrator)}
 
 	def create(narrator: Narrator): Book = {
@@ -33,12 +37,20 @@ class Scribe(val basepath: Path, val blobs: BlobStore) {
 		new Book(path)
 	}
 
-	def find(id: String): Option[Book] = {
-		val path = basepath.resolve(id)
-		if (Files.isRegularFile(path)) Some(new Book(path))
-		else None
+	def find(id: String): Option[Book] = synchronized {
+		bookCache.get(id).orElse {
+			val path = basepath.resolve(id)
+			if (Files.isRegularFile(path)) {
+				val book = new Book(path)
+				bookCache.put(id, book)
+				Some(book)
+			}
+			else None
+		}
 	}
 
-	def all(): List[Book] = Files.list(basepath).iterator().asScala.filter(Files.isRegularFile(_)).map(new Book(_)).toList
+	def all(): List[Book] = Files.list(basepath).iterator().asScala.filter(Files.isRegularFile(_)).map{path =>
+		find(path.getFileName.toString).getOrElse(new Book(path))
+	}.toList
 
 }

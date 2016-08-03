@@ -98,7 +98,7 @@ object Viscel {
 		}
 
 		if (!nocore.?) {
-			val cw = new Clockwork(basepath.resolve("data").resolve("updateTimes.json"), scribe, requests)
+			val cw = new Clockwork(basepath.resolve("data").resolve("updateTimes.json"), scribe, executionContext, requests)
 
 			Deeds.narratorHint = (narrator, force) => {
 				cw.runNarrator(narrator, if (force) 0 else cw.dayInMillis * 1)
