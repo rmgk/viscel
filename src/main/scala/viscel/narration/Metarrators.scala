@@ -1,6 +1,6 @@
 package viscel.narration
 
-import viscel.crawl.Crawl
+import viscel.crawl.{Crawl, RequestUtil}
 import viscel.narration.narrators._
 import viscel.scribe.Vurl
 
@@ -12,16 +12,16 @@ object Metarrators {
 
 	def cores(): Set[Narrator] = synchronized(metas.iterator.flatMap[Narrator](_.load()).toSet)
 
-	def add(start: String, crawl: Crawl): Future[List[Narrator]] = {
+	def add(start: String, requestUtil: RequestUtil): Future[List[Narrator]] = {
 		def go[T <: Narrator](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
-			crawl.iopipe(crawl.util.request(url)).map { res =>
-				val nars = metarrator.wrap(crawl.util.parseDocument(url)(res)).get
+			requestUtil.requestDocument(url).map { res =>
+				val nars = metarrator.wrap(res).get
 				synchronized {
 					metarrator.save(nars ++ metarrator.load())
 					Narrators.update()
 					nars
 				}
-			}(crawl.executionContext)
+			}(requestUtil.ec)
 
 		try {
 			metas.map(m => (m, m.unapply(start)))

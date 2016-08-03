@@ -11,10 +11,8 @@ import viscel.scribe.BlobStore
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class Crawl(basedir: Path, val blobs: BlobStore, system: ActorSystem, materializer: Materializer, val executionContext: ExecutionContext) {
-	val ioHttp: HttpExt = Http(system)
-	val iopipe = (request: HttpRequest) => ioHttp.singleRequest(request)(materializer)
-	val util = new CrawlerUtil(blobs)(executionContext, materializer)
+class Crawl(requestUtil: RequestUtil) {
+
 
 
 	def runForNarrator(narrator: Narrator): Future[Boolean] = ???
@@ -63,5 +61,8 @@ class Crawl(basedir: Path, val blobs: BlobStore, system: ActorSystem, materializ
 	//			ensureRunner(id, runner)
 	//		}
 	//	}
+
+
+
 
 }

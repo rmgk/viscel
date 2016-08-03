@@ -10,7 +10,7 @@ import akka.http.scaladsl.server.{RouteResult, _}
 import akka.http.scaladsl.settings._
 import akka.stream.ActorMaterializer
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
-import viscel.crawl.Clockwork
+import viscel.crawl.{Clockwork, RequestUtil}
 import viscel.scribe.Json._
 import viscel.scribe.Scribe
 import viscel.server.Server
@@ -58,13 +58,16 @@ object Viscel {
 
 		val system = ActorSystem()
 		val materializer = ActorMaterializer()(system)
+		val http: HttpExt = Http(system)
 
 		val executionContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 			0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
 
 		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"))
 
-		val crawl = new viscel.crawl.Crawl(basedir = basepath, scribe.blobs, system, materializer, executionContext)
+		val requests = new RequestUtil(scribe.blobs, http)(executionContext, materializer)
+
+		val crawl = new viscel.crawl.Crawl(requests)
 
 		if (makelog.?) {
 			val dbconverter = viscel.neoadapter.NeoAdapter(basepath.resolve("scribe"))
@@ -84,8 +87,8 @@ object Viscel {
 					}(system.dispatcher)
 			}
 
-			val server = new Server(scribe, crawl, terminate)(system)
-			val boundSocket: Future[ServerBinding] = Http()(system).bindAndHandle(
+			val server = new Server(scribe, requests, terminate)(system)
+			val boundSocket: Future[ServerBinding] = http.bindAndHandle(
 				RouteResult.route2HandlerFlow(server.route)(
 					RoutingSettings.default(system),
 					ParserSettings.default(system),
