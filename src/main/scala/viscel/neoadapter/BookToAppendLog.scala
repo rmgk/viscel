@@ -23,7 +23,7 @@ object BookToAppendLog {
 				case a@Asset(blob, origin, 0, data) => {
 					val blobUrl = blob.getOrElse {
 						val blob = Codec.load[Blob](node.to(rel.blob))
-						Vurl.fromString(s"http://${blob.sha1}.sha1")
+						Vurl.blobPlaceholder(blob)
 					}
 					val originUrl = origin.getOrElse(blobUrl)
 					AppendLogArticle(blobUrl, originUrl, listToMap(data))
@@ -40,7 +40,7 @@ object BookToAppendLog {
 					val asset = Codec.load[Asset](h)
 					val blob = Codec.load[Blob](h.to(rel.blob))
 					val blobUrl = asset.blob.getOrElse {
-						Vurl.fromString(s"http://${blob.sha1}.sha1")
+						Vurl.blobPlaceholder(blob)
 					}
 					val entry = AppendLogBlob(ref = blobUrl, loc = blobUrl, blob = blob)
 					go(t, entry :: acc)
@@ -50,7 +50,7 @@ object BookToAppendLog {
 				}
 				else {
 					val nodes = h.layer.nodes
-					val location = if (h.hasLabel(label.More)) Codec.load[More](h).loc else Vurl.fromString("http://initial.entry")
+					val location = if (h.hasLabel(label.More)) Codec.load[More](h).loc else Vurl.entrypoint
 					val stories: List[WebContent] = nodes.map {loadEntries}
 					val entry = AppendLogPage(contents = stories, ref = location, loc = location)
 					go(nodes ::: t, entry :: acc)

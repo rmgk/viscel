@@ -55,7 +55,7 @@ class Book(path: Path)(implicit r: upickle.default.Reader[AppendLogEntry]) {
 			}
 		}
 
-		pages.get(Vurl.fromString("http://initial.entry")) match {
+		pages.get(Vurl.entrypoint) match {
 			case None =>
 				Log.warn(s"Book $id was emtpy")
 				Nil

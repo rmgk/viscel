@@ -3,7 +3,9 @@ package viscel.scribe
 import java.net.URL
 
 import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.Uri.Path
 import upickle.default.{Reader, Writer}
+import viscel.shared.Blob
 
 import scala.language.implicitConversions
 
@@ -35,6 +37,16 @@ object Vurl {
 			fragment = Option(in.getRef)
 		)
 	}
+	/* we use the parser from java.net.URL as that handles unicode characters in the path better,
+	 * except if the thing is a viscel: uri, which is not a legal URL, so can not be parsed by that */
+	implicit def fromString(uri: String): Vurl = {
+		if (uri.startsWith("viscel:"))
+			new Vurl(Uri.parseAbsolute(uri))
+		else {
+			new Vurl(urlToUri(new URL(uri)))
+		}
+	}
 
-	implicit def fromString(uri: String): Vurl = new Vurl(urlToUri(new URL(uri)))
+	val entrypoint: Vurl = new Vurl(Uri(scheme = "viscel", path = Path("/initial")))
+	def blobPlaceholder(blob: Blob) = new Vurl(Uri(scheme = "viscel", path = Path(s"/sha1/${blob.sha1}")))
 }
