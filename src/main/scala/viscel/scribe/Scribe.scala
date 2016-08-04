@@ -39,7 +39,7 @@ class Scribe(basedir: Path, configdir: Path) {
 			val id = path.getFileName.toString
 			descriptionCache.getOrElse(id, {
 				val book = find(id).get
-				val desc = Description(id, book.name, book.size)
+				val desc = Description(id, book.name, book.size, archived = true)
 				descriptionCache = descriptionCache.updated(id, desc)
 				Json.store[Map[String, Description]](descriptionpath, descriptionCache)
 				desc

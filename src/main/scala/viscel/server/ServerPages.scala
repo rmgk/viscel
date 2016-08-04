@@ -3,8 +3,8 @@ package viscel.server
 import akka.http.scaladsl.model._
 import upickle.default.Writer
 import viscel.narration.Narrators
-import viscel.scribe.{ReadableContent, Scribe, ArticleRef, Article, Chapter}
-import viscel.shared.{ImageRef, ChapterPos, Contents, Description, Gallery}
+import viscel.scribe.{Article, ArticleRef, Chapter, ReadableContent, Scribe}
+import viscel.shared.{ChapterPos, Contents, Description, Gallery, ImageRef, Log}
 import viscel.store.User
 
 import scalatags.Text.attrs.{`type`, content, href, rel, src, title, name => attrname}
@@ -45,9 +45,17 @@ class ServerPages(scribe: Scribe) {
 	def narrations(): HttpResponse =
 		jsonResponse {
 			val books = scribe.allDescriptions()
-			val known = books.map(_.id).toSet
-			val nars = Narrators.all.filterNot(n => known.contains(n.id)).map(n => Description(n.id, n.name, 0))
-			nars.toList reverse_::: books
+			var known = books.map(d => d.id -> d).toMap
+			val nars = Narrators.all.map { n =>
+				known.get(n.id) match {
+					case None => Description(n.id, n.name, 0, archived = false)
+					case Some(desc) =>
+						known = known - n.id
+						desc.copy(archived = false)
+				}
+			}
+
+			nars ++ known.values
 		}
 
 

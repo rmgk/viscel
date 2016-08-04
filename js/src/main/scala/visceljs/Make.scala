@@ -55,11 +55,11 @@ object Make {
 			var cUnread = 0
 			var cTotal = 0
 			var cPos = 0
-			es.foreach { case (nr, pos, unread) =>
-				val e = link_front(nr, s"${nr.name}${if (unread == 0) "" else s" ($unread)"}")
+			es.foreach { case (desc, pos, unread) =>
+				val e = link_front(desc, s"${if (desc.archived) "\uD83D\uDCD5 " else ""}${desc.name}${if (unread == 0) "" else s" ($unread)"}")
 				elements.appendChild(li(e).render)
 				if (unread > 0) cUnread += unread
-				cTotal += nr.size
+				cTotal += desc.size
 				cPos += pos
 			}
 			rLegend.textContent = s"$name $cUnread ($cPos/$cTotal)"
