@@ -5,7 +5,11 @@ import java.time.Instant
 import derive.key
 import viscel.shared.Blob
 
-sealed trait ScribeDataRow
+sealed trait ScribeDataRow {
+	/** reference that spawned this entry */
+	def ref: Vurl
+	def matches(o: ScribeDataRow): Boolean = ref.equals(o.ref)
+}
 @key("Page") case class ScribePage(
 	/** reference that spawned this entry */
 	ref: Vurl,

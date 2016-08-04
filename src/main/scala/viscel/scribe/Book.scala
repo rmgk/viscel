@@ -2,6 +2,7 @@ package viscel.scribe
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
+import java.util.stream.Collectors
 
 import viscel.scribe.Json._
 import viscel.shared.Log
@@ -18,6 +19,8 @@ class Book(path: Path) {
 			case alp@ScribePage(il, _, _, _) => pageMap.put(il, alp)
 			case alb@ScribeBlob(il, _, _, _) => blobMap.put(il, alb)
 		}
+		val index = entries.indexWhere(_.matches(entry))
+		if (index >= 0) entries.remove(index)
 		entries += entry
 	}
 
@@ -42,27 +45,26 @@ class Book(path: Path) {
 
 	lazy val id: String = path.getFileName.toString
 
-	lazy val entries: ArrayBuffer[ScribeDataRow] = {
-		Files.lines(path, StandardCharsets.UTF_8).skip(1).iterator.asScala.map { line =>
+
+	val pageMap: mutable.HashMap[Vurl, ScribePage] = mutable.HashMap[Vurl, ScribePage]()
+	val blobMap: mutable.HashMap[Vurl, ScribeBlob] = mutable.HashMap[Vurl, ScribeBlob]()
+
+	private val entries: ArrayBuffer[ScribeDataRow] = {
+
+		def putIfAbsent[A, B](hashMap: mutable.HashMap[A, B], k: A, v: B): Boolean = {
+			var res = false
+			hashMap.getOrElseUpdate(k, {res = true; v})
+			res
+		}
+
+		Files.lines(path, StandardCharsets.UTF_8).skip(1).collect(Collectors.toList()).asScala.reverseIterator.map { line =>
 			upickle.default.read[ScribeDataRow](line)
-		}.to[ArrayBuffer]
+		}.filter {
+			case spage@ScribePage(il, _, _, _) => putIfAbsent(pageMap, il, spage)
+			case sblob@ScribeBlob(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
+		}.to[ArrayBuffer].reverse
 	}
 
-	lazy val pageMap: mutable.HashMap[Vurl, ScribePage] = {
-		val map = mutable.HashMap[Vurl, ScribePage]()
-		entries.collect {
-			case alp@ScribePage(il, _, _, _) => map.put(il, alp)
-		}
-		map
-	}
-
-	lazy val blobMap: mutable.HashMap[Vurl, ScribeBlob] = {
-		val map = mutable.HashMap[Vurl, ScribeBlob]()
-		entries.collect {
-			case alb@ScribeBlob(il, _, _, _) => map.put(il, alb)
-		}
-		map
-	}
 
 	def pages(): List[ReadableContent] = {
 

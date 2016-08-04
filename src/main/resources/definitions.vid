@@ -190,9 +190,9 @@ http://www.collectedcurios.com/sequentialart.php?s=1
 :n #nav > a:has(img[title=Forward One])
 
 -:Sexy Losers
-http://sexylosers.com/001.html
-:i img[src~=comics/]
-:n tr:not(:has(tr)):matches(All SL Strips) a:contains(>>)
+http://www.sexylosers.com/archives-by-volume/
+:am div.entry-content > h3 , div.entry-content ul li a
+:i main.content article.post div.entry-content > p img.size-full
 
 -:Shadowbinders
 http://shadowbinders.com/comic/shadowbinders-chapter-1/

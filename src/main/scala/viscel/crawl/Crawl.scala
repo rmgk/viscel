@@ -16,10 +16,17 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	val book: Book = scribe.findOrCreate(narrator)
 	val promise = Promise[Boolean]()
 
-	var articles = book.emptyArticles()
-	var links = book.emptyLinks()
+	var articles: List[ArticleRef] = _
+	var links: List[Link] = _
 
 	def start(): Future[Boolean] = {
+		val entry = book.pageMap.get(Vurl.entrypoint)
+		if (entry.isEmpty || entry.get.contents != narrator.archive) {
+			Log.info(s"was not equals: ${entry.get.contents} <=> ${narrator.archive}")
+			book.add(ScribePage(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
+		}
+		articles = book.emptyArticles()
+		links = book.emptyLinks()
 		ec.execute(this)
 		promise.future
 	}
