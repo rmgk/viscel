@@ -9,7 +9,7 @@ import upickle.default.{ReadWriter, Reader, Writer}
 
 object Json {
 
-	implicit val appendlogReader: ReadWriter[AppendLogEntry] = upickle.default.macroRW[AppendLogEntry]
+	implicit val appendlogReader: ReadWriter[ScribeEntry] = upickle.default.macroRW[ScribeEntry]
 
 	implicit val instantWriter: Writer[Instant] = Writer[Instant] { instant =>
 		upickle.Js.Str(instant.toString)

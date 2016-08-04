@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.Implicits.NodeOps
-import viscel.scribe.{AppendLogBlob, AppendLogEntry, AppendLogPage, Vurl, WebContent, Article => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore}
+import viscel.scribe.{ScribeBlob, ScribeEntry, ScribePage, Vurl, WebContent, Article => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore}
 import viscel.shared.Blob
 
 import scala.annotation.tailrec
@@ -18,7 +18,7 @@ object BookToAppendLog {
 
 
 
-	def bookToEntries(book: Book)(implicit ntx: Ntx): List[AppendLogEntry] = {
+	def bookToEntries(book: Book)(implicit ntx: Ntx): List[ScribeEntry] = {
 		def loadEntries(node: Node): WebContent = {
 			Codec.load[NeoStory](node) match {
 				case More(loc, policy, data) => AppendLogMore(loc, policy, data)
@@ -35,7 +35,7 @@ object BookToAppendLog {
 			}
 		}
 		@tailrec
-		def go(remaining: List[Node], acc: List[AppendLogEntry]): List[AppendLogEntry] = remaining match {
+		def go(remaining: List[Node], acc: List[ScribeEntry]): List[ScribeEntry] = remaining match {
 			case Nil => acc
 			case h :: t =>
 				if (h.hasRelationship(rel.blob)) {
@@ -44,7 +44,7 @@ object BookToAppendLog {
 					val blobUrl = asset.blob.getOrElse {
 						Vurl.blobPlaceholder(blob)
 					}
-					val entry = AppendLogBlob(ref = blobUrl, loc = blobUrl, blob = blob, date = Instant.now())
+					val entry = ScribeBlob(ref = blobUrl, loc = blobUrl, blob = blob, date = Instant.now())
 					go(t, entry :: acc)
 				}
 				else if (h.layer.isEmpty) {
@@ -54,7 +54,7 @@ object BookToAppendLog {
 					val nodes = h.layer.nodes
 					val location = if (h.hasLabel(label.More)) Codec.load[More](h).loc else Vurl.entrypoint
 					val stories: List[WebContent] = nodes.map {loadEntries}
-					val entry = AppendLogPage(contents = stories, ref = location, loc = location, date = Instant.now())
+					val entry = ScribePage(contents = stories, ref = location, loc = location, date = Instant.now())
 					go(nodes ::: t, entry :: acc)
 				}
 		}

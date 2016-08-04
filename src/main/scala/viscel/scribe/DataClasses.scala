@@ -5,31 +5,27 @@ import java.time.Instant
 import derive.key
 import viscel.shared.Blob
 
-sealed trait AppendLogEntry
-@key("Page") case class AppendLogPage(
+sealed trait ScribeEntry
+@key("Page") case class ScribePage(
 	/** reference that spawned this entry */
 	ref: Vurl,
 	/** location that was finally resolved and downloaded */
 	loc: Vurl,
 	date: Instant,
 	contents: List[WebContent]
-) extends AppendLogEntry
-@key("Blob") case class AppendLogBlob(
+) extends ScribeEntry
+@key("Blob") case class ScribeBlob(
 	/** reference that spawned this entry */
 	ref: Vurl,
 	/** location that was finally resolved and downloaded */
 	loc: Vurl,
 	date: Instant,
 	blob: Blob
-) extends AppendLogEntry
-
-
-object AppendLogEntry {
-}
+) extends ScribeEntry
 
 
 sealed trait Entry
-case class ArticleBlob(article: Article, blob: AppendLogBlob) extends Entry
+case class ArticleBlob(article: Article, blob: ScribeBlob) extends Entry
 
 sealed trait WebContent
 @key("Chapter") case class Chapter(name: String) extends WebContent with Entry

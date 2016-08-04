@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.scalactic.{Bad, Good}
 import viscel.narration.Narrator
-import viscel.scribe.{AppendLogPage, Article, Book, Chapter, Link, Scribe, Vurl, WebContent}
+import viscel.scribe.{ScribePage, Article, Book, Chapter, Link, Scribe, Vurl, WebContent}
 import viscel.shared.Log
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -55,7 +55,7 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 							case Bad(reports) =>
 								throw new IllegalArgumentException(s"could not parse ${h.ref}: ${reports.mkString(", ")}")
 							case Good(contents) =>
-								AppendLogPage(h.ref, Vurl.fromString(doc.location()),
+								ScribePage(h.ref, Vurl.fromString(doc.location()),
 									contents = contents,
 									date = requestUtil.extractLastModified(res).getOrElse(Instant.now()))
 						}

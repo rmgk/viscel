@@ -12,23 +12,23 @@ import scala.collection.mutable.ArrayBuffer
 
 class Book(path: Path) {
 
-	def add(entry: AppendLogEntry): Unit = {
-		Files.write(path, List(upickle.default.write[AppendLogEntry](entry)).asJava, StandardOpenOption.APPEND)
+	def add(entry: ScribeEntry): Unit = {
+		Files.write(path, List(upickle.default.write[ScribeEntry](entry)).asJava, StandardOpenOption.APPEND)
 		entry match {
-			case alp@AppendLogPage(il, _, _, _) => pageMap.put(il, alp)
-			case alb@AppendLogBlob(il, _, _, _) => blobMap.put(il, alb)
+			case alp@ScribePage(il, _, _, _) => pageMap.put(il, alp)
+			case alb@ScribeBlob(il, _, _, _) => blobMap.put(il, alb)
 		}
 		entries += entry
 	}
 
 	def emptyArticles(): List[Article] = entries.collect {
-		case AppendLogPage(ref, _, _, contents) => contents
+		case ScribePage(ref, _, _, contents) => contents
 	}.flatten.collect {
 		case art@Article(ref, _, _) if !blobMap.contains(ref) => art
 	}.toList
 
 	def emptyLinks(): List[Link] = entries.collect {
-		case AppendLogPage(ref, _, _, contents) => contents
+		case ScribePage(ref, _, _, contents) => contents
 	}.flatten.collect {
 		case link@Link(ref, _, _) if !pageMap.contains(ref) => link
 	}.toList
@@ -42,24 +42,24 @@ class Book(path: Path) {
 
 	lazy val id: String = path.getFileName.toString
 
-	lazy val entries: ArrayBuffer[AppendLogEntry] = {
+	lazy val entries: ArrayBuffer[ScribeEntry] = {
 		Files.lines(path, StandardCharsets.UTF_8).skip(1).iterator.asScala.map { line =>
-			upickle.default.read[AppendLogEntry](line)
+			upickle.default.read[ScribeEntry](line)
 		}.to[ArrayBuffer]
 	}
 
-	lazy val pageMap: mutable.HashMap[Vurl, AppendLogPage] = {
-		val map = mutable.HashMap[Vurl, AppendLogPage]()
+	lazy val pageMap: mutable.HashMap[Vurl, ScribePage] = {
+		val map = mutable.HashMap[Vurl, ScribePage]()
 		entries.collect {
-			case alp@AppendLogPage(il, _, _, _) => map.put(il, alp)
+			case alp@ScribePage(il, _, _, _) => map.put(il, alp)
 		}
 		map
 	}
 
-	lazy val blobMap: mutable.HashMap[Vurl, AppendLogBlob] = {
-		val map = mutable.HashMap[Vurl, AppendLogBlob]()
+	lazy val blobMap: mutable.HashMap[Vurl, ScribeBlob] = {
+		val map = mutable.HashMap[Vurl, ScribeBlob]()
 		entries.collect {
-			case alb@AppendLogBlob(il, _, _, _) =>  map.put(il, alb)
+			case alb@ScribeBlob(il, _, _, _) =>  map.put(il, alb)
 		}
 		map
 	}

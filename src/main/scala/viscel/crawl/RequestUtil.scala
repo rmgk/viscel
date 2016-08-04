@@ -11,7 +11,7 @@ import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import viscel.scribe.{AppendLogBlob, BlobStore, Vurl}
+import viscel.scribe.{ScribeBlob, BlobStore, Vurl}
 import viscel.shared.{Blob, Log}
 
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
@@ -53,12 +53,12 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 	}
 
 
-	def requestBlob[R](source: Vurl, origin: Option[Vurl] = None): Future[AppendLogBlob] = {
+	def requestBlob[R](source: Vurl, origin: Option[Vurl] = None): Future[ScribeBlob] = {
 		request(source, origin).flatMap { res =>
 			res.entity.toStrict(timeout).map { entity =>
 				val bytes = entity.data.toArray[Byte]
 				val sha1 = blobs.write(bytes)
-				AppendLogBlob(source, extractResponseLocation(res).getOrElse(source),
+				ScribeBlob(source, extractResponseLocation(res).getOrElse(source),
 					blob = Blob(
 						sha1 = sha1,
 						mime = res.entity.contentType.mediaType.toString()),

@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
 import viscel.neoadapter.Config.ConfigNode
-import viscel.scribe.{AppendLogEntry, Json}
+import viscel.scribe.{ScribeEntry, Json}
 import viscel.shared.Log
 
 import scala.collection.JavaConverters._
@@ -40,7 +40,7 @@ class NeoAdapter(
 	val cfg: ConfigNode
 ) {
 
-	def convertToAppendLog()(implicit w: upickle.default.Writer[AppendLogEntry]): Unit = {
+	def convertToAppendLog()(implicit w: upickle.default.Writer[ScribeEntry]): Unit = {
 		neo.tx { implicit ntx =>
 
 			val dir = basedir.resolve("db3")
@@ -61,7 +61,7 @@ class NeoAdapter(
 				Log.info(s"make append log for $id")
 				val entries = BookToAppendLog.bookToEntries(book)(ntx)
 
-				val encoded: List[String] = entries.map(upickle.default.write[AppendLogEntry](_))
+				val encoded: List[String] = entries.map(upickle.default.write[ScribeEntry](_))
 				val output: List[String] = upickle.default.write[String](book.name(ntx)) :: encoded
 				Files.write(bookdir.resolve(s"$id"), output.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 			}
