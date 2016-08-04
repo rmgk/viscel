@@ -78,3 +78,11 @@
 | ✘ Moderntales     | <http://www.moderntales.com/>           | gone                         |
 | ✘ Mangamagazine   | <http://www.mangamagazine.net/>         | gone                         |
 |                   |                                         |                              |
+
+## manga readers
+
+|         reader        |              notes               |
+|-----------------------|----------------------------------|
+| http://bato.to/       | needs registration               |
+| http://kissmanga.com/ | uses javascript to check browser |
+|                       |                                  |
