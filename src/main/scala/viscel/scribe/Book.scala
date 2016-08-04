@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 import java.util.stream.Collectors
 
-import viscel.scribe.Json._
+import viscel.scribe.ScribePicklers._
 import viscel.shared.Log
 
 import scala.collection.JavaConverters._

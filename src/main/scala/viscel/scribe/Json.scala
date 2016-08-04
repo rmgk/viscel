@@ -12,15 +12,6 @@ import scala.collection.JavaConverters._
 
 object Json {
 
-	implicit val appendlogReader: ReadWriter[ScribeDataRow] = upickle.default.macroRW[ScribeDataRow]
-
-	implicit val instantWriter: Writer[Instant] = Writer[Instant] { instant =>
-		upickle.Js.Str(instant.toString)
-	}
-
-	implicit val instantReader: Reader[Instant] = Reader[Instant] {
-		case upickle.Js.Str(str) => Instant.parse(str)
-	}
 
 
 	def store[T: Writer](p: Path, data: T) = synchronized {

@@ -3,20 +3,18 @@ package viscel.neoadapter
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
-import viscel.neoadapter.Config.ConfigNode
-import viscel.scribe.{ScribeDataRow, Json}
+import viscel.scribe.{Json, ScribeDataRow}
 import viscel.shared.Log
 
 import scala.collection.JavaConverters._
 
 object NeoAdapter {
 
-	def apply(basedir: Path): NeoAdapter = {
+	def convertToAppendLog(db2dir: Path, db3dir: Path, configdir: Path)(implicit w: upickle.default.Writer[ScribeDataRow]): Unit = {
 
-		Files.createDirectories(basedir)
+		Files.createDirectories(db2dir)
 
-		val neo = new NeoInstance(basedir.resolve("db2").toString)
-
+		val neo = new NeoInstance(db2dir.toString)
 
 		val configNode = neo.tx { implicit ntx =>
 			val cfg = Config.get()(ntx)
@@ -24,36 +22,15 @@ object NeoAdapter {
 			cfg
 		}
 
-
-		new NeoAdapter(
-			basedir = basedir,
-			neo = neo,
-			cfg = configNode
-		)
-	}
-
-}
-
-class NeoAdapter(
-	val basedir: Path,
-	val neo: NeoInstance,
-	val cfg: ConfigNode
-) {
-
-	def convertToAppendLog()(implicit w: upickle.default.Writer[ScribeDataRow]): Unit = {
 		neo.tx { implicit ntx =>
 
-			val dir = basedir.resolve("db3")
-			val bookdir = dir.resolve("books")
-			Files.createDirectories(bookdir)
-
 			val stats = Map(
-				"downloaded" -> cfg.downloaded.toString,
-				"downloads" -> cfg.downloads.toString,
-				"compressed" -> cfg.downloadsCompressed.toString,
-				"failed" -> cfg.downloadsFailed.toString)
+				"downloaded" -> configNode.downloaded.toString,
+				"downloads" -> configNode.downloads.toString,
+				"compressed" -> configNode.downloadsCompressed.toString,
+				"failed" -> configNode.downloadsFailed.toString)
 
-			Json.store(dir.resolve("config.json"), stats)
+			Json.store(configdir.resolve("download-stats.json"), stats)
 
 			val allBooks = ntx.nodes(label.Book).map { n => Book.apply(n) }
 			allBooks.foreach { (book: Book) =>
@@ -63,9 +40,10 @@ class NeoAdapter(
 
 				val encoded: List[String] = entries.map(upickle.default.write[ScribeDataRow](_))
 				val output: List[String] = upickle.default.write[String](book.name(ntx)) :: encoded
-				Files.write(bookdir.resolve(s"$id"), output.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+				Files.write(db3dir.resolve(s"$id"), output.asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 			}
 		}
+		neo.shutdown()
 	}
 
 }

@@ -35,7 +35,7 @@ class ReplUtil(scribe: Scribe, blobs: BlobStore) {
 		}
 
 
-		val p = Viscel.basepath.resolve("export").resolve(id)
+		val p = Viscel.exportdir.resolve(id)
 		Files.createDirectories(p)
 
 

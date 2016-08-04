@@ -151,7 +151,7 @@ object Vid {
 	}
 
 	def load(): List[Narrator] = {
-		val dir = Viscel.basepath.resolve("definitions")
+		val dir = Viscel.definitionsdir
 		val dynamic = if (!Files.exists(dir)) Nil
 		else {
 			val paths = Files.newDirectoryStream(dir, "*.vid")

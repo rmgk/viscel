@@ -3,7 +3,9 @@ package viscel.scribe
 import java.time.Instant
 
 import derive.key
+import upickle.default.{ReadWriter, Reader, Writer}
 import viscel.shared.Blob
+
 
 sealed trait ScribeDataRow {
 	/** reference that spawned this entry */
@@ -42,3 +44,15 @@ sealed trait Policy
 @key("Volatile") case object Volatile extends Policy
 
 
+object ScribePicklers {
+	implicit val appendlogReader: ReadWriter[ScribeDataRow] = upickle.default.macroRW[ScribeDataRow]
+
+	implicit val instantWriter: Writer[Instant] = Writer[Instant] { instant =>
+		upickle.Js.Str(instant.toString)
+	}
+
+	implicit val instantReader: Reader[Instant] = Reader[Instant] {
+		case upickle.Js.Str(str) => Instant.parse(str)
+	}
+
+}

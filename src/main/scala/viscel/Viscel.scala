@@ -11,7 +11,7 @@ import akka.http.scaladsl.settings._
 import akka.stream.ActorMaterializer
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
 import viscel.crawl.{Clockwork, RequestUtil}
-import viscel.scribe.Json._
+import viscel.scribe.ScribePicklers._
 import viscel.scribe.Scribe
 import viscel.server.Server
 import viscel.shared.Log
@@ -22,6 +22,7 @@ import scala.language.implicitConversions
 
 object Viscel {
 
+
 	def time[T](desc: String = "")(f: => T): T = {
 		val start = System.nanoTime
 		val res = f
@@ -30,6 +31,11 @@ object Viscel {
 	}
 
 	var basepath: Path = _
+	var metarratorconfigdir: Path = _
+	var definitionsdir: Path = _
+	var usersdir: Path = _
+	var exportdir: Path = _
+
 
 
 	def main(args: Array[String]): Unit = run(args: _*)
@@ -56,7 +62,47 @@ object Viscel {
 		}
 
 		basepath = Paths.get(basedir())
-		Files.createDirectories(basepath)
+		val db2dir = basepath.resolve("scribe/db2")
+		val oldBlobdir = basepath.resolve("scribe/blobs")
+		val blobdir = basepath.resolve("blobs")
+		val scribedir = basepath.resolve("db3")
+		val cachedir = basepath.resolve("cache")
+		val configdir = basepath.resolve("config")
+		metarratorconfigdir = basepath.resolve("metarrators")
+		definitionsdir = basepath.resolve("definitions")
+		exportdir = basepath.resolve("export")
+		usersdir = basepath.resolve("users")
+		Files.createDirectories(cachedir)
+
+		if (upgrade.?) {
+			if (Files.isDirectory(db2dir) ) {
+				if (Files.exists(scribedir)) {
+					Log.warn(s"can not convert database, target exists: $scribedir")
+				}
+				else {
+					Files.createDirectories(scribedir)
+					Log.info("converting database …")
+					viscel.neoadapter.NeoAdapter.convertToAppendLog(db2dir, scribedir, configdir)
+				}
+			}
+
+			if (Files.isDirectory(oldBlobdir) ) {
+				if (Files.exists(blobdir)) { Log.warn(s"can not move blobs, target exists: $blobdir") }
+				else {
+					Log.info("moving blobs …")
+					Files.move(oldBlobdir, blobdir)
+				}
+			}
+
+			Files.move(basepath.resolve("data/updateTimes.json"), cachedir.resolve("crawl-times.json"))
+			Files.move(basepath.resolve("data"), metarratorconfigdir)
+
+		}
+
+		Files.createDirectories(scribedir)
+
+		val scribe = new viscel.scribe.Scribe(scribedir, cachedir)
+		val blobs = new BlobStore(blobdir)
 
 		val system = ActorSystem()
 		val materializer = ActorMaterializer()(system)
@@ -65,17 +111,7 @@ object Viscel {
 		val executionContext = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
 			0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
 
-		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"))
-		val blobs = new BlobStore(basepath.resolve("scribe/blobs"))
-
-
 		val requests = new RequestUtil(blobs, http)(executionContext, materializer)
-
-		if (makelog.?) {
-			val dbconverter = viscel.neoadapter.NeoAdapter(basepath.resolve("scribe"))
-			dbconverter.convertToAppendLog()
-			dbconverter.neo.shutdown()
-		}
 
 		if (!noserver.?) {
 
@@ -102,7 +138,7 @@ object Viscel {
 		}
 
 		if (!nocore.?) {
-			val cw = new Clockwork(basepath.resolve("data").resolve("updateTimes.json"), scribe, executionContext, requests)
+			val cw = new Clockwork(cachedir.resolve("crawl-times.json"), scribe, executionContext, requests)
 
 			Deeds.narratorHint = (narrator, force) => {
 				cw.runNarrator(narrator, if (force) 0 else cw.dayInMillis * 1)
@@ -131,13 +167,10 @@ object Viscel {
 		val nocore = accepts("nocore", "do not start the core downloader")
 		val basedir = accepts("basedir", "die base working directory")
 			.withRequiredArg().ofType(Predef.classOf[String]).defaultsTo("./data/").describedAs("basedir")
-		val dbpath = accepts("dbpath", "path of the neo database")
-			.withRequiredArg().ofType(Predef.classOf[String]).defaultsTo("store").describedAs("dbpath")
 		val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
 		val shutdown = accepts("shutdown", "shutdown after main")
 		val help = accepts("help").forHelp()
-		val upgradedb = accepts("upgradedb", "upgrade the db from version 1 to version 2")
-		val makelog = accepts("makelog", "convert to appendlog")
+		val upgrade = accepts("upgradedb", "upgrade database and folder layout from version 2 to version 3")
 
 		implicit def optToBool(opt: OptionSpecBuilder)(implicit oset: OptionSet): Boolean = oset.has(opt)
 

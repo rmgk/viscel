@@ -12,7 +12,7 @@ import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 object Users {
 
-	val usersDir: Path = Viscel.basepath.resolve(s"users")
+	val usersDir: Path = Viscel.usersdir
 
 	def all(): List[User] Or Every[ErrorMessage] = try {
 		if (!Files.isDirectory(usersDir)) Good(Nil)
