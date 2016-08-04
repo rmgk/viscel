@@ -104,7 +104,7 @@ class Server(scribe: Scribe, requestUtil: RequestUtil, terminate: () => Unit)(im
 			pathPrefix("hint") {
 				path("narrator" / Segment) { narratorID =>
 					rejectNone(Narrators.get(narratorID)) { nar =>
-						parameters('force.as[Option[Boolean]]) { force =>
+						parameters('force.as[Boolean].?) { force =>
 							complete {
 								Deeds.narratorHint(nar, force.getOrElse(false))
 								force.toString

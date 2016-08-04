@@ -1,11 +1,14 @@
 package viscel.scribe
 
 import java.nio.charset.StandardCharsets.UTF_8
-import java.nio.file.{Files, Path}
+import java.nio.file.StandardOpenOption._
+import java.nio.file.{Files, Path, StandardOpenOption}
 import java.time.Instant
 
 import org.scalactic.{Bad, Good, Or}
 import upickle.default.{ReadWriter, Reader, Writer}
+
+import scala.collection.JavaConverters._
 
 object Json {
 
@@ -21,9 +24,9 @@ object Json {
 
 
 	def store[T: Writer](p: Path, data: T) = synchronized {
-		val jsonBytes = upickle.default.write(data).getBytes(UTF_8)
+		val jsonBytes = upickle.default.write(data) :: Nil
 		Files.createDirectories(p.getParent)
-		Files.write(p, jsonBytes)
+		Files.write(p, jsonBytes.asJava, UTF_8, CREATE, WRITE, TRUNCATE_EXISTING)
 	}
 
 	def load[T: Reader](p: Path): T Or Exception = synchronized {

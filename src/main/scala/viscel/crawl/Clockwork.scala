@@ -24,6 +24,8 @@ class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: R
 	val delay: Long = 0
 	val period: Long = 60 * 60 * 1000 // every hour
 
+	var running: Map[String, Crawl] = Map()
+
 	def recheckPeriodically(): Unit = {
 		timer.scheduleAtFixedRate(new TimerTask {
 			override def run(): Unit = synchronized {
@@ -40,10 +42,13 @@ class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: R
 
 	}
 
-	def runNarrator(n: Narrator, recheckInterval: Long) = {
-		if (needsRecheck(n.id, recheckInterval)) {
+	def runNarrator(n: Narrator, recheckInterval: Long) = synchronized {
+		if (needsRecheck(n.id, recheckInterval) && !running.contains(n.id)) {
 			val crawl = new Crawl(n, scribe, requestUtil)(ec)
-			crawl.start().onComplete {
+			running = running.updated(n.id, crawl)
+			crawl.start().onComplete { res =>
+				Clockwork.this.synchronized(running = running - n.id)
+				res match {
 				case Failure(t) =>
 					Log.error(s"recheck failed with $t")
 					t.printStackTrace()
@@ -51,7 +56,7 @@ class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: R
 					Log.info(s"update ${n.id} complete")
 					updateDates(n.id)
 				case Success(false) =>
-			}
+			}}
 		}
 	}
 
