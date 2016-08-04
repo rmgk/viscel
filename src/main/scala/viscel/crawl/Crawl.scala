@@ -47,28 +47,25 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 		links match {
 			case Nil =>
 				Log.info(s"done $narrator")
-				promise.success(false)
-			case h :: t =>
-				requestUtil.request(h.ref).flatMap { res =>
-					requestUtil.extractDocument(h.ref)(res).map { doc =>
-						narrator.wrap(doc, h) match {
+				promise.success(true)
+			case link :: t =>
+				requestUtil.request(link.ref).flatMap { res =>
+					requestUtil.extractDocument(link.ref)(res).map { doc =>
+						narrator.wrap(doc, link) match {
 							case Bad(reports) =>
-								throw new IllegalArgumentException(s"could not parse ${h.ref}: ${reports.mkString(", ")}")
+								Log.error(s"$narrator failed on $link: ${reports.map {_.describe}}")
+								promise.success(false)
 							case Good(contents) =>
-								ScribePage(h.ref, Vurl.fromString(doc.location()),
+								val page = ScribePage(link.ref, Vurl.fromString(doc.location()),
 									contents = contents,
 									date = requestUtil.extractLastModified(res).getOrElse(Instant.now()))
+								links = t
+								addContents(page.contents)
+								book.add(page)
+								ec.execute(this)
 						}
 					}
-				}.onComplete {
-					case Failure(e) =>
-						promise.failure(e)
-					case Success(page) =>
-						links = t
-						addContents(page.contents)
-						book.add(page)
-						ec.execute(this)
-				}
+				}.onFailure(PartialFunction(promise.failure))
 		}
 	}
 

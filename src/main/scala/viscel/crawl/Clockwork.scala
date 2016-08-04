@@ -31,8 +31,7 @@ class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: R
 				Users.all() match {
 					case Bad(err) => Log.error(s"could not load bookmarked collections: $err")
 					case Good(users) =>
-						//val narrators = users.flatMap(_.bookmarks.keySet).distinct.flatMap(Narrators.get)
-						val narrators = List(Narrators.get("NX_xkcd")).flatten
+						val narrators = users.flatMap(_.bookmarks.keySet).distinct.flatMap(Narrators.get)
 						narrators.foreach {runNarrator(_, 7 * dayInMillis)}
 				}
 			}
