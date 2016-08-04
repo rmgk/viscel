@@ -16,7 +16,7 @@ object Narrators {
 			Snafu.cores ++
 			CloneManga.cores ++
 			Set(Candi, Flipside, Inverloch, JayNaylor.BetterDays, JayNaylor.OriginalLife,
-				KeyShanShan.Key, KeyShanShan.ShanShan, MenageA3, Misfile, NamirDeiter, Twokinds, YouSayItFirst,
+				KeyShanShan.Key, MenageA3, Misfile, NamirDeiter, Twokinds, YouSayItFirst,
 				UnlikeMinerva)
 
 	def calculateAll(): Set[Narrator] = staticV2 ++ Metarrators.cores() ++ Vid.load()

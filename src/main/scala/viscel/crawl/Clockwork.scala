@@ -50,12 +50,12 @@ class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: R
 				Clockwork.this.synchronized(running = running - n.id)
 				result match {
 					case Failure(RequestException(request, response)) =>
-						Log.error(s"error request: ${request.uri} failed: ${response.status}")
+						Log.error(s"[${n.id}] error request: ${request.uri} failed: ${response.status}")
 					case Failure(t) =>
-						Log.error(s"recheck failed with $t")
+						Log.error(s"[${n.id}] recheck failed with $t")
 						t.printStackTrace()
 					case Success(true) =>
-						Log.info(s"update ${n.id} complete")
+						Log.info(s"[${n.id}] update complete")
 						updateDates(n.id)
 					case Success(false) =>
 				}

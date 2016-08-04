@@ -6,8 +6,8 @@ import akka.http.javadsl.model.headers.LastModified
 import akka.http.scaladsl.HttpExt
 import akka.http.scaladsl.coding.{Deflate, Gzip}
 import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Accept-Encoding`}
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, Uri}
-import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
+import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse}
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -27,7 +27,7 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 		Log.info(s"request ${request.uri} (${request.header[Referer]})")
 		val result: Future[HttpResponse] = ioHttp.singleRequest(request).flatMap { res =>
 			if (res.status.isRedirection() && res.header[Location].isDefined) {
-					getResponse(request.withUri(res.header[Location].get.uri), redirects = redirects - 1)
+					getResponse(request.withUri(res.header[Location].get.uri.resolvedAgainst(request.uri)), redirects = redirects - 1)
 			}
 			else if (res.status.isSuccess()) {
 				res.toStrict(timeout)

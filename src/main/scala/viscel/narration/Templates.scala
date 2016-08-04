@@ -44,8 +44,6 @@ object Templates {
 		wrapPage: Document => List[WebContent] Or Every[Report]
 		) extends Narrator {
 		override def archive: List[WebContent] = Link(start) :: Nil
-		override def wrap(doc: Document, more: Link): List[WebContent] Or Every[Report] = more match {
-			case _ => wrapPage(doc)
-		}
+		override def wrap(doc: Document, more: Link): List[WebContent] Or Every[Report] = wrapPage(doc)
 	}
 }

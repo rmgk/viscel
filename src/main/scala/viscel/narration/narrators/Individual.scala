@@ -6,7 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Queries._
 import viscel.narration.Templates.{AP, SF}
-import viscel.narration.{Narrator, Templates}
+import viscel.narration.{Narrator, Queries, Templates}
 import viscel.scribe.Vurl.fromString
 import viscel.scribe.{ArticleRef, Chapter, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
@@ -100,7 +100,8 @@ object Individual {
 		})
 
 		val Key = Common("NX_Key", "Key", "http://key.shadilyn.com/view.php?pageid=001&chapterid=1")
-		val ShanShan = Common("NX_ShanShan", "Shan Shan", "http://shanshan.upperrealms.com/view.php?pageid=001&chapterid=1")
+		//seems dead
+		//val ShanShan = Common("NX_ShanShan", "Shan Shan", "http://shanshan.upperrealms.com/view.php?pageid=001&chapterid=1")
 
 	}
 
@@ -256,6 +257,7 @@ object Individual {
 			}
 	}
 
+
 	val inlineCores = Set(
 		AP("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
 			doc => Selection(doc).unique("#content_post").many(".c_arch:has(div.a_2)").wrapFlat { chap =>
@@ -267,7 +269,6 @@ object Individual {
 		AP("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/archives.php",
 			Selection(_).many("#leftarea > h3 > a").wrapFlat(elementIntoChapterPointer),
 			queryImageInAnchor("#comic")),
-		SF("NX_TheRockCocks", "The Rock Cocks", "http://www.therockcocks.com/index.php?id=1", queryImageInAnchor("#cc-comic")),
 		AP("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
 			doc => Selection(doc).many(".cc-chapterrow a[href]").wrapFlat(elementIntoChapterPointer),
 			doc => {
@@ -327,7 +328,6 @@ object Individual {
 			doc => queryImageInAnchor("img#cc-comic")(doc)),
 		SF("NX_Nimona", "Nimona", "http://gingerhaze.com/nimona/comic/page-1",
 			queryImageNext("img[src~=/nimona-pages/]", "a:has(img[src=http://gingerhaze.com/sites/default/files/comicdrop/comicdrop_next_label_file.png])")),
-		SF("NX_Solstoria", "Solstoria", "http://solstoria.net/?webcomic1=54", queryImageInAnchor("#webcomic > div.webcomic-image img")),
 		SF("NX_DominicDeegan", "Dominic Deegan", "http://www.dominic-deegan.com/view.php?date=2002-05-21",
 			doc => append(queryImages("body > div.comic > img")(doc), queryNext("#bottom a:has(img[alt=Next])")(doc))),
 		AP("NX_DreamScar", "dream*scar", "http://dream-scar.net/archive.php",
@@ -336,15 +336,6 @@ object Individual {
 				else extractMore(elem)
 			},
 			queryImage("#comic")),
-		SF("NX_Everblue", "Everblue", "http://everblue-comic.com/archive.php",
-			Selection(_).unique("#archive-thumbs").many("h3, a").wrapEach { elem =>
-				if (elem.tagName() === "h3") extract {Chapter(elem.text())}
-				else Selection(elem).unique("img").wrapOne { img =>
-					val origin = elem.attr("abs:href")
-					val source = img.attr("abs:src").replace("/admin/img/thumb/", "/img/comic/")
-					Good(ArticleRef(source, origin))
-				}
-			}),
 		SF("NX_AvasDemon", "Ava’s Demon", "http://www.avasdemon.com/chapters.php",
 			Selection(_).many("table[id~=chapter\\d+_table]").wrap {
 				_.zipWithIndex.map { case (elem, idx) =>
@@ -368,8 +359,9 @@ object Individual {
 			doc => {
 				val assets_? = Selection(doc).all("#comic img").wrapEach(imgIntoAsset)
 				val next_? = queryNext("a[rel=next]:not([href=#])")(doc)
-				val assets_with_comment_? = assets_?.map(_.map{ article =>
-						article.data.get("title").fold(article)(t => article.copy(data = article.data.updated("longcomment", t)))})
+				val assets_with_comment_? = assets_?.map(_.map { article =>
+					article.data.get("title").fold(article)(t => article.copy(data = article.data.updated("longcomment", t)))
+				})
 				append(assets_with_comment_?, next_?)
 			})
 	)

@@ -66,6 +66,39 @@ class Book(path: Path) {
 		}.to[ArrayBuffer].reverse
 	}
 
+	def rightmostScribePages(): List[Link] = {
+
+		val seen = mutable.HashSet[Vurl]()
+
+		@scala.annotation.tailrec
+		def rightmost(remaining: ScribePage, acc: List[Link]): List[Link] = {
+			val next = remaining.contents.reverseIterator.find {
+				case Link(loc, _, _) if seen.add(loc) => true
+				case _ => false
+			} collect {
+				case l@Link(_, _, _) => l
+			}
+			next match {
+				case None => acc
+				case Some(link) =>
+					pageMap.get(link.ref) match {
+						case None => link :: acc
+						case Some(scribePage) =>
+							rightmost(scribePage, link :: acc)
+					}
+			}
+		}
+
+		pageMap.get(Vurl.entrypoint) match {
+			case None =>
+				Log.warn(s"Book $id was emtpy")
+				Nil
+			case Some(initialPage) =>
+				rightmost(initialPage, Nil)
+		}
+
+	}
+
 
 	def pages(): List[ReadableContent] = {
 

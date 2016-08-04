@@ -166,9 +166,9 @@ http://chirault.sevensmith.net/archives.php
 :i img[src~=/comics/\d{8}]
 
 -:Annyseed
-http://www.colourofivy.com/annyseed_webcomic.htm
-:i body > table > tbody > tr:nth-child(3) > td > div > img
-:n a:has(img[src=Next.gif])
+http://www.mirrorwoodcomics.com/Annyseed000.htm
+:i img[src~=AnnyseedPage]
+:n a:has(img#Nextbtn1)
 
 -:Quiltbag
 http://quiltbag.keenspot.com/d/20111018.html
@@ -262,10 +262,6 @@ http://chrisschrossed.xepher.net/manga/v2pages/ch0/p1.html
 http://omaketheater.com/comic/1/
 :i #left > article > figure > img
 :n a[rel=next]
-
--:The Awakened
-http://www.theawakenedcomic.com/comic/chapter-one-page-one/
-:ia #comic img
 
 -:Ein Stück Wahnsinn
 http://wahnsinn.viviane.ch/wahnmanga/wahnmanga01.htm
@@ -676,6 +672,16 @@ http://www.supernormalstep.com/archives/archive
 :ac .cc-chapterrow a[href]
 :ia #cc-comic
 
+-TheAwakened:Awaken
+http://www.awakencomic.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
+-:The Rock Cocks
+http://rockcocks.slipshine.net/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
 --------------------------------------------------------------------------------------
 -- end of hiveworks
 --------------------------------------------------------------------------------------
@@ -736,11 +742,6 @@ http://www.absurdnotions.org/listing.html
 http://www.absurdnotions.org/listwtlf.html
 :ac body > center > font:nth-child(2) > a[href~=wtlf\d{6}\.html]
 :is body > center > font:nth-child(1) > img[src~=lf\d{8}\.|wtlf_\d{8}]
-
--:Ghastly’s Ghastly Comics
-http://www.ghastlycomic.com/d/20010509.html
-:i img[alt=Comic][src~=/comics/]
-:n a:has(img[alt=Next comic])
 
 -Krakow:Krakow 2.0
 http://www.marilith.com/krakow2/calendar.php
@@ -810,3 +811,11 @@ http://weirdingwillows.keenspot.com/d/20140915.html
 http://seed.thecomicseries.com/archive/
 :am #noncomiccontent h3 , #noncomiccontent a[href~=comics/\d]
 :i #comicimage
+
+-:Everblue
+http://everblue-comic.com/comic?sort=1
+:ia #comic a.next img[itemprop=image][src~=assets/images/comics/\d{8}]
+
+-:Solstoria
+http://solstoria.net/comic/54/
+:ia #content .webcomic-image img.size-full
