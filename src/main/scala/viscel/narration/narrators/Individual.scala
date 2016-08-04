@@ -18,34 +18,6 @@ import scala.collection.immutable.Set
 
 object Individual {
 
-	object Building12 extends Narrator {
-		def archive = Link("http://www.building12.net/archives.htm", Volatile) :: Nil
-
-		def id: String = "NX_Building12"
-
-		def name: String = "Building 12"
-
-		def wrapIssue(doc: Document): Or[List[WebContent], Every[Report]] = {
-			val elements_? = Selection(doc).many("a[href~=issue\\d+/.*\\.htm$]:has(img)").wrapEach { anchor =>
-				val element_? = Selection(anchor).unique("img").wrapOne {imgIntoAsset}
-				val origin_? = extractURL(anchor)
-				withGood(element_?, origin_?) { (element, origin) =>
-					element.copy(
-						ref = element.ref.uriString.replace("sm.", "."),
-						origin = origin,
-						data = element.data - "width" - "height")
-				}
-			}
-			cons(Good(Chapter("issue\\d+".r.findFirstIn(doc.baseUri()).getOrElse("Unknown Issue"))), elements_?)
-		}
-
-		def wrap(doc: Document, more: Link): List[WebContent] Or Every[Report] = more match {
-			case Link(_, Volatile, _) => Selection(doc).many("a[href~=issue\\d+\\.htm$]").wrapEach(extractMore)
-			case _ => wrapIssue(doc)
-		}
-	}
-
-
 	object Candi extends Narrator {
 		def archive = Link("http://candicomics.com/archive.html", Volatile, "archive" :: Nil) :: Nil
 
