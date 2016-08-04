@@ -25,7 +25,7 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 			book.add(ScribePage(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
 		}
 		articles = book.emptyArticles()
-		links = book.emptyLinks()
+		links = book.volatileAndEmptyLinks()
 		ec.execute(this)
 		promise.future
 	}

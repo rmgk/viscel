@@ -30,9 +30,10 @@ class Book(path: Path) {
 		case art@ArticleRef(ref, _, _) if !blobMap.contains(ref) => art
 	}.toList
 
-	def emptyLinks(): List[Link] = entries.collect {
+	def volatileAndEmptyLinks(): List[Link] = entries.collect {
 		case ScribePage(ref, _, _, contents) => contents
 	}.flatten.collect {
+		case link@Link(ref, Volatile, _) => link
 		case link@Link(ref, _, _) if !pageMap.contains(ref) => link
 	}.toList
 

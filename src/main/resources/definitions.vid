@@ -145,8 +145,8 @@ http://marryme.keenspot.com/d/20120730.html
 
 -:The Meek
 http://www.meekcomic.com/archives/
-:am li[id~=storyline-chapter-\d+] > span , li[id~=storyline-chapter-\d+] > div.pages_in_cat > a
-:i #comic-1 img
+:am #content .comic-archive-chapter-description , #content .comic-archive-thumb > a
+:i #comic img
 
 -:No Pink Ponies
 http://nopinkponies.keenspot.com/d/20060207.html
