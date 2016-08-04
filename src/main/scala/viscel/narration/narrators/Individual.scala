@@ -187,6 +187,7 @@ object Individual {
 		}
 
 		def wrapPage(doc: Document): Or[List[WebContent], Every[Report]] = {
+			if (doc.location() == "http://www.misfile.com/archives.php?arc=34&displaymode=wide") return Good(Nil)
 			val elements_? = Selection(doc)
 				.unique(".comiclist table.wide_gallery")
 				.many("[id~=^comic_\\d+$] .picture a").wrapEach { anchor =>
@@ -260,11 +261,11 @@ object Individual {
 	object YouSayItFirst extends Narrator {
 		override def id: String = "NX_YouSayItFirst"
 		override def name: String = "You Say It First"
-		override def archive: List[WebContent] = Range.inclusive(1, 9).map(i => Link(s"http://www.yousayitfirst.com/archive/index.php?year=$i", Volatile)).toList
+		override def archive: List[WebContent] = Range.inclusive(1, 9).map(i => Link(s"http://www.yousayitfirst.com/archive/index.php?year=$i", data = List("archive"))).toList
 		override def wrap(doc: Document, more: Link): Or[List[WebContent], Every[Report]] = more match {
-			case Link(_, Volatile, _) => Selection(doc).many("table #number a").wrapFlat(elementIntoChapterPointer)
+			case Link(_, _, "archive" :: Nil) => Selection(doc).many("table #number a").wrapFlat(elementIntoChapterPointer)
 			case _ =>
-				if (doc.baseUri() == "http://www.soapylemon.com/") Good(Nil)
+				if (doc.baseUri() == "http://www.yousayitfirst.com/") Good(Nil)
 				else queryImageInAnchor("body > center > div.mainwindow > center:nth-child(2) > table center img")(doc)
 		}
 	}
@@ -285,12 +286,12 @@ object Individual {
 
 	val inlineCores = Set(
 		AP("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
-			doc => Selection(doc).unique("#content_inner_pages").many(".c_arch:has(div.a_2)").wrapFlat { chap =>
+			doc => Selection(doc).unique("#content_post").many(".c_arch:has(div.a_2)").wrapFlat { chap =>
 				val chapter_? = Selection(chap).first("div.a_2 > p").getOne.map(e => Chapter(e.text()))
 				val pages_? = Selection(chap).many("a").wrapEach(extractMore)
 				withGood(chapter_?, pages_?)(_ :: _)
 			},
-			queryImage("#content_comics > a > img")),
+			queryImage("#comic_strip > a > img")),
 
 		AP("NX_SixGunMage", "6 Gun Mage", "http://www.6gunmage.com/archives.php",
 			doc => Selection(doc).many("#bottomleft > select > option[value~=\\d+]").wrapFlat { elem =>
@@ -345,9 +346,11 @@ object Individual {
 				val chapter_? = extract(Chapter(chap.child(0).text()))
 				val elements_? = Selection(chap).many("li a").wrapEach(extractMore)
 				cons(chapter_?, elements_?)
-			},
-			queryImageNext("#strip img", "#comic .next a")),
-		SF("NX_WhatBirdsKnow", "What Birds Know", "http://fribergthorelli.com/wbk/index.php/page-1/", queryImageNext("#comic > img", ".nav-next > a")),
+			}, doc => {
+				if (doc.location() == "http://megatokyo.com/strip/1428") Good(List(Link(Vurl.fromString("http://megatokyo.com/strip/1429"))))
+				else queryImageNext("#strip img", "#comic .next a")(doc)
+			}),
+		SF("NX_WhatBirdsKnow", "What Birds Know", "http://fribergthorelli.com/wbk/index.php/page-1/", queryImageNext("#comic-1 img", "a.navi-next")),
 		AP("NX_TodayNothingHappened", "Today Nothing Happened", "http://www.todaynothinghappened.com/archive.php",
 			Selection(_).many("#wrapper > div.rant a.link").wrapEach(extractMore),
 			queryImage("#comic > img")),
@@ -369,9 +372,8 @@ object Individual {
 			queryImage("#wrapper2 img")),
 		SF("NX_Awaken", "Awaken", "http://awakencomic.com/index.php?id=1", queryImageInAnchor("#comic")),
 		SF("NX_DangerouslyChloe", "Dangerously Chloe", "http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl", queryImageInAnchor("#comic img")),
-		SF("NX_YouSuck", "You Suck", "http://yousuckthecomic.com/go/1",
-			doc => queryImageNext("img[src=/comics/yousuck_0096-1.png]", "a[href=http://yousuckthecomic.com/go/97]")(doc)
-				.orElse(queryImageInAnchor("img.comicpage")(doc))),
+		SF("NX_YouSuck", "You Suck", "http://yousuck.slipshine.net/go/1-legolas",
+			doc => queryImageInAnchor("img#cc-comic")(doc)),
 		SF("NX_Nimona", "Nimona", "http://gingerhaze.com/nimona/comic/page-1",
 			queryImageNext("img[src~=/nimona-pages/]", "a:has(img[src=http://gingerhaze.com/sites/default/files/comicdrop/comicdrop_next_label_file.png])")),
 		AP("NX_Monsterkind", "Monsterkind", "http://monsterkind.enenkay.com/comic/archive",

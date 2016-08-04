@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.scalactic.{Bad, Good}
 import viscel.narration.Narrator
-import viscel.scribe.{ScribePage, ArticleRef, Book, Chapter, Link, Scribe, Vurl, WebContent}
+import viscel.scribe.{ArticleRef, Book, Link, Scribe, ScribePage, Vurl, WebContent}
 import viscel.shared.Log
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -22,7 +22,6 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	def start(): Future[Boolean] = {
 		val entry = book.pageMap.get(Vurl.entrypoint)
 		if (entry.isEmpty || entry.get.contents != narrator.archive) {
-			Log.info(s"was not equals: ${entry.get.contents} <=> ${narrator.archive}")
 			book.add(ScribePage(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
 		}
 		articles = book.emptyArticles()
@@ -32,7 +31,6 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	}
 
 	override def run(): Unit = synchronized {
-		Log.info(s"running $narrator")
 		nextArticle()
 	}
 
@@ -53,7 +51,6 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	def nextLink(): Unit = {
 		links match {
 			case Nil =>
-				Log.info(s"done $narrator")
 				promise.success(true)
 			case link :: t =>
 				requestUtil.request(link.ref).flatMap { res =>
@@ -77,7 +74,6 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	}
 
 	def addContents(contents: List[WebContent]): Unit = {
-		Log.info(s"contents: $contents")
 		contents.foreach {
 			case link @ Link(ref, _, _) if !book.pageMap.contains(ref) => links = links ::: link :: Nil
 			case art @  ArticleRef(ref, _, _) if !book.blobMap.contains(ref) => articles = articles ::: art :: Nil

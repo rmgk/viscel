@@ -58,16 +58,6 @@ http://catalyst.spiderforest.com/archives.php
 :ac #white > tbody > tr:nth-child(2) > td:nth-child(1) > div a
 :ia img[src~=^comics/\d{8}]
 
--:Chugworth Academy
-http://chugworth.com/archive/?strip_id=0
-:i img[src~=comics/\d{6}]
-:n a:has(img[src=images/next.gif])
-
--:Chugworth
-http://chugworth.com/?p=12
-:i #comic > img
-:n #comic_navi a.navi.navi-next
-
 -:Cortland
 http://cortland.comicgenesis.com/d/20040320.html
 :is #rightpane > div.comic-today > img
@@ -77,7 +67,7 @@ http://cortland.comicgenesis.com/d/20040320.html
 http://www.exiern.com/2005/09/06/so-far/
 --second part below is a hack to workaround misposted image:
 --http://www.exiern.com/2015/06/30/it-is/
-:i #comic-1 > img , #post-content img.wp-image-4762
+:i #comic-1 > img , img.wp-image-4762
 :n #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
 
 -:Carciphona
@@ -95,7 +85,7 @@ http://www.erstwhiletales.com/comicslist/
 :ia #comic-1 img
 
 -:Ever Night
-http://www.evernightcomic.com/archives/1
+http://evernightcomic.com/comic/chapter-0-page-1/
 :ia #comic img
 
 -:Falcon Twin
@@ -130,9 +120,9 @@ http://lavenderlegend.com/?page_id=109
 :ia #comic-1  img
 
 -:Lint
-http://www.purnicellin.com/lint/2004/01/10/01102004/
-:i #comic > img
-:n #column div.nav a[rel=next]
+http://lint.webcomic.ws/archive/
+:am #content .subtitle , #content .titlesub , #content a[href~=comics/\d]
+:i #comicimage
 
 -:Loserz
 http://the-qlc.com/loserz/go/1
@@ -206,7 +196,7 @@ http://www.sisterclaire.com/archive.php
 
 -:Sore Thumbs
 http://sorethumbs.keenspot.com/d/20040308.html
-:i img.ksc , img[src~=http://sorethumbs.keenspot.com/st\d{8}.jpg]
+:i img.ksc , img[src~=http://sorethumbs.keenspot.com/st\d{8}], img[src=http://sorethumbs.keenspot.com/negativespace.png]
 :n a:has(#next_day1)
 
 -:Spinnerette
@@ -219,16 +209,6 @@ http://www.spinnyverse.com/issues/
 http://www.starpowercomic.com/archives/
 :am #storyline li[id~=^storyline-volume] , #storyline .level-2 a.archivethumbnaillink
 :i #comic-1 img
-
--:Strawberry Death Cake
-http://strawberrydeathcake.com/archive/prologuepage1/
-:i #webcomic > div > span > img
-:n #webcomic > div > nav > a.next-webcomic-link
-
--:Strawberry Death Cake Original
-http://strawberrydeathcake.com/original/archive/page0/
-:i #webcomic > div > span > img
-:n #webcomic > div > nav > a.next-webcomic-link
 
 -:Strays
 http://www.straysonline.com/archives/
@@ -372,6 +352,8 @@ http://www.finalarcanum.com/archive/
 http://www.snowbynight.com/story.php
 :am .content_main h2 , .content_main .archive_pages a
 :i div.content_group.comic_group img
+:url_replace http://www.snowbynight.com/pages/ch12/vault.php ::: http://www.snowbynight.com/pages/ch12/pg18.php
+
 
 -:Valkyrie Squadron
 http://www.valkyriesquadron.com/valkyrie/prologue-page-0/
@@ -382,12 +364,6 @@ http://www.valkyriesquadron.com/valkyrie/prologue-page-0/
 http://wildelifecomic.com/index.php?id=1
 :i #cc-comic
 :n #nav1 > div > a.next
-
--:Otaku no Yen
-http://otakunoyen.com/?p=19
-:i #comic-1 > img
-:n #sidebar-undercomic a.navi.navi-next
-:url_replace http://otakunoyen.com/\?p=1079 ::: http://otakunoyen.com/?p=547
 
 -:Zombies and Fairytales
 http://166612.webhosting66.1blu.de/zaf_de/wordpress/comic/erster-eindruck/
@@ -582,7 +558,7 @@ http://www.tovecomic.com/archive.php
 http://www.blindsprings.com/comic/blindsprings-cover-book-one
 -- has an archive page here http://blindsprings.com/archive
 -- but that is in a weird order
-:ia #cc-comicbod ygimg
+:ia #cc-comic
 
 -:Last Halloween
 http://www.last-halloween.com/posts
@@ -799,3 +775,8 @@ http://www.bymoonalone.com/comic.php?date=2008-01-01
 http://weirdingwillows.keenspot.com/d/20140915.html
 :i #comicpage img
 :n a:has(#anext)
+
+-:Seed
+http://seed.thecomicseries.com/archive/
+:am #noncomiccontent h3 , #noncomiccontent a[href~=comics/\d]
+:i #comicimagelink img
