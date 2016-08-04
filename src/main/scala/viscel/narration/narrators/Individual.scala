@@ -264,39 +264,18 @@ object Individual {
 				withGood(chapter_?, pages_?)(_ :: _)
 			},
 			queryImage("#comic_strip > a > img")),
-
-		AP("NX_SixGunMage", "6 Gun Mage", "http://www.6gunmage.com/archives.php",
-			doc => Selection(doc).many("#bottomleft > select > option[value~=\\d+]").wrapFlat { elem =>
-				val tpIndex = elem.text().indexOf("Title Page")
-				val page = Link(s"http://www.6gunmage.com/index.php?id=${elem.attr("value")}") :: Nil
-				Good(if (tpIndex > 0) Chapter(elem.text().substring(tpIndex + "Title Page ".length)) :: page else page)
-			},
-			queryImage("#comic")),
 		AP("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/archives.php",
 			Selection(_).many("#leftarea > h3 > a").wrapFlat(elementIntoChapterPointer),
 			queryImageInAnchor("#comic")),
 		SF("NX_TheRockCocks", "The Rock Cocks", "http://www.therockcocks.com/index.php?id=1", queryImageInAnchor("#cc-comic")),
-		AP("NX_PragueRace", "Prague Race", "http://www.praguerace.com/comic/archive",
-			queryChapterArchive(".cc-chapterrow a[href]"),
-			queryImageInAnchor("#cc-comic")),
 		AP("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
-			doc => Selection(doc).many("#pagecontent > div.cc-chapterrow > a").wrapFlat(elementIntoChapterPointer),
+			doc => Selection(doc).many(".cc-chapterrow a[href]").wrapFlat(elementIntoChapterPointer),
 			doc => {
 				val asset_? = Selection(doc).unique("#cc-comic").wrapOne(imgIntoAsset)
 				val next_? = queryNext("#cc-comicbody > a")(doc)
 				val comment_? = Selection(doc).unique("#commentary > div.cc-newsarea > div.cc-newsbody").getOne.map(_.text())
 				withGood(asset_?, next_?, comment_?) { (asset, next, comment) => asset.copy(data = asset.data.updated("longcomment", comment)) :: next }
 			}),
-		AP("NX_GoGetARoomie", "Go Get a Roomie!", "http://www.gogetaroomie.com/archive.php",
-			doc => Selection(doc).unique("#comicwrap").wrapOne { comicwrap =>
-				val pages_? = Selection(comicwrap).many("> select > option[value~=^.+$]").wrapEach(e =>
-					extract(Link(s"http://www.gogetaroomie.com/comic/${e.attr("value")}")))
-				val chapters_? = Selection(comicwrap).many(".cc-chapterrow a").wrapEach(elementIntoChapterPointer).map(_.map(cp => (cp(0), cp(1))))
-				withGood(pages_?, chapters_?) { (pages, chapters) =>
-					placeChapters(pages, chapters)
-				}
-			},
-			queryImage("#cc-comic")),
 		SF("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor(".comicImg img")),
 		AP("NX_Goblins", "Goblins", "http://www.goblinscomic.org/archive/",
 			Selection(_).many("#column div.entry a").wrapFlat(elementIntoChapterPointer),
@@ -348,21 +327,7 @@ object Individual {
 			doc => queryImageInAnchor("img#cc-comic")(doc)),
 		SF("NX_Nimona", "Nimona", "http://gingerhaze.com/nimona/comic/page-1",
 			queryImageNext("img[src~=/nimona-pages/]", "a:has(img[src=http://gingerhaze.com/sites/default/files/comicdrop/comicdrop_next_label_file.png])")),
-		AP("NX_Monsterkind", "Monsterkind", "http://monsterkind.enenkay.com/comic/archive",
-			Selection(_).unique("#content > div.text").wrapFlat { content =>
-				val chapters_? = Selection(content).many("h2").wrapEach(h => extract(Chapter(h.text())))
-				val pages_? = Selection(content).many("p").wrapEach { p =>
-					Selection(p).many("a").wrapEach(extractMore)
-				}
-				withGood(chapters_?, pages_?) { (chaps, pages) =>
-					chaps.zip(pages).map(t => t._1 :: t._2).flatten
-				}
-			},
-			queryImage("#comic img")),
 		SF("NX_Solstoria", "Solstoria", "http://solstoria.net/?webcomic1=54", queryImageInAnchor("#webcomic > div.webcomic-image img")),
-		AP("NX_TheBoyWhoFell", "The Boy Who Fell", "http://www.boywhofell.com/chapter.php",
-			Selection(_).many("#comicarea h2 a").wrapFlat(elementIntoChapterPointer),
-			queryImageInAnchor("#comic")),
 		SF("NX_DominicDeegan", "Dominic Deegan", "http://www.dominic-deegan.com/view.php?date=2002-05-21",
 			doc => append(queryImages("body > div.comic > img")(doc), queryNext("#bottom a:has(img[alt=Next])")(doc))),
 		AP("NX_DreamScar", "dream*scar", "http://dream-scar.net/archive.php",
@@ -380,9 +345,6 @@ object Individual {
 					Good(ArticleRef(source, origin))
 				}
 			}),
-		AP("NX_ToiletGenie", "Toilet Genie", "http://www.storyofthedoor.com/archive/",
-			queryMixedArchive("#chapter_table td[colspan=4] a h2, #chapter_table a[onmouseout=hideddrivetip()]"),
-			queryImage("#comic_image")),
 		SF("NX_AvasDemon", "Ava’s Demon", "http://www.avasdemon.com/chapters.php",
 			Selection(_).many("table[id~=chapter\\d+_table]").wrap {
 				_.zipWithIndex.map { case (elem, idx) =>

@@ -105,9 +105,9 @@ http://www.fantasyrealmsonline.com/manga.php
 :i body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table > tbody > tr:nth-child(1) > td > div  img
 
 -:Feywinds
-http://www.feywinds.com/comic.html
-:am blockquote:has(.title:contains(Archive)) > p:lt(2) span.h1 , blockquote:contains(Archive) > p:lt(2) a
-:i img[src~=/comic/pages/]
+http://www.feywinds.com/archive/
+:am #content h2 , #content h3 a[href~=/feywinds/fw]
+:i .webcomic-image img
 
 -:Flipside0
 http://flipside.keenspot.com/comic/book0/fs01pg01.html
@@ -162,7 +162,7 @@ http://oglaf.com/archive/
 
 -:Chirault
 http://chirault.sevensmith.net/archives.php
-:am div.entryText > p > b , div.entryText > p > a
+:am div.entryText h1 , div.entryText > a
 :i img[src~=/comics/\d{8}]
 
 -:Annyseed
@@ -188,22 +188,10 @@ http://www.sexylosers.com/archives-by-volume/
 http://shadowbinders.com/comic/shadowbinders-chapter-1/
 :ia #comic img
 
--:Sister Claire
-http://www.sisterclaire.com/archive.php
-:ac #pagecontent > a:matches(Book \d+: Chapter)
-:i #comic
-:n #topnav > div > a.next
-
 -:Sore Thumbs
 http://sorethumbs.keenspot.com/d/20040308.html
 :i img.ksc , img[src~=http://sorethumbs.keenspot.com/st\d{8}], img[src=http://sorethumbs.keenspot.com/negativespace.png]
 :n a:has(#next_day1)
-
--:Spinnerette
-http://www.spinnyverse.com/issues/
-:ac #chaptertiles > div > a
-:i #comic
-:n #comic-head > ul > li.nav-next > a
 
 -:Star Power
 http://www.starpowercomic.com/archives/
@@ -213,11 +201,6 @@ http://www.starpowercomic.com/archives/
 -:Strays
 http://www.straysonline.com/archives/
 :ac #storyline > li:nth-child(2) > ul a.storyline-title
-:ia #comic-1 img
-
--:Supernormal Step
-http://supernormalstep.com/?page_id=696
-:ac #content  div.entry a:has(img)
 :ia #comic-1 img
 
 -:Taiki
@@ -251,10 +234,8 @@ http://wintersinlavelle.com/
 :ia #comicimg
 
 -Xylia:Xylia Tales
-http://www.xyliatales.com/archive/
-:am #post-5 > div > table img , #post-5 > div > table a:not(:has(img))
-:i #comic > img
-:n #comic a:has(img[alt=Next])
+http://xyliatales.com/?comic_id=0
+:ia #comic  img[src~=comics/\d{8}]
 
 -:Yet Another Fantasy Gamer Comic
 http://yafgc.net/archive/
@@ -384,9 +365,9 @@ http://www.amyachronicles.com/archives/comic/09292009
 --------------------------------------------------------------------------------------
 
 -:Lost Nightmare
-http://www.lostnightmare.com/archive.php
-:ac #bottommid > h2 > a
-:ia #comic
+http://www.lostnightmare.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:The End
 http://www.endcomic.com/archives/
@@ -394,9 +375,9 @@ http://www.endcomic.com/archives/
 :i #comic img
 
 -:Short Packed!
-http://www.shortpacked.com/archive.php
-:ac #middle > div.textbox > h3 > a
-:ia #comic
+http://www.shortpacked.com/comics/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Johnny Wander
 http://www.johnnywander.com/comic/i
@@ -409,13 +390,13 @@ http://www.fanboys-online.com/index.php?id=483
 :n #comicwrap a.next
 
 -:Love Not Found
-http://www.lovenotfound.com/archive.php
-:ac #pagebox > h2 > a
-:ia #comic
+http://www.lovenotfound.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Alice and the Nightmare
 http://www.aliceandthenightmare.com/comic/archive
-:ac #bottommid > div > a
+:ac .cc-chapterrow a[href]
 :ia #cc-comic
 
 -:Hijinks Ensue Classic
@@ -431,9 +412,9 @@ http://hijinksensue.com/comic/learning-to-love-again/
 :ia #comic img
 
 -:Headless Bliss
-http://www.headlessbliss.com/archive.php
-:ac #comicarea > div > h2 > a
-:ia #comic
+http://www.headlessbliss.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Platinum Black
 http://platinumblackcomic.com/archives/comic/chapter-1-cover
@@ -463,9 +444,9 @@ http://www.parallaxcomic.com/comic/archive
 :ia #cc-comic
 
 -:The Lonely Vincent Bellingham
-http://www.lonelyvincent.com/archive.php
-:ac #comicarea > h2 > a
-:ia #comic
+http://www.lonelyvincent.com/lonelyvincent/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Oh Joy Sex Toy
 http://www.ohjoysextoy.com/introduction/
@@ -482,24 +463,24 @@ http://www.marecomic.com/archive/
 :i #comic img
 
 -:The Mash
-http://www.mashcomic.com/archive.php
-:ac #pagearea > h2 > a
-:ia #comic
+http://www.mashcomic.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Metacarpolis
-http://www.metacarpolis.com/archive.php
-:ac #newscontent > h2 > a
-:ia #comic
+http://www.metacarpolis.com/metacarpolis/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Cassiopeia Quinn
-http://www.cassiopeiaquinn.com/archive.php
-:ac #blogarea > h2 > a
-:ia #comic
+http://www.cassiopeiaquinn.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Harpy Gee
-http://www.harpygee.com/archive.php
-:ac #pagearea > h2 > a
-:ia #comic
+http://www.harpygee.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Namesake
 http://namesakecomic.com/archives/
@@ -507,19 +488,19 @@ http://namesakecomic.com/archives/
 :ia #comic img
 
 -:Vibe
-http://www.vibecomic.com/archive.php
-:ac #pagecontent a.charchive
+http://www.vibecomic.com/comics/archive
+:ac .cc-chapterrow a[href]
 :ia #cc-comic
 
 -:Astral Aves
-http://www.astralaves.com/archive.php
-:ac #pagearea > h2 > a
-:ia #comic
+http://www.astralaves.com/comics/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Balderdash
-http://www.balderdashcomic.com/archive.php
-:am #comicwrap img[src~=/chapter[^/]+$] , #comicwrap a[href~=/index.php\?id=\d+$]
-:i #comic
+http://www.balderdashcomic.com/comics/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Flight of the Binturong
 http://www.flightofthebinturong.com/archives
@@ -527,9 +508,9 @@ http://www.flightofthebinturong.com/archives
 :i #comic > img
 
 -:Trying Human
-http://tryinghuman.com/archive.php
-:am #maincontent :matchesOwn(^(Chapter\s*\w+|Prologue)$) , #maincontent a
-:i #comic
+http://www.tryinghuman.com/archive
+:am #middle table td b , #middle table td a[href~=/index.php\?id=\d]
+:i #cc-comic
 
 -:Zombie Roomie
 http://www.zombieroomie.com/2009/10/26/issues/
@@ -550,9 +531,9 @@ http://helvetica.jnwiedle.com/2011/06/24/and-so-it-begins/
 :ia #comic img
 
 -:Tove
-http://www.tovecomic.com/archive.php
-:ac #textarea > h2 > a
-:ia #comic
+http://www.tovecomic.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Blindsprings
 http://www.blindsprings.com/comic/blindsprings-cover-book-one
@@ -567,12 +548,12 @@ http://www.last-halloween.com/posts
 
 -:Kiwi Blitz
 http://www.kiwiblitz.com/comic/archive/
-:ac #leftarea > .cc-chapterrow > a
+:ac .cc-chapterrow a[href]
 :ia #cc-comic
 
 -: Agents of the Realms
-http://www.agentsoftherealm.com/archive.php
-:ac #comicgoeshere > div.cc-chapterrow[style=margin-left:100px] > a
+http://www.agentsoftherealm.com/comics/archive
+:ac .cc-chapterrow a[href]
 :ia #cc-comic
 
 -:Beeserker
@@ -596,19 +577,20 @@ http://www.atomic-robo.com/comics.php
 :ia #comic
 
 -:Paranatural
-http://www.paranatural.net/archive.php
-:ac #comicseg > div > div > p > a:has(img)
-:ia #comic
+http://www.paranatural.net/comics/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Blaster Nation
-http://www.blasternation.com/archives.php
-:ac #leftside > div > h2 > a
-:ia #comic
+http://www.blasternation.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
 
 -:The Black Brick Road of OZ
-http://www.blackbrickroadofoz.com/archive.php
-:ac #newscontent > h2 > a
-:ia #comic img
+http://www.blackbrickroadofoz.com/comics/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Girl Genius
 http://www.girlgeniusonline.com/comic.php?date=20021104
@@ -639,13 +621,60 @@ http://thepunchlineismachismo.com/archives/comic/02222010
 :ia #comic img
 
 -:Saint for Rent
-http://www.saintforrent.com/archive.php
-:ac #pagecontent > h2 > a
-:ia #comic
+http://www.saintforrent.com/comics/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 -:Crazy Sunshine
 http://www.crazysunshine.com/comic/apocalypse-now/
 :ia #comic img
+
+-:Wonderlust
+http://www.wonderlustcomic.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
+-:Prague Race
+http://www.praguerace.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
+-:Sister Claire
+http://www.sisterclaire.com/comic/archive
+:ac #pagecontent > a:matches(Book \d+: Chapter)
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
+-:Spinnerette
+http://www.spinnyverse.com/comic/archive
+:ac #textbg > div > a
+:i #cc-comic
+:n .nav a.next
+
+-:6 Gun Mage
+http://www.6gunmage.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
+-:The Boy Who Fell
+http://www.boywhofell.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
+-:Monsterkind
+http://monsterkind.enenkay.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
+-:Go Get A Roomie
+http://www.gogetaroomie.com/comic/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
+-:Supernormal Step
+http://www.supernormalstep.com/archives/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
 
 --------------------------------------------------------------------------------------
 -- end of hiveworks
@@ -754,7 +783,8 @@ http://www.konradokonski.com/aquartzbead/?page_id=2
 
 -:Sawdust
 http://www.konradokonski.com/sawdust/archives/
-:am #post-554 > div > div.entry > div.comic-archive-chapter-wrap > h3, #post-554 > div > div.entry > div.comic-archive-chapter-wrap > div.comic-archive-list-wrap  a
+:am #content .entry h3 , #content .entry .archive-title > a
+:archiveReverse
 :i #comic img
 
 -:Romantically Apocalyptic
