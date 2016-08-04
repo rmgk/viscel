@@ -191,7 +191,7 @@ http://www.collectedcurios.com/sequentialart.php?s=1
 
 -:Sexy Losers
 http://www.sexylosers.com/archives-by-volume/
-:am div.entry-content > h3 , div.entry-content ul li a
+:am div.entry-content > h3 , div.entry-content > ul li a
 :i main.content article.post div.entry-content > p img.size-full
 
 -:Shadowbinders
@@ -579,10 +579,10 @@ http://www.tovecomic.com/archive.php
 :ia #comic
 
 -:Blindsprings
-http://blindsprings.com/comic/000
+http://www.blindsprings.com/comic/blindsprings-cover-book-one
 -- has an archive page here http://blindsprings.com/archive
 -- but that is in a weird order
-:ia #comic img
+:ia #cc-comicbod ygimg
 
 -:Last Halloween
 http://www.last-halloween.com/posts
@@ -768,6 +768,8 @@ http://www.wonderkittens.com/comics/index.php?date=20130204&until=week
 -:Stick in the Mud
 http://www.konradokonski.com/SITM/comic/title-0001/
 :ia #comic img
+:url_replace http://www.konradokonski.com/SITM/comic/sitm-filler-reading-time/ ::: http://www.konradokonski.com/SITM/comic/sitm-316/
+
 
 -:A Quartz Bead
 http://www.konradokonski.com/aquartzbead/?page_id=2
@@ -781,8 +783,8 @@ http://www.konradokonski.com/sawdust/archives/
 
 -:Romantically Apocalyptic
 http://romanticallyapocalyptic.com/0
-:i div.comicmid img
-:n div.comicright > a[accesskey=n]
+:i #frame center img
+:n #frame div.btn-group.btn-group-justified > a[accesskey=n]
 
 -:Questionable Content
 http://questionablecontent.net/view.php?comic=1
