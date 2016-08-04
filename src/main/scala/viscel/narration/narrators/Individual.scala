@@ -304,9 +304,9 @@ object Individual {
 			Selection(_).many("#leftarea > h3 > a").wrapFlat(elementIntoChapterPointer),
 			queryImageInAnchor("#comic")),
 		SF("NX_TheRockCocks", "The Rock Cocks", "http://www.therockcocks.com/index.php?id=1", queryImageInAnchor("#cc-comic")),
-		AP("NX_PragueRace", "Prague Race", "http://www.praguerace.com/archive.php",
-			queryChapterArchive("#bottommid > div > div > h2 > a"),
-			queryImageInAnchor("#comic")),
+		AP("NX_PragueRace", "Prague Race", "http://www.praguerace.com/comic/archive",
+			queryChapterArchive(".cc-chapterrow a[href]"),
+			queryImageInAnchor("#cc-comic")),
 		AP("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
 			doc => Selection(doc).many("#pagecontent > div.cc-chapterrow > a").wrapFlat(elementIntoChapterPointer),
 			doc => {

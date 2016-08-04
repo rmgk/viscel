@@ -458,9 +458,9 @@ http://www.whompcomic.com/2010/06/14/06142010/
 :ia #comic img
 
 -:Parallax
-http://www.parallaxcomic.com/archive.php
-:ac #comicwrap > div.pagetext > h2 > a
-:ia #comic
+http://www.parallaxcomic.com/comic/archive
+:ac .cc-chapterrow a[href~=comic/page]
+:ia #cc-comic
 
 -:The Lonely Vincent Bellingham
 http://www.lonelyvincent.com/archive.php
