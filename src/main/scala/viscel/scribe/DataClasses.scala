@@ -25,7 +25,7 @@ sealed trait ScribeEntry
 
 
 sealed trait ReadableContent
-case class Article(article: ArticleRef, blob: ScribeBlob) extends ReadableContent
+case class Article(article: ArticleRef, blob: Blob) extends ReadableContent
 
 sealed trait WebContent
 @key("Chapter") case class Chapter(name: String) extends WebContent with ReadableContent

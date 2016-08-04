@@ -89,7 +89,7 @@ class Book(path: Path) {
 					case art@ArticleRef(blob, origin, data) =>
 						blobMap.get(blob) match {
 							case None => flatten(t, acc)
-							case Some(alb) => flatten(t, Article(art, alb) :: acc)
+							case Some(alb) => flatten(t, Article(art, alb.blob) :: acc)
 						}
 					case chap@Chapter(_) => flatten(t, chap :: acc)
 				}
