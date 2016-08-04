@@ -11,8 +11,9 @@ import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import viscel.scribe.{ScribeBlob, BlobStore, Vurl}
+import viscel.scribe.{ScribeBlob, Vurl}
 import viscel.shared.{Blob, Log}
+import viscel.store.BlobStore
 
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{ExecutionContext, Future}

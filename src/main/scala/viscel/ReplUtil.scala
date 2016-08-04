@@ -5,7 +5,8 @@ import java.nio.file.{Files, Paths, StandardCopyOption}
 
 import viscel.scribe.{Scribe, Vurl, WebContent, ArticleRef => SArticle, Chapter => SChapter}
 import viscel.server.ServerPages
-import viscel.shared.{ImageRef, Blob, ChapterPos, Description, Gallery, Log}
+import viscel.shared.{Blob, ChapterPos, Description, Gallery, ImageRef, Log}
+import viscel.store.BlobStore
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scalatags.Text.RawFrag
@@ -13,7 +14,7 @@ import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
 
-class ReplUtil(scribe: Scribe) {
+class ReplUtil(scribe: Scribe, blobs: BlobStore) {
 	def mimeToExt(mime: String, default: String = "") = mime match {
 		case "image/jpeg" => "jpg"
 		case "image/gif" => "gif"
@@ -56,7 +57,7 @@ class ReplUtil(scribe: Scribe) {
 					case (a, apos) =>
 						a.copy(blob = a.blob.map { blob =>
 							val name = f"${apos + 1}%05d.${mimeToExt(blob.mime, default = "bmp")}"
-							Files.copy(scribe.blobs.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
+							Files.copy(blobs.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
 							blob.copy(sha1 = s"$cname/$name")
 						})
 				}
@@ -98,7 +99,7 @@ class ReplUtil(scribe: Scribe) {
 				if (mimeToExt(mime, default = "") == "") None
 				else {
 					Log.info(s"processing $p")
-					val sha1 = scribe.blobs.write(Files.readAllBytes(p))
+					val sha1 = blobs.write(Files.readAllBytes(p))
 					val blob = Blob(sha1, mime)
 					Some(Page(SArticle(Vurl.fromString(s"http://$sha1.sha1"), Vurl.fromString(s"http://$sha1.sha1")), Some(blob)))
 				}

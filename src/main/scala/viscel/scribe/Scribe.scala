@@ -1,13 +1,11 @@
 package viscel.scribe
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, StandardOpenOption}
+import java.nio.file.{Files, Path}
 
 import viscel.narration.Narrator
 import viscel.shared.Description
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.language.implicitConversions
 
 object Scribe {
@@ -18,14 +16,13 @@ object Scribe {
 		val bookdir = basedir.resolve("db3/books")
 		Files.createDirectories(bookdir)
 
-		val blobs = new BlobStore(basedir.resolve("blobs"))
 
-		new Scribe(bookdir, blobs)
+		new Scribe(bookdir)
 	}
 
 }
 
-class Scribe(val basepath: Path, val blobs: BlobStore) {
+class Scribe(val basepath: Path) {
 
 	var descriptionCache: Map[String, Description] =
 		Json.load[Map[String, Description]](basepath.resolve("../descriptions.json")).getOrElse(Map())

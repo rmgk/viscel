@@ -11,19 +11,16 @@ import viscel.crawl.RequestUtil
 import viscel.narration.{Metarrators, Narrators}
 import viscel.scribe.Scribe
 import viscel.shared.Log
-import viscel.store.User
+import viscel.store.{BlobStore, User}
 import viscel.{Deeds, ReplUtil}
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 
-class Server(scribe: Scribe, requestUtil: RequestUtil, terminate: () => Unit)(implicit val system: ActorSystem) {
+class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, terminate: () => Unit)(implicit val system: ActorSystem) {
 
 	val pages = new ServerPages(scribe)
-
-	import scribe.blobs.hashToPath
-
 
 	val users = new UserStore
 
@@ -95,7 +92,7 @@ class Server(scribe: Scribe, requestUtil: RequestUtil, terminate: () => Unit)(im
 				}
 			} ~
 			pathPrefix("blob" / Segment) { (sha1) =>
-				val filename = hashToPath(sha1).toFile
+				val filename = blobStore.hashToPath(sha1).toFile
 				pathEnd {getFromFile(filename)} ~
 					path(Segment / Segment) { (part1, part2) =>
 						getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).getOrElse(MediaTypes.`image/jpeg`), () => HttpCharsets.`UTF-8`))
@@ -118,7 +115,7 @@ class Server(scribe: Scribe, requestUtil: RequestUtil, terminate: () => Unit)(im
 			} ~
 			path("export" / Segment) { (id) =>
 				if (!user.admin) reject
-				else onComplete(Future(new ReplUtil(scribe).export(id))) {
+				else onComplete(Future(new ReplUtil(scribe, blobStore).export(id))) {
 					case Success(v) => complete("success")
 					case Failure(e) => complete(e.toString())
 				}
@@ -126,7 +123,7 @@ class Server(scribe: Scribe, requestUtil: RequestUtil, terminate: () => Unit)(im
 			path("import" / Segment) { (id) =>
 				if (!user.admin) reject
 				else parameters(('name.as[String], 'path.as[String])) { (name, path) =>
-					onComplete(Future(new ReplUtil(scribe).importFolder(path, s"Import_$id", name))) {
+					onComplete(Future(new ReplUtil(scribe, blobStore).importFolder(path, s"Import_$id", name))) {
 						case Success(v) => complete("success")
 						case Failure(e) => complete(e.toString())
 					}

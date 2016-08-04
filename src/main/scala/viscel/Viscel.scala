@@ -15,6 +15,7 @@ import viscel.scribe.Json._
 import viscel.scribe.Scribe
 import viscel.server.Server
 import viscel.shared.Log
+import viscel.store.BlobStore
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.language.implicitConversions
@@ -29,6 +30,7 @@ object Viscel {
 	}
 
 	var basepath: Path = _
+
 
 	def main(args: Array[String]): Unit = run(args: _*)
 
@@ -64,8 +66,10 @@ object Viscel {
 			0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
 
 		val scribe = viscel.scribe.Scribe(basepath.resolve("scribe"))
+		val blobs = new BlobStore(basepath.resolve("scribe/blobs"))
 
-		val requests = new RequestUtil(scribe.blobs, http)(executionContext, materializer)
+
+		val requests = new RequestUtil(blobs, http)(executionContext, materializer)
 
 		if (makelog.?) {
 			val dbconverter = viscel.neoadapter.NeoAdapter(basepath.resolve("scribe"))
@@ -85,7 +89,7 @@ object Viscel {
 					}(system.dispatcher)
 			}
 
-			val server = new Server(scribe, requests, terminate)(system)
+			val server = new Server(scribe, blobs, requests, terminate)(system)
 			val boundSocket: Future[ServerBinding] = http.bindAndHandle(
 				RouteResult.route2HandlerFlow(server.route)(
 					RoutingSettings.default(system),
