@@ -32,12 +32,12 @@ object Viscel {
 			res
 		}
 
-	implicit val readAssets: Reader[List[Article]] = Predef.implicitly[Reader[List[Article]]]
+	implicit val readAssets: Reader[List[ImageRef]] = Predef.implicitly[Reader[List[ImageRef]]]
 
 	var bookmarks: Future[Map[String, Int]] = _
 
 	var descriptions: Future[Map[String, Description]] = _
-	var contents: Map[String, Future[Content]] = Map()
+	var contents: Map[String, Future[Contents]] = Map()
 
 	val triggerDispatch: Evt[Unit] = Evt[Unit]()
 	triggerDispatch.observe(_ => Actions.dispatchPath(dom.window.location.hash.substring(1)))
@@ -45,8 +45,8 @@ object Viscel {
 		triggerDispatch(())
 	}
 
-	def content(nar: Description): Future[Content] = contents.getOrElse(nar.id, {
-		val res = ajax[Content](s"narration/${encodeURIComponent(nar.id)}")
+	def content(nar: Description): Future[Contents] = contents.getOrElse(nar.id, {
+		val res = ajax[Contents](s"narration/${encodeURIComponent(nar.id)}")
 		contents = contents.updated(nar.id, res)
 		res
 	})
@@ -119,7 +119,7 @@ object Viscel {
 		offlineMode = true
 
 		bookmarks = Future.successful(Map())
-		val (desc, content) = upickle.default.read[(Description, Content)](dataJson)
+		val (desc, content) = upickle.default.read[(Description, Contents)](dataJson)
 		descriptions = Future.successful(Map(id -> desc))
 		contents = Map(desc.id -> Future.successful(content))
 

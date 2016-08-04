@@ -8,7 +8,7 @@ import viscel.narration.Queries._
 import viscel.narration.Templates.{AP, SF}
 import viscel.narration.{Narrator, Templates}
 import viscel.scribe.Vurl.fromString
-import viscel.scribe.{Article, Chapter, Link, Normal, Volatile, Vurl, WebContent}
+import viscel.scribe.{ArticleRef, Chapter, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 
@@ -402,7 +402,7 @@ object Individual {
 				else Selection(elem).unique("img").wrapOne { img =>
 					val origin = elem.attr("abs:href")
 					val source = img.attr("abs:src").replace("/admin/img/thumb/", "/img/comic/")
-					Good(Article(source, origin))
+					Good(ArticleRef(source, origin))
 				}
 			}),
 		AP("NX_ToiletGenie", "Toilet Genie", "http://www.storyofthedoor.com/archive/",
@@ -416,7 +416,7 @@ object Individual {
 							as.sortBy(_.text()).map { a =>
 								val origin = a.attr("abs:href")
 								val source = s"http://www.avasdemon.com/pages/${a.text()}.png"
-								Article(source, origin)
+								ArticleRef(source, origin)
 							})
 					}
 				}.combined.map(_.flatten)

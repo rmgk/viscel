@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.scalactic.{Bad, Good}
 import viscel.narration.Narrator
-import viscel.scribe.{ScribePage, Article, Book, Chapter, Link, Scribe, Vurl, WebContent}
+import viscel.scribe.{ScribePage, ArticleRef, Book, Chapter, Link, Scribe, Vurl, WebContent}
 import viscel.shared.Log
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -76,7 +76,7 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 		Log.info(s"contents: $contents")
 		contents.foreach {
 			case link @ Link(ref, _, _) if !book.pageMap.contains(ref) => links = links ::: link :: Nil
-			case art @  Article(ref, _, _) if !book.blobMap.contains(ref) => articles = articles ::: art :: Nil
+			case art @  ArticleRef(ref, _, _) if !book.blobMap.contains(ref) => articles = articles ::: art :: Nil
 			case _ =>
 		}
 	}

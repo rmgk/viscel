@@ -5,7 +5,7 @@ import org.scalactic.{Every, Or}
 import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Templates}
-import viscel.scribe.{Article, Vurl}
+import viscel.scribe.{ArticleRef, Vurl}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 
@@ -20,7 +20,7 @@ object KissManga {
 			extract {
 				re.findAllIn(html).matchData.map { md =>
 					val url = md.subgroups(0)
-					Article(url, doc.baseUri())
+					ArticleRef(url, doc.baseUri())
 				}.toList
 			}
 		}

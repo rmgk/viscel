@@ -3,8 +3,8 @@ package viscel.server
 import akka.http.scaladsl.model._
 import upickle.default.Writer
 import viscel.narration.Narrators
-import viscel.scribe.{ArticleBlob, Entry, Scribe, Article => SArticle, Chapter => SChapter}
-import viscel.shared.{Article, Chapter, Content, Description, Gallery}
+import viscel.scribe.{ReadableContent, Scribe, ArticleRef, Article, Chapter}
+import viscel.shared.{ImageRef, ChapterPos, Contents, Description, Gallery}
 import viscel.store.User
 
 import scalatags.Text.attrs.{`type`, content, href, rel, src, title, name => attrname}
@@ -15,19 +15,19 @@ import scalatags.Text.{Modifier, RawFrag}
 
 class ServerPages(scribe: Scribe) {
 
-	def narration(id: String): Option[Content] = {
+	def narration(id: String): Option[Contents] = {
 
 
 		@scala.annotation.tailrec
-		def recurse(content: List[Entry], art: List[Article], chap: List[Chapter], c: Int): (List[Article], List[Chapter]) = {
+		def recurse(content: List[ReadableContent], art: List[ImageRef], chap: List[ChapterPos], c: Int): (List[ImageRef], List[ChapterPos]) = {
 			content match {
 				case Nil => (art, chap)
 				case h :: t => {
 					h match {
-						case ArticleBlob(SArticle(ref, origin, data), blob) =>
-							val article = Article(origin = origin.toString, Some(blob.blob), data)
-							recurse(t, article :: art, if (chap.isEmpty) List(Chapter("", 0)) else chap, c + 1)
-						case SChapter(name) => recurse(t, art, Chapter(name, c) :: chap, c)
+						case Article(ArticleRef(ref, origin, data), blob) =>
+							val article = ImageRef(origin = origin.toString, Some(blob.blob), data)
+							recurse(t, article :: art, if (chap.isEmpty) List(ChapterPos("", 0)) else chap, c + 1)
+						case Chapter(name) => recurse(t, art, ChapterPos(name, c) :: chap, c)
 					}
 				}
 			}
@@ -37,7 +37,7 @@ class ServerPages(scribe: Scribe) {
 
 			val (articles, chapters) = recurse(book.pages(), Nil, Nil, 0)
 
-			Content(Gallery.fromList(articles.reverse), chapters)
+			Contents(Gallery.fromList(articles.reverse), chapters)
 		}
 
 	}

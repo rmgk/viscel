@@ -4,7 +4,7 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
-import viscel.scribe.{Article, Chapter, Link, Policy, Vurl, WebContent}
+import viscel.scribe.{ArticleRef, Chapter, Link, Policy, Vurl, WebContent}
 import viscel.selection.ReportTools.{extract, _}
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
 
@@ -30,12 +30,12 @@ object Queries {
 	def extractMore(element: Element): Link Or Every[Report] =
 		extractURL(element).map(uri => Link(uri))
 
-	def imgIntoAsset(img: Element): Article Or Every[Report] = {
+	def imgIntoAsset(img: Element): ArticleRef Or Every[Report] = {
 		def getAttr(k: String): Option[(String, String)] = {
 			val res = img.attr(k)
 			if (res.isEmpty) None else Some(k -> res)
 		}
-		extract(Article(
+		extract(ArticleRef(
 			ref = Vurl.fromString(img.attr("abs:src")),
 			origin = Vurl.fromString(img.ownerDocument().location()),
 			data = List("alt", "title", "width", "height").flatMap(getAttr).toMap))
@@ -46,8 +46,8 @@ object Queries {
 		Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
 	}
 
-	def queryImage(query: String)(from: Element): List[Article] Or Every[Report] = Selection(from).unique(query).wrapEach(imgIntoAsset)
-	def queryImages(query: String)(from: Element): List[Article] Or Every[Report] = Selection(from).many(query).wrapEach(imgIntoAsset)
+	def queryImage(query: String)(from: Element): List[ArticleRef] Or Every[Report] = Selection(from).unique(query).wrapEach(imgIntoAsset)
+	def queryImages(query: String)(from: Element): List[ArticleRef] Or Every[Report] = Selection(from).many(query).wrapEach(imgIntoAsset)
 	def queryImageInAnchor(query: String)(from: Element): List[WebContent] Or Every[Report] = Selection(from).unique(query).wrapFlat { image =>
 		imgIntoAsset(image).map(_ :: extractMore(image.parent()).toOption.toList)
 	}

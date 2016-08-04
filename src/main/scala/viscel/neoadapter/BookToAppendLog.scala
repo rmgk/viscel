@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.Implicits.NodeOps
-import viscel.scribe.{ScribeBlob, ScribeEntry, ScribePage, Vurl, WebContent, Article => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore}
+import viscel.scribe.{ScribeBlob, ScribeEntry, ScribePage, Vurl, WebContent, ArticleRef => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore}
 import viscel.shared.Blob
 
 import scala.annotation.tailrec

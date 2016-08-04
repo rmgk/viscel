@@ -3,9 +3,9 @@ package viscel
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths, StandardCopyOption}
 
-import viscel.scribe.{Scribe, Vurl, WebContent, Article => SArticle, Chapter => SChapter}
+import viscel.scribe.{Scribe, Vurl, WebContent, ArticleRef => SArticle, Chapter => SChapter}
 import viscel.server.ServerPages
-import viscel.shared.{Article, Blob, Chapter, Description, Gallery, Log}
+import viscel.shared.{ImageRef, Blob, ChapterPos, Description, Gallery, Log}
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scalatags.Text.RawFrag
@@ -41,9 +41,9 @@ class ReplUtil(scribe: Scribe) {
 		val content = narrationOption.get
 		val description: Description = ???
 
-		val chapters: List[(Chapter, Seq[Article])] =
-			content.chapters.foldLeft((content.gallery.size, List[(Chapter, Seq[Article])]())) {
-				case ((nextPosition, chapters), chapter@Chapter(name, position)) =>
+		val chapters: List[(ChapterPos, Seq[ImageRef])] =
+			content.chapters.foldLeft((content.gallery.size, List[(ChapterPos, Seq[ImageRef])]())) {
+				case ((nextPosition, chapters), chapter@ChapterPos(name, position)) =>
 					(position, (chapter, Range(position, nextPosition).map(p => content.gallery.next(p).get.get)) :: chapters)
 			}._2
 

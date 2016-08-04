@@ -2,7 +2,7 @@ package visceljs.render
 
 import org.scalajs.dom
 import org.scalajs.dom.html.Element
-import viscel.shared.{Article, Content, Description, Gallery}
+import viscel.shared.{ImageRef, Contents, Description, Gallery}
 import visceljs.Actions.{gotoView, onLeftClickPrevNext}
 import visceljs.Definitions.{class_dead, class_extern, class_post, link_asset, link_front}
 import visceljs.Make.postBookmark
@@ -19,7 +19,7 @@ object View {
 
 
 	def gen(data: Data): Body = {
-		val Data(narration: Description, Content(gallery: Gallery[Article], _), bookmark: Int, _) = data
+		val Data(narration: Description, Contents(gallery: Gallery[ImageRef], _), bookmark: Int, _) = data
 		gallery.get match {
 			case None => Body("illegal position", "error", "error")
 			case Some(current) =>

@@ -21,10 +21,10 @@ class Book(path: Path) {
 		entries += entry
 	}
 
-	def emptyArticles(): List[Article] = entries.collect {
+	def emptyArticles(): List[ArticleRef] = entries.collect {
 		case ScribePage(ref, _, _, contents) => contents
 	}.flatten.collect {
-		case art@Article(ref, _, _) if !blobMap.contains(ref) => art
+		case art@ArticleRef(ref, _, _) if !blobMap.contains(ref) => art
 	}.toList
 
 	def emptyLinks(): List[Link] = entries.collect {
@@ -34,7 +34,7 @@ class Book(path: Path) {
 	}.toList
 
 	lazy val size: Int = pages().count {
-		case ArticleBlob(_, _) => true
+		case Article(_, _) => true
 		case _ => false
 	}
 
@@ -64,14 +64,14 @@ class Book(path: Path) {
 		map
 	}
 
-	def pages(): List[Entry] = {
+	def pages(): List[ReadableContent] = {
 
 		Log.info(s"pages for $id")
 
 		val seen = mutable.HashSet[Vurl]()
 
 		@scala.annotation.tailrec
-		def flatten(remaining: List[WebContent], acc: List[Entry]): List[Entry] = {
+		def flatten(remaining: List[WebContent], acc: List[ReadableContent]): List[ReadableContent] = {
 			remaining match {
 				case Nil => acc.reverse
 				case h :: t => h match {
@@ -86,10 +86,10 @@ class Book(path: Path) {
 								case Some(alp) => flatten(alp.contents ::: t, acc)
 							}
 						}
-					case art@Article(blob, origin, data) =>
+					case art@ArticleRef(blob, origin, data) =>
 						blobMap.get(blob) match {
 							case None => flatten(t, acc)
-							case Some(alb) => flatten(t, ArticleBlob(art, alb) :: acc)
+							case Some(alb) => flatten(t, Article(art, alb) :: acc)
 						}
 					case chap@Chapter(_) => flatten(t, chap :: acc)
 				}

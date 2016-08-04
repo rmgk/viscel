@@ -3,7 +3,7 @@ package visceljs
 import org.scalajs.dom.html.UList
 import rescala.engines.Engines.default
 import rescala.engines.Engines.default.Signal
-import viscel.shared.{Article, Description}
+import viscel.shared.{ImageRef, Description}
 import visceljs.Definitions._
 
 import scalatags.JsDom.all._
@@ -37,7 +37,7 @@ object Make {
 		})
 	}
 
-	def asset(asset: Article, data: Data): List[Modifier] = {
+	def asset(asset: ImageRef, data: Data): List[Modifier] = {
 		asset.blob match {
 			case None => List(class_placeholder, "placeholder")
 			case Some(blob) =>
