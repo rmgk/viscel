@@ -9,8 +9,9 @@ import viscel.shared.Blob
 
 import scala.language.implicitConversions
 
-final class Vurl(val uri: Uri) {
-	override def toString: String = uri.toString()
+final class Vurl private(val uri: Uri) {
+	override def toString: String = s" $uri "
+	def uriString(): String = uri.toString()
 	override def hashCode(): Int = uri.hashCode()
 	override def equals(other: scala.Any): Boolean = other match {
 		case o: Vurl => uri.equals(o.uri)
@@ -23,7 +24,7 @@ object Vurl {
 	implicit val uriReader: Reader[Vurl] = Reader[Vurl] {
 		case upickle.Js.Str(str) => fromString(str)
 	}
-	implicit val uriWriter: Writer[Vurl] = Writer[Vurl] { url => upickle.Js.Str(url.toString) }
+	implicit val uriWriter: Writer[Vurl] = Writer[Vurl] { url => upickle.Js.Str(url.uriString) }
 
 	def urlToUri(in: URL): Uri = {
 		implicit class X(s: String) {def ? = Option(s).getOrElse("")}
@@ -45,6 +46,11 @@ object Vurl {
 		else {
 			new Vurl(urlToUri(new URL(uri)))
 		}
+	}
+
+	def fromUri(uri: Uri): Vurl = {
+		if (!uri.isAbsolute) throw new IllegalArgumentException(s"$uri is not absolute")
+		new Vurl(uri)
 	}
 
 	val entrypoint: Vurl = new Vurl(Uri(scheme = "viscel", path = Path("/initial")))

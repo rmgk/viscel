@@ -75,7 +75,9 @@ http://cortland.comicgenesis.com/d/20040320.html
 
 -:Exiern
 http://www.exiern.com/2005/09/06/so-far/
-:i #comic-1 > img
+--second part below is a hack to workaround misposted image:
+--http://www.exiern.com/2015/06/30/it-is/
+:i #comic-1 > img , #post-content img.wp-image-4762
 :n #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
 
 -:Carciphona
@@ -109,7 +111,7 @@ http://fallouttoyworks.keenspot.com/d/20120326.html
 
 -:Fantasy Realms
 http://www.fantasyrealmsonline.com/manga.php
-:am body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table strong , body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table a 
+:am body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table strong , body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table a
 :i body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table > tbody > tr:nth-child(1) > td > div  img
 
 -:Feywinds

@@ -89,7 +89,7 @@ object Vid {
 				val doReplace: List[WebContent] => List[WebContent] = { stories =>
 					stories.map {
 						case Link(url, policy, data) =>
-							val newUrl = replacements.foldLeft(url.toString) {
+							val newUrl = replacements.foldLeft(url.uriString) {
 								case (u, Array(matches, replace)) => u.replaceAll(matches, replace)
 							}
 							Link(newUrl, policy, data)

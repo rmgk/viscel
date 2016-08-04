@@ -28,8 +28,8 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 		result //.andThen(PartialFunction(responseHandler))
 	}
 
-	def extractResponseLocation(httpResponse: HttpResponse): Option[Vurl] = {
-		httpResponse.header[Location].map(l => new Vurl(l.uri))
+	def extractResponseLocation(base: Vurl, httpResponse: HttpResponse): Vurl = {
+		httpResponse.header[Location].fold(base)(l => Vurl.fromUri(l.uri.resolvedAgainst(base.uri)))
 	}
 
 	def extractLastModified(httpResponse: HttpResponse): Option[Instant] = {
@@ -48,7 +48,8 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 
 	def extractDocument(baseuri: Vurl)(httpResponse: HttpResponse): Future[Document] = {
 		Unmarshal(httpResponse).to[String].map { html =>
-			Jsoup.parse(html, extractResponseLocation(httpResponse).getOrElse(baseuri).toString())
+			val responseLocation = extractResponseLocation(baseuri, httpResponse)
+			Jsoup.parse(html, responseLocation.uriString())
 		}
 	}
 
@@ -58,7 +59,7 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 			res.entity.toStrict(timeout).map { entity =>
 				val bytes = entity.data.toArray[Byte]
 				val sha1 = blobs.write(bytes)
-				ScribeBlob(source, extractResponseLocation(res).getOrElse(source),
+				ScribeBlob(source, extractResponseLocation(source, res),
 					blob = Blob(
 						sha1 = sha1,
 						mime = res.entity.contentType.mediaType.toString()),

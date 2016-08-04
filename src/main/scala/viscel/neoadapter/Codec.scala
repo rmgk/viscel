@@ -35,8 +35,8 @@ object Codec {
 	implicit val assetCodec: Codec[Asset] = new Codec[Asset] {
 		override def write(value: Asset)(implicit ntx: Ntx): Node =
 			ntx.create(label.Asset, List(
-				value.blob.map(b => "blob" -> b.toString()),
-				value.origin.map(o => "origin" -> o.toString()),
+				value.blob.map(b => "blob" -> b.uriString()),
+				value.origin.map(o => "origin" -> o.uriString()),
 				Some("kind" -> value.kind),
 				if (value.data.isEmpty) None else Some("data" -> value.data.toArray)
 			).flatten.toMap)
@@ -52,7 +52,7 @@ object Codec {
 	implicit val moreCodec: Codec[More] = new Codec[More] {
 		override def write(value: More)(implicit ntx: Ntx): Node =
 			ntx.create(label.More, List(
-				Some("loc" -> value.loc.toString()),
+				Some("loc" -> value.loc.uriString()),
 				value.policy match {
 					case Normal => None
 					case Volatile => Some("policy" -> 0)

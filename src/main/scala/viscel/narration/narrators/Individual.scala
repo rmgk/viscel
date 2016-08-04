@@ -11,6 +11,7 @@ import viscel.scribe.Vurl.fromString
 import viscel.scribe.{ArticleRef, Chapter, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
+import viscel.shared.Log
 
 import scala.Predef.{$conforms, augmentString}
 import scala.collection.immutable.Set
@@ -30,7 +31,7 @@ object Individual {
 				val origin_? = extractURL(anchor)
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
-						ref = element.ref.toString.replace("sm.", "."),
+						ref = element.ref.uriString.replace("sm.", "."),
 						origin = origin,
 						data = element.data - "width" - "height")
 				}
@@ -101,7 +102,7 @@ object Individual {
 					Selection(chap).many("a").wrapEach(extractMore))
 			}
 			case _ =>
-				if (doc.baseUri() == "http://inverloch.seraph-inn.com/viewcomic.php?page=765") Good(Nil)
+				if (doc.baseUri().endsWith("summaries.html")) Good(Nil)
 				else queryImageNext("#main > p:nth-child(1) > img", "#main a:containsOwn(Next)")(doc)
 		}
 	}
@@ -193,7 +194,7 @@ object Individual {
 				val origin_? = extractURL(anchor)
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
-						ref = element.ref.toString.replace("/t", "/"),
+						ref = element.ref.uriString.replace("/t", "/"),
 						origin = origin,
 						data = element.data - "width" - "height")
 				}
