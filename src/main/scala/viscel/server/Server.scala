@@ -31,15 +31,15 @@ class Server(scribe: Scribe, requestUtil: RequestUtil, terminate: () => Unit)(im
 		authenticateOrRejectWithChallenge[BasicHttpCredentials, T] { cred ⇒
 			authenticator(cred) match {
 				case Some(t) ⇒ Future.successful(AuthenticationResult.success(t))
-				case None    ⇒ Future.successful(AuthenticationResult.failWithChallenge(HttpChallenges.basic(realm)))
+				case None ⇒ Future.successful(AuthenticationResult.failWithChallenge(HttpChallenges.basic(realm)))
 			}
 		}
 	}
 
 	def route: Route = {
-		//(encodeResponse(Gzip) | encodeResponse(Deflate) | encodeResponse(NoEncoding)) {
-		sprayLikeBasicAuth("Username is used to store configuration; Passwords are saved in plain text; User is created on first login", users.authenticate){ user => defaultRoute(user) }
-		//}
+		encodeResponse {
+			sprayLikeBasicAuth("Username is used to store configuration; Passwords are saved in plain text; User is created on first login", users.authenticate) { user => defaultRoute(user) }
+		}
 	}
 
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
@@ -114,7 +114,7 @@ class Server(scribe: Scribe, requestUtil: RequestUtil, terminate: () => Unit)(im
 				}
 			} ~
 			path("stats") {
-				complete { pages.stats() }
+				complete {pages.stats()}
 			} ~
 			path("export" / Segment) { (id) =>
 				if (!user.admin) reject
