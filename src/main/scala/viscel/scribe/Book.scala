@@ -59,7 +59,7 @@ class Book(path: Path) {
 	lazy val blobMap: mutable.HashMap[Vurl, ScribeBlob] = {
 		val map = mutable.HashMap[Vurl, ScribeBlob]()
 		entries.collect {
-			case alb@ScribeBlob(il, _, _, _) =>  map.put(il, alb)
+			case alb@ScribeBlob(il, _, _, _) => map.put(il, alb)
 		}
 		map
 	}
@@ -70,21 +70,22 @@ class Book(path: Path) {
 
 		val seen = mutable.HashSet[Vurl]()
 
+		def unseen(contents: List[WebContent]): List[WebContent] = {
+			contents.filter {
+				case link@Link(loc, policy, data) => seen.add(loc)
+				case _ => true
+			}
+		}
+
 		@scala.annotation.tailrec
 		def flatten(remaining: List[WebContent], acc: List[ReadableContent]): List[ReadableContent] = {
 			remaining match {
 				case Nil => acc.reverse
 				case h :: t => h match {
 					case Link(loc, policy, data) =>
-						if (seen.contains(loc)) {
-							flatten(t, acc)
-						}
-						else {
-							seen += loc
-							pageMap.get(loc) match {
-								case None => flatten(t, acc)
-								case Some(alp) => flatten(alp.contents ::: t, acc)
-							}
+						pageMap.get(loc) match {
+							case None => flatten(t, acc)
+							case Some(alp) => flatten(unseen(alp.contents) ::: t, acc)
 						}
 					case art@ArticleRef(ref, origin, data) =>
 						val blob = blobMap.get(ref).map(_.blob)
@@ -99,7 +100,7 @@ class Book(path: Path) {
 				Log.warn(s"Book $id was emtpy")
 				Nil
 			case Some(initialPage) =>
-				flatten(initialPage.contents, Nil)
+				flatten(unseen(initialPage.contents), Nil)
 		}
 
 	}
