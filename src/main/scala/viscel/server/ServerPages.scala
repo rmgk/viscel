@@ -25,7 +25,7 @@ class ServerPages(scribe: Scribe) {
 				case h :: t => {
 					h match {
 						case Article(ArticleRef(ref, origin, data), blob) =>
-							val article = ImageRef(origin = origin.toString, Some(blob), data)
+							val article = ImageRef(origin = origin.toString, blob, data)
 							recurse(t, article :: art, if (chap.isEmpty) List(ChapterPos("", 0)) else chap, c + 1)
 						case Chapter(name) => recurse(t, art, ChapterPos(name, c) :: chap, c)
 					}

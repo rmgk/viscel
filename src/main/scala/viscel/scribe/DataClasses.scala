@@ -5,7 +5,7 @@ import java.time.Instant
 import derive.key
 import viscel.shared.Blob
 
-sealed trait ScribeEntry
+sealed trait ScribeDataRow
 @key("Page") case class ScribePage(
 	/** reference that spawned this entry */
 	ref: Vurl,
@@ -13,7 +13,7 @@ sealed trait ScribeEntry
 	loc: Vurl,
 	date: Instant,
 	contents: List[WebContent]
-) extends ScribeEntry
+) extends ScribeDataRow
 @key("Blob") case class ScribeBlob(
 	/** reference that spawned this entry */
 	ref: Vurl,
@@ -21,11 +21,11 @@ sealed trait ScribeEntry
 	loc: Vurl,
 	date: Instant,
 	blob: Blob
-) extends ScribeEntry
+) extends ScribeDataRow
 
 
 sealed trait ReadableContent
-case class Article(article: ArticleRef, blob: Blob) extends ReadableContent
+case class Article(article: ArticleRef, blob: Option[Blob]) extends ReadableContent
 
 sealed trait WebContent
 @key("Chapter") case class Chapter(name: String) extends WebContent with ReadableContent

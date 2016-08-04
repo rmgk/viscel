@@ -12,8 +12,8 @@ import scala.collection.mutable.ArrayBuffer
 
 class Book(path: Path) {
 
-	def add(entry: ScribeEntry): Unit = {
-		Files.write(path, List(upickle.default.write[ScribeEntry](entry)).asJava, StandardOpenOption.APPEND)
+	def add(entry: ScribeDataRow): Unit = {
+		Files.write(path, List(upickle.default.write[ScribeDataRow](entry)).asJava, StandardOpenOption.APPEND)
 		entry match {
 			case alp@ScribePage(il, _, _, _) => pageMap.put(il, alp)
 			case alb@ScribeBlob(il, _, _, _) => blobMap.put(il, alb)
@@ -42,9 +42,9 @@ class Book(path: Path) {
 
 	lazy val id: String = path.getFileName.toString
 
-	lazy val entries: ArrayBuffer[ScribeEntry] = {
+	lazy val entries: ArrayBuffer[ScribeDataRow] = {
 		Files.lines(path, StandardCharsets.UTF_8).skip(1).iterator.asScala.map { line =>
-			upickle.default.read[ScribeEntry](line)
+			upickle.default.read[ScribeDataRow](line)
 		}.to[ArrayBuffer]
 	}
 
@@ -86,11 +86,9 @@ class Book(path: Path) {
 								case Some(alp) => flatten(alp.contents ::: t, acc)
 							}
 						}
-					case art@ArticleRef(blob, origin, data) =>
-						blobMap.get(blob) match {
-							case None => flatten(t, acc)
-							case Some(alb) => flatten(t, Article(art, alb.blob) :: acc)
-						}
+					case art@ArticleRef(ref, origin, data) =>
+						val blob = blobMap.get(ref).map(_.blob)
+						flatten(t, Article(art, blob) :: acc)
 					case chap@Chapter(_) => flatten(t, chap :: acc)
 				}
 			}

@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.neo4j.graphdb.Node
 import viscel.neoadapter.Implicits.NodeOps
-import viscel.scribe.{ScribeBlob, ScribeEntry, ScribePage, Vurl, WebContent, ArticleRef => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore}
+import viscel.scribe.{ScribeBlob, ScribeDataRow, ScribePage, Vurl, WebContent, ArticleRef => AppendLogArticle, Chapter => AppendLogChapter, Link => AppendLogMore}
 import viscel.shared.Blob
 
 import scala.annotation.tailrec
@@ -18,7 +18,7 @@ object BookToAppendLog {
 
 
 
-	def bookToEntries(book: Book)(implicit ntx: Ntx): List[ScribeEntry] = {
+	def bookToEntries(book: Book)(implicit ntx: Ntx): List[ScribeDataRow] = {
 		def loadEntries(node: Node): WebContent = {
 			Codec.load[NeoStory](node) match {
 				case More(loc, policy, data) => AppendLogMore(loc, policy, data)
@@ -35,7 +35,7 @@ object BookToAppendLog {
 			}
 		}
 		@tailrec
-		def go(remaining: List[Node], acc: List[ScribeEntry]): List[ScribeEntry] = remaining match {
+		def go(remaining: List[Node], acc: List[ScribeDataRow]): List[ScribeDataRow] = remaining match {
 			case Nil => acc
 			case h :: t =>
 				if (h.hasRelationship(rel.blob)) {
