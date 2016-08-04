@@ -46,17 +46,20 @@ class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: R
 		if (needsRecheck(n.id, recheckInterval) && !running.contains(n.id)) {
 			val crawl = new Crawl(n, scribe, requestUtil)(ec)
 			running = running.updated(n.id, crawl)
-			crawl.start().onComplete { res =>
+			crawl.start().onComplete { result =>
 				Clockwork.this.synchronized(running = running - n.id)
-				res match {
-				case Failure(t) =>
-					Log.error(s"recheck failed with $t")
-					t.printStackTrace()
-				case Success(true) =>
-					Log.info(s"update ${n.id} complete")
-					updateDates(n.id)
-				case Success(false) =>
-			}}
+				result match {
+					case Failure(RequestException(request, response)) =>
+						Log.error(s"request: ${request.uri} failed: ${response.status}")
+					case Failure(t) =>
+						Log.error(s"recheck failed with $t")
+						t.printStackTrace()
+					case Success(true) =>
+						Log.info(s"update ${n.id} complete")
+						updateDates(n.id)
+					case Success(false) =>
+				}
+			}
 		}
 	}
 

@@ -26,17 +26,14 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 	def getResponse(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
 		Log.info(s"request ${request.uri} (${request.header[Referer]})")
 		val result: Future[HttpResponse] = ioHttp.singleRequest(request).flatMap { res =>
-			if (res.status.isRedirection()) {
-				res.header[Location] match {
-					case None => Future.failed(new IllegalArgumentException(s"$request is redirect, but has no location"))
-					case Some(loc) => getResponse(request.withUri(loc.uri), redirects = redirects - 1)
-				}
+			if (res.status.isRedirection() && res.header[Location].isDefined) {
+					getResponse(request.withUri(res.header[Location].get.uri), redirects = redirects - 1)
 			}
 			else if (res.status.isSuccess()) {
 				res.toStrict(timeout)
 			}
 			else {
-				Future.failed(new IllegalArgumentException(s"$request failed: $res"))
+				Future.failed(RequestException(request, res))
 			}
 		}
 		result //.andThen(PartialFunction(responseHandler))
