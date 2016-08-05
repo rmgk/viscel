@@ -6,14 +6,12 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Queries._
 import viscel.narration.Templates.{AP, SF}
-import viscel.narration.{Narrator, Queries, Templates}
+import viscel.narration.{Narrator, Templates}
 import viscel.scribe.Vurl.fromString
 import viscel.scribe.{ArticleRef, Chapter, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
-import viscel.shared.Log
 
-import scala.Predef.{$conforms, augmentString}
 import scala.collection.immutable.Set
 
 object Individual {

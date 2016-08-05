@@ -674,8 +674,9 @@ http://www.supernormalstep.com/archives/archive
 
 -:Awaken
 http://www.awakencomic.com/comic/archive
-:ac .cc-chapterrow a[href]
-:ia #cc-comic
+:ac .cc-chapterrow:not(:has(a[href~=valentine-extra])) a[href]
+:i #cc-comic , #cc-comicbody .cc-showbig img
+:n .nav .next
 
 -:The Rock Cocks
 http://rockcocks.slipshine.net/comic/archive
