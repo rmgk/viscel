@@ -110,7 +110,10 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 
 
 	def addContents(contents: List[WebContent]): Unit = {
-		if (recheckStarted) requestAfterRecheck += 1
+		if (recheckStarted) {
+			if (contents.isEmpty && requestAfterRecheck == 0) requestAfterRecheck += 1
+			requestAfterRecheck += 1
+		}
 		contents.foreach {
 			case link@Link(ref, _, _) if !book.pageMap.contains(ref) => links = links ::: link :: Nil
 			case art@ArticleRef(ref, _, _) if !book.blobMap.contains(ref) => articles = articles ::: art :: Nil
