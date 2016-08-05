@@ -13,17 +13,17 @@ sealed trait ScribeDataRow {
 	def matches(o: ScribeDataRow): Boolean = ref.equals(o.ref)
 }
 @key("Page") case class ScribePage(
-	/** reference that spawned this entry */
+	/* reference that spawned this entry */
 	ref: Vurl,
-	/** location that was finally resolved and downloaded */
+	/* location that was finally resolved and downloaded */
 	loc: Vurl,
 	date: Instant,
 	contents: List[WebContent]
 ) extends ScribeDataRow
 @key("Blob") case class ScribeBlob(
-	/** reference that spawned this entry */
+	/* reference that spawned this entry */
 	ref: Vurl,
-	/** location that was finally resolved and downloaded */
+	/* location that was finally resolved and downloaded */
 	loc: Vurl,
 	date: Instant,
 	blob: Blob
