@@ -12,7 +12,7 @@ object MangaHere {
 
 	case class Nar(id: String, name: String, archiveUri: Vurl) extends Templates.AP(
 		archiveUri,
-		Selection(_).many(".detail_list > ul:first-of-type a").reverse.wrapFlat {elementIntoChapterPointer},
+		doc => queryMixedArchive(".detail_list > ul:first-of-type > li , .detail_list > ul:first-of-type a ")(doc).map(reverse),
 		queryImageNext("#image", ".next_page:not([onclick])")
 	)
 
