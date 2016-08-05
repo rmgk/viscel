@@ -115,8 +115,8 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 			requestAfterRecheck += 1
 		}
 		contents.foreach {
-			case link@Link(ref, _, _) if !book.pageMap.contains(ref) => links = links ::: link :: Nil
-			case art@ArticleRef(ref, _, _) if !book.blobMap.contains(ref) => articles = articles ::: art :: Nil
+			case link@Link(ref, _, _) if !book.pageMap.contains(ref) => links = link :: links
+			case art@ArticleRef(ref, _, _) if !book.blobMap.contains(ref) => articles = art :: articles
 			case _ =>
 		}
 	}
