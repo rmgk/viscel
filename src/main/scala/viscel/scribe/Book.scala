@@ -116,12 +116,12 @@ class Book(path: Path) {
 		@scala.annotation.tailrec
 		def flatten(remaining: List[WebContent], acc: List[ReadableContent]): List[ReadableContent] = {
 			remaining match {
-				case Nil => acc.reverse
+				case Nil => acc
 				case h :: t => h match {
 					case Link(loc, policy, data) =>
 						pageMap.get(loc) match {
 							case None => flatten(t, acc)
-							case Some(alp) => flatten(unseen(alp.contents) ::: t, acc)
+							case Some(alp) => flatten(unseen(alp.contents) reverse_:::  t, acc)
 						}
 					case art@ArticleRef(ref, origin, data) =>
 						val blob = blobMap.get(ref).map(_.blob)
@@ -136,7 +136,7 @@ class Book(path: Path) {
 				Log.warn(s"Book $id was emtpy")
 				Nil
 			case Some(initialPage) =>
-				flatten(unseen(initialPage.contents), Nil)
+				flatten(unseen(initialPage.contents.reverse), Nil)
 		}
 
 	}
