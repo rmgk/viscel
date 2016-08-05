@@ -21,21 +21,20 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionContext, materializer: Materializer) {
 
-	val timeout = FiniteDuration(300, SECONDS)
+	val timeout = FiniteDuration(30, SECONDS)
 
 	def getResponse(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
 		Log.info(s"request ${request.uri} (${request.header[Referer]})")
-		val result: Future[HttpResponse] = ioHttp.singleRequest(request).flatMap { res =>
-			if (res.status.isRedirection() && res.header[Location].isDefined) {
-				// restarting the connectin pool when redirecting was necessary for falcon twin … who knows why
-				ioHttp.shutdownAllConnectionPools().flatMap(_ =>
+		ioHttp.singleRequest(request)
+			.flatMap(_.toStrict(timeout))
+			.flatMap { res =>
+				if (res.status.isRedirection() && res.header[Location].isDefined) {
 					getResponse(request.withUri(res.header[Location].get.uri.resolvedAgainst(request.uri)), redirects = redirects - 1)
-				)
+				}
+				else if (res.status.isSuccess()) {Future.successful(res)}
+				else {Future.failed(RequestException(request, res))}
 			}
-			else if (res.status.isSuccess()) {res.toStrict(timeout)}
-			else {Future.failed(RequestException(request, res))}
-		}
-		result.map(r => Deflate.decode(Gzip.decode(r)))
+			.map(r => Deflate.decode(Gzip.decode(r)))
 	}
 
 	def extractResponseLocation(base: Vurl, httpResponse: HttpResponse): Vurl = {
