@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Book(path: Path) {
+class Book(path: Path, scribe: Scribe) {
 
 	def add(entry: ScribeDataRow): Unit = {
 		Files.write(path, List(upickle.default.write[ScribeDataRow](entry)).asJava, StandardOpenOption.APPEND)
@@ -22,6 +22,7 @@ class Book(path: Path) {
 		val index = entries.indexWhere(_.matches(entry))
 		if (index >= 0) entries.remove(index)
 		entries += entry
+		scribe.invalidateSize(this)
 	}
 
 	def emptyArticles(): List[ArticleRef] = entries.collect {
@@ -37,7 +38,7 @@ class Book(path: Path) {
 		case link@Link(ref, _, _) if !pageMap.contains(ref) => link
 	}.toList
 
-	lazy val size: Int = pages().count {
+	def size(): Int = pages().count {
 		case Article(_, _) => true
 		case _ => false
 	}

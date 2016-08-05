@@ -27,16 +27,15 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 		Log.info(s"request ${request.uri} (${request.header[Referer]})")
 		val result: Future[HttpResponse] = ioHttp.singleRequest(request).flatMap { res =>
 			if (res.status.isRedirection() && res.header[Location].isDefined) {
+				// restarting the connectin pool when redirecting was necessary for falcon twin … who knows why
+				ioHttp.shutdownAllConnectionPools().flatMap(_ =>
 					getResponse(request.withUri(res.header[Location].get.uri.resolvedAgainst(request.uri)), redirects = redirects - 1)
+				)
 			}
-			else if (res.status.isSuccess()) {
-				res.toStrict(timeout)
-			}
-			else {
-				Future.failed(RequestException(request, res))
-			}
+			else if (res.status.isSuccess()) {res.toStrict(timeout)}
+			else {Future.failed(RequestException(request, res))}
 		}
-		result //.andThen(PartialFunction(responseHandler))
+		result.map(r => Deflate.decode(Gzip.decode(r)))
 	}
 
 	def extractResponseLocation(base: Vurl, httpResponse: HttpResponse): Vurl = {
@@ -54,7 +53,7 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 			headers =
 				`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip) ::
 					origin.map(x => Referer.apply(x.uri)).toList)
-		getResponse(req).map(r => Deflate.decode(Gzip.decode(r)))
+		getResponse(req)
 	}
 
 	def extractDocument(baseuri: Vurl)(httpResponse: HttpResponse): Future[Document] = {
