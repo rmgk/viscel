@@ -18,6 +18,9 @@ import scalatags.JsDom.tags2._
 
 
 object Index {
+
+	var inputQueryString = ""
+
 	def gen(bookmarks: Map[String, Int], descriptions: Map[String, Description]): Body = {
 
 		val bookmarkedNarrations: List[(Description, Int, Int)] =
@@ -30,8 +33,9 @@ object Index {
 		val (hasNewPages, isCurrent) = bookmarkedNarrations.partition(_._3 > 15)
 		val available = descriptions.values.toList.filter(d => !bookmarks.contains(d.id)).map(n => (n, 0, n.size))
 
-		val inputQuery = Var("")
-		val inputField = input(`type` := "textfield", tabindex := "1", onkeyup := ({ (inp: html.Input) =>
+		val inputQuery = Var(inputQueryString)
+		inputQuery.observe(inputQueryString = _)
+		val inputField = input(value :=inputQueryString, `type` := "textfield", tabindex := "1", onkeyup := ({ (inp: html.Input) =>
 			inputQuery.set(inp.value.toString.toLowerCase)
 		}: js.ThisFunction))
 
