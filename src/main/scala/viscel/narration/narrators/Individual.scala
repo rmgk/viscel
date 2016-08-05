@@ -199,7 +199,7 @@ object Individual {
 			case Link(_, Volatile, Nil) => wrapIssue(doc)
 			case _ =>
 				if (doc.baseUri() == "http://www.namirdeiter.com/comics/index.php?date=20020819") Good(Nil)
-				else if (doc.baseUri() == "http://www.namirdeiter.com/") queryImage("#comic > img")(doc)
+				else if (doc.baseUri() == "http://www.namirdeiter.com/") Good(Nil)
 				else queryImageInAnchor("body > center > div > center:nth-child(3) > table center img")(doc)
 		}
 	}
@@ -322,7 +322,6 @@ object Individual {
 		AP("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
 			queryMixedArchive("#main_text div.archivediv h2, #main_text div.archivediv a"),
 			queryImage("#wrapper2 img")),
-		SF("NX_Awaken", "Awaken", "http://awakencomic.com/index.php?id=1", queryImageInAnchor("#comic")),
 		SF("NX_DangerouslyChloe", "Dangerously Chloe", "http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl", queryImageInAnchor("#comic img")),
 		SF("NX_YouSuck", "You Suck", "http://yousuck.slipshine.net/go/1-legolas",
 			doc => queryImageInAnchor("img#cc-comic")(doc)),

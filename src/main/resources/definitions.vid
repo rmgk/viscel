@@ -672,7 +672,7 @@ http://www.supernormalstep.com/archives/archive
 :ac .cc-chapterrow a[href]
 :ia #cc-comic
 
--TheAwakened:Awaken
+-:Awaken
 http://www.awakencomic.com/comic/archive
 :ac .cc-chapterrow a[href]
 :ia #cc-comic
@@ -685,6 +685,10 @@ http://rockcocks.slipshine.net/comic/archive
 --------------------------------------------------------------------------------------
 -- end of hiveworks
 --------------------------------------------------------------------------------------
+
+-:The Awakened
+http://www.theawakenedcomic.com/comic/chapter-one-page-one/
+:ia #comic img
 
 -:Ianua
 http://www.lesserkeystudios.com/ianua/page-1/
