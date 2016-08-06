@@ -114,7 +114,7 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 			if (contents.isEmpty && requestAfterRecheck == 0) requestAfterRecheck += 1
 			requestAfterRecheck += 1
 		}
-		contents.foreach {
+		contents.reverse.foreach {
 			case link@Link(ref, _, _) if !book.pageMap.contains(ref) => links = link :: links
 			case art@ArticleRef(ref, _, _) if !book.blobMap.contains(ref) => articles = art :: articles
 			case _ =>
