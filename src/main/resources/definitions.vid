@@ -166,9 +166,9 @@ http://chirault.sevensmith.net/archives.php
 :i img[src~=/comics/\d{8}]
 
 -:Annyseed
-http://www.mirrorwoodcomics.com/Annyseed000.htm
+http://www.mirrorwoodcomics.com/AnnyseedArchive.htm
+:am td[width=810][height=675] p:not(:has(a)) , td[width=810][height=675] a
 :i img[src~=AnnyseedPage]
-:n a:has(img#Nextbtn1)
 
 -:Quiltbag
 http://quiltbag.keenspot.com/d/20111018.html
