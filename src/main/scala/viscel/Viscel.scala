@@ -167,7 +167,7 @@ object Viscel {
 			.withRequiredArg().ofType(Predef.classOf[Int]).defaultsTo(2358).describedAs("port")
 		val noserver = accepts("noserver", "do not start the server")
 		val nocore = accepts("nocore", "do not start the core downloader")
-		val basedir = accepts("basedir", "die base working directory")
+		val basedir = accepts("basedir", "the base working directory")
 			.withRequiredArg().ofType(Predef.classOf[String]).defaultsTo("./data/").describedAs("basedir")
 		val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
 		val shutdown = accepts("shutdown", "shutdown after main")
