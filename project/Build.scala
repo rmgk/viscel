@@ -10,7 +10,7 @@ object Build extends sbt.Build {
 		.settings(name := "viscel")
 		.settings(Settings.main: _*)
 		.settings(Libraries.main: _*)
-		//.settings(compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in(js, Compile)))
+		.settings(compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in(js, Compile)))
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
 		.enablePlugins(JavaAppPackaging)
 		.dependsOn(shared % Provided)
