@@ -125,7 +125,7 @@ object Libraries {
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
 
-	val jsoup = "org.jsoup" % "jsoup" % "1.8.1" :: Nil
+	val jsoup = "org.jsoup" % "jsoup" % "1.9.2" :: Nil
 
 	// gpl3
 	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "3.0.4")
@@ -136,7 +136,7 @@ object Libraries {
 
 	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.2" :: Nil
 
-	val scalactic = ("org.scalactic" %% "scalactic" % "2.2.6" exclude("org.scala-lang", "scala-reflect")) :: Nil
+	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.0" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
 	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.0" :: Nil)
 

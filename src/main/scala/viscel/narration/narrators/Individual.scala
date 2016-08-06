@@ -145,7 +145,7 @@ object Individual {
 
 		def wrapArchive(doc: Document): Or[List[WebContent], Every[Report]] = {
 			val chapters_? = Selection(doc).many("#comicbody a:matchesOwn(^Book #\\d+$)").wrapFlat { anchor =>
-				withGood(extractMore(anchor)) { pointer =>
+				extractMore(anchor).map { pointer =>
 					Chapter(anchor.ownText()) :: pointer :: Nil
 				}
 			}
