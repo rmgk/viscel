@@ -92,7 +92,11 @@ class ServerPages(scribe: Scribe) {
 			"id: ", input(`type` := "text", attrname := "id"), br,
 			"name: ", input(`type` := "text", attrname := "name"), br,
 			"path: ", input(`type` := "text", attrname := "path"), br,
-			input(`type` := "submit", value := "import")))
+			input(`type` := "submit", value := "import"))),
+		section(
+			form(action := "add",
+				"url: ", input(`type` := "text", attrname := "url"), br,
+				input(`type` := "submit", value := "add")))
 	))
 
 	val toolsResponse = htmlResponse(toolsPage)
