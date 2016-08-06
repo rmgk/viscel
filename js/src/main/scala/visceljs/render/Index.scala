@@ -6,7 +6,7 @@ import rescala.engines.Engines.default.{Signal, Var}
 import rescala.reactives.Signals
 import viscel.shared.Description
 import visceljs.Actions._
-import visceljs.Definitions.{link_front, link_stop}
+import visceljs.Definitions.{link_front, link_stop, link_tools}
 import visceljs.{Body, Make, SearchUtil}
 
 import scala.collection.immutable.Map
@@ -59,7 +59,7 @@ object Index {
 
 		Body(id = "index", title = "Viscel",
 			frag = List(
-				Make.navigation(Make.fullscreenToggle("TFS"), searchForm, link_stop("stop")),
+				Make.navigation(Make.fullscreenToggle("TFS"), searchForm, link_tools("tools")),
 				Make.group(s"Updates", filteredHasNewPages),
 				Make.group(s"Bookmarks", filteredIsCurrent),
 				Make.group(s"Available", filteredAvailable)))

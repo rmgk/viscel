@@ -18,6 +18,7 @@ object Definitions {
 	def path_blob(blob: Blob) = s"blob/${blob.sha1}/${blob.mime}"
 	def path_front(nar: Description) = s"#${encodeURIComponent(nar.id)}"
 	def path_stop = "stop"
+	def path_tools = "tools"
 
 	val class_post = cls := "post"
 	val class_extern = cls := "extern"
@@ -29,6 +30,8 @@ object Definitions {
 
 	def link_index(ts: Frag*): Tag = a(onLeftClick(gotoIndex()), href := path_main)(ts)
 	def link_stop(ts: Frag*): Tag = a(href := path_stop)(ts)
+	def link_tools(ts: Frag*): Tag = a(href := path_tools)(ts)
+
 	def link_asset(data: Data): Tag =
 		if (data.gallery.isEnd) a(class_dead)
 		else a.apply(onLeftClick(gotoView(data)), href := path_asset(data))

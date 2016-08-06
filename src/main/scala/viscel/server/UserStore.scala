@@ -5,7 +5,6 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Bad, Good}
 import viscel.shared.Log
 
-//import spray.routing.authentication.{BasicAuth, BasicHttpAuthenticator, UserPass, UserPassAuthenticator}
 import viscel.store.{User, Users}
 
 import scala.Predef.ArrowAssoc

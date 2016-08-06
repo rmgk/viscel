@@ -2,8 +2,13 @@ package viscel
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths, StandardCopyOption}
+import java.time.Instant
 
-import viscel.scribe.{Scribe, Vurl, WebContent, ArticleRef => SArticle, Chapter => SChapter}
+import org.jsoup.nodes.Document
+import org.scalactic.{Every, Or}
+import viscel.narration.{Narrator, Narrators}
+import viscel.scribe.{Article, ArticleRef, Chapter, Link, ReadableContent, Scribe, ScribeBlob, ScribePage, Vurl, WebContent}
+import viscel.selection.Report
 import viscel.server.ServerPages
 import viscel.shared.{Blob, ChapterPos, Description, Gallery, ImageRef, Log}
 import viscel.store.BlobStore
@@ -14,7 +19,7 @@ import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
 
-class ReplUtil(scribe: Scribe, blobs: BlobStore) {
+class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
 	def mimeToExt(mime: String, default: String = "") = mime match {
 		case "image/jpeg" => "jpg"
 		case "image/gif" => "gif"
@@ -57,7 +62,7 @@ class ReplUtil(scribe: Scribe, blobs: BlobStore) {
 					case (a, apos) =>
 						a.copy(blob = a.blob.map { blob =>
 							val name = f"${apos + 1}%05d.${mimeToExt(blob.mime, default = "bmp")}"
-							Files.copy(blobs.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
+							Files.copy(blobstore.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
 							blob.copy(sha1 = s"$cname/$name")
 						})
 				}
@@ -83,8 +88,6 @@ class ReplUtil(scribe: Scribe, blobs: BlobStore) {
 
 	def importFolder(path: String, nid: String, nname: String): Unit = {
 
-		final case class Page(asset: WebContent, blob: Option[Blob])
-
 		import scala.math.Ordering.Implicits.seqDerivedOrdering
 
 		Log.info(s"try to import $nid($nname) form $path")
@@ -92,22 +95,39 @@ class ReplUtil(scribe: Scribe, blobs: BlobStore) {
 		val files = Files.walk(Paths.get(path))
 		val sortedFiles = try {files.iterator().asScala.toList.sortBy(_.iterator().asScala.map(_.toString).toList)}
 		finally files.close()
-		val story: List[Page] = sortedFiles.flatMap { p =>
-			if (Files.isDirectory(p)) Some(Page(SChapter(name = p.getFileName.toString), None))
+		val story: List[ReadableContent] = sortedFiles.flatMap { p =>
+			if (Files.isDirectory(p)) Some(Chapter(name = p.getFileName.toString))
 			else if (Files.isRegularFile(p)) {
 				val mime = Files.probeContentType(p)
 				if (mimeToExt(mime, default = "") == "") None
 				else {
 					Log.info(s"processing $p")
-					val sha1 = blobs.write(Files.readAllBytes(p))
+					val sha1 = blobstore.write(Files.readAllBytes(p))
 					val blob = Blob(sha1, mime)
-					Some(Page(SArticle(Vurl.fromString(s"http://$sha1.sha1"), Vurl.fromString(s"http://$sha1.sha1")), Some(blob)))
+					Some(Article(ArticleRef(Vurl.blobPlaceholder(blob), Vurl.blobPlaceholder(blob)), Some(blob)))
 				}
 			}
 			else None
 		}
 
-		???  //scribe.books.importFlat(nid, nname, story)
+		val webcont = story.collect {
+			case chap@Chapter(_) => chap
+			case Article(ar, _) => ar
+		}
+
+		val blobs = story.collect {
+			case Article(ar, Some(blob)) => ScribeBlob(ar.ref, ar.origin, Instant.now(), blob)
+		}
+
+		val narrator = new Narrator {
+			override def id: String = nid
+			override def name: String = nname
+			override def archive: List[WebContent] = ???
+			override def wrap(doc: Document, more: Link): Or[List[WebContent], Every[Report]] = ???
+		}
+		val book = scribe.findOrCreate(narrator)
+		book.add(ScribePage(Vurl.entrypoint, Vurl.entrypoint, Instant.now(), webcont))
+		blobs.foreach(book.add)
 
 
 	}

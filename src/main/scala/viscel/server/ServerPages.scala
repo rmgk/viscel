@@ -7,10 +7,11 @@ import viscel.scribe.{Article, ArticleRef, Chapter, ReadableContent, Scribe}
 import viscel.shared.{ChapterPos, Contents, Description, Gallery, ImageRef, Log}
 import viscel.store.User
 
-import scalatags.Text.attrs.{`type`, content, href, rel, src, title, name => attrname}
+import scalatags.Text.attrs.{`type`, action, content, href, rel, src, title, value, name => attrname}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
-import scalatags.Text.tags.{body, head, html, link, meta, script}
-import scalatags.Text.{Modifier, RawFrag}
+import scalatags.Text.tags.{body, br, form, head, html, input, link, meta, script, a => anchor}
+import scalatags.Text.tags2.section
+import scalatags.Text.{Modifier, RawFrag, TypedTag}
 
 
 class ServerPages(scribe: Scribe) {
@@ -68,18 +69,16 @@ class ServerPages(scribe: Scribe) {
 			head(
 				title := "Viscel",
 				link(href := path_css, rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
-				meta(attrname := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes, minimal-ui")),
-
-			body("if nothing happens, your javascript does not work"),
-			script(src := path_js)
+				meta(attrname := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes, minimal-ui"))
 		)(stuff: _*)
 
-
-	val fullHtml: Tag = makeHtml(script(RawFrag(s"Viscel().main()")))
-
-	val landing: HttpResponse = HttpResponse(entity = HttpEntity(
+	def htmlResponse(tag: Tag): HttpResponse = HttpResponse(entity = HttpEntity(
 		ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
-		"<!DOCTYPE html>" + fullHtml.render))
+		"<!DOCTYPE html>" + tag.render))
+
+	val fullHtml: Tag = makeHtml(body("if nothing happens, your javascript does not work"), script(src := path_js), script(RawFrag(s"Viscel().main()")))
+
+	val landing: HttpResponse = htmlResponse(fullHtml)
 
 	def jsonResponse[T: Writer](value: T): HttpResponse = HttpResponse(entity = HttpEntity(
 		ContentType(MediaTypes.`application/json`),
@@ -87,6 +86,15 @@ class ServerPages(scribe: Scribe) {
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-	def stats(): HttpResponse = ???
+	val toolsPage: TypedTag[String] = makeHtml(body(section(anchor(href := "stop")("stop")),
+		section(
+		form(action := "import",
+			"id: ", input(`type` := "text", attrname := "id"), br,
+			"name: ", input(`type` := "text", attrname := "name"), br,
+			"path: ", input(`type` := "text", attrname := "path"), br,
+			input(`type` := "submit", value := "import")))
+	))
+
+	val toolsResponse = htmlResponse(toolsPage)
 
 }

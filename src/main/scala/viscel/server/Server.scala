@@ -110,9 +110,6 @@ class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, ter
 					}
 				}
 			} ~
-			path("stats") {
-				complete {pages.stats()}
-			} ~
 			path("export" / Segment) { (id) =>
 				if (!user.admin) reject
 				else onComplete(Future(new ReplUtil(scribe, blobStore).export(id))) {
@@ -120,9 +117,9 @@ class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, ter
 					case Failure(e) => complete(e.toString())
 				}
 			} ~
-			path("import" / Segment) { (id) =>
+			path("import") {
 				if (!user.admin) reject
-				else parameters(('name.as[String], 'path.as[String])) { (name, path) =>
+				else parameters(('id.as[String], 'name.as[String], 'path.as[String])) { (id, name, path) =>
 					onComplete(Future(new ReplUtil(scribe, blobStore).importFolder(path, s"Import_$id", name))) {
 						case Success(v) => complete("success")
 						case Failure(e) => complete(e.toString())
@@ -144,6 +141,9 @@ class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, ter
 					Narrators.update()
 					"done"
 				}
+			} ~
+			path("tools") {
+				complete(pages.toolsResponse)
 			}
 
 	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map {route}.getOrElse(reject)
