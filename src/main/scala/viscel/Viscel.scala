@@ -94,7 +94,9 @@ object Viscel {
 				}
 			}
 
+			Log.info("moving crawler times")
 			Files.move(basepath.resolve("data/updateTimes.json"), cachedir.resolve("crawl-times.json"))
+			Log.info("moving merarrator data")
 			Files.move(basepath.resolve("data"), metarratorconfigdir)
 
 		}
