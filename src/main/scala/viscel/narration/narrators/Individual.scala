@@ -342,7 +342,18 @@ object Individual {
 							as.sortBy(_.text()).map { a =>
 								val origin = a.attr("abs:href")
 								val number = a.text()
-								val filename = if (number == "1546") s"$number.gif" else s"pages/$number.png"
+								val filename = number match {
+									case "0222" => s"0243.gif"
+									case "0367" => s"titanglow.gif"
+									case "0368" => s"365.gif"
+									case "0369" => s"366.gif"
+									case "0370" => s"367.gif"
+									case "0371" => s"368.gif"
+									case "0655" | "0762" | "1035" | "1130" | "1131" | "1132" | "1133" | "1134" |
+											 "1135" | "1136" | "1271" | "1272" | "1273" | "1274" | "1293" | "1294" | "1295" | "1384" | "1466"  => s"$number.png"
+									case "0061" | "0353" | "0893" | "1546" => s"$number.gif"
+									case _ => s"pages/$number.png"
+								}
 								val source = s"http://www.avasdemon.com/$filename"
 								ArticleRef(source, origin)
 							})
