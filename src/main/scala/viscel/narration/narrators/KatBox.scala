@@ -36,7 +36,7 @@ object KatBox {
 		("uberquest", "UberQuest!"),
 		("yosh", "Yosh!")
 	).map { case (id, name) =>
-		Templates.AP(s"KatBox_$id", s"[KB] $name", s"http://$id.katbox.net/archive",
+		Templates.AP(s"KatBox_$id", s"[KB] $name", s"http://$id.katbox.net/archive/",
 			Selection(_).many("[rel=bookmark]").wrapEach(extractMore).map {_.reverse},
 			queryImages(".webcomic-image img")
 		)
