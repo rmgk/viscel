@@ -20,6 +20,7 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	var articles: List[ArticleRef] = _
 	var links: List[Link] = _
 
+	var articlesDownloaded = 0
 	var rechecksDone = 0
 	var recheckStarted = false
 	var requestAfterRecheck = 0
@@ -48,6 +49,7 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 				case Failure(e) => promise.failure(e)
 				case Success(blob) =>
 					articles = t
+					articlesDownloaded += 1
 					book.add(blob)
 					ec.execute(this)
 			}
@@ -89,7 +91,11 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 		}
 	}
 
-	def rightmostRecheck() = {
+	def rightmostRecheck(): Unit = {
+		if (!recheckStarted && articlesDownloaded > 0) {
+			promise.success(true)
+			return
+		}
 		if (!recheckStarted) {
 			recheckStarted = true
 			recheck = book.rightmostScribePages()
