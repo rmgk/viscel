@@ -4,7 +4,6 @@ import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Bad, Good}
 import viscel.shared.Log
-
 import viscel.store.{User, Users}
 
 import scala.Predef.ArrowAssoc

@@ -1,6 +1,6 @@
 package viscel
 
-import java.nio.file.{FileAlreadyExistsException, Files, Path, Paths, StandardCopyOption}
+import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.ActorSystem
@@ -11,17 +11,16 @@ import akka.http.scaladsl.settings._
 import akka.stream.ActorMaterializer
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
 import viscel.crawl.{Clockwork, RequestUtil}
-import viscel.scribe.ScribePicklers._
 import viscel.scribe.Scribe
+import viscel.scribe.ScribePicklers._
 import viscel.server.Server
 import viscel.shared.Log
 import viscel.store.BlobStore
 
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.language.implicitConversions
-import scala.collection.JavaConverters._
-import scala.collection.immutable.HashSet
-import scala.collection.mutable
 
 object Viscel {
 

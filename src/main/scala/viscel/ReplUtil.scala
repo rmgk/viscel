@@ -6,7 +6,7 @@ import java.time.Instant
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
-import viscel.narration.{Narrator, Narrators}
+import viscel.narration.Narrator
 import viscel.scribe.{Article, ArticleRef, Chapter, Link, ReadableContent, Scribe, ScribeBlob, ScribePage, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.server.ServerPages

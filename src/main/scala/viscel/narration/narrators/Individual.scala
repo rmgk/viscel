@@ -11,7 +11,6 @@ import viscel.scribe.Vurl.fromString
 import viscel.scribe.{ArticleRef, Chapter, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
-import viscel.shared.Log
 
 import scala.collection.immutable.Set
 

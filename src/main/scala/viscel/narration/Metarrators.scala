@@ -1,6 +1,6 @@
 package viscel.narration
 
-import viscel.crawl.{Crawl, RequestUtil}
+import viscel.crawl.RequestUtil
 import viscel.narration.narrators._
 import viscel.scribe.Vurl
 

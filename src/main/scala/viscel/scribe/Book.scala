@@ -8,7 +8,7 @@ import viscel.scribe.ScribePicklers._
 import viscel.shared.Log
 
 import scala.collection.JavaConverters._
-import scala.collection.{GenTraversableOnce, mutable}
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 class Book(path: Path, scribe: Scribe) {

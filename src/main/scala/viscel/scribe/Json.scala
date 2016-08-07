@@ -2,11 +2,10 @@ package viscel.scribe
 
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.StandardOpenOption._
-import java.nio.file.{Files, Path, StandardOpenOption}
-import java.time.Instant
+import java.nio.file.{Files, Path}
 
 import org.scalactic.{Bad, Good, Or}
-import upickle.default.{ReadWriter, Reader, Writer}
+import upickle.default.{Reader, Writer}
 
 import scala.collection.JavaConverters._
 

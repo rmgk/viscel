@@ -4,7 +4,7 @@ import akka.http.scaladsl.model._
 import upickle.default.Writer
 import viscel.narration.Narrators
 import viscel.scribe.{Article, ArticleRef, Chapter, ReadableContent, Scribe}
-import viscel.shared.{ChapterPos, Contents, Description, Gallery, ImageRef, Log}
+import viscel.shared.{ChapterPos, Contents, Description, Gallery, ImageRef}
 import viscel.store.User
 
 import scalatags.Text.attrs.{`type`, action, content, href, rel, src, title, value, name => attrname}
