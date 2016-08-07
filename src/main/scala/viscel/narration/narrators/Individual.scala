@@ -11,6 +11,7 @@ import viscel.scribe.Vurl.fromString
 import viscel.scribe.{ArticleRef, Chapter, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
+import viscel.shared.Log
 
 import scala.collection.immutable.Set
 
@@ -340,7 +341,9 @@ object Individual {
 						Good(Chapter(s"Chapter ${idx + 1}") ::
 							as.sortBy(_.text()).map { a =>
 								val origin = a.attr("abs:href")
-								val source = s"http://www.avasdemon.com/pages/${a.text()}.png"
+								val number = a.text()
+								val filename = if (number == "1546") s"$number.gif" else s"pages/$number.png"
+								val source = s"http://www.avasdemon.com/$filename"
 								ArticleRef(source, origin)
 							})
 					}
