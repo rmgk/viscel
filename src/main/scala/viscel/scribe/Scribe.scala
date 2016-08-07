@@ -6,10 +6,10 @@ import viscel.narration.Narrator
 import viscel.shared.Description
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.HashSet
 import scala.language.implicitConversions
 
 class Scribe(basedir: Path, configdir: Path) {
-
 
 	val descriptionpath = configdir.resolve("descriptions.json")
 
@@ -45,12 +45,21 @@ class Scribe(basedir: Path, configdir: Path) {
 			val id = path.getFileName.toString
 			descriptionCache.getOrElse(id, {
 				val book = find(id).get
-				val desc = Description(id, book.name, book.size, archived = true)
+				val desc = Description(id, book.name, book.size(), archived = true)
 				descriptionCache = descriptionCache.updated(id, desc)
 				Json.store[Map[String, Description]](descriptionpath, descriptionCache)
 				desc
 			})
 		}.toList
 	}
+
+	def allBlobsHashes(): Set[String] = {
+		Files.list(basedir).iterator().asScala.filter(Files.isRegularFile(_)).flatMap { path =>
+			val id = path.getFileName.toString
+			val book = find(id).get
+			book.allBlobs().map(_.blob.sha1)
+		}.to[HashSet]
+	}
+
 
 }

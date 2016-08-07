@@ -1,6 +1,6 @@
 package viscel
 
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{FileAlreadyExistsException, Files, Path, Paths, StandardCopyOption}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.ActorSystem
@@ -19,6 +19,9 @@ import viscel.store.BlobStore
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.language.implicitConversions
+import scala.collection.JavaConverters._
+import scala.collection.immutable.HashSet
+import scala.collection.mutable
 
 object Viscel {
 
@@ -35,7 +38,6 @@ object Viscel {
 	var definitionsdir: Path = _
 	var usersdir: Path = _
 	var exportdir: Path = _
-
 
 
 	def main(args: Array[String]): Unit = run(args: _*)
@@ -75,7 +77,7 @@ object Viscel {
 		Files.createDirectories(cachedir)
 
 		if (upgrade.?) {
-			if (Files.isDirectory(db2dir) ) {
+			if (Files.isDirectory(db2dir)) {
 				if (Files.exists(scribedir)) {
 					Log.warn(s"can not convert database, target exists: $scribedir")
 				}
@@ -86,8 +88,8 @@ object Viscel {
 				}
 			}
 
-			if (Files.isDirectory(oldBlobdir) ) {
-				if (Files.exists(blobdir)) { Log.warn(s"can not move blobs, target exists: $blobdir") }
+			if (Files.isDirectory(oldBlobdir)) {
+				if (Files.exists(blobdir)) {Log.warn(s"can not move blobs, target exists: $blobdir")}
 				else {
 					Log.info("moving blobs …")
 					Files.move(oldBlobdir, blobdir)
@@ -105,6 +107,29 @@ object Viscel {
 
 		val scribe = new viscel.scribe.Scribe(scribedir, cachedir)
 		val blobs = new BlobStore(blobdir)
+
+		if (cleanblobs.?) {
+			Log.info(s"scanning all blobs …")
+			val blobsHashesInDB = scribe.allBlobsHashes()
+			Log.info(s"scanning files …")
+			val bsn = new BlobStore(basepath.resolve("blobbackup"))
+
+			val seen = mutable.HashSet[String]()
+
+			Files.walk(blobdir).iterator().asScala.filter(Files.isRegularFile(_)).foreach { bp =>
+				val sha1path = s"${bp.getName(bp.getNameCount - 2)}${bp.getFileName}"
+				//val sha1 = blobs.sha1hex(Files.readAllBytes(bp))
+				//if (sha1path != sha1) Log.warn(s"$sha1path did not match")
+				seen.add(sha1path)
+				if (!blobsHashesInDB.contains(sha1path)) {
+					val newpath = bsn.hashToPath(sha1path)
+					Log.info(s"movinng $bp to $newpath")
+					Files.createDirectories(newpath.getParent)
+					Files.move(bp, newpath)
+				}
+			}
+			blobsHashesInDB.diff(seen).foreach(sha1 => Log.info(s"$sha1 is missing"))
+		}
 
 		val system = ActorSystem()
 		val materializer = ActorMaterializer()(system)
@@ -173,6 +198,7 @@ object Viscel {
 		val shutdown = accepts("shutdown", "shutdown after main")
 		val help = accepts("help").forHelp()
 		val upgrade = accepts("upgradedb", "upgrade database and folder layout from version 2 to version 3")
+		val cleanblobs = accepts("cleanblobs", "cleans blobs from blobstore which are no longer linked")
 
 		implicit def optToBool(opt: OptionSpecBuilder)(implicit oset: OptionSet): Boolean = oset.has(opt)
 

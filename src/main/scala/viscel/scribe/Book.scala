@@ -8,7 +8,7 @@ import viscel.scribe.ScribePicklers._
 import viscel.shared.Log
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
+import scala.collection.{GenTraversableOnce, mutable}
 import scala.collection.mutable.ArrayBuffer
 
 class Book(path: Path, scribe: Scribe) {
@@ -42,6 +42,8 @@ class Book(path: Path, scribe: Scribe) {
 		case Article(_, _) => true
 		case _ => false
 	}
+
+	def allBlobs(): Iterator[ScribeBlob] = entries.iterator.collect { case sb@ScribeBlob(_, _, _, _) => sb }
 
 	lazy val name: String = upickle.default.read[String](Files.lines(path).findFirst().get())
 
