@@ -824,3 +824,8 @@ http://everblue-comic.com/comic?sort=1
 -:Solstoria
 http://solstoria.net/comic/54/
 :ia #content .webcomic-image img.size-full
+
+-:The Hope Virus
+http://hopevirus.keenspot.com/d/20160104.html
+:i #comicspot img.ksc
+:a #nexty
