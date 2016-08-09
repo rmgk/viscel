@@ -12,8 +12,7 @@ import scala.scalajs.js.URIUtils.encodeURIComponent
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.div
-import rescala.engines.Engines.default
-import rescala.engines.Engines.default.{Var, Evt, Signal}
+import rescala.{Var, Evt, Signal, Engine}
 
 
 @JSExport(name = "Viscel")
@@ -34,10 +33,10 @@ object Viscel {
 
 	implicit val readAssets: Reader[List[ImageRef]] = Predef.implicitly[Reader[List[ImageRef]]]
 
-	var bookmarks: Future[Map[String, Int]] = _
+	val bookmarks: Var[Map[String, Int]] = Var(Map.empty)
+	val descriptions: Var[Map[String, Description]] = Var(Map.empty)
 
-	var descriptions: Future[Map[String, Description]] = _
-	var contents: Map[String, Future[Contents]] = Map()
+	private var contents: Map[String, Signal[Contents]] = Map()
 
 	val triggerDispatch: Evt[Unit] = Evt[Unit]()
 	triggerDispatch.observe(_ => Actions.dispatchPath(dom.window.location.hash.substring(1)))
@@ -45,9 +44,11 @@ object Viscel {
 		triggerDispatch(())
 	}
 
-	def content(nar: Description): Future[Contents] = contents.getOrElse(nar.id, {
-		val res = ajax[Contents](s"narration/${encodeURIComponent(nar.id)}")
-		contents = contents.updated(nar.id, res)
+	def content(nar: Description): Signal[Contents] = contents.getOrElse(nar.id, {
+		val res = Var[Contents](Contents.empty)
+		ajax[Contents](s"narration/${encodeURIComponent(nar.id)}").foreach{cont =>
+			res.set(cont)}
+		contents = contents.updated(nar.id, res: rescala.Signal[Contents])
 		res
 	})
 
@@ -58,7 +59,7 @@ object Viscel {
 
 		val res = dom.ext.Ajax.post("bookmarks", s"narration=${encodeURIComponent(nar.id)}&bookmark=$pos", headers = Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
 			.map(res => upickle.default.read[Map[String, Int]](res.responseText))
-		bookmarks = res
+		res.foreach(b => bookmarks.set(b))
 		res
 	}
 
@@ -104,8 +105,8 @@ object Viscel {
 	@JSExport(name = "main")
 	def main(): Unit = {
 
-		bookmarks = ajax[Map[String, Int]]("bookmarks")
-		descriptions = ajax[List[Description]]("narrations").map(_.map(n => n.id -> n).toMap)
+		ajax[Map[String, Int]]("bookmarks").foreach{b => bookmarks.set(b)}
+		ajax[List[Description]]("narrations").map(_.map(n => n.id -> n).toMap).foreach(n => descriptions.set(n))
 
 		setBody(Body(frag = div("loading data …")), scrolltop = true)
 
@@ -113,22 +114,22 @@ object Viscel {
 
 	}
 
-	@JSExport(name = "spore")
-	def spore(id: String, dataJson: String): Unit = {
-
-		offlineMode = true
-
-		bookmarks = Future.successful(Map())
-		val (desc, content) = upickle.default.read[(Description, Contents)](dataJson)
-		descriptions = Future.successful(Map(id -> desc))
-		contents = Map(desc.id -> Future.successful(content))
-
-		setBody(Body(frag = div("loading data …")), scrolltop = true)
-
-		triggerDispatch(())
-
-
-	}
+//	@JSExport(name = "spore")
+//	def spore(id: String, dataJson: String): Unit = {
+//
+//		offlineMode = true
+//
+//		bookmarks = Future.successful(Map())
+//		val (desc, content) = upickle.default.read[(Description, Contents)](dataJson)
+//		descriptions = Future.successful(Map(id -> desc))
+//		contents = Map(desc.id -> Future.successful(content))
+//
+//		setBody(Body(frag = div("loading data …")), scrolltop = true)
+//
+//		triggerDispatch(())
+//
+//
+//	}
 
 
 }

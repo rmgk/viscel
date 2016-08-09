@@ -10,3 +10,7 @@ case class Data(description: Description, content: Contents, bookmark: Int, fitT
 	def next: Data = move(_.next(1))
 	def prev: Data = move(_.prev(1))
 }
+
+object Data {
+	def empty(): Data = Data(Description("invalid", "Invalid", 0, archived = true), Contents(Gallery.empty, List.empty),0)
+}

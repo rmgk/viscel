@@ -16,7 +16,7 @@ object Definitions {
 	def path_asset(data: Data) = s"#${encodeURIComponent(data.id)}/${data.pos + 1}"
 	def path_search = "s"
 	def path_blob(blob: Blob) = s"blob/${blob.sha1}/${blob.mime}"
-	def path_front(nar: Description) = s"#${encodeURIComponent(nar.id)}"
+	def path_front(nar: Description) = s"/#${encodeURIComponent(nar.id)}"
 	def path_stop = "stop"
 	def path_tools = "tools"
 

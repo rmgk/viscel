@@ -20,6 +20,7 @@ object View {
 	case object Prev extends Navigate
 	case object Stay extends Navigate
 	case class Mode(i: Int) extends Navigate
+	case class Goto(data: Data) extends Navigate
 
 	def onLeftClickPrevNext(handler: Navigate => Unit): Modifier = onclick := { (e: MouseEvent) =>
 		val node = e.currentTarget.asInstanceOf[dom.html.Element]
@@ -32,7 +33,7 @@ object View {
 		}
 	}
 
-	def gen(initialData: Data): Body = {
+	def gen(outerNavigation: Event[Navigate]): Body = {
 
 		val handleKeypress = Evt[dom.KeyboardEvent]
 		val navigate = Evt[Navigate]
@@ -44,25 +45,26 @@ object View {
 				case n if KeyCode.Num0 <= n && n <= KeyCode.Num9 => Mode(n - KeyCode.Num0)
 				case _ => Stay
 			}
-		}.||(navigate)
+		}.||(navigate) || outerNavigation
 
-		val dataSignal = navigationEvents.fold(initialData) { (data, ev) =>
+		val dataSignal = navigationEvents.fold(Data.empty()) { (data, ev) =>
 			ev match {
 				case Prev if !data.gallery.isFirst => data.prev
 				case Next if !data.gallery.next(1).isEnd => data.next
 				case Mode(n) => data.copy(fitType = n)
-				case Stay => data
+				case Goto(target) => target
+				case _ => data
 			}
 		}
 
 		dataSignal.change.observe { case (old, now) =>
 			Actions.pushView(now)
 			if (old.gallery.pos != now.gallery.pos) Actions.scrollTop()
-			val pregen = now.gallery.next(1).get.map(asst => div(Make.asset(asst, initialData)).render)
+			val pregen = now.gallery.next(1).get.map(asst => div(Make.asset(asst, now)).render)
 		}
 
 		val mainPart: Signal[HtmlTag] = dataSignal.map[HtmlTag] { data =>
-			data.gallery.get.fold[HtmlTag](p("error, illegal image position")) { asst =>
+			data.gallery.get.fold[HtmlTag](p(s"loading image data …")) { asst =>
 				article(Make.asset(asst, data))(asst.data.get("longcomment").fold(List[Tag]())(p(_) :: Nil))
 			}
 		}
@@ -71,22 +73,18 @@ object View {
 
 		val navigation: Frag =
 			dataSignal.map { data => Make.navigation(
-					link_asset(data.prev, navigate(Prev))("prev", rel := "prev"),
-					link_front(initialData.description, "front"),
-					Make.fullscreenToggle("TFS"),
-					a(s"mode(${data.fitType % 8})", class_post, onclick := { () => navigate(Mode(data.fitType + 1)) }),
-					if (data.bookmark != data.pos + 1) postBookmark(data.description, data.pos + 1, data, gotoView(_, scrolltop = false), "pause") else span(class_dead, "pause"),
-					a(href := data.gallery.get.fold("")(_.origin))(class_extern)("site"),
-					link_asset(data.next, navigate(Next))("next", rel := "next"))
-				}.asFragment
+				link_asset(data.prev, navigate(Prev))("prev", rel := "prev"),
+				link_front(data.description, "front"),
+				Make.fullscreenToggle("TFS"),
+				a(s"mode(${data.fitType % 8})", class_post, onclick := { () => navigate(Mode(data.fitType + 1)) }),
+				if (data.bookmark != data.pos + 1) postBookmark(data.description, data.pos + 1, data, gotoView(_, scrolltop = false), "pause") else span(class_dead, "pause"),
+				a(href := data.gallery.get.fold("")(_.origin))(class_extern)("site"),
+				link_asset(data.next, navigate(Next))("next", rel := "next"))
+			}.asFragment
 
-		initialData.gallery.get match {
-			case None => Body("illegal position", "error", "error")
-			case Some(_) =>
-				Body(id = "view", title = initialData.description.name,
-					frag = List(mainSection, navigation),
-					keypress = (x: dom.KeyboardEvent) => handleKeypress.fire(x))
-		}
+		Body(id = "view", title = "TODO:",
+			frag = List(mainSection, navigation),
+			keypress = (x: dom.KeyboardEvent) => handleKeypress.fire(x))
 
 
 	}
