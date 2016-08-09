@@ -6,7 +6,7 @@ case class Data(description: Description, content: Contents, bookmark: Int, fitT
 	def id: String = description.id
 	def pos: Int = content.gallery.pos
 	def gallery: Gallery[ImageRef] = content.gallery
-	def move(f: Gallery[ImageRef] => Gallery[ImageRef]) = copy(content = content.copy(gallery = f(gallery)))
-	def next = move(_.next(1))
-	def prev = move(_.prev(1))
+	def move(f: Gallery[ImageRef] => Gallery[ImageRef]): Data = copy(content = content.copy(gallery = f(gallery)))
+	def next: Data = move(_.next(1))
+	def prev: Data = move(_.prev(1))
 }

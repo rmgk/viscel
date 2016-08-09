@@ -69,7 +69,7 @@ object Viscel {
 		dom.document.title = abody.title
 		dom.document.body.setAttribute("id", abody.id)
 		dom.document.body.appendChild(abody.frag.render)
-		if (scrolltop) dom.window.scrollTo(0, 0)
+		if (scrolltop) Actions.scrollTop()
 	}
 
 	def toggleFullscreen(): Unit = {

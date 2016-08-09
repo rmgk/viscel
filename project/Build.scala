@@ -120,7 +120,7 @@ object Libraries {
 		jline ::: jopt  ::: scalactic ::: shared.value ::: upickle.value ::: jsoup)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++=
-		scalajsdom.value ::: shared.value ::: rescala.value)
+		scalajsdom.value ::: shared.value ::: rescala.value ::: rescalatags.value)
 
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
@@ -144,6 +144,7 @@ object Libraries {
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.0") :: Nil)
 
-	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.17.0") :: Nil)
+	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.18.0-SNAPSHOT") :: Nil)
+	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.18.0-SNAPSHOT") :: Nil)
 
 }

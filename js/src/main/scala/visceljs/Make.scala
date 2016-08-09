@@ -68,6 +68,6 @@ object Make {
 		section(fieldset(rLegend, elements))
 	}
 
-	def navigation(links: Tag*): Tag =
+	def navigation(links: Frag*): HtmlTag =
 		nav(links)
 }

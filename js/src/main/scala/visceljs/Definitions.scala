@@ -32,9 +32,12 @@ object Definitions {
 	def link_stop(ts: Frag*): Tag = a(href := path_stop)(ts)
 	def link_tools(ts: Frag*): Tag = a(href := path_tools)(ts)
 
-	def link_asset(data: Data): Tag =
+	def link_asset(data: Data): Tag = link_asset(data, gotoView(data))
+
+
+	def link_asset(data: Data, onleft: => Unit): Tag =
 		if (data.gallery.isEnd) a(class_dead)
-		else a.apply(onLeftClick(gotoView(data)), href := path_asset(data))
+		else a.apply(onLeftClick(onleft), href := path_asset(data))
 	def link_front(nar: Description, ts: Frag*): Tag = a(onLeftClick(gotoFront(nar)), href := path_front(nar))(ts)
 
 

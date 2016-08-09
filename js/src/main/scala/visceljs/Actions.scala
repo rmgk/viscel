@@ -6,10 +6,13 @@ import viscel.shared.Description
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.{Front, Index, View}
 
+import rescala.Engine
+
 import scala.Predef.$conforms
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.URIUtils.decodeURIComponent
 import scalatags.JsDom.all.{Modifier, bindJsAnyLike, onclick}
+
 
 
 object Actions {
@@ -38,6 +41,7 @@ object Actions {
 		}
 	}
 
+	def scrollTop() = dom.window.scrollTo(0, 0)
 
 	def pushIndex(): Unit = dom.window.history.pushState(null, "main", path_main)
 	def pushFront(nar: Description): Unit = dom.window.history.pushState(null, "front", path_front(nar))
@@ -47,16 +51,6 @@ object Actions {
 		if (e.button == 0) {
 			e.preventDefault()
 			a
-		}
-	}
-
-	def onLeftClickPrevNext(node: => dom.html.Element, data: Data): Modifier = onclick := { (e: MouseEvent) =>
-		if (e.button == 0) {
-			e.preventDefault()
-			val relx = e.clientX - node.offsetLeft
-			val border = math.max(node.offsetWidth / 10, 100)
-			if (relx < border) gotoView(data.prev)
-			else if (!data.next.gallery.isEnd) gotoView(data.next)
 		}
 	}
 
