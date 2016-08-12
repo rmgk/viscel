@@ -12,7 +12,9 @@ import scala.scalajs.js.URIUtils.encodeURIComponent
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.div
-import rescala.{Var, Evt, Signal, Engine}
+import rescala.{Engine, Evt, Signal, Signals, Var}
+
+import scala.collection.mutable
 
 
 @JSExport(name = "Viscel")
@@ -33,24 +35,21 @@ object Viscel {
 
 	implicit val readAssets: Reader[List[ImageRef]] = Predef.implicitly[Reader[List[ImageRef]]]
 
-	val bookmarks: Var[Map[String, Int]] = Var(Map.empty)
-	val descriptions: Var[Map[String, Description]] = Var(Map.empty)
+	val bookmarks: Var[Map[String, Int]] = Var.empty
+	val descriptions: Var[Map[String, Description]] = Var.empty
 
-	private var contents: Map[String, Signal[Contents]] = Map()
+	private val contents: scala.collection.mutable.Map[String, Signal[Contents]] = mutable.Map()
 
-	val triggerDispatch: Evt[Unit] = Evt[Unit]()
+	val triggerDispatch: Evt[Unit] = Evt[Unit]
 	triggerDispatch.observe(_ => Actions.dispatchPath(dom.window.location.hash.substring(1)))
 	dom.window.onhashchange = { (ev: HashChangeEvent) =>
 		triggerDispatch(())
 	}
 
-	def content(nar: Description): Signal[Contents] = contents.getOrElse(nar.id, {
-		val res = Var[Contents](Contents.empty)
-		ajax[Contents](s"narration/${encodeURIComponent(nar.id)}").foreach{cont =>
-			res.set(cont)}
-		contents = contents.updated(nar.id, res: rescala.Signal[Contents])
-		res
-	})
+	def content(nar: Description): Signal[Contents] = {
+		contents.getOrElseUpdate(nar.id,
+			Signals.fromFuture(ajax[Contents](s"narration/${encodeURIComponent(nar.id)}")))
+	}
 
 
 	def hint(nar: Description, force: Boolean = false): Unit = dom.ext.Ajax.post(s"hint/narrator/${encodeURIComponent(nar.id)}" + (if (force) "?force=true" else ""))
@@ -105,8 +104,8 @@ object Viscel {
 	@JSExport(name = "main")
 	def main(): Unit = {
 
-		ajax[Map[String, Int]]("bookmarks").foreach{b => bookmarks.set(b)}
-		ajax[List[Description]]("narrations").map(_.map(n => n.id -> n).toMap).foreach(n => descriptions.set(n))
+		ajax[Map[String, Int]]("bookmarks").onComplete(bookmarks.setFromTry)
+		ajax[List[Description]]("narrations").map(_.map(n => n.id -> n).toMap).onComplete(n => descriptions.setFromTry(n))
 
 		setBody(Body(frag = div("loading data …")), scrolltop = true)
 

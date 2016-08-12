@@ -18,7 +18,6 @@ object View {
 	sealed trait Navigate
 	case object Next extends Navigate
 	case object Prev extends Navigate
-	case object Stay extends Navigate
 	case class Mode(i: Int) extends Navigate
 	case class Goto(data: Data) extends Navigate
 
@@ -37,30 +36,29 @@ object View {
 
 		val handleKeypress = Evt[dom.KeyboardEvent]
 		val navigate = Evt[Navigate]
+		val keypressNavigations = handleKeypress.map(_.key).collect {
+			case "ArrowLeft" | "a" | "," => Prev
+			case "ArrowRight" | "d" | "." => Next
+			case n if n.matches("""^\d+$""") => Mode(n.toInt)
+		}
 
-		val navigationEvents = handleKeypress.map { ev =>
-			ev.keyCode match {
-				case KeyCode.Left | KeyCode.A | 188 => Prev
-				case KeyCode.Right | KeyCode.D | 190 => Next
-				case n if KeyCode.Num0 <= n && n <= KeyCode.Num9 => Mode(n - KeyCode.Num0)
-				case _ => Stay
-			}
-		}.||(navigate) || outerNavigation
+		val navigationEvents: Event[Navigate] = keypressNavigations || navigate || outerNavigation
 
-		val dataSignal = navigationEvents.fold(Data.empty()) { (data, ev) =>
+
+		val dataSignal = navigationEvents.reduce[Data] { (data, ev) =>
 			ev match {
 				case Prev if !data.gallery.isFirst => data.prev
 				case Next if !data.gallery.next(1).isEnd => data.next
+				case Prev | Next => data
 				case Mode(n) => data.copy(fitType = n)
 				case Goto(target) => target
-				case _ => data
 			}
 		}
 
-		dataSignal.change.observe { case (old, now) =>
-			Actions.pushView(now)
-			if (old.gallery.pos != now.gallery.pos) Actions.scrollTop()
-			val pregen = now.gallery.next(1).get.map(asst => div(Make.asset(asst, now)).render)
+		dataSignal.observe { data =>
+			Actions.pushView(data)
+			Actions.scrollTop()
+			val pregen = data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
 		}
 
 		val mainPart: Signal[HtmlTag] = dataSignal.map[HtmlTag] { data =>

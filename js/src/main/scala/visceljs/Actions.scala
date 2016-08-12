@@ -2,13 +2,11 @@ package visceljs
 
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
+import rescala._
 import viscel.shared.Description
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.{Front, Index, View}
 
-import rescala._
-
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.URIUtils.decodeURIComponent
 import scalatags.JsDom.all.{Modifier, bindJsAnyLike, onclick}
 
@@ -16,39 +14,32 @@ import scalatags.JsDom.all.{Modifier, bindJsAnyLike, onclick}
 object Actions {
 
 	val viewE = Evt[View.Navigate]
-	val viewBody = View.gen(viewE)
-	val indexBody = Index.gen()
-
-	val frontS = Var("")
-	val frontData = reactives.Signals.dynamic(frontS, Viscel.bookmarks, Viscel.descriptions) { implicit t =>
-		val id = frontS.apply(t)
-		Viscel.descriptions.apply(t).get(id) match {
-			case None => Data.empty()
-			case Some(description) =>
-				val bm = Viscel.bookmarks.apply(t).getOrElse(id, 0)
-				val content = Viscel.content(description)
-				Data(description, content.apply(t), bm)
+	val viewDispatchS = Var.empty[(String, Int)]
+	val viewDispatchChangeE = Signal {
+		val nars = Viscel.descriptions()
+		viewDispatchS() match {
+			case (id, pos) =>
+				val nar = nars.apply(id)
+				val content = Viscel.content(nar): @unchecked
+				val bm = Viscel.bookmarks().getOrElse(nar.id, 0)
+				View.Goto(Data(nar, content(), bm).move(_.first.next(pos - 1)))
 		}
+	}.changed
+
+	val frontS = Var.empty[String]
+	val frontData = Signal {
+		val id = frontS()
+		val description = Viscel.descriptions()(id)
+		val bm = Viscel.bookmarks().getOrElse(id, 0)
+		val content = Viscel.content(description): @unchecked
+		Data(description, content(), bm)
 	}
 
 	val bodyFront = Front.gen(frontData)
+	val viewBody = View.gen(viewE || viewDispatchChangeE)
+	val indexBody = Index.gen()
 
 
-
-	val viewDispatchS = Var[Option[(String, Int)]](None)
-	rescala.reactives.Signals.dynamic(viewDispatchS, Viscel.descriptions, Viscel.bookmarks) { implicit t =>
-		val nars = Viscel.descriptions.apply(t)
-		viewDispatchS.apply(t).flatMap { case (id, pos) =>
-			nars.get(id).map { nar =>
-				val content = Viscel.content(nar).apply(t)
-				val bm = Viscel.bookmarks.apply(t).getOrElse(nar.id, 0)
-				Data(nar, content, bm).move(_.first.next(pos - 1))
-			}
-		}
-	}.observe {
-		case Some(data) => viewE.fire(View.Goto(data))
-		case None =>
-	}
 
 	def dispatchPath(path: String): Unit = {
 		val paths = List(path.split("/"): _*)
@@ -61,7 +52,7 @@ object Actions {
 			case id :: posS :: Nil =>
 				val pos = Integer.parseInt(posS)
 				val nid = decodeURIComponent(id)
-				viewDispatchS.set(Some(nid -> pos))
+				viewDispatchS.set(nid -> pos)
 				Viscel.setBody(viewBody, scrolltop = true)
 			case _ => setBodyIndex()
 		}
@@ -103,7 +94,6 @@ object Actions {
 		frontS.set(descriptionid)
 		Viscel.setBody(bodyFront, scrolltop)
 	}
-
 
 
 	def setBodyView(data: Data, scrolltop: Boolean = false): Unit = {
