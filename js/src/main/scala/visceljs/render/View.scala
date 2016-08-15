@@ -67,7 +67,7 @@ object View {
 			}
 		}
 
-		lazy val mainSection = section(mainPart.asFragment)(onLeftClickPrevNext(navigate.fire))
+		lazy val mainSection = section(mainPart.asFrag)(onLeftClickPrevNext(navigate.fire))
 
 		val navigation: Frag =
 			dataSignal.map { data => Make.navigation(
@@ -78,7 +78,7 @@ object View {
 				if (data.bookmark != data.pos + 1) postBookmark(data.description, data.pos + 1, data, gotoView(_, scrolltop = false), "pause") else span(class_dead, "pause"),
 				a(href := data.gallery.get.fold("")(_.origin))(class_extern)("site"),
 				link_asset(data.next, navigate(Next))("next", rel := "next"))
-			}.asFragment
+			}.asFrag
 
 		Body(id = "view", title = "TODO:",
 			frag = List(mainSection, navigation),

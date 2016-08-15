@@ -1,9 +1,7 @@
 package visceljs.render
 
 import org.scalajs.dom.html
-import rescala.engines.Engines.default
-import rescala.engines.Engines.default.{Signal, Var}
-import rescala.reactives.Signals
+import rescala._
 import rescalatags._
 import viscel.shared.Description
 import visceljs.Actions._
@@ -55,7 +53,9 @@ object Index {
 				(n, c, a) => n.headOption.orElse(c.headOption).orElse(a.headOption).map(_._1)
 			}
 
-			val searchForm = form(inputField, onsubmit := firstSelected map {sel =>  () => sel.foreach(gotoFront(_)); false })
+			val callback: Signal[() => Boolean] = firstSelected map {sel => {() => sel.foreach(gotoFront(_)); false} }
+
+			val searchForm = form(inputField, onsubmit := callback)
 
 			div(
 					Make.navigation(Make.fullscreenToggle("TFS"), searchForm, link_tools("tools")),
@@ -64,7 +64,7 @@ object Index {
 					Make.group(s"Available", filteredAvailable)): Tag
 		}
 
-		val rendered = fragS.asFragment
+		val rendered = fragS.asFrag
 
 		Body(id = "index", title = "Viscel",
 			frag = rendered)

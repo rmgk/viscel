@@ -71,7 +71,7 @@ object Front {
 
 
 		Body(id = "front", title = "TODO:",
-			frag = fragS.asFragment)
+			frag = fragS.asFrag)
 
 	}
 }
