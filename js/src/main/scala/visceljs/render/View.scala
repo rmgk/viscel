@@ -2,7 +2,6 @@ package visceljs.render
 
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
-import org.scalajs.dom.ext.KeyCode
 import rescala._
 import rescalatags._
 import visceljs.Actions.gotoView
@@ -45,7 +44,7 @@ object View {
 		val navigationEvents: Event[Navigate] = keypressNavigations || navigate || outerNavigation
 
 
-		val dataSignal = navigationEvents.reduce[Data] { (data, ev) =>
+		val dataSignal: Signal[Data] = navigationEvents.reduce[Data] { (data, ev) =>
 			ev match {
 				case Prev if !data.gallery.isFirst => data.prev
 				case Next if !data.gallery.next(1).isEnd => data.next

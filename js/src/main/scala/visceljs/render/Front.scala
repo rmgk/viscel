@@ -1,6 +1,6 @@
 package visceljs.render
 
-import viscel.shared.{ImageRef, ChapterPos, Contents, Gallery}
+import viscel.shared.{ChapterPos, Contents, Gallery, ImageRef}
 import visceljs.Definitions.{class_chapters, class_dead, class_preview, link_asset, link_index}
 import visceljs.{Actions, Body, Data, Make}
 
@@ -9,7 +9,7 @@ import scala.annotation.tailrec
 import scalatags.JsDom.Frag
 import scalatags.JsDom.all.Tag
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.{SeqFrag, fieldset, header, legend, span, div}
+import scalatags.JsDom.tags.{SeqFrag, div, fieldset, header, legend, span}
 import scalatags.JsDom.tags2.{article, section}
 import rescala._
 import rescalatags._
@@ -67,7 +67,7 @@ object Front {
 
 				}
 				div(top, navigation, preview, chapterlist)
-		}
+		}.withDefault(() => span("loading please wait"))
 
 
 		Body(id = "front", title = "TODO:",

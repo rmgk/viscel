@@ -35,8 +35,9 @@ object Viscel {
 
 	implicit val readAssets: Reader[List[ImageRef]] = Predef.implicitly[Reader[List[ImageRef]]]
 
-	val bookmarks: Var[Map[String, Int]] = Var.empty
-	val descriptions: Var[Map[String, Description]] = Var.empty
+	val bookmarkSource: Var[Signal[Map[String, Int]] ] = Var(Signals.fromFuture(ajax[Map[String, Int]]("bookmarks")))
+	val bookmarks: Signal[Map[String, Int]] = bookmarkSource.flatten
+	val descriptions: Signal[Map[String, Description]] = Signals.fromFuture(ajax[List[Description]]("narrations").map(_.map(n => n.id -> n).toMap))
 
 	private val contents: scala.collection.mutable.Map[String, Signal[Contents]] = mutable.Map()
 
@@ -58,7 +59,7 @@ object Viscel {
 
 		val res = dom.ext.Ajax.post("bookmarks", s"narration=${encodeURIComponent(nar.id)}&bookmark=$pos", headers = Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
 			.map(res => upickle.default.read[Map[String, Int]](res.responseText))
-		res.foreach(b => bookmarks.set(b))
+		bookmarkSource.set(Signals.fromFuture(res))
 		res
 	}
 
@@ -104,8 +105,6 @@ object Viscel {
 	@JSExport(name = "main")
 	def main(): Unit = {
 
-		ajax[Map[String, Int]]("bookmarks").onComplete(bookmarks.setFromTry)
-		ajax[List[Description]]("narrations").map(_.map(n => n.id -> n).toMap).onComplete(n => descriptions.setFromTry(n))
 
 		setBody(Body(frag = div("loading data …")), scrolltop = true)
 
