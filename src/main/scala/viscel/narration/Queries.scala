@@ -1,5 +1,6 @@
 package viscel.narration
 
+import org.jsoup.helper.StringUtil
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
@@ -8,7 +9,6 @@ import viscel.scribe.{ArticleRef, Chapter, Link, Policy, Vurl, WebContent}
 import viscel.selection.ReportTools.{extract, _}
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
 
-import scala.Predef.{$conforms, ArrowAssoc}
 import scala.language.implicitConversions
 import scala.util.matching.Regex
 
@@ -19,7 +19,7 @@ object Queries {
 		case "a" => extract {Vurl.fromString(element.attr("abs:href"))}
 		case "link" => extract {Vurl.fromString(element.attr("abs:href"))}
 		case "option" => extract {Vurl.fromString(element.attr("abs:value"))}
-		case tag => Bad(One(FailedElement(s"extract uri", UnhandledTag, element)))
+		case _ => Bad(One(FailedElement(s"extract uri", UnhandledTag, element)))
 	}
 
 	def selectMore(elements: List[Element]): List[Link] Or Every[Report] = elements.validatedBy(extractMore).flatMap {
@@ -42,13 +42,25 @@ object Queries {
 					ref = Vurl.fromString(img.attr("abs:src")),
 					origin = Vurl.fromString(img.ownerDocument().location()),
 					data = List("alt", "title", "width", "height").flatMap(getAttr).toMap))
+			case "embed" =>
+				extract(ArticleRef(
+					ref = Vurl.fromString(img.attr("abs:src")),
+					origin = Vurl.fromString(img.ownerDocument().location()),
+					data = List("width", "height", "type").flatMap(getAttr).toMap))
 			case "object" =>
 				extract(ArticleRef(
 					ref = Vurl.fromString(img.attr("abs:data")),
 					origin = Vurl.fromString(img.ownerDocument().location()),
-					data = List("width", "height").flatMap(getAttr).toMap))
-
-			case tag => Bad(One(FailedElement(s"into article", UnhandledTag, img)))
+					data = List("width", "height", "type").flatMap(getAttr).toMap))
+			case _ =>
+				val extractBG = """.*background\-image\:url\(([^)]+)\).*""".r("url")
+				img.attr("style") match {
+					case extractBG(url) =>
+						extract(ArticleRef(
+							ref = Vurl.fromString(StringUtil.resolve(img.ownerDocument().location(), url)),
+							origin = Vurl.fromString(img.ownerDocument().location())))
+					case _ => Bad(One(FailedElement(s"into article", UnhandledTag, img)))
+				}
 		}
 
 	}

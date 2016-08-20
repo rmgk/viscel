@@ -844,3 +844,13 @@ http://slimythief.com/?p=32
 -:It’s Walky!
 http://www.itswalky.com/comic/and-now/
 :ia #comic img
+
+-:Drowtales Moonless Age
+http://www.drowtales.com/mainarchive.php?sid=4192
+:is #content_middle img , #content_middle object:not(:has(embed)), #content_middle embed , #content_middle > div[style~=background-image:url]
+:n #link_next_top
+
+-:Never Mind the Gap
+http://nmg.thecomicseries.com/archive/
+:am #archive .chaptertitle , #archive .archivecomic a
+:i #comicimage, #comicimagewrap embed

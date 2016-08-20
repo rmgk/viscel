@@ -376,7 +376,9 @@ object Individual {
 			}),
 		AP("NX_TheDreamer", "The Dreamer", "http://www.thedreamercomic.com/read_pgmain.php",
 			doc => Selection(doc).many(".act_wrap").reverse.wrapFlat{queryMixedArchive("h2, .flip_box_front .issue_title , .flip_box_back .issue_pages a")},
-			queryImage("#comicnav > div.comicWrap > div.imageWrap > img")
+			doc => queryImage("#comicnav > div.comicWrap > div.imageWrap > img")(doc).map(_.map{ ar =>
+				ar.copy(ref = ar.ref.uriString().replaceAll("\\.jpg.*", ".jpg"))
+			})
 		)
 	)
 
