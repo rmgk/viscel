@@ -29,9 +29,15 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 			.flatMap(_.toStrict(timeout))
 			.flatMap { res =>
 				if (res.status.isRedirection() && res.header[Location].isDefined) {
-					getResponse(request.withUri(res.header[Location].get.uri.resolvedAgainst(request.uri)), redirects = redirects - 1)
+					val loc = res.header[Location].get.uri.resolvedAgainst(request.uri)
+					getResponse(request.withUri(loc), redirects = redirects - 1)
 				}
-				else if (res.status.isSuccess()) {Future.successful(res)}
+				else if (res.status.isSuccess()) {
+					// if the response has no location header, we insert the url from the request as a location,
+					// this allows all other systems to use the most accurate location available
+					val resWithLocation = res.addHeader(Location.apply(extractResponseLocation(Vurl.fromUri(request.uri), res).uri))
+					Future.successful(resWithLocation)
+				}
 				else {Future.failed(RequestException(request, res))}
 			}
 			.map(r => Deflate.decode(Gzip.decode(r)))
