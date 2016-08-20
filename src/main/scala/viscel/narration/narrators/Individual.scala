@@ -58,7 +58,7 @@ object Individual {
 				Chapter(name) :: pages
 			}
 		},
-		Selection(_).unique("img.ksc").wrapEach(imgIntoAsset))
+		Selection(_).unique("img.ksc").wrapEach(intoArticle))
 
 
 	object Inverloch extends Narrator {
@@ -162,7 +162,7 @@ object Individual {
 			val elements_? = Selection(doc)
 				.unique(".comiclist table.wide_gallery")
 				.many("[id~=^comic_\\d+$] .picture a").wrapEach { anchor =>
-				val element_? = Selection(anchor).unique("img").wrapOne {imgIntoAsset}
+				val element_? = Selection(anchor).unique("img").wrapOne {intoArticle}
 				val origin_? = extractURL(anchor)
 				withGood(element_?, origin_?) { (element, origin) =>
 					element.copy(
@@ -223,8 +223,8 @@ object Individual {
 
 		def wrap(doc: Document, more: Link): Or[List[WebContent], Every[Report]] = more match {
 			case Link(_, Volatile, "archive" :: Nil) => wrapArchive(doc)
-			case Link(_, Volatile, "main" :: Nil) => Selection(doc).unique(".comic img[src~=images/\\d+\\.\\w+]").wrapEach {imgIntoAsset}
-			case _ => Selection(doc).unique("#cg_img img").wrapEach {imgIntoAsset}
+			case Link(_, Volatile, "main" :: Nil) => Selection(doc).unique(".comic img[src~=images/\\d+\\.\\w+]").wrapEach {intoArticle}
+			case _ => Selection(doc).unique("#cg_img img").wrapEach {intoArticle}
 		}
 	}
 
@@ -249,7 +249,7 @@ object Individual {
 			Range.inclusive(26, 130).map(i => Link(s"http://www.unlikeminerva.com/archive/index.php?week=$i")).toList
 		override def wrap(doc: Document, more: Link): Or[List[WebContent], Every[Report]] =
 			Selection(doc).many("center > img[src~=http://www.unlikeminerva.com/archive/]").wrapEach { img =>
-				withGood(imgIntoAsset(img), extract(img.parent().nextElementSibling().text())) { (article, txt) =>
+				withGood(intoArticle(img), extract(img.parent().nextElementSibling().text())) { (article, txt) =>
 					article.copy(data = article.data.updated("longcomment", txt))
 				}
 			}
@@ -270,7 +270,7 @@ object Individual {
 		AP("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
 			doc => Selection(doc).many(".cc-chapterrow a[href]").wrapFlat(elementIntoChapterPointer),
 			doc => {
-				val asset_? = Selection(doc).unique("#cc-comic").wrapOne(imgIntoAsset)
+				val asset_? = Selection(doc).unique("#cc-comic").wrapOne(intoArticle)
 				val next_? = queryNext("#cc-comicbody > a")(doc)
 				val comment_? = Selection(doc).unique("#commentary > div.cc-newsarea > div.cc-newsbody").getOne.map(_.text())
 				withGood(asset_?, next_?, comment_?) { (asset, next, comment) => asset.copy(data = asset.data.updated("longcomment", comment)) :: next }
@@ -367,13 +367,17 @@ object Individual {
 			queryImage("#comic_image")),
 		SF("NX_xkcd", "xkcd", "http://xkcd.com/1/",
 			doc => {
-				val assets_? = Selection(doc).all("#comic img").wrapEach(imgIntoAsset)
+				val assets_? = Selection(doc).all("#comic img").wrapEach(intoArticle)
 				val next_? = queryNext("a[rel=next]:not([href=#])")(doc)
 				val assets_with_comment_? = assets_?.map(_.map { article =>
 					article.data.get("title").fold(article)(t => article.copy(data = article.data.updated("longcomment", t)))
 				})
 				append(assets_with_comment_?, next_?)
-			})
+			}),
+		AP("NX_TheDreamer", "The Dreamer", "http://www.thedreamercomic.com/read_pgmain.php",
+			doc => Selection(doc).many(".act_wrap").reverse.wrapFlat{queryMixedArchive("h2, .flip_box_front .issue_title , .flip_box_back .issue_pages a")},
+			queryImage("#comicnav > div.comicWrap > div.imageWrap > img")
+		)
 	)
 
 }

@@ -835,3 +835,12 @@ http://hopevirus.keenspot.com/d/20160104.html
 -:Advent Boner
 http://legacy-control.com/comic/advent-boner-3/
 :ia #comic-1 img
+
+-:Slimy Thief
+http://slimythief.com/?p=32
+:i #comic > img
+:n #next > a
+
+-:It’s Walky!
+http://www.itswalky.com/comic/and-now/
+:ia #comic img

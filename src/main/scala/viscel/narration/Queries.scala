@@ -31,15 +31,26 @@ object Queries {
 	def extractMore(element: Element): Link Or Every[Report] =
 		extractURL(element).map(uri => Link(uri))
 
-	def imgIntoAsset(img: Element): ArticleRef Or Every[Report] = {
+	def intoArticle(img: Element): ArticleRef Or Every[Report] = {
 		def getAttr(k: String): Option[(String, String)] = {
 			val res = img.attr(k)
 			if (res.isEmpty) None else Some(k -> res)
 		}
-		extract(ArticleRef(
-			ref = Vurl.fromString(img.attr("abs:src")),
-			origin = Vurl.fromString(img.ownerDocument().location()),
-			data = List("alt", "title", "width", "height").flatMap(getAttr).toMap))
+		img.tagName() match {
+			case "img" =>
+				extract(ArticleRef(
+					ref = Vurl.fromString(img.attr("abs:src")),
+					origin = Vurl.fromString(img.ownerDocument().location()),
+					data = List("alt", "title", "width", "height").flatMap(getAttr).toMap))
+			case "object" =>
+				extract(ArticleRef(
+					ref = Vurl.fromString(img.attr("abs:data")),
+					origin = Vurl.fromString(img.ownerDocument().location()),
+					data = List("width", "height").flatMap(getAttr).toMap))
+
+			case tag => Bad(One(FailedElement(s"into article", UnhandledTag, img)))
+		}
+
 	}
 
 	def extractChapter(elem: Element): Chapter Or Every[Report] = extract {
@@ -47,10 +58,10 @@ object Queries {
 		Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
 	}
 
-	def queryImage(query: String)(from: Element): List[ArticleRef] Or Every[Report] = Selection(from).unique(query).wrapEach(imgIntoAsset)
-	def queryImages(query: String)(from: Element): List[ArticleRef] Or Every[Report] = Selection(from).many(query).wrapEach(imgIntoAsset)
+	def queryImage(query: String)(from: Element): List[ArticleRef] Or Every[Report] = Selection(from).unique(query).wrapEach(intoArticle)
+	def queryImages(query: String)(from: Element): List[ArticleRef] Or Every[Report] = Selection(from).many(query).wrapEach(intoArticle)
 	def queryImageInAnchor(query: String)(from: Element): List[WebContent] Or Every[Report] = Selection(from).unique(query).wrapFlat { image =>
-		imgIntoAsset(image).map(_ :: extractMore(image.parent()).toOption.toList)
+		intoArticle(image).map(_ :: extractMore(image.parent()).toOption.toList)
 	}
 	def queryNext(query: String)(from: Element): List[Link] Or Every[Report] = Selection(from).all(query).wrap(selectMore)
 	def queryImageNext(imageQuery: String, nextQuery: String)(from: Element): List[WebContent] Or Every[Report] = {
@@ -68,7 +79,7 @@ object Queries {
 
 	/** takes an element, extracts its uri and text and generates a description pointing to that chapter */
 	def elementIntoChapterPointer(chapter: Element): List[WebContent] Or Every[Report] =
-		combine(extractChapter(chapter), extractMore(chapter))
+	combine(extractChapter(chapter), extractMore(chapter))
 
 
 	def moreData[B](or: List[WebContent] Or B, data: String): List[WebContent] Or B = or.map(_.map {
