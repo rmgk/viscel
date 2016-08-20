@@ -17,6 +17,7 @@ object Queries {
 	/** tries to extract an absolute uri from an element, extraction depends on type of tag */
 	def extractURL(element: Element): Vurl Or One[Report] = element.tagName() match {
 		case "a" => extract {Vurl.fromString(element.attr("abs:href"))}
+		case "link" => extract {Vurl.fromString(element.attr("abs:href"))}
 		case "option" => extract {Vurl.fromString(element.attr("abs:value"))}
 		case tag => Bad(One(FailedElement(s"extract uri", UnhandledTag, element)))
 	}

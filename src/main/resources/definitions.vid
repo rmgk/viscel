@@ -195,8 +195,10 @@ http://sorethumbs.keenspot.com/d/20040308.html
 
 -:Star Power
 http://www.starpowercomic.com/archives/
-:am #storyline li[id~=^storyline-volume] , #storyline .level-2 a.archivethumbnaillink
-:i #comic-1 img
+:am #primary .comic-archive-cover, #primary .comic-archive-cover a
+:i #comic img
+:n link[rel=next]
+:url_replace /\?nav=next ::: /
 
 -:Strays
 http://www.straysonline.com/archives/

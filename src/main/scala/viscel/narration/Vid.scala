@@ -85,7 +85,7 @@ object Vid {
 
 		val (pageFunReplace, archFunReplace) = attrs match {
 			case extract"url_replace $replacer" =>
-				val replacements = replacer.s.split("\\s+:::\\s+").sliding(2, 2).toList
+				val replacements: List[Array[String]] = replacer.s.split("\\s+:::\\s+").sliding(2, 2).toList
 				val doReplace: List[WebContent] => List[WebContent] = { stories =>
 					stories.map {
 						case Link(url, policy, data) =>
