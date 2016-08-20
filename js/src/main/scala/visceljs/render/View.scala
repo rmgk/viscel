@@ -54,9 +54,11 @@ object View {
 			}
 		}
 
-		dataSignal.observe { data =>
-			Actions.pushView(data)
-			Actions.scrollTop()
+		Event {navigationEvents().map(e => e -> dataSignal())}.observe { case (ev, data) =>
+			if (ev == Prev || ev == Next) {
+				Actions.pushView(data)
+				Actions.scrollTop()
+			}
 			val pregen = data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
 		}
 
@@ -74,7 +76,7 @@ object View {
 				link_front(data.description, "front"),
 				Make.fullscreenToggle("TFS"),
 				a(s"mode(${data.fitType % 8})", class_post, onclick := { () => navigate(Mode(data.fitType + 1)) }),
-				if (data.bookmark != data.pos + 1) postBookmark(data.description, data.pos + 1, data, gotoView(_, scrolltop = false), "pause") else span(class_dead, "pause"),
+				postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), "pause"),
 				a(href := data.gallery.get.fold("")(_.origin))(class_extern)("site"),
 				link_asset(data.next, navigate(Next))("next", rel := "next"))
 			}.asFrag

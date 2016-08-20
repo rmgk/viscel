@@ -30,8 +30,7 @@ object Front {
 					link_index("index"),
 					Make.fullscreenToggle("TFS"),
 					link_asset(data.move(_.first))("first"),
-					if (bookmark > 0) Make.postBookmark(narration, 0, data, _ => Actions.gotoFront(narration, scrolltop = false), "remove")
-					else span(class_dead, "remove"),
+					Make.postBookmark(0, data, _ => Actions.gotoFront(narration, scrolltop = false), "remove"),
 					Make.postForceHint(narration, "force"))
 
 				val preview = {

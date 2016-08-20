@@ -25,6 +25,7 @@ object Actions {
 				View.Goto(Data(nar, content(), bm).move(_.first.next(pos - 1)))
 		}
 	}.changed
+	viewDispatchChangeE.observe(_ => viewDispatchS.setEmpty())
 
 	val frontS = Var.empty[String]
 	val frontData = Signal {
@@ -38,7 +39,6 @@ object Actions {
 	val bodyFront = Front.gen(frontData)
 	val viewBody = View.gen(viewE || viewDispatchChangeE)
 	val indexBody = Index.gen()
-
 
 
 	def dispatchPath(path: String): Unit = {

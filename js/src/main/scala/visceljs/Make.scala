@@ -13,10 +13,17 @@ import scalatags.JsDom.tags2.{nav, section}
 
 object Make {
 
-	def postBookmark(nar: Description, bm: Int, data: Data, handler: Data => Unit, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
-		Viscel.postBookmark(nar, bm)
-		handler(data.copy(bookmark = bm))
-	})
+	def postBookmark(bm: Int, data: Data, handler: Data => Unit, ts: Frag*): HtmlTag = {
+		println(s"generating post bookmark ${data.pos}")
+		if (data.bookmark != bm) {
+			a(class_post)(ts)(onclick := { () =>
+				println(s"posting $bm (${data.pos})")
+				Viscel.postBookmark(data.description, bm)
+				handler(data.copy(bookmark = bm))
+			})
+		}
+		else span(class_dead, ts)
+	}
 
 	def postForceHint(nar: Description, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
 		Viscel.hint(nar, force = true)
