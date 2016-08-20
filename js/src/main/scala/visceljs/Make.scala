@@ -3,10 +3,10 @@ package visceljs
 import org.scalajs.dom.html.UList
 import rescala.engines.Engines.default
 import rescala.engines.Engines.default.Signal
-import viscel.shared.{ImageRef, Description}
+import viscel.shared.{Blob, Description, ImageRef}
 import visceljs.Definitions._
 
-import scalatags.JsDom.all._
+import scalatags.JsDom.all.{alt, _}
 import scalatags.JsDom.attrs.{onclick, style}
 import scalatags.JsDom.tags.a
 import scalatags.JsDom.tags2.{nav, section}
@@ -44,11 +44,17 @@ object Make {
 		})
 	}
 
-	def asset(asset: ImageRef, data: Data): List[Modifier] = {
+	def asset(asset: ImageRef, assetData: Data): List[Modifier] = {
 		asset.blob match {
 			case None => List(class_placeholder, "placeholder")
-			case Some(blob) =>
-				img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(imageStyle(data)) :: Nil
+			case Some(blob@Blob(_, "application/x-shockwave-flash")) =>
+				`object`(
+					`type` := "application/x-shockwave-flash",
+					data := path_blob(blob),
+					width := asset.data.getOrElse("width", ""),
+					height := asset.data.getOrElse("height", "")) :: Nil
+			case Some(blob@Blob(_, _)) =>
+				img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(imageStyle(assetData)) :: Nil
 		}
 	}
 
