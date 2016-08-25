@@ -14,10 +14,8 @@ import scalatags.JsDom.tags2.{nav, section}
 object Make {
 
 	def postBookmark(bm: Int, data: Data, handler: Data => Unit, ts: Frag*): HtmlTag = {
-		println(s"generating post bookmark ${data.pos}")
 		if (data.bookmark != bm) {
 			a(class_post)(ts)(onclick := { () =>
-				println(s"posting $bm (${data.pos})")
 				Viscel.postBookmark(data.description, bm)
 				handler(data.copy(bookmark = bm))
 			})

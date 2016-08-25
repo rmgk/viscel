@@ -14,7 +14,7 @@ please improve :D */
 
 /* disable scrollbar in webkit based browsers */
 ::-webkit-scrollbar {
-    display: none;
+	display: none;
 }
 
 body {
@@ -23,6 +23,12 @@ body {
 	margin: 0px;
 	/* disable scrollbar in IE … untested so disabled
 	-ms-overflow-style: none; */
+
+	/* disable any form of selection */
+	-webkit-user-select: none;  /* Chrome all / Safari all */
+	-moz-user-select: none;     /* Firefox all */
+	-ms-user-select: none;      /* IE 10+ */
+	user-select: none;          /* Likely future */
 }
 
 a {
@@ -56,6 +62,15 @@ a.post {
 article {
 	color: white;
 }
+
+article p {
+	/* enable comment selection */
+	-webkit-user-select: text;  /* Chrome all / Safari all */
+	-moz-user-select: text;     /* Firefox all */
+	-ms-user-select: text;      /* IE 10+ */
+	user-select: text;          /* Likely future */
+}
+
 
 img {
 	-webkit-tap-highlight-color: transparent;

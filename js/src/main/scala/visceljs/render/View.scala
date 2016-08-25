@@ -22,7 +22,7 @@ object View {
 
 	def onLeftClickPrevNext(handler: Navigate => Unit): Modifier = onclick := { (e: MouseEvent) =>
 		val node = e.currentTarget.asInstanceOf[dom.html.Element]
-		if (e.button == 0) {
+		if (e.button == 0 && dom.document.getSelection().isCollapsed && dom.window.getSelection().isCollapsed) {
 			e.preventDefault()
 			val relx = e.clientX - node.offsetLeft
 			val border = math.max(node.offsetWidth / 10, 100)
