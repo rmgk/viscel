@@ -130,7 +130,7 @@ object Libraries {
 	// gpl3
 	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "3.0.4")
 
-	val akkaHTTP = List("akka-http-core", "akka-http-experimental").map(n => "com.typesafe.akka" %% n % "2.4.8")
+	val akkaHTTP = List("akka-http-core", "akka-http-experimental").map(n => "com.typesafe.akka" %% n % "2.4.9")
 
 	val jline = "jline" % "jline" % "2.14.2" :: Nil
 
@@ -140,7 +140,7 @@ object Libraries {
 
 	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.0" :: Nil)
 
-	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.1" :: Nil)
+	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.2" :: Nil)
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.0") :: Nil)
 
