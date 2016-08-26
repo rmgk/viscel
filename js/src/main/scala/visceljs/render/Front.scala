@@ -1,7 +1,9 @@
 package visceljs.render
 
+import rescala._
+import rescalatags._
 import viscel.shared.{ChapterPos, Contents, Gallery, ImageRef}
-import visceljs.Definitions.{class_chapters, class_dead, class_preview, link_asset, link_index}
+import visceljs.Definitions.{class_chapters, class_preview, link_asset, link_index}
 import visceljs.{Actions, Body, Data, Make}
 
 import scala.Predef.{$conforms, ArrowAssoc}
@@ -11,8 +13,6 @@ import scalatags.JsDom.all.Tag
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{SeqFrag, div, fieldset, header, legend, span}
 import scalatags.JsDom.tags2.{article, section}
-import rescala._
-import rescalatags._
 
 object Front {
 
@@ -22,50 +22,48 @@ object Front {
 		val fragS: Signal[Tag] = dataS.map { data =>
 			val Data(narration, Contents(gallery, chapters), bookmark, _) = data
 
+			val top = header(s"${narration.name} ($bookmark/${narration.size})")
 
+			val navigation = Make.navigation(
+				link_index("index"),
+				Make.fullscreenToggle("TFS"),
+				link_asset(data.move(_.first))("first"),
+				Make.postBookmark(0, data, _ => Actions.gotoFront(narration, scrolltop = false), "remove"),
+				Make.postForceHint(narration, "force"))
 
-				val top = header(s"${narration.name} ($bookmark/${narration.size})")
+			val preview = {
+				val preview1 = data.move(_.next(bookmark - 1).prev(2))
+				val preview2 = preview1.next
+				val preview3 = preview2.next
+				section(class_preview)(
+					List(preview1, preview2, preview3).map(p => p -> p.gallery.get)
+						.collect { case (p, Some(a)) => link_asset(p)(article(Make.asset(a, data): _*)) })
+			}
 
-				val navigation = Make.navigation(
-					link_index("index"),
-					Make.fullscreenToggle("TFS"),
-					link_asset(data.move(_.first))("first"),
-					Make.postBookmark(0, data, _ => Actions.gotoFront(narration, scrolltop = false), "remove"),
-					Make.postForceHint(narration, "force"))
+			def chapterlist: Tag = {
+				val assets = gallery.end
 
-				val preview = {
-					val preview1 = data.move(_.next(bookmark - 1).prev(2))
-					val preview2 = preview1.next
-					val preview3 = preview2.next
-					section(class_preview)(
-						List(preview1, preview2, preview3).map(p => p -> p.gallery.get)
-							.collect { case (p, Some(a)) => link_asset(p)(article(Make.asset(a, data): _*)) })
-				}
-
-				def chapterlist: Tag = {
-					val assets = gallery.end
-
-					def makeChapField(chap: String, size: Int, gallery: Gallery[ImageRef]): Frag = {
-						val (remaining, links) = Range(size, 0, -1).foldLeft((gallery, List[Frag]())) { case ((gal, acc), i) =>
-							val next = gal.prev(1)
-							(next, link_asset(data.move(_ => next))(s"$i") :: stringFrag(" ") :: acc)
-						}
-
-						article(fieldset(legend(chap), links))
+				def makeChapField(chap: String, size: Int, gallery: Gallery[ImageRef]): Frag = {
+					val (remaining, links) = Range(size, 0, -1).foldLeft((gallery, List[Frag]())) { case ((gal, acc), i) =>
+						val next = gal.prev(1)
+						(next, link_asset(data.move(_ => next))(s"$i") :: stringFrag(" ") :: acc)
 					}
 
-
-					@tailrec
-					def build(apos: Int, assets: Gallery[ImageRef], chapters: List[ChapterPos], acc: List[Frag]): List[Frag] = chapters match {
-						case ChapterPos(name, cpos) :: ctail =>
-							build(cpos, assets.prev(apos - cpos), ctail, makeChapField(name, apos - cpos, assets) :: acc)
-						case Nil => acc
-					}
-
-					section(class_chapters)(build(assets.pos, assets, chapters, Nil))
-
+					article(fieldset(legend(chap), links))
 				}
-				div(top, navigation, preview, chapterlist)
+
+
+				@tailrec
+				def build(apos: Int, assets: Gallery[ImageRef], chapters: List[ChapterPos], acc: List[Frag]): List[Frag] = chapters match {
+					case ChapterPos(name, cpos) :: ctail =>
+						build(cpos, assets.prev(apos - cpos), ctail, makeChapField(name, apos - cpos, assets) :: acc)
+					case Nil => acc
+				}
+
+				section(class_chapters)(build(assets.pos, assets, chapters, Nil))
+
+			}
+			div(top, navigation, preview, chapterlist)
 		}.withDefault(span("loading please wait"))
 
 
