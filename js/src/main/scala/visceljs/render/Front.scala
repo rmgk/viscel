@@ -19,7 +19,7 @@ object Front {
 
 	def gen(dataS: Signal[Data]): Body = {
 
-		val fragS = dataS.map { data =>
+		val fragS: Signal[Tag] = dataS.map { data =>
 			val Data(narration, Contents(gallery, chapters), bookmark, _) = data
 
 
@@ -66,7 +66,7 @@ object Front {
 
 				}
 				div(top, navigation, preview, chapterlist)
-		}.withDefault(() => span("loading please wait"))
+		}.withDefault(span("loading please wait"))
 
 
 		Body(id = "front", title = "TODO:",
