@@ -66,7 +66,6 @@ object Settings {
 			("Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/") ::
 			("Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/") ::
 			("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/") ::
-			// Resolver.bintrayRepo("rmgk", "maven") ::
 			Resolver.bintrayRepo("rmgk", "maven") ::
 			Nil)
 
@@ -128,9 +127,9 @@ object Libraries {
 	val jsoup = "org.jsoup" % "jsoup" % "1.9.2" :: Nil
 
 	// gpl3
-	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "3.0.4")
+	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "3.0.6")
 
-	val akkaHTTP = List("akka-http-core", "akka-http-experimental").map(n => "com.typesafe.akka" %% n % "2.4.9")
+	val akkaHTTP = List("akka-http-core", "akka-http-experimental").map(n => "com.typesafe.akka" %% n % "2.4.10")
 
 	val jline = "jline" % "jline" % "2.14.2" :: Nil
 
@@ -144,7 +143,7 @@ object Libraries {
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.0") :: Nil)
 
-	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.18.0-SNAPSHOT") :: Nil)
-	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.18.0-SNAPSHOT") :: Nil)
+	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.18.0") :: Nil)
+	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.18.0") :: Nil)
 
 }
