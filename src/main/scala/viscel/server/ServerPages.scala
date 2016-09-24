@@ -17,8 +17,6 @@ import scalatags.Text.{Modifier, RawFrag, TypedTag}
 class ServerPages(scribe: Scribe) {
 
 	def narration(id: String): Option[Contents] = {
-
-
 		@scala.annotation.tailrec
 		def recurse(content: List[ReadableContent], art: List[ImageRef], chap: List[ChapterPos], c: Int): (List[ImageRef], List[ChapterPos]) = {
 			content match {
@@ -39,7 +37,7 @@ class ServerPages(scribe: Scribe) {
 			val (articles, chapters) = recurse(book.pages(), Nil, Nil, 0)
 
 			Contents(Gallery.fromList(articles.reverse), chapters)
-		}
+		}.orElse(Narrators.get(id).map(n => Contents(Gallery.empty, Nil)))
 
 	}
 
