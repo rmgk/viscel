@@ -1,9 +1,5 @@
 # comics to look into
 
-|        name       |                     url                      |
-| ----------------- | -------------------------------------------- |
-| Cheer?            | <http://imgur.com/a/GTprX/>                  |
-
 ## bad chaptername /element order
 
 * <http://www.minnasundberg.fi/comicindex.php>

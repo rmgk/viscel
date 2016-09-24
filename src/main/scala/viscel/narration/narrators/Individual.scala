@@ -377,7 +377,15 @@ object Individual {
 			doc => queryImage("#comicnav > div.comicWrap > div.imageWrap > img")(doc).map(_.map{ ar =>
 				ar.copy(ref = ar.ref.uriString().replaceAll("\\.jpg.*", ".jpg"))
 			})
-		)
+		),
+		SF("NX_CheerImgur", "Cheer by Forview", "http://imgur.com/a/GTprX/",
+			doc => {
+				Selection(doc).unique("div.post-images").many("div.post-image-container").wrapEach{ div =>
+					extract(ArticleRef(
+						ref = s"http://i.imgur.com/${div.attr("id")}.png",
+						origin = "http://imgur.com/a/GTprX/"))
+				}
+			})
 	)
 
 }
