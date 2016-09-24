@@ -321,8 +321,6 @@ object Individual {
 			queryMixedArchive("#main_text div.archivediv h2, #main_text div.archivediv a"),
 			queryImage("#wrapper2 img")),
 		SF("NX_DangerouslyChloe", "Dangerously Chloe", "http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl", queryImageInAnchor("#comic img")),
-		SF("NX_YouSuck", "You Suck", "http://yousuck.slipshine.net/go/1-legolas",
-			doc => queryImageInAnchor("img#cc-comic")(doc)),
 		SF("NX_Nimona", "Nimona", "http://gingerhaze.com/nimona/comic/page-1",
 			queryImageNext("img[src~=/nimona-pages/]", "a:has(img[src=http://gingerhaze.com/sites/default/files/comicdrop/comicdrop_next_label_file.png])")),
 		SF("NX_DominicDeegan", "Dominic Deegan", "http://www.dominic-deegan.com/view.php?date=2002-05-21",

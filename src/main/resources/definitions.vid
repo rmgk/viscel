@@ -850,3 +850,7 @@ http://www.drowtales.com/mainarchive.php?sid=4192
 http://nmg.thecomicseries.com/archive/
 :am #archive .chaptertitle , #archive .archivecomic a
 :i #comicimage, #comicimagewrap embed
+
+-:You Suck
+http://yousuckthecomic.com/go/1-legolas
+:ia img#cc-comic
