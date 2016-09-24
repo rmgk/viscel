@@ -38,7 +38,7 @@ object Settings {
 
 	lazy val common = List(
 
-		version := "7.0.0-NeoUpgrade",
+		version := "7.0.0",
 		scalaVersion := "2.11.8",
 
 		scalacOptions ++=
@@ -96,7 +96,6 @@ object Settings {
 				|import akka.io.IO
 				|import akka.util.Timeout
 				|import org.jsoup._
-				|import org.neo4j.graphdb._
 				|import scala.collection.JavaConversions._
 				|import scala.concurrent._
 				|import scala.concurrent.duration._
@@ -104,7 +103,6 @@ object Settings {
 				|import viscel._
 				|import viscel.server._
 				|import viscel.store._
-				|import scala.Predef._
 				|import viscel.ReplUtil
 				|import viscel.narration._
 				|import viscel.narration.narrators._
@@ -115,8 +113,7 @@ object Settings {
 object Libraries {
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++=
-		neo ::: akkaHTTP :::
-		jline ::: jopt  ::: scalactic ::: shared.value ::: upickle.value ::: jsoup)
+		akkaHTTP ::: jline ::: jopt  ::: scalactic ::: shared.value ::: upickle.value ::: jsoup)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++=
 		scalajsdom.value ::: shared.value ::: rescala.value ::: rescalatags.value)
@@ -125,9 +122,6 @@ object Libraries {
 		scalatags.value ::: upickle.value)
 
 	val jsoup = "org.jsoup" % "jsoup" % "1.9.2" :: Nil
-
-	// gpl3
-	val neo = List("kernel", "lucene-index").map(module => "org.neo4j" % s"neo4j-$module" % "3.0.6")
 
 	val akkaHTTP = List("akka-http-core", "akka-http-experimental").map(n => "com.typesafe.akka" %% n % "2.4.10")
 

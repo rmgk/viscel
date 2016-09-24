@@ -76,30 +76,7 @@ object Viscel {
 		Files.createDirectories(cachedir)
 
 		if (upgrade.?) {
-			if (Files.isDirectory(db2dir)) {
-				if (Files.exists(scribedir)) {
-					Log.warn(s"can not convert database, target exists: $scribedir")
-				}
-				else {
-					Files.createDirectories(scribedir)
-					Log.info("converting database …")
-					viscel.neoadapter.NeoAdapter.convertToAppendLog(db2dir, scribedir, configdir)
-				}
-			}
-
-			if (Files.isDirectory(oldBlobdir)) {
-				if (Files.exists(blobdir)) {Log.warn(s"can not move blobs, target exists: $blobdir")}
-				else {
-					Log.info("moving blobs …")
-					Files.move(oldBlobdir, blobdir)
-				}
-			}
-
-			Log.info("moving crawler times")
-			Files.move(basepath.resolve("data/updateTimes.json"), cachedir.resolve("crawl-times.json"))
-			Log.info("moving merarrator data")
-			Files.move(basepath.resolve("data"), metarratorconfigdir)
-
+			Log.warn(s"upgrade not supported in this version. try `v7.0.0-NeoUpgrade`")
 		}
 
 		Files.createDirectories(scribedir)
