@@ -66,7 +66,7 @@ object Index {
 
 		val rendered = fragS.asFrag
 
-		Body(id = "index", title = "Viscel",
+		Body(id = "index", title = Var("Viscel"),
 			frag = rendered)
 	}
 

@@ -81,7 +81,7 @@ object View {
 				link_asset(data.next, navigate(Next))("next", rel := "next"))
 			}.asFrag
 
-		Body(id = "view", title = "TODO:",
+		Body(id = "view", title = dataSignal.map(data => s"${data.pos + 1} – ${data.description.name}"),
 			frag = List(mainSection, navigation),
 			keypress = (x: dom.KeyboardEvent) => handleKeypress.fire(x))
 

@@ -2,6 +2,8 @@ package visceljs
 
 import org.scalajs.dom
 import org.scalajs.dom.raw.HashChangeEvent
+import rescala.graph.SimpleStruct
+import rescala.reactives.Observe
 import upickle.default.{Reader, Writer}
 import viscel.shared._
 
@@ -64,10 +66,12 @@ object Viscel {
 	}
 
 
+	private var titleObserver: Observe[SimpleStruct] = null
 	def setBody(abody: Body, scrolltop: Boolean): Unit = {
 		dom.document.onkeydown = abody.keypress
 		dom.document.body.innerHTML = ""
-		dom.document.title = abody.title
+		if (titleObserver != null) titleObserver.remove()
+		titleObserver = abody.title.observe(dom.document.title = _)
 		dom.document.body.setAttribute("id", abody.id)
 		dom.document.body.appendChild(abody.frag.render)
 		if (scrolltop) Actions.scrollTop()

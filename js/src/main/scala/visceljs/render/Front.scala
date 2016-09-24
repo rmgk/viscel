@@ -67,7 +67,7 @@ object Front {
 		}.withDefault(span("loading please wait"))
 
 
-		Body(id = "front", title = "TODO:",
+		Body(id = "front", title = dataS.map(_.description.name),
 			frag = fragS.asFrag)
 
 	}
