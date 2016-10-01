@@ -8,7 +8,7 @@ class BlobStore(basedir: Path) {
 	def sha1hex(b: Array[Byte]) = {
 		val digester = MessageDigest.getInstance("SHA1")
 		val sha1 = digester.digest(b)
-		Predef.wrapByteArray(sha1).map { h => f"$h%02x" }.mkString
+		sha1.map { h => f"$h%02x" }.mkString
 	}
 
 	def write(sha1: String, bytes: Array[Byte]): Unit = {
