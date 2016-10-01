@@ -34,8 +34,17 @@ class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, ter
 	}
 
 	def route: Route = {
-		encodeResponse {
-			sprayLikeBasicAuth("Username is used to store configuration; Passwords are saved in plain text; User is created on first login", users.authenticate) { user => defaultRoute(user) }
+		decodeRequest {
+			encodeResponse {
+				sprayLikeBasicAuth("Username is used to store configuration; Passwords are saved in plain text; User is created on first login", users.authenticate) { user =>
+					extractRequest { request =>
+						request.headers.find(h => h.is("x-path-prefix")) match {
+							case None => defaultRoute(user)
+							case Some(prefix) => pathPrefix(prefix.value()) { defaultRoute(user) }
+						}
+					}
+				}
+			}
 		}
 	}
 
