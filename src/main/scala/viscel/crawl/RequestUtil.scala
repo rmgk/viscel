@@ -21,7 +21,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionContext, materializer: Materializer) {
 
-	val timeout = FiniteDuration(30, SECONDS)
+	val timeout = FiniteDuration(300, SECONDS)
 
 	def getResponse(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
 		Log.info(s"request ${request.uri} (${request.header[Referer]})")
