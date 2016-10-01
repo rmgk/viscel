@@ -213,8 +213,8 @@ object Individual {
 
 		def wrapArchive(doc: Document): List[WebContent] Or Every[Report] = {
 			Selection(doc).many(".archive .chapter").wrapFlat { chapter =>
-				val title_? = Selection(chapter).unique("h4").getOne.map(_.ownText())
-				val links_? = Selection(chapter).many("a").wrapEach {extractMore}
+				val title_? = Selection(chapter).unique("h2").getOne.map(_.ownText())
+				val links_? = Selection(chapter).many(".chapter-links a").wrapEach {extractMore}
 				withGood(title_?, links_?) { (title, links) =>
 					Chapter(title) :: links
 				}
