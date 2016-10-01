@@ -4,12 +4,11 @@ import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import rescala._
 import rescalatags._
-import visceljs.Actions.gotoView
-import visceljs.Definitions.{class_dead, class_extern, class_post, link_asset, link_front}
+import visceljs.Definitions.{class_extern, class_post, link_asset, link_front}
 import visceljs.Make.postBookmark
 import visceljs.{Actions, Body, Data, Make}
 
-import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, SeqNode, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, span, stringAttr, stringFrag}
+import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, SeqNode, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, stringAttr, stringFrag}
 import scalatags.JsDom.tags2.{article, section}
 
 object View {
