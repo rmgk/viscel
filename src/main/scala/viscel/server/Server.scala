@@ -8,11 +8,12 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
 import viscel.crawl.RequestUtil
-import viscel.narration.{Metarrators, Narrators}
+import viscel.narration.{Metarrators, Narrator, Narrators}
 import viscel.scribe.Scribe
 import viscel.shared.Log
 import viscel.store.{BlobStore, User}
-import viscel.{Deeds, ReplUtil}
+import viscel.{ReplUtil}
+import rescala._
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
@@ -23,6 +24,9 @@ class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, ter
 	val pages = new ServerPages(scribe)
 
 	val users = new UserStore
+
+	val narratorHint = Evt[(Narrator, Boolean)]()
+
 
 	def sprayLikeBasicAuth[T](realm: String, authenticator: Option[BasicHttpCredentials] => Option[T]) = extractExecutionContext.flatMap { implicit ec ⇒
 		authenticateOrRejectWithChallenge[BasicHttpCredentials, T] { cred ⇒
@@ -112,7 +116,7 @@ class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, ter
 					rejectNone(Narrators.get(narratorID)) { nar =>
 						parameters('force.as[Boolean].?) { force =>
 							complete {
-								Deeds.narratorHint(nar, force.getOrElse(false))
+								narratorHint.fire(nar -> force.getOrElse(false))
 								force.toString
 							}
 						}

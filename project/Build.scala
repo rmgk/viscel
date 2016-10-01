@@ -113,7 +113,7 @@ object Settings {
 object Libraries {
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++=
-		akkaHTTP ::: jline ::: jopt  ::: scalactic ::: shared.value ::: upickle.value ::: jsoup)
+		akkaHTTP ::: jline ::: jopt  ::: scalactic ::: shared.value ::: upickle.value ::: jsoup ::: rescala.value)
 
 	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++=
 		scalajsdom.value ::: shared.value ::: rescala.value ::: rescalatags.value)

@@ -16,6 +16,8 @@ import viscel.scribe.ScribePicklers._
 import viscel.server.Server
 import viscel.shared.Log
 import viscel.store.BlobStore
+import rescala._
+import viscel.narration.Narrator
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -116,6 +118,8 @@ object Viscel {
 
 		val requests = new RequestUtil(blobs, http)(executionContext, materializer)
 
+		var narrationHint: Evt[(Narrator, Boolean)] = Evt()
+
 		if (!noserver.?) {
 
 			val boundServer = Promise[ServerBinding]()
@@ -137,13 +141,15 @@ object Viscel {
 					RoutingLog.fromActorSystem(system)),
 				"0", port())(materializer)
 
+			narrationHint = server.narratorHint
+
 			boundServer.completeWith(boundSocket)
 		}
 
 		if (!nocore.?) {
 			val cw = new Clockwork(cachedir.resolve("crawl-times.json"), scribe, executionContext, requests)
 
-			Deeds.narratorHint = (narrator, force) => {
+			narrationHint.observe { case (narrator, force) =>
 				cw.runNarrator(narrator, if (force) 0 else cw.dayInMillis * 1)
 			}
 			cw.recheckPeriodically()
