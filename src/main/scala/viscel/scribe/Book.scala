@@ -61,6 +61,8 @@ class Book(path: Path, scribe: Scribe) {
 			res
 		}
 
+		Log.info(s"reading $path")
+
 		Files.lines(path, StandardCharsets.UTF_8).skip(1).collect(Collectors.toList()).asScala.reverseIterator.map { line =>
 			upickle.default.read[ScribeDataRow](line)
 		}.filter {
