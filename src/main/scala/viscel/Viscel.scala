@@ -64,10 +64,8 @@ object Viscel {
 			sys.exit(0)
 		}
 
-		basepath = Paths.get(basedir())
-		val db2dir = basepath.resolve("scribe/db2")
-		val oldBlobdir = basepath.resolve("scribe/blobs")
-		val blobdir = basepath.resolve("blobs")
+		basepath = Paths.get(optBasedir())
+		val blobdir = basepath.resolve(optBlobdir())
 		val scribedir = basepath.resolve("db3")
 		val cachedir = basepath.resolve("cache")
 		val configdir = basepath.resolve("config")
@@ -174,13 +172,15 @@ object Viscel {
 			.withRequiredArg().ofType(Predef.classOf[Int]).defaultsTo(2358).describedAs("port")
 		val noserver = accepts("noserver", "do not start the server")
 		val nocore = accepts("nocore", "do not start the core downloader")
-		val basedir = accepts("basedir", "the base working directory")
+		val optBasedir = accepts("basedir", "the base working directory")
 			.withRequiredArg().ofType(Predef.classOf[String]).defaultsTo("./data/").describedAs("basedir")
 		val nodbwarmup = accepts("nodbwarmup", "skip database warmup")
 		val shutdown = accepts("shutdown", "shutdown after main")
 		val help = accepts("help").forHelp()
 		val upgrade = accepts("upgradedb", "upgrade database and folder layout from version 2 to version 3")
 		val cleanblobs = accepts("cleanblobs", "cleans blobs from blobstore which are no longer linked")
+		val optBlobdir = accepts("blobdir", "directory to store blobs (the images). Can be absolute, otherwise relative to basedir")
+			.withRequiredArg().ofType(Predef.classOf[String]).defaultsTo("./blobs/").describedAs("blobdir")
 
 		implicit def optToBool(opt: OptionSpecBuilder)(implicit oset: OptionSet): Boolean = oset.has(opt)
 
