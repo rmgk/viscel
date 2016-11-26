@@ -121,23 +121,23 @@ object Libraries {
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
 
-	val jsoup = "org.jsoup" % "jsoup" % "1.9.2" :: Nil
+	val jsoup = "org.jsoup" % "jsoup" % "1.10.1" :: Nil
 
-	val akkaHTTP = List("akka-http-core", "akka-http-experimental").map(n => "com.typesafe.akka" %% n % "2.4.10")
+	val akkaHTTP = List("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.0")
 
 	val jline = "jline" % "jline" % "2.14.2" :: Nil
 
-	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.2" :: Nil
+	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.3" :: Nil
 
-	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.0" exclude("org.scala-lang", "scala-reflect")) :: Nil
+	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.1" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
-	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.0" :: Nil)
+	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.2" :: Nil)
 
-	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.2" :: Nil)
+	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.4" :: Nil)
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.0") :: Nil)
 
-	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.18.0") :: Nil)
-	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.18.0") :: Nil)
+	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.19.0-SNAPSHOT") :: Nil)
+	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.19.0-SNAPSHOT") :: Nil)
 
 }

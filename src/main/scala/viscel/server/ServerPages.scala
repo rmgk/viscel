@@ -62,7 +62,7 @@ class ServerPages(scribe: Scribe) {
 	val path_js: String = "js"
 
 
-	def makeHtml(stuff: Modifier*): Tag =
+	def makeHtml(stuff: Modifier*): TypedTag[String] =
 		html(
 			head(
 				title := "Viscel",
@@ -74,7 +74,7 @@ class ServerPages(scribe: Scribe) {
 		ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
 		"<!DOCTYPE html>" + tag.render))
 
-	val fullHtml: Tag = makeHtml(body("if nothing happens, your javascript does not work"), script(src := path_js), script(RawFrag(s"Viscel().main()")))
+	val fullHtml: TypedTag[String] = makeHtml(body("if nothing happens, your javascript does not work"), script(src := path_js), script(RawFrag(s"Viscel().main()")))
 
 	val landing: HttpResponse = htmlResponse(fullHtml)
 
