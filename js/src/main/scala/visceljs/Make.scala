@@ -27,10 +27,10 @@ object Make {
 		Viscel.hint(nar, force = true)
 	})
 
-	def imageStyle(data: Data): Modifier = {
+	def imageStyle(fitType: Int): Modifier = {
 		def s(mw: Boolean = false, mh: Boolean = false, w: Boolean = false, h: Boolean = false) =
 			s"max-height: ${if (mh) "100vh" else "none"}; max-width: ${if (mw) "100vw" else "none"}; height: ${if (h) "100vh" else "auto"}; width: ${if (w) "100vw" else "auto"}"
-		style := (data.fitType % 8 match {
+		style := (fitType % 8 match {
 			case 0 => ""
 			case 1 => s()
 			case 2 => s(mw = true)
@@ -42,7 +42,7 @@ object Make {
 		})
 	}
 
-	def asset(asset: ImageRef, assetData: Data): List[Modifier] = {
+	def asset(asset: ImageRef, assetData: Data, addImageStyle: Modifier = ""): List[Modifier] = {
 		asset.blob match {
 			case None => List(class_placeholder, "placeholder")
 			case Some(blob@Blob(_, "application/x-shockwave-flash")) =>
@@ -52,7 +52,7 @@ object Make {
 					width := asset.data.getOrElse("width", ""),
 					height := asset.data.getOrElse("height", "")) :: Nil
 			case Some(blob@Blob(_, _)) =>
-				img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(imageStyle(assetData)) :: Nil
+				img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(addImageStyle) :: Nil
 		}
 	}
 

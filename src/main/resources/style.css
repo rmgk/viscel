@@ -192,19 +192,18 @@ body#view {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	align-items: center;
+	/*align-items: center;*/
 	min-height: 100vh;
 }
 
 
 #view section {
-	min-width: 100%;
 	text-align: center;
-	display: flex;
+	/*display: flex;
 	flex: 1 0 auto;
 	flex-flow: row;
 	justify-content: space-around;
-	align-items: flex-start;
+	align-items: flex-start;*/
 }
 
 #view nav {

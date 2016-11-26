@@ -42,7 +42,6 @@ object View {
 
 		val navigationEvents: Event[Navigate] = keypressNavigations || navigate || outerNavigation
 
-
 		val dataSignal: Signal[Data] = navigationEvents.reduce[Data] { (data, ev) =>
 			ev match {
 				case Prev if !data.gallery.isFirst => data.prev
@@ -63,7 +62,7 @@ object View {
 
 		val mainPart: Signal[HtmlTag] = dataSignal.map[HtmlTag] { data =>
 			data.gallery.get.fold[HtmlTag](p(s"loading image data …")) { asst =>
-				article(Make.asset(asst, data))(asst.data.get("longcomment").fold(List[Tag]())(p(_) :: Nil))
+				article(Make.asset(asst, data, Make.imageStyle(data.fitType)))(asst.data.get("longcomment").fold(List[Tag]())(p(_) :: Nil))
 			}
 		}
 
