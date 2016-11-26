@@ -130,7 +130,7 @@ object Viscel {
 					}(system.dispatcher)
 			}
 
-			val server = new Server(scribe, blobs, requests, terminate)(system)
+			val server = new Server(scribe, blobs, requests, () => terminate())(system)
 			val boundSocket: Future[ServerBinding] = http.bindAndHandle(
 				RouteResult.route2HandlerFlow(server.route)(
 					RoutingSettings.default(system),

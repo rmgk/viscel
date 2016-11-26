@@ -38,22 +38,22 @@ object Settings {
 
 	lazy val common = List(
 
-		version := "7.0.0",
-		scalaVersion := "2.11.8",
+		version := "7.1.0",
+		scalaVersion := "2.12.0",
 
 		scalacOptions ++=
 			"-deprecation" ::
 			"-encoding" :: "UTF-8" ::
 			"-unchecked" ::
 			"-feature" ::
-			"-target:jvm-1.7" ::
+			"-target:jvm-1.8" ::
 			"-Xlint" ::
 			"-Xfuture" ::
 			//"-Xlog-implicits" ::
 			//"-Yno-predef" ::
 			//"-Yno-imports" ::
 			"-Xfatal-warnings" ::
-			"-Yinline-warnings" ::
+			//"-Yinline-warnings" ::
 			"-Yno-adapted-args" ::
 			//"-Ywarn-dead-code" ::
 			"-Ywarn-nullary-override" ::
@@ -135,7 +135,7 @@ object Libraries {
 
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.4" :: Nil)
 
-	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.0") :: Nil)
+	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.1") :: Nil)
 
 	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.19.0-SNAPSHOT") :: Nil)
 	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.19.0-SNAPSHOT") :: Nil)

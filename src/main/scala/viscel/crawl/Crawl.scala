@@ -68,15 +68,16 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	}
 
 	def handleLink(link: Link): Unit = {
-		requestAndWrap(link).map {
-			case Bad(reports) =>
+		requestAndWrap(link).onComplete {
+			case Success(Bad(reports)) =>
 				Log.error(s"$narrator failed on $link: ${reports.map {_.describe}}")
 				promise.success(false)
-			case Good(page) =>
+			case Success(Good(page)) =>
 				addContents(page.contents)
 				book.add(page)
 				ec.execute(this)
-		}.onFailure(PartialFunction(promise.failure))
+			case Failure(e) => promise.failure(e)
+		}
 	}
 
 	def requestAndWrap(link: Link): Future[Or[ScribePage, Every[Report]]] = {

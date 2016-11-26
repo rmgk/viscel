@@ -29,8 +29,8 @@ object Viscel {
 		else {
 			val res = dom.ext.Ajax.get(url = path)
 				.map { res => upickle.default.read[R](res.responseText) }
-			res.onFailure {
-				case e => Console.println(s"request $path failed with ${e.getMessage}")
+			res.failed.foreach { e =>
+				Console.println(s"request $path failed with ${e.getMessage}")
 			}
 			res
 		}
