@@ -137,7 +137,7 @@ object Libraries {
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.1") :: Nil)
 
-	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.19.0-SNAPSHOT") :: Nil)
-	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.19.0-SNAPSHOT") :: Nil)
+	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.19.0") :: Nil)
+	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.19.0") :: Nil)
 
 }
