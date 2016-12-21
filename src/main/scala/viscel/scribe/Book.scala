@@ -63,12 +63,18 @@ class Book(path: Path, scribe: Scribe) {
 
 		Log.info(s"reading $path")
 
-		Files.lines(path, StandardCharsets.UTF_8).skip(1).collect(Collectors.toList()).asScala.reverseIterator.map { line =>
-			upickle.default.read[ScribeDataRow](line)
-		}.filter {
-			case spage@ScribePage(il, _, _, _) => putIfAbsent(pageMap, il, spage)
-			case sblob@ScribeBlob(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
-		}.to[ArrayBuffer].reverse
+		val fileStream = Files.lines(path, StandardCharsets.UTF_8)
+		try {
+			fileStream.skip(1).collect(Collectors.toList()).asScala.reverseIterator.map { line =>
+				upickle.default.read[ScribeDataRow](line)
+			}.filter {
+				case spage@ScribePage(il, _, _, _) => putIfAbsent(pageMap, il, spage)
+				case sblob@ScribeBlob(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
+			}.to[ArrayBuffer].reverse
+		}
+		finally {
+			fileStream.close()
+		}
 	}
 
 	def rightmostScribePages(): List[Link] = {
@@ -126,7 +132,7 @@ class Book(path: Path, scribe: Scribe) {
 					case Link(loc, policy, data) =>
 						pageMap.get(loc) match {
 							case None => flatten(t, acc)
-							case Some(alp) => flatten(unseen(alp.contents) reverse_:::  t, acc)
+							case Some(alp) => flatten(unseen(alp.contents) reverse_::: t, acc)
 						}
 					case art@ArticleRef(ref, origin, data) =>
 						val blob = blobMap.get(ref).map(_.blob)
