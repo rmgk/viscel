@@ -67,6 +67,7 @@ object Settings {
 			("Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/") ::
 			("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/") ::
 			Resolver.bintrayRepo("rmgk", "maven") ::
+			Resolver.bintrayRepo("pweisenburger", "maven") ::
 			Nil)
 
 	lazy val main: List[Def.Setting[_]] = common ++ List(
@@ -121,11 +122,11 @@ object Libraries {
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
 
-	val jsoup = "org.jsoup" % "jsoup" % "1.10.1" :: Nil
+	val jsoup = "org.jsoup" % "jsoup" % "1.10.2" :: Nil
 
-	val akkaHTTP = List("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.0")
+	val akkaHTTP = List("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.1")
 
-	val jline = "jline" % "jline" % "2.14.2" :: Nil
+	val jline = "jline" % "jline" % "2.14.3" :: Nil
 
 	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.3" :: Nil
 
