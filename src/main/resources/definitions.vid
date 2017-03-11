@@ -38,11 +38,6 @@ http://www.alphaluna.net/archive/
 http://www.bardsworth.com/?comic=brain
 :ia #comic img
 
--:Bizarre Uprising
-http://www.bizarreuprising.com/view/1/awakening-splash
-:i div.v_comic > div.v_comiccontent > img
-:n div.v_bottomnav > a:has(img[alt=next])
-
 -:Blank It
 http://blankitcomics.com/blankit-0001/
 :i #comic > img
@@ -115,9 +110,9 @@ http://flipside.keenspot.com/comic/book0/fs01pg01.html
 :n a:contains(Next >)
 
 -:Lavender Legend
-http://lavenderlegend.com/?page_id=109
-:ac li[id~=storyline-chapter-\d+] a.storyline-title
-:ia #comic-1  img
+http://lavenderlegend.com/lavender-legend/lavender-legend-1-cover/
+:i #content .webcomic-image img
+:n .next-webcomic-link
 
 -:Lint
 http://lint.webcomic.ws/archive/
@@ -159,11 +154,11 @@ http://oglaf.com/archive/
 -:Chirault
 http://chirault.sevensmith.net/archives.php
 :am div.entryText h1 , div.entryText > a
-:i img[src~=/comics/\d{8}]
+:i .entryText center img[src~=/comics/\d{8}][alt~=\d+]
 
 -:Annyseed
 http://www.mirrorwoodcomics.com/AnnyseedArchive.htm
-:am td[width=810][height=675] p:not(:has(a)) , td[width=810][height=675] a
+:am td[rowspan=4][width=809] p:not(:has(a)) , td[rowspan=4][width=809] a
 :i img[src~=AnnyseedPage]
 
 -:Quiltbag
@@ -181,7 +176,7 @@ http://www.sexylosers.com/archives-by-volume/
 :i main.content article.post div.entry-content > p img
 
 -:Shadowbinders
-http://shadowbinders.com/comic/shadowbinders-chapter-1/
+http://shadowbinders.clownfishtv.com/comic/shadowbinders-prologue-page-1/
 :ia #comic img
 
 -:Sore Thumbs
@@ -292,10 +287,6 @@ http://fern.junglestudio.com/comics/nymph/01.html
 http://reila.smackjeeves.com/comics/1001394/cover/
 :ia #comic_image
 
--:Sakana no Sadness
-http://old.sakanacomic.com/archive/
-:am #leftside h2 , #leftside .pagebox a
-:i #comic-inner > img
 
 -:The First Daughter
 http://thefirstdaughter.keenspot.com/d/20100704.html
@@ -854,3 +845,19 @@ http://nmg.thecomicseries.com/archive/
 -:You Suck
 http://yousuckthecomic.com/go/1-legolas
 :ia img#cc-comic
+
+
+
+
+---------------------------------------------- DEAD ---
+
+-- -:Bizarre Uprising
+-- http://www.bizarreuprising.com/view/1/awakening-splash
+-- :i div.v_comic > div.v_comiccontent > img
+-- :n div.v_bottomnav > a:has(img[alt=next])
+
+
+-- -:Sakana no Sadness
+-- http://old.sakanacomic.com/archive/
+-- :am #leftside h2 , #leftside .pagebox a
+-- :i #comic-inner > img

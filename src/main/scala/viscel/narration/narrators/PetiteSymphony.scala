@@ -21,6 +21,6 @@ object PetiteSymphony {
 		("remnantsonata", "Remnant Sonata", "http://remnantsonata.petitesymphony.com/comic/rs-pg1/"),
 		("ladycrimson", "Lady Crimson", "http://ladycrimson.petitesymphony.com/comic/ladycrimson_cover/"),
 		("yearofthecow", "Year of the Cow", "http://yearofthecow.petitesymphony.com/comic/yotc-cover/")
-	).map { case (id, name, start) => Templates.SF(s"PetiteSymphony_$id", s"[PS] $name", start, queryImageNext("#comic-1 img", "a.navi.navi-next")) }
+	).map { case (id, name, start) => Templates.SimpleForward(s"PetiteSymphony_$id", s"[PS] $name", start, queryImageNext("#comic-1 img", "a.navi.navi-next")) }
 
 }

@@ -7,7 +7,7 @@ import scala.collection.immutable.Set
 
 object Snafu {
 
-	def Snar(id: String, name: String, start: String) = Templates.SF(id, name, start,
+	def Snar(id: String, name: String, start: String) = Templates.SimpleForward(id, name, start,
 		Queries.queryImageNext(".comicpage img", ".comicnav a.previous")
 	)
 

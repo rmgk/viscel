@@ -6,18 +6,18 @@ import viscel.scribe.{Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.Report
 
 object Templates {
-	def AP(
+	def ArchivePage(
 		pid: String,
 		pname: String,
 		start: Vurl,
 		wrapArchive: Document => List[WebContent] Or Every[Report],
 		wrapPage: Document => List[WebContent] Or Every[Report]
-		): Narrator = new AP(start, wrapArchive, wrapPage) {
+		): Narrator = new ArchivePage(start, wrapArchive, wrapPage) {
 		override def id: String = pid
 		override def name: String = pname
 	}
 
-	abstract class AP(
+	abstract class ArchivePage(
 		start: Vurl,
 		wrapArchive: Document => List[WebContent] Or Every[Report],
 		wrapPage: Document => List[WebContent] Or Every[Report]
@@ -29,17 +29,17 @@ object Templates {
 		}
 	}
 
-	def SF(
+	def SimpleForward(
 		pid: String,
 		pname: String,
 		start: Vurl,
 		wrapPage: Document => List[WebContent] Or Every[Report]
-		): Narrator = new SF(start, wrapPage) {
+		): Narrator = new SimpleForward(start, wrapPage) {
 		override def id: String = pid
 		override def name: String = pname
 	}
 
-	abstract class SF(
+	abstract class SimpleForward(
 		start: Vurl,
 		wrapPage: Document => List[WebContent] Or Every[Report]
 		) extends Narrator {

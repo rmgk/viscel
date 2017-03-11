@@ -9,7 +9,7 @@ import viscel.scribe.Vurl
 import viscel.selection.Report
 
 object Comicfury {
-	case class Cfury(cid: String, override val name: String) extends Templates.SF(
+	case class Cfury(cid: String, override val name: String) extends Templates.SimpleForward(
 		s"http://$cid.thecomicseries.com/comics/1",
 		Queries.queryImageNext("#comicimage", "a[rel=next]")) {
 		override val id: String = s"Comicfury_$cid"

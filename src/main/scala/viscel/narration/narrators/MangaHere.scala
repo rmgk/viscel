@@ -10,7 +10,7 @@ import viscel.selection.{Report, Selection}
 
 object MangaHere {
 
-	case class Nar(id: String, name: String, archiveUri: Vurl) extends Templates.AP(
+	case class Nar(id: String, name: String, archiveUri: Vurl) extends Templates.ArchivePage(
 		archiveUri,
 		doc => queryMixedArchive(".detail_list > ul:first-of-type > li , .detail_list > ul:first-of-type a ")(doc).map(reverse),
 		queryImageNext("#image", ".next_page:not([onclick])")

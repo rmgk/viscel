@@ -105,8 +105,8 @@ object Vid {
 		val archFunRev = if (has("archiveReverse")) transform(archFunReplace)(reverse) else archFunReplace
 
 		(pageFunReplace, archFunRev) match {
-			case (Some(pf), None) => Good(Templates.SF(cid, name, startUrl, pf))
-			case (Some(pf), Some(af)) => Good(Templates.AP(cid, name, startUrl, af, pf))
+			case (Some(pf), None) => Good(Templates.SimpleForward(cid, name, startUrl, pf))
+			case (Some(pf), Some(af)) => Good(Templates.ArchivePage(cid, name, startUrl, af, pf))
 			case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
 		}
 

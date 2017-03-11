@@ -7,7 +7,7 @@ import scala.collection.immutable.Set
 
 object CloneManga {
 
-	def Clone(id: String, name: String, start: String) = Templates.SF(id, name, start,
+	def Clone(id: String, name: String, start: String) = Templates.SimpleForward(id, name, start,
 		Queries.queryImageNext(".subsectionContainer img", ".subsectionContainer > a:first-child"))
 
 	def cores = Set(
