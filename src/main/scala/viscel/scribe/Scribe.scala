@@ -11,7 +11,7 @@ import scala.language.implicitConversions
 
 class Scribe(basedir: Path, configdir: Path) {
 
-	val descriptionpath = configdir.resolve("descriptions.json")
+	val descriptionpath: Path = configdir.resolve("descriptions.json")
 
 	var descriptionCache: Map[String, Description] =
 		Json.load[Map[String, Description]](descriptionpath).getOrElse(Map())
