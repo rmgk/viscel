@@ -28,7 +28,8 @@ class Book(path: Path, scribe: Scribe) {
 	}
 
 	def export(path: Path): Unit = {
-		Files.write(path, entries.map(entry => upickle.default.write[ScribeDataRow](entry)).asJava, StandardOpenOption.CREATE_NEW)
+		Files.write(path, List(name).asJava, StandardOpenOption.CREATE_NEW)
+		Files.write(path, entries.map(entry => upickle.default.write[ScribeDataRow](entry)).asJava, StandardOpenOption.APPEND)
 	}
 
 	def emptyArticles(): List[ArticleRef] = entries.collect {
