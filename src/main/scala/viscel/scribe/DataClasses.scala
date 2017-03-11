@@ -10,8 +10,16 @@ import viscel.shared.Blob
 sealed trait ScribeDataRow {
 	/** reference that spawned this entry */
 	def ref: Vurl
-	def matches(o: ScribeDataRow): Boolean = ref.equals(o.ref)
+	def matchesRef(o: ScribeDataRow): Boolean = ref == o.ref
+	def differentContent(o: ScribeDataRow): Boolean = (this, o) match {
+		case (ScribePage(ref1, loc1, _, contents1), ScribePage(ref2, loc2, _, contents2)) =>
+			!(ref1 == ref2 && loc1 == loc2 && contents1 == contents2)
+		case (ScribeBlob(ref1, loc1, _, blob1), ScribeBlob(ref2, loc2, _, blob2)) =>
+			!(ref1 == ref2 && loc1 == loc2 && blob1 == blob2)
+		case _ => true
+	}
 }
+
 @key("Page") case class ScribePage(
 	/* reference that spawned this entry */
 	ref: Vurl,
@@ -20,6 +28,7 @@ sealed trait ScribeDataRow {
 	date: Instant,
 	contents: List[WebContent]
 ) extends ScribeDataRow
+
 @key("Blob") case class ScribeBlob(
 	/* reference that spawned this entry */
 	ref: Vurl,

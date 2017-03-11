@@ -14,15 +14,17 @@ import scala.collection.mutable.ArrayBuffer
 class Book(path: Path, scribe: Scribe) {
 
 	def add(entry: ScribeDataRow): Unit = {
-		Files.write(path, List(upickle.default.write[ScribeDataRow](entry)).asJava, StandardOpenOption.APPEND)
-		entry match {
-			case alp@ScribePage(il, _, _, _) => pageMap.put(il, alp)
-			case alb@ScribeBlob(il, _, _, _) => blobMap.put(il, alb)
+		val index = entries.lastIndexWhere(_.matchesRef(entry))
+		if (index < 0 || entries(index).differentContent(entry)) {
+			Files.write(path, List(upickle.default.write[ScribeDataRow](entry)).asJava, StandardOpenOption.APPEND)
+			entry match {
+				case alp@ScribePage(il, _, _, _) => pageMap.put(il, alp)
+				case alb@ScribeBlob(il, _, _, _) => blobMap.put(il, alb)
+			}
+			if (index >= 0) entries.remove(index)
+			entries += entry
+			scribe.invalidateSize(this)
 		}
-		val index = entries.indexWhere(_.matches(entry))
-		if (index >= 0) entries.remove(index)
-		entries += entry
-		scribe.invalidateSize(this)
 	}
 
 	def emptyArticles(): List[ArticleRef] = entries.collect {
