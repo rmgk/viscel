@@ -10,14 +10,13 @@ import akka.http.scaladsl.server.{RouteResult, _}
 import akka.http.scaladsl.settings._
 import akka.stream.ActorMaterializer
 import joptsimple.{BuiltinHelpFormatter, OptionException, OptionParser, OptionSet, OptionSpec, OptionSpecBuilder}
+import rescala._
 import viscel.crawl.{Clockwork, RequestUtil}
+import viscel.narration.Narrator
 import viscel.scribe.Scribe
-import viscel.scribe.ScribePicklers._
 import viscel.server.Server
 import viscel.shared.Log
 import viscel.store.BlobStore
-import rescala._
-import viscel.narration.Narrator
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
