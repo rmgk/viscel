@@ -27,6 +27,10 @@ class Book(path: Path, scribe: Scribe) {
 		}
 	}
 
+	def export(path: Path): Unit = {
+		Files.write(path, entries.map(entry => upickle.default.write[ScribeDataRow](entry)).asJava, StandardOpenOption.CREATE_NEW)
+	}
+
 	def emptyArticles(): List[ArticleRef] = entries.collect {
 		case ScribePage(ref, _, _, contents) => contents
 	}.flatten.collect {
