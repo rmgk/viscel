@@ -124,7 +124,7 @@ object Libraries {
 
 	val jsoup = "org.jsoup" % "jsoup" % "1.10.2" :: Nil
 
-	val akkaHTTP = List("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.1")
+	val akkaHTTP = List("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.4")
 
 	val jline = "jline" % "jline" % "2.14.3" :: Nil
 
@@ -132,7 +132,7 @@ object Libraries {
 
 	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.1" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
-	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.2" :: Nil)
+	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.3" :: Nil)
 
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.4" :: Nil)
 
