@@ -11,9 +11,7 @@ import scala.collection.JavaConverters._
 
 object Json {
 
-
-
-	def store[T: Writer](p: Path, data: T) = synchronized {
+	def store[T: Writer](p: Path, data: T): Unit = synchronized {
 		val jsonBytes = upickle.default.write(data) :: Nil
 		Files.createDirectories(p.getParent)
 		Files.write(p, jsonBytes.asJava, UTF_8, CREATE, WRITE, TRUNCATE_EXISTING)
