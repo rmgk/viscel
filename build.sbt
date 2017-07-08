@@ -4,37 +4,37 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt.Keys._
 import sbt._
 
-object Build extends sbt.Build {
 
-	lazy val viscel = project.in(file("."))
-		.settings(name := "viscel")
-		.settings(Settings.main: _*)
-		.settings(Libraries.main: _*)
-		.settings(compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in(js, Compile)))
-		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
-		.enablePlugins(JavaServerAppPackaging)
-		.dependsOn(shared % Provided)
-		.settings(Settings.sharedSource)
+lazy val viscel = project.in(file("."))
+	.settings(name := "viscel")
+	.settings(Settings.main: _*)
+	.settings(Libraries.main: _*)
+	.settings(compile in Compile := ((compile in Compile) dependsOn (fullOptJS in(js, Compile))).value)
+	.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
+	.enablePlugins(JavaServerAppPackaging)
+	.dependsOn(shared % Provided)
+	.settings(sharedSource)
 
 
-	lazy val js = project.in(file("js"))
-		.settings(name := "viscel-js")
-		.enablePlugins(ScalaJSPlugin)
-		.settings(Settings.common: _*)
-		.settings(Libraries.js: _*)
-		.dependsOn(shared % Provided)
-		.settings(Settings.sharedSource)
+lazy val js = project.in(file("js"))
+	.settings(name := "viscel-js")
+	.enablePlugins(ScalaJSPlugin)
+	.settings(Settings.common: _*)
+	.settings(Libraries.js: _*)
+	.dependsOn(shared % Provided)
+	.settings(sharedSource)
 
-	lazy val shared = project.in(file("shared"))
-		.settings(name := "viscel-shared")
-		.settings(Settings.common: _*)
-		.settings(libraryDependencies ++= Libraries.shared.value)
+lazy val shared = project.in(file("shared"))
+	.settings(name := "viscel-shared")
+	.settings(Settings.common: _*)
+	.settings(libraryDependencies ++= Libraries.shared.value)
 
-}
 
-object Settings {
+lazy val sharedSource = unmanagedSourceDirectories in Compile += (scalaSource in (shared, Compile)).value
 
-	lazy val sharedSource = unmanagedSourceDirectories in Compile += (scalaSource in (Build.shared, Compile)).value
+
+lazy val Settings = new {
+
 
 	lazy val common = List(
 
@@ -111,7 +111,7 @@ object Settings {
 
 }
 
-object Libraries {
+lazy val Libraries = new {
 
 	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++=
 		akkaHTTP ::: jline ::: jopt  ::: scalactic ::: shared.value ::: upickle.value ::: jsoup ::: rescala.value)
