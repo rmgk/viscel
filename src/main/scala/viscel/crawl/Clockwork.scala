@@ -17,12 +17,12 @@ import scala.util.{Failure, Success}
 
 class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: RequestUtil) {
 
-	val dayInMillis = 24L * 60L * 60L * 1000L
+	val dayInMillis: Long = 24L * 60L * 60L * 1000L
 
 
 	val timer: Timer = new Timer(true)
-	val delay: Long = 0
-	val period: Long = 60 * 60 * 1000 // every hour
+	val delay: Long = 0L
+	val period: Long = 60L * 60L * 1000L // every hour
 
 	var running: Map[String, Crawl] = Map()
 
