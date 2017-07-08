@@ -7,8 +7,8 @@ import sbt._
 
 lazy val viscel = project.in(file("."))
 	.settings(name := "viscel")
-	.settings(Settings.main: _*)
-	.settings(Libraries.main: _*)
+	.settings(Settings.main)
+	.settings(Libraries.main)
 	.settings(compile in Compile := ((compile in Compile) dependsOn (fullOptJS in(js, Compile))).value)
 	.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
 	.enablePlugins(JavaServerAppPackaging)
@@ -19,8 +19,8 @@ lazy val viscel = project.in(file("."))
 lazy val js = project.in(file("js"))
 	.settings(name := "viscel-js")
 	.enablePlugins(ScalaJSPlugin)
-	.settings(Settings.common: _*)
-	.settings(Libraries.js: _*)
+	.settings(Settings.common)
+	.settings(Libraries.js)
 	.dependsOn(shared % Provided)
 	.settings(sharedSource)
 
@@ -109,11 +109,11 @@ lazy val Settings = new {
 
 lazy val Libraries = new {
 
-	lazy val main: List[Def.Setting[_]] = List(libraryDependencies ++=
-		akkaHTTP ::: jline ::: jopt  ::: scalactic ::: shared.value ::: upickle.value ::: jsoup ::: rescala.value)
+	lazy val main: Def.Setting[_] = libraryDependencies ++=
+		akkaHTTP ::: jline ::: jopt  ::: scalactic ::: shared.value ::: upickle.value ::: jsoup ::: rescala.value
 
-	lazy val js: List[Def.Setting[_]] = List(libraryDependencies ++=
-		scalajsdom.value ::: shared.value ::: rescala.value ::: rescalatags.value)
+	lazy val js: Def.Setting[_] = libraryDependencies ++=
+		scalajsdom.value ::: shared.value ::: rescala.value ::: rescalatags.value
 
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
