@@ -62,9 +62,6 @@ lazy val Settings = new {
 			Nil,
 
 		resolvers ++=
-			("Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/") ::
-			("Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/") ::
-			("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/") ::
 			Resolver.bintrayRepo("rmgk", "maven") ::
 			Resolver.bintrayRepo("pweisenburger", "maven") ::
 			Nil)
