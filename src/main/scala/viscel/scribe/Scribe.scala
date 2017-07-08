@@ -7,7 +7,6 @@ import viscel.shared.Description
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashSet
-import scala.language.implicitConversions
 
 class Scribe(basedir: Path, configdir: Path) {
 

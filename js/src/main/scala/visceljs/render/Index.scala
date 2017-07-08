@@ -6,7 +6,7 @@ import rescalatags._
 import viscel.shared.Description
 import visceljs.Actions._
 import visceljs.Definitions.{link_front, link_tools}
-import visceljs.{Body, Make, SearchUtil, Viscel}
+import visceljs.{Body, Make, SearchUtil, ViscelJS}
 
 import scala.scalajs.js
 import scalatags.JsDom.all._
@@ -19,7 +19,7 @@ object Index {
 
 	def gen(): Body = {
 
-		val fragS: Signal[Tag] = rescala.reactives.Signals.lift(Viscel.bookmarks, Viscel.descriptions) { (bookmarks, descriptions) =>
+		val fragS: Signal[Tag] = rescala.reactives.Signals.lift(ViscelJS.bookmarks, ViscelJS.descriptions) { (bookmarks, descriptions) =>
 
 			val bookmarkedNarrations: List[(Description, Int, Int)] =
 				bookmarks.toList.flatMap { case (id, pos) =>

@@ -9,7 +9,6 @@ import viscel.scribe.{ArticleRef, Chapter, Link, Policy, Vurl, WebContent}
 import viscel.selection.ReportTools.{extract, _}
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
 
-import scala.language.implicitConversions
 import scala.util.matching.Regex
 
 object Queries {

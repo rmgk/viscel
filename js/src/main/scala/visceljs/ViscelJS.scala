@@ -4,23 +4,22 @@ import org.scalajs.dom
 import org.scalajs.dom.raw.HashChangeEvent
 import rescala.graph.SimpleStruct
 import rescala.reactives.Observe
-import upickle.default.{Reader, Writer}
+import rescala.{Engine, Evt, Signal, Signals, Var}
+import upickle.default.Reader
 import viscel.shared._
 
 import scala.collection.immutable.Map
+import scala.collection.mutable
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.URIUtils.encodeURIComponent
-import scala.scalajs.js.annotation.JSExport
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.div
-import rescala.{Engine, Evt, Signal, Signals, Var}
-
-import scala.collection.mutable
 
 
-@JSExport(name = "Viscel")
-object Viscel {
+@JSExportTopLevel(name = "Viscel")
+object ViscelJS {
 
 	var offlineMode = false
 

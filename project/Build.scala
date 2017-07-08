@@ -1,4 +1,4 @@
-import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
+import com.typesafe.sbt.packager.archetypes.JavaServerAppPackaging
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt.Keys._
@@ -12,7 +12,7 @@ object Build extends sbt.Build {
 		.settings(Libraries.main: _*)
 		.settings(compile in Compile <<= (compile in Compile) dependsOn (fullOptJS in(js, Compile)))
 		.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
-		.enablePlugins(JavaAppPackaging)
+		.enablePlugins(JavaServerAppPackaging)
 		.dependsOn(shared % Provided)
 		.settings(Settings.sharedSource)
 
@@ -39,7 +39,7 @@ object Settings {
 	lazy val common = List(
 
 		version := "7.1.0",
-		scalaVersion := "2.12.1",
+		scalaVersion := "2.12.2",
 
 		scalacOptions ++=
 			"-deprecation" ::
@@ -122,17 +122,17 @@ object Libraries {
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: upickle.value)
 
-	val jsoup = "org.jsoup" % "jsoup" % "1.10.2" :: Nil
+	val jsoup = "org.jsoup" % "jsoup" % "1.10.3" :: Nil
 
-	val akkaHTTP = List("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.4")
+	val akkaHTTP = List("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.9")
 
-	val jline = "jline" % "jline" % "2.14.3" :: Nil
+	val jline = "jline" % "jline" % "2.14.5" :: Nil
 
 	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.3" :: Nil
 
-	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.1" exclude("org.scala-lang", "scala-reflect")) :: Nil
+	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.3" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
-	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.3" :: Nil)
+	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.5" :: Nil)
 
 	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.4" :: Nil)
 

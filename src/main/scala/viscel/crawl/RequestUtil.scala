@@ -40,7 +40,7 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 				}
 				else {Future.failed(RequestException(request, res))}
 			}
-			.map(r => Deflate.decode(Gzip.decode(r)))
+			.map(r => Deflate.decodeMessage(Gzip.decodeMessage(r)))
 	}
 
 	def extractResponseLocation(base: Vurl, httpResponse: HttpResponse): Vurl = {

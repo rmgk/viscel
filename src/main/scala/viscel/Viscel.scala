@@ -67,7 +67,6 @@ object Viscel {
 		val blobdir = basepath.resolve(optBlobdir())
 		val scribedir = basepath.resolve("db3")
 		val cachedir = basepath.resolve("cache")
-		val configdir = basepath.resolve("config")
 		metarratorconfigdir = basepath.resolve("metarrators")
 		definitionsdir = basepath.resolve("definitions")
 		exportdir = basepath.resolve("export")

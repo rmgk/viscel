@@ -16,7 +16,7 @@ object Make {
 	def postBookmark(bm: Int, data: Data, handler: Data => Unit, ts: Frag*): HtmlTag = {
 		if (data.bookmark != bm) {
 			a(class_post)(ts)(onclick := { () =>
-				Viscel.postBookmark(data.description, bm)
+				ViscelJS.postBookmark(data.description, bm)
 				handler(data.copy(bookmark = bm))
 			})
 		}
@@ -24,7 +24,7 @@ object Make {
 	}
 
 	def postForceHint(nar: Description, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
-		Viscel.hint(nar, force = true)
+		ViscelJS.hint(nar, force = true)
 	})
 
 	def imageStyle(fitType: Int): Modifier = {
@@ -56,7 +56,7 @@ object Make {
 		}
 	}
 
-	def fullscreenToggle(stuff: Frag*): Tag = a(onclick := (() => Viscel.toggleFullscreen()))(stuff)
+	def fullscreenToggle(stuff: Frag*): Tag = a(onclick := (() => ViscelJS.toggleFullscreen()))(stuff)
 
 	def group(name: String, entries: Signal[Seq[(Description, Int, Int)]]): Tag = {
 		val elements: UList = ul.render

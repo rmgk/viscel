@@ -57,7 +57,8 @@ object View {
 				Actions.pushView(data)
 				Actions.scrollTop()
 			}
-			val pregen = data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
+			/*val pregen =*/ data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
+
 		}
 
 		val mainPart: Signal[HtmlTag] = dataSignal.map[HtmlTag] { data =>

@@ -16,12 +16,12 @@ object Actions {
 	val viewE = Evt[View.Navigate]
 	val viewDispatchS = Var.empty[(String, Int)]
 	val viewDispatchChangeE = Signal {
-		val nars = Viscel.descriptions()
+		val nars = ViscelJS.descriptions()
 		viewDispatchS() match {
 			case (id, pos) =>
 				val nar = nars.apply(id)
-				val content = Viscel.content(nar): @unchecked
-				val bm = Viscel.bookmarks().getOrElse(nar.id, 0)
+				val content = ViscelJS.content(nar): @unchecked
+				val bm = ViscelJS.bookmarks().getOrElse(nar.id, 0)
 				View.Goto(Data(nar, content(), bm).move(_.first.next(pos - 1)))
 		}
 	}.changed
@@ -30,9 +30,9 @@ object Actions {
 	val frontS = Var.empty[String]
 	val frontData = Signal {
 		val id = frontS()
-		val description = Viscel.descriptions()(id)
-		val bm = Viscel.bookmarks().getOrElse(id, 0)
-		val content = Viscel.content(description): @unchecked
+		val description = ViscelJS.descriptions()(id)
+		val bm = ViscelJS.bookmarks().getOrElse(id, 0)
+		val content = ViscelJS.content(description): @unchecked
 		Data(description, content(), bm)
 	}
 
@@ -53,7 +53,7 @@ object Actions {
 				val pos = Integer.parseInt(posS)
 				val nid = decodeURIComponent(id)
 				viewDispatchS.set(nid -> pos)
-				Viscel.setBody(viewBody, scrolltop = true)
+				ViscelJS.setBody(viewBody, scrolltop = true)
 			case _ => setBodyIndex()
 		}
 	}
@@ -79,7 +79,7 @@ object Actions {
 	def gotoFront(nar: Description, scrolltop: Boolean = false): Unit = {
 		pushFront(nar)
 		setBodyFront(nar.id, scrolltop)
-		Viscel.hint(nar)
+		ViscelJS.hint(nar)
 	}
 
 	def gotoView(data: Data, scrolltop: Boolean = true): Unit = {
@@ -88,17 +88,17 @@ object Actions {
 	}
 
 
-	def setBodyIndex(scrolltop: Boolean = false) = Viscel.setBody(indexBody, scrolltop)
+	def setBodyIndex(scrolltop: Boolean = false) = ViscelJS.setBody(indexBody, scrolltop)
 
 	def setBodyFront(descriptionid: String, scrolltop: Boolean = false): Unit = {
 		frontS.set(descriptionid)
-		Viscel.setBody(bodyFront, scrolltop)
+		ViscelJS.setBody(bodyFront, scrolltop)
 	}
 
 
 	def setBodyView(data: Data, scrolltop: Boolean = false): Unit = {
 		viewE.fire(View.Goto(data))
-		Viscel.setBody(viewBody, scrolltop)
+		ViscelJS.setBody(viewBody, scrolltop)
 	}
 
 
