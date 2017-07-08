@@ -2,10 +2,11 @@ package viscel.scribe
 
 import java.time.Instant
 
-import derive.key
-import upickle.default.{ReadWriter, Reader, Writer}
+import io.circe.{ Decoder,  Encoder,  Json => cJson}
 import viscel.shared.Blob
-
+import cats.syntax.either._
+import io.circe.generic.extras.auto._
+import io.circe.generic.extras._
 
 sealed trait ScribeDataRow {
 	/** reference that spawned this entry */
@@ -20,7 +21,7 @@ sealed trait ScribeDataRow {
 	}
 }
 
-@key("Page") case class ScribePage(
+/*@key("Page")*/ case class ScribePage(
 	/* reference that spawned this entry */
 	ref: Vurl,
 	/* location that was finally resolved and downloaded */
@@ -29,7 +30,7 @@ sealed trait ScribeDataRow {
 	contents: List[WebContent]
 ) extends ScribeDataRow
 
-@key("Blob") case class ScribeBlob(
+/*@key("Blob")*/ case class ScribeBlob(
 	/* reference that spawned this entry */
 	ref: Vurl,
 	/* location that was finally resolved and downloaded */
@@ -43,25 +44,56 @@ sealed trait ReadableContent
 case class Article(article: ArticleRef, blob: Option[Blob]) extends ReadableContent
 
 sealed trait WebContent
-@key("Chapter") case class Chapter(name: String) extends WebContent with ReadableContent
-@key("Article") case class ArticleRef(ref: Vurl, origin: Vurl, data: Map[String, String] = Map()) extends WebContent
-@key("Link") case class Link(ref: Vurl, policy: Policy = Normal, data: List[String] = Nil) extends WebContent
+/*@key("Chapter")*/ case class Chapter(name: String) extends WebContent with ReadableContent
+/*@key("Article")*/ case class ArticleRef(ref: Vurl, origin: Vurl, data: Map[String, String] = Map()) extends WebContent
+/*@key("Link")*/ case class Link(ref: Vurl, policy: Policy = Normal, data: List[String] = Nil) extends WebContent
 
 
 sealed trait Policy
-@key("Normal") case object Normal extends Policy
-@key("Volatile") case object Volatile extends Policy
+/*@key("Normal")*/ case object Normal extends Policy
+/*@key("Volatile")*/ case object Volatile extends Policy
 
 
 object ScribePicklers {
-	implicit val appendlogReader: ReadWriter[ScribeDataRow] = upickle.default.macroRW[ScribeDataRow]
 
-	implicit val instantWriter: Writer[Instant] = Writer[Instant] { instant =>
-		upickle.Js.Str(instant.toString)
+	implicit val config: Configuration = Configuration.default.withDefaults.withDiscriminator("$" + "type")
+
+	implicit val webContentReader: Decoder[WebContent] = semiauto.deriveDecoder[WebContent].prepare{ cursor =>
+		val t = cursor.downField("$type")
+		t.as[String] match {
+			case Right("Article") => t.set(io.circe.Json.fromString("ArticleRef")).up
+			case _ => cursor
+		}
 	}
 
-	implicit val instantReader: Reader[Instant] = Reader[Instant] {
-		case upickle.Js.Str(str) => Instant.parse(str)
+	implicit val webContentWriter: Encoder[WebContent] = semiauto.deriveEncoder[WebContent].mapJson{js =>
+		js.hcursor.get[String]("$type") match {
+			case Right("ArticleRef") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Article")))
+			case _ => js
+		}
+	}
+
+
+	implicit val appendlogReader: Decoder[ScribeDataRow] = semiauto.deriveDecoder[ScribeDataRow].prepare{ cursor =>
+		val t = cursor.downField("$type")
+		t.as[String] match {
+			case Right("Blob") => t.set(io.circe.Json.fromString("ScribeBlob")).up
+			case Right("Page") => t.set(io.circe.Json.fromString("ScribePage")).up
+			case _ => cursor
+		}
+	}
+	implicit val appendLogWriter: Encoder[ScribeDataRow] = semiauto.deriveEncoder[ScribeDataRow].mapJson{js =>
+		js.hcursor.get[String]("$type") match {
+			case Right("ScribeBlob") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Blob")))
+			case Right("ScribePage") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Page")))
+			case _ => js
+		}
+	}
+
+	implicit val instantWriter: Encoder[Instant] = Encoder.encodeString.contramap[Instant](_.toString)
+
+	implicit val instantReader: Decoder[Instant] = Decoder.decodeString.emap { str =>
+		Either.catchNonFatal(Instant.parse(str)).leftMap(t => "Instant: " + t.getMessage)
 	}
 
 }

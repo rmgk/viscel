@@ -7,6 +7,7 @@ import viscel.shared.Description
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashSet
+import io.circe.generic.auto._
 
 class Scribe(basedir: Path, configdir: Path) {
 

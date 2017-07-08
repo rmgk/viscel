@@ -1,9 +1,10 @@
 package viscel.narration.narrators
 
+import io.circe.generic.semiauto
+import io.circe.{Decoder, Encoder}
 import org.jsoup.nodes.Document
 import org.scalactic.Accumulation.withGood
 import org.scalactic.{Every, Or}
-import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Narrator, Queries}
 import viscel.scribe.Vurl.fromString
@@ -37,8 +38,8 @@ object Mangafox {
 
 
 	object Meta extends Metarrator[Mfox]("Mangafox") {
-		override def reader: default.Reader[Mfox] = implicitly[default.Reader[Mfox]]
-		override def writer: default.Writer[Mfox] = implicitly[default.Writer[Mfox]]
+		override def reader: Decoder[Mfox] = semiauto.deriveDecoder[Mfox]
+		override def writer: Encoder[Mfox] = semiauto.deriveEncoder[Mfox]
 
 		override def unapply(description: String): Option[Vurl] = description match {
 			case rex"^(${url}http://mangafox.me/manga/[^/]+/)" => Some(Vurl.fromString(url))

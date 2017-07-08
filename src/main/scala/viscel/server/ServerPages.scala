@@ -1,7 +1,9 @@
 package viscel.server
 
 import akka.http.scaladsl.model._
-import upickle.default.Writer
+import io.circe.Encoder
+import io.circe.syntax._
+import io.circe.generic.auto._
 import viscel.narration.Narrators
 import viscel.scribe.{Article, ArticleRef, Chapter, ReadableContent, Scribe}
 import viscel.shared.{ChapterPos, Contents, Description, Gallery, ImageRef}
@@ -12,7 +14,6 @@ import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, br, form, head, html, input, link, meta, script, a => anchor}
 import scalatags.Text.tags2.section
 import scalatags.Text.{Modifier, RawFrag, TypedTag}
-
 
 class ServerPages(scribe: Scribe) {
 
@@ -78,9 +79,9 @@ class ServerPages(scribe: Scribe) {
 
 	val landing: HttpResponse = htmlResponse(fullHtml)
 
-	def jsonResponse[T: Writer](value: T): HttpResponse = HttpResponse(entity = HttpEntity(
+	def jsonResponse[T: Encoder](value: T): HttpResponse = HttpResponse(entity = HttpEntity(
 		ContentType(MediaTypes.`application/json`),
-		upickle.default.write(value)))
+		value.asJson.noSpaces))
 
 	def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 

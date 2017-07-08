@@ -40,6 +40,8 @@ lazy val Settings = new {
 		version := "7.1.0",
 		scalaVersion := "2.12.2",
 
+		maxErrors := 10,
+
 		scalacOptions ++=
 			"-deprecation" ::
 			"-encoding" :: "UTF-8" ::
@@ -110,13 +112,13 @@ lazy val Settings = new {
 lazy val Libraries = new {
 
 	lazy val main: Def.Setting[_] = libraryDependencies ++=
-		akkaHTTP ::: jline ::: jopt  ::: scalactic ::: shared.value ::: upickle.value ::: jsoup ::: rescala.value
+		akkaHTTP ::: jline ::: jopt  ::: scalactic ::: shared.value ::: circe.value ::: jsoup ::: rescala.value
 
 	lazy val js: Def.Setting[_] = libraryDependencies ++=
 		scalajsdom.value ::: shared.value ::: rescala.value ::: rescalatags.value
 
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
-		scalatags.value ::: upickle.value)
+		scalatags.value ::: circe.value)
 
 	val jsoup = "org.jsoup" % "jsoup" % "1.10.3" :: Nil
 
@@ -130,11 +132,16 @@ lazy val Libraries = new {
 
 	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.5" :: Nil)
 
-	val upickle = Def.setting("com.lihaoyi" %%% "upickle" % "0.4.4" :: Nil)
-
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.1") :: Nil)
 
 	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.19.0") :: Nil)
 	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.19.0") :: Nil)
+
+	val circe = Def.setting(List(
+		"io.circe" %%% "circe-core",
+		"io.circe" %%% "circe-generic",
+		"io.circe" %%% "circe-generic-extras",
+		"io.circe" %%% "circe-parser"
+	).map(_ % "0.8.0"))
 
 }

@@ -1,11 +1,11 @@
 package visceljs
 
+import io.circe.Decoder
 import org.scalajs.dom
 import org.scalajs.dom.raw.HashChangeEvent
 import rescala.graph.SimpleStruct
 import rescala.reactives.Observe
 import rescala.{Engine, Evt, Signal, Signals, Var}
-import upickle.default.Reader
 import viscel.shared._
 
 import scala.collection.immutable.Map
@@ -16,6 +16,9 @@ import scala.scalajs.js.URIUtils.encodeURIComponent
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.div
+import io.circe.parser.decode
+
+import io.circe.generic.auto._
 
 
 @JSExportTopLevel(name = "Viscel")
@@ -23,18 +26,18 @@ object ViscelJS {
 
 	var offlineMode = false
 
-	def ajax[R: Reader](path: String): Future[R] =
+	def ajax[R: Decoder](path: String): Future[R] =
 		if (offlineMode) Future.failed(new Throwable("offline mode"))
 		else {
 			val res = dom.ext.Ajax.get(url = path)
-				.map { res => upickle.default.read[R](res.responseText) }
+				.map { res => decode[R](res.responseText).toTry.get }
 			res.failed.foreach { e =>
 				Console.println(s"request $path failed with ${e.getMessage}")
 			}
 			res
 		}
 
-	implicit val readAssets: Reader[List[ImageRef]] = Predef.implicitly[Reader[List[ImageRef]]]
+	implicit val readAssets: Decoder[List[ImageRef]] = Predef.implicitly[Decoder[List[ImageRef]]]
 
 	val bookmarkSource: Var[Signal[Map[String, Int]] ] = Var(Signals.fromFuture(ajax[Map[String, Int]]("bookmarks")))
 	val bookmarks: Signal[Map[String, Int]] = bookmarkSource.flatten
@@ -59,7 +62,7 @@ object ViscelJS {
 	def postBookmark(nar: Description, pos: Int): Future[Map[String, Int]] = {
 
 		val res = dom.ext.Ajax.post("bookmarks", s"narration=${encodeURIComponent(nar.id)}&bookmark=$pos", headers = Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
-			.map(res => upickle.default.read[Map[String, Int]](res.responseText))
+			.map(res => decode[Map[String, Int]](res.responseText).toTry.get)
 		bookmarkSource.set(Signals.fromFuture(res))
 		res
 	}

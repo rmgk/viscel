@@ -7,6 +7,7 @@ import org.scalactic.Accumulation._
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
 import viscel.Viscel
 import viscel.scribe.Json
+import io.circe.generic.auto._
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 

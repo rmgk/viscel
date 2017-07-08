@@ -14,6 +14,7 @@ import viscel.shared.Log
 import viscel.store.{BlobStore, User}
 import viscel.{ReplUtil}
 import rescala._
+import io.circe.generic.auto._
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}

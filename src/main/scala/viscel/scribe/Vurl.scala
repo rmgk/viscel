@@ -4,7 +4,7 @@ import java.net.URL
 
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Path
-import upickle.default.{Reader, Writer}
+import io.circe.{Decoder, Encoder}
 import viscel.shared.Blob
 
 import scala.language.implicitConversions
@@ -21,10 +21,8 @@ final class Vurl private(val uri: Uri) {
 
 object Vurl {
 
-	implicit val uriReader: Reader[Vurl] = Reader[Vurl] {
-		case upickle.Js.Str(str) => fromString(str)
-	}
-	implicit val uriWriter: Writer[Vurl] = Writer[Vurl] { url => upickle.Js.Str(url.uriString) }
+	implicit val uriReader: Decoder[Vurl] = Decoder[String].map(fromString)
+	implicit val uriWriter: Encoder[Vurl] = Encoder[String].contramap[Vurl](_.uriString())
 
 	def urlToUri(in: URL): Uri = {
 		implicit class X(s: String) {def ? = Option(s).getOrElse("")}

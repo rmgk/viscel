@@ -19,6 +19,9 @@ import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
 
+import io.circe.syntax._
+import io.circe.generic.auto._
+
 class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
 	def mimeToExt(mime: String, default: String = "") = mime match {
 		case "image/jpeg" => "jpg"
@@ -71,7 +74,7 @@ class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
 
 		val assembled = (description, content.copy(Gallery.fromList(assetList)))
 
-		val narJson = "var narration = " + upickle.default.write(assembled)
+		val narJson = "var narration = " + assembled.asJson.noSpaces
 		val html = "<!DOCTYPE html>" + pages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
 
 

@@ -6,6 +6,7 @@ import java.util.stream.Collectors
 
 import viscel.scribe.ScribePicklers._
 import viscel.shared.Log
+import io.circe.syntax._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -16,7 +17,7 @@ class Book(path: Path, scribe: Scribe) {
 	def add(entry: ScribeDataRow): Unit = {
 		val index = entries.lastIndexWhere(_.matchesRef(entry))
 		if (index < 0 || entries(index).differentContent(entry)) {
-			Files.write(path, List(upickle.default.write[ScribeDataRow](entry)).asJava, StandardOpenOption.APPEND)
+			Files.write(path, List(entry.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
 			entry match {
 				case alp@ScribePage(il, _, _, _) => pageMap.put(il, alp)
 				case alb@ScribeBlob(il, _, _, _) => blobMap.put(il, alb)
@@ -29,7 +30,7 @@ class Book(path: Path, scribe: Scribe) {
 
 	def export(path: Path): Unit = {
 		Files.write(path, List(name).asJava, StandardOpenOption.CREATE_NEW)
-		Files.write(path, entries.map(entry => upickle.default.write[ScribeDataRow](entry)).asJava, StandardOpenOption.APPEND)
+		Files.write(path, entries.map(entry => entry.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
 	}
 
 	def emptyArticles(): List[ArticleRef] = entries.collect {
@@ -52,7 +53,7 @@ class Book(path: Path, scribe: Scribe) {
 
 	def allBlobs(): Iterator[ScribeBlob] = entries.iterator.collect { case sb@ScribeBlob(_, _, _, _) => sb }
 
-	lazy val name: String = upickle.default.read[String](Files.lines(path).findFirst().get())
+	lazy val name: String = io.circe.parser.decode[String](Files.lines(path).findFirst().get()).toTry.get
 
 	lazy val id: String = path.getFileName.toString
 
@@ -72,8 +73,13 @@ class Book(path: Path, scribe: Scribe) {
 
 		val fileStream = Files.lines(path, StandardCharsets.UTF_8)
 		try {
-			fileStream.skip(1).collect(Collectors.toList()).asScala.reverseIterator.map { line =>
-				upickle.default.read[ScribeDataRow](line)
+			fileStream.skip(1).collect(Collectors.toList()).asScala.view.zipWithIndex.reverseIterator.map { case (line, nr) =>
+				io.circe.parser.decode[ScribeDataRow](line) match {
+					case Right(s) => s
+					case Left(t) =>
+						Log.error(s"Failed to decode $path:${nr + 2}: $line")
+						throw t
+				}
 			}.filter {
 				case spage@ScribePage(il, _, _, _) => putIfAbsent(pageMap, il, spage)
 				case sblob@ScribeBlob(il, _, _, _) => putIfAbsent(blobMap, il, sblob)

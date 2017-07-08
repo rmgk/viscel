@@ -1,8 +1,9 @@
 package viscel.narration.narrators
 
+import io.circe.generic.semiauto
+import io.circe.{Decoder, Encoder}
 import org.jsoup.nodes.Document
 import org.scalactic._
-import upickle.default
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, Templates}
 import viscel.scribe.Vurl
@@ -17,8 +18,8 @@ object MangaHere {
 	)
 
 	object MetaCore extends Metarrator[Nar]("MangaHere") {
-		override def reader: default.Reader[Nar] = implicitly[default.Reader[Nar]]
-		override def writer: default.Writer[Nar] = implicitly[default.Writer[Nar]]
+		override def reader: Decoder[Nar] = semiauto.deriveDecoder[Nar]
+		override def writer: Encoder[Nar] = semiauto.deriveEncoder[Nar]
 
 		override def unapply(vurl: String): Option[Vurl] = if (vurl.toString.startsWith("http://www.mangahere.co/manga/")) Some(Vurl.fromString(vurl)) else None
 

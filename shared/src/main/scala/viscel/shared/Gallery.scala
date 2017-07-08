@@ -1,8 +1,7 @@
 package viscel.shared
 
-import upickle.default.{Reader, Writer, writeJs}
-
 import scala.reflect.ClassTag
+import io.circe.{Encoder, Decoder}
 
 
 final class Gallery[+A] private(val pos: Int, entries: Array[A]) {
@@ -25,6 +24,6 @@ object Gallery {
 	def fromList[A: ClassTag](l: List[A]): Gallery[A] = fromArray(l.toArray)
 	def fromArray[A](a: Array[A]): Gallery[A] = new Gallery(0, a)
 	val empty: Gallery[Nothing] = Gallery.fromList(Nil)
-	implicit def galleryR[A: Reader : ClassTag]: Reader[Gallery[A]] = Reader[Gallery[A]](upickle.default.ArrayR[A].read.andThen(w => fromArray(w)))
-	implicit def galleryW[A: Writer : ClassTag]: Writer[Gallery[A]] = Writer[Gallery[A]](g => writeJs(g.toSeq.toArray))
+	implicit def galleryR[A: Decoder : ClassTag]: Decoder[Gallery[A]] = implicitly[Decoder[Array[A]]].map(fromArray)
+	implicit def galleryW[A: Encoder : ClassTag]: Encoder[Gallery[A]] = implicitly[Encoder[Array[A]]].contramap[Gallery[A]](_.toSeq.toArray)
 }
