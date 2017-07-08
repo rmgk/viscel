@@ -35,7 +35,6 @@ lazy val sharedSource = unmanagedSourceDirectories in Compile += (scalaSource in
 
 lazy val Settings = new {
 
-
 	lazy val common = List(
 
 		version := "7.1.0",
@@ -58,7 +57,7 @@ lazy val Settings = new {
 			//"-Ywarn-dead-code" ::
 			"-Ywarn-nullary-override" ::
 			"-Ywarn-nullary-unit" ::
-			//"-Ywarn-numeric-widen" ::
+			"-Ywarn-numeric-widen" ::
 			//"-Ywarn-value-discard" ::
 			Nil,
 
