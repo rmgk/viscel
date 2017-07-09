@@ -101,7 +101,7 @@ http://www.fantasyrealmsonline.com/manga.php
 
 -:Feywinds
 http://www.feywinds.com/archive/
-:am #content h2 , #content h3 a[href~=/feywinds/fw]
+:am #content h2 , #content h3 a[href~=/feywinds/(fw|page-)]
 :i .webcomic-image img
 
 -:Flipside0
