@@ -3,6 +3,7 @@ package visceljs
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import rescala._
+import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import viscel.shared.Description
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.{Front, Index, View}
@@ -17,13 +18,11 @@ object Actions {
 	val viewDispatchS = Var.empty[(String, Int)]
 	val viewDispatchChangeE = Signal {
 		val nars = ViscelJS.descriptions()
-		viewDispatchS() match {
-			case (id, pos) =>
-				val nar = nars.apply(id)
-				val content = ViscelJS.content(nar): @unchecked
-				val bm = ViscelJS.bookmarks().getOrElse(nar.id, 0)
-				View.Goto(Data(nar, content(), bm).move(_.first.next(pos - 1)))
-		}
+		val (id, pos) =  viewDispatchS()
+		val nar = nars.getOrElse(id, throw EmptySignalControlThrowable)
+		val content = ViscelJS.content(nar): @unchecked
+		val bm = ViscelJS.bookmarks().getOrElse(nar.id, 0)
+		View.Goto(Data(nar, content(), bm).move(_.first.next(pos - 1)))
 	}.changed
 	viewDispatchChangeE.observe(_ => viewDispatchS.setEmpty())
 

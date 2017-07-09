@@ -13,7 +13,6 @@ import scala.collection.mutable
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.URIUtils.encodeURIComponent
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.div
 import io.circe.parser.decode
@@ -21,7 +20,6 @@ import io.circe.parser.decode
 import io.circe.generic.auto._
 
 
-@JSExportTopLevel(name = "Viscel")
 object ViscelJS {
 
 	var offlineMode = false
@@ -108,14 +106,9 @@ object ViscelJS {
 		}
 	}
 
-	@JSExport(name = "main")
-	def main(): Unit = {
-
-
+	def main(args: Array[String]): Unit = {
 		setBody(Body(frag = div("loading data …")), scrolltop = true)
-
 		triggerDispatch(())
-
 	}
 
 //	@JSExport(name = "spore")

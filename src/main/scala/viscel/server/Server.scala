@@ -85,20 +85,20 @@ class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, ter
 				getFromResource("style.css")
 			} ~
 			path("js") {
-				getFromFile("js/target/scala-2.11/viscel-js-opt.js") ~ getFromFile("js/target/scala-2.11/viscel-js-fastopt.js") ~
+				getFromFile("js/target/scala-2.12/viscel-js-opt.js") ~ getFromFile("js/target/scala-2.12/viscel-js-fastopt.js") ~
 					getFromResource("viscel-js-opt.js") ~ getFromResource("viscel-js-fastopt.js")
 			} ~
 			path("viscel-js-fastopt.js.map") {
-				getFromFile("js/target/scala-2.11/viscel-js-fastopt.js.map")
+				getFromFile("js/target/scala-2.12/viscel-js-fastopt.js.map")
 			} ~
 			path("viscel-js-opt.js.map") {
-				getFromFile("js/target/scala-2.11/viscel-js-opt.js.map")
+				getFromFile("js/target/scala-2.12/viscel-js-opt.js.map")
 			} ~
 			path("bookmarks") {
 				handleBookmarksForm(user)(newUser => complete(pages.bookmarks(newUser)))
 			} ~
 			path("narrations") {
-				complete(pages.narrations())
+				complete(pages.jsonResponse(pages.narrations()))
 			} ~
 			path("narration" / Segment) { collectionId =>
 				rejectNone(pages.narration(collectionId)) { content =>

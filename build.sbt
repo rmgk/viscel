@@ -21,6 +21,7 @@ lazy val js = project.in(file("js"))
 	.enablePlugins(ScalaJSPlugin)
 	.settings(Settings.common)
 	.settings(Libraries.js)
+	.settings(scalaJSUseMainModuleInitializer := true)
 	.dependsOn(shared % Provided)
 	.settings(sharedSource)
 
@@ -41,6 +42,8 @@ lazy val Settings = new {
 		scalaVersion := "2.12.2",
 
 		maxErrors := 10,
+		shellPrompt := { state => Project.extract(state).currentRef.project + "> " },
+
 
 		scalacOptions ++=
 			"-deprecation" ::

@@ -3,7 +3,6 @@ package viscel.server
 import akka.http.scaladsl.model._
 import io.circe.Encoder
 import io.circe.syntax._
-import io.circe.generic.auto._
 import viscel.narration.Narrators
 import viscel.scribe.{Article, ArticleRef, Chapter, ReadableContent, Scribe}
 import viscel.shared.{ChapterPos, Contents, Description, Gallery, ImageRef}
@@ -13,7 +12,7 @@ import scalatags.Text.attrs.{`type`, action, content, href, rel, src, title, val
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, br, form, head, html, input, link, meta, script, a => anchor}
 import scalatags.Text.tags2.section
-import scalatags.Text.{Modifier, RawFrag, TypedTag}
+import scalatags.Text.{Modifier, TypedTag}
 
 class ServerPages(scribe: Scribe) {
 
@@ -37,27 +36,24 @@ class ServerPages(scribe: Scribe) {
 
 			val (articles, chapters) = recurse(book.pages(), Nil, Nil, 0)
 
-			Contents(Gallery.fromList(articles.reverse), chapters)
+			Contents(Gallery.fromSeq(articles.reverse), chapters)
 		}.orElse(Narrators.get(id).map(n => Contents(Gallery.empty, Nil)))
 
 	}
 
-	def narrations(): HttpResponse =
-		jsonResponse {
-			val books = scribe.allDescriptions()
-			var known = books.map(d => d.id -> d).toMap
-			val nars = Narrators.all.map { n =>
-				known.get(n.id) match {
-					case None => Description(n.id, n.name, 0, archived = false)
-					case Some(desc) =>
-						known = known - n.id
-						desc.copy(archived = false)
-				}
+	def narrations(): Set[Description] = {
+		val books = scribe.allDescriptions()
+		var known = books.map(d => d.id -> d).toMap
+		val nars = Narrators.all.map { n =>
+			known.get(n.id) match {
+				case None => Description(n.id, n.name, 0, archived = false)
+				case Some(desc) =>
+					known = known - n.id
+					desc.copy(archived = false)
 			}
-
-			nars ++ known.values
 		}
-
+		nars ++ known.values
+	}
 
 	val path_css: String = "css"
 	val path_js: String = "js"
@@ -75,7 +71,7 @@ class ServerPages(scribe: Scribe) {
 		ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
 		"<!DOCTYPE html>" + tag.render))
 
-	val fullHtml: TypedTag[String] = makeHtml(body("if nothing happens, your javascript does not work"), script(src := path_js), script(RawFrag(s"Viscel.main()")))
+	val fullHtml: TypedTag[String] = makeHtml(body("if nothing happens, your javascript does not work"), script(src := path_js))
 
 	val landing: HttpResponse = htmlResponse(fullHtml)
 
