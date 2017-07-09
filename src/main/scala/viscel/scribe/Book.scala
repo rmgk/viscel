@@ -19,12 +19,13 @@ class Book(path: Path, scribe: Scribe) {
 		if (index < 0 || entries(index).differentContent(entry)) {
 			Files.write(path, List(entry.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
 			entry match {
-				case alp@ScribePage(il, _, _, _) => pageMap.put(il, alp)
+				case alp@ScribePage(il, _, _, _) =>
+					pageMap.put(il, alp)
+					scribe.invalidateSize(this, alp.articleCount - (if (index < 0) 0 else entries(index).asInstanceOf[ScribePage].articleCount))
 				case alb@ScribeBlob(il, _, _, _) => blobMap.put(il, alb)
 			}
 			if (index >= 0) entries.remove(index)
 			entries += entry
-			scribe.invalidateSize(this)
 		}
 	}
 

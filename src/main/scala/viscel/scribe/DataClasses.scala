@@ -28,7 +28,9 @@ sealed trait ScribeDataRow {
 	loc: Vurl,
 	date: Instant,
 	contents: List[WebContent]
-) extends ScribeDataRow
+) extends ScribeDataRow {
+	def articleCount: Int = contents.count(_.isInstanceOf[ArticleRef])
+}
 
 /*@key("Blob")*/ case class ScribeBlob(
 	/* reference that spawned this entry */

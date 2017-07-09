@@ -16,8 +16,11 @@ class Scribe(basedir: Path, configdir: Path) {
 	var descriptionCache: Map[String, Description] =
 		Json.load[Map[String, Description]](descriptionpath).getOrElse(Map())
 
-	def invalidateSize(book: Book): Unit = synchronized {
-		descriptionCache = descriptionCache - book.id
+	def invalidateSize(book: Book, sizeDelta: Int): Unit = synchronized {
+		descriptionCache.get(book.id) match {
+			case None => descriptionCache = descriptionCache.updated(book.id, description(book.id))
+			case Some(desc) => descriptionCache = descriptionCache.updated(book.id, desc.copy(size = desc.size + sizeDelta))
+		}
 		Json.store[Map[String, Description]](descriptionpath, descriptionCache)
 	}
 
@@ -43,14 +46,18 @@ class Scribe(basedir: Path, configdir: Path) {
 	def allDescriptions(): List[Description] = synchronized {
 		Files.list(basedir).iterator().asScala.filter(Files.isRegularFile(_)).map { path =>
 			val id = path.getFileName.toString
-			descriptionCache.getOrElse(id, {
-				val book = find(id).get
-				val desc = Description(id, book.name, book.size(), archived = true)
-				descriptionCache = descriptionCache.updated(id, desc)
-				Json.store[Map[String, Description]](descriptionpath, descriptionCache)
-				desc
-			})
+			description(id)
 		}.toList
+	}
+
+	private def description(id: String): Description = {
+		descriptionCache.getOrElse(id, {
+			val book = find(id).get
+			val desc = Description(id, book.name, book.size(), archived = true)
+			descriptionCache = descriptionCache.updated(id, desc)
+			Json.store[Map[String, Description]](descriptionpath, descriptionCache)
+			desc
+		})
 	}
 
 	def allBlobsHashes(): Set[String] = {

@@ -21,7 +21,6 @@ final class Gallery[+A] private(val pos: Int, entries: Array[A]) {
 }
 
 object Gallery {
-	def fromList[A: ClassTag](l: List[A]): Gallery[A] = fromArray(l.toArray)
 	def fromArray[A](a: Array[A]): Gallery[A] = new Gallery(0, a)
 	def fromSeq(seq: Seq[ImageRef]): Gallery[ImageRef] = fromArray(seq.toArray)
 	def empty[A]: Gallery[A] = fromArray(Array())

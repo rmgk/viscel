@@ -72,7 +72,7 @@ class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
 		}
 
 
-		val assembled = (description, content.copy(Gallery.fromList(assetList)))
+		val assembled = (description, content.copy(Gallery.fromSeq(assetList)))
 
 		val narJson = "var narration = " + assembled.asJson.noSpaces
 		val html = "<!DOCTYPE html>" + pages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
