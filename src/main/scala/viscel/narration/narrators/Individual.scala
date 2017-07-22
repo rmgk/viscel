@@ -245,7 +245,6 @@ object Individual {
 		SimpleForward("NX_CoolCatStudio", "Cool Cat Studio", "http://coolcatstudio.com/strips-cat/first", queryImageInAnchor("#comic img")),
 		SimpleForward("NX_StickyDillyBuns", "Sticky Dilly Buns", "http://www.stickydillybuns.com/strips-sdb/awesome_leading_man",
 			doc => queryImageInAnchor("#comic img")(doc).orElse(queryNext("#cndnext")(doc))),
-		SimpleForward("NX_EerieCuties", "Eerie Cuties", "http://www.eeriecuties.com/strips-ec/%28chapter_1%29_it_is_gonna_eat_me%21", queryImageInAnchor("#comic img[src~=/comics/]")),
 		SimpleForward("NX_MagicChicks", "Magic Chicks", "http://www.magickchicks.com/strips-mc/tis_but_a_trifle", queryImageInAnchor("#comic img[src~=/comics/]")),
 		ArchivePage("NX_PennyAndAggie", "Penny & Aggie", "http://www.pennyandaggie.com/index.php?p=1",
 			Selection(_).many("form[name=jump] > select[name=menu] > option[value]").wrapFlat(elementIntoChapterPointer),
@@ -305,9 +304,10 @@ object Individual {
 									case "0369" => s"366.gif"
 									case "0370" => s"367.gif"
 									case "0371" => s"368.gif"
+									case "1799" => s"1790.png"
 									case "0655" | "0762" | "1035" | "1130" | "1131" | "1132" | "1133" | "1134" |
-											 "1135" | "1136" | "1271" | "1272" | "1273" | "1274" | "1293" | "1294" | "1295" | "1384" | "1466"  => s"$number.png"
-									case "0061" | "0353" | "0893" | "1546" => s"$number.gif"
+											 "1135" | "1136" | "1271" | "1272" | "1273" | "1274" | "1293" | "1294" | "1295" | "1384" | "1466" | "1788"  => s"$number.png"
+									case "0061" | "0353" | "0893" | "1546" | "1748" | "1749" | "1750" => s"$number.gif"
 									case _ => s"pages/$number.png"
 								}
 								val source = s"http://www.avasdemon.com/$filename"

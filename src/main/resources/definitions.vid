@@ -15,10 +15,6 @@ http://ravekitty.comicgenesis.com/d/20040116.html
 :i img[src~=/comics/\d{8}]
 :n a:containsOwn(Next comic)
 
--AoiHouse:AOI House
-http://www.aoihouse.net/strips-aoi/chewed_out
-:ia #comic > a:nth-child(2) > img
-
 -:Dracula Everlasting
 http://www.draculaeverlasting.com/strips-de/abraham_van_helsing_journal_i
 :ia #comic > a:nth-child(2) > img
@@ -59,10 +55,11 @@ http://cortland.comicgenesis.com/d/20040320.html
 
 -:Exiern
 http://www.exiern.com/2005/09/06/so-far/
---second part below is a hack to workaround misposted image:
---http://www.exiern.com/2015/06/30/it-is/
-:i #comic-1 > img , img.wp-image-4762
-:n #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
+-- image contains workarounds for
+-- http://www.exiern.com/2015/06/30/it-is/
+-- http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page29-web.jpg
+:image #comic-1 > img , img.wp-image-4762 , img[src=http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page29-web.jpg] , img[src=http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page30-web.jpg]
+:next #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
 
 -:Carciphona
 http://carciphona.smackjeeves.com/archive/
@@ -159,6 +156,7 @@ http://chirault.sevensmith.net/archives.php
 http://www.mirrorwoodcomics.com/AnnyseedArchive.htm
 :am td[rowspan=4][width=809] p:not(:has(a)) , td[rowspan=4][width=809] a
 :i img[src~=AnnyseedPage]
+:url_replace Annyseed/Finished\%20For\%20Print/ ::: /
 
 -:Quiltbag
 http://quiltbag.keenspot.com/d/20111018.html
@@ -855,6 +853,11 @@ http://www.goblinscomic.org/archive/
 :imageNext #cc-comic
 :url_replace /(\d{8}(?:-\d+)?)/ ::: /comic/$1 ::: www.goblinscomic.org ::: goblinscomic.com
 
+-:Eerie Cuties
+http://www.eeriecuties.com/strips-ec/%28chapter_1%29_it_is_gonna_eat_me%21
+:imageNext #cc-comic
+
+
 ---------------------------------------------- DEAD ---
 
 -- -:Bizarre Uprising
@@ -883,3 +886,8 @@ http://www.goblinscomic.org/archive/
 -- http://www.vampirecheerleaders.net/strips-vc/fang_service
 -- :i #comic img[src~=/comics/]
 -- :n a:has(#next_day1)
+
+-- taken offline (commercialized)
+-- -AoiHouse:AOI House
+-- http://www.aoihouse.net/strips-aoi/chewed_out
+-- :ia #comic > a:nth-child(2) > img

@@ -8,7 +8,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
 import viscel.Viscel
 import viscel.narration.Queries._
-import viscel.scribe.{Link, Vurl, WebContent}
+import viscel.scribe.{ArticleRef, Link, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.selection.ReportTools.{append, augmentBad}
 import viscel.shared.Log
@@ -98,13 +98,15 @@ object Vid {
 		val (pageFunReplace, archFunReplace) = attrs match {
 			case extract"url_replace $replacer" =>
 				val replacements: List[Array[String]] = replacer.s.split("\\s+:::\\s+").sliding(2, 2).toList
+				def replaceVurl(url: Vurl): Vurl =
+					replacements.foldLeft(url.uriString) {
+						case (u, Array(matches, replace)) => u.replaceAll(matches, replace)
+					}
+
 				val doReplace: List[WebContent] => List[WebContent] = { stories =>
 					stories.map {
-						case Link(url, policy, data) =>
-							val newUrl = replacements.foldLeft(url.uriString) {
-								case (u, Array(matches, replace)) => u.replaceAll(matches, replace)
-							}
-							Link(newUrl, policy, data)
+						case Link(url, policy, data) =>	Link(replaceVurl(url), policy, data)
+						case ArticleRef(url, origin, data) =>	ArticleRef(replaceVurl(url), origin, data)
 						case o => o
 					}
 				}
