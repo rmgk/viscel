@@ -278,7 +278,6 @@ object Individual {
 		ArchivePage("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
 			queryMixedArchive("#main_text div.archivediv h2, #main_text div.archivediv a"),
 			queryImage("#wrapper2 img")),
-		SimpleForward("NX_DangerouslyChloe", "Dangerously Chloe", "http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl", queryImageInAnchor("#comic img")),
 		SimpleForward("NX_Nimona", "Nimona", "http://gingerhaze.com/nimona/comic/page-1",
 			queryImageNext("img[src~=/nimona-pages/]", "a:has(img[src=http://gingerhaze.com/sites/default/files/comicdrop/comicdrop_next_label_file.png])")),
 		SimpleForward("NX_DominicDeegan", "Dominic Deegan", "http://www.dominic-deegan.com/view.php?date=2002-05-21",
