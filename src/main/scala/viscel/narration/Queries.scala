@@ -71,6 +71,8 @@ object Queries {
 
 	def queryImage(query: String)(from: Element): List[ArticleRef] Or Every[Report] = Selection(from).unique(query).wrapEach(intoArticle)
 	def queryImages(query: String)(from: Element): List[ArticleRef] Or Every[Report] = Selection(from).many(query).wrapEach(intoArticle)
+	/** extracts artical at query result
+	  * optionally extracts direct parent of query result as link */
 	def queryImageInAnchor(query: String)(from: Element): List[WebContent] Or Every[Report] = Selection(from).unique(query).wrapFlat { image =>
 		intoArticle(image).map(_ :: extractMore(image.parent()).toOption.toList)
 	}
