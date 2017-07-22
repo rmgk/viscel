@@ -847,8 +847,13 @@ http://yousuckthecomic.com/go/1-legolas
 
 -:Sandra on the Rocks
 http://www.sandraontherocks.com/strips-sotr/start_by_running
-:imageLink #cc-comic
+:imageNext #cc-comic
 
+-:Goblins
+http://www.goblinscomic.org/archive/
+:chapterArchive #textarea a
+:imageNext #cc-comic
+:url_replace /(\d{8})/ ::: /comic/$1/
 
 ---------------------------------------------- DEAD ---
 

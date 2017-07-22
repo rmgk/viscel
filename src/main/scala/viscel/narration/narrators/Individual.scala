@@ -239,9 +239,6 @@ object Individual {
 				withGood(asset_?, next_?, comment_?) { (asset, next, comment) => asset.copy(data = asset.data.updated("longcomment", comment)) :: next }
 			}),
 		SimpleForward("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#cc-comic")),
-		ArchivePage("NX_Goblins", "Goblins", "http://www.goblinscomic.org/archive/",
-			Selection(_).many("#column div.entry a").wrapFlat(elementIntoChapterPointer),
-			queryImageNext("#comic > table > tbody > tr > td > img", "#navigation > div.nav-next > a")),
 		ArchivePage("NX_Skullkickers", "Skull☠kickers", "http://comic.skullkickers.com/archive.php",
 			Selection(_).many("#sleft > h2 > a").wrapFlat(elementIntoChapterPointer),
 			queryImageInAnchor("#sleft img.ksc")),
