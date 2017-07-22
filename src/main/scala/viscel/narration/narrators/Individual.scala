@@ -253,7 +253,6 @@ object Individual {
 		ArchivePage("NX_PennyAndAggie", "Penny & Aggie", "http://www.pennyandaggie.com/index.php?p=1",
 			Selection(_).many("form[name=jump] > select[name=menu] > option[value]").wrapFlat(elementIntoChapterPointer),
 			queryImageNext(".comicImage", "center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])")),
-		SimpleForward("NX_SandraOnTheRocks", "Sandra on the Rocks", "http://www.sandraontherocks.com/strips-sotr/start_by_running", queryImageInAnchor("#comic img[src~=/comics/]")),
 		ArchivePage("NX_MegaTokyo", "MegaTokyo", "http://megatokyo.com/archive.php",
 			Selection(_).many("div.content:has(a[id~=^C-\\d+$]").wrapFlat { chap =>
 				val chapter_? = extract(Chapter(chap.child(0).text()))

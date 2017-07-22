@@ -1,3 +1,15 @@
+-- main viscel definition file
+-- available matches
+-- image (i): matches a single image
+-- images (is): matches multiple images
+-- next (n): matches a single next reference
+-- imageLink (ia): matches an image and extracts the containing next reference
+-- mixedArchive (am): matches an archive containing both chapter references and page references depending on matched tags
+-- chapterArchive (ac): matches an archive of chapter references
+-- url_replace: does replacements on urls
+-- archiveReverse: reverses the chapters in the archive (not the order of images)
+
+
 -:Rave Kitty
 http://ravekitty.comicgenesis.com/d/20040116.html
 :i img[src~=/comics/\d{8}]
@@ -7,21 +19,21 @@ http://ravekitty.comicgenesis.com/d/20040116.html
 http://www.aoihouse.net/strips-aoi/chewed_out
 :ia #comic > a:nth-child(2) > img
 
-;; taken offline (commercialized)
-; -:Amazing Agent Jennifer
-; http://www.amazingagentjennifer.com/strips-aaj/a_beautiful_campus
-; :ia #comic > a:nth-child(2) > img
+-- taken offline (commercialized)
+-- -:Amazing Agent Jennifer
+-- http://www.amazingagentjennifer.com/strips-aaj/a_beautiful_campus
+-- :ia #comic > a:nth-child(2) > img
 
-;; taken offline (commercialized)
-; -:Amazing Agent Luna
-; http://www.amazingagentluna.com/strips-aal/file_01_-_page_1
-; :ia #comic > a:nth-child(2) > img
+-- taken offline (commercialized)
+-- -:Amazing Agent Luna
+-- http://www.amazingagentluna.com/strips-aal/file_01_-_page_1
+-- :ia #comic > a:nth-child(2) > img
 
-;; taken offline (commercialized)
-; -:Vampire Cheerleaders
-; http://www.vampirecheerleaders.net/strips-vc/fang_service
-; :i #comic img[src~=/comics/]
-; :n a:has(#next_day1)
+-- taken offline (commercialized)
+-- -:Vampire Cheerleaders
+-- http://www.vampirecheerleaders.net/strips-vc/fang_service
+-- :i #comic img[src~=/comics/]
+-- :n a:has(#next_day1)
 
 -:Dracula Everlasting
 http://www.draculaeverlasting.com/strips-de/abraham_van_helsing_journal_i
@@ -849,7 +861,9 @@ http://nmg.thecomicseries.com/archive/
 http://yousuckthecomic.com/go/1-legolas
 :ia img#cc-comic
 
-
+-:Sandra on the Rocks
+http://www.sandraontherocks.com/strips-sotr/start_by_running
+:imageLink #cc-comic
 
 
 ---------------------------------------------- DEAD ---
