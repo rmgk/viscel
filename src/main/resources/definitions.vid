@@ -859,6 +859,8 @@ http://www.ma3comic.com/strips-ma3/For_New_Readers
 -:Magic Chicks
 http://www.magickchicks.com/strips-mc/tis_but_a_trifle
 :imageNext #cc-comic
+-- skip some broken pages
+:url_replace http://www.magickchicks.com/strips-mc/Illustration_special_by_Shouri ::: http://www.magickchicks.com/strips-mc/You_backstabbing_coward ::: http://www.magickchicks.com/strips-mc/Holiday_Special_Guest_Strip_by_Maritza_and_Bachan ::: http://www.magickchicks.com/strips-mc/Regain_your_energy ::: http://www.magickchicks.com/strips-mc/mc20120413a ::: http://www.magickchicks.com/strips-mc/Watch_your_buns ::: http://www.magickchicks.com/strips-mc/My_tum_tum ::: http://www.magickchicks.com/strips-mc/Holy_moley
 
 
 

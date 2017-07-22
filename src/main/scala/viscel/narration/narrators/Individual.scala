@@ -221,7 +221,8 @@ object Individual {
 				val elements_? = Selection(chap).many("li a").wrapEach(extractMore)
 				cons(chapter_?, elements_?)
 			}, doc => {
-				if (doc.location() == "http://megatokyo.com/strip/1428") Good(List(Link(Vurl.fromString("http://megatokyo.com/strip/1429"))))
+				println(doc.location())
+				if (doc.location().endsWith("megatokyo.com/strip/1428")) Good(List(Link(Vurl.fromString("http://megatokyo.com/strip/1429"))))
 				else queryImageNext("#strip img", "#comic .next a")(doc)
 			}),
 		SimpleForward("NX_WhatBirdsKnow", "What Birds Know", "http://fribergthorelli.com/wbk/index.php/page-1/", queryImageNext("#comic-1 img", "a.navi-next")),
