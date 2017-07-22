@@ -16,6 +16,10 @@ class Scribe(basedir: Path, configdir: Path) {
 	var descriptionCache: Map[String, Description] =
 		Json.load[Map[String, Description]](descriptionpath).getOrElse(Map())
 
+	def invalidateCache(id: String): Unit = synchronized {
+		descriptionCache = descriptionCache - id
+	}
+
 	def invalidateSize(book: Book, sizeDelta: Int): Unit = synchronized {
 		descriptionCache.get(book.id) match {
 			case None => descriptionCache = descriptionCache.updated(book.id, description(book.id))
