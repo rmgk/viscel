@@ -89,38 +89,6 @@ object Individual {
 	}
 
 
-	object MenageA3 extends Narrator {
-		def archive = Link("http://www.ma3comic.com/archive/volume1", Volatile, "archive" :: Nil) :: Nil
-
-		def id: String = "NX_MenageA3"
-
-		def name: String = "Ménage à 3"
-
-		def wrapArchive(doc: Document): Or[List[WebContent], Every[Report]] = {
-			val volumes_? = morePolicy(Volatile,
-				Selection(doc).many("#archive_browse a[href~=.*archive/volume\\d+$]").wrapEach {extractMore})
-			// the list of volumes is also the first volume, wrap this directly
-			val firstVolume_? = wrapVolume(doc)
-
-			withGood(firstVolume_?, volumes_?) { (first, volumes) =>
-				Chapter(s"Volume 1") :: first ::: volumes.drop(1).zipWithIndex.flatMap { case (v, i) => Chapter(s"Volume ${i + 2}") :: v :: Nil }
-			}
-		}
-
-		def wrapVolume(doc: Document): Or[List[WebContent], Every[Report]] =
-			Selection(doc)
-				.unique("#archive_chapters")
-				.many("a[href~=/strips-ma3/]").wrapEach {extractMore}
-
-
-		def wrap(doc: Document, more: Link): List[WebContent] Or Every[Report] = more match {
-			case Link(_, Volatile, "archive" :: Nil) => wrapArchive(doc)
-			case Link(_, Volatile, Nil) => wrapVolume(doc)
-			case _ => queryImage("#cc img")(doc)
-		}
-	}
-
-
 	object Misfile extends Narrator {
 		def archive = Link("http://www.misfile.com/archives.php?arc=1&displaymode=wide&", Volatile) :: Nil
 
@@ -242,7 +210,6 @@ object Individual {
 		ArchivePage("NX_Skullkickers", "Skull☠kickers", "http://comic.skullkickers.com/archive.php",
 			Selection(_).many("#sleft > h2 > a").wrapFlat(elementIntoChapterPointer),
 			queryImageInAnchor("#sleft img.ksc")),
-		SimpleForward("NX_CoolCatStudio", "Cool Cat Studio", "http://coolcatstudio.com/strips-cat/first", queryImageInAnchor("#comic img")),
 		SimpleForward("NX_StickyDillyBuns", "Sticky Dilly Buns", "http://www.stickydillybuns.com/strips-sdb/awesome_leading_man",
 			doc => queryImageInAnchor("#comic img")(doc).orElse(queryNext("#cndnext")(doc))),
 		SimpleForward("NX_MagicChicks", "Magic Chicks", "http://www.magickchicks.com/strips-mc/tis_but_a_trifle", queryImageInAnchor("#comic img[src~=/comics/]")),

@@ -15,10 +15,6 @@ http://ravekitty.comicgenesis.com/d/20040116.html
 :i img[src~=/comics/\d{8}]
 :n a:containsOwn(Next comic)
 
--:Dracula Everlasting
-http://www.draculaeverlasting.com/strips-de/abraham_van_helsing_journal_i
-:ia #comic > a:nth-child(2) > img
-
 -:Bear vs Zombie
 http://bearversuszombies.smackjeeves.com/comics/507662/chapter-1/
 :i #comic_image
@@ -150,7 +146,7 @@ http://oglaf.com/archive/
 -:Chirault
 http://chirault.sevensmith.net/archives.php
 :am div.entryText h1 , div.entryText > a
-:i .entryText center img[src~=/comics/\d{8}][alt~=\d+]
+:i .entryText center img[src~=/comics/\d{8}][alt]
 
 -:Annyseed
 http://www.mirrorwoodcomics.com/AnnyseedArchive.htm
@@ -861,6 +857,9 @@ http://www.eeriecuties.com/strips-ec/%28chapter_1%29_it_is_gonna_eat_me%21
 http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl
 :imageNext #cc-comic
 
+-MenageA3:Ménage à 3
+http://www.ma3comic.com/strips-ma3/For_New_Readers
+:imageNext #cc-comic
 
 
 ---------------------------------------------- DEAD ---
@@ -895,4 +894,9 @@ http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl
 -- taken offline (commercialized)
 -- -AoiHouse:AOI House
 -- http://www.aoihouse.net/strips-aoi/chewed_out
+-- :ia #comic > a:nth-child(2) > img
+
+-- taken offline (commercialized)
+-- -:Dracula Everlasting
+-- http://www.draculaeverlasting.com/strips-de/abraham_van_helsing_journal_i
 -- :ia #comic > a:nth-child(2) > img
