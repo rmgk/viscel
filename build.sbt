@@ -67,8 +67,7 @@ lazy val Settings = new {
 			Nil,
 
 		resolvers ++=
-			Resolver.bintrayRepo("rmgk", "maven") ::
-			Resolver.bintrayRepo("pweisenburger", "maven") ::
+			Resolver.bintrayRepo("stg-tud", "maven") ::
 			Nil)
 
 	lazy val main: List[Def.Setting[_]] = common ++ List(
@@ -129,7 +128,7 @@ lazy val Libraries = new {
 
 	val jline = "jline" % "jline" % "2.14.5" :: Nil
 
-	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.3" :: Nil
+	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.4" :: Nil
 
 	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.3" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
