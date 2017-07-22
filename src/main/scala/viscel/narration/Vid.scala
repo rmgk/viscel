@@ -31,7 +31,7 @@ object Vid {
 	}
 
 	val attributeReplacements = Map(
-		"ia" -> "imageLink",
+		"ia" -> "imageNext",
 		"i" -> "image",
 		"is" -> "images",
 		"n" -> "next",
@@ -76,7 +76,7 @@ object Vid {
 		def transform(ow: Option[Wrap])(f: List[WebContent] => List[WebContent]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
 
 		val pageFun: Option[Wrap] = attrs match {
-			case extract"imageLink $img" => annotate(queryImageInAnchor(img.s), img)
+			case extract"imageNext $img" => annotate(queryImageInAnchor(img.s), img)
 
 			case extract"image $img next $next" => annotate(queryImageNext(img.s, next.s), img, next)
 
