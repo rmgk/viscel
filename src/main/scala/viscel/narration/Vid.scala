@@ -30,13 +30,25 @@ object Vid {
 		attempt(Vurl.fromString(url)).badMap(_ => s"malformed URL at line $pos: $url")
 	}
 
+	val attributeReplacements = Map(
+		"ia" -> "imageLink",
+		"i" -> "image",
+		"is" -> "images",
+		"n" -> "next",
+		"am" -> "mixedArchive",
+		"ac" -> "chapterArchive",
+	)
+	def normalizeAttributeName(att: String): String = {
+		attributeReplacements.getOrElse(att, att)
+	}
+
 	@tailrec
 	def parseAttributes(it: It, acc: Map[String, Line]): Map[String, Line] =
 		if (!it.hasNext) acc
 		else it.head match {
 			case Line(extractAttribute(name, value), pos) =>
 				it.next()
-				parseAttributes(it, acc.updated(name, Line(value, pos)))
+				parseAttributes(it, acc.updated(normalizeAttributeName(name), Line(value, pos)))
 			case _ => acc
 		}
 
@@ -64,21 +76,21 @@ object Vid {
 		def transform(ow: Option[Wrap])(f: List[WebContent] => List[WebContent]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
 
 		val pageFun: Option[Wrap] = attrs match {
-			case extract"ia $img" => annotate(queryImageInAnchor(img.s), img)
+			case extract"imageLink $img" => annotate(queryImageInAnchor(img.s), img)
 
-			case extract"i $img n $next" => annotate(queryImageNext(img.s, next.s), img, next)
+			case extract"image $img next $next" => annotate(queryImageNext(img.s, next.s), img, next)
 
-			case extract"is $img n $next" => annotate(doc => append(queryImages(img.s)(doc), queryNext(next.s)(doc)), img, next)
+			case extract"images $img next $next" => annotate(doc => append(queryImages(img.s)(doc), queryNext(next.s)(doc)), img, next)
 
-			case extract"i $img" => annotate(queryImage(img.s), img)
-			case extract"is $img" => annotate(queryImages(img.s), img)
+			case extract"image $img" => annotate(queryImage(img.s), img)
+			case extract"images $img" => annotate(queryImages(img.s), img)
 			case _ => None
 		}
 
 		val archFun: Option[Wrap] = attrs match {
-			case extract"am $arch" => annotate(queryMixedArchive(arch.s), arch)
+			case extract"mixedArchive $arch" => annotate(queryMixedArchive(arch.s), arch)
 
-			case extract"ac $arch" => annotate(queryChapterArchive(arch.s), arch)
+			case extract"chapterArchive $arch" => annotate(queryChapterArchive(arch.s), arch)
 
 			case _ => None
 		}
