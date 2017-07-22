@@ -853,7 +853,7 @@ http://www.sandraontherocks.com/strips-sotr/start_by_running
 http://www.goblinscomic.org/archive/
 :chapterArchive #textarea a
 :imageNext #cc-comic
-:url_replace /(\d{8})/ ::: /comic/$1/
+:url_replace /(\d{8}(?:-\d+)?)/ ::: /comic/$1 ::: www.goblinscomic.org ::: goblinscomic.com
 
 ---------------------------------------------- DEAD ---
 
