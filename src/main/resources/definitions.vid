@@ -775,11 +775,6 @@ http://www.konradokonski.com/sawdust/archives/
 :archiveReverse
 :i #comic img
 
--:Romantically Apocalyptic
-http://romanticallyapocalyptic.com/0
-:i #frame center img
-:n #frame div.btn-group.btn-group-justified > a[accesskey=n]
-
 -:Questionable Content
 http://questionablecontent.net/view.php?comic=1
 :ia #strip

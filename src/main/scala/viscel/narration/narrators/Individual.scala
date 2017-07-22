@@ -216,7 +216,7 @@ object Individual {
 			Selection(_).many("form[name=jump] > select[name=menu] > option[value]").wrapFlat(elementIntoChapterPointer),
 			queryImageNext(".comicImage", "center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])")),
 		ArchivePage("NX_MegaTokyo", "MegaTokyo", "http://megatokyo.com/archive.php",
-			Selection(_).many("div.content:has(a[id~=^C-\\d+$]").wrapFlat { chap =>
+			Selection(_).many("div.content:has(a[id~=^C-\\d+$])").wrapFlat { chap =>
 				val chapter_? = extract(Chapter(chap.child(0).text()))
 				val elements_? = Selection(chap).many("li a").wrapEach(extractMore)
 				cons(chapter_?, elements_?)
