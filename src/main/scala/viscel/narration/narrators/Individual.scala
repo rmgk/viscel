@@ -185,7 +185,7 @@ object Individual {
 
 	val inlineCores = Set(
 		ArchivePage("NX_Twokinds", "Twokinds", "http://twokinds.keenspot.com/archive/",
-			queryMixedArchive("#content .chapter h2 , #content .chapter a"),
+			queryMixedArchive("#content .chapter h2 , #content .chapter-links a"),
 			queryImage("#content article.comic img")
 		),
 		ArchivePage("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
