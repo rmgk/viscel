@@ -12,7 +12,10 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Book(path: Path, scribe: Scribe) {
+class Book private (path: Path, scribe: Scribe,
+	pageMap: mutable.Map[Vurl, ScribePage],
+	blobMap: mutable.Map[Vurl, ScribeBlob],
+	entries: ArrayBuffer[ScribeDataRow]) {
 
 	def add(entry: ScribeDataRow): Unit = {
 		val index = entries.lastIndexWhere(_.matchesRef(entry))
@@ -28,6 +31,10 @@ class Book(path: Path, scribe: Scribe) {
 			entries += entry
 		}
 	}
+
+	def beginning: Option[ScribePage] = pageMap.get(Vurl.entrypoint)
+	def hasPage(ref: Vurl): Boolean = pageMap.contains(ref)
+	def hasBlob(ref: Vurl): Boolean = blobMap.contains(ref)
 
 	def export(path: Path): Unit = {
 		Files.write(path, List(name).asJava, StandardOpenOption.CREATE_NEW)
@@ -57,39 +64,6 @@ class Book(path: Path, scribe: Scribe) {
 	lazy val name: String = io.circe.parser.decode[String](Files.lines(path).findFirst().get()).toTry.get
 
 	lazy val id: String = path.getFileName.toString
-
-
-	val pageMap: mutable.HashMap[Vurl, ScribePage] = mutable.HashMap[Vurl, ScribePage]()
-	val blobMap: mutable.HashMap[Vurl, ScribeBlob] = mutable.HashMap[Vurl, ScribeBlob]()
-
-	private val entries: ArrayBuffer[ScribeDataRow] = {
-
-		def putIfAbsent[A, B](hashMap: mutable.HashMap[A, B], k: A, v: B): Boolean = {
-			var res = false
-			hashMap.getOrElseUpdate(k, {res = true; v})
-			res
-		}
-
-		Log.info(s"reading $path")
-
-		val fileStream = Files.lines(path, StandardCharsets.UTF_8)
-		try {
-			fileStream.skip(1).collect(Collectors.toList()).asScala.view.zipWithIndex.reverseIterator.map { case (line, nr) =>
-				io.circe.parser.decode[ScribeDataRow](line) match {
-					case Right(s) => s
-					case Left(t) =>
-						Log.error(s"Failed to decode $path:${nr + 2}: $line")
-						throw t
-				}
-			}.filter {
-				case spage@ScribePage(il, _, _, _) => putIfAbsent(pageMap, il, spage)
-				case sblob@ScribeBlob(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
-			}.to[ArrayBuffer].reverse
-		}
-		finally {
-			fileStream.close()
-		}
-	}
 
 	def rightmostScribePages(): List[Link] = {
 
@@ -166,4 +140,41 @@ class Book(path: Path, scribe: Scribe) {
 
 	}
 
+}
+
+object Book {
+	def load(path: Path, scribe: Scribe) = {
+		val pageMap: mutable.HashMap[Vurl, ScribePage] = mutable.HashMap[Vurl, ScribePage]()
+		val blobMap: mutable.HashMap[Vurl, ScribeBlob] = mutable.HashMap[Vurl, ScribeBlob]()
+
+		val entries: ArrayBuffer[ScribeDataRow] = {
+
+			def putIfAbsent[A, B](hashMap: mutable.HashMap[A, B], k: A, v: B): Boolean = {
+				var res = false
+				hashMap.getOrElseUpdate(k, {res = true; v})
+				res
+			}
+
+			Log.info(s"reading $path")
+
+			val fileStream = Files.lines(path, StandardCharsets.UTF_8)
+			try {
+				fileStream.skip(1).collect(Collectors.toList()).asScala.view.zipWithIndex.reverseIterator.map { case (line, nr) =>
+					io.circe.parser.decode[ScribeDataRow](line) match {
+						case Right(s) => s
+						case Left(t) =>
+							Log.error(s"Failed to decode $path:${nr + 2}: $line")
+							throw t
+					}
+				}.filter {
+					case spage@ScribePage(il, _, _, _) => putIfAbsent(pageMap, il, spage)
+					case sblob@ScribeBlob(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
+				}.to[ArrayBuffer].reverse
+			}
+			finally {
+				fileStream.close()
+			}
+		}
+		new Book(path, scribe, pageMap, blobMap, entries)
+	}
 }

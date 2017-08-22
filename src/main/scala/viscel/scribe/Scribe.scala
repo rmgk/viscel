@@ -30,17 +30,17 @@ class Scribe(basedir: Path, configdir: Path) {
 
 	def findOrCreate(narrator: Narrator): Book = find(narrator.id).getOrElse {create(narrator)}
 
-	def create(narrator: Narrator): Book = {
+	private def create(narrator: Narrator): Book = {
 		val path = basedir.resolve(narrator.id)
 		if (Files.exists(path) && Files.size(path) > 0) throw new IllegalStateException(s"already exists $path")
 		Json.store(path, narrator.name)
-		new Book(path, this)
+		Book.load(path, this)
 	}
 
 	def find(id: String): Option[Book] = synchronized {
 		val path = basedir.resolve(id)
 		if (Files.isRegularFile(path) && Files.size(path) > 0) {
-			val book = new Book(path, this)
+			val book = Book.load(path, this)
 			Some(book)
 
 		}

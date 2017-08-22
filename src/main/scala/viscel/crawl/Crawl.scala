@@ -27,7 +27,7 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	var recheck: List[Link] = _
 
 	def start(): Future[Boolean] = {
-		val entry = book.pageMap.get(Vurl.entrypoint)
+		val entry = book.beginning
 		if (entry.isEmpty || entry.get.contents != narrator.archive) {
 			book.add(ScribePage(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
 		}
@@ -122,8 +122,8 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 			requestAfterRecheck += 1
 		}
 		contents.reverse.foreach {
-			case link@Link(ref, _, _) if !book.pageMap.contains(ref) => links = link :: links
-			case art@ArticleRef(ref, _, _) if !book.blobMap.contains(ref) => articles = art :: articles
+			case link@Link(ref, _, _) if !book.hasPage(ref) => links = link :: links
+			case art@ArticleRef(ref, _, _) if !book.hasBlob(ref) => articles = art :: articles
 			case _ =>
 		}
 	}
