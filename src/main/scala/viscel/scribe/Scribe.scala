@@ -11,9 +11,9 @@ import io.circe.generic.auto._
 
 class Scribe(basedir: Path, configdir: Path) {
 
-	val descriptionpath: Path = configdir.resolve("descriptions.json")
+	private val descriptionpath: Path = configdir.resolve("descriptions.json")
 
-	var descriptionCache: Map[String, Description] =
+	private var descriptionCache: Map[String, Description] =
 		Json.load[Map[String, Description]](descriptionpath).getOrElse(Map())
 
 	def invalidateCache(id: String): Unit = synchronized {
@@ -28,16 +28,23 @@ class Scribe(basedir: Path, configdir: Path) {
 		Json.store[Map[String, Description]](descriptionpath, descriptionCache)
 	}
 
-	def findOrCreate(narrator: Narrator): Book = find(narrator.id).getOrElse {create(narrator)}
+	/** creates a new book able to add new pages */
+	def findOrCreate(narrator: Narrator): Book = synchronized(find(narrator.id).getOrElse {create(narrator)})
 
-	private def create(narrator: Narrator): Book = {
+	private def create(narrator: Narrator): Book = synchronized {
 		val path = basedir.resolve(narrator.id)
 		if (Files.exists(path) && Files.size(path) > 0) throw new IllegalStateException(s"already exists $path")
 		Json.store(path, narrator.name)
 		Book.load(path, this)
 	}
 
-	def find(id: String): Option[Book] = synchronized {
+	/** returns the list of pages of an id, an empty list if the id does not exist
+		* used by the server to inform the client */
+	def findPages(id: String): List[ReadableContent] = {
+		find(id).map(_.pages()).getOrElse(Nil)
+	}
+
+	private def find(id: String): Option[Book] = synchronized {
 		val path = basedir.resolve(id)
 		if (Files.isRegularFile(path) && Files.size(path) > 0) {
 			val book = Book.load(path, this)
@@ -64,6 +71,7 @@ class Scribe(basedir: Path, configdir: Path) {
 		})
 	}
 
+	/** helper method for database clean */
 	def allBlobsHashes(): Set[String] = {
 		Files.list(basedir).iterator().asScala.filter(Files.isRegularFile(_)).flatMap { path =>
 			val id = path.getFileName.toString

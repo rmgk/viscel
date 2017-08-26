@@ -32,13 +32,9 @@ class ServerPages(scribe: Scribe) {
 			}
 		}
 
-		scribe.find(id).map { book =>
-
-			val (articles, chapters) = recurse(book.pages(), Nil, Nil, 0)
-
-			Contents(Gallery.fromSeq(articles.reverse), chapters)
-		}.orElse(Narrators.get(id).map(n => Contents(Gallery.empty, Nil)))
-
+		val pages = scribe.findPages(id)
+		val (articles, chapters) = recurse(pages, Nil, Nil, 0)
+		Contents(Gallery.fromSeq(articles.reverse), chapters)
 	}
 
 	def narrations(): Set[Description] = {
