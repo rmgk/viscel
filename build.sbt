@@ -39,7 +39,7 @@ lazy val Settings = new {
 	lazy val common = List(
 
 		version := "7.1.0",
-		scalaVersion := "2.12.2",
+		scalaVersion := "2.12.3",
 
 		maxErrors := 10,
 		shellPrompt := { state => Project.extract(state).currentRef.project + "> " },
@@ -130,7 +130,7 @@ lazy val Libraries = new {
 
 	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.4" :: Nil
 
-	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.3" exclude("org.scala-lang", "scala-reflect")) :: Nil
+	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.4" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
 	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.5" :: Nil)
 
