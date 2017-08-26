@@ -9,14 +9,9 @@ import viscel.shared.Blob
 
 import scala.language.implicitConversions
 
-final class Vurl private(val uri: Uri) {
+final class Vurl private(val uri: Uri) extends AnyVal {
 	override def toString: String = s" $uri "
 	def uriString(): String = uri.toString()
-	override def hashCode(): Int = uri.hashCode()
-	override def equals(other: scala.Any): Boolean = other match {
-		case o: Vurl => uri.equals(o.uri)
-		case _ => false
-	}
 }
 
 object Vurl {
