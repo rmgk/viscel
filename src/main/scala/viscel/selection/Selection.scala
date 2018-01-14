@@ -44,7 +44,7 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 
 	def validateQuery[R](query: String)(validate: Elements => R Or Report): List[R] Or Every[Report] = {
 		elements.validatedBy { element =>
-			validate(element.select(query)).badMap {FailedElement(query, _, element)}.accumulating
+			validate(element.select(query.trim)).badMap {FailedElement(query, _, element)}.accumulating
 		}
 	}
 
