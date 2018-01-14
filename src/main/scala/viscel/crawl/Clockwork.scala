@@ -5,9 +5,9 @@ import java.util.{Timer, TimerTask}
 
 import org.scalactic.{Bad, Good}
 import viscel.narration.{Narrator, Narrators}
-import viscel.scribe.{Json, Scribe}
+import viscel.scribe.Scribe
 import viscel.shared.Log
-import viscel.store.Users
+import viscel.store.{Json, Users}
 
 import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext

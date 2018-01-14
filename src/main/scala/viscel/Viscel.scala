@@ -146,7 +146,7 @@ object Viscel {
 			val cw = new Clockwork(cachedir.resolve("crawl-times.json"), scribe, executionContext, requests)
 
 			narrationHint.observe { case (narrator, force) =>
-				scribe.invalidateCache(narrator.id)
+				scribe.dc.invalidateCache(narrator.id)
 				cw.runNarrator(narrator, if (force) 0 else cw.dayInMillis * 1)
 			}
 			cw.recheckPeriodically()

@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Book private (path: Path, scribe: Scribe,
+class Book private (path: Path, dc: DescriptionCache,
 	pageMap: mutable.Map[Vurl, ScribePage],
 	blobMap: mutable.Map[Vurl, ScribeBlob],
 	entries: ArrayBuffer[ScribeDataRow]) {
@@ -24,7 +24,7 @@ class Book private (path: Path, scribe: Scribe,
 			entry match {
 				case alp@ScribePage(il, _, _, _) =>
 					pageMap.put(il, alp)
-					scribe.invalidateSize(this, alp.articleCount - (if (index < 0) 0 else entries(index).asInstanceOf[ScribePage].articleCount))
+					dc.invalidateSize(this, alp.articleCount - (if (index < 0) 0 else entries(index).asInstanceOf[ScribePage].articleCount))
 				case alb@ScribeBlob(il, _, _, _) => blobMap.put(il, alb)
 			}
 			if (index >= 0) entries.remove(index)
@@ -143,7 +143,7 @@ class Book private (path: Path, scribe: Scribe,
 }
 
 object Book {
-	def load(path: Path, scribe: Scribe) = {
+	def load(path: Path, scribe: DescriptionCache) = {
 		val pageMap: mutable.HashMap[Vurl, ScribePage] = mutable.HashMap[Vurl, ScribePage]()
 		val blobMap: mutable.HashMap[Vurl, ScribeBlob] = mutable.HashMap[Vurl, ScribeBlob]()
 

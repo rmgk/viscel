@@ -4,9 +4,10 @@ import io.circe.{Decoder, Encoder}
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import viscel.Viscel
-import viscel.scribe.{Json, Vurl}
+import viscel.scribe.Vurl
 import viscel.selection.Report
 import viscel.shared.Log
+import viscel.store.Json
 
 import scala.collection.Set
 

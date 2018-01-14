@@ -1,4 +1,4 @@
-package viscel.scribe
+package viscel.store
 
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.StandardOpenOption._
