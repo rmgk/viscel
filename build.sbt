@@ -1,42 +1,41 @@
-import com.typesafe.sbt.packager.archetypes.JavaServerAppPackaging
-import org.scalajs.sbtplugin.ScalaJSPlugin
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import sbt.Keys._
-import sbt._
-
-
 lazy val viscel = project.in(file("."))
-	.settings(name := "viscel")
-	.settings(Settings.main)
-	.settings(Libraries.main)
-	.settings(compile in Compile := ((compile in Compile) dependsOn (fullOptJS in(js, Compile))).value)
-	.settings(resources in Compile += artifactPath.in(js, Compile, fullOptJS).value)
+	.settings(
+		name := "viscel",
+		Settings.main,
+		Libraries.shared,
+		Libraries.main,
+		(Compile / compile) := ((Compile / compile) dependsOn (js / Compile / fullOptJS)).value,
+		(Compile / resources) += (js / Compile / fullOptJS / artifactPath).value,
+		sharedSource,
+	)
 	.enablePlugins(JavaServerAppPackaging)
 	.dependsOn(shared % Provided)
-	.settings(sharedSource)
-
 
 lazy val js = project.in(file("js"))
-	.settings(name := "viscel-js")
 	.enablePlugins(ScalaJSPlugin)
-	.settings(Settings.common)
-	.settings(Libraries.js)
-	.settings(scalaJSUseMainModuleInitializer := true)
+	.settings(
+		name := "viscel-js",
+		Settings.common,
+		Libraries.shared,
+		Libraries.js,
+		sharedSource,
+		scalaJSUseMainModuleInitializer := true,
+	)
 	.dependsOn(shared % Provided)
-	.settings(sharedSource)
 
 lazy val shared = project.in(file("shared"))
-	.settings(name := "viscel-shared")
-	.settings(Settings.common: _*)
-	.settings(libraryDependencies ++= Libraries.shared.value)
+	.settings(
+		name := "viscel-shared",
+		Settings.common,
+		Libraries.shared,
+	)
 
-
-lazy val sharedSource = unmanagedSourceDirectories in Compile += (scalaSource in (shared, Compile)).value
+lazy val sharedSource = (Compile / unmanagedSourceDirectories) += (shared / Compile / scalaSource).value
 
 
 lazy val Settings = new {
 
-	lazy val common = List(
+	lazy val common: sbt.Def.SettingsDefinition = Seq(
 
 		version := "7.2.0",
 		scalaVersion := "2.12.4",
@@ -45,54 +44,53 @@ lazy val Settings = new {
 		shellPrompt := { state => Project.extract(state).currentRef.project + "> " },
 
 
-		scalacOptions ++=
-			"-deprecation" ::
-			"-encoding" :: "UTF-8" ::
-			"-unchecked" ::
-			"-feature" ::
-			"-target:jvm-1.8" ::
-			"-Xlint" ::
-			"-Xfuture" ::
-			//"-Xlog-implicits" ::
-			//"-Yno-predef" ::
-			//"-Yno-imports" ::
-			"-Xfatal-warnings" ::
-			//"-Yinline-warnings" ::
-			"-Yno-adapted-args" ::
-			//"-Ywarn-dead-code" ::
-			"-Ywarn-nullary-override" ::
-			"-Ywarn-nullary-unit" ::
-			"-Ywarn-numeric-widen" ::
-			//"-Ywarn-value-discard" ::
-			Nil,
+		(compile / scalacOptions) ++= Seq (
+			"-deprecation" ,
+			"-encoding" , "UTF-8" ,
+			"-unchecked" ,
+			"-feature" ,
+			"-target:jvm-1.8" ,
+			"-Xlint" ,
+			"-Xfuture" ,
+			//"-Xlog-implicits" ,
+			//"-Yno-predef" ,
+			//"-Yno-imports" ,
+			"-Xfatal-warnings" ,
+			//"-Yinline-warnings" ,
+			"-Yno-adapted-args" ,
+			//"-Ywarn-dead-code" ,
+			"-Ywarn-nullary-override" ,
+			"-Ywarn-nullary-unit" ,
+			"-Ywarn-numeric-widen" ,
+			//"-Ywarn-value-discard" ,
+		),
 
-		resolvers ++=
-			Resolver.bintrayRepo("stg-tud", "maven") ::
-			Nil)
+		resolvers += Resolver.bintrayRepo("stg-tud", "maven"),
+	)
 
-	lazy val main: List[Def.Setting[_]] = common ++ List(
+	lazy val main = common ++ Seq(
 
 		fork := true,
 
-		javaOptions ++=
-			"-verbose:gc" ::
-			"-XX:+PrintGCDetails" ::
-			//"-Xverify:none" ::
-			//"-server" ::
-			//"-Xms16m" ::
-			//"-Xmx256m" ::
-			//"-Xss1m" ::
-			//"-XX:MinHeapFreeRatio=5" ::
-			//"-XX:MaxHeapFreeRatio=10" ::
-			//"-XX:NewRatio=12" ::
-			//"-XX:+UseSerialGC" ::
-			//"-XX:+UseParallelGC" ::
-			//"-XX:+UseParallelOldGC" ::
-			//"-XX:+UseConcMarkSweepGC" ::
-			//"-XX:+PrintTenuringDistribution" ::
-			Nil,
+		javaOptions ++= Seq(
+			"-verbose:gc",
+			"-XX:+PrintGCDetails",
+			//"-Xverify:none",
+			//"-server",
+			//"-Xms16m",
+			//"-Xmx256m",
+			//"-Xss1m",
+			//"-XX:MinHeapFreeRatio=5",
+			//"-XX:MaxHeapFreeRatio=10",
+			//"-XX:NewRatio=12",
+			//"-XX:+UseSerialGC",
+			//"-XX:+UseParallelGC",
+			//"-XX:+UseParallelOldGC",
+			//"-XX:+UseConcMarkSweepGC",
+			//"-XX:+PrintTenuringDistribution",
+		),
 
-		initialCommands in console :=
+		(console / initialCommands)  :=
 			"""import akka.actor.{ ActorSystem, Props, Actor }
 				|import akka.io.IO
 				|import akka.util.Timeout
@@ -113,37 +111,34 @@ lazy val Settings = new {
 
 lazy val Libraries = new {
 
-	lazy val main: Def.Setting[_] = libraryDependencies ++=
-		akkaHTTP ::: jline ::: jopt  ::: scalactic ::: shared.value ::: circe.value ::: jsoup ::: rescala.value
+	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags)
 
-	lazy val js: Def.Setting[_] = libraryDependencies ++=
-		scalajsdom.value ::: shared.value ::: rescala.value ::: rescalatags.value
+	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, jline, jopt, scalactic, jsoup, rescala)
 
-	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
-		scalatags.value ::: circe.value)
+	lazy val js: Def.SettingsDefinition = Seq(scalajsdom, rescala, rescalatags)
 
-	val jsoup = "org.jsoup" % "jsoup" % "1.11.2" :: Nil
+	val jsoup = libraryDependencies += "org.jsoup" % "jsoup" % "1.11.2"
 
-	val akkaHTTP = List("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.11")
+	val akkaHTTP = libraryDependencies ++= Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.11")
 
-	val jline = "jline" % "jline" % "2.14.5" :: Nil
+	val jline = libraryDependencies += "jline" % "jline" % "2.14.5"
 
-	val jopt = "net.sf.jopt-simple" % "jopt-simple" % "5.0.4" :: Nil
+	val jopt = libraryDependencies += "net.sf.jopt-simple" % "jopt-simple" % "5.0.4"
 
-	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.4" exclude("org.scala-lang", "scala-reflect")) :: Nil
+	val scalactic = libraryDependencies +=("org.scalactic" %% "scalactic" % "3.0.4" exclude("org.scala-lang", "scala-reflect"))
 
-	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.7" :: Nil)
+	val scalatags = libraryDependencies +=("com.lihaoyi" %%% "scalatags" % "0.6.7" )
 
-	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.1") :: Nil)
+	val scalajsdom = libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.1"
 
-	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.20.0") :: Nil)
-	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.20.0") :: Nil)
+	val rescala = libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.20.0"
+	val rescalatags = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % "0.20.0"
 
-	val circe = Def.setting(List(
+	val circe = libraryDependencies ++= Seq(
 		"io.circe" %%% "circe-core",
 		"io.circe" %%% "circe-generic",
 		"io.circe" %%% "circe-generic-extras",
 		"io.circe" %%% "circe-parser"
-	).map(_ % "0.9.0"))
+	).map(_ % "0.9.0")
 
 }
