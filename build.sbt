@@ -38,8 +38,8 @@ lazy val Settings = new {
 
 	lazy val common = List(
 
-		version := "7.1.0",
-		scalaVersion := "2.12.3",
+		version := "7.2.0",
+		scalaVersion := "2.12.4",
 
 		maxErrors := 10,
 		shellPrompt := { state => Project.extract(state).currentRef.project + "> " },
@@ -122,9 +122,9 @@ lazy val Libraries = new {
 	lazy val shared: Def.Initialize[List[ModuleID]] = Def.setting(
 		scalatags.value ::: circe.value)
 
-	val jsoup = "org.jsoup" % "jsoup" % "1.10.3" :: Nil
+	val jsoup = "org.jsoup" % "jsoup" % "1.11.2" :: Nil
 
-	val akkaHTTP = List("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.9")
+	val akkaHTTP = List("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.11")
 
 	val jline = "jline" % "jline" % "2.14.5" :: Nil
 
@@ -132,18 +132,18 @@ lazy val Libraries = new {
 
 	val scalactic = ("org.scalactic" %% "scalactic" % "3.0.4" exclude("org.scala-lang", "scala-reflect")) :: Nil
 
-	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.5" :: Nil)
+	val scalatags = Def.setting("com.lihaoyi" %%% "scalatags" % "0.6.7" :: Nil)
 
 	val scalajsdom = Def.setting(("org.scala-js" %%% "scalajs-dom" % "0.9.1") :: Nil)
 
-	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.19.0") :: Nil)
-	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.19.0") :: Nil)
+	val rescala = Def.setting(("de.tuda.stg" %%% "rescala" % "0.20.0") :: Nil)
+	val rescalatags = Def.setting(("de.tuda.stg" %%% "rescalatags" % "0.20.0") :: Nil)
 
 	val circe = Def.setting(List(
 		"io.circe" %%% "circe-core",
 		"io.circe" %%% "circe-generic",
 		"io.circe" %%% "circe-generic-extras",
 		"io.circe" %%% "circe-parser"
-	).map(_ % "0.8.0"))
+	).map(_ % "0.9.0"))
 
 }
