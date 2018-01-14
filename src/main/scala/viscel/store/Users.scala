@@ -3,11 +3,11 @@ package viscel.store
 import java.io.IOException
 import java.nio.file.{Files, Path}
 
+import io.circe.generic.auto._
 import org.scalactic.Accumulation._
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
 import viscel.Viscel
 import viscel.scribe.Json
-import io.circe.generic.auto._
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 

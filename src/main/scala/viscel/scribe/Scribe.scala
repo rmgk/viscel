@@ -2,12 +2,12 @@ package viscel.scribe
 
 import java.nio.file.{Files, Path}
 
+import io.circe.generic.auto._
 import viscel.narration.Narrator
 import viscel.shared.Description
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashSet
-import io.circe.generic.auto._
 
 class Scribe(basedir: Path, configdir: Path) {
 

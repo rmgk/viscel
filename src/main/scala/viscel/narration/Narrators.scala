@@ -3,7 +3,6 @@ package viscel.narration
 import viscel.narration.narrators.Individual._
 import viscel.narration.narrators._
 
-import scala.Predef.{$conforms, ArrowAssoc}
 import scala.collection.immutable.{Map, Set}
 
 

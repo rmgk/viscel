@@ -2,11 +2,11 @@ package viscel.scribe
 
 import java.time.Instant
 
-import io.circe.{ Decoder,  Encoder,  Json => cJson}
-import viscel.shared.Blob
 import cats.syntax.either._
 import io.circe.generic.extras.auto._
 import io.circe.generic.extras._
+import io.circe.{Decoder, Encoder, Json => cJson}
+import viscel.shared.Blob
 
 sealed trait ScribeDataRow {
 	/** reference that spawned this entry */

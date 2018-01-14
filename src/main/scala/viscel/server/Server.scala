@@ -7,14 +7,14 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
+import io.circe.generic.auto._
+import rescala._
+import viscel.ReplUtil
 import viscel.crawl.RequestUtil
 import viscel.narration.{Metarrators, Narrator, Narrators}
 import viscel.scribe.Scribe
 import viscel.shared.Log
 import viscel.store.{BlobStore, User}
-import viscel.{ReplUtil}
-import rescala._
-import io.circe.generic.auto._
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}

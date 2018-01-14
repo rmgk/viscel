@@ -5,7 +5,6 @@ import org.jsoup.select.Elements
 import org.scalactic.Accumulation.convertGenTraversableOnceToValidatable
 import org.scalactic.{Bad, Every, Good, One, Or}
 
-import scala.Predef.$conforms
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 sealed trait Selection {

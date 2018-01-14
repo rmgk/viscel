@@ -5,7 +5,6 @@ import org.scalactic.Accumulation.{withGood, convertGenTraversableOnceToCombinab
 import org.scalactic.{Every, One, Or, attempt}
 import viscel.selection.ReportTools.show
 
-import scala.Predef.$conforms
 import scala.collection.immutable.Set
 
 trait Report {

@@ -4,9 +4,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 import java.util.stream.Collectors
 
+import io.circe.syntax._
 import viscel.scribe.ScribePicklers._
 import viscel.shared.Log
-import io.circe.syntax._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable

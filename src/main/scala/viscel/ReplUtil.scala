@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths, StandardCopyOption}
 import java.time.Instant
 
+import io.circe.generic.auto._
+import io.circe.syntax._
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import viscel.narration.Narrator
@@ -18,9 +20,6 @@ import scalatags.Text.RawFrag
 import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
-
-import io.circe.syntax._
-import io.circe.generic.auto._
 
 class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
 	def mimeToExt(mime: String, default: String = "") = mime match {

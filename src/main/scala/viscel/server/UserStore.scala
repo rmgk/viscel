@@ -6,7 +6,6 @@ import org.scalactic.{Bad, Good}
 import viscel.shared.Log
 import viscel.store.{User, Users}
 
-import scala.Predef.ArrowAssoc
 import scala.collection.immutable.Map
 
 class UserStore() {
