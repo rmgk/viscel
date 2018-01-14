@@ -13,7 +13,7 @@ object MangaHere {
 
 	case class Nar(id: String, name: String, archiveUri: Vurl) extends Templates.ArchivePage(
 		archiveUri,
-		doc => queryMixedArchive(".detail_list > ul:first-of-type > li , .detail_list > ul:first-of-type a ")(doc).map(reverse),
+		doc => queryMixedArchive(".detail_list > ul:first-of-type > li , .detail_list > ul:first-of-type a")(doc).map(reverse),
 		queryImageNext("#image", ".next_page:not([onclick])")
 	)
 
@@ -21,7 +21,8 @@ object MangaHere {
 		override def reader: Decoder[Nar] = semiauto.deriveDecoder[Nar]
 		override def writer: Encoder[Nar] = semiauto.deriveEncoder[Nar]
 
-		override def unapply(vurl: String): Option[Vurl] = if (vurl.toString.startsWith("http://www.mangahere.co/manga/")) Some(Vurl.fromString(vurl)) else None
+		override def unapply(vurl: String): Option[Vurl] =
+			if (vurl.toString.startsWith("http://www.mangahere.co/manga/")) Some(Vurl.fromString(vurl)) else None
 
 		val extractID = """http://www.mangahere.co/manga/([^/]+)/""".r
 
