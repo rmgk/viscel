@@ -3,9 +3,7 @@ package visceljs
 import io.circe.Decoder
 import org.scalajs.dom
 import org.scalajs.dom.raw.HashChangeEvent
-import rescala.graph.SimpleStruct
-import rescala.reactives.Observe
-import rescala.{Engine, Evt, Signal, Signals, Var}
+import rescala.{ Observe, Evt, Signal, Signals, Var}
 import viscel.shared._
 
 import scala.collection.immutable.Map
@@ -66,7 +64,7 @@ object ViscelJS {
 	}
 
 
-	private var titleObserver: Observe[SimpleStruct] = null
+	private var titleObserver: Observe = null
 	def setBody(abody: Body, scrolltop: Boolean): Unit = {
 		dom.document.onkeydown = abody.keypress
 		dom.document.body.innerHTML = ""

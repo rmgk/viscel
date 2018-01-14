@@ -1,8 +1,8 @@
 package visceljs
 
 import org.scalajs.dom.html.UList
-import rescala.engines.Engines.default
-import rescala.engines.Engines.default.Signal
+import rescala.implicitEngine
+import rescala.Signal
 import viscel.shared.{Blob, Description, ImageRef}
 import visceljs.Definitions._
 

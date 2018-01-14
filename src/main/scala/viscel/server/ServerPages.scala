@@ -33,8 +33,11 @@ class ServerPages(scribe: Scribe) {
 		}
 
 		val pages = scribe.findPages(id)
-		val (articles, chapters) = recurse(pages, Nil, Nil, 0)
-		Contents(Gallery.fromSeq(articles.reverse), chapters)
+		if (pages.isEmpty) None
+		else {
+			val (articles, chapters) = recurse(pages, Nil, Nil, 0)
+			Some(Contents(Gallery.fromSeq(articles.reverse), chapters))
+		}
 	}
 
 	def narrations(): Set[Description] = {
