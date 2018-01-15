@@ -47,9 +47,7 @@ sealed trait ScribeDataRow {
 	* @param blob reference to the file
 	*/
 /*@key("Blob")*/ case class ScribeBlob(
-	/* reference that spawned this entry */
 	ref: Vurl,
-	/* location that was finally resolved and downloaded */
 	loc: Vurl,
 	date: Instant,
 	blob: Blob

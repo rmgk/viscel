@@ -18,7 +18,8 @@ object Viscel {
 			sys.exit(0)
 		}
 
-		services = new Services(optBasedir(), optBlobdir(), interface(), port())
+		val services = new Services(optBasedir(), optBlobdir(), interface(), port())
+		this.services = services
 
 		if (cleanblobs.?) {
 			services.replUtil.cleanBlobDirectory()
