@@ -49,7 +49,7 @@ class Scribe(basedir: Path, configdir: Path) {
 
 	private def description(id: String): Description = dc.getOrElse(id) {
 		val book = find(id).get
-		Description(id, book.name, book.size(), archived = true)
+		Description(id, book.name, book.size(), missingNarrator = true)
 	}
 
 
