@@ -129,7 +129,7 @@ lazy val Libraries = new {
 
 	val scalatags = libraryDependencies +=("com.lihaoyi" %%% "scalatags" % "0.6.7" )
 
-	val scalajsdom = libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.1"
+	val scalajsdom = libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.4"
 
 	val rescala = libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.20.0"
 	val rescalatags = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % "0.20.0"
