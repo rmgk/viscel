@@ -67,7 +67,7 @@ object Make {
 			var cTotal = 0
 			var cPos = 0
 			es.foreach { case (desc, pos, unread) =>
-				val e = link_front(desc, s"${if (desc.missingNarrator) "\uD83D\uDCD5 " else ""}${desc.name}${if (unread == 0) "" else s" ($unread)"}")
+				val e = link_front(desc, s"${if (desc.unknownNarrator) "\uD83D\uDCD5 " else ""}${desc.name}${if (unread == 0) "" else s" ($unread)"}")
 				elements.appendChild(li(e).render)
 				if (unread > 0) cUnread += unread
 				cTotal += desc.size

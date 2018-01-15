@@ -45,10 +45,10 @@ class ServerPages(scribe: Scribe) {
 		var known = books.map(d => d.id -> d).toMap
 		val nars = Narrators.all.map { n =>
 			known.get(n.id) match {
-				case None => Description(n.id, n.name, 0, missingNarrator = false)
+				case None => Description(n.id, n.name, 0, unknownNarrator = false)
 				case Some(desc) =>
 					known = known - n.id
-					desc.copy(missingNarrator = false)
+					desc.copy(unknownNarrator = false)
 			}
 		}
 		nars ++ known.values

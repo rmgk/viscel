@@ -2,8 +2,8 @@ package viscel.shared
 
 import scala.collection.immutable.Map
 
-/** The [[name]] and [[size]] of a collection. [[missingNarrator]] is false if it can still be downloaded. */
-final case class Description(id: String, name: String, size: Int, missingNarrator: Boolean)
+/** The [[name]] and [[size]] of a collection. [[unknownNarrator]] is false if it can still be downloaded. */
+final case class Description(id: String, name: String, size: Int, unknownNarrator: Boolean)
 final case class ChapterPos(name: String, pos: Int)
 final case class ImageRef(
 	origin: String,

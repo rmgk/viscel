@@ -47,7 +47,7 @@ class Scribe(basedir: Path, decsriptionCache: DescriptionCache) {
 
 	private def description(id: String): Description = decsriptionCache.getOrElse(id) {
 		val book = find(id).get
-		Description(id, book.name, book.size(), missingNarrator = true)
+		Description(id, book.name, book.size(), unknownNarrator = true)
 	}
 
 
