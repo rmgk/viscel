@@ -44,7 +44,7 @@ lazy val Settings = new {
 		shellPrompt := { state => Project.extract(state).currentRef.project + "> " },
 
 
-		(compile / scalacOptions) ++= Seq (
+		Compile / compile / scalacOptions ++= Seq (
 			"-deprecation" ,
 			"-encoding" , "UTF-8" ,
 			"-unchecked" ,

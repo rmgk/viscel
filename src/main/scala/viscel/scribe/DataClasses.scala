@@ -80,7 +80,7 @@ sealed trait Policy
 
 /** Pickler customization for compatibility */
 object ScribePicklers {
-	private def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[Policy]] = exportDecoder[Policy]
+	def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[Policy]] = exportDecoder[Policy]
 
 	/** use "\$type" field in json to detect type, was upickle default and is used every [[Book]] ... */
 	implicit val config: Configuration = Configuration.default.withDefaults.withDiscriminator("$" + "type")
