@@ -13,10 +13,13 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Book private (path: Path, descriptionCache: DescriptionCache,
+class Book private(
+	path: Path,
+	descriptionCache: DescriptionCache,
 	pageMap: mutable.Map[Vurl, ScribePage],
 	blobMap: mutable.Map[Vurl, ScribeBlob],
-	entries: ArrayBuffer[ScribeDataRow]) {
+	entries: ArrayBuffer[ScribeDataRow],
+) {
 
 	def add(entry: ScribeDataRow): Unit = {
 		val index = entries.lastIndexWhere(_.matchesRef(entry))

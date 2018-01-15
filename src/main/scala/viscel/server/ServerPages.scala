@@ -92,6 +92,6 @@ class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
 				input(`type` := "submit", value := "add")))
 	))
 
-	val toolsResponse = htmlResponse(toolsPage)
+	val toolsResponse: HttpResponse = htmlResponse(toolsPage)
 
 }

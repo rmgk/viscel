@@ -88,7 +88,7 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 	override def wrapOne[R](fun: Element => R Or Every[Report]): R Or Every[Report] = {
 		elements match {
 			case els if els.isEmpty => Bad(One(Fatal("wrapOne on no result")))
-			case els if els.size == 1 => fun(els.head)
+			case els if els.lengthCompare(1) == 0 => fun(els.head)
 			case els => Bad(One(Fatal("wrapOne on many results")))
 		}
 	}

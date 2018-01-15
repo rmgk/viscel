@@ -22,7 +22,7 @@ object ReportTools {
 
 trait Stack {
 	val stack: List[StackTraceElement] = Predef.wrapRefArray(Thread.currentThread().getStackTrace()).toList
-	def position = {
+	def position: String = {
 		val ignoredClasses = Set("viscel.selection", "java", "org.scalactic", "scala")
 		stack.find { ste =>
 			val cname = ste.getClassName

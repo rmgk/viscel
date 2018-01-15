@@ -15,7 +15,7 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 
 
 	val book: Book = scribe.findOrCreate(narrator)
-	val promise = Promise[Boolean]()
+	val promise: Promise[Boolean] = Promise[Boolean]()
 
 	var articles: List[ArticleRef] = _
 	var links: List[Link] = _

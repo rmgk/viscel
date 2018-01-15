@@ -15,14 +15,15 @@ import viscel.shared.Log
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.Map
+import scala.util.matching.Regex
 
 object Vid {
 
 	case class Line(s: String, p: Int)
 	type It = BufferedIterator[Line]
 
-	val extractIDAndName = """^-(\w*):(.+)$""".r
-	val extractAttribute = """^:(\w+)\s*(.*)$""".r
+	val extractIDAndName: Regex = """^-(\w*):(.+)$""".r
+	val extractAttribute: Regex = """^:(\w+)\s*(.*)$""".r
 
 	def parseURL(it: It): Vurl Or ErrorMessage = {
 		val Line(url, pos) = it.next()
@@ -57,7 +58,7 @@ object Vid {
 			def unapplySeq[T](m: Map[String, T]): Option[Seq[T]] = {
 				val keys = sc.parts.map(_.trim).filter(_.nonEmpty)
 				val res = keys.flatMap(m.get)
-				if (res.size == keys.size) Some(res)
+				if (res.lengthCompare(keys.size) == 0) Some(res)
 				else None
 			}
 		}
@@ -173,7 +174,7 @@ object Vid {
 		val stream = new BufferedReader(new InputStreamReader(getClass.getClassLoader.getResourceAsStream("definitions.vid"), StandardCharsets.UTF_8)).lines()
 		val res = try {
 			parse(stream.iterator().asScala) match {
-				case Good(res) => res
+				case Good(g) => g
 				case Bad(err) =>
 					Log.warn(s"failed to parse definitions.vid errors: $err")
 					Nil

@@ -114,7 +114,7 @@ object Queries {
 		case (a :: as, cms) => a :: placeChapters(as, cms)
 	}
 
-	def groupedOn[T](l: List[T])(p: T => Boolean) = l.foldLeft(List[List[T]]()) {
+	def groupedOn[T](l: List[T])(p: T => Boolean): List[List[T]] = l.foldLeft(List[List[T]]()) {
 		case (acc, t) if p(t) => List(t) :: acc
 		case (Nil, t) => List(t) :: Nil
 		case (a :: as, t) => (t :: a) :: as
