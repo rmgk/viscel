@@ -4,16 +4,14 @@ import java.nio.file.{Files, Path}
 
 import viscel.narration.Narrator
 import viscel.shared.Description
-import viscel.store.Json
+import viscel.store.{DescriptionCache, Json}
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashSet
 
 
 
-class Scribe(basedir: Path, configdir: Path) {
-
-	val dc = new DescriptionCache(configdir)
+class Scribe(basedir: Path, decsriptionCache: DescriptionCache) {
 
 	/** creates a new book able to add new pages */
 	def findOrCreate(narrator: Narrator): Book = synchronized(find(narrator.id).getOrElse {create(narrator)})
@@ -22,7 +20,7 @@ class Scribe(basedir: Path, configdir: Path) {
 		val path = basedir.resolve(narrator.id)
 		if (Files.exists(path) && Files.size(path) > 0) throw new IllegalStateException(s"already exists $path")
 		Json.store(path, narrator.name)
-		Book.load(path, dc)
+		Book.load(path, decsriptionCache)
 	}
 
 	/** returns the list of pages of an id, an empty list if the id does not exist
@@ -34,7 +32,7 @@ class Scribe(basedir: Path, configdir: Path) {
 	private def find(id: String): Option[Book] = synchronized {
 		val path = basedir.resolve(id)
 		if (Files.isRegularFile(path) && Files.size(path) > 0) {
-			val book = Book.load(path, dc)
+			val book = Book.load(path, decsriptionCache)
 			Some(book)
 		}
 		else None
@@ -47,7 +45,7 @@ class Scribe(basedir: Path, configdir: Path) {
 		}.toList
 	}
 
-	private def description(id: String): Description = dc.getOrElse(id) {
+	private def description(id: String): Description = decsriptionCache.getOrElse(id) {
 		val book = find(id).get
 		Description(id, book.name, book.size(), missingNarrator = true)
 	}

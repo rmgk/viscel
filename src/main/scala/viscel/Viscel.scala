@@ -16,7 +16,7 @@ import viscel.narration.Narrator
 import viscel.scribe.Scribe
 import viscel.server.Server
 import viscel.shared.Log
-import viscel.store.BlobStore
+import viscel.store.{BlobStore, DescriptionCache}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -79,7 +79,9 @@ object Viscel {
 
 		Files.createDirectories(scribedir)
 
-		val scribe = new viscel.scribe.Scribe(scribedir, cachedir)
+		val desciptionCache = new DescriptionCache(cachedir)
+
+		val scribe = new viscel.scribe.Scribe(scribedir, desciptionCache)
 		val blobs = new BlobStore(blobdir)
 
 		if (cleanblobs.?) {
@@ -97,7 +99,7 @@ object Viscel {
 				seen.add(sha1path)
 				if (!blobsHashesInDB.contains(sha1path)) {
 					val newpath = bsn.hashToPath(sha1path)
-					Log.info(s"movinng $bp to $newpath")
+					Log.info(s"moving $bp to $newpath")
 					Files.createDirectories(newpath.getParent)
 					Files.move(bp, newpath)
 				}
@@ -146,7 +148,7 @@ object Viscel {
 			val cw = new Clockwork(cachedir.resolve("crawl-times.json"), scribe, executionContext, requests)
 
 			narrationHint.observe { case (narrator, force) =>
-				scribe.dc.invalidateCache(narrator.id)
+				desciptionCache.invalidate(narrator.id)
 				cw.runNarrator(narrator, if (force) 0 else cw.dayInMillis * 1)
 			}
 			cw.recheckPeriodically()

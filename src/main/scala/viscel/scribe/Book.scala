@@ -7,12 +7,13 @@ import java.util.stream.Collectors
 import io.circe.syntax._
 import viscel.scribe.ScribePicklers._
 import viscel.shared.Log
+import viscel.store.DescriptionCache
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Book private (path: Path, dc: DescriptionCache,
+class Book private (path: Path, descriptionCache: DescriptionCache,
 	pageMap: mutable.Map[Vurl, ScribePage],
 	blobMap: mutable.Map[Vurl, ScribeBlob],
 	entries: ArrayBuffer[ScribeDataRow]) {
@@ -24,7 +25,7 @@ class Book private (path: Path, dc: DescriptionCache,
 			entry match {
 				case alp@ScribePage(il, _, _, _) =>
 					pageMap.put(il, alp)
-					dc.invalidateSize(this, alp.articleCount - (if (index < 0) 0 else entries(index).asInstanceOf[ScribePage].articleCount))
+					descriptionCache.updateSize(id, alp.articleCount - (if (index < 0) 0 else entries(index).asInstanceOf[ScribePage].articleCount))
 				case alb@ScribeBlob(il, _, _, _) => blobMap.put(il, alb)
 			}
 			if (index >= 0) entries.remove(index)
@@ -143,7 +144,7 @@ class Book private (path: Path, dc: DescriptionCache,
 }
 
 object Book {
-	def load(path: Path, scribe: DescriptionCache) = {
+	def load(path: Path, descriptionCache: DescriptionCache) = {
 		val pageMap: mutable.HashMap[Vurl, ScribePage] = mutable.HashMap[Vurl, ScribePage]()
 		val blobMap: mutable.HashMap[Vurl, ScribeBlob] = mutable.HashMap[Vurl, ScribeBlob]()
 
@@ -175,6 +176,6 @@ object Book {
 				fileStream.close()
 			}
 		}
-		new Book(path, scribe, pageMap, blobMap, entries)
+		new Book(path, descriptionCache, pageMap, blobMap, entries)
 	}
 }
