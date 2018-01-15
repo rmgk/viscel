@@ -1,7 +1,6 @@
 package viscel.narration.narrators
 
 import io.circe.generic.semiauto
-import io.circe.{Decoder, Encoder}
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Queries.RegexContext
@@ -16,9 +15,7 @@ object Comicfury {
 		override val id: String = s"Comicfury_$cid"
 	}
 
-	object Meta extends Metarrator[Cfury]("Comicfury") {
-		override def reader: Decoder[Cfury] = semiauto.deriveDecoder[Cfury]
-		override def writer: Encoder[Cfury] = semiauto.deriveEncoder[Cfury]
+	object Meta extends Metarrator[Cfury]("Comicfury", semiauto.deriveDecoder, semiauto.deriveEncoder) {
 		override def unapply(description: String): Option[Vurl] = description match {
 			case rex"http://($cid[^\.]+)\.thecomicseries.com/" => Some(Vurl.fromString(description))
 			case _ => None

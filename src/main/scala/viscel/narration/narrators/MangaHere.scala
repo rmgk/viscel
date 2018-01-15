@@ -1,7 +1,6 @@
 package viscel.narration.narrators
 
 import io.circe.generic.semiauto
-import io.circe.{Decoder, Encoder}
 import org.jsoup.nodes.Document
 import org.scalactic._
 import viscel.narration.Queries._
@@ -17,9 +16,7 @@ object MangaHere {
 		queryImageNext("#image", ".next_page:not([onclick])")
 	)
 
-	object MetaCore extends Metarrator[Nar]("MangaHere") {
-		override def reader: Decoder[Nar] = semiauto.deriveDecoder[Nar]
-		override def writer: Encoder[Nar] = semiauto.deriveEncoder[Nar]
+	object MetaCore extends Metarrator[Nar]("MangaHere", semiauto.deriveDecoder, semiauto.deriveEncoder) {
 
 		override def unapply(vurl: String): Option[Vurl] =
 			if (vurl.toString.startsWith("http://www.mangahere.co/manga/")) Some(Vurl.fromString(vurl)) else None

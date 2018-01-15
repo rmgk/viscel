@@ -11,22 +11,19 @@ import viscel.store.Json
 
 import scala.collection.Set
 
-abstract class Metarrator[T <: Narrator](id: String) {
+abstract class Metarrator[T <: Narrator](val id: String, val decoder: Decoder[T], val encoder: Encoder[T]) {
 
 	def unapply(description: String): Option[Vurl]
 	def wrap(document: Document): List[T] Or Every[Report]
 
-	def reader: Decoder[T]
-	def writer: Encoder[T]
-
-	private implicit def r: Decoder[T] = reader
-	private implicit def w: Encoder[T] = writer
-
-	def path = Viscel.services.metarratorconfigdir.resolve(s"$id.json")
-	def load(): Set[T] = Json.load[Set[T]](path).fold(x => x, err => {
-		Log.warn(s"could not load $path: $err")
-		Set()
-	})
-	def save(nars: List[T]): Unit = Json.store(path, nars)
+	private def path = Viscel.services.metarratorconfigdir.resolve(s"$id.json")
+	def load(): Set[T] = {
+		val json = Json.load[Set[T]](path)(io.circe.Decoder.decodeTraversable(decoder, implicitly))
+			json.fold(x => x, err => {
+			Log.warn(s"could not load $path: $err")
+			Set()
+		})
+	}
+	def save(nars: List[T]): Unit = Json.store(path, nars)(io.circe.Encoder.encodeList(encoder))
 
 }
