@@ -8,25 +8,36 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
 import io.circe.generic.auto._
+import org.scalactic.TypeCheckedTripleEquals._
 import rescala._
 import viscel.ReplUtil
 import viscel.crawl.RequestUtil
 import viscel.narration.{Metarrators, Narrator, Narrators}
 import viscel.scribe.Scribe
 import viscel.shared.Log
-import viscel.store.{BlobStore, User}
+import viscel.store.{BlobStore, User, Users}
 
+import scala.collection.immutable.Map
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
-
-class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, terminate: () => Unit)(implicit val system: ActorSystem) {
+class Server(userStore: Users, scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, terminate: () => Unit)(implicit val system: ActorSystem) {
 
 	val pages = new ServerPages(scribe)
 
-	val users = new UserStore
-
 	val narratorHint = Evt[(Narrator, Boolean)]()
+
+	def authenticate(credentials: Option[BasicHttpCredentials]): Option[User] = credentials match {
+		case Some(BasicHttpCredentials(user, password)) =>
+			Log.trace(s"login: $user $password")
+			// time("login") {
+			if (user.matches("\\w+")) {
+				userStore.getOrAddFirstUser(user, User(user, password, admin = true, Map())).filter(_.password === password)
+			}
+			else None
+		// }
+		case None => None
+	}
 
 
 	def sprayLikeBasicAuth[T](realm: String, authenticator: Option[BasicHttpCredentials] => Option[T]) = extractExecutionContext.flatMap { implicit ec ⇒
@@ -41,11 +52,12 @@ class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, ter
 	def route: Route = {
 		decodeRequest {
 			encodeResponse {
-				sprayLikeBasicAuth("Username is used to store configuration; Passwords are saved in plain text; User is created on first login", users.authenticate) { user =>
+				sprayLikeBasicAuth("Username is used to store configuration; Passwords are saved in plain text; User is created on first login",
+					authenticate) { user =>
 					extractRequest { request =>
 						request.headers.find(h => h.is("x-path-prefix")) match {
 							case None => defaultRoute(user)
-							case Some(prefix) => pathPrefix(prefix.value()) { defaultRoute(user) }
+							case Some(prefix) => pathPrefix(prefix.value()) {defaultRoute(user)}
 						}
 					}
 				}
@@ -60,8 +72,8 @@ class Server(scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, ter
 	def handleBookmarksForm(user: User)(continue: User => Route): Route =
 		formFields(('narration.as[String].?, 'bookmark.as[Int].?)) { (colidOption, bmposOption) =>
 			val newUser = for (bmpos <- bmposOption; colid <- colidOption) yield {
-				if (bmpos > 0) users.userUpdate(user.setBookmark(colid, bmpos))
-				else users.userUpdate(user.removeBookmark(colid))
+				if (bmpos > 0) userStore.userUpdate(user.setBookmark(colid, bmpos))
+				else userStore.userUpdate(user.removeBookmark(colid))
 			}
 			continue(newUser.getOrElse(user))
 		}

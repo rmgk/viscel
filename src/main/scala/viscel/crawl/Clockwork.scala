@@ -3,7 +3,6 @@ package viscel.crawl
 import java.nio.file.Path
 import java.util.{Timer, TimerTask}
 
-import org.scalactic.{Bad, Good}
 import viscel.narration.{Narrator, Narrators}
 import viscel.scribe.Scribe
 import viscel.shared.Log
@@ -15,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 
-class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: RequestUtil) {
+class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: RequestUtil, userStore: Users) {
 
 	val dayInMillis: Long = 24L * 60L * 60L * 1000L
 
@@ -29,17 +28,12 @@ class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: R
 	def recheckPeriodically(): Unit = {
 		timer.scheduleAtFixedRate(new TimerTask {
 			override def run(): Unit = synchronized {
-				Log.info("running scheduled updates")
-				Users.all() match {
-					case Bad(err) => Log.error(s"could not load bookmarked collections: $err")
-					case Good(users) =>
-						val narrators = users.flatMap(_.bookmarks.keySet).distinct.flatMap(Narrators.get)
-						//val narrators = List(Narrators.get("NX_Inverloch")).flatten
-						narrators.foreach {runNarrator(_, 7 * dayInMillis)}
-				}
+				Log.info("schedule updates")
+				val narrators = userStore.allBookmarks().flatMap(Narrators.get)
+				//val narrators = List(Narrators.get("NX_Inverloch")).flatten
+				narrators.foreach {runNarrator(_, 7 * dayInMillis)}
 			}
 		}, delay, period)
-
 	}
 
 	def runNarrator(n: Narrator, recheckInterval: Long) = synchronized {

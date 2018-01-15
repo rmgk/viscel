@@ -16,7 +16,7 @@ import viscel.narration.Narrator
 import viscel.scribe.Scribe
 import viscel.server.Server
 import viscel.shared.Log
-import viscel.store.{BlobStore, DescriptionCache}
+import viscel.store.{BlobStore, DescriptionCache, Users}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -25,18 +25,8 @@ import scala.language.implicitConversions
 
 object Viscel {
 
-
-	def time[T](desc: String = "")(f: => T): T = {
-		val start = System.nanoTime
-		val res = f
-		Console.println(s"$desc took ${(System.nanoTime - start) / 1000000.0} ms")
-		res
-	}
-
-	var basepath: Path = _
 	var metarratorconfigdir: Path = _
 	var definitionsdir: Path = _
-	var usersdir: Path = _
 	var exportdir: Path = _
 
 
@@ -63,14 +53,14 @@ object Viscel {
 			sys.exit(0)
 		}
 
-		basepath = Paths.get(optBasedir())
+		val basepath = Paths.get(optBasedir())
 		val blobdir = basepath.resolve(optBlobdir())
 		val scribedir = basepath.resolve("db3")
 		val cachedir = basepath.resolve("cache")
 		metarratorconfigdir = basepath.resolve("metarrators")
 		definitionsdir = basepath.resolve("definitions")
 		exportdir = basepath.resolve("export")
-		usersdir = basepath.resolve("users")
+		val usersdir = basepath.resolve("users")
 		Files.createDirectories(cachedir)
 
 		if (upgrade.?) {
@@ -118,6 +108,8 @@ object Viscel {
 
 		var narrationHint: Evt[(Narrator, Boolean)] = Evt()
 
+		val userStore = new Users(usersdir)
+
 		if (!noserver.?) {
 
 			val boundServer = Promise[ServerBinding]()
@@ -130,7 +122,7 @@ object Viscel {
 					}(system.dispatcher)
 			}
 
-			val server = new Server(scribe, blobs, requests, () => terminate())(system)
+			val server = new Server(userStore, scribe, blobs, requests, () => terminate())(system)
 			val boundSocket: Future[ServerBinding] = http.bindAndHandle(
 				RouteResult.route2HandlerFlow(server.route)(
 					RoutingSettings.default(system),
@@ -145,7 +137,7 @@ object Viscel {
 		}
 
 		if (!nocore.?) {
-			val cw = new Clockwork(cachedir.resolve("crawl-times.json"), scribe, executionContext, requests)
+			val cw = new Clockwork(cachedir.resolve("crawl-times.json"), scribe, executionContext, requests, userStore)
 
 			narrationHint.observe { case (narrator, force) =>
 				desciptionCache.invalidate(narrator.id)
