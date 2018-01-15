@@ -4,12 +4,12 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenges}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{Directive, Route}
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
 import io.circe.generic.auto._
 import org.scalactic.TypeCheckedTripleEquals._
-import rescala._
+import rescala.Evt
 import viscel.ReplUtil
 import viscel.crawl.RequestUtil
 import viscel.narration.{Metarrators, Narrator, Narrators}
@@ -21,11 +21,16 @@ import scala.collection.immutable.Map
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
-class Server(userStore: Users, scribe: Scribe, blobStore: BlobStore, requestUtil: RequestUtil, terminate: () => Unit)(implicit val system: ActorSystem) {
-
-	val pages = new ServerPages(scribe)
-
-	val narratorHint = Evt[(Narrator, Boolean)]()
+class Server(
+	userStore: Users,
+	scribe: Scribe,
+	blobStore: BlobStore,
+	requestUtil: RequestUtil,
+	terminate: () => Unit,
+	narratorHint: Evt[(Narrator, Boolean)],
+	pages: ServerPages,
+	replUtil: ReplUtil,
+	system: ActorSystem) {
 
 	def authenticate(credentials: Option[BasicHttpCredentials]): Option[User] = credentials match {
 		case Some(BasicHttpCredentials(user, password)) =>
@@ -40,14 +45,15 @@ class Server(userStore: Users, scribe: Scribe, blobStore: BlobStore, requestUtil
 	}
 
 
-	def sprayLikeBasicAuth[T](realm: String, authenticator: Option[BasicHttpCredentials] => Option[T]) = extractExecutionContext.flatMap { implicit ec ⇒
-		authenticateOrRejectWithChallenge[BasicHttpCredentials, T] { cred ⇒
-			authenticator(cred) match {
-				case Some(t) ⇒ Future.successful(AuthenticationResult.success(t))
-				case None ⇒ Future.successful(AuthenticationResult.failWithChallenge(HttpChallenges.basic(realm)))
+	def sprayLikeBasicAuth[T](realm: String, authenticator: Option[BasicHttpCredentials] => Option[T]): Directive[Tuple1[T]] =
+		extractExecutionContext.flatMap { implicit ec ⇒
+			authenticateOrRejectWithChallenge[BasicHttpCredentials, T] { cred ⇒
+				authenticator(cred) match {
+					case Some(t) ⇒ Future.successful(AuthenticationResult.success(t))
+					case None ⇒ Future.successful(AuthenticationResult.failWithChallenge(HttpChallenges.basic(realm)))
+				}
 			}
 		}
-	}
 
 	def route: Route = {
 		decodeRequest {
@@ -138,7 +144,7 @@ class Server(userStore: Users, scribe: Scribe, blobStore: BlobStore, requestUtil
 			} ~
 			path("export" / Segment) { (id) =>
 				if (!user.admin) reject
-				else onComplete(Future(new ReplUtil(scribe, blobStore).export(id))) {
+				else onComplete(Future(replUtil.export(id))) {
 					case Success(v) => complete("success")
 					case Failure(e) => complete(e.toString())
 				}
@@ -146,7 +152,7 @@ class Server(userStore: Users, scribe: Scribe, blobStore: BlobStore, requestUtil
 			path("import") {
 				if (!user.admin) reject
 				else parameters(('id.as[String], 'name.as[String], 'path.as[String])) { (id, name, path) =>
-					onComplete(Future(new ReplUtil(scribe, blobStore).importFolder(path, s"Import_$id", name))) {
+					onComplete(Future(replUtil.importFolder(path, s"Import_$id", name))) {
 						case Success(v) => complete("success")
 						case Failure(e) => complete(e.toString())
 					}
@@ -172,5 +178,5 @@ class Server(userStore: Users, scribe: Scribe, blobStore: BlobStore, requestUtil
 				complete(pages.toolsResponse)
 			}
 
-	def rejectNone[T](opt: => Option[T])(route: T => Route) = opt.map {route}.getOrElse(reject)
+	def rejectNone[T](opt: => Option[T])(route: T => Route): Route = opt.map {route}.getOrElse(reject)
 }

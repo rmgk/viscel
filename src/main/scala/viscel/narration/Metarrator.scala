@@ -22,7 +22,7 @@ abstract class Metarrator[T <: Narrator](id: String) {
 	private implicit def r: Decoder[T] = reader
 	private implicit def w: Encoder[T] = writer
 
-	def path = Viscel.metarratorconfigdir.resolve(s"$id.json")
+	def path = Viscel.services.metarratorconfigdir.resolve(s"$id.json")
 	def load(): Set[T] = Json.load[Set[T]](path).fold(x => x, err => {
 		Log.warn(s"could not load $path: $err")
 		Set()

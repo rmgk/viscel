@@ -9,20 +9,21 @@ import io.circe.syntax._
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import viscel.narration.Narrator
-import viscel.scribe.{Article, ArticleRef, Chapter, Link, ReadableContent, Scribe, ScribeBlob, ScribePage, Vurl, WebContent}
+import viscel.scribe.{Article, ArticleRef, Chapter, Link, ReadableContent, ScribeBlob, ScribePage, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.server.ServerPages
 import viscel.shared.{Blob, ChapterPos, Description, Gallery, ImageRef, Log}
 import viscel.store.BlobStore
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
+import scala.collection.mutable
 import scalatags.Text.RawFrag
 import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
 
-class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
-	def mimeToExt(mime: String, default: String = "") = mime match {
+class ReplUtil(services: Services) {
+	def mimeToExt(mime: String, default: String = ""): String = mime match {
 		case "image/jpeg" => "jpg"
 		case "image/gif" => "gif"
 		case "image/png" => "png"
@@ -32,7 +33,7 @@ class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
 
 	def export(id: String): Unit = {
 
-		val pages = new ServerPages(scribe)
+		val pages = new ServerPages(services.scribe)
 
 		val narrationOption = pages.narration(id)
 
@@ -42,7 +43,7 @@ class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
 		}
 
 
-		val p = Viscel.exportdir.resolve(id)
+		val p = services.exportdir.resolve(id)
 		Files.createDirectories(p)
 
 
@@ -64,7 +65,7 @@ class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
 					case (a, apos) =>
 						a.copy(blob = a.blob.map { blob =>
 							val name = f"${apos + 1}%05d.${mimeToExt(blob.mime, default = "bmp")}"
-							Files.copy(blobstore.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
+							Files.copy(services.blobs.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
 							blob.copy(sha1 = s"$cname/$name")
 						})
 				}
@@ -104,7 +105,7 @@ class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
 				if (mimeToExt(mime, default = "") == "") None
 				else {
 					Log.info(s"processing $p")
-					val sha1 = blobstore.write(Files.readAllBytes(p))
+					val sha1 = services.blobs.write(Files.readAllBytes(p))
 					val blob = Blob(sha1, mime)
 					Some(Article(ArticleRef(Vurl.blobPlaceholder(blob), Vurl.blobPlaceholder(blob)), Some(blob)))
 				}
@@ -127,11 +128,36 @@ class ReplUtil(scribe: Scribe, blobstore: BlobStore) {
 			override def archive: List[WebContent] = ???
 			override def wrap(doc: Document, more: Link): Or[List[WebContent], Every[Report]] = ???
 		}
-		val book = scribe.findOrCreate(narrator)
+		val book = services.scribe.findOrCreate(narrator)
 		book.add(ScribePage(Vurl.entrypoint, Vurl.entrypoint, Instant.now(), webcont))
 		blobs.foreach(book.add)
 
 
 	}
+
+
+	def cleanBlobDirectory(): Unit = {
+		Log.info(s"scanning all blobs …")
+		val blobsHashesInDB = services.scribe.allBlobsHashes()
+		Log.info(s"scanning files …")
+		val bsn = new BlobStore(services.basepath.resolve("blobbackup"))
+
+		val seen = mutable.HashSet[String]()
+
+		Files.walk(services.blobdir).iterator().asScala.filter(Files.isRegularFile(_)).foreach { bp =>
+			val sha1path = s"${bp.getName(bp.getNameCount - 2)}${bp.getFileName}"
+			//val sha1 = blobs.sha1hex(Files.readAllBytes(bp))
+			//if (sha1path != sha1) Log.warn(s"$sha1path did not match")
+			seen.add(sha1path)
+			if (!blobsHashesInDB.contains(sha1path)) {
+				val newpath = bsn.hashToPath(sha1path)
+				Log.info(s"moving $bp to $newpath")
+				Files.createDirectories(newpath.getParent)
+				Files.move(bp, newpath)
+			}
+		}
+		blobsHashesInDB.diff(seen).foreach(sha1 => Log.info(s"$sha1 is missing"))
+	}
+
 
 }
