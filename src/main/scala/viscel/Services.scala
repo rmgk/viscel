@@ -42,7 +42,7 @@ class Services(basedirString: String, blobdirString: String, interface: String, 
 	lazy val blobs = new BlobStore(blobdir)
 	lazy val userStore = new Users(usersdir)
 	lazy val scribe = new viscel.scribe.Scribe(scribedir, desciptionCache)
-	lazy val narratorCache: NarratorCache = new NarratorCache(metarratorconfigdir)
+	lazy val narratorCache: NarratorCache = new NarratorCache(metarratorconfigdir, definitionsdir)
 
 
 	/* ====== execution ====== */

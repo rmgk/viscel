@@ -10,10 +10,10 @@ import viscel.shared.Log
 import scala.collection.immutable.{Map, Set}
 import scala.concurrent.Future
 
-class NarratorCache(metaPath: Path) {
+class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
 
-	private def calculateAll(): Set[Narrator] = Narrators.staticV2 ++ loadAll() ++ Vid.load()
+	private def calculateAll(): Set[Narrator] = Narrators.staticV2 ++ loadAll() ++ Vid.loadAll(definitionsdir)
 
 	def updateCache(): Unit = {
 		cached = calculateAll()

@@ -6,7 +6,6 @@ import java.nio.file.{Files, Path}
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
-import viscel.Viscel
 import viscel.narration.Queries._
 import viscel.scribe.{ArticleRef, Link, Vurl, WebContent}
 import viscel.selection.Report
@@ -164,8 +163,7 @@ object Vid {
 		}
 	}
 
-	def load(): List[Narrator] = {
-		val dir = Viscel.services.definitionsdir
+	def loadAll(dir: Path): List[Narrator] = {
 		val dynamic = if (!Files.exists(dir)) Nil
 		else {
 			val paths = Files.newDirectoryStream(dir, "*.vid")

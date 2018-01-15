@@ -6,8 +6,6 @@ import viscel.shared.Log
 
 object Viscel {
 
-	var services: Services = _
-
 	def main(args: Array[String]): Unit = run(args: _*)
 
 	def run(args: String*): Services = {
@@ -19,7 +17,6 @@ object Viscel {
 		}
 
 		val services = new Services(optBasedir(), optBlobdir(), interface(), port())
-		this.services = services
 
 		if (cleanblobs.?) {
 			services.replUtil.cleanBlobDirectory()
