@@ -37,7 +37,7 @@ lazy val Settings = new {
 
 	lazy val common: sbt.Def.SettingsDefinition = Seq(
 
-		version := "7.2.0",
+		version := "7.2",
 		scalaVersion := "2.12.4",
 
 		maxErrors := 10,
