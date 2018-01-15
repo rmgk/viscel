@@ -13,7 +13,7 @@ import rescala.Evt
 import viscel.crawl.{Clockwork, RequestUtil}
 import viscel.narration.Narrator
 import viscel.server.{Server, ServerPages}
-import viscel.store.{BlobStore, DescriptionCache, Users}
+import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
@@ -42,6 +42,7 @@ class Services(basedirString: String, blobdirString: String, interface: String, 
 	lazy val blobs = new BlobStore(blobdir)
 	lazy val userStore = new Users(usersdir)
 	lazy val scribe = new viscel.scribe.Scribe(scribedir, desciptionCache)
+	lazy val narratorCache: NarratorCache = new NarratorCache(metarratorconfigdir)
 
 
 	/* ====== execution ====== */
@@ -64,9 +65,9 @@ class Services(basedirString: String, blobdirString: String, interface: String, 
 
 	/* ====== main webserver ====== */
 
-	lazy val serverPages = new ServerPages(scribe)
+	lazy val serverPages = new ServerPages(scribe, narratorCache)
 	lazy val server = new Server(userStore, scribe, blobs, requests,
-		() => terminateServer(), narrationHint, serverPages, replUtil, system)
+		() => terminateServer(), narrationHint, serverPages, replUtil, system, narratorCache)
 	lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
 		RouteResult.route2HandlerFlow(server.route)(
 			RoutingSettings.default(system),
@@ -87,7 +88,8 @@ class Services(basedirString: String, blobdirString: String, interface: String, 
 
 	/* ====== clockwork ====== */
 
-	lazy val clockwork: Clockwork = new Clockwork(cachedir.resolve("crawl-times.json"), scribe, executionContext, requests, userStore)
+	lazy val clockwork: Clockwork = new Clockwork(cachedir.resolve("crawl-times.json"),
+		scribe, executionContext, requests, userStore, narratorCache)
 
 	def activateNarrationHint() = {
 		narrationHint.observe { case (narrator, force) =>

@@ -11,7 +11,6 @@ import org.scalactic.{Every, Or}
 import viscel.narration.Narrator
 import viscel.scribe.{Article, ArticleRef, Chapter, Link, ReadableContent, ScribeBlob, ScribePage, Vurl, WebContent}
 import viscel.selection.Report
-import viscel.server.ServerPages
 import viscel.shared.{Blob, ChapterPos, Description, Gallery, ImageRef, Log}
 import viscel.store.BlobStore
 
@@ -33,9 +32,7 @@ class ReplUtil(services: Services) {
 
 	def export(id: String): Unit = {
 
-		val pages = new ServerPages(services.scribe)
-
-		val narrationOption = pages.narration(id)
+		val narrationOption = services.serverPages.narration(id)
 
 		if (narrationOption.isEmpty) {
 			Log.warn(s"$id not found")
@@ -75,7 +72,7 @@ class ReplUtil(services: Services) {
 		val assembled = (description, content.copy(Gallery.fromSeq(assetList)))
 
 		val narJson = "var narration = " + assembled.asJson.noSpaces
-		val html = "<!DOCTYPE html>" + pages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
+		val html = "<!DOCTYPE html>" + services.serverPages.makeHtml(script(src := "narration"), script(RawFrag( s"""Viscel().spore("$id", JSON.stringify(narration))""")))
 
 
 		Files.write(p.resolve(s"${description.id}.html"), html.getBytes(StandardCharsets.UTF_8))

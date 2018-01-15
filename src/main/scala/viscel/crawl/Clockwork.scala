@@ -3,10 +3,10 @@ package viscel.crawl
 import java.nio.file.Path
 import java.util.{Timer, TimerTask}
 
-import viscel.narration.{Narrator, Narrators}
+import viscel.narration.Narrator
 import viscel.scribe.Scribe
 import viscel.shared.Log
-import viscel.store.{Json, Users}
+import viscel.store.{Json, NarratorCache, Users}
 
 import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
@@ -14,7 +14,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 
-class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: RequestUtil, userStore: Users) {
+class Clockwork(
+	path: Path,
+	scribe: Scribe,
+	ec: ExecutionContext,
+	requestUtil: RequestUtil,
+	userStore: Users,
+	narratorCache: NarratorCache,
+) {
 
 	val dayInMillis: Long = 24L * 60L * 60L * 1000L
 
@@ -29,7 +36,7 @@ class Clockwork(path: Path, scribe: Scribe, ec: ExecutionContext, requestUtil: R
 		timer.scheduleAtFixedRate(new TimerTask {
 			override def run(): Unit = synchronized {
 				Log.info("schedule updates")
-				val narrators = userStore.allBookmarks().flatMap(Narrators.get)
+				val narrators = userStore.allBookmarks().flatMap(narratorCache.get)
 				//val narrators = List(Narrators.get("NX_Inverloch")).flatten
 				narrators.foreach {runNarrator(_, 7 * dayInMillis)}
 			}

@@ -1,21 +1,33 @@
-package viscel.narration
+package viscel.store
 
 import java.nio.file.Path
 
-import viscel.Viscel
 import viscel.crawl.RequestUtil
-import viscel.narration.narrators._
+import viscel.narration.{Metarrator, Narrator, Narrators, Vid}
 import viscel.scribe.Vurl
 import viscel.shared.Log
-import viscel.store.Json
 
-import scala.collection.Set
+import scala.collection.immutable.{Map, Set}
 import scala.concurrent.Future
 
-object Metarrators {
-	val metas: List[Metarrator[_ <: Narrator]] = MangaHere.MetaCore :: Mangafox.Meta :: Comicfury.Meta :: Nil
+class NarratorCache(metaPath: Path) {
 
-	def cores(): Set[Narrator] = synchronized(metas.iterator.flatMap[Narrator](load(_)).toSet)
+
+	private def calculateAll(): Set[Narrator] = Narrators.staticV2 ++ loadAll() ++ Vid.load()
+
+	def updateCache(): Unit = {
+		cached = calculateAll()
+		narratorMap = all.map(n => n.id -> n).toMap
+	}
+
+	@volatile private var cached: Set[Narrator] = calculateAll()
+	def all: Set[Narrator] = synchronized(cached)
+
+	@volatile private var narratorMap: Map[String, Narrator] = all.map(n => n.id -> n).toMap
+	def get(id: String): Option[Narrator] = narratorMap.get(id)
+
+
+	def loadAll(): Set[Narrator] = synchronized(Narrators.metas.iterator.flatMap[Narrator](load(_)).toSet)
 
 	def add(start: String, requestUtil: RequestUtil): Future[List[Narrator]] = {
 		import requestUtil.ec
@@ -24,13 +36,13 @@ object Metarrators {
 				val nars = metarrator.wrap(res).get
 				synchronized {
 					save(metarrator, nars ++ load(metarrator))
-					Narrators.update()
+					updateCache()
 					nars
 				}
 			}
 
 		try {
-			metas.map(m => (m, m.unapply(start)))
+			Narrators.metas.map(m => (m, m.unapply(start)))
 				.collectFirst { case (m, Some(uri)) => go(m, uri) }
 				.getOrElse(Future.failed(new IllegalArgumentException(s"$start is not handled")))
 
@@ -41,7 +53,7 @@ object Metarrators {
 	}
 
 
-	private def path[T <: Narrator](metarrator: Metarrator[T]): Path = Viscel.services.metarratorconfigdir.resolve(s"${metarrator.id}.json")
+	private def path[T <: Narrator](metarrator: Metarrator[T]): Path = metaPath.resolve(s"${metarrator.id}.json")
 	def load[T <: Narrator](metarrator: Metarrator[T]): Set[T] = {
 		val json = Json.load[Set[T]](path(metarrator))(io.circe.Decoder.decodeTraversable(metarrator.decoder, implicitly))
 		json.fold(x => x, err => {

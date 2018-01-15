@@ -4,18 +4,18 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenges}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{Directive, Route}
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
+import akka.http.scaladsl.server.{Directive, Route}
 import io.circe.generic.auto._
 import org.scalactic.TypeCheckedTripleEquals._
 import rescala.Evt
 import viscel.ReplUtil
 import viscel.crawl.RequestUtil
-import viscel.narration.{Metarrators, Narrator, Narrators}
+import viscel.narration.Narrator
 import viscel.scribe.Scribe
 import viscel.shared.Log
-import viscel.store.{BlobStore, User, Users}
+import viscel.store.{BlobStore, NarratorCache, User, Users}
 
 import scala.collection.immutable.Map
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -30,7 +30,9 @@ class Server(
 	narratorHint: Evt[(Narrator, Boolean)],
 	pages: ServerPages,
 	replUtil: ReplUtil,
-	system: ActorSystem) {
+	system: ActorSystem,
+	narratorCache: NarratorCache,
+) {
 
 	def authenticate(credentials: Option[BasicHttpCredentials]): Option[User] = credentials match {
 		case Some(BasicHttpCredentials(user, password)) =>
@@ -132,7 +134,7 @@ class Server(
 			} ~
 			pathPrefix("hint") {
 				path("narrator" / Segment) { narratorID =>
-					rejectNone(Narrators.get(narratorID)) { nar =>
+					rejectNone(narratorCache.get(narratorID)) { nar =>
 						parameters('force.as[Boolean].?) { force =>
 							complete {
 								narratorHint.fire(nar -> force.getOrElse(false))
@@ -161,7 +163,7 @@ class Server(
 			path("add") {
 				if (!user.admin) reject
 				else parameter('url.as[String]) { url =>
-					onComplete(Metarrators.add(url, requestUtil)) {
+					onComplete(narratorCache.add(url, requestUtil)) {
 						case Success(v) => complete(s"found $v")
 						case Failure(e) => complete {e.getMessage}
 					}
@@ -170,7 +172,7 @@ class Server(
 			path("reload") {
 				if (!user.admin) reject
 				else complete {
-					Narrators.update()
+					narratorCache.updateCache()
 					"done"
 				}
 			} ~

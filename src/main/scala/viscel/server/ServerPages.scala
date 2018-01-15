@@ -3,10 +3,9 @@ package viscel.server
 import akka.http.scaladsl.model._
 import io.circe.Encoder
 import io.circe.syntax._
-import viscel.narration.Narrators
 import viscel.scribe.{Article, ArticleRef, Chapter, ReadableContent, Scribe}
 import viscel.shared.{ChapterPos, Contents, Description, Gallery, ImageRef}
-import viscel.store.User
+import viscel.store.{NarratorCache, User}
 
 import scalatags.Text.attrs.{`type`, action, content, href, rel, src, title, value, name => attrname}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
@@ -14,7 +13,7 @@ import scalatags.Text.tags.{body, br, form, head, html, input, link, meta, scrip
 import scalatags.Text.tags2.section
 import scalatags.Text.{Modifier, TypedTag}
 
-class ServerPages(scribe: Scribe) {
+class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
 
 	def narration(id: String): Option[Contents] = {
 		@scala.annotation.tailrec
@@ -43,7 +42,7 @@ class ServerPages(scribe: Scribe) {
 	def narrations(): Set[Description] = {
 		val books = scribe.allDescriptions()
 		var known = books.map(d => d.id -> d).toMap
-		val nars = Narrators.all.map { n =>
+		val nars = narratorCache.all.map { n =>
 			known.get(n.id) match {
 				case None => Description(n.id, n.name, 0, unknownNarrator = false)
 				case Some(desc) =>
