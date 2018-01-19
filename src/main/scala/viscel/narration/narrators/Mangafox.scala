@@ -5,9 +5,9 @@ import org.jsoup.nodes.Document
 import org.scalactic.Accumulation.withGood
 import org.scalactic.{Every, Or}
 import viscel.narration.Queries._
-import viscel.narration.{Metarrator, Narrator, Queries}
+import viscel.narration.{Contents, Metarrator, Narrator, Queries}
 import viscel.scribe.Vurl.fromString
-import viscel.scribe.{Chapter, Link, Volatile, Vurl, WebContent}
+import viscel.scribe.{Chapter, Link, Volatile, Vurl}
 import viscel.selection.{Report, Selection}
 
 
@@ -17,7 +17,7 @@ object Mangafox {
 
 		override def archive = Link(url, Volatile) :: Nil
 
-		def wrapArchive(doc: Document): List[WebContent] Or Every[Report] = {
+		def wrapArchive(doc: Document): Contents = {
 			Selection(doc).many(".chlist li div:has(.tips):has(.title)").reverse.wrapFlat { chapter =>
 				val title_? = Selection(chapter).unique(".title").getOne.map(_.ownText())
 				val anchorSel = Selection(chapter).unique("a.tips")
@@ -29,7 +29,7 @@ object Mangafox {
 			}
 		}
 
-		def wrap(doc: Document, more: Link): List[WebContent] Or Every[Report] = more match {
+		def wrap(doc: Document, more: Link): Contents = more match {
 			case Link(_, Volatile, _) => wrapArchive(doc)
 			case _ => Queries.queryImageNext("#viewer img", "#top_bar .next_page:not([onclick])")(doc)
 		}

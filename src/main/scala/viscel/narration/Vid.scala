@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
 import org.jsoup.nodes.Document
-import org.scalactic.{Bad, ErrorMessage, Every, Good, Or, attempt}
+import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Queries._
 import viscel.scribe.{ArticleRef, Link, Vurl, WebContent}
 import viscel.selection.Report
@@ -70,7 +70,7 @@ object Vid {
 
 	def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
-		type Wrap = Document => List[WebContent] Or Every[Report]
+		type Wrap = Document => Contents
 		def has(keys: String*): Boolean = keys.forall(attrs.contains)
 		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(augmentBad(_)(AdditionalPosition(lines, _))))
 		def transform(ow: Option[Wrap])(f: List[WebContent] => List[WebContent]): Option[Wrap] = ow.map(_.andThen(_.map(f)))

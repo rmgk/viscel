@@ -6,7 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Queries._
 import viscel.narration.Templates.{ArchivePage, SimpleForward}
-import viscel.narration.{Narrator, Templates}
+import viscel.narration.{Contents, Narrator, Templates}
 import viscel.scribe.Vurl.fromString
 import viscel.scribe.{ArticleRef, Chapter, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
@@ -38,7 +38,7 @@ object Individual {
 			Selection(doc).many("#candimidd > table > tbody > tr > td:nth-child(2n) a").wrapFlat {elementIntoChapterPointer}
 
 
-		def wrap(doc: Document, more: Link): List[WebContent] Or Every[Report] = more match {
+		def wrap(doc: Document, more: Link): Contents = more match {
 			case Link(_, Volatile, "archive" :: Nil) => wrapArchive(doc)
 			case Link(_, Volatile, Nil) => wrapVolume(doc)
 			case _ => queryImageNext("#comicplace > span > img", "#comicnav a:has(img#next_day2)")(doc)
@@ -65,7 +65,7 @@ object Individual {
 		override def id: String = "NX_Inverloch"
 		override def name: String = "Inverloch"
 		override def archive: List[WebContent] = Range.inclusive(1, 5).map(i => Link(s"http://inverloch.seraph-inn.com/volume$i.html", Normal, "archive" :: Nil)).toList
-		override def wrap(doc: Document, more: Link): List[WebContent] Or Every[Report] = more match {
+		override def wrap(doc: Document, more: Link): Contents = more match {
 			case Link(_, _, "archive" :: Nil) => Selection(doc).many("#main p:containsOwn(Chapter)").wrapFlat { chap =>
 				cons(
 					extract(Chapter(chap.ownText())),
