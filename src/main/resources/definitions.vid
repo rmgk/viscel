@@ -344,7 +344,7 @@ http://www.amyachronicles.com/archives/comic/09292009
 
 -:Lost Nightmare
 http://www.lostnightmare.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:The End
@@ -374,7 +374,7 @@ http://www.lovenotfound.com/comic/archive
 
 -:Alice and the Nightmare
 http://www.aliceandthenightmare.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Hijinks Ensue Classic
@@ -391,7 +391,7 @@ http://hijinksensue.com/comic/learning-to-love-again/
 
 -:Headless Bliss
 http://www.headlessbliss.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Platinum Black
@@ -418,7 +418,7 @@ http://www.whompcomic.com/2010/06/14/06142010/
 
 -:Parallax
 http://www.parallaxcomic.com/comic/archive
-:ac .cc-chapterrow a[href~=comic/page]
+:ac .cc-storyline-header a[href~=comic/page]
 :ia #cc-comic
 
 -:The Lonely Vincent Bellingham
@@ -442,17 +442,17 @@ http://www.marecomic.com/archive/
 
 -:The Mash
 http://www.mashcomic.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Metacarpolis
 http://www.metacarpolis.com/metacarpolis/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Cassiopeia Quinn
 http://www.cassiopeiaquinn.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Harpy Gee
@@ -510,7 +510,7 @@ http://helvetica.jnwiedle.com/2011/06/24/and-so-it-begins/
 
 -:Tove
 http://www.tovecomic.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Blindsprings
@@ -526,7 +526,7 @@ http://www.last-halloween.com/posts
 
 -:Kiwi Blitz
 http://www.kiwiblitz.com/comic/archive/
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -: Agents of the Realms
@@ -561,7 +561,7 @@ http://www.paranatural.net/comics/archive
 
 -:Blaster Nation
 http://www.blasternation.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 
@@ -609,12 +609,12 @@ http://www.crazysunshine.com/comic/apocalypse-now/
 
 -:Wonderlust
 http://www.wonderlustcomic.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Prague Race
 http://www.praguerace.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Sister Claire
@@ -641,12 +641,12 @@ http://www.boywhofell.com/comic/archive
 
 -:Monsterkind
 http://monsterkind.enenkay.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -GoGetARoomie:Go Get a Roomie!
 http://www.gogetaroomie.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header [href]
 :ia #cc-comic
 
 -:Supernormal Step
