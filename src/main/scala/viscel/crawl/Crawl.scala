@@ -70,7 +70,12 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	def handleLink(link: Link): Unit = {
 		requestAndWrap(link).onComplete {
 			case Success(Bad(reports)) =>
-				Log.error(s"$narrator failed on $link: ${reports.map {_.describe}}")
+				Log.error(
+					s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+						|$narrator
+						|  failed on ${link.ref.uriString()} (${link.policy}${if (link.data.nonEmpty) s", ${link.data}" else ""}):
+						|  ${reports.map {_.describe}.mkString("\n  ")}
+						|↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
 				promise.success(false)
 			case Success(Good(page)) =>
 				addContents(page.contents)

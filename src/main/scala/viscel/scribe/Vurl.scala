@@ -16,7 +16,6 @@ import scala.language.implicitConversions
 	* Yes, this is because [[akka.http.scaladsl.model.Uri]] string parsing did not always work as expected,
 	* and [[java.net.URL]] is more stable. */
 final class Vurl private(val uri: Uri) extends AnyVal {
-	override def toString: String = s" $uri "
 	def uriString(): String = uri.toString()
 }
 

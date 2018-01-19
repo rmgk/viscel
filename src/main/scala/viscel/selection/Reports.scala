@@ -34,7 +34,7 @@ trait Stack {
 class FixedReport(override val describe: String) extends Report
 
 case class FailedElement(query: String, reason: Report, element: Element*) extends Report with Stack {
-	override def describe: String = s"failed '$query' at ($position) because $reason on <${element map show mkString "; "}>"
+	override def describe: String = s"${reason.describe}: '$query' on <${element map show mkString "; "}> at ($position)"
 }
 
 case object QueryNotUnique extends FixedReport("query is not unique")
