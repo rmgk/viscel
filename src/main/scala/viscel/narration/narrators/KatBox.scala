@@ -11,8 +11,29 @@ import scala.collection.immutable.Set
 
 object KatBox {
 
-	val cores: Set[Narrator] = Set(
-		("laslindas", "Las Lindas!", Some[Vurl]("http://laslindas.katbox.net/las-lindas/"))
+	val cores: Set[Narrator] = Set[(String, String, Option[Vurl])](
+		("addictivescience", "Addictive Science", None),
+		("ai", "Artificial Incident", None),
+		("cblue", "Caribbean Blue", None),
+		("desertfox", "Desert Fox", None),
+		("dmfa", "DMFA", None),
+		("draconia", "Draconia Chronicles", None),
+		("falsestart", "False Start", None),
+		("iba", "Itsy Bitsy Adventures", None),
+		("imew", "iMew", None),
+		("laslindas", "Las Lindas!", Some[Vurl]("http://laslindas.katbox.net/las-lindas/")),
+		("rixie", "Debunkers", None),
+		("oasis", "Oasis", None),
+		("ourworld", "Our World", None),
+		("paprika", "Paprika", None),
+		("peterandcompany", "Peter and Company", None),
+		("peterandwhitney", "Peter and Whitney", None),
+		("pmp", "Practice Makes Perfect", None),
+		("rascals", "Rascals", None),
+		("theeye", "The Eye of Ramalach", None),
+		("tinaofthesouth", "Tina of the South", None),
+		("uberquest", "Uber Quest", None),
+		("yosh", "Yosh!", None),
 	).map { case (_id, _name, _url) =>
 		new Narrator {
 			override def id: String = s"KatBox_${_id}"
@@ -36,37 +57,4 @@ object KatBox {
 			}
 		}
 	}
-
-//	val cores: Set[Narrator] = Set(
-//		("addictivescience", "Addictive Science"),
-//		("ai", "Artificial Incident"),
-//		("anthronauts", "Anthronauts!"),
-//		("cblue", "Caribbean Blue!"),
-//		("desertfox", "Desert Fox"),
-//		("dmfa", "DMFA!"),
-//		("draconia", "Draconia Chronicles!"),
-//		("falsestart", "False Start"),
-//		("iba", "Itsy Bitsy Adventures"),
-//		("imew", "iMew!"),
-//		("knuckleup", "KnuckleUp!"),
-//		("laslindas", "Las Lindas!"),
-//		("mousechievous", "Mousechievous"),
-//		("ourworld", "Our World!"),
-//		("paprika", "Paprika"),
-//		("peterandcompany", "Peter & Company"),
-//		("peterandwhitney", "Peter & Whitney"),
-//		("pmp", "Practice makes Perfect"),
-//		("projectzero", "Project Zero!"),
-//		("rascals", "Rascals!"),
-//		("swashbuckled", "Swashbuckled!"),
-//		("theeye", "The Eye of Ramalach!"),
-//		("tinaofthesouth", "Tina of the South!"),
-//		("uberquest", "UberQuest!"),
-//		("yosh", "Yosh!")
-//	).map { case (id, name) =>
-//		Templates.ArchivePage(s"KatBox_$id", s"[KB] $name", s"http://$id.katbox.net/archive/",
-//			Selection(_).many("[rel=bookmark]").wrapEach(extractMore).map {_.reverse},
-//			queryImages(".webcomic-image img")
-//		)
-//	}
 }
