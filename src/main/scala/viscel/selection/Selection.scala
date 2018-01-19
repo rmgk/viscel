@@ -41,14 +41,14 @@ object Selection {
 
 case class GoodSelection(elements: List[Element]) extends Selection {
 
-	def validateQuery[R](query: String)(validate: Elements => R Or Report): List[R] Or Every[Report] = {
+	def queryAndValidate[R](query: String)(validate: Elements => R Or Report): List[R] Or Every[Report] = {
 		elements.validatedBy { element =>
 			validate(element.select(query.trim)).badMap {FailedElement(query, _, element)}.accumulating
 		}
 	}
 
 	override def unique(query: String): Selection = {
-		validateQuery(query) {
+		queryAndValidate(query) {
 			case rs if rs.size > 1 => Bad(QueryNotUnique)
 			case rs if rs.size < 1 => Bad(QueryNotMatch)
 			case rs => Good(rs.get(0))
@@ -56,19 +56,19 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 	}
 
 	override def many(query: String): Selection = {
-		validateQuery(query) {
+		queryAndValidate(query) {
 			case rs if rs.size < 1 => Bad(QueryNotMatch)
 			case rs => Good(rs.asScala.toList)
 		}.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
 
 	override def all(query: String): Selection = {
-		validateQuery(query) { rs => Good(rs.asScala.toList) }
+		queryAndValidate(query) { rs => Good(rs.asScala.toList) }
 			.fold(good => GoodSelection(good.flatten), BadSelection)
 	}
 
 	override def optional(query: String): Selection = {
-		validateQuery(query) {
+		queryAndValidate(query) {
 			case rs if rs.size > 1 => Bad(QueryNotUnique)
 			case rs => Good(rs.asScala.toList)
 		}.fold(good => GoodSelection(good.flatten), BadSelection)
@@ -76,7 +76,7 @@ case class GoodSelection(elements: List[Element]) extends Selection {
 
 	/** selects the first matching element */
 	override def first(query: String): Selection = {
-		validateQuery(query) {
+		queryAndValidate(query) {
 			case rs if rs.size < 1 => Bad(QueryNotMatch)
 			case rs => Good(rs.get(0))
 		}.fold(GoodSelection, BadSelection)
