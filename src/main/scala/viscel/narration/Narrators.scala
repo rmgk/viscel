@@ -13,7 +13,7 @@ object Narrators {
 			CloneManga.cores ++
 			Set(Candi, Flipside, Inverloch, JayNaylor.BetterDays, JayNaylor.OriginalLife,
 				Misfile, NamirDeiter, YouSayItFirst,
-				UnlikeMinerva)
+				UnlikeMinerva, DynastyScans.Citrus)
 
 	val metas: List[Metarrator[_ <: Narrator]] = MangaHere.MetaCore :: Mangafox.Meta :: Comicfury.Meta :: Nil
 
