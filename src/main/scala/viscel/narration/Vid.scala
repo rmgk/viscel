@@ -23,7 +23,7 @@ object Vid {
 	type It = BufferedIterator[Line]
 
 	val extractIDAndName: Regex = """^-(\w*):(.+)$""".r
-	val extractAttribute: Regex = """^:(\w+)\s*(.*)$""".r
+	val extractAttribute: Regex = """^:(\S+)\s*(.*)$""".r
 
 	def parseURL(it: It): Vurl Or ErrorMessage = {
 		val Line(url, pos) = it.next()
@@ -31,7 +31,7 @@ object Vid {
 	}
 
 	val attributeReplacements = Map(
-		"ia" -> "imageNext",
+		"ia" -> "image+next",
 		"i" -> "image",
 		"is" -> "images",
 		"n" -> "next",
@@ -76,7 +76,7 @@ object Vid {
 		def transform(ow: Option[Wrap])(f: List[WebContent] => List[WebContent]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
 
 		val pageFun: Option[Wrap] = attrs match {
-			case extract"imageNext $img" => annotate(queryImageInAnchor(img.s), img)
+			case extract"image+next $img" => annotate(queryImageInAnchor(img.s), img)
 
 			case extract"image $img next $next" => annotate(queryImageNext(img.s, next.s), img, next)
 
