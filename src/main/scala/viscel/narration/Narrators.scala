@@ -15,6 +15,6 @@ object Narrators {
 				Misfile, NamirDeiter, YouSayItFirst,
 				UnlikeMinerva, DynastyScans.Citrus)
 
-	val metas: List[Metarrator[_ <: Narrator]] = MangaHere.MetaCore :: Mangafox.Meta :: Comicfury.Meta :: Nil
+	val metas: List[Metarrator[_ <: Narrator]] = MangaHere.MetaCore :: Comicfury.Meta :: Nil
 
 }

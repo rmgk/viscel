@@ -64,15 +64,15 @@ object Vid {
 		}
 	}
 
-	case class AdditionalPosition(lines: Seq[Line], annotated: Report) extends Report {
-		override def describe: String = s"${annotated.describe} at lines '${lines.map(_.p)}'"
+	case class AdditionalPosition(lines: Seq[Line], path: String)(annotated: Report) extends Report {
+		override def describe: String = s"${annotated.describe} in $path lines [${lines.map(_.p).mkString(", ")}]"
 	}
 
-	def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line]): Narrator Or ErrorMessage = {
+	def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): Narrator Or ErrorMessage = {
 		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
 		type Wrap = Document => Contents
 		def has(keys: String*): Boolean = keys.forall(attrs.contains)
-		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(augmentBad(_)(AdditionalPosition(lines, _))))
+		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(augmentBad(_)(AdditionalPosition(lines, path))))
 		def transform(ow: Option[Wrap])(f: List[WebContent] => List[WebContent]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
 
 		val pageFun: Option[Wrap] = attrs match {
@@ -127,26 +127,26 @@ object Vid {
 	}
 
 
-	def parseNarration(it: It): Narrator Or ErrorMessage = {
+	def parseNarration(it: It, path: String): Narrator Or ErrorMessage = {
 		it.next() match {
 			case Line(extractIDAndName(id, name), pos) =>
 				parseURL(it).flatMap { url =>
 					val attrs = parseAttributes(it, Map())
-					makeNarrator(id, name, pos, url, attrs)
+					makeNarrator(id, name, pos, url, attrs, path)
 				}
 
 			case Line(line, pos) => Bad(s"expected definition at line $pos, but found $line")
 		}
 	}
 
-	def parse(lines: Iterator[String]): List[Narrator] Or ErrorMessage = {
+	def parse(lines: Iterator[String], path: String): List[Narrator] Or ErrorMessage = {
 		val preprocessed = lines.map(_.trim).zipWithIndex.map(p => Line(p._1, p._2 + 1)).filter(l => l.s.nonEmpty && !l.s.startsWith("--")).buffered
 		def go(it: It, acc: List[Narrator]): List[Narrator] Or ErrorMessage =
 			if (!it.hasNext) {
 				Good(acc)
 			}
 			else {
-				parseNarration(it) match {
+				parseNarration(it, path) match {
 					case Good(n) => go(it, n :: acc)
 					case Bad(e) => Bad(e)
 				}
@@ -154,12 +154,12 @@ object Vid {
 		go(preprocessed, Nil)
 	}
 
-	def load(p: Path): List[Narrator] = {
-		Log.info(s"parsing definitions from $p")
-		parse(Files.lines(p, StandardCharsets.UTF_8).iterator().asScala) match {
+	def load(path: Path): List[Narrator] = {
+		Log.info(s"parsing definitions from $path")
+		parse(Files.lines(path, StandardCharsets.UTF_8).iterator().asScala, path.toString) match {
 			case Good(res) => res
 			case Bad(err) =>
-				Log.warn(s"failed to parse $p errors: $err")
+				Log.warn(s"failed to parse $path errors: $err")
 				Nil
 		}
 	}
@@ -173,7 +173,7 @@ object Vid {
 
 		val stream = new BufferedReader(new InputStreamReader(getClass.getClassLoader.getResourceAsStream("definitions.vid"), StandardCharsets.UTF_8)).lines()
 		val res = try {
-			parse(stream.iterator().asScala) match {
+			parse(stream.iterator().asScala, "definitions.vid") match {
 				case Good(g) => g
 				case Bad(err) =>
 					Log.warn(s"failed to parse definitions.vid errors: $err")
