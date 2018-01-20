@@ -24,7 +24,10 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 	val timeout = FiniteDuration(300, SECONDS)
 
 	def getResponse(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
-		Log.info(s"request ${request.uri} (${request.header[Referer]})")
+		{
+			val referer = request.header[Referer]
+			Log.info(s"request ${request.uri}" + referer.fold("")(r => s" ($r)"))
+		}
 		ioHttp.singleRequest(request)
 			.flatMap(_.toStrict(timeout))
 			.flatMap { res =>
