@@ -20,11 +20,6 @@ http://bearversuszombies.smackjeeves.com/comics/507662/chapter-1/
 :i #comic_image
 :n #content a[title=Next Page]
 
--:Alpha Luna
-http://www.alphaluna.net/archive/
-:am #page > div.content > div > h2 , #page > div.content > div > ul > li > a
-:i #comic img
-
 -:Bardsworth
 http://www.bardsworth.com/?comic=brain
 :ia #comic img
@@ -677,11 +672,6 @@ http://www.lesserkeystudios.com/ianua/page-1/
 :i #art > p:nth-child(4) > img
 :n #art > p:nth-child(3) > a:contains(Next)
 
--:Bloop
-http://jhallcomics.com/Bloop/7204
-:i #comic-container > img
-:n a:has(img[alt=forward])
-
 -:Gaia
 http://www.sandraandwoo.com/gaia/archive/
 :am #column > div.post-page h3 , #column > div.post-page .archive-title a[rel=bookmark]
@@ -857,7 +847,7 @@ http://www.ma3comic.com/strips-ma3/For_New_Readers
 http://www.magickchicks.com/strips-mc/tis_but_a_trifle
 :image+next #cc-comic
 -- skip some broken pages
-:url_replace http://www.magickchicks.com/strips-mc/Illustration_special_by_Shouri ::: http://www.magickchicks.com/strips-mc/You_backstabbing_coward ::: http://www.magickchicks.com/strips-mc/Holiday_Special_Guest_Strip_by_Maritza_and_Bachan ::: http://www.magickchicks.com/strips-mc/Regain_your_energy ::: http://www.magickchicks.com/strips-mc/mc20120413a ::: http://www.magickchicks.com/strips-mc/Watch_your_buns ::: http://www.magickchicks.com/strips-mc/My_tum_tum ::: http://www.magickchicks.com/strips-mc/Holy_moley
+:url_replace http://www.magickchicks.com/strips-mc/Illustration_special_by_Shouri ::: http://www.magickchicks.com/strips-mc/You_backstabbing_coward ::: http://www.magickchicks.com/strips-mc/Holiday_Special_Guest_Strip_by_Maritza_and_Bachan ::: http://www.magickchicks.com/strips-mc/Regain_your_energy ::: http://www.magickchicks.com/strips-mc/mc20120413a ::: http://www.magickchicks.com/strips-mc/Watch_your_buns ::: http://www.magickchicks.com/strips-mc/My_tum_tum ::: http://www.magickchicks.com/strips-mc/Holy_moley ::: http://www.magickchicks.com/strips-mc/dc20121220 ::: http://www.magickchicks.com/strips-mc/Wildly_out_of_character
 
 
 
@@ -903,3 +893,14 @@ http://www.magickchicks.com/strips-mc/tis_but_a_trifle
 -- -Xylia:Xylia Tales
 -- http://xyliatales.com/?comic_id=0
 -- :ia #comic  img[src~=comics/\d{8}]
+
+-- -:Alpha Luna
+-- http://www.alphaluna.net/archive/
+-- :am #page > div.content > div > h2 , #page > div.content > div > ul > li > a
+-- :i #comic img
+
+-- technically not dead … but the page layout is super weird and I do not care enough to fix
+-- -:Bloop
+-- https://www.jhallcomics.com/bloop/2017/10/27/boop-boop-boop
+-- :i div.image-block-wrapper noscript img
+-- :n a:has(img[alt=forward])
