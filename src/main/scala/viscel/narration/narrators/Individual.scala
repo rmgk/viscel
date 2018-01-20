@@ -186,7 +186,7 @@ object Individual {
 	val inlineCores = Set(
 		ArchivePage("NX_Twokinds", "Twokinds", "http://twokinds.keenspot.com/archive/",
 			queryMixedArchive("#content .chapter h2 , #content .chapter-links a"),
-			queryImage("#content article.comic img")
+			queryImage("#content article.comic img[alt=Comic Page]")
 		),
 		ArchivePage("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
 			doc => Selection(doc).unique("#content_post").many(".c_arch:has(div.a_2)").wrapFlat { chap =>

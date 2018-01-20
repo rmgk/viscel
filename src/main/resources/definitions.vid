@@ -219,9 +219,6 @@ http://wintersinlavelle.com/
 :ac #sidenav > ul > li:gt(0) > a
 :ia #comicimg
 
--Xylia:Xylia Tales
-http://xyliatales.com/?comic_id=0
-:ia #comic  img[src~=comics/\d{8}]
 
 -:Yet Another Fantasy Gamer Comic
 http://yafgc.net/archive/
@@ -517,7 +514,8 @@ http://www.tovecomic.com/comic/archive
 http://www.blindsprings.com/comic/blindsprings-cover-book-one
 -- has an archive page here http://blindsprings.com/archive
 -- but that is in a weird order
-:ia #cc-comic
+:image #cc-comic
+:next .cc-nav .cc-next
 
 -:Last Halloween
 http://www.last-halloween.com/posts
@@ -651,7 +649,7 @@ http://www.gogetaroomie.com/comic/archive
 
 -:Supernormal Step
 http://www.supernormalstep.com/archives/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Awaken
@@ -902,3 +900,7 @@ http://www.magickchicks.com/strips-mc/tis_but_a_trifle
 -- -:Dracula Everlasting
 -- http://www.draculaeverlasting.com/strips-de/abraham_van_helsing_journal_i
 -- :ia #comic > a:nth-child(2) > img
+
+-- -Xylia:Xylia Tales
+-- http://xyliatales.com/?comic_id=0
+-- :ia #comic  img[src~=comics/\d{8}]

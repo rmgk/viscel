@@ -18,7 +18,7 @@ object KatBox {
 		("desertfox", "Desert Fox", None),
 		("dmfa", "DMFA", None),
 		("draconia", "Draconia Chronicles", None),
-		("falsestart", "False Start", None),
+		//("falsestart", "False Start", None), // requires age check
 		("iba", "Itsy Bitsy Adventures", None),
 		("imew", "iMew", None),
 		("laslindas", "Las Lindas!", Some[Vurl]("http://laslindas.katbox.net/las-lindas/")),
