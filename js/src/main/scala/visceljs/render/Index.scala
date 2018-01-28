@@ -49,8 +49,8 @@ object Index {
 
 			val filteredAvailable = inputQuery.map { query => SearchUtil.search(query, available.map(n => n._1.name -> n)) }
 
-			val firstSelected: Signal[Option[Description]] = Signals.lift(filteredHasNewPages, filteredIsCurrent, filteredAvailable) {
-				(n, c, a) => n.headOption.orElse(c.headOption).orElse(a.headOption).map(_._1)
+			val firstSelected: Signal[Option[Description]] = Signal {
+				filteredHasNewPages().headOption.orElse(filteredIsCurrent().headOption).orElse(filteredAvailable().headOption).map(_._1)
 			}
 
 			val callback: Signal[() => Boolean] = firstSelected map {sel => {() => sel.foreach(gotoFront(_)); false} }

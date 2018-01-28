@@ -44,7 +44,7 @@ object ViscelJS {
 	val triggerDispatch: Evt[Unit] = Evt[Unit]
 	triggerDispatch.observe(_ => Actions.dispatchPath(dom.window.location.hash.substring(1)))
 	dom.window.onhashchange = { (ev: HashChangeEvent) =>
-		triggerDispatch(())
+		triggerDispatch.fire()
 	}
 
 	def content(nar: Description): Signal[Contents] = {
@@ -106,7 +106,7 @@ object ViscelJS {
 
 	def main(args: Array[String]): Unit = {
 		setBody(Body(frag = div("loading data …")), scrolltop = true)
-		triggerDispatch(())
+		triggerDispatch.fire()
 	}
 
 //	@JSExport(name = "spore")

@@ -113,7 +113,7 @@ lazy val Libraries = new {
 
 	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags)
 
-	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, jline, jopt, scalactic, jsoup, rescala)
+	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, jline, jopt, scalactic, jsoup, rescala, decline)
 
 	lazy val js: Def.SettingsDefinition = Seq(scalajsdom, rescala, rescalatags)
 
@@ -125,20 +125,22 @@ lazy val Libraries = new {
 
 	val jopt = libraryDependencies += "net.sf.jopt-simple" % "jopt-simple" % "5.0.4"
 
+	val decline = libraryDependencies += "com.monovore" %% "decline" % "0.4.1"
+
 	val scalactic = libraryDependencies +=("org.scalactic" %% "scalactic" % "3.0.4" exclude("org.scala-lang", "scala-reflect"))
 
 	val scalatags = libraryDependencies +=("com.lihaoyi" %%% "scalatags" % "0.6.7" )
 
 	val scalajsdom = libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.4"
 
-	val rescala = libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.20.0"
-	val rescalatags = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % "0.20.0"
+	val rescala = libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.21.0"
+	val rescalatags = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % "0.21.0"
 
 	val circe = libraryDependencies ++= Seq(
 		"io.circe" %%% "circe-core",
 		"io.circe" %%% "circe-generic",
 		"io.circe" %%% "circe-generic-extras",
 		"io.circe" %%% "circe-parser"
-	).map(_ % "0.9.0")
+	).map(_ % "0.9.1")
 
 }

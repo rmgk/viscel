@@ -16,7 +16,7 @@ object Actions {
 
 	val viewE = Evt[View.Navigate]
 	val viewDispatchS = Var.empty[(String, Int)]
-	val viewDispatchChangeE = Signal {
+	val viewDispatchChangeE = Signal.dynamic {
 		val nars = ViscelJS.descriptions()
 		val (id, pos) =  viewDispatchS()
 		val nar = nars.getOrElse(id, throw EmptySignalControlThrowable)
@@ -27,7 +27,7 @@ object Actions {
 	viewDispatchChangeE.observe(_ => viewDispatchS.setEmpty())
 
 	val frontS = Var.empty[String]
-	val frontData = Signal {
+	val frontData = Signal.dynamic {
 		val id = frontS()
 		val description = ViscelJS.descriptions()(id)
 		val bm = ViscelJS.bookmarks().getOrElse(id, 0)
