@@ -1,6 +1,6 @@
 package viscel
 
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.ActorSystem
@@ -17,7 +17,7 @@ import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
-class Services(basedirString: String, blobdirString: String, interface: String, port: Int) {
+class Services(relativeBasedir: Path, relativeBlobdir: Path, interface: String, port: Int) {
 
 
 	/* ====== paths ====== */
@@ -26,8 +26,8 @@ class Services(basedirString: String, blobdirString: String, interface: String, 
 		Files.createDirectories(p)
 		p
 	}
-	val basepath: Path = Paths.get(basedirString)
-	val blobdir: Path = basepath.resolve(blobdirString)
+	val basepath: Path = relativeBasedir.toAbsolutePath
+	val blobdir: Path = basepath.resolve(relativeBlobdir)
 	lazy val scribedir: Path = create(basepath.resolve("db3"))
 	lazy val cachedir: Path = create(basepath.resolve("cache"))
 	val metarratorconfigdir: Path = basepath.resolve("metarrators")

@@ -113,7 +113,7 @@ lazy val Libraries = new {
 
 	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags)
 
-	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, jline, jopt, scalactic, jsoup, rescala, decline)
+	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, jline, scalactic, jsoup, rescala, decline)
 
 	lazy val js: Def.SettingsDefinition = Seq(scalajsdom, rescala, rescalatags)
 
@@ -122,8 +122,6 @@ lazy val Libraries = new {
 	val akkaHTTP = libraryDependencies ++= Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.11")
 
 	val jline = libraryDependencies += "jline" % "jline" % "2.14.5"
-
-	val jopt = libraryDependencies += "net.sf.jopt-simple" % "jopt-simple" % "5.0.4"
 
 	val decline = libraryDependencies += "com.monovore" %% "decline" % "0.4.1"
 
