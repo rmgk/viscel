@@ -11,7 +11,7 @@ import scala.language.implicitConversions
 
 /** Abstraction over possible representation for URLs.
 	* Url handling is more complicated than it looks, we currently represent them internally as [[akka.http.scaladsl.model.Uri]],
-	* mostly because [[viscel.crawl.RequestUtil]] can direcly use them.
+	* mostly because [[viscel.crawl.RequestUtil]] can directly use them.
 	* Note that we do use [[java.net.URL]] to parse strings and then convert them manually.
 	* Yes, this is because [[akka.http.scaladsl.model.Uri]] string parsing did not always work as expected,
 	* and [[java.net.URL]] is more stable. */
@@ -53,4 +53,5 @@ object Vurl {
 
 	val entrypoint: Vurl = new Vurl(Uri(scheme = "viscel", path = Path("/initial")))
 	def blobPlaceholder(blob: Blob) = new Vurl(Uri(scheme = "viscel", path = Path(s"/sha1/${blob.sha1}")))
+
 }

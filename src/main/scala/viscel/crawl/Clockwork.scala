@@ -37,7 +37,6 @@ class Clockwork(
 			override def run(): Unit = synchronized {
 				Log.info("schedule updates")
 				val narrators = userStore.allBookmarks().flatMap(narratorCache.get)
-				//val narrators = List(Narrators.get("NX_Inverloch")).flatten
 				narrators.foreach {runNarrator(_, 7 * dayInMillis)}
 			}
 		}, delay, period)
