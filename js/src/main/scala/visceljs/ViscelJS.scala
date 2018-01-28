@@ -1,6 +1,8 @@
 package visceljs
 
 import io.circe.Decoder
+import io.circe.generic.auto._
+import io.circe.parser.decode
 import org.scalajs.dom
 import org.scalajs.dom.raw.HashChangeEvent
 import rescala.{ Observe, Evt, Signal, Signals, Var}
@@ -13,9 +15,6 @@ import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.URIUtils.encodeURIComponent
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.div
-import io.circe.parser.decode
-
-import io.circe.generic.auto._
 
 
 object ViscelJS {
@@ -33,7 +32,7 @@ object ViscelJS {
 			res
 		}
 
-	implicit val readAssets: Decoder[List[ImageRef]] = Predef.implicitly[Decoder[List[ImageRef]]]
+	implicit val readAssets: Decoder[List[SharedImage]] = Predef.implicitly[Decoder[List[SharedImage]]]
 
 	val bookmarkSource: Var[Signal[Map[String, Int]] ] = Var(Signals.fromFuture(ajax[Map[String, Int]]("bookmarks")))
 	val bookmarks: Signal[Map[String, Int]] = bookmarkSource.flatten

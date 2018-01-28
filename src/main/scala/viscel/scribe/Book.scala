@@ -16,8 +16,8 @@ import scala.collection.mutable.ArrayBuffer
 class Book private(
 	path: Path,
 	descriptionCache: DescriptionCache,
-	pageMap: mutable.Map[Vurl, ScribePage],
-	blobMap: mutable.Map[Vurl, ScribeBlob],
+	pageMap: mutable.Map[Vurl, PageData],
+	blobMap: mutable.Map[Vurl, BlobData],
 	entries: ArrayBuffer[ScribeDataRow],
 ) {
 
@@ -26,17 +26,17 @@ class Book private(
 		if (index < 0 || entries(index).differentContent(entry)) {
 			Files.write(path, List(entry.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
 			entry match {
-				case alp@ScribePage(il, _, _, _) =>
+				case alp@PageData(il, _, _, _) =>
 					pageMap.put(il, alp)
-					descriptionCache.updateSize(id, alp.articleCount - (if (index < 0) 0 else entries(index).asInstanceOf[ScribePage].articleCount))
-				case alb@ScribeBlob(il, _, _, _) => blobMap.put(il, alb)
+					descriptionCache.updateSize(id, alp.articleCount - (if (index < 0) 0 else entries(index).asInstanceOf[PageData].articleCount))
+				case alb@BlobData(il, _, _, _) => blobMap.put(il, alb)
 			}
 			if (index >= 0) entries.remove(index)
 			entries += entry
 		}
 	}
 
-	def beginning: Option[ScribePage] = pageMap.get(Vurl.entrypoint)
+	def beginning: Option[PageData] = pageMap.get(Vurl.entrypoint)
 	def hasPage(ref: Vurl): Boolean = pageMap.contains(ref)
 	def hasBlob(ref: Vurl): Boolean = blobMap.contains(ref)
 
@@ -45,14 +45,14 @@ class Book private(
 		Files.write(path, entries.map(entry => entry.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
 	}
 
-	def emptyArticles(): List[ArticleRef] = entries.collect {
-		case ScribePage(ref, _, _, contents) => contents
+	def emptyArticles(): List[ImageRef] = entries.collect {
+		case PageData(ref, _, _, contents) => contents
 	}.flatten.collect {
-		case art@ArticleRef(ref, _, _) if !blobMap.contains(ref) => art
+		case art@ImageRef(ref, _, _) if !blobMap.contains(ref) => art
 	}.toList
 
 	def volatileAndEmptyLinks(): List[Link] = entries.collect {
-		case ScribePage(ref, _, _, contents) => contents
+		case PageData(ref, _, _, contents) => contents
 	}.flatten.collect {
 		case link@Link(ref, Volatile, _) => link
 		case link@Link(ref, _, _) if !pageMap.contains(ref) => link
@@ -63,7 +63,7 @@ class Book private(
 		case _ => false
 	}
 
-	def allBlobs(): Iterator[ScribeBlob] = entries.iterator.collect { case sb@ScribeBlob(_, _, _, _) => sb }
+	def allBlobs(): Iterator[BlobData] = entries.iterator.collect { case sb@BlobData(_, _, _, _) => sb }
 
 	lazy val name: String = io.circe.parser.decode[String](Files.lines(path).findFirst().get()).toTry.get
 
@@ -74,7 +74,7 @@ class Book private(
 		val seen = mutable.HashSet[Vurl]()
 
 		@scala.annotation.tailrec
-		def rightmost(remaining: ScribePage, acc: List[Link]): List[Link] = {
+		def rightmost(remaining: PageData, acc: List[Link]): List[Link] = {
 			val next = remaining.contents.reverseIterator.find {
 				case Link(loc, _, _) if seen.add(loc) => true
 				case _ => false
@@ -126,7 +126,7 @@ class Book private(
 							case None => flatten(t, acc)
 							case Some(alp) => flatten(unseen(alp.contents) reverse_::: t, acc)
 						}
-					case art@ArticleRef(ref, origin, data) =>
+					case art@ImageRef(ref, origin, data) =>
 						val blob = blobMap.get(ref).map(_.blob)
 						flatten(t, Article(art, blob) :: acc)
 					case chap@Chapter(_) => flatten(t, chap :: acc)
@@ -148,8 +148,8 @@ class Book private(
 
 object Book {
 	def load(path: Path, descriptionCache: DescriptionCache) = {
-		val pageMap: mutable.HashMap[Vurl, ScribePage] = mutable.HashMap[Vurl, ScribePage]()
-		val blobMap: mutable.HashMap[Vurl, ScribeBlob] = mutable.HashMap[Vurl, ScribeBlob]()
+		val pageMap: mutable.HashMap[Vurl, PageData] = mutable.HashMap[Vurl, PageData]()
+		val blobMap: mutable.HashMap[Vurl, BlobData] = mutable.HashMap[Vurl, BlobData]()
 
 		val entries: ArrayBuffer[ScribeDataRow] = {
 
@@ -171,8 +171,8 @@ object Book {
 							throw t
 					}
 				}.filter {
-					case spage@ScribePage(il, _, _, _) => putIfAbsent(pageMap, il, spage)
-					case sblob@ScribeBlob(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
+					case spage@PageData(il, _, _, _) => putIfAbsent(pageMap, il, spage)
+					case sblob@BlobData(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
 				}.to[ArrayBuffer].reverse
 			}
 			finally {

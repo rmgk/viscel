@@ -3,7 +3,7 @@ package visceljs
 import org.scalajs.dom.html.UList
 import rescala.implicitEngine
 import rescala.Signal
-import viscel.shared.{Blob, Description, ImageRef}
+import viscel.shared.{Blob, Description, SharedImage}
 import visceljs.Definitions._
 
 import scalatags.JsDom.all.{alt, _}
@@ -42,7 +42,7 @@ object Make {
 		})
 	}
 
-	def asset(asset: ImageRef, assetData: Data, addImageStyle: Modifier = ""): List[Modifier] = {
+	def asset(asset: SharedImage, assetData: Data, addImageStyle: Modifier = ""): List[Modifier] = {
 		asset.blob match {
 			case None => List(class_placeholder, "placeholder")
 			case Some(blob@Blob(_, "application/x-shockwave-flash")) =>

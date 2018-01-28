@@ -8,7 +8,7 @@ import viscel.narration.Queries._
 import viscel.narration.Templates.{ArchivePage, SimpleForward}
 import viscel.narration.{Contents, Narrator, Templates}
 import viscel.scribe.Vurl.fromString
-import viscel.scribe.{ArticleRef, Chapter, Link, Normal, Volatile, Vurl, WebContent}
+import viscel.scribe.{ImageRef, Chapter, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 
@@ -278,7 +278,7 @@ object Individual {
 									case _ => s"pages/$number.png"
 								}
 								val source = s"http://www.avasdemon.com/$filename"
-								ArticleRef(source, origin)
+								ImageRef(source, origin)
 							})
 					}
 				}.combined.map(_.flatten)
@@ -307,7 +307,7 @@ object Individual {
 		SimpleForward("NX_CheerImgur", "Cheer by Forview", "http://imgur.com/a/GTprX/",
 			doc => {
 				Selection(doc).unique("div.post-images").many("div.post-image-container").wrapEach{ div =>
-					extract(ArticleRef(
+					extract(ImageRef(
 						ref = s"http://i.imgur.com/${div.attr("id")}.png",
 						origin = "http://imgur.com/a/GTprX/"))
 				}

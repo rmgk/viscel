@@ -22,7 +22,7 @@ final class Gallery[+A] private(val pos: Int, entries: Array[A]) {
 
 object Gallery {
 	def fromArray[A](a: Array[A]): Gallery[A] = new Gallery(0, a)
-	def fromSeq(seq: Seq[ImageRef]): Gallery[ImageRef] = fromArray(seq.toArray)
+	def fromSeq(seq: Seq[SharedImage]): Gallery[SharedImage] = fromArray(seq.toArray)
 	def empty[A]: Gallery[A] = fromArray(Array())
 	implicit def galleryR[A: Decoder : ClassTag]: Decoder[Gallery[A]] = implicitly[Decoder[Array[A]]].map(fromArray)
 	implicit def galleryW[A: Encoder : ClassTag]: Encoder[Gallery[A]] = implicitly[Encoder[Array[A]]].contramap[Gallery[A]](_.toSeq.toArray)

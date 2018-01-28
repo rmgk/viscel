@@ -9,9 +9,9 @@ import io.circe.syntax._
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import viscel.narration.Narrator
-import viscel.scribe.{Article, ArticleRef, Chapter, Link, ReadableContent, ScribeBlob, ScribePage, Vurl, WebContent}
+import viscel.scribe.{Article, ImageRef, Chapter, Link, ReadableContent, BlobData, PageData, Vurl, WebContent}
 import viscel.selection.Report
-import viscel.shared.{Blob, ChapterPos, Description, Gallery, ImageRef, Log}
+import viscel.shared.{Blob, ChapterPos, Description, Gallery, SharedImage, Log}
 import viscel.store.BlobStore
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
@@ -47,8 +47,8 @@ class ReplUtil(services: Services) {
 		val content = narrationOption.get
 		val description: Description = ???
 
-		val chapters: List[(ChapterPos, Seq[ImageRef])] =
-			content.chapters.foldLeft((content.gallery.size, List[(ChapterPos, Seq[ImageRef])]())) {
+		val chapters: List[(ChapterPos, Seq[SharedImage])] =
+			content.chapters.foldLeft((content.gallery.size, List[(ChapterPos, Seq[SharedImage])]())) {
 				case ((nextPosition, chapters), chapter@ChapterPos(name, position)) =>
 					(position, (chapter, Range(position, nextPosition).map(p => content.gallery.next(p).get.get)) :: chapters)
 			}._2
@@ -104,7 +104,7 @@ class ReplUtil(services: Services) {
 					Log.info(s"processing $p")
 					val sha1 = services.blobs.write(Files.readAllBytes(p))
 					val blob = Blob(sha1, mime)
-					Some(Article(ArticleRef(Vurl.blobPlaceholder(blob), Vurl.blobPlaceholder(blob)), Some(blob)))
+					Some(Article(ImageRef(Vurl.blobPlaceholder(blob), Vurl.blobPlaceholder(blob)), Some(blob)))
 				}
 			}
 			else None
@@ -116,7 +116,7 @@ class ReplUtil(services: Services) {
 		}
 
 		val blobs = story.collect {
-			case Article(ar, Some(blob)) => ScribeBlob(ar.ref, ar.origin, Instant.now(), blob)
+			case Article(ar, Some(blob)) => BlobData(ar.ref, ar.origin, Instant.now(), blob)
 		}
 
 		val narrator = new Narrator {
@@ -126,7 +126,7 @@ class ReplUtil(services: Services) {
 			override def wrap(doc: Document, more: Link): Or[List[WebContent], Every[Report]] = ???
 		}
 		val book = services.scribe.findOrCreate(narrator)
-		book.add(ScribePage(Vurl.entrypoint, Vurl.entrypoint, Instant.now(), webcont))
+		book.add(PageData(Vurl.entrypoint, Vurl.entrypoint, Instant.now(), webcont))
 		blobs.foreach(book.add)
 
 

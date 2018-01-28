@@ -4,7 +4,7 @@ import org.jsoup.helper.StringUtil
 import viscel.narration.Narrator
 import viscel.narration.Queries.queryChapterArchive
 import viscel.narration.Templates.ArchivePage
-import viscel.scribe.ArticleRef
+import viscel.scribe.ImageRef
 import viscel.selection.ReportTools.extract
 import viscel.selection.Selection
 
@@ -22,7 +22,7 @@ object DynastyScans {
 		wrapPage = doc => Selection(doc).unique("body > script").wrapFlat { script =>
 			extract {
 				pages.findAllIn(script.html()).map { url =>
-					ArticleRef(StringUtil.resolve(doc.baseUri(),url), doc.location())
+					ImageRef(StringUtil.resolve(doc.baseUri(),url), doc.location())
 				}.toList
 			}
 		}

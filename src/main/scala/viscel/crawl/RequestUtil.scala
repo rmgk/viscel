@@ -11,7 +11,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import viscel.scribe.{ScribeBlob, Vurl}
+import viscel.scribe.{BlobData, Vurl}
 import viscel.shared.{Blob, Log}
 import viscel.store.BlobStore
 
@@ -70,14 +70,14 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 			doc = Jsoup.parse(html, extractResponseLocation(source, resp).uriString())
 		} yield (doc, resp)
 
-	def requestBlob[R](source: Vurl, origin: Option[Vurl] = None): Future[ScribeBlob] =
+	def requestBlob[R](source: Vurl, origin: Option[Vurl] = None): Future[BlobData] =
 		for {
 			res <- request(source, origin)
 			entity <- res.entity.toStrict(timeout) //should be strict already, but we do not know here
 			bytes = entity.data.toArray[Byte]
 			sha1 = blobs.write(bytes)
 		} yield
-			ScribeBlob(source, extractResponseLocation(source, res),
+			BlobData(source, extractResponseLocation(source, res),
 				blob = Blob(
 					sha1 = sha1,
 					mime = res.entity.contentType.mediaType.toString()),

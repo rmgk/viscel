@@ -7,7 +7,7 @@ import java.nio.file.{Files, Path}
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Queries._
-import viscel.scribe.{ArticleRef, Link, Vurl, WebContent}
+import viscel.scribe.{ImageRef, Link, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.selection.ReportTools.{append, augmentBad}
 import viscel.shared.Log
@@ -106,7 +106,7 @@ object Vid {
 				val doReplace: List[WebContent] => List[WebContent] = { stories =>
 					stories.map {
 						case Link(url, policy, data) =>	Link(replaceVurl(url), policy, data)
-						case ArticleRef(url, origin, data) =>	ArticleRef(replaceVurl(url), origin, data)
+						case ImageRef(url, origin, data) =>	ImageRef(replaceVurl(url), origin, data)
 						case o => o
 					}
 				}

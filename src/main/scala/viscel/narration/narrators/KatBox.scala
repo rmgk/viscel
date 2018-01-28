@@ -3,7 +3,7 @@ package viscel.narration.narrators
 import org.jsoup.nodes.{Document, Element}
 import org.scalactic.{Accumulation, Good}
 import viscel.narration.{Contents, Narrator, Queries}
-import viscel.scribe.{ArticleRef, Link, Volatile, Vurl, WebContent}
+import viscel.scribe.{ImageRef, Link, Volatile, Vurl, WebContent}
 import viscel.selection.{ReportTools, Selection}
 
 import scala.collection.immutable.Set
@@ -47,7 +47,7 @@ object KatBox {
 						val vurl_? = Queries.extractURL(anchor)
 						val img_? = Selection(anchor).unique("img").wrapOne(i => ReportTools.extract(i.absUrl("src")))
 						Accumulation.withGood(img_?, vurl_?) { (img, vurl) =>
-							List(ArticleRef(
+							List(ImageRef(
 								ref = img.replaceFirst("-\\d+x\\d+\\.", "."),
 								origin = vurl,
 								data = Map()))

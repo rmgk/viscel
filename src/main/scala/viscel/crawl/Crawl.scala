@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.scalactic.{Bad, Every, Good, Or}
 import viscel.narration.Narrator
-import viscel.scribe.{ArticleRef, Book, Link, ScribePage, Vurl, WebContent}
+import viscel.scribe.{ImageRef, Book, Link, PageData, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.shared.Log
 
@@ -20,7 +20,7 @@ class Crawl(
 
 
 
-	var articles: List[ArticleRef] = _
+	var articles: List[ImageRef] = _
 	var links: List[Link] = _
 
 	var articlesDownloaded = 0
@@ -32,7 +32,7 @@ class Crawl(
 	def start(): Future[Boolean] = {
 		val entry = book.beginning
 		if (entry.isEmpty || entry.get.contents != narrator.archive) {
-			book.add(ScribePage(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
+			book.add(PageData(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
 		}
 		articles = book.emptyArticles()
 		links = book.volatileAndEmptyLinks()
@@ -82,12 +82,12 @@ class Crawl(
 		}
 	}
 
-	def requestAndWrap(link: Link): Future[ScribePage Or Every[Report]] =
+	def requestAndWrap(link: Link): Future[PageData Or Every[Report]] =
 		for {
 			(doc, res) <- requestUtil.requestDocument(link.ref)} yield for {
 			contents <- narrator.wrap(doc, link)
 		} yield
-			ScribePage(link.ref, Vurl.fromString(doc.location()),
+			PageData(link.ref, Vurl.fromString(doc.location()),
 				contents = contents,
 				date = requestUtil.extractLastModified(res).getOrElse(Instant.now()))
 
@@ -121,7 +121,7 @@ class Crawl(
 		}
 		contents.reverse.foreach {
 			case link@Link(ref, _, _) if !book.hasPage(ref) => links = link :: links
-			case art@ArticleRef(ref, _, _) if !book.hasBlob(ref) => articles = art :: articles
+			case art@ImageRef(ref, _, _) if !book.hasBlob(ref) => articles = art :: articles
 			case _ =>
 		}
 	}

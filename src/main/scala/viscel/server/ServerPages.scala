@@ -3,8 +3,8 @@ package viscel.server
 import akka.http.scaladsl.model._
 import io.circe.Encoder
 import io.circe.syntax._
-import viscel.scribe.{Article, ArticleRef, Chapter, ReadableContent, Scribe}
-import viscel.shared.{ChapterPos, Contents, Description, Gallery, ImageRef}
+import viscel.scribe.{Article, ImageRef, Chapter, ReadableContent, Scribe}
+import viscel.shared.{ChapterPos, Contents, Description, Gallery, SharedImage}
 import viscel.store.{NarratorCache, User}
 
 import scalatags.Text.attrs.{`type`, action, content, href, rel, src, title, value, name => attrname}
@@ -17,13 +17,13 @@ class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
 
 	def narration(id: String): Option[Contents] = {
 		@scala.annotation.tailrec
-		def recurse(content: List[ReadableContent], art: List[ImageRef], chap: List[ChapterPos], c: Int): (List[ImageRef], List[ChapterPos]) = {
+		def recurse(content: List[ReadableContent], art: List[SharedImage], chap: List[ChapterPos], c: Int): (List[SharedImage], List[ChapterPos]) = {
 			content match {
 				case Nil => (art, chap)
 				case h :: t => {
 					h match {
-						case Article(ArticleRef(ref, origin, data), blob) =>
-							val article = ImageRef(origin = origin.uriString, blob, data)
+						case Article(ImageRef(ref, origin, data), blob) =>
+							val article = SharedImage(origin = origin.uriString, blob, data)
 							recurse(t, article :: art, if (chap.isEmpty) List(ChapterPos("", 0)) else chap, c + 1)
 						case Chapter(name) => recurse(t, art, ChapterPos(name, c) :: chap, c)
 					}

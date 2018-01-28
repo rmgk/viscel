@@ -129,7 +129,7 @@ lazy val Libraries = new {
 
 	val scalajsdom = libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.4"
 
-	val rescala = libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.21.0"
+	val rescala = libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.21.1"
 	val rescalatags = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % "0.21.0"
 
 	val circe = libraryDependencies ++= Seq(

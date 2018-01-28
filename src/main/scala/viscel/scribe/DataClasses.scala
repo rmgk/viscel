@@ -9,15 +9,15 @@ import io.circe.generic.extras._
 import io.circe.{Decoder, Encoder, Json => cJson}
 import viscel.shared.Blob
 
-/** Single row in a [[Scribe]] [[Book]]. Is either a [[ScribePage]] or a [[ScribeBlob]]. */
+/** Single row in a [[Scribe]] [[Book]]. Is either a [[PageData]] or a [[BlobData]]. */
 sealed trait ScribeDataRow {
 	/** reference that spawned this entry */
 	def ref: Vurl
 	def matchesRef(o: ScribeDataRow): Boolean = ref == o.ref
 	def differentContent(o: ScribeDataRow): Boolean = (this, o) match {
-		case (ScribePage(ref1, loc1, _, contents1), ScribePage(ref2, loc2, _, contents2)) =>
+		case (PageData(ref1, loc1, _, contents1), PageData(ref2, loc2, _, contents2)) =>
 			!(ref1 == ref2 && loc1 == loc2 && contents1 == contents2)
-		case (ScribeBlob(ref1, loc1, _, blob1), ScribeBlob(ref2, loc2, _, blob2)) =>
+		case (BlobData(ref1, loc1, _, blob1), BlobData(ref2, loc2, _, blob2)) =>
 			!(ref1 == ref2 && loc1 == loc2 && blob1 == blob2)
 		case _ => true
 	}
@@ -30,23 +30,23 @@ sealed trait ScribeDataRow {
 	* @param date last modified timestamp when available, current date otherwise
 	* @param contents links and images found on this page
 	*/
-/*@key("Page")*/ case class ScribePage(
+/*@key("Page")*/ case class PageData(
 	ref: Vurl,
 	loc: Vurl,
 	date: Instant,
 	contents: List[WebContent]
 ) extends ScribeDataRow {
-	def articleCount: Int = contents.count(_.isInstanceOf[ArticleRef])
+	def articleCount: Int = contents.count(_.isInstanceOf[ImageRef])
 }
 
 /** A reference to a binary object stored in [[Scribe]]
 	*
-	* @param ref reference that spawned this entry, linked to [[ArticleRef.ref]]
+	* @param ref reference that spawned this entry, linked to [[ImageRef.ref]]
 	* @param loc location that was finally resolved and downloaded
 	* @param date last modified timestamp when available, current date otherwise
 	* @param blob reference to the file
 	*/
-/*@key("Blob")*/ case class ScribeBlob(
+/*@key("Blob")*/ case class BlobData(
 	ref: Vurl,
 	loc: Vurl,
 	date: Instant,
@@ -57,17 +57,17 @@ sealed trait ScribeDataRow {
 sealed trait ReadableContent
 
 /** Aggregate the [[article]] and the [[blob]], returned  */
-case class Article(article: ArticleRef, blob: Option[Blob]) extends ReadableContent
+case class Article(article: ImageRef, blob: Option[Blob]) extends ReadableContent
 
 /** Result of parsing web pages by [[viscel.narration.Narrator]] */
 sealed trait WebContent
 /** A chapter named [[name]] */
 /*@key("Chapter")*/ case class Chapter(name: String) extends WebContent with ReadableContent
-/** A reference to an image or similar at url [[ref]] (referring to [[ScribeBlob.ref]])
-	* and originating at [[origin]] (referring to [[ScribePage.ref]]))
+/** A reference to an image or similar at url [[ref]] (referring to [[BlobData.ref]])
+	* and originating at [[origin]] (referring to [[PageData.ref]]))
 	* with additional [[data]] such as HMTL attributes. */
-/*@key("Article")*/ case class ArticleRef(ref: Vurl, origin: Vurl, data: Map[String, String] = Map()) extends WebContent
-/** [[Link.ref]] to another [[ScribePage]], with an update [[policy]], and narator specific [[data]]. */
+/*@key("Article")*/ case class ImageRef(ref: Vurl, origin: Vurl, data: Map[String, String] = Map()) extends WebContent
+/** [[Link.ref]] to another [[PageData]], with an update [[policy]], and narator specific [[data]]. */
 /*@key("Link")*/ case class Link(ref: Vurl, policy: Policy = Normal, data: List[String] = Nil) extends WebContent
 
 /** The update [[Policy]] decides if [[viscel.crawl.Crawl]] checks for updates [[Volatile]] or not [[Normal]] */
@@ -83,35 +83,32 @@ object ScribePicklers {
 	/** use "\$type" field in json to detect type, was upickle default and is used every [[Book]] ... */
 	implicit val config: Configuration = Configuration.default.withDefaults.withDiscriminator("$" + "type")
 
-	/** rename [[ArticleRef]] to just "Article" in the serialized format */
+
+	/** allow "Article" as an [[ImageRef]] in the serialized format */
 	implicit val webContentReader: Decoder[WebContent] = semiauto.deriveDecoder[WebContent].prepare{ cursor =>
 		val t = cursor.downField("$type")
 		t.as[String] match {
-			case Right("Article") => t.set(io.circe.Json.fromString("ArticleRef")).up
+			case Right("Article") => t.set(io.circe.Json.fromString("ImageRef")).up
 			case _ => cursor
 		}
 	}
-	implicit val webContentWriter: Encoder[WebContent] = semiauto.deriveEncoder[WebContent].mapJson{js =>
-		js.hcursor.get[String]("$type") match {
-			case Right("ArticleRef") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Article")))
-			case _ => js
-		}
-	}
+	/** note: new [[ImageRef]] are written as [[ImageRef]] **/
+	implicit val webContentWriter: Encoder[WebContent] = semiauto.deriveEncoder[WebContent]
 
 
-	/** rename [[ScribeBlob]] and [[ScribePage]] to just "Page" and "Blob" in the serialized format */
+	/** rename [[BlobData]] and [[PageData]] to just "Page" and "Blob" in the serialized format */
 	implicit val appendlogReader: Decoder[ScribeDataRow] = semiauto.deriveDecoder[ScribeDataRow].prepare{ cursor =>
 		val t = cursor.downField("$type")
 		t.as[String] match {
-			case Right("Blob") => t.set(io.circe.Json.fromString("ScribeBlob")).up
-			case Right("Page") => t.set(io.circe.Json.fromString("ScribePage")).up
+			case Right("Blob") => t.set(io.circe.Json.fromString("BlobData")).up
+			case Right("Page") => t.set(io.circe.Json.fromString("PageData")).up
 			case _ => cursor
 		}
 	}
 	implicit val appendLogWriter: Encoder[ScribeDataRow] = semiauto.deriveEncoder[ScribeDataRow].mapJson{js =>
 		js.hcursor.get[String]("$type") match {
-			case Right("ScribeBlob") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Blob")))
-			case Right("ScribePage") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Page")))
+			case Right("BlobData") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Blob")))
+			case Right("PageData") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Page")))
 			case _ => js
 		}
 	}

@@ -2,7 +2,7 @@ package visceljs.render
 
 import rescala._
 import rescalatags._
-import viscel.shared.{ChapterPos, Contents, Gallery, ImageRef}
+import viscel.shared.{ChapterPos, Contents, Gallery, SharedImage}
 import visceljs.Definitions.{class_chapters, class_preview, link_asset, link_index}
 import visceljs.{Actions, Body, Data, Make}
 
@@ -43,7 +43,7 @@ object Front {
 			def chapterlist: Tag = {
 				val assets = gallery.end
 
-				def makeChapField(chap: String, size: Int, gallery: Gallery[ImageRef]): Frag = {
+				def makeChapField(chap: String, size: Int, gallery: Gallery[SharedImage]): Frag = {
 					val (remaining, links) = Range(size, 0, -1).foldLeft((gallery, List[Frag]())) { case ((gal, acc), i) =>
 						val next = gal.prev(1)
 						(next, link_asset(data.move(_ => next))(s"$i") :: stringFrag(" ") :: acc)
@@ -54,7 +54,7 @@ object Front {
 
 
 				@tailrec
-				def build(apos: Int, assets: Gallery[ImageRef], chapters: List[ChapterPos], acc: List[Frag]): List[Frag] = chapters match {
+				def build(apos: Int, assets: Gallery[SharedImage], chapters: List[ChapterPos], acc: List[Frag]): List[Frag] = chapters match {
 					case ChapterPos(name, cpos) :: ctail =>
 						build(cpos, assets.prev(apos - cpos), ctail, makeChapField(name, apos - cpos, assets) :: acc)
 					case Nil => acc

@@ -5,7 +5,7 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
-import viscel.scribe.{ArticleRef, Chapter, Link, Policy, Vurl, WebContent}
+import viscel.scribe.{ImageRef, Chapter, Link, Policy, Vurl, WebContent}
 import viscel.selection.ReportTools.{extract, _}
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
 
@@ -30,24 +30,24 @@ object Queries {
 	def extractMore(element: Element): Link Or Every[Report] =
 		extractURL(element).map(uri => Link(uri))
 
-	def intoArticle(img: Element): ArticleRef Or Every[Report] = {
+	def intoArticle(img: Element): ImageRef Or Every[Report] = {
 		def getAttr(k: String): Option[(String, String)] = {
 			val res = img.attr(k)
 			if (res.isEmpty) None else Some(k -> res)
 		}
 		img.tagName() match {
 			case "img" =>
-				extract(ArticleRef(
+				extract(ImageRef(
 					ref = Vurl.fromString(img.attr("abs:src")),
 					origin = Vurl.fromString(img.ownerDocument().location()),
 					data = List("alt", "title", "width", "height").flatMap(getAttr).toMap))
 			case "embed" =>
-				extract(ArticleRef(
+				extract(ImageRef(
 					ref = Vurl.fromString(img.attr("abs:src")),
 					origin = Vurl.fromString(img.ownerDocument().location()),
 					data = List("width", "height", "type").flatMap(getAttr).toMap))
 			case "object" =>
-				extract(ArticleRef(
+				extract(ImageRef(
 					ref = Vurl.fromString(img.attr("abs:data")),
 					origin = Vurl.fromString(img.ownerDocument().location()),
 					data = List("width", "height", "type").flatMap(getAttr).toMap))
@@ -55,7 +55,7 @@ object Queries {
 				val extractBG = """.*background\-image\:url\(([^)]+)\).*""".r("url")
 				img.attr("style") match {
 					case extractBG(url) =>
-						extract(ArticleRef(
+						extract(ImageRef(
 							ref = Vurl.fromString(StringUtil.resolve(img.ownerDocument().location(), url)),
 							origin = Vurl.fromString(img.ownerDocument().location())))
 					case _ => Bad(One(FailedElement(s"into article", UnhandledTag, img)))
@@ -69,8 +69,8 @@ object Queries {
 		Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
 	}
 
-	def queryImage(query: String)(from: Element): List[ArticleRef] Or Every[Report] = Selection(from).unique(query).wrapEach(intoArticle)
-	def queryImages(query: String)(from: Element): List[ArticleRef] Or Every[Report] = Selection(from).many(query).wrapEach(intoArticle)
+	def queryImage(query: String)(from: Element): List[ImageRef] Or Every[Report] = Selection(from).unique(query).wrapEach(intoArticle)
+	def queryImages(query: String)(from: Element): List[ImageRef] Or Every[Report] = Selection(from).many(query).wrapEach(intoArticle)
 	/** extracts artical at query result
 	  * optionally extracts direct parent of query result as link */
 	def queryImageInAnchor(query: String)(from: Element): Contents = Selection(from).unique(query).wrapFlat { image =>
