@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.scalactic.{Bad, Every, Good, Or}
 import viscel.narration.Narrator
-import viscel.scribe.{ArticleRef, Book, Link, Scribe, ScribePage, Vurl, WebContent}
+import viscel.scribe.{ArticleRef, Book, Link, ScribePage, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.shared.Log
 
@@ -13,11 +13,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class Crawl(
 	narrator: Narrator,
-	scribe: Scribe,
+	book: Book,
 	requestUtil: RequestUtil)
 	(implicit ec: ExecutionContext) {
 
-	val book: Book = scribe.findOrCreate(narrator)
+
 
 
 	var articles: List[ArticleRef] = _
@@ -82,15 +82,14 @@ class Crawl(
 		}
 	}
 
-	def requestAndWrap(link: Link): Future[Or[ScribePage, Every[Report]]] = {
-		requestUtil.requestDocument(link.ref).map { case (doc, res) =>
-			narrator.wrap(doc, link).map { contents =>
-				ScribePage(link.ref, Vurl.fromString(doc.location()),
-					contents = contents,
-					date = requestUtil.extractLastModified(res).getOrElse(Instant.now()))
-			}
-		}
-	}
+	def requestAndWrap(link: Link): Future[ScribePage Or Every[Report]] =
+		for {
+			(doc, res) <- requestUtil.requestDocument(link.ref)} yield for {
+			contents <- narrator.wrap(doc, link)
+		} yield
+			ScribePage(link.ref, Vurl.fromString(doc.location()),
+				contents = contents,
+				date = requestUtil.extractLastModified(res).getOrElse(Instant.now()))
 
 	def rightmostRecheck(): Future[Boolean] = {
 		if (!recheckStarted && articlesDownloaded > 0) {

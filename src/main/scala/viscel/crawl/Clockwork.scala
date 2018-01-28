@@ -41,22 +41,26 @@ class Clockwork(
 		}, delay, period)
 	}
 
-	def runNarrator(n: Narrator, recheckInterval: Long) = synchronized {
-		if (needsRecheck(n.id, recheckInterval) && !running.contains(n.id)) {
-			val crawl = new Crawl(n, scribe, requestUtil)(ec)
-			running = running.updated(n.id, crawl)
+	def runNarrator(narrator: Narrator, recheckInterval: Long) = synchronized {
+		if (!running.contains(narrator.id) && needsRecheck(narrator.id, recheckInterval)) {
+
+			val book = scribe.findOrCreate(narrator)
+			val crawl = new Crawl(narrator, book, requestUtil)(ec)
+			running = running.updated(narrator.id, crawl)
 			implicit val iec: ExecutionContext = ec
-			crawl.start().andThen{ case _ => Clockwork.this.synchronized(running = running - n.id) }.onComplete {
+
+			crawl.start().andThen{ case _ => Clockwork.this.synchronized(running = running - narrator.id) }.onComplete {
 				case Failure(RequestException(request, response)) =>
-					Log.error(s"[${n.id}] error request: ${request.uri} failed: ${response.status}")
+					Log.error(s"[${narrator.id}] error request: ${request.uri} failed: ${response.status}")
 				case Failure(t) =>
-					Log.error(s"[${n.id}] recheck failed with $t")
+					Log.error(s"[${narrator.id}] recheck failed with $t")
 					t.printStackTrace()
 				case Success(true) =>
-					Log.info(s"[${n.id}] update complete")
-					updateDates(n.id)
+					Log.info(s"[${narrator.id}] update complete")
+					updateDates(narrator.id)
 				case Success(false) =>
 			}
+
 		}
 	}
 
