@@ -18,7 +18,7 @@ import viscel.shared.Log
 import viscel.store.{BlobStore, NarratorCache, User, Users}
 
 import scala.collection.immutable.Map
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class Server(
@@ -74,7 +74,7 @@ class Server(
 	}
 
 	// we use the enclosing ActorContext's or ActorSystem's dispatcher for our Futures and Scheduler
-	implicit def implicitExecutionContext: ExecutionContextExecutor = system.dispatcher
+	import system.dispatcher
 
 
 	def handleBookmarksForm(user: User)(continue: User => Route): Route =
