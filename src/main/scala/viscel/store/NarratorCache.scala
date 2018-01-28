@@ -32,8 +32,8 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
 	def add(start: String, requestUtil: RequestUtil): Future[List[Narrator]] = {
 		import requestUtil.ec
 		def go[T <: Narrator](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
-			requestUtil.request(url).flatMap(requestUtil.extractDocument(url)).map { res =>
-				val nars = metarrator.wrap(res).get
+			requestUtil.requestDocument(url).map { case (doc, _) =>
+				val nars = metarrator.wrap(doc).get
 				synchronized {
 					save(metarrator, nars ++ load(metarrator))
 					updateCache()

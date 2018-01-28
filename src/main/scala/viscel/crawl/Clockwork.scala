@@ -10,7 +10,6 @@ import viscel.store.{Json, NarratorCache, Users}
 
 import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 
@@ -44,9 +43,7 @@ class Clockwork(
 
 	def runNarrator(n: Narrator, recheckInterval: Long) = synchronized {
 		if (needsRecheck(n.id, recheckInterval) && !running.contains(n.id)) {
-			val crawl = new Crawl(n, scribe, requestUtil)(ec)
-			running = running.updated(n.id, crawl)
-			crawl.start().onComplete { result =>
+			val crawl = new Crawl(n, scribe, requestUtil, ec)({ result =>
 				Clockwork.this.synchronized(running = running - n.id)
 				result match {
 					case Failure(RequestException(request, response)) =>
@@ -59,7 +56,9 @@ class Clockwork(
 						updateDates(n.id)
 					case Success(false) =>
 				}
-			}
+			})
+			running = running.updated(n.id, crawl)
+			crawl.start()
 		}
 	}
 

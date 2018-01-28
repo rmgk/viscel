@@ -8,14 +8,21 @@ import viscel.scribe.{ArticleRef, Book, Link, Scribe, ScribePage, Vurl, WebConte
 import viscel.selection.Report
 import viscel.shared.Log
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
-class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implicit ec: ExecutionContext) extends Runnable {
+class Crawl(
+	narrator: Narrator,
+	scribe: Scribe,
+	requestUtil: RequestUtil,
+	ec: ExecutionContext)
+	(promise: Try[Boolean] => Unit)
+	extends Runnable {
 
+	implicit def executionContext: ExecutionContext = ec
 
 	val book: Book = scribe.findOrCreate(narrator)
-	val promise: Promise[Boolean] = Promise[Boolean]()
+
 
 	var articles: List[ArticleRef] = _
 	var links: List[Link] = _
@@ -26,7 +33,7 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 	var requestAfterRecheck = 0
 	var recheck: List[Link] = _
 
-	def start(): Future[Boolean] = {
+	def start(): Unit = {
 		val entry = book.beginning
 		if (entry.isEmpty || entry.get.contents != narrator.archive) {
 			book.add(ScribePage(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
@@ -34,25 +41,23 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 		articles = book.emptyArticles()
 		links = book.volatileAndEmptyLinks()
 		ec.execute(this)
-		promise.future
 	}
 
-	override def run(): Unit = {
-		nextArticle()
-	}
+	override def run(): Unit = nextArticle()
 
 	def nextArticle(): Unit = {
 		articles match {
 			case Nil =>
 				nextLink()
-			case h :: t => requestUtil.requestBlob(h.ref, Some(h.origin)).onComplete {
-				case Failure(e) => promise.failure(e)
-				case Success(blob) =>
-					articles = t
-					articlesDownloaded += 1
-					book.add(blob)
-					ec.execute(this)
-			}
+			case h :: t =>
+				requestUtil.requestBlob(h.ref, Some(h.origin)).onComplete {
+					case Failure(e) => promise(Failure(e))
+					case Success(blob) =>
+						articles = t
+						articlesDownloaded += 1
+						book.add(blob)
+						ec.execute(this)
+				}
 		}
 	}
 
@@ -72,34 +77,32 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 			case Success(Bad(reports)) =>
 				Log.error(
 					s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-						|$narrator
-						|  failed on ${link.ref.uriString()} (${link.policy}${if (link.data.nonEmpty) s", ${link.data}" else ""}):
-						|  ${reports.map {_.describe}.mkString("\n  ")}
-						|↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
-				promise.success(false)
+					   |$narrator
+					   |  failed on ${link.ref.uriString()} (${link.policy}${if (link.data.nonEmpty) s", ${link.data}" else ""}):
+					   |  ${reports.map {_.describe}.mkString("\n  ")}
+					   |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
+				promise(Success(false))
 			case Success(Good(page)) =>
 				addContents(page.contents)
 				book.add(page)
 				ec.execute(this)
-			case Failure(e) => promise.failure(e)
+			case Failure(e) => promise(Failure(e))
 		}
 	}
 
 	def requestAndWrap(link: Link): Future[Or[ScribePage, Every[Report]]] = {
-		requestUtil.request(link.ref).flatMap { res =>
-			requestUtil.extractDocument(link.ref)(res).map { doc =>
-				narrator.wrap(doc, link).map { contents =>
-					ScribePage(link.ref, Vurl.fromString(doc.location()),
-						contents = contents,
-						date = requestUtil.extractLastModified(res).getOrElse(Instant.now()))
-				}
+		requestUtil.requestDocument(link.ref).map { case (doc, res) =>
+			narrator.wrap(doc, link).map { contents =>
+				ScribePage(link.ref, Vurl.fromString(doc.location()),
+					contents = contents,
+					date = requestUtil.extractLastModified(res).getOrElse(Instant.now()))
 			}
 		}
 	}
 
 	def rightmostRecheck(): Unit = {
 		if (!recheckStarted && articlesDownloaded > 0) {
-			promise.success(true)
+			promise(Success(true))
 			return
 		}
 		if (!recheckStarted) {
@@ -109,14 +112,14 @@ class Crawl(narrator: Narrator, scribe: Scribe, requestUtil: RequestUtil)(implic
 		if (rechecksDone == 0 || (rechecksDone == 1 && requestAfterRecheck > 1)) {
 			rechecksDone += 1
 			recheck match {
-				case Nil => promise.success(true)
+				case Nil => promise(Success(true))
 				case link :: tail =>
 					recheck = tail
 					handleLink(link)
 			}
 		}
 		else {
-			promise.success(true)
+			promise(Success(true))
 		}
 	}
 

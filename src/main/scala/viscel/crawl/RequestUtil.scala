@@ -23,7 +23,7 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 
 	val timeout = FiniteDuration(300, SECONDS)
 
-	def getResponse(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
+	private def getResponse(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
 		{
 			val referer = request.header[Referer]
 			Log.info(s"request ${request.uri}" + referer.fold("")(r => s" ($r)"))
@@ -71,6 +71,9 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 		}
 	}
 
+	def requestDocument(source: Vurl): Future[(Document, HttpResponse)] = {
+		request(source).flatMap(resp => extractDocument(source)(resp).map((_ , resp)))
+	}
 
 	def requestBlob[R](source: Vurl, origin: Option[Vurl] = None): Future[ScribeBlob] = {
 		request(source, origin).flatMap { res =>
