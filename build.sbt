@@ -113,7 +113,7 @@ lazy val Libraries = new {
 
 	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags, rescala)
 
-	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, scalactic, jsoup, decline)
+	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, scalactic, jsoup, decline, asyncAwait)
 
 	lazy val js: Def.SettingsDefinition = Seq(scalajsdom, rescalatags)
 
@@ -121,7 +121,7 @@ lazy val Libraries = new {
 
 	val akkaHTTP = libraryDependencies ++= Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.11")
 
-	val decline = libraryDependencies += "com.monovore" %% "decline" % "0.4.1"
+	val decline = libraryDependencies += "com.monovore" %% "decline" % "0.4.1" exclude("org.scala-lang", "scala-reflect")
 
 	val scalactic = libraryDependencies +=("org.scalactic" %% "scalactic" % "3.0.4" exclude("org.scala-lang", "scala-reflect"))
 
@@ -137,6 +137,8 @@ lazy val Libraries = new {
 		"circe-generic",
 		"circe-generic-extras",
 		"circe-parser",
-	).map(n => "io.circe" %%% n % "0.9.1")
+	).map(n => "io.circe" %%% n % "0.9.1" exclude("org.scala-lang", "scala-reflect"))
+
+	val asyncAwait = libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6" % Provided
 
 }

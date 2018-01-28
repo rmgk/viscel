@@ -8,18 +8,14 @@ import viscel.scribe.{ArticleRef, Book, Link, Scribe, ScribePage, Vurl, WebConte
 import viscel.selection.Report
 import viscel.shared.Log
 
+import scala.async.Async.{async, await}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
 
 class Crawl(
 	narrator: Narrator,
 	scribe: Scribe,
-	requestUtil: RequestUtil,
-	ec: ExecutionContext)
-	(promise: Try[Boolean] => Unit)
-	extends Runnable {
-
-	implicit def executionContext: ExecutionContext = ec
+	requestUtil: RequestUtil)
+	(implicit ec: ExecutionContext) {
 
 	val book: Book = scribe.findOrCreate(narrator)
 
@@ -33,36 +29,33 @@ class Crawl(
 	var requestAfterRecheck = 0
 	var recheck: List[Link] = _
 
-	def start(): Unit = {
+	def start(): Future[Boolean] = {
 		val entry = book.beginning
 		if (entry.isEmpty || entry.get.contents != narrator.archive) {
 			book.add(ScribePage(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
 		}
 		articles = book.emptyArticles()
 		links = book.volatileAndEmptyLinks()
-		ec.execute(this)
+		nextArticle()
 	}
 
-	override def run(): Unit = nextArticle()
-
-	def nextArticle(): Unit = {
+	def nextArticle(): Future[Boolean] = {
 		articles match {
 			case Nil =>
 				nextLink()
 			case h :: t =>
-				requestUtil.requestBlob(h.ref, Some(h.origin)).onComplete {
-					case Failure(e) => promise(Failure(e))
-					case Success(blob) =>
-						articles = t
-						articlesDownloaded += 1
-						book.add(blob)
-						ec.execute(this)
+				async {
+					val blob = await(requestUtil.requestBlob(h.ref, Some(h.origin)))
+					articles = t
+					articlesDownloaded += 1
+					book.add(blob)
+					await(nextArticle())
 				}
 		}
 	}
 
 
-	def nextLink(): Unit = {
+	def nextLink(): Future[Boolean] = {
 		links match {
 			case Nil =>
 				rightmostRecheck()
@@ -72,21 +65,20 @@ class Crawl(
 		}
 	}
 
-	def handleLink(link: Link): Unit = {
-		requestAndWrap(link).onComplete {
-			case Success(Bad(reports)) =>
+	def handleLink(link: Link): Future[Boolean] = {
+		requestAndWrap(link) flatMap {
+			case Bad(reports) =>
 				Log.error(
 					s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 					   |$narrator
 					   |  failed on ${link.ref.uriString()} (${link.policy}${if (link.data.nonEmpty) s", ${link.data}" else ""}):
 					   |  ${reports.map {_.describe}.mkString("\n  ")}
 					   |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
-				promise(Success(false))
-			case Success(Good(page)) =>
+				Future.successful(false)
+			case Good(page) =>
 				addContents(page.contents)
 				book.add(page)
-				ec.execute(this)
-			case Failure(e) => promise(Failure(e))
+				nextArticle()
 		}
 	}
 
@@ -100,10 +92,9 @@ class Crawl(
 		}
 	}
 
-	def rightmostRecheck(): Unit = {
+	def rightmostRecheck(): Future[Boolean] = {
 		if (!recheckStarted && articlesDownloaded > 0) {
-			promise(Success(true))
-			return
+			return Future.successful(true)
 		}
 		if (!recheckStarted) {
 			recheckStarted = true
@@ -112,14 +103,14 @@ class Crawl(
 		if (rechecksDone == 0 || (rechecksDone == 1 && requestAfterRecheck > 1)) {
 			rechecksDone += 1
 			recheck match {
-				case Nil => promise(Success(true))
+				case Nil => Future.successful(true)
 				case link :: tail =>
 					recheck = tail
 					handleLink(link)
 			}
 		}
 		else {
-			promise(Success(true))
+			Future.successful(true)
 		}
 	}
 

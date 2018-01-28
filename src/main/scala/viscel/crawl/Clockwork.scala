@@ -43,22 +43,20 @@ class Clockwork(
 
 	def runNarrator(n: Narrator, recheckInterval: Long) = synchronized {
 		if (needsRecheck(n.id, recheckInterval) && !running.contains(n.id)) {
-			val crawl = new Crawl(n, scribe, requestUtil, ec)({ result =>
-				Clockwork.this.synchronized(running = running - n.id)
-				result match {
-					case Failure(RequestException(request, response)) =>
-						Log.error(s"[${n.id}] error request: ${request.uri} failed: ${response.status}")
-					case Failure(t) =>
-						Log.error(s"[${n.id}] recheck failed with $t")
-						t.printStackTrace()
-					case Success(true) =>
-						Log.info(s"[${n.id}] update complete")
-						updateDates(n.id)
-					case Success(false) =>
-				}
-			})
+			val crawl = new Crawl(n, scribe, requestUtil)(ec)
 			running = running.updated(n.id, crawl)
-			crawl.start()
+			implicit val iec: ExecutionContext = ec
+			crawl.start().andThen{ case _ => Clockwork.this.synchronized(running = running - n.id) }.onComplete {
+				case Failure(RequestException(request, response)) =>
+					Log.error(s"[${n.id}] error request: ${request.uri} failed: ${response.status}")
+				case Failure(t) =>
+					Log.error(s"[${n.id}] recheck failed with $t")
+					t.printStackTrace()
+				case Success(true) =>
+					Log.info(s"[${n.id}] update complete")
+					updateDates(n.id)
+				case Success(false) =>
+			}
 		}
 	}
 
