@@ -111,17 +111,15 @@ lazy val Settings = new {
 
 lazy val Libraries = new {
 
-	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags)
+	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags, rescala)
 
-	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, jline, scalactic, jsoup, rescala, decline)
+	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, scalactic, jsoup, decline)
 
-	lazy val js: Def.SettingsDefinition = Seq(scalajsdom, rescala, rescalatags)
+	lazy val js: Def.SettingsDefinition = Seq(scalajsdom, rescalatags)
 
 	val jsoup = libraryDependencies += "org.jsoup" % "jsoup" % "1.11.2"
 
 	val akkaHTTP = libraryDependencies ++= Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.11")
-
-	val jline = libraryDependencies += "jline" % "jline" % "2.14.5"
 
 	val decline = libraryDependencies += "com.monovore" %% "decline" % "0.4.1"
 
@@ -135,10 +133,10 @@ lazy val Libraries = new {
 	val rescalatags = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % "0.21.0"
 
 	val circe = libraryDependencies ++= Seq(
-		"io.circe" %%% "circe-core",
-		"io.circe" %%% "circe-generic",
-		"io.circe" %%% "circe-generic-extras",
-		"io.circe" %%% "circe-parser"
-	).map(_ % "0.9.1")
+		"circe-core",
+		"circe-generic",
+		"circe-generic-extras",
+		"circe-parser",
+	).map(n => "io.circe" %%% n % "0.9.1")
 
 }
