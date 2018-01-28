@@ -15,6 +15,7 @@ import viscel.scribe.{ScribeBlob, Vurl}
 import viscel.shared.{Blob, Log}
 import viscel.store.BlobStore
 
+import scala.async.Async.{async, await}
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -23,70 +24,63 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 
 	val timeout = FiniteDuration(300, SECONDS)
 
-	private def getResponse(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
-		{
-			val referer = request.header[Referer]
-			Log.info(s"request ${request.uri}" + referer.fold("")(r => s" ($r)"))
-		}
-		ioHttp.singleRequest(request)
-			.map(r => Deflate.decodeMessage(Gzip.decodeMessage(r)))
-			.flatMap(_.toStrict(timeout))
-			.flatMap { res =>
-				if (res.status.isRedirection() && res.header[Location].isDefined) {
-					val loc = res.header[Location].get.uri.resolvedAgainst(request.uri)
-					getResponse(request.withUri(loc), redirects = redirects - 1)
-				}
-				else if (res.status.isSuccess()) {
-					// if the response has no location header, we insert the url from the request as a location,
-					// this allows all other systems to use the most accurate location available
-					val resWithLocation = res.addHeader(Location.apply(extractResponseLocation(Vurl.fromUri(request.uri), res).uri))
-					Future.successful(resWithLocation)
-				}
-				else {Future.failed(RequestException(request, res))}
-			}
-	}
+	private def decompress(r: HttpResponse): Future[HttpResponse] =
+		Deflate.decodeMessage(Gzip.decodeMessage(r)).toStrict(timeout)
+	private def requestDecompressed(request: HttpRequest): Future[HttpResponse] =
+		ioHttp.singleRequest(request.withHeaders(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)))
+			.flatMap(decompress)
 
-	def extractResponseLocation(base: Vurl, httpResponse: HttpResponse): Vurl = {
+	def extractResponseLocation(base: Vurl, httpResponse: HttpResponse): Vurl =
 		httpResponse.header[Location].fold(base)(l => Vurl.fromUri(l.uri.resolvedAgainst(base.uri)))
+	def extractLastModified(httpResponse: HttpResponse): Option[Instant] =
+		httpResponse.header[LastModified].map(h => Instant.ofEpochMilli(h.date().clicks()))
+
+
+	private def requestWithRedirects(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
+		Log.info(s"request ${request.uri}" + request.header[Referer].fold("")(r => s" ($r)"))
+		async {
+			val response = await(requestDecompressed(request))
+
+			if (response.status.isRedirection() && response.header[Location].isDefined) {
+				val loc = response.header[Location].get.uri.resolvedAgainst(request.uri)
+				await {requestWithRedirects(request.withUri(loc), redirects = redirects - 1)}
+			}
+			else if (response.status.isSuccess()) {
+				// if the response has no location header, we insert the url from the request as a location,
+				// this allows all other systems to use the most accurate location available
+				response.addHeader(Location.apply(extractResponseLocation(Vurl.fromUri(request.uri), response).uri))
+			}
+			else throw RequestException(request, response)
+		}
 	}
 
-	def extractLastModified(httpResponse: HttpResponse): Option[Instant] = {
-		httpResponse.header[LastModified].map(h => Instant.ofEpochMilli(h.date().clicks()))
-	}
 
 	def request[R](source: Vurl, origin: Option[Vurl] = None): Future[HttpResponse] = {
 		val req = HttpRequest(
 			method = HttpMethods.GET,
 			uri = source.uri,
-			headers =
-				`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip) ::
-					origin.map(x => Referer.apply(x.uri)).toList)
-		getResponse(req)
+			headers = origin.map(x => Referer.apply(x.uri)).toList)
+		requestWithRedirects(req)
 	}
 
-	def extractDocument(baseuri: Vurl)(httpResponse: HttpResponse): Future[Document] = {
-		Unmarshal(httpResponse).to[String].map { html =>
-			val responseLocation = extractResponseLocation(baseuri, httpResponse)
-			Jsoup.parse(html, responseLocation.uriString())
-		}
-	}
+	def requestDocument(source: Vurl): Future[(Document, HttpResponse)] =
+		for {
+			resp <- request(source)
+			html <- Unmarshal(resp).to[String]
+			doc = Jsoup.parse(html, extractResponseLocation(source, resp).uriString())
+		} yield (doc, resp)
 
-	def requestDocument(source: Vurl): Future[(Document, HttpResponse)] = {
-		request(source).flatMap(resp => extractDocument(source)(resp).map((_ , resp)))
-	}
-
-	def requestBlob[R](source: Vurl, origin: Option[Vurl] = None): Future[ScribeBlob] = {
-		request(source, origin).flatMap { res =>
-			res.entity.toStrict(timeout).map { entity =>
-				val bytes = entity.data.toArray[Byte]
-				val sha1 = blobs.write(bytes)
-				ScribeBlob(source, extractResponseLocation(source, res),
-					blob = Blob(
-						sha1 = sha1,
-						mime = res.entity.contentType.mediaType.toString()),
-					date = extractLastModified(res).getOrElse(Instant.now()))
-			}
-		}
-	}
+	def requestBlob[R](source: Vurl, origin: Option[Vurl] = None): Future[ScribeBlob] =
+		for {
+			res <- request(source, origin)
+			entity <- res.entity.toStrict(timeout) //should be strict already, but we do not know here
+			bytes = entity.data.toArray[Byte]
+			sha1 = blobs.write(bytes)
+		} yield
+			ScribeBlob(source, extractResponseLocation(source, res),
+				blob = Blob(
+					sha1 = sha1,
+					mime = res.entity.contentType.mediaType.toString()),
+				date = extractLastModified(res).getOrElse(Instant.now()))
 
 }
