@@ -10,7 +10,6 @@ import viscel.store.{Json, NarratorCache, Users}
 
 import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
-import scala.util.{Failure, Success}
 
 
 class Clockwork(
@@ -41,7 +40,7 @@ class Clockwork(
 		}, delay, period)
 	}
 
-	def runNarrator(narrator: Narrator, recheckInterval: Long) = synchronized {
+	def runNarrator(narrator: Narrator, recheckInterval: Long): Unit = synchronized {
 		if (!running.contains(narrator.id) && needsRecheck(narrator.id, recheckInterval)) {
 
 			val book = scribe.findOrCreate(narrator)
@@ -49,19 +48,28 @@ class Clockwork(
 			running = running.updated(narrator.id, crawl)
 			implicit val iec: ExecutionContext = ec
 
-			crawl.start().andThen{ case _ => Clockwork.this.synchronized(running = running - narrator.id) }.onComplete {
-				case Failure(RequestException(request, response)) =>
-					Log.error(s"[${narrator.id}] error request: ${request.uri} failed: ${response.status}")
-				case Failure(t) =>
-					Log.error(s"[${narrator.id}] recheck failed with $t")
-					t.printStackTrace()
-				case Success(true) =>
-					Log.info(s"[${narrator.id}] update complete")
-					updateDates(narrator.id)
-				case Success(false) =>
+			val fut = crawl.start().andThen { case _ => Clockwork.this.synchronized(running = running - narrator.id) }
+			fut.failed.foreach(logError(narrator))
+			fut.foreach { _ =>
+				Log.info(s"[${narrator.id}] update complete")
+				updateDates(narrator.id)
 			}
-
 		}
+	}
+
+	private def logError(narrator: Narrator): Throwable => Unit = {
+		case RequestException(request, response) =>
+			Log.error(s"[${narrator.id}] error request: ${request.uri} failed: ${response.status}")
+		case WrappingException(link, reports) =>
+			Log.error(
+				s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+           |$narrator
+           |  failed on ${link.ref.uriString()} (${link.policy}${if (link.data.nonEmpty) s", ${link.data}" else ""}):
+           |  ${reports.map {_.describe}.mkString("\n  ")}
+           |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
+		case t =>
+			Log.error(s"[${narrator.id}] recheck failed with $t")
+			t.printStackTrace()
 	}
 
 	private var updateTimes: Map[String, Long] = Json.load[Map[String, Long]](path).fold(x => x, err => {

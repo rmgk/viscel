@@ -11,11 +11,11 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import viscel.scribe.{BlobData, Vurl}
+import viscel.narration.Narrator
+import viscel.scribe.{BlobData, Link, PageData, Vurl, WebContent}
 import viscel.shared.{Blob, Log}
 import viscel.store.BlobStore
 
-import scala.async.Async.{async, await}
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,19 +38,20 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 
 	private def requestWithRedirects(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
 		Log.info(s"request ${request.uri}" + request.header[Referer].fold("")(r => s" ($r)"))
-		async {
-			val response = await(requestDecompressed(request))
 
+		requestDecompressed(request).flatMap { response =>
 			if (response.status.isRedirection() && response.header[Location].isDefined) {
 				val loc = response.header[Location].get.uri.resolvedAgainst(request.uri)
-				await {requestWithRedirects(request.withUri(loc), redirects = redirects - 1)}
+				requestWithRedirects(request.withUri(loc), redirects = redirects - 1)
 			}
 			else if (response.status.isSuccess()) {
 				// if the response has no location header, we insert the url from the request as a location,
 				// this allows all other systems to use the most accurate location available
-				response.addHeader(Location.apply(extractResponseLocation(Vurl.fromUri(request.uri), response).uri))
+				Future.successful(
+					response.addHeader(Location.apply(
+						extractResponseLocation(Vurl.fromUri(request.uri), response).uri)))
 			}
-			else throw RequestException(request, response)
+			else Future.failed(RequestException(request, response))
 		}
 	}
 
@@ -67,7 +68,8 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 		for {
 			resp <- request(source)
 			html <- Unmarshal(resp).to[String]
-			doc = Jsoup.parse(html, extractResponseLocation(source, resp).uriString())
+			location = extractResponseLocation(source, resp).uriString()
+			doc = Jsoup.parse(html, location)
 		} yield (doc, resp)
 
 	def requestBlob[R](source: Vurl, origin: Option[Vurl] = None): Future[BlobData] =
@@ -82,5 +84,15 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 					sha1 = sha1,
 					mime = res.entity.contentType.mediaType.toString()),
 				date = extractLastModified(res).getOrElse(Instant.now()))
+
+	def requestPage(link: Link, narrator: Narrator): Future[PageData] =
+		for {
+			(doc, res) <- requestDocument(link.ref)
+			contents: List[WebContent] = narrator.wrap(doc, link).fold(identity, r => throw WrappingException(link, r))
+		} yield
+			PageData(link.ref, Vurl.fromString(doc.location()),
+				contents = contents,
+				date = extractLastModified(res).getOrElse(Instant.now()))
+
 
 }

@@ -2,15 +2,20 @@ package viscel.crawl
 
 import java.time.Instant
 
-import org.scalactic.{Bad, Every, Good, Or}
 import viscel.narration.Narrator
-import viscel.scribe.{ImageRef, Book, Link, PageData, Vurl, WebContent}
-import viscel.selection.Report
-import viscel.shared.Log
+import viscel.scribe.{Book, ImageRef, Link, PageData, Vurl, WebContent}
 
-import scala.async.Async.{async, await}
 import scala.concurrent.{ExecutionContext, Future}
 
+sealed trait Decision
+case class ImageD(img: ImageRef) extends Decision
+case class LinkD(link: Link) extends Decision
+case object Done extends Decision
+
+
+/** This whole class is a bit of a weird asynchronous thing, that operates on the images and links lists,
+	* both of which grow an shring as the crawler downloads pages, but also finds new ones to download.
+	* It has this tailrecursive structure, just that every recursive call is a future. */
 class Crawl(
 	narrator: Narrator,
 	book: Book,
@@ -18,102 +23,54 @@ class Crawl(
 	(implicit ec: ExecutionContext) {
 
 
+	def start(): Future[Unit] = {
+		val entry = book.beginning
+		if (entry.isEmpty || entry.get.contents != narrator.archive) {
+			book.add(PageData(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
+		}
+		val decider = new Decider(
+			images = book.emptyImageRefs(),
+			links = book.volatileAndEmptyLinks(),
+			book = book)
+
+		interpret(decider)
+	}
+
+	def interpret(decider: Decider): Future[Unit] = {
+		val decision = decider.tryNextImage()
+		decision match {
+			case ImageD(image) => handleImage(image).flatMap(_ => interpret(decider))
+			case LinkD(link) => handleLink(link, decider).flatMap(_ => interpret(decider))
+			case Done => Future.successful(())
+		}
+	}
+
+	private def handleImage(image: ImageRef): Future[Unit] =
+		requestUtil.requestBlob(image.ref, Some(image.origin)).map(book.add)
+
+	private def handleLink(link: Link, decider: Decider) =
+		requestUtil.requestPage(link, narrator) map { page =>
+			decider.addContents(page.contents)
+			book.add(page)
+		}
 
 
-	var articles: List[ImageRef] = _
-	var links: List[Link] = _
+}
 
-	var articlesDownloaded = 0
+
+class Decider(var images: List[ImageRef], var links: List[Link], book: Book) {
+
+	var imageDecisions = 0
 	var rechecksDone = 0
 	var recheckStarted = false
 	var requestAfterRecheck = 0
 	var recheck: List[Link] = _
 
-	def start(): Future[Boolean] = {
-		val entry = book.beginning
-		if (entry.isEmpty || entry.get.contents != narrator.archive) {
-			book.add(PageData(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
-		}
-		articles = book.emptyArticles()
-		links = book.volatileAndEmptyLinks()
-		nextArticle()
-	}
 
-	def nextArticle(): Future[Boolean] = {
-		articles match {
-			case Nil =>
-				nextLink()
-			case h :: t =>
-				async {
-					val blob = await(requestUtil.requestBlob(h.ref, Some(h.origin)))
-					articles = t
-					articlesDownloaded += 1
-					book.add(blob)
-					await(nextArticle())
-				}
-		}
-	}
-
-
-	def nextLink(): Future[Boolean] = {
-		links match {
-			case Nil =>
-				rightmostRecheck()
-			case link :: t =>
-				links = t
-				handleLink(link)
-		}
-	}
-
-	def handleLink(link: Link): Future[Boolean] = {
-		requestAndWrap(link) flatMap {
-			case Bad(reports) =>
-				Log.error(
-					s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-					   |$narrator
-					   |  failed on ${link.ref.uriString()} (${link.policy}${if (link.data.nonEmpty) s", ${link.data}" else ""}):
-					   |  ${reports.map {_.describe}.mkString("\n  ")}
-					   |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
-				Future.successful(false)
-			case Good(page) =>
-				addContents(page.contents)
-				book.add(page)
-				nextArticle()
-		}
-	}
-
-	def requestAndWrap(link: Link): Future[PageData Or Every[Report]] =
-		for {
-			(doc, res) <- requestUtil.requestDocument(link.ref)} yield for {
-			contents <- narrator.wrap(doc, link)
-		} yield
-			PageData(link.ref, Vurl.fromString(doc.location()),
-				contents = contents,
-				date = requestUtil.extractLastModified(res).getOrElse(Instant.now()))
-
-	def rightmostRecheck(): Future[Boolean] = {
-		if (!recheckStarted && articlesDownloaded > 0) {
-			return Future.successful(true)
-		}
-		if (!recheckStarted) {
-			recheckStarted = true
-			recheck = book.rightmostScribePages()
-		}
-		if (rechecksDone == 0 || (rechecksDone == 1 && requestAfterRecheck > 1)) {
-			rechecksDone += 1
-			recheck match {
-				case Nil => Future.successful(true)
-				case link :: tail =>
-					recheck = tail
-					handleLink(link)
-			}
-		}
-		else {
-			Future.successful(true)
-		}
-	}
-
-
+	/** Adds the contents to the current decision pool.
+		* Does some recheck logic, see [[rightmostRecheck]].
+		* Adds everything in a left to right order, so downlods happen as users would read.
+		* Does filter already contained content. */
 	def addContents(contents: List[WebContent]): Unit = {
 		if (recheckStarted) {
 			if (contents.isEmpty && requestAfterRecheck == 0) requestAfterRecheck += 1
@@ -121,8 +78,57 @@ class Crawl(
 		}
 		contents.reverse.foreach {
 			case link@Link(ref, _, _) if !book.hasPage(ref) => links = link :: links
-			case art@ImageRef(ref, _, _) if !book.hasBlob(ref) => articles = art :: articles
+			case art@ImageRef(ref, _, _) if !book.hasBlob(ref) => images = art :: images
 			case _ =>
+		}
+	}
+
+
+	def tryNextImage(): Decision = {
+		images match {
+			case h :: t =>
+				images = t
+				imageDecisions += 1
+				ImageD(h)
+			case Nil =>
+				tryNextLink()
+		}
+	}
+
+	def tryNextLink(): Decision = {
+		links match {
+			case link :: t =>
+				links = t
+				LinkD(link)
+			case Nil =>
+				rightmostRecheck()
+		}
+	}
+
+	/** Handles rechecking logic.
+		* On first call:
+		*   - Done immediately, if we already made an ImageD (no rechecks after downloads)
+		*   - Initializes the path to the rightmost child elements starting from the root.
+		* Checks one or two layers deep, depending on weather we find anything in the last layer.
+		* If we find nothing, then we check no further (there was something there before, why is it gone?) */
+	def rightmostRecheck(): Decision = {
+		if (!recheckStarted) {
+			if (imageDecisions > 0) return Done
+			recheckStarted = true
+			recheck = book.computeRightmostLinks()
+		}
+
+		if (rechecksDone == 0 || (rechecksDone == 1 && requestAfterRecheck > 1)) {
+			rechecksDone += 1
+			recheck match {
+				case Nil => Done
+				case link :: tail =>
+					recheck = tail
+					LinkD(link)
+			}
+		}
+		else {
+			Done
 		}
 	}
 }

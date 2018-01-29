@@ -113,7 +113,7 @@ lazy val Libraries = new {
 
 	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags, rescala)
 
-	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, scalactic, jsoup, decline, asyncAwait)
+	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, scalactic, jsoup, decline)
 
 	lazy val js: Def.SettingsDefinition = Seq(scalajsdom, rescalatags)
 
@@ -138,7 +138,5 @@ lazy val Libraries = new {
 		"circe-generic-extras",
 		"circe-parser",
 	).map(n => "io.circe" %%% n % "0.9.1" exclude("org.scala-lang", "scala-reflect"))
-
-	val asyncAwait = libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6" % Provided
 
 }

@@ -45,7 +45,7 @@ class Book private(
 		Files.write(path, entries.map(entry => entry.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
 	}
 
-	def emptyArticles(): List[ImageRef] = entries.collect {
+	def emptyImageRefs(): List[ImageRef] = entries.collect {
 		case PageData(ref, _, _, contents) => contents
 	}.flatten.collect {
 		case art@ImageRef(ref, _, _) if !blobMap.contains(ref) => art
@@ -69,16 +69,19 @@ class Book private(
 
 	lazy val id: String = path.getFileName.toString
 
-	def rightmostScribePages(): List[Link] = {
+	/** Starts from the entrypoint, traverses the last Link,
+		* collect the path, returns the path from the rightmost child to the root. */
+	def computeRightmostLinks(): List[Link] = {
 
 		val seen = mutable.HashSet[Vurl]()
 
 		@scala.annotation.tailrec
-		def rightmost(remaining: PageData, acc: List[Link]): List[Link] = {
-			val next = remaining.contents.reverseIterator.find {
+		def rightmost(current: PageData, acc: List[Link]): List[Link] = {
+			/* Get the last Link for the current PageData  */
+			val next = current.contents.reverseIterator.find {
 				case Link(loc, _, _) if seen.add(loc) => true
 				case _ => false
-			} collect {
+			} collect { // essentially a typecast …
 				case l@Link(_, _, _) => l
 			}
 			next match {
