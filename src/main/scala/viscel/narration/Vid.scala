@@ -3,6 +3,7 @@ package viscel.narration
 import java.io.{BufferedReader, InputStreamReader}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
+import java.util.stream.Stream
 
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
@@ -154,34 +155,28 @@ object Vid {
 		go(preprocessed, Nil)
 	}
 
-	def load(path: Path): List[Narrator] = {
+	def load(stream: Stream[String], path: String): List[Narrator] = {
 		Log.info(s"parsing definitions from $path")
-		parse(Files.lines(path, StandardCharsets.UTF_8).iterator().asScala, path.toString) match {
+		try parse(stream.iterator().asScala, path.toString) match {
 			case Good(res) => res
 			case Bad(err) =>
 				Log.warn(s"failed to parse $path errors: $err")
 				Nil
 		}
+		finally stream.close()
 	}
 
 	def loadAll(dir: Path): List[Narrator] = {
 		val dynamic = if (!Files.exists(dir)) Nil
 		else {
 			val paths = Files.newDirectoryStream(dir, "*.vid")
-			paths.iterator().asScala.flatMap {load}.toList
+			paths.iterator().asScala.flatMap { path =>
+				load(Files.lines(path, StandardCharsets.UTF_8), path.toString)
+			}.toList
 		}
 
 		val stream = new BufferedReader(new InputStreamReader(getClass.getClassLoader.getResourceAsStream("definitions.vid"), StandardCharsets.UTF_8)).lines()
-		val res = try {
-			parse(stream.iterator().asScala, "definitions.vid") match {
-				case Good(g) => g
-				case Bad(err) =>
-					Log.warn(s"failed to parse definitions.vid errors: $err")
-					Nil
-			}
-		}
-		finally stream.close()
-
+		val res = load(stream, "definitions.vid")
 		(res ::: dynamic).reverse
 	}
 
