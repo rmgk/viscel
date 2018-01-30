@@ -113,7 +113,7 @@ lazy val Libraries = new {
 
 	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags, rescala)
 
-	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, scalactic, jsoup, decline)
+	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, scalactic, jsoup, decline, scalatest, scalacheck)
 
 	lazy val js: Def.SettingsDefinition = Seq(scalajsdom, rescalatags)
 
@@ -124,6 +124,7 @@ lazy val Libraries = new {
 	val decline = libraryDependencies += "com.monovore" %% "decline" % "0.4.1" exclude("org.scala-lang", "scala-reflect")
 
 	val scalactic = libraryDependencies +=("org.scalactic" %% "scalactic" % "3.0.4" exclude("org.scala-lang", "scala-reflect"))
+
 
 	val scalatags = libraryDependencies +=("com.lihaoyi" %%% "scalatags" % "0.6.7" )
 
@@ -139,4 +140,6 @@ lazy val Libraries = new {
 		"circe-parser",
 	).map(n => "io.circe" %%% n % "0.9.1" exclude("org.scala-lang", "scala-reflect"))
 
+	val scalatest = libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.4" % "test"
+	val scalacheck = libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 }

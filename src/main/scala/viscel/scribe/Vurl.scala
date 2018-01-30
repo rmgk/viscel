@@ -17,6 +17,7 @@ import scala.language.implicitConversions
 	* and [[java.net.URL]] is more stable. */
 final class Vurl private(val uri: Uri) extends AnyVal {
 	def uriString(): String = uri.toString()
+	override def toString: String = s"Vurl(${uriString()})"
 }
 
 object Vurl {
@@ -36,6 +37,10 @@ object Vurl {
 			fragment = Option(in.getRef)
 		)
 	}
+
+	def apply(s: String): Vurl = fromString(s)
+	def apply(uri: Uri): Vurl = fromUri(uri)
+
 	/* we use the parser from java.net.URL as that handles unicode characters in the path better,
 	 * except if the thing is a viscel: uri, which is not a legal URL, so can not be parsed by that */
 	implicit def fromString(uri: String): Vurl = {

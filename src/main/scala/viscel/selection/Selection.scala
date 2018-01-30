@@ -35,8 +35,8 @@ sealed trait Selection {
 }
 
 object Selection {
-	def apply(element: Element): Selection = new GoodSelection(List(element))
-	def apply(elements: List[Element]): Selection = new GoodSelection(elements)
+	def apply(element: Element): Selection = GoodSelection(List(element))
+	def apply(elements: List[Element]): Selection = GoodSelection(elements)
 }
 
 case class GoodSelection(elements: List[Element]) extends Selection {
