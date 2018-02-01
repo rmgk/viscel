@@ -20,164 +20,170 @@ import scala.util.matching.Regex
 
 object Vid {
 
-	case class Line(s: String, p: Int)
-	type It = BufferedIterator[Line]
+  case class Line(s: String, p: Int)
+  type It = BufferedIterator[Line]
 
-	val extractIDAndName: Regex = """^-(\w*):(.+)$""".r
-	val extractAttribute: Regex = """^:(\S+)\s*(.*)$""".r
+  val extractIDAndName: Regex = """^-(\w*):(.+)$""".r
+  val extractAttribute: Regex = """^:(\S+)\s*(.*)$""".r
 
-	def parseURL(it: It): Vurl Or ErrorMessage = {
-		val Line(url, pos) = it.next()
-		attempt(Vurl.fromString(url)).badMap(_ => s"malformed URL at line $pos: $url")
-	}
+  def parseURL(it: It): Vurl Or ErrorMessage = {
+    val Line(url, pos) = it.next()
+    attempt(Vurl.fromString(url)).badMap(_ => s"malformed URL at line $pos: $url")
+  }
 
-	val attributeReplacements = Map(
-		"ia" -> "image+next",
-		"i" -> "image",
-		"is" -> "images",
-		"n" -> "next",
-		"am" -> "mixedArchive",
-		"ac" -> "chapterArchive",
-	)
-	def normalizeAttributeName(att: String): String = {
-		attributeReplacements.getOrElse(att, att)
-	}
+  val attributeReplacements = Map(
+    "ia" -> "image+next",
+    "i" -> "image",
+    "is" -> "images",
+    "n" -> "next",
+    "am" -> "mixedArchive",
+    "ac" -> "chapterArchive",
+  )
+  def normalizeAttributeName(att: String): String = {
+    attributeReplacements.getOrElse(att, att)
+  }
 
-	@tailrec
-	def parseAttributes(it: It, acc: Map[String, Line]): Map[String, Line] =
-		if (!it.hasNext) acc
-		else it.head match {
-			case Line(extractAttribute(name, value), pos) =>
-				it.next()
-				parseAttributes(it, acc.updated(normalizeAttributeName(name), Line(value, pos)))
-			case _ => acc
-		}
-
-
-	implicit class ExtractContext(val sc: StringContext) {
-		object extract {
-			def unapplySeq[T](m: Map[String, T]): Option[Seq[T]] = {
-				val keys = sc.parts.map(_.trim).filter(_.nonEmpty)
-				val res = keys.flatMap(m.get)
-				if (res.lengthCompare(keys.size) == 0) Some(res)
-				else None
-			}
-		}
-	}
-
-	case class AdditionalPosition(lines: Seq[Line], path: String)(annotated: Report) extends Report {
-		override def describe: String = s"${annotated.describe} in $path lines [${lines.map(_.p).mkString(", ")}]"
-	}
-
-	def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): Narrator Or ErrorMessage = {
-		val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
-		type Wrap = Document => Contents
-		def has(keys: String*): Boolean = keys.forall(attrs.contains)
-		def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(augmentBad(_)(AdditionalPosition(lines, path))))
-		def transform(ow: Option[Wrap])(f: List[WebContent] => List[WebContent]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
-
-		val pageFun: Option[Wrap] = attrs match {
-			case extract"image+next $img" => annotate(queryImageInAnchor(img.s), img)
-
-			case extract"image $img next $next" => annotate(queryImageNext(img.s, next.s), img, next)
-
-			case extract"images $img next $next" => annotate(doc => append(queryImages(img.s)(doc), queryNext(next.s)(doc)), img, next)
-
-			case extract"image $img" => annotate(queryImage(img.s), img)
-			case extract"images $img" => annotate(queryImages(img.s), img)
-			case _ => None
-		}
-
-		val archFun: Option[Wrap] = attrs match {
-			case extract"mixedArchive $arch" => annotate(queryMixedArchive(arch.s), arch)
-
-			case extract"chapterArchive $arch" => annotate(queryChapterArchive(arch.s), arch)
-
-			case _ => None
-		}
-
-		val (pageFunReplace, archFunReplace) = attrs match {
-			case extract"url_replace $replacer" =>
-				val replacements: List[Array[String]] = replacer.s.split("\\s+:::\\s+").sliding(2, 2).toList
-				def replaceVurl(url: Vurl): Vurl =
-					replacements.foldLeft(url.uriString) {
-						case (u, Array(matches, replace)) => u.replaceAll(matches, replace)
-					}
-
-				val doReplace: List[WebContent] => List[WebContent] = { stories =>
-					stories.map {
-						case Link(url, policy, data) =>	Link(replaceVurl(url), policy, data)
-						case ImageRef(url, origin, data) =>	ImageRef(replaceVurl(url), origin, data)
-						case o => o
-					}
-				}
-				(transform(pageFun)(doReplace), transform(archFun)(doReplace))
+  @tailrec
+  def parseAttributes(it: It, acc: Map[String, Line]): Map[String, Line] =
+    if (!it.hasNext) acc
+    else it.head match {
+      case Line(extractAttribute(name, value), pos) =>
+        it.next()
+        parseAttributes(it, acc.updated(normalizeAttributeName(name), Line(value, pos)))
+      case _ => acc
+    }
 
 
-			case _ => (pageFun, archFun)
-		}
+  implicit class ExtractContext(val sc: StringContext) {
+    object extract {
+      def unapplySeq[T](m: Map[String, T]): Option[Seq[T]] = {
+        val keys = sc.parts.map(_.trim).filter(_.nonEmpty)
+        val res = keys.flatMap(m.get)
+        if (res.lengthCompare(keys.size) == 0) Some(res)
+        else None
+      }
+    }
+  }
 
-		val archFunRev = if (has("archiveReverse")) transform(archFunReplace)(reverse) else archFunReplace
+  case class AdditionalPosition(lines: Seq[Line], path: String)(annotated: Report) extends Report {
+    override def describe: String = s"${annotated.describe} in $path lines [${lines.map(_.p).mkString(", ")}]"
+  }
 
-		(pageFunReplace, archFunRev) match {
-			case (Some(pf), None) => Good(Templates.SimpleForward(cid, name, startUrl, pf))
-			case (Some(pf), Some(af)) => Good(Templates.ArchivePage(cid, name, startUrl, af, pf))
-			case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
-		}
+  def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): Narrator Or ErrorMessage = {
+    val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
+    type Wrap = Document => Contents
 
-	}
+    def has(keys: String*): Boolean = keys.forall(attrs.contains)
+
+    def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(augmentBad(_)(AdditionalPosition(lines, path))))
+
+    def transform(ow: Option[Wrap])(f: List[WebContent] => List[WebContent]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
+
+    val pageFun: Option[Wrap] = attrs match {
+      case extract"image+next $img" => annotate(queryImageInAnchor(img.s), img)
+
+      case extract"image $img next $next" => annotate(queryImageNext(img.s, next.s), img, next)
+
+      case extract"images $img next $next" => annotate(doc => append(queryImages(img.s)(doc), queryNext(next.s)(doc)), img, next)
+
+      case extract"image $img" => annotate(queryImage(img.s), img)
+      case extract"images $img" => annotate(queryImages(img.s), img)
+      case _ => None
+    }
+
+    val archFun: Option[Wrap] = attrs match {
+      case extract"mixedArchive $arch" => annotate(queryMixedArchive(arch.s), arch)
+
+      case extract"chapterArchive $arch" => annotate(queryChapterArchive(arch.s), arch)
+
+      case _ => None
+    }
+
+    val (pageFunReplace, archFunReplace) = attrs match {
+      case extract"url_replace $replacer" =>
+        val replacements: List[Array[String]] = replacer.s.split("\\s+:::\\s+").sliding(2, 2).toList
+
+        def replaceVurl(url: Vurl): Vurl =
+          replacements.foldLeft(url.uriString) {
+            case (u, Array(matches, replace)) => u.replaceAll(matches, replace)
+          }
+
+        val doReplace: List[WebContent] => List[WebContent] = { stories =>
+          stories.map {
+            case Link(url, policy, data) => Link(replaceVurl(url), policy, data)
+            case ImageRef(url, origin, data) => ImageRef(replaceVurl(url), origin, data)
+            case o => o
+          }
+        }
+        (transform(pageFun)(doReplace), transform(archFun)(doReplace))
 
 
-	def parseNarration(it: It, path: String): Narrator Or ErrorMessage = {
-		it.next() match {
-			case Line(extractIDAndName(id, name), pos) =>
-				parseURL(it).flatMap { url =>
-					val attrs = parseAttributes(it, Map())
-					makeNarrator(id, name, pos, url, attrs, path)
-				}
+      case _ => (pageFun, archFun)
+    }
 
-			case Line(line, pos) => Bad(s"expected definition at line $pos, but found $line")
-		}
-	}
+    val archFunRev = if (has("archiveReverse")) transform(archFunReplace)(reverse) else archFunReplace
 
-	def parse(lines: Iterator[String], path: String): List[Narrator] Or ErrorMessage = {
-		val preprocessed = lines.map(_.trim).zipWithIndex.map(p => Line(p._1, p._2 + 1)).filter(l => l.s.nonEmpty && !l.s.startsWith("--")).buffered
-		def go(it: It, acc: List[Narrator]): List[Narrator] Or ErrorMessage =
-			if (!it.hasNext) {
-				Good(acc)
-			}
-			else {
-				parseNarration(it, path) match {
-					case Good(n) => go(it, n :: acc)
-					case Bad(e) => Bad(e)
-				}
-			}
-		go(preprocessed, Nil)
-	}
+    (pageFunReplace, archFunRev) match {
+      case (Some(pf), None) => Good(Templates.SimpleForward(cid, name, startUrl, pf))
+      case (Some(pf), Some(af)) => Good(Templates.ArchivePage(cid, name, startUrl, af, pf))
+      case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
+    }
 
-	def load(stream: Stream[String], path: String): List[Narrator] = {
-		Log.info(s"parsing definitions from $path")
-		try parse(stream.iterator().asScala, path.toString) match {
-			case Good(res) => res
-			case Bad(err) =>
-				Log.warn(s"failed to parse $path errors: $err")
-				Nil
-		}
-		finally stream.close()
-	}
+  }
 
-	def loadAll(dir: Path): List[Narrator] = {
-		val dynamic = if (!Files.exists(dir)) Nil
-		else {
-			val paths = Files.newDirectoryStream(dir, "*.vid")
-			paths.iterator().asScala.flatMap { path =>
-				load(Files.lines(path, StandardCharsets.UTF_8), path.toString)
-			}.toList
-		}
 
-		val stream = new BufferedReader(new InputStreamReader(getClass.getClassLoader.getResourceAsStream("definitions.vid"), StandardCharsets.UTF_8)).lines()
-		val res = load(stream, "definitions.vid")
-		(res ::: dynamic).reverse
-	}
+  def parseNarration(it: It, path: String): Narrator Or ErrorMessage = {
+    it.next() match {
+      case Line(extractIDAndName(id, name), pos) =>
+        parseURL(it).flatMap { url =>
+          val attrs = parseAttributes(it, Map())
+          makeNarrator(id, name, pos, url, attrs, path)
+        }
+
+      case Line(line, pos) => Bad(s"expected definition at line $pos, but found $line")
+    }
+  }
+
+  def parse(lines: Iterator[String], path: String): List[Narrator] Or ErrorMessage = {
+    val preprocessed = lines.map(_.trim).zipWithIndex.map(p => Line(p._1, p._2 + 1)).filter(l => l.s.nonEmpty && !l.s.startsWith("--")).buffered
+
+    def go(it: It, acc: List[Narrator]): List[Narrator] Or ErrorMessage =
+      if (!it.hasNext) {
+        Good(acc)
+      }
+      else {
+        parseNarration(it, path) match {
+          case Good(n) => go(it, n :: acc)
+          case Bad(e) => Bad(e)
+        }
+      }
+
+    go(preprocessed, Nil)
+  }
+
+  def load(stream: Stream[String], path: String): List[Narrator] = {
+    Log.info(s"parsing definitions from $path")
+    try parse(stream.iterator().asScala, path.toString) match {
+      case Good(res) => res
+      case Bad(err) =>
+        Log.warn(s"failed to parse $path errors: $err")
+        Nil
+    }
+    finally stream.close()
+  }
+
+  def loadAll(dir: Path): List[Narrator] = {
+    val dynamic = if (!Files.exists(dir)) Nil
+    else {
+      val paths = Files.newDirectoryStream(dir, "*.vid")
+      paths.iterator().asScala.flatMap { path =>
+        load(Files.lines(path, StandardCharsets.UTF_8), path.toString)
+      }.toList
+    }
+
+    val stream = new BufferedReader(new InputStreamReader(getClass.getClassLoader.getResourceAsStream("definitions.vid"), StandardCharsets.UTF_8)).lines()
+    val res = load(stream, "definitions.vid")
+    (res ::: dynamic).reverse
+  }
 
 }

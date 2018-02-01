@@ -12,20 +12,20 @@ import scala.util.matching.Regex
 
 object DynastyScans {
 
-	val pages: Regex = """/system/releases/\d+/\d+/\d+/[^"]+""".r
+  val pages: Regex = """/system/releases/\d+/\d+/\d+/[^"]+""".r
 
-	val Citrus: Narrator = ArchivePage(
-		pid = "DS_citrus",
-		pname = "Citrus",
-		start = "https://dynasty-scans.com/series/citrus",
-		wrapArchive = queryChapterArchive(s".chapter-list a.name:not(:contains(love panic))"),
-		wrapPage = doc => Selection(doc).unique("body > script").wrapFlat { script =>
-			extract {
-				pages.findAllIn(script.html()).map { url =>
-					ImageRef(StringUtil.resolve(doc.baseUri(),url), doc.location())
-				}.toList
-			}
-		}
-	)
+  val Citrus: Narrator = ArchivePage(
+    pid = "DS_citrus",
+    pname = "Citrus",
+    start = "https://dynasty-scans.com/series/citrus",
+    wrapArchive = queryChapterArchive(s".chapter-list a.name:not(:contains(love panic))"),
+    wrapPage = doc => Selection(doc).unique("body > script").wrapFlat { script =>
+      extract {
+        pages.findAllIn(script.html()).map { url =>
+          ImageRef(StringUtil.resolve(doc.baseUri(), url), doc.location())
+        }.toList
+      }
+    }
+  )
 
 }

@@ -11,47 +11,45 @@ import viscel.shared.Blob
 
 /** Single row in a [[Scribe]] [[Book]]. Is either a [[PageData]] or a [[BlobData]]. */
 sealed trait ScribeDataRow {
-	/** reference that spawned this entry */
-	def ref: Vurl
-	def matchesRef(o: ScribeDataRow): Boolean = ref == o.ref
-	def differentContent(o: ScribeDataRow): Boolean = (this, o) match {
-		case (PageData(ref1, loc1, _, contents1), PageData(ref2, loc2, _, contents2)) =>
-			!(ref1 == ref2 && loc1 == loc2 && contents1 == contents2)
-		case (BlobData(ref1, loc1, _, blob1), BlobData(ref2, loc2, _, blob2)) =>
-			!(ref1 == ref2 && loc1 == loc2 && blob1 == blob2)
-		case _ => true
-	}
+  /** reference that spawned this entry */
+  def ref: Vurl
+  def matchesRef(o: ScribeDataRow): Boolean = ref == o.ref
+  def differentContent(o: ScribeDataRow): Boolean = (this, o) match {
+    case (PageData(ref1, loc1, _, contents1), PageData(ref2, loc2, _, contents2)) =>
+      !(ref1 == ref2 && loc1 == loc2 && contents1 == contents2)
+    case (BlobData(ref1, loc1, _, blob1), BlobData(ref2, loc2, _, blob2)) =>
+      !(ref1 == ref2 && loc1 == loc2 && blob1 == blob2)
+    case _ => true
+  }
 }
 
 /** A web page parsed and stored in [[Scribe]]
-	*
-	* @param ref reference that spawned this entry
-	* @param loc location that was finally resolved and downloaded
-	* @param date last modified timestamp when available, current date otherwise
-	* @param contents links and images found on this page
-	*/
-/*@key("Page")*/ case class PageData(
-	ref: Vurl,
-	loc: Vurl,
-	date: Instant,
-	contents: List[WebContent]
-) extends ScribeDataRow {
-	def articleCount: Int = contents.count(_.isInstanceOf[ImageRef])
+  *
+  * @param ref      reference that spawned this entry
+  * @param loc      location that was finally resolved and downloaded
+  * @param date     last modified timestamp when available, current date otherwise
+  * @param contents links and images found on this page
+  */
+/*@key("Page")*/ case class PageData(ref: Vurl,
+                                     loc: Vurl,
+                                     date: Instant,
+                                     contents: List[WebContent]
+                                    ) extends ScribeDataRow {
+  def articleCount: Int = contents.count(_.isInstanceOf[ImageRef])
 }
 
 /** A reference to a binary object stored in [[Scribe]]
-	*
-	* @param ref reference that spawned this entry, linked to [[ImageRef.ref]]
-	* @param loc location that was finally resolved and downloaded
-	* @param date last modified timestamp when available, current date otherwise
-	* @param blob reference to the file
-	*/
-/*@key("Blob")*/ case class BlobData(
-	ref: Vurl,
-	loc: Vurl,
-	date: Instant,
-	blob: Blob
-) extends ScribeDataRow
+  *
+  * @param ref  reference that spawned this entry, linked to [[ImageRef.ref]]
+  * @param loc  location that was finally resolved and downloaded
+  * @param date last modified timestamp when available, current date otherwise
+  * @param blob reference to the file
+  */
+/*@key("Blob")*/ case class BlobData(ref: Vurl,
+                                     loc: Vurl,
+                                     date: Instant,
+                                     blob: Blob
+                                    ) extends ScribeDataRow
 
 /** The things a person is interested in [[Chapter]] and [[Article]], content of [[Book.pages]] */
 sealed trait ReadableContent
@@ -64,8 +62,8 @@ sealed trait WebContent
 /** A chapter named [[name]] */
 /*@key("Chapter")*/ case class Chapter(name: String) extends WebContent with ReadableContent
 /** A reference to an image or similar at url [[ref]] (referring to [[BlobData.ref]])
-	* and originating at [[origin]] (referring to [[PageData.ref]]))
-	* with additional [[data]] such as HMTL attributes. */
+  * and originating at [[origin]] (referring to [[PageData.ref]]))
+  * with additional [[data]] such as HMTL attributes. */
 /*@key("Article")*/ case class ImageRef(ref: Vurl, origin: Vurl, data: Map[String, String] = Map()) extends WebContent
 /** [[Link.ref]] to another [[PageData]], with an update [[policy]], and narator specific [[data]]. */
 /*@key("Link")*/ case class Link(ref: Vurl, policy: Policy = Normal, data: List[String] = Nil) extends WebContent
@@ -78,46 +76,46 @@ sealed trait Policy
 
 /** Pickler customization for compatibility */
 object ScribePicklers {
-	def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[Policy]] = exportDecoder[Policy]
+  def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[Policy]] = exportDecoder[Policy]
 
-	/** use "\$type" field in json to detect type, was upickle default and is used every [[Book]] ... */
-	implicit val config: Configuration = Configuration.default.withDefaults.withDiscriminator("$" + "type")
-
-
-	/** allow "Article" as an [[ImageRef]] in the serialized format */
-	implicit val webContentReader: Decoder[WebContent] = semiauto.deriveDecoder[WebContent].prepare{ cursor =>
-		val t = cursor.downField("$type")
-		t.as[String] match {
-			case Right("Article") => t.set(io.circe.Json.fromString("ImageRef")).up
-			case _ => cursor
-		}
-	}
-	/** note: new [[ImageRef]] are written as [[ImageRef]] **/
-	implicit val webContentWriter: Encoder[WebContent] = semiauto.deriveEncoder[WebContent]
+  /** use "\$type" field in json to detect type, was upickle default and is used every [[Book]] ... */
+  implicit val config: Configuration = Configuration.default.withDefaults.withDiscriminator("$" + "type")
 
 
-	/** rename [[BlobData]] and [[PageData]] to just "Page" and "Blob" in the serialized format */
-	implicit val appendlogReader: Decoder[ScribeDataRow] = semiauto.deriveDecoder[ScribeDataRow].prepare{ cursor =>
-		val t = cursor.downField("$type")
-		t.as[String] match {
-			case Right("Blob") => t.set(io.circe.Json.fromString("BlobData")).up
-			case Right("Page") => t.set(io.circe.Json.fromString("PageData")).up
-			case _ => cursor
-		}
-	}
-	implicit val appendLogWriter: Encoder[ScribeDataRow] = semiauto.deriveEncoder[ScribeDataRow].mapJson{js =>
-		js.hcursor.get[String]("$type") match {
-			case Right("BlobData") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Blob")))
-			case Right("PageData") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Page")))
-			case _ => js
-		}
-	}
+  /** allow "Article" as an [[ImageRef]] in the serialized format */
+  implicit val webContentReader: Decoder[WebContent] = semiauto.deriveDecoder[WebContent].prepare { cursor =>
+    val t = cursor.downField("$type")
+    t.as[String] match {
+      case Right("Article") => t.set(io.circe.Json.fromString("ImageRef")).up
+      case _ => cursor
+    }
+  }
+  /** note: new [[ImageRef]] are written as [[ImageRef]] **/
+  implicit val webContentWriter: Encoder[WebContent] = semiauto.deriveEncoder[WebContent]
 
 
-	/** coding for instants saved to the database */
-	implicit val instantWriter: Encoder[Instant] = Encoder.encodeString.contramap[Instant](_.toString)
-	implicit val instantReader: Decoder[Instant] = Decoder.decodeString.emap { str =>
-		Either.catchNonFatal(Instant.parse(str)).leftMap(t => "Instant: " + t.getMessage)
-	}
+  /** rename [[BlobData]] and [[PageData]] to just "Page" and "Blob" in the serialized format */
+  implicit val appendlogReader: Decoder[ScribeDataRow] = semiauto.deriveDecoder[ScribeDataRow].prepare { cursor =>
+    val t = cursor.downField("$type")
+    t.as[String] match {
+      case Right("Blob") => t.set(io.circe.Json.fromString("BlobData")).up
+      case Right("Page") => t.set(io.circe.Json.fromString("PageData")).up
+      case _ => cursor
+    }
+  }
+  implicit val appendLogWriter: Encoder[ScribeDataRow] = semiauto.deriveEncoder[ScribeDataRow].mapJson { js =>
+    js.hcursor.get[String]("$type") match {
+      case Right("BlobData") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Blob")))
+      case Right("PageData") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Page")))
+      case _ => js
+    }
+  }
+
+
+  /** coding for instants saved to the database */
+  implicit val instantWriter: Encoder[Instant] = Encoder.encodeString.contramap[Instant](_.toString)
+  implicit val instantReader: Decoder[Instant] = Decoder.decodeString.emap { str =>
+    Either.catchNonFatal(Instant.parse(str)).leftMap(t => "Instant: " + t.getMessage)
+  }
 
 }
