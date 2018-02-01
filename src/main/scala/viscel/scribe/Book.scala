@@ -1,49 +1,44 @@
 package viscel.scribe
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, StandardOpenOption}
+import java.nio.file.{Files, Path}
 import java.util.stream.Collectors
 
-import io.circe.syntax._
 import viscel.scribe.ScribePicklers._
 import viscel.shared.Log
-import viscel.store.DescriptionCache
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Book private(
-	path: Path,
-	descriptionCache: DescriptionCache,
-	pageMap: mutable.Map[Vurl, PageData],
-	blobMap: mutable.Map[Vurl, BlobData],
-	entries: ArrayBuffer[ScribeDataRow],
-) {
+class Book private(val id: String,
+									 val name: String,
+									 pageMap: mutable.Map[Vurl, PageData],
+									 blobMap: mutable.Map[Vurl, BlobData],
+									 entries: ArrayBuffer[ScribeDataRow],
+									) {
 
-	def add(entry: ScribeDataRow): Unit = {
+	def add(entry: ScribeDataRow): Option[Int] = {
 		val index = entries.lastIndexWhere(_.matchesRef(entry))
 		if (index < 0 || entries(index).differentContent(entry)) {
-			Files.write(path, List(entry.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
-			entry match {
+			val addCount = entry match {
 				case alp@PageData(il, _, _, _) =>
 					pageMap.put(il, alp)
-					descriptionCache.updateSize(id, alp.articleCount - (if (index < 0) 0 else entries(index).asInstanceOf[PageData].articleCount))
-				case alb@BlobData(il, _, _, _) => blobMap.put(il, alb)
+					Option(alp.articleCount - (if (index < 0) 0 else entries(index).asInstanceOf[PageData].articleCount))
+				case alb@BlobData(il, _, _, _) =>
+					blobMap.put(il, alb)
+					Option(0)
 			}
 			if (index >= 0) entries.remove(index)
 			entries += entry
+			addCount
 		}
+		else None
 	}
 
 	def beginning: Option[PageData] = pageMap.get(Vurl.entrypoint)
 	def hasPage(ref: Vurl): Boolean = pageMap.contains(ref)
 	def hasBlob(ref: Vurl): Boolean = blobMap.contains(ref)
-
-	def export(path: Path): Unit = {
-		Files.write(path, List(name).asJava, StandardOpenOption.CREATE_NEW)
-		Files.write(path, entries.map(entry => entry.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
-	}
 
 	def emptyImageRefs(): List[ImageRef] = entries.collect {
 		case PageData(ref, _, _, contents) => contents
@@ -65,9 +60,6 @@ class Book private(
 
 	def allBlobs(): Iterator[BlobData] = entries.iterator.collect { case sb@BlobData(_, _, _, _) => sb }
 
-	lazy val name: String = io.circe.parser.decode[String](Files.lines(path).findFirst().get()).toTry.get
-
-	lazy val id: String = path.getFileName.toString
 
 	/** Starts from the entrypoint, traverses the last Link,
 		* collect the path, returns the path from the rightmost child to the root. */
@@ -150,7 +142,7 @@ class Book private(
 }
 
 object Book {
-	def load(path: Path, descriptionCache: DescriptionCache) = {
+	def load(path: Path) = {
 		val pageMap: mutable.HashMap[Vurl, PageData] = mutable.HashMap[Vurl, PageData]()
 		val blobMap: mutable.HashMap[Vurl, BlobData] = mutable.HashMap[Vurl, BlobData]()
 
@@ -182,6 +174,8 @@ object Book {
 				fileStream.close()
 			}
 		}
-		new Book(path, descriptionCache, pageMap, blobMap, entries)
+		val id = path.getFileName.toString
+		val name = io.circe.parser.decode[String](Files.lines(path).findFirst().get()).toTry.get
+		new Book(id, name, pageMap, blobMap, entries)
 	}
 }

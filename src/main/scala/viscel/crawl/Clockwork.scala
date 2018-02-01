@@ -44,7 +44,7 @@ class Clockwork(
 		if (!running.contains(narrator.id) && needsRecheck(narrator.id, recheckInterval)) {
 
 			val book = scribe.findOrCreate(narrator)
-			val crawl = new Crawl(narrator, book, requestUtil)(ec)
+			val crawl = new Crawl(narrator, book, scribe, requestUtil)(ec)
 			running = running.updated(narrator.id, crawl)
 			implicit val iec: ExecutionContext = ec
 

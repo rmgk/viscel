@@ -3,7 +3,7 @@ package viscel.crawl
 import java.time.Instant
 
 import viscel.narration.Narrator
-import viscel.scribe.{Book, ImageRef, Link, PageData, Vurl, WebContent}
+import viscel.scribe.{Book, ImageRef, Link, PageData, Scribe, Vurl, WebContent}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -13,20 +13,17 @@ case class LinkD(link: Link) extends Decision
 case object Done extends Decision
 
 
-/** This whole class is a bit of a weird asynchronous thing, that operates on the images and links lists,
-	* both of which grow an shring as the crawler downloads pages, but also finds new ones to download.
-	* It has this tailrecursive structure, just that every recursive call is a future. */
-class Crawl(
-	narrator: Narrator,
-	book: Book,
-	requestUtil: RequestUtil)
-	(implicit ec: ExecutionContext) {
+class Crawl(narrator: Narrator,
+						book: Book,
+						scribe: Scribe,
+						requestUtil: RequestUtil)
+					 (implicit ec: ExecutionContext) {
 
 
 	def start(): Future[Unit] = {
 		val entry = book.beginning
 		if (entry.isEmpty || entry.get.contents != narrator.archive) {
-			book.add(PageData(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
+			scribe.addRowTo(book, PageData(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
 		}
 		val decider = new Decider(
 			images = book.emptyImageRefs(),
@@ -46,12 +43,12 @@ class Crawl(
 	}
 
 	private def handleImage(image: ImageRef): Future[Unit] =
-		requestUtil.requestBlob(image.ref, Some(image.origin)).map(book.add)
+		requestUtil.requestBlob(image.ref, Some(image.origin)).map(scribe.addRowTo(book, _))
 
 	private def handleLink(link: Link, decider: Decider) =
 		requestUtil.requestPage(link, narrator) map { page =>
 			decider.addContents(page.contents)
-			book.add(page)
+			scribe.addRowTo(book, page)
 		}
 
 
