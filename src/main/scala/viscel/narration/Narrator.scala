@@ -2,6 +2,8 @@ package viscel.narration
 
 import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
+import viscel.narration.interpretation.NarrationInterpretation
+import viscel.narration.interpretation.NarrationInterpretation.Wrapper
 import viscel.scribe.{Link, WebContent}
 
 /** Describes the structure of a web collection */
@@ -24,6 +26,8 @@ trait Narrator {
     * @return list of all the contents of the document, or all error messages during parsing
     */
   def wrap(doc: Document, link: Link): Contents
+
+  def wrapper: Wrapper = NarrationInterpretation.OmnipotentWrapper(wrap)
 
   final override def equals(other: Any): Boolean = other match {
     case o: Narrator => id === o.id

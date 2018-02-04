@@ -1,7 +1,9 @@
 package viscel.narration
 
 import org.jsoup.nodes.Document
-import viscel.scribe.{Link, Normal, Volatile, Vurl, WebContent}
+import viscel.narration.interpretation.NarrationInterpretation
+import viscel.narration.interpretation.NarrationInterpretation.{DocumentWrapper, PolicyDecision}
+import viscel.scribe.{Link, Volatile, Vurl, WebContent}
 
 object Templates {
   def ArchivePage(pid: String,
@@ -19,10 +21,10 @@ object Templates {
                              wrapPage: Document => Contents
                             ) extends Narrator {
     override def archive: List[WebContent] = Link(start, Volatile) :: Nil
-    override def wrap(doc: Document, more: Link): Contents = more match {
-      case Link(_, Volatile, _) => wrapArchive(doc)
-      case Link(_, Normal, _) => wrapPage(doc)
-    }
+    override def wrap(doc: Document, more: Link): Contents = ???
+    override def wrapper: NarrationInterpretation.Wrapper = PolicyDecision(
+        volatile = DocumentWrapper(wrapArchive),
+        normal = DocumentWrapper(wrapPage))
   }
 
   def SimpleForward(pid: String,
@@ -38,6 +40,7 @@ object Templates {
                                wrapPage: Document => Contents
                               ) extends Narrator {
     override def archive: List[WebContent] = Link(start) :: Nil
-    override def wrap(doc: Document, more: Link): Contents = wrapPage(doc)
+    override def wrap(doc: Document, more: Link): Contents = ???
+    override def wrapper: NarrationInterpretation.Wrapper = DocumentWrapper(wrapPage)
   }
 }
