@@ -8,10 +8,10 @@ import java.util.stream.Stream
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Queries._
-import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
-import viscel.scribe.{ImageRef, Link, Vurl, WebContent}
+import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, DocumentWrapper, NarratorADT, Reverse, TransformUrls, Wrapper}
+import viscel.scribe.{Link, Vurl}
 import viscel.selection.Report
-import viscel.selection.ReportTools.{append, augmentBad}
+import viscel.selection.ReportTools.append
 import viscel.shared.Log
 
 import scala.annotation.tailrec
@@ -72,13 +72,11 @@ object Vid {
 
   def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): NarratorADT Or ErrorMessage = {
     val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
-    type Wrap = Document => Contents
+    type Wrap = Wrapper
 
     def has(keys: String*): Boolean = keys.forall(attrs.contains)
 
-    def annotate(f: Wrap, lines: Line*): Option[Wrap] = Some(f.andThen(augmentBad(_)(AdditionalPosition(lines, path))))
-
-    def transform(ow: Option[Wrap])(f: List[WebContent] => List[WebContent]): Option[Wrap] = ow.map(_.andThen(_.map(f)))
+    def annotate(f: Document => Contents, lines: Line*): Option[Wrap] = Some(AdditionalErrors(DocumentWrapper(f) , _.map(AdditionalPosition(lines, path))))
 
     val pageFun: Option[Wrap] = attrs match {
       case extract"image+next $img" => annotate(queryImageInAnchor(img.s), img)
@@ -102,31 +100,16 @@ object Vid {
 
     val (pageFunReplace, archFunReplace) = attrs match {
       case extract"url_replace $replacer" =>
-        val replacements: List[Array[String]] = replacer.s.split("\\s+:::\\s+").sliding(2, 2).toList
-
-        def replaceVurl(url: Vurl): Vurl =
-          replacements.foldLeft(url.uriString) {
-            case (u, Array(matches, replace)) => u.replaceAll(matches, replace)
-          }
-
-        val doReplace: List[WebContent] => List[WebContent] = { stories =>
-          stories.map {
-            case Link(url, policy, data) => Link(replaceVurl(url), policy, data)
-            case ImageRef(url, origin, data) => ImageRef(replaceVurl(url), origin, data)
-            case o => o
-          }
-        }
-        (transform(pageFun)(doReplace), transform(archFun)(doReplace))
-
-
+        val replacements: List[(String, String)] = replacer.s.split("\\s+:::\\s+").sliding(2, 2).map{case Array(a, b) => (a, b)}.toList
+        (pageFun.map(TransformUrls(_, replacements)), archFun.map(TransformUrls(_, replacements)))
       case _ => (pageFun, archFun)
     }
 
-    val archFunRev = if (has("archiveReverse")) transform(archFunReplace)(reverse) else archFunReplace
+    val archFunRev = if (has("archiveReverse")) archFunReplace.map(Reverse) else archFunReplace
 
     (pageFunReplace, archFunRev) match {
-      case (Some(pf), None) => Good(Templates.SimpleForward(cid, name, startUrl, pf))
-      case (Some(pf), Some(af)) => Good(Templates.ArchivePage(cid, name, startUrl, af, pf))
+      case (Some(pf), None) => Good(NarratorADT(cid, name, Link(startUrl) :: Nil, pf))
+      case (Some(pf), Some(af)) => Good(Templates.archivePage(cid, name, startUrl, af, pf))
       case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
     }
 

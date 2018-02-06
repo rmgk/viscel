@@ -5,7 +5,7 @@ import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Queries._
-import viscel.narration.Templates.{ArchivePage, SimpleForward}
+import viscel.narration.Templates.{archivePageWrapped, SimpleForward}
 import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
 import viscel.narration.{Contents, Narrator, Templates}
 import viscel.scribe.Vurl.fromString
@@ -47,7 +47,7 @@ object Individual {
   }
 
 
-  val Flipside = Templates.ArchivePage("NX_Flipside", "Flipside", "http://flipside.keenspot.com/chapters.php",
+  val Flipside = Templates.archivePageWrapped("NX_Flipside", "Flipside", "http://flipside.keenspot.com/chapters.php",
     Selection(_).many("td:matches(Chapter|Intermission)").wrapFlat { data =>
       val pages_? = Selection(data).many("a").wrapEach(extractMore).map {_.distinct}
       val name_? = if (data.text.contains("Chapter"))
@@ -79,7 +79,7 @@ object Individual {
   }
 
   object JayNaylor {
-    def common(id: String, name: String, archiveUri: Vurl) = Templates.ArchivePage(id, name, archiveUri,
+    def common(id: String, name: String, archiveUri: Vurl) = Templates.archivePageWrapped(id, name, archiveUri,
       doc => Selection(doc).many("#chapters li > a").wrapFlat {elementIntoChapterPointer},
       queryImages("#comicentry .content img"))
 
@@ -185,21 +185,21 @@ object Individual {
 
 
   val inlineCores = Set[NarratorADT](
-    ArchivePage("NX_Twokinds", "Twokinds", "http://twokinds.keenspot.com/archive/",
+    archivePageWrapped("NX_Twokinds", "Twokinds", "http://twokinds.keenspot.com/archive/",
       queryMixedArchive("#content .chapter h2 , #content .chapter-links a"),
       queryImage("#content article.comic img[alt=Comic Page]")
     ),
-    ArchivePage("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
+    archivePageWrapped("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
       doc => Selection(doc).unique("#content_post").many(".c_arch:has(div.a_2)").wrapFlat { chap =>
         val chapter_? = Selection(chap).first("div.a_2 > p").getOne.map(e => Chapter(e.text()))
         val pages_? = Selection(chap).many("a").wrapEach(extractMore)
         withGood(chapter_?, pages_?)(_ :: _)
       },
       queryImage("#comic_strip > a > img")),
-    ArchivePage("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/archives.php",
+    archivePageWrapped("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/archives.php",
       Selection(_).many("#leftarea > h3 > a").wrapFlat(elementIntoChapterPointer),
       queryImageInAnchor("#comic")),
-    ArchivePage("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
+    archivePageWrapped("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
       doc => Selection(doc).many(".cc-chapterrow a[href]").wrapFlat(elementIntoChapterPointer),
       doc => {
         val asset_? = Selection(doc).unique("#cc-comic").wrapOne(intoArticle)
@@ -208,15 +208,15 @@ object Individual {
         withGood(asset_?, next_?, comment_?) { (asset, next, comment) => asset.copy(data = asset.data.updated("longcomment", comment)) :: next }
       }),
     SimpleForward("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#cc-comic")),
-    ArchivePage("NX_Skullkickers", "Skull☠kickers", "http://comic.skullkickers.com/archive.php",
+    archivePageWrapped("NX_Skullkickers", "Skull☠kickers", "http://comic.skullkickers.com/archive.php",
       Selection(_).many("#sleft > h2 > a").wrapFlat(elementIntoChapterPointer),
       queryImageInAnchor("#sleft img.ksc")),
     SimpleForward("NX_StickyDillyBuns", "Sticky Dilly Buns", "http://www.stickydillybuns.com/strips-sdb/awesome_leading_man",
       doc => queryImageInAnchor("#comic img")(doc).orElse(queryNext("#cndnext")(doc))),
-    ArchivePage("NX_PennyAndAggie", "Penny & Aggie", "http://www.pennyandaggie.com/index.php?p=1",
+    archivePageWrapped("NX_PennyAndAggie", "Penny & Aggie", "http://www.pennyandaggie.com/index.php?p=1",
       Selection(_).many("form[name=jump] > select[name=menu] > option[value]").wrapFlat(elementIntoChapterPointer),
       queryImageNext(".comicImage", "center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])")),
-    ArchivePage("NX_MegaTokyo", "MegaTokyo", "http://megatokyo.com/archive.php",
+    archivePageWrapped("NX_MegaTokyo", "MegaTokyo", "http://megatokyo.com/archive.php",
       Selection(_).many("div.content:has(a[id~=^C-\\d+$])").wrapFlat { chap =>
         val chapter_? = extract(Chapter(chap.child(0).text()))
         val elements_? = Selection(chap).many("li a").wrapEach(extractMore)
@@ -227,15 +227,15 @@ object Individual {
         else queryImageNext("#strip img", "#comic .next a")(doc)
       }),
     SimpleForward("NX_WhatBirdsKnow", "What Birds Know", "http://fribergthorelli.com/wbk/index.php/page-1/", queryImageNext("#comic-1 img", "a.navi-next")),
-    ArchivePage("NX_TodayNothingHappened", "Today Nothing Happened", "http://www.todaynothinghappened.com/archive.php",
+    archivePageWrapped("NX_TodayNothingHappened", "Today Nothing Happened", "http://www.todaynothinghappened.com/archive.php",
       Selection(_).many("#wrapper > div.rant a.link").wrapEach(extractMore),
       queryImage("#comic > img")),
-    ArchivePage("NX_RedString", "Red String", "http://www.redstring.strawberrycomics.com/archive.php",
+    archivePageWrapped("NX_RedString", "Red String", "http://www.redstring.strawberrycomics.com/archive.php",
       Selection(_).many("#comicwrap h2 > a").wrapFlat(elementIntoChapterPointer),
       queryImageInAnchor("#comic")),
     SimpleForward("NX_Dreamless", "Dreamless", "http://dreamless.keenspot.com/d/20090105.html",
       doc => queryImageNext("img.ksc", "a:has(#next_day1)")(doc).orElse(queryNext("a:has(#next_day1)")(doc))),
-    ArchivePage("NX_PhoenixRequiem", "The Phoenix Requiem", "http://requiem.seraph-inn.com/archives.html",
+    archivePageWrapped("NX_PhoenixRequiem", "The Phoenix Requiem", "http://requiem.seraph-inn.com/archives.html",
       Selection(_).many("#container div.main > table tr:contains(Chapter)").wrapFlat { chap =>
         val chapter_? = extract(Chapter(chap.child(0).text()))
         val elements_? = Selection(chap).many("a").wrapEach(extractMore)
@@ -243,14 +243,14 @@ object Individual {
       },
       queryImage("#container img[src~=^pages/]")),
     SimpleForward("NX_ErrantStory", "Errant Story", "http://www.errantstory.com/2002-11-04/15", queryImageNext("#comic > img", "#column > div.nav > h4.nav-next > a")),
-    ArchivePage("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
+    archivePageWrapped("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
       queryMixedArchive("#main_text div.archivediv h2, #main_text div.archivediv a"),
       queryImage("#wrapper2 img")),
     SimpleForward("NX_Nimona", "Nimona", "http://gingerhaze.com/nimona/comic/page-1",
       queryImageNext("img[src~=/nimona-pages/]", "a:has(img[src=http://gingerhaze.com/sites/default/files/comicdrop/comicdrop_next_label_file.png])")),
     SimpleForward("NX_DominicDeegan", "Dominic Deegan", "http://www.dominic-deegan.com/view.php?date=2002-05-21",
       doc => append(queryImages("body > div.comic > img")(doc), queryNext("#bottom a:has(img[alt=Next])")(doc))),
-    ArchivePage("NX_DreamScar", "dream*scar", "http://dream-scar.net/archive.php",
+    archivePageWrapped("NX_DreamScar", "dream*scar", "http://dream-scar.net/archive.php",
       Selection(_).many("#static > b , #static > a").wrapEach { elem =>
         if (elem.tagName() === "b") extract {Chapter(elem.text())}
         else extractMore(elem)
@@ -284,10 +284,10 @@ object Individual {
           }
         }.combined.map(_.flatten)
       }),
-    ArchivePage("NX_Spindrift", "Spindrift", "http://www.spindrift-comic.com/archive",
+    archivePageWrapped("NX_Spindrift", "Spindrift", "http://www.spindrift-comic.com/archive",
       queryMixedArchive("#pjax-container > div.content > div:nth-child(1) .archivehead .shead , #pjax-container > div.content > div:nth-child(1) .archive-comic-container a"),
       queryImage("#comic-image")),
-    ArchivePage("NX_Anathema", "Anathema", "http://anathema.smackjeeves.com/archive//",
+    archivePageWrapped("NX_Anathema", "Anathema", "http://anathema.smackjeeves.com/archive//",
       queryMixedArchive("#chapter_table td[colspan=4] a h2, #chapter_table a[onmouseout=hideddrivetip()]"),
       queryImage("#comic_image")),
     SimpleForward("NX_xkcd", "xkcd", "http://xkcd.com/1/",
@@ -299,7 +299,7 @@ object Individual {
         })
         append(assets_with_comment_?, next_?)
       }),
-    ArchivePage("NX_TheDreamer", "The Dreamer", "http://www.thedreamercomic.com/read_pgmain.php",
+    archivePageWrapped("NX_TheDreamer", "The Dreamer", "http://www.thedreamercomic.com/read_pgmain.php",
       doc => Selection(doc).many(".act_wrap").reverse.wrapFlat {queryMixedArchive("h2, .flip_box_front .issue_title , .flip_box_back .issue_pages a")},
       doc => queryImage("#comicnav > div.comicWrap > div.imageWrap > img")(doc).map(_.map { ar =>
         ar.copy(ref = ar.ref.uriString().replaceAll("\\.jpg.*", ".jpg"))

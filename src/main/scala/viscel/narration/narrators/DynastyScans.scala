@@ -3,7 +3,7 @@ package viscel.narration.narrators
 import org.jsoup.helper.StringUtil
 import viscel.narration.Narrator
 import viscel.narration.Queries.queryChapterArchive
-import viscel.narration.Templates.ArchivePage
+import viscel.narration.Templates.archivePageWrapped
 import viscel.scribe.ImageRef
 import viscel.selection.ReportTools.extract
 import viscel.selection.Selection
@@ -14,7 +14,7 @@ object DynastyScans {
 
   val pages: Regex = """/system/releases/\d+/\d+/\d+/[^"]+""".r
 
-  val Citrus: Narrator = ArchivePage(
+  val Citrus: Narrator = archivePageWrapped(
     pid = "DS_citrus",
     pname = "Citrus",
     start = "https://dynasty-scans.com/series/citrus",
