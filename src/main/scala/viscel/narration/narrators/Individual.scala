@@ -51,9 +51,9 @@ object Individual {
     Selection(_).many("td:matches(Chapter|Intermission)").wrapFlat { data =>
       val pages_? = Selection(data).many("a").wrapEach(extractMore).map {_.distinct}
       val name_? = if (data.text.contains("Chapter"))
-        Selection(data).unique("td:root > div:first-child").getOne.map {_.text()}
+        Selection(data).unique("td:root > div:first-child").wrapOne {e => Good(e.text())}
       else
-        Selection(data).unique("p > b").getOne.map {_.text}
+        Selection(data).unique("p > b").wrapOne {e => Good(e.text)}
 
       withGood(pages_?, name_?) { (pages, name) =>
         Chapter(name) :: pages
@@ -191,7 +191,7 @@ object Individual {
     ),
     archivePageWrapped("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
       doc => Selection(doc).unique("#content_post").many(".c_arch:has(div.a_2)").wrapFlat { chap =>
-        val chapter_? = Selection(chap).first("div.a_2 > p").getOne.map(e => Chapter(e.text()))
+        val chapter_? = Selection(chap).first("div.a_2 > p").wrapOne(extractChapter)
         val pages_? = Selection(chap).many("a").wrapEach(extractMore)
         withGood(chapter_?, pages_?)(_ :: _)
       },
@@ -204,7 +204,7 @@ object Individual {
       doc => {
         val asset_? = Selection(doc).unique("#cc-comic").wrapOne(intoArticle)
         val next_? = queryNext("#cc-comicbody > a")(doc)
-        val comment_? = Selection(doc).unique("#commentary > div.cc-newsarea > div.cc-newsbody").getOne.map(_.text())
+        val comment_? = Selection(doc).unique("#commentary > div.cc-newsarea > div.cc-newsbody").wrapOne(e => Good(e.text()))
         withGood(asset_?, next_?, comment_?) { (asset, next, comment) => asset.copy(data = asset.data.updated("longcomment", comment)) :: next }
       }),
     SimpleForward("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#cc-comic")),

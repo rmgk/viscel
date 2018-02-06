@@ -26,10 +26,6 @@ sealed trait Selection {
   def wrapEach[R](fun: Element => R Or Every[Report]): List[R] Or Every[Report]
   /** wrap each element into a list of results, return the concatenation of these lists */
   def wrapFlat[R](fun: Element => List[R] Or Every[Report]): List[R] Or Every[Report]
-  /** get the elements */
-  def get: List[Element] Or Every[Report]
-  /** get the single element */
-  def getOne: Element Or Every[Report]
   /** reverse the list of elements */
   def reverse: Selection
 }
@@ -93,8 +89,6 @@ case class GoodSelection(elements: List[Element]) extends Selection {
     }
   }
 
-  override def get: Or[List[Element], Every[Report]] = wrap(Good(_))
-  override def getOne: Or[Element, Every[Report]] = wrapOne(Good(_))
   override def wrapEach[R](fun: (Element) => Or[R, Every[Report]]): Or[List[R], Every[Report]] = elements.validatedBy {fun}
   override def wrapFlat[R](fun: (Element) => Or[List[R], Every[Report]]): Or[List[R], Every[Report]] = wrapEach(fun).map(_.flatten)
 
@@ -110,8 +104,6 @@ case class BadSelection(errors: Every[Report]) extends Selection {
   override def wrapOne[R](fun: Element => R Or Every[Report]): R Or Every[Report] = Bad(errors)
   override def wrapEach[R](fun: (Element) => Or[R, Every[Report]]): Or[List[R], Every[Report]] = Bad(errors)
   override def reverse: BadSelection = this
-  override def get: Or[List[Element], Every[Report]] = Bad(errors)
-  override def getOne: Or[Element, Every[Report]] = Bad(errors)
   override def optional(query: String): Selection = this
   override def wrapFlat[R](fun: (Element) => Or[List[R], Every[Report]]): Or[List[R], Every[Report]] = Bad(errors)
 }

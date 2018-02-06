@@ -33,9 +33,9 @@ object MangaHere extends Metarrator[MangaHereNarrator]("MangaHere") {
   val extractID = """http://www.mangahere.co/manga/([^/]+)/""".r
 
   override def wrap(doc: Document): List[MangaHereNarrator] Or Every[Report] =
-    Selection(doc).unique("#main > article > div > div.box_w.clearfix > h1").getOne.map { anchor =>
+    Selection(doc).unique("#main > article > div > div.box_w.clearfix > h1").wrapOne { anchor =>
       val extractID(id) = doc.baseUri()
-      MangaHereNarrator(s"MangaHere_$id", s"[MH] ${anchor.text()}", doc.baseUri()) :: Nil
+      Good(MangaHereNarrator(s"MangaHere_$id", s"[MH] ${anchor.text()}", doc.baseUri()) :: Nil)
     }
 
 }
