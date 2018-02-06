@@ -8,6 +8,7 @@ import java.util.stream.Stream
 import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Queries._
+import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
 import viscel.scribe.{ImageRef, Link, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.selection.ReportTools.{append, augmentBad}
@@ -69,7 +70,7 @@ object Vid {
     override def describe: String = s"${annotated.describe} in $path lines [${lines.map(_.p).mkString(", ")}]"
   }
 
-  def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): Narrator Or ErrorMessage = {
+  def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): NarratorADT Or ErrorMessage = {
     val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
     type Wrap = Document => Contents
 
