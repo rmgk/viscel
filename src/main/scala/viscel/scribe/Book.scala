@@ -24,7 +24,11 @@ class Book private(val id: String,
       val addCount = entry match {
         case alp@PageData(il, _, _, _) =>
           pageMap.put(il, alp)
-          Option(alp.articleCount - (if (index < 0) 0 else entries(index).asInstanceOf[PageData].articleCount))
+          val oldCount = if (index < 0) 0 else {
+            assert(entries(index).isInstanceOf[PageData], s"entries matching page data $alp matches ${entries(index)}")
+            entries(index).asInstanceOf[PageData].articleCount
+          }
+          Option(alp.articleCount - oldCount)
         case alb@BlobData(il, _, _, _) =>
           blobMap.put(il, alb)
           Option(0)
