@@ -1,7 +1,7 @@
 package viscel.narration.interpretation
 
 import org.jsoup.nodes.Document
-import viscel.narration.Contents
+import viscel.narration.{Contents, Narrator}
 import viscel.scribe.{Link, Normal, Volatile, WebContent}
 
 object NarrationInterpretation {
@@ -14,7 +14,10 @@ object NarrationInterpretation {
     }
   }
 
-  case class NarratorADT(id: String, name: String, archive: List[WebContent], wrap: Wrapper)
+  case class NarratorADT(id: String, name: String, archive: List[WebContent], wrap: Wrapper) extends Narrator {
+    override def wrap(doc: Document, link: Link): Contents = interpret(wrap, doc, link)
+    override def wrapper: Wrapper = wrap
+  }
 
   sealed trait Wrapper
   case class OmnipotentWrapper(narrator: (Document , Link) => Contents) extends Wrapper

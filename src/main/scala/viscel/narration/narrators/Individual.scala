@@ -6,9 +6,10 @@ import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.Queries._
 import viscel.narration.Templates.{ArchivePage, SimpleForward}
+import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
 import viscel.narration.{Contents, Narrator, Templates}
 import viscel.scribe.Vurl.fromString
-import viscel.scribe.{ImageRef, Chapter, Link, Normal, Volatile, Vurl, WebContent}
+import viscel.scribe.{Chapter, ImageRef, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
 import viscel.selection.{Report, Selection}
 
@@ -183,7 +184,7 @@ object Individual {
   }
 
 
-  val inlineCores = Set(
+  val inlineCores = Set[NarratorADT](
     ArchivePage("NX_Twokinds", "Twokinds", "http://twokinds.keenspot.com/archive/",
       queryMixedArchive("#content .chapter h2 , #content .chapter-links a"),
       queryImage("#content article.comic img[alt=Comic Page]")

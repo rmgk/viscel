@@ -3,6 +3,7 @@ package viscel.store
 import java.nio.file.Path
 
 import viscel.crawl.RequestUtil
+import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
 import viscel.narration.{Metarrator, Narrator, Narrators, Vid}
 import viscel.scribe.Vurl
 import viscel.shared.Log
@@ -27,17 +28,19 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
   def get(id: String): Option[Narrator] = narratorMap.get(id)
 
 
-  def loadAll(): Set[Narrator] = synchronized(Narrators.metas.iterator.flatMap[Narrator](load(_)).toSet)
+  def loadAll(): Set[Narrator] = synchronized(Narrators.metas.iterator.flatMap[NarratorADT](loadNarrators(_).iterator).toSet)
+
+  def loadNarrators[T](metarrator: Metarrator[T]): Set[NarratorADT] = load(metarrator).map(metarrator.toNarrator)
 
   def add(start: String, requestUtil: RequestUtil): Future[List[Narrator]] = {
     import requestUtil.ec
-    def go[T <: Narrator](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
+    def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
       requestUtil.requestDocument(url).map { case (doc, _) =>
         val nars = metarrator.wrap(doc).get
         synchronized {
           save(metarrator, nars ++ load(metarrator))
           updateCache()
-          nars
+          nars.map(metarrator.toNarrator)
         }
       }
 
@@ -53,14 +56,14 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
   }
 
 
-  private def path[T <: Narrator](metarrator: Metarrator[T]): Path = metaPath.resolve(s"${metarrator.id}.json")
-  def load[T <: Narrator](metarrator: Metarrator[T]): Set[T] = {
+  private def path[T](metarrator: Metarrator[T]): Path = metaPath.resolve(s"${metarrator.id}.json")
+  def load[T](metarrator: Metarrator[T]): Set[T] = {
     val json = Json.load[Set[T]](path(metarrator))(io.circe.Decoder.decodeTraversable(metarrator.decoder, implicitly))
     json.fold(x => x, err => {
       Log.warn(s"could not load ${path(metarrator)}: $err")
       Set()
     })
   }
-  def save[T <: Narrator](metarrator: Metarrator[T], nars: List[T]): Unit = Json.store(path(metarrator), nars)(io.circe.Encoder.encodeList(metarrator.encoder))
+  def save[T](metarrator: Metarrator[T], nars: List[T]): Unit = Json.store(path(metarrator), nars)(io.circe.Encoder.encodeList(metarrator.encoder))
 
 }
