@@ -21,11 +21,12 @@ object Queries {
     case _ => Bad(One(FailedElement(s"extract uri", UnhandledTag, element)))
   }
 
-  def selectMore(elements: List[Element]): List[Link] Or Every[Report] = elements.validatedBy(extractMore).flatMap {
-    case pointers if elements.isEmpty => Good(Nil)
-    case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
-    case pointers => Bad(One(FailedElement("next not unique", QueryNotUnique, elements: _*)))
-  }
+  def selectMore(elements: List[Element]): List[Link] Or Every[Report] =
+    if (elements.isEmpty) Good(Nil)
+    else elements.validatedBy(extractMore).flatMap {
+      case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
+      case pointers => Bad(One(FailedElement("next not unique", QueryNotUnique, elements: _*)))
+    }
 
   def extractMore(element: Element): Link Or Every[Report] =
     extractURL(element).map(uri => Link(uri))

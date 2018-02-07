@@ -125,7 +125,7 @@ object Individual {
             data = element.data - "width" - "height")
         }
       }
-      val next_? = Selection(doc).all("a.next").wrap {selectMore}
+      val next_? = queryNext("a.next")(doc)
 
       append(elements_?, next_?)
     }
