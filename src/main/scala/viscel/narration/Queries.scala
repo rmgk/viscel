@@ -5,6 +5,7 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
+import viscel.narration.interpretation.NarrationInterpretation.{Append, WrapPart, Wrapper}
 import viscel.scribe.{Chapter, ImageRef, Link, Policy, Vurl, WebContent}
 import viscel.selection.ReportTools.{extract, _}
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
@@ -72,25 +73,27 @@ object Queries {
     Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
   }
 
-  def queryImage(query: String)(from: Element): List[ImageRef] Or Every[Report] = Selection(from).unique(query).wrapEach(intoArticle)
-  def queryImages(query: String)(from: Element): List[ImageRef] Or Every[Report] = Selection(from).many(query).wrapEach(intoArticle)
+  def queryImage(query: String): WrapPart[List[ImageRef]] = Selection.unique(query).wrapEach(intoArticle)
+  def queryImages(query: String): WrapPart[List[ImageRef]] = Selection.many(query).wrapEach(intoArticle)
   /** extracts article at query result
     * optionally extracts direct parent of query result as link */
-  def queryImageInAnchor(query: String)(from: Element): Contents = Selection(from).unique(query).wrapFlat { image =>
-    intoArticle(image).map(_ :: extractMore(image.parent()).toOption.toList)
+  def queryImageInAnchor(query: String): Wrapper = Selection.unique(query).wrapFlat[WebContent] { image =>
+    intoArticle(image).map[List[WebContent]] { (art: ImageRef) =>
+      val wc: List[WebContent] = extractMore(image.parent()).toOption.toList
+      art ::  wc }
   }
-  def queryNext(query: String)(from: Element): List[Link] Or Every[Report] = Selection(from).all(query).wrap(selectMore)
-  def queryImageNext(imageQuery: String, nextQuery: String)(from: Element): Contents = {
-    append(queryImage(imageQuery)(from), queryNext(nextQuery)(from))
+  def queryNext(query: String): WrapPart[List[Link]] = Selection.all(query).wrap(selectMore)
+  def queryImageNext(imageQuery: String, nextQuery: String): Wrapper = {
+    Append(queryImage(imageQuery), queryNext(nextQuery))
   }
-  def queryMixedArchive(query: String)(from: Element): Contents = {
-    Selection(from).many(query).wrapEach { elem =>
+  def queryMixedArchive(query: String): Wrapper = {
+    Selection.many(query).wrapEach { elem =>
       if (elem.tagName() === "a") extractMore(elem)
       else extractChapter(elem)
     }
   }
-  def queryChapterArchive(query: String)(from: Element): Contents = {
-    Selection(from).many(query).wrapFlat(elementIntoChapterPointer)
+  def queryChapterArchive(query: String): Wrapper = {
+    Selection.many(query).wrapFlat(elementIntoChapterPointer)
   }
 
   /** takes an element, extracts its uri and text and generates a description pointing to that chapter */
@@ -104,10 +107,10 @@ object Queries {
     case o => o
   })
 
-  def morePolicy[B](policy: Policy, or: List[WebContent] Or B): List[WebContent] Or B = or.map(_.map {
+  def morePolicy[B](policy: Policy)(wc: WebContent): WebContent= wc match {
     case Link(loc, _, data) => Link(loc, policy, data)
     case o => o
-  })
+  }
 
 
   def placeChapters(archive: List[WebContent], chapters: List[(WebContent, WebContent)]): List[WebContent] = (archive, chapters) match {

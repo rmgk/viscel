@@ -5,13 +5,11 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.stream.Stream
 
-import org.jsoup.nodes.Document
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Queries._
-import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, DocumentWrapper, NarratorADT, Reverse, TransformUrls, Wrapper}
+import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Append, NarratorADT, Shuffle, TransformUrls, Wrapper}
 import viscel.scribe.{Link, Vurl}
 import viscel.selection.Report
-import viscel.selection.ReportTools.append
 import viscel.shared.Log
 
 import scala.annotation.tailrec
@@ -76,14 +74,14 @@ object Vid {
 
     def has(keys: String*): Boolean = keys.forall(attrs.contains)
 
-    def annotate(f: Document => Contents, lines: Line*): Option[Wrap] = Some(AdditionalErrors(DocumentWrapper(f) , _.map(AdditionalPosition(lines, path))))
+    def annotate(f: Wrapper, lines: Line*): Option[Wrap] = Some(AdditionalErrors(f , _.map(AdditionalPosition(lines, path))))
 
     val pageFun: Option[Wrap] = attrs match {
       case extract"image+next $img" => annotate(queryImageInAnchor(img.s), img)
 
       case extract"image $img next $next" => annotate(queryImageNext(img.s, next.s), img, next)
 
-      case extract"images $img next $next" => annotate(doc => append(queryImages(img.s)(doc), queryNext(next.s)(doc)), img, next)
+      case extract"images $img next $next" => annotate(Append(queryImages(img.s), queryNext(next.s)), img, next)
 
       case extract"image $img" => annotate(queryImage(img.s), img)
       case extract"images $img" => annotate(queryImages(img.s), img)
@@ -105,7 +103,7 @@ object Vid {
       case _ => (pageFun, archFun)
     }
 
-    val archFunRev = if (has("archiveReverse")) archFunReplace.map(Reverse) else archFunReplace
+    val archFunRev = if (has("archiveReverse")) archFunReplace.map(Shuffle(_, reverse)) else archFunReplace
 
     (pageFunReplace, archFunRev) match {
       case (Some(pf), None) => Good(NarratorADT(cid, name, Link(startUrl) :: Nil, pf))

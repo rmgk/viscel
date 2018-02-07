@@ -3,7 +3,7 @@ package viscel.narration.narrators
 import org.jsoup.helper.StringUtil
 import viscel.narration.Narrator
 import viscel.narration.Queries.queryChapterArchive
-import viscel.narration.Templates.archivePageWrapped
+import viscel.narration.Templates.archivePage
 import viscel.scribe.ImageRef
 import viscel.selection.ReportTools.extract
 import viscel.selection.Selection
@@ -14,15 +14,12 @@ object DynastyScans {
 
   val pages: Regex = """/system/releases/\d+/\d+/\d+/[^"]+""".r
 
-  val Citrus: Narrator = archivePageWrapped(
-    pid = "DS_citrus",
-    pname = "Citrus",
-    start = "https://dynasty-scans.com/series/citrus",
-    wrapArchive = queryChapterArchive(s".chapter-list a.name:not(:contains(love panic))"),
-    wrapPage = doc => Selection(doc).unique("body > script").wrapFlat { script =>
+  val Citrus: Narrator = archivePage("DS_citrus", "Citrus", "https://dynasty-scans.com/series/citrus",
+    queryChapterArchive(s".chapter-list a.name:not(:contains(love panic))"),
+    Selection.unique("body > script").wrapFlat { script =>
       extract {
         pages.findAllIn(script.html()).map { url =>
-          ImageRef(StringUtil.resolve(doc.baseUri(), url), doc.location())
+          ImageRef(StringUtil.resolve(script.ownerDocument().baseUri(), url), script.ownerDocument().location())
         }.toList
       }
     }

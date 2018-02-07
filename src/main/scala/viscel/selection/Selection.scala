@@ -2,108 +2,67 @@ package viscel.selection
 
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import org.scalactic.Accumulation.convertGenTraversableOnceToValidatable
-import org.scalactic.{Bad, Every, Good, One, Or}
+import org.scalactic.{Bad, Every, Good, Or}
+import viscel.narration.interpretation.NarrationInterpretation.{Focus, SelectionWrapEach, SelectionWrapFlat, WrapPart}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
-sealed trait Selection {
+object Selection extends Selection(Nil)
+
+
+case class Selection(pipeline: List[Element => List[Element] Or Every[Report]])  {
+
   /** select exactly one element */
-  def unique(query: String): Selection
+  def unique(query: String): Selection = {
+    queryAndValidate(query) {
+      case rs if rs.size > 1 => Bad(QueryNotUnique)
+      case rs if rs.size < 1 => Bad(QueryNotMatch)
+      case rs => Good(List(rs.get(0)))
+    }
+  }
   /** select one ore more elements */
-  def many(query: String): Selection
+  def many(query: String): Selection = {
+    queryAndValidate(query) {
+      case rs if rs.size < 1 => Bad(QueryNotMatch)
+      case rs => Good(rs.asScala.toList)
+    }
+  }
   /** select zero or one element */
-  def optional(query: String): Selection
+  def optional(query: String): Selection = {
+    queryAndValidate(query) {
+      case rs if rs.size > 1 => Bad(QueryNotUnique)
+      case rs => Good(rs.asScala.toList)
+    }
+  }
   /** select any number of elements */
-  def all(query: String): Selection
-  /** selects the first matching element */
-  def first(query: String): Selection
-  /** wrap the list of elements into a result */
-  def wrap[R](fun: List[Element] => R Or Every[Report]): R Or Every[Report]
-  /** wrap the single selected element into a result */
-  def wrapOne[R](fun: Element => R Or Every[Report]): R Or Every[Report]
-  /** wrap each element into a result and return a list of these results */
-  def wrapEach[R](fun: Element => R Or Every[Report]): List[R] Or Every[Report]
-  /** wrap each element into a list of results, return the concatenation of these lists */
-  def wrapFlat[R](fun: Element => List[R] Or Every[Report]): List[R] Or Every[Report]
-  /** reverse the list of elements */
-  def reverse: Selection
-}
-
-object Selection {
-  def apply(element: Element): Selection = GoodSelection(List(element))
-  def apply(elements: List[Element]): Selection = GoodSelection(elements)
-}
-
-case class GoodSelection(elements: List[Element]) extends Selection {
-
-  def queryAndValidate[R](query: String)(validate: Elements => R Or Report): List[R] Or Every[Report] = {
-    elements.validatedBy { element =>
-      validate(element.select(query.trim)).badMap {FailedElement(query, _, element)}.accumulating
-    }
-  }
-
-  override def unique(query: String): Selection = {
-    queryAndValidate(query) {
-      case rs if rs.size > 1 => Bad(QueryNotUnique)
-      case rs if rs.size < 1 => Bad(QueryNotMatch)
-      case rs => Good(rs.get(0))
-    }.fold(GoodSelection, BadSelection)
-  }
-
-  override def many(query: String): Selection = {
-    queryAndValidate(query) {
-      case rs if rs.size < 1 => Bad(QueryNotMatch)
-      case rs => Good(rs.asScala.toList)
-    }.fold(good => GoodSelection(good.flatten), BadSelection)
-  }
-
-  override def all(query: String): Selection = {
+  def all(query: String): Selection = {
     queryAndValidate(query) { rs => Good(rs.asScala.toList) }
-      .fold(good => GoodSelection(good.flatten), BadSelection)
   }
-
-  override def optional(query: String): Selection = {
-    queryAndValidate(query) {
-      case rs if rs.size > 1 => Bad(QueryNotUnique)
-      case rs => Good(rs.asScala.toList)
-    }.fold(good => GoodSelection(good.flatten), BadSelection)
-  }
-
   /** selects the first matching element */
-  override def first(query: String): Selection = {
+  def first(query: String): Selection = {
     queryAndValidate(query) {
       case rs if rs.size < 1 => Bad(QueryNotMatch)
-      case rs => Good(rs.get(0))
-    }.fold(GoodSelection, BadSelection)
-  }
-
-
-  override def wrap[R](fun: List[Element] => R Or Every[Report]): R Or Every[Report] = fun(elements)
-
-  override def wrapOne[R](fun: Element => R Or Every[Report]): R Or Every[Report] = {
-    elements match {
-      case els if els.isEmpty => Bad(One(Fatal("wrapOne on no result")))
-      case els if els.lengthCompare(1) == 0 => fun(els.head)
-      case els => Bad(One(Fatal("wrapOne on many results")))
+      case rs => Good(List(rs.get(0)))
     }
   }
 
-  override def wrapEach[R](fun: (Element) => Or[R, Every[Report]]): Or[List[R], Every[Report]] = elements.validatedBy {fun}
-  override def wrapFlat[R](fun: (Element) => Or[List[R], Every[Report]]): Or[List[R], Every[Report]] = wrapEach(fun).map(_.flatten)
+  /** wrap the list of elements into a result */
+  def wrap[R](fun: List[Element] => R Or Every[Report]): WrapPart[R] = ???
+  /** wrap the single selected element into a result */
+  def wrapOne[R](fun: Element => R Or Every[Report]): WrapPart[R] = ???
+  /** wrap each element into a result and return a list of these results */
+  def wrapEach[R](fun: Element => R Or Every[Report]): WrapPart[List[R]] = SelectionWrapEach(this, fun)
+  /** wrap each element into a list of results, return the concatenation of these lists */
+  def wrapFlat[R](fun: Element => List[R] Or Every[Report]): WrapPart[List[R]] = SelectionWrapFlat(this, fun)
+  def focus[R](cont: WrapPart[List[R]]): WrapPart[List[R]] = Focus(SelectionWrapEach(this, Good(_)), cont)
+  /** reverse the list of elements */
+  def reverse: Selection = ???
 
-  override def reverse: GoodSelection = GoodSelection(elements.reverse)
-}
 
-case class BadSelection(errors: Every[Report]) extends Selection {
-  override def unique(query: String): BadSelection = this
-  override def many(query: String): BadSelection = this
-  override def all(query: String): Selection = this
-  override def first(query: String): Selection = this
-  override def wrap[R](fun: List[Element] => R Or Every[Report]): R Or Every[Report] = Bad(errors)
-  override def wrapOne[R](fun: Element => R Or Every[Report]): R Or Every[Report] = Bad(errors)
-  override def wrapEach[R](fun: (Element) => Or[R, Every[Report]]): Or[List[R], Every[Report]] = Bad(errors)
-  override def reverse: BadSelection = this
-  override def optional(query: String): Selection = this
-  override def wrapFlat[R](fun: (Element) => Or[List[R], Every[Report]]): Or[List[R], Every[Report]] = Bad(errors)
+
+  def queryAndValidate[R](query: String)(validate: Elements => List[Element] Or Report): Selection = Selection(
+    { (element: Element) =>
+      validate(element.select(query.trim)).badMap {FailedElement(query, _, element)}.accumulating
+    } :: pipeline
+  )
 }
