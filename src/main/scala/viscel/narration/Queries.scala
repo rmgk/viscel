@@ -5,7 +5,7 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
-import viscel.scribe.{ImageRef, Chapter, Link, Policy, Vurl, WebContent}
+import viscel.scribe.{Chapter, ImageRef, Link, Policy, Vurl, WebContent}
 import viscel.selection.ReportTools.{extract, _}
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
 
