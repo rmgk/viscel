@@ -1,9 +1,9 @@
 package viscel.narration.narrators
 
-import org.jsoup.nodes.{Document, Element}
-import org.scalactic.{Accumulation, Good}
-import viscel.narration.{Contents, Narrator, Queries}
-import viscel.scribe.{ImageRef, Link, Volatile, Vurl, WebContent}
+import org.scalactic.Good
+import viscel.narration.interpretation.NarrationInterpretation.{Combine, Constant, Decision, NarratorADT, Shuffle}
+import viscel.narration.{Narrator, Queries}
+import viscel.scribe.{ImageRef, Link, Volatile, Vurl}
 import viscel.selection.{ReportTools, Selection}
 
 import scala.collection.immutable.Set
@@ -35,26 +35,21 @@ object KatBox {
     ("uberquest", "Uber Quest", None),
     ("yosh", "Yosh!", None),
   ).map { case (_id, _name, _url) =>
-    new Narrator {
-      override def id: String = s"KatBox_${_id}"
-      override def name: String = _name
-      override def archive: List[WebContent] = List(Link(_url.getOrElse(s"http://${_id}.katbox.net/archive/"), Volatile))
-      override def wrap(doc: Document, link: Link): Contents = {
-        Selection(doc).many("span.archive-link a.webcomic-link").wrapFlat { anchor: Element =>
-          // laslindas at least seems to miss some pages, just skip them
-          if (anchor.childNodeSize() == 0) Good(List.empty)
-          else {
-            val vurl_? = Queries.extractURL(anchor)
-            val img_? = Selection(anchor).unique("img").wrapOne(i => ReportTools.extract(i.absUrl("src")))
-            Accumulation.withGood(img_?, vurl_?) { (img, vurl) =>
-              List(ImageRef(
-                ref = img.replaceFirst("-\\d+x\\d+\\.", "."),
-                origin = vurl,
-                data = Map()))
-            }
+    NarratorADT(s"KatBox_${_id}", _name, List(Link(_url.getOrElse(s"http://${_id}.katbox.net/archive/"), Volatile)),
+      Shuffle.of(Selection.many("span.archive-link a.webcomic-link").focus {
+        // laslindas at least seems to miss some pages, just skip them
+        Decision(_.childNodeSize() == 0, Constant(Good(Nil)), {
+
+          val vurl_? = Selection.wrapOne(Queries.extractURL)
+          val img_? = Selection.unique("img").wrapOne(i => ReportTools.extract(i.absUrl("src")))
+          Combine.of(img_?, vurl_?) { (img, vurl) =>
+            List(ImageRef(
+              ref = img.replaceFirst("-\\d+x\\d+\\.", "."),
+              origin = vurl,
+              data = Map()))
           }
-        }.map(_.reverse)
-      }
-    }
+        })
+      })(_.reverse)
+    )
   }
 }

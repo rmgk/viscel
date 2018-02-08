@@ -1,7 +1,7 @@
 package viscel.narration.interpretation
 
 import org.jsoup.nodes.{Document, Element}
-import org.scalactic.Accumulation.{_}
+import org.scalactic.Accumulation._
 import org.scalactic.{Every, Or}
 import viscel.narration.{Contents, Narrator}
 import viscel.scribe.{ImageRef, Link, Normal, Volatile, Vurl, WebContent}
@@ -94,7 +94,6 @@ object NarrationInterpretation {
   case class Decision[T](pred: Element => Boolean, isTrue: WrapPart[T], isFalse: WrapPart[T]) extends WrapPart[T]
 
   case class Constant[T](c: T Or Every[Report]) extends WrapPart[T]
-
 
 }
 
