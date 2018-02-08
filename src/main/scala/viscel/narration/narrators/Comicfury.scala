@@ -2,13 +2,12 @@ package viscel.narration.narrators
 
 import io.circe.generic.semiauto
 import io.circe.{Decoder, Encoder}
-import org.jsoup.nodes.Document
-import org.scalactic.{Every, Good, Or}
+import org.scalactic.Good
 import viscel.narration.Queries.RegexContext
 import viscel.narration.interpretation.NarrationInterpretation
+import viscel.narration.interpretation.NarrationInterpretation.{DocumentWrapper, WrapPart}
 import viscel.narration.{Metarrator, Queries, Templates}
 import viscel.scribe.Vurl
-import viscel.selection.Report
 
 case class Cfury(id: String, name: String)
 
@@ -25,8 +24,10 @@ object Comicfury extends Metarrator[Cfury]("Comicfury") {
     case rex"http://($cid[^\.]+)\.thecomicseries.com/" => Some(Vurl.fromString(description))
     case _ => None
   }
-  override def wrap(document: Document): Or[List[Cfury], Every[Report]] = {
+
+  override def wrap: WrapPart[List[Cfury]] = DocumentWrapper { document =>
     val rex"http://($cid[^\.]+)\.thecomicseries.com/" = document.baseUri()
     Good(Cfury(cid, s"[CF] $cid") :: Nil)
   }
+
 }

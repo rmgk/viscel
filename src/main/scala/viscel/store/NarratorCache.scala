@@ -3,9 +3,10 @@ package viscel.store
 import java.nio.file.Path
 
 import viscel.crawl.RequestUtil
+import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
 import viscel.narration.{Metarrator, Narrator, Narrators, Vid}
-import viscel.scribe.Vurl
+import viscel.scribe.{Link, Vurl}
 import viscel.shared.Log
 
 import scala.collection.immutable.{Map, Set}
@@ -36,7 +37,7 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
     import requestUtil.ec
     def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
       requestUtil.requestDocument(url).map { case (doc, _) =>
-        val nars = metarrator.wrap(doc).get
+        val nars = NarrationInterpretation.interpret(metarrator.wrap, doc, Link(url)).get
         synchronized {
           save(metarrator, nars ++ load(metarrator))
           updateCache()
