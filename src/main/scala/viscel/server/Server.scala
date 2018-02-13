@@ -14,7 +14,7 @@ import viscel.ReplUtil
 import viscel.crawl.RequestUtil
 import viscel.narration.Narrator
 import viscel.scribe.Scribe
-import viscel.shared.Log
+import viscel.shared.Log.{Server => Log}
 import viscel.store.{BlobStore, NarratorCache, User, Users}
 
 import scala.collection.immutable.Map

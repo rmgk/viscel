@@ -111,7 +111,7 @@ lazy val Settings = new {
 
 lazy val Libraries = new {
 
-	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags, rescala)
+	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags, rescala) ++ alogging
 
 	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, scalactic, jsoup, decline, scalatest, scalacheck)
 
@@ -140,6 +140,11 @@ lazy val Libraries = new {
 		"circe-parser",
 	).map(n => "io.circe" %%% n % "0.9.1" exclude("org.scala-lang", "scala-reflect"))
 
-	val scalatest = libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.4" % "test"
-	val scalacheck = libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
+	val scalatest = libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+	val scalacheck = libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.5" % "test"
+
+  val alogging = Seq (
+    resolvers += Resolver.bintrayRepo("rmgk", "maven"),
+    libraryDependencies += "de.rmgk" %%% "logging" % "0.1.0" exclude("org.scala-lang", "scala-reflect")
+  )
 }

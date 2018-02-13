@@ -5,11 +5,12 @@ import java.nio.file.{Files, Path}
 import java.util.stream.Collectors
 
 import viscel.scribe.ScribePicklers._
-import viscel.shared.Log
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import viscel.shared.Log.{Scribe => Log}
+
 
 class Book private(val id: String,
                    val name: String,

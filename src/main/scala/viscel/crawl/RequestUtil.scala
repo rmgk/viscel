@@ -38,7 +38,7 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 
 
   private def requestWithRedirects(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
-    Log.info(s"request ${request.uri}" + request.header[Referer].fold("")(r => s" ($r)"))
+    Log.Web.info(s"request ${request.uri}" + request.header[Referer].fold("")(r => s" ($r)"))
 
     requestDecompressed(request).flatMap { response =>
       if (response.status.isRedirection() && response.header[Location].isDefined) {

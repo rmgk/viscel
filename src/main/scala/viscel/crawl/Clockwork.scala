@@ -5,7 +5,6 @@ import java.util.{Timer, TimerTask}
 
 import viscel.narration.Narrator
 import viscel.scribe.Scribe
-import viscel.shared.Log
 import viscel.store.{Json, NarratorCache, Users}
 
 import scala.collection.immutable.Map
@@ -20,6 +19,8 @@ class Clockwork(path: Path,
                 narratorCache: NarratorCache,
                ) {
 
+  val log = viscel.shared.Log.Web
+
   val dayInMillis: Long = 24L * 60L * 60L * 1000L
 
 
@@ -32,7 +33,7 @@ class Clockwork(path: Path,
   def recheckPeriodically(): Unit = {
     timer.scheduleAtFixedRate(new TimerTask {
       override def run(): Unit = synchronized {
-        Log.info("schedule updates")
+        log.info("schedule updates")
         val narrators = userStore.allBookmarks().flatMap(narratorCache.get)
         narrators.foreach {runNarrator(_, 7 * dayInMillis)}
       }
@@ -50,7 +51,7 @@ class Clockwork(path: Path,
       val fut = crawl.start().andThen { case _ => Clockwork.this.synchronized(running = running - narrator.id) }
       fut.failed.foreach(logError(narrator))
       fut.foreach { _ =>
-        Log.info(s"[${narrator.id}] update complete")
+        log.info(s"[${narrator.id}] update complete")
         updateDates(narrator.id)
       }
     }
@@ -58,21 +59,21 @@ class Clockwork(path: Path,
 
   private def logError(narrator: Narrator): Throwable => Unit = {
     case RequestException(request, response) =>
-      Log.error(s"[${narrator.id}] error request: ${request.uri} failed: ${response.status}")
+      log.error(s"[${narrator.id}] error request: ${request.uri} failed: ${response.status}")
     case WrappingException(link, reports) =>
-      Log.error(
+      log.error(
         s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
            |$narrator
            |  failed on ${link.ref.uriString()} (${link.policy}${if (link.data.nonEmpty) s", ${link.data}" else ""}):
            |  ${reports.map {_.describe}.mkString("\n  ")}
            |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
     case t =>
-      Log.error(s"[${narrator.id}] recheck failed with $t")
+      log.error(s"[${narrator.id}] recheck failed with $t")
       t.printStackTrace()
   }
 
   private var updateTimes: Map[String, Long] = Json.load[Map[String, Long]](path).fold(x => x, err => {
-    Log.error(s"could not load $path: $err")
+    log.error(s"could not load $path: $err")
     Map()
   })
 
@@ -86,7 +87,7 @@ class Clockwork(path: Path,
     val lastRun = updateTimes.get(id)
     val time = System.currentTimeMillis()
     val res = lastRun.isEmpty || (time - lastRun.get > recheckInterval)
-    Log.trace(s"calculating recheck for $id: $res")
+    log.trace(s"calculating recheck for $id: $res")
     res
   }
 

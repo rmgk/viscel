@@ -6,7 +6,7 @@ import java.nio.file.{Files, Path}
 import io.circe.generic.auto._
 import org.scalactic.Accumulation._
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
-import viscel.shared.Log
+import viscel.shared.Log.{Store => Log}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.immutable.Map

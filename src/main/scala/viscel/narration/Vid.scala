@@ -144,11 +144,11 @@ object Vid {
   }
 
   def load(stream: Stream[String], path: String): List[Narrator] = {
-    Log.info(s"parsing definitions from $path")
+    Log.Store.info(s"parsing definitions from $path")
     try parse(stream.iterator().asScala, path.toString) match {
       case Good(res) => res
       case Bad(err) =>
-        Log.warn(s"failed to parse $path errors: $err")
+        Log.Store.warn(s"failed to parse $path errors: $err")
         Nil
     }
     finally stream.close()

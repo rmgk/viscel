@@ -1,16 +1,14 @@
 package viscel.shared
 
-object Log {
-	def trace(m: String) = /*Console.println(m)*/ ()
-	def debug(m: String) = /*Console.println(m)*/ ()
-	def info(m: String) = Console.println(m)
-	def warn(m: String) = Console.println(m)
-	def error(m: String) = Console.println(m)
+import de.rmgk.logging.{Level, Logger}
 
-	def time[T](desc: String = "")(f: => T): T = {
-		val start = System.nanoTime
-		val res = f
-		Console.println(s"$desc took ${(System.nanoTime - start) / 1000000.0} ms")
-		res
-	}
+object Log {
+
+  val common: Logger = de.rmgk.logging.Logger(tag = "", level = Level.Trace, tracing = true)
+  val Tool: Logger = common.copy(tag = "Tool: ")
+  val Main: Logger = common
+  val Web: Logger = common.copy(tag = "Web: ")
+  val Store: Logger = common.copy(tag = "IO: ")
+  val Scribe: Logger = common.copy(tag = "Scribe: ")
+  val Server: Logger = common.copy(tag = "Serv: ")
 }

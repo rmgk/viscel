@@ -40,7 +40,7 @@ object Viscel {
         if (shutdown) {
           services.terminateServer()
         }
-        Log.info("initialization done")
+        Log.Main.info("initialization done")
         services
     }
   }

@@ -9,9 +9,9 @@ import io.circe.syntax._
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import viscel.narration.Narrator
-import viscel.scribe.{Article, ImageRef, Chapter, Link, ReadableContent, BlobData, PageData, Vurl, WebContent}
+import viscel.scribe.{Article, BlobData, Chapter, ImageRef, Link, PageData, ReadableContent, Vurl, WebContent}
 import viscel.selection.Report
-import viscel.shared.{Blob, ChapterPos, Description, Gallery, SharedImage, Log}
+import viscel.shared.{Blob, ChapterPos, Description, Gallery, SharedImage}
 import viscel.store.BlobStore
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
@@ -22,6 +22,9 @@ import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
 
 class ReplUtil(services: Services) {
+
+  val Log = viscel.shared.Log.Tool
+
   def mimeToExt(mime: String, default: String = ""): String = mime match {
     case "image/jpeg" => "jpg"
     case "image/gif" => "gif"
