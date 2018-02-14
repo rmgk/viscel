@@ -268,7 +268,7 @@ object Individual {
         Append(assets_?, next_?)
       }),
     archivePage("NX_TheDreamer", "The Dreamer", "http://www.thedreamercomic.com/read_pgmain.php",
-      Selection.many(".act_wrap").reverse.focus {queryMixedArchive("h2, .flip_box_front .issue_title , .flip_box_back .issue_pages a")},
+      Shuffle.of(Selection.many(".act_wrap").focus {queryMixedArchive("h2, .flip_box_front .issue_title , .flip_box_back .issue_pages a")}){_.reverse},
       TransformUrls(queryImage("#comicnav > div.comicWrap > div.imageWrap > img"), List("\\.jpg.*" -> ".jpg"))),
     SimpleForward("NX_CheerImgur", "Cheer by Forview", "http://imgur.com/a/GTprX/",
       {

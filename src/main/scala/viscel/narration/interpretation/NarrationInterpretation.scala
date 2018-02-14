@@ -39,11 +39,10 @@ object NarrationInterpretation {
         }
         case TransformUrls(target, replacements) => recurse(target).map(transformUrls(replacements))
         case AdditionalErrors(target, augmentation) => recurse(target).badMap(augmentation)
-        case SelectionWrapEach(sel, fun) => applySelection(doc, sel).flatMap(_.validatedBy(fun))
-        case SelectionWrapFlat(sel, fun) => applySelection(doc, sel).flatMap(_.validatedBy(fun).map(_.flatten))
+        case SelectionWrap(sel, fun) => applySelection(doc, sel).flatMap(fun)
         case Append(wrappers @ _*) => wrappers.map(recurse).combined.map(_.toList)
         case Combine(left, right, fun) => withGood(interpret(left, doc, link), interpret(right, doc, link))(fun)
-        case s @ Shuffle(target, fun) => s.run(doc, link)
+        case s @ Shuffle(_, _) => s.run(doc, link)
         case LinkDataDecision(pred, isTrue, isFalse) => if(pred(link.data)) recurse(isTrue) else recurse(isFalse)
         case Focus(selection, continue) => recurse(selection).flatMap{listOfElements =>
           listOfElements.validatedBy(interpret(continue, _, link)).map(_.flatten)}
@@ -71,9 +70,14 @@ object NarrationInterpretation {
   case class TransformUrls(target: Wrapper, replacements: List[(String, String)]) extends Wrapper
   case class AdditionalErrors[+E](target: WrapPart[E], augmentation: Every[Report] => Every[Report]) extends WrapPart[E]
 
-  case class SelectionWrapEach[+R](selection: Selection, fun: Element => R Or Every[Report]) extends WrapPart[List[R]]
-  case class SelectionWrapFlat[+R](selection: Selection, fun: Element => List[R] Or Every[Report]) extends WrapPart[List[R]]
+  case class SelectionWrap[+R](selection: Selection, fun: List[Element] => R Or Every[Report]) extends WrapPart[R]
 
+  def SelectionWrapEach[R](selection: Selection, fun: Element => R Or Every[Report]): WrapPart[List[R]] = SelectionWrap(selection,
+    (l: List[Element]) => l.validatedBy(fun)
+  )
+  def SelectionWrapFlat[R](selection: Selection, fun: Element => List[R] Or Every[Report]): WrapPart[List[R]] = SelectionWrap(selection,
+    (l: List[Element]) => l.validatedBy(fun).map(_.flatten)
+  )
   case class Append[+T](wrappers: WrapPart[List[T]]*) extends WrapPart[List[T]]
   case class Combine[A, B, +T](left: WrapPart[A], right: WrapPart[B], fun: (A, B) => T) extends WrapPart[T]
   object Combine {
@@ -83,8 +87,8 @@ object NarrationInterpretation {
 
 
   case class Shuffle[T, +U](target: WrapPart[T], fun: T => U) extends WrapPart[U] {
+    // need the inner run method so scala gets the types right, pattern match seems to dislike the T
     def run(doc: Element, link: Link): Or[U, Every[Report]] = interpret(target, doc, link).map(fun)
-
   }
   object Shuffle {
     def of[T, U](target: WrapPart[T])(fun: T => U): Shuffle[T, U] = Shuffle(target, fun)

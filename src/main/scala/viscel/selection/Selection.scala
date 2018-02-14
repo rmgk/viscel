@@ -3,7 +3,7 @@ package viscel.selection
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.scalactic.{Bad, Every, Good, Or}
-import viscel.narration.interpretation.NarrationInterpretation.{Focus, SelectionWrapEach, SelectionWrapFlat, WrapPart}
+import viscel.narration.interpretation.NarrationInterpretation.{Focus, SelectionWrap, SelectionWrapEach, SelectionWrapFlat, Shuffle, WrapPart}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
@@ -47,16 +47,14 @@ case class Selection(pipeline: List[Element => List[Element] Or Every[Report]]) 
   }
 
   /** wrap the list of elements into a result */
-  def wrap[R](fun: List[Element] => R Or Every[Report]): WrapPart[R] = ???
+  def wrap[R](fun: List[Element] => R Or Every[Report]): WrapPart[R] = SelectionWrap(this, fun)
   /** wrap the single selected element into a result */
-  def wrapOne[R](fun: Element => R Or Every[Report]): WrapPart[R] = ???
+  def wrapOne[R](fun: Element => R Or Every[Report]): WrapPart[R] = Shuffle.of(SelectionWrapEach(this, fun))(_.head)
   /** wrap each element into a result and return a list of these results */
   def wrapEach[R](fun: Element => R Or Every[Report]): WrapPart[List[R]] = SelectionWrapEach(this, fun)
   /** wrap each element into a list of results, return the concatenation of these lists */
   def wrapFlat[R](fun: Element => List[R] Or Every[Report]): WrapPart[List[R]] = SelectionWrapFlat(this, fun)
   def focus[R](cont: WrapPart[List[R]]): WrapPart[List[R]] = Focus(SelectionWrapEach(this, Good(_)), cont)
-  /** reverse the list of elements */
-  def reverse: Selection = ???
 
 
 
