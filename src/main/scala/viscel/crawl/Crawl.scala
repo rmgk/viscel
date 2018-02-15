@@ -73,6 +73,7 @@ class Decider(var images: List[ImageRef], var links: List[Link], book: Book) {
       if (contents.isEmpty && requestAfterRecheck == 0) requestAfterRecheck += 1
       requestAfterRecheck += 1
     }
+
     contents.reverse.foreach {
       case link@Link(ref, _, _) if !book.hasPage(ref) => links = link :: links
       case art@ImageRef(ref, _, _) if !book.hasBlob(ref) => images = art :: images

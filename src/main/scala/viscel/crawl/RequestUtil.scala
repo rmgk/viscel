@@ -89,11 +89,15 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
   def requestPage(link: Link, narrator: Narrator): Future[PageData] =
     for {
       (doc, res) <- requestDocument(link.ref)
-      contents: List[WebContent] = NarrationInterpretation.interpret(narrator.wrapper, doc, link).fold(identity, r => throw WrappingException(link, r))
-    } yield
+      contents = NarrationInterpretation
+        .interpret[List[WebContent]](narrator.wrapper, doc, link)
+        .fold(identity, r => throw WrappingException(link, r))
+    } yield {
+      Log.Web.trace(s"reqest page $link, yielding $contents")
       PageData(link.ref, Vurl.fromString(doc.location()),
         contents = contents,
         date = extractLastModified(res).getOrElse(Instant.now()))
+    }
 
 
 }
