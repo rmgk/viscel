@@ -28,34 +28,34 @@ class VitzenPages(asciiData: AsciiData, contentPath: Path) {
 
   private def tBody(content: Frag) = {
     div(cls := "container", id := "mobile-panel",
-      main(cls := "main", id := "main",
-        div(cls := "content-wrapper",
-          div(cls := "content", id := "content",
-            content
-          )
+        main(cls := "main", id := "main",
+             div(cls := "content-wrapper",
+                 div(cls := "content", id := "content",
+                     content
+                 )
+             )
         )
-      )
     )
   }
 
   private def tMeta(post: Post) = {
     div(cls := "post-meta",
-      span(cls := "post-time", s" ${post.date.toLocalDate} ${post.date.toLocalTime}"),
-      frag(post.modified.map(mt => span(cls := "post-time", s" Modified ${mt.toLocalDate} ${mt.toLocalTime} ")).toList: _*)
+        span(cls := "post-time", s" ${post.date.toLocalDate} ${post.date.toLocalTime}"),
+        frag(post.modified.map(mt => span(cls := "post-time", s" Modified ${mt.toLocalDate} ${mt.toLocalTime} ")).toList: _*)
     )
   }
 
   private def tSingle(title: String, meta: Frag, content: Frag) = {
     article(cls := "post",
-      header(cls := "post-header",
-        h1(cls := "post-title",
-          title
-        ),
-        meta
-      ),
-      div(cls := "post-content",
-        content
-      )
+            header(cls := "post-header",
+                   h1(cls := "post-title",
+                      title
+                   ),
+                   meta
+            ),
+            div(cls := "post-content",
+                content
+            )
     )
   }
 
@@ -78,7 +78,7 @@ class VitzenPages(asciiData: AsciiData, contentPath: Path) {
                 }: _*
               )
       )
-    } :_*)
+    }: _*)
   }
 
   def makeHtml(stuff: Modifier*): TypedTag[String] =
@@ -93,7 +93,7 @@ class VitzenPages(asciiData: AsciiData, contentPath: Path) {
   def getContent(name: String): HttpResponse = {
     val post = asciiData.getOne(name)
     val res = htmlResponse(makeHtml(tBody(tSingle(post.title, tMeta(post),
-      raw(post.content)))))
+                                                  raw(post.content)))))
     res
   }
 
