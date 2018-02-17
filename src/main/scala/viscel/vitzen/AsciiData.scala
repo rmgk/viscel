@@ -58,7 +58,6 @@ class AsciiData(asciidoctor: Asciidoctor, basedir: Path) {
   def getAll(): List[Post] = {
     val all = new AsciiDocDirectoryWalker(basedir.toString).scan().iterator().asScala
       .map { (f: File) => makePost(f.toPath) }.toList
-
     all
   }
 }

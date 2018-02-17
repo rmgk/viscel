@@ -12,4 +12,6 @@ object Log {
   val Store: Logger = common.copy(tag = "IO")
   val Scribe: Logger = common.copy(tag = "Scribe")
   val Server: Logger = common.copy(tag = "Serv")
+  val Posts: Logger = common.copy(tag = "Post", level = Level.Trace)
+
 }
