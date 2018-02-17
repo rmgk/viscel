@@ -9,15 +9,17 @@ import akka.http.scaladsl.server.{RouteResult, RoutingLog}
 import akka.http.scaladsl.settings.{ParserSettings, RoutingSettings}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.ActorMaterializer
+import org.asciidoctor.Asciidoctor
 import rescala.Evt
 import viscel.crawl.{Clockwork, RequestUtil}
 import viscel.narration.Narrator
 import viscel.server.{Server, ServerPages}
 import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users}
+import viscel.vitzen.{AsciiData, VitzenPages}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
-class Services(relativeBasedir: Path, relativeBlobdir: Path, interface: String, port: Int) {
+class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Path, interface: String, port: Int) {
 
 
   /* ====== paths ====== */
@@ -34,6 +36,7 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, interface: String, 
   val definitionsdir: Path = basepath.resolve("definitions")
   val exportdir: Path = basepath.resolve("export")
   val usersdir: Path = basepath.resolve("users")
+  val postsdir: Path = basepath.resolve(relativePostdir)
 
 
   /* ====== storage ====== */
@@ -57,6 +60,10 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, interface: String, 
 
   lazy val requests = new RequestUtil(blobs, http)(executionContext, materializer)
 
+  /* ====== asciidoctor ====== */
+
+  lazy val asciidoctor: Asciidoctor = Asciidoctor.Factory.create()
+  lazy val asciiData: AsciiData = new AsciiData(asciidoctor, postsdir)
 
   /* ====== repl util extra tasks ====== */
 
@@ -66,8 +73,19 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, interface: String, 
   /* ====== main webserver ====== */
 
   lazy val serverPages = new ServerPages(scribe, narratorCache)
-  lazy val server = new Server(userStore, scribe, blobs, requests,
-    () => terminateServer(), narrationHint, serverPages, replUtil, system, narratorCache)
+  lazy val vitzenPages = new VitzenPages(asciiData, postsdir)
+  lazy val server = new Server(userStore = userStore,
+                               scribe = scribe,
+                               blobStore = blobs,
+                               requestUtil = requests,
+                               terminate = () => terminateServer(),
+                               narratorHint = narrationHint,
+                               pages = serverPages,
+                               replUtil = replUtil,
+                               system = system,
+                               narratorCache = narratorCache,
+                               postsPath = postsdir,
+                               vitzen = vitzenPages)
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
     RouteResult.route2HandlerFlow(server.route)(
       RoutingSettings.default(system),
@@ -89,7 +107,7 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, interface: String, 
   /* ====== clockwork ====== */
 
   lazy val clockwork: Clockwork = new Clockwork(cachedir.resolve("crawl-times.json"),
-    scribe, executionContext, requests, userStore, narratorCache)
+                                                scribe, executionContext, requests, userStore, narratorCache)
 
   def activateNarrationHint() = {
     narrationHint.observe { case (narrator, force) =>

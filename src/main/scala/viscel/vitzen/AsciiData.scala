@@ -1,14 +1,13 @@
-package vitzen.data
+package viscel.vitzen
 
 import java.io.File
 import java.nio.file.Path
-import java.time.{DateTimeException, LocalDate, LocalDateTime, LocalTime}
 import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
+import java.time.{DateTimeException, LocalDate, LocalDateTime, LocalTime}
 import java.util
 
 import org.asciidoctor.ast.{Document, DocumentHeader, Title}
 import org.asciidoctor.{AsciiDocDirectoryWalker, Asciidoctor, OptionsBuilder, SafeMode}
-import vitzen.logging.Logger
 
 import scala.collection.JavaConverters._
 
@@ -34,7 +33,7 @@ object Helper {
 
 }
 
-class AsciiData(log: Logger, asciidoctor: Asciidoctor, basedir: Path) {
+class AsciiData(asciidoctor: Asciidoctor, basedir: Path) {
 
   val options: util.Map[String, AnyRef] = OptionsBuilder.options().headerFooter(false).safe(SafeMode.SERVER).asMap()
 

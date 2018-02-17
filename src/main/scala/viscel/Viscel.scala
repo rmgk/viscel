@@ -18,11 +18,13 @@ object Viscel {
   val cleanblobs = Opts.flag("cleanblobs", "Cleans blobs from blobstore which are no longer linked.").orFalse
   val optBlobdir = Opts.option[Path]("blobdir", metavar = "directory",
     help = "Directory to store blobs (the images). Can be absolute, otherwise relative to basedir.").withDefault(Paths.get("./blobs/"))
+  val optPostsdir = Opts.option[Path]("postsdir", metavar = "directory",
+    help = "Directory to store posts. Can be absolute, otherwise relative to basedir.").withDefault(Paths.get("./posts/"))
 
   val command = Command(name = "viscel", header = "Start viscel!") {
-    (optBasedir, port, interface, noserver, nocore, cleanblobs, optBlobdir, shutdown).mapN {
-      (optBasedir, port, interface, noserver, nocore, cleanblobs, optBlobdir, shutdown) =>
-        val services = new Services(optBasedir, optBlobdir, interface, port)
+    (optBasedir, port, interface, noserver, nocore, cleanblobs, optBlobdir, shutdown, optPostsdir).mapN {
+      (optBasedir, port, interface, noserver, nocore, cleanblobs, optBlobdir, shutdown, optPostsdir) =>
+        val services = new Services(optBasedir, optBlobdir, optPostsdir, interface, port)
 
         if (cleanblobs) {
           services.replUtil.cleanBlobDirectory()

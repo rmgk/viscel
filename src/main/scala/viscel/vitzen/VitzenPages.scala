@@ -1,25 +1,21 @@
-package vitzen.server
+package viscel.vitzen
 
 import java.nio.file.Path
 import java.time.format.DateTimeFormatter
 
 import akka.http.scaladsl.model._
-import io.circe.Encoder
-import io.circe.syntax._
-import vitzen.data.{AsciiData, Post}
 
 import scalatags.Text.all.{frag, raw}
-import scalatags.Text.attrs.{`type`, action, cls, content, href, id, rel, src, title, value, name => attrname}
+import scalatags.Text.attrs.{`type`, cls, content, href, id, rel, title, name => attrname}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
-import scalatags.Text.tags.{body, br, div, form, h1, h2, head, header, html, input, link, meta, script, span, a => anchor}
+import scalatags.Text.tags.{div, h1, h2, head, header, html, link, meta, span, a => anchor}
 import scalatags.Text.tags2.{article, main, section}
 import scalatags.Text.{Frag, Modifier, TypedTag}
 
-class ServerPages(asciiData: AsciiData, contentPath: Path) {
+class VitzenPages(asciiData: AsciiData, contentPath: Path) {
 
 
-  val path_css: String = "/css"
-  val path_js: String = "/js"
+  val path_css: String = "/vitzen.css"
 
 
   private def tHead = {
@@ -72,7 +68,7 @@ class ServerPages(asciiData: AsciiData, contentPath: Path) {
           div(cls := "archive-post",
             span(cls := "archive-post-time", dh.date.format(DateTimeFormatter.ISO_DATE)),
             span(cls := "archive-post-title",
-              anchor(cls := "archive-post-link", href := s"content/${dh.path}", dh.title)
+              anchor(cls := "archive-post-link", href := s"posts/${dh.path}", dh.title)
             )
           )
         }: _*
@@ -98,32 +94,8 @@ class ServerPages(asciiData: AsciiData, contentPath: Path) {
 
   def archive(): HttpResponse = {
     val docs = asciiData.getAll()
-    htmlResponse(makeHtml(tBody(tSection(docs.sortBy(_.date.toString)))))
+    htmlResponse(makeHtml(tBody(tSection(docs.sortBy(_.date.toString).reverse))))
   }
 
-
-  val fullHtml: TypedTag[String] = makeHtml(body("if nothing happens, your javascript does not work"), script(src := path_js))
-
-  val landing: HttpResponse = htmlResponse(fullHtml)
-
-  def jsonResponse[T: Encoder](value: T): HttpResponse = HttpResponse(entity = HttpEntity(
-    ContentType(MediaTypes.`application/json`),
-    value.asJson.noSpaces))
-
-
-  val toolsPage: TypedTag[String] = makeHtml(body(section(anchor(href := "stop")("stop")),
-    section(
-      form(action := "import",
-        "id: ", input(`type` := "text", attrname := "id"), br,
-        "name: ", input(`type` := "text", attrname := "name"), br,
-        "path: ", input(`type` := "text", attrname := "path"), br,
-        input(`type` := "submit", value := "import"))),
-    section(
-      form(action := "add",
-        "url: ", input(`type` := "text", attrname := "url"), br,
-        input(`type` := "submit", value := "add")))
-  ))
-
-  val toolsResponse: HttpResponse = htmlResponse(toolsPage)
 
 }

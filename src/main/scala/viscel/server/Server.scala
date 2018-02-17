@@ -1,9 +1,11 @@
 package viscel.server
 
+import java.nio.file.Path
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenges}
-import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Directives.{path, _}
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
 import akka.http.scaladsl.server.{Directive, Route}
@@ -16,6 +18,7 @@ import viscel.narration.Narrator
 import viscel.scribe.Scribe
 import viscel.shared.Log.{Server => Log}
 import viscel.store.{BlobStore, NarratorCache, User, Users}
+import viscel.vitzen.VitzenPages
 
 import scala.collection.immutable.Map
 import scala.concurrent.Future
@@ -31,6 +34,8 @@ class Server(userStore: Users,
              replUtil: ReplUtil,
              system: ActorSystem,
              narratorCache: NarratorCache,
+             postsPath: Path,
+             vitzen: VitzenPages,
             ) {
 
   def authenticate(credentials: Option[BasicHttpCredentials]): Option[User] = credentials match {
@@ -103,8 +108,11 @@ class Server(userStore: Users,
       path("css") {
         getFromResource("style.css")
       } ~
+      path("vitzen.css") {
+        getFromResource("vitzen.css")
+      } ~
       path("js") {
-        getFromFile("js/target/scala-2.12/viscel-js-opt.js") ~ getFromFile("js/target/scala-2.12/viscel-js-fastopt.js") ~
+        getFromFile("web/target/scala-2.12/viscel-js-opt.js") ~ getFromFile("web/target/scala-2.12/viscel-js-fastopt.js") ~
           getFromResource("viscel-js-opt.js") ~ getFromResource("viscel-js-fastopt.js")
       } ~
       path("viscel-js-fastopt.js.map") {
@@ -177,6 +185,18 @@ class Server(userStore: Users,
       } ~
       path("tools") {
         complete(pages.toolsResponse)
+      } ~
+      pathPrefix("vitzen") {
+        path("") {
+          complete(vitzen.archive())
+        }~
+        path("posts" / Segments) { name =>
+          val path = name.filter(_ != "..").mkString("/")
+          if (path.endsWith("adoc"))
+            complete(vitzen.getContent(path))
+          else
+            getFromFile(postsPath.resolve(path).toFile)
+        }
       }
 
   def rejectNone[T](opt: => Option[T])(route: T => Route): Route = opt.map {route}.getOrElse(reject)
