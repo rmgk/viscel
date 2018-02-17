@@ -1,20 +1,23 @@
+
 lazy val viscel = project.in(file("."))
 	.settings(
 		name := "viscel",
 		Settings.main,
 		Libraries.shared,
 		Libraries.main,
-		(Compile / compile) := ((Compile / compile) dependsOn (js / Compile / fullOptJS)).value,
-		(Compile / resources) += (js / Compile / fullOptJS / artifactPath).value,
-		sharedSource,
+		(Compile / compile) := ((Compile / compile) dependsOn (web / Compile / fastOptJS)).value,
+    Compile / compile := ((compile in Compile) dependsOn (web / Assets / SassKeys.sassify)).value,
+    (Compile / resources) += (web / Compile / fastOptJS / artifactPath).value,
+    (Compile / resources) ++= (web / Assets / SassKeys.sassify).value,
+    sharedSource,
 	)
 	.enablePlugins(JavaServerAppPackaging)
 	.dependsOn(shared % Provided)
 
-lazy val js = project.in(file("js"))
+lazy val web = project.in(file("web"))
 	.enablePlugins(ScalaJSPlugin)
 	.settings(
-		name := "viscel-js",
+		name := "web-resources",
 		Settings.common,
 		Libraries.shared,
 		Libraries.js,
@@ -22,10 +25,11 @@ lazy val js = project.in(file("js"))
 		scalaJSUseMainModuleInitializer := true,
 	)
 	.dependsOn(shared % Provided)
+  .enablePlugins(SbtSassify)
 
 lazy val shared = project.in(file("shared"))
 	.settings(
-		name := "viscel-shared",
+		name := "shared",
 		Settings.common,
 		Libraries.shared,
 	)
@@ -113,7 +117,7 @@ lazy val Libraries = new {
 
 	lazy val shared: Def.SettingsDefinition =  Seq(circe, scalatags, rescala) ++ alogging
 
-	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, scalactic, jsoup, decline, scalatest, scalacheck)
+	lazy val main: Def.SettingsDefinition = Seq(akkaHTTP, circe, scalactic, jsoup, decline, scalatest, scalacheck, asciidoctor)
 
 	lazy val js: Def.SettingsDefinition = Seq(scalajsdom, rescalatags)
 
@@ -146,5 +150,10 @@ lazy val Libraries = new {
   val alogging = Seq (
     resolvers += Resolver.bintrayRepo("rmgk", "maven"),
     libraryDependencies += "de.rmgk" %%% "logging" % "0.1.0" exclude("org.scala-lang", "scala-reflect")
+  )
+
+  val asciidoctor = libraryDependencies ++= Seq(
+    "org.asciidoctor" % "asciidoctorj" % "1.5.6",
+    "org.asciidoctor" % "asciidoctorj-pdf" % "1.5.0-alpha.11",
   )
 }
