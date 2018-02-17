@@ -1,6 +1,7 @@
 package viscel.vitzen
 
 import java.nio.file.Path
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 import akka.http.scaladsl.model._
@@ -58,22 +59,26 @@ class VitzenPages(asciiData: AsciiData, contentPath: Path) {
     )
   }
 
-  private def tSection(dhs: List[Post]) = {
-    section(id := "archive", cls := "archive",
-      div(cls := "collection-title",
-        h2(cls := "archive-year", dhs.head.date.format(DateTimeFormatter.ofPattern("YYYY")))
-      ),
-      frag(
-        dhs.map { dh =>
-          div(cls := "archive-post",
-            span(cls := "archive-post-time", dh.date.format(DateTimeFormatter.ISO_DATE)),
-            span(cls := "archive-post-title",
-              anchor(cls := "archive-post-link", href := s"posts/${dh.path}", dh.title)
-            )
-          )
-        }: _*
+  private def tSection(posts: List[Post]): Frag = {
+    val byYear: Map[Int, List[Post]] = posts.groupBy(_.date.getYear)
+    frag(byYear.keys.toList.sorted(Ordering[Int].reverse).map { year =>
+      val dhs = byYear.apply(year).sortBy(_.date.toEpochSecond(ZoneOffset.UTC))(Ordering[Long].reverse)
+      section(id := "archive", cls := "archive",
+              div(cls := "collection-title",
+                  h2(cls := "archive-year", dhs.head.date.format(DateTimeFormatter.ofPattern("YYYY")))
+              ),
+              frag(
+                dhs.map { dh =>
+                  div(cls := "archive-post",
+                      span(cls := "archive-post-time", dh.date.format(DateTimeFormatter.ISO_DATE)),
+                      span(cls := "archive-post-title",
+                           anchor(cls := "archive-post-link", href := s"posts/${dh.path}", dh.title)
+                      )
+                  )
+                }: _*
+              )
       )
-    )
+    } :_*)
   }
 
   def makeHtml(stuff: Modifier*): TypedTag[String] =
@@ -93,8 +98,8 @@ class VitzenPages(asciiData: AsciiData, contentPath: Path) {
   }
 
   def archive(): HttpResponse = {
-    val docs = asciiData.getAll()
-    htmlResponse(makeHtml(tBody(tSection(docs.sortBy(_.date.toString).reverse))))
+    val docs: List[Post] = asciiData.getAll()
+    htmlResponse(makeHtml(tBody(tSection(docs))))
   }
 
 
