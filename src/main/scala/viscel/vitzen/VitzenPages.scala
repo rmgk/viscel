@@ -41,7 +41,8 @@ class VitzenPages(asciiData: AsciiData, contentPath: Path) {
   private def tMeta(post: Post) = {
     div(cls := "post-meta",
         span(cls := "post-time", s" ${post.date.toLocalDate} ${post.date.toLocalTime}"),
-        frag(post.modified.map(mt => span(cls := "post-time", s" Modified ${mt.toLocalDate} ${mt.toLocalTime} ")).toList: _*)
+        frag(post.modified.map(mt => span(cls := "post-time", s" Modified ${mt.toLocalDate} ${mt.toLocalTime} ")).toList: _*),
+        span(cls := "post-category")(post.categories().map(c => stringFrag(s" $c ")): _*)
     )
   }
 
@@ -67,16 +68,14 @@ class VitzenPages(asciiData: AsciiData, contentPath: Path) {
               div(cls := "collection-title",
                   h2(cls := "archive-year", dhs.head.date.format(DateTimeFormatter.ofPattern("YYYY")))
               ),
-              frag(
-                dhs.map { dh =>
-                  div(cls := "archive-post",
-                      span(cls := "archive-post-time", dh.date.format(DateTimeFormatter.ISO_DATE)),
-                      span(cls := "archive-post-title",
-                           anchor(cls := "archive-post-link", href := s"posts/${dh.path}", dh.title)
-                      )
-                  )
-                }: _*
-              )
+              section(id := "posts", cls := "posts")(dhs.map { post =>
+                article(cls := "archive-post",
+                        tMeta(post),
+                        span(cls := "archive-post-title",
+                             anchor(cls := "archive-post-link", href := s"posts/${post.path}", post.title)
+                        )
+                )
+              }: _*)
       )
     }: _*)
   }

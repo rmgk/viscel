@@ -65,6 +65,10 @@ class AsciiData(asciidoctor: Asciidoctor, basedir: Path) {
 
 
 class Post(val path: Path, val header: DocumentHeader, val document: Document) {
+  def categories(): List[String] = header.getAttributes.getOrDefault("categories","").toString.split(',').map(_.trim)(collection.breakOut)
+
+  def summary(): String = Option(document.getBlocks.get(0)).fold("")(b => b.convert())
+
   def title: String = header.getDocumentTitle.getCombined
   lazy val date: LocalDateTime = Helper.parseDate(header.getRevisionInfo.getDate)
   def content: String = document.convert()

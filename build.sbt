@@ -149,7 +149,7 @@ lazy val Libraries = new {
 
   val alogging = Seq (
     resolvers += Resolver.bintrayRepo("rmgk", "maven"),
-    libraryDependencies += "de.rmgk" %%% "logging" % "0.1.0" exclude("org.scala-lang", "scala-reflect")
+    libraryDependencies += "de.rmgk" %%% "logging" % "0.1.1" exclude("org.scala-lang", "scala-reflect")
   )
 
   val asciidoctor = libraryDependencies ++= Seq(
