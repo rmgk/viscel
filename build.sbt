@@ -127,7 +127,7 @@ lazy val Libraries = new {
 
 	val decline = libraryDependencies += "com.monovore" %% "decline" % "0.4.1" exclude("org.scala-lang", "scala-reflect")
 
-	val scalactic = libraryDependencies +=("org.scalactic" %% "scalactic" % "3.0.4" exclude("org.scala-lang", "scala-reflect"))
+	val scalactic = libraryDependencies +=("org.scalactic" %% "scalactic" % "3.0.5" exclude("org.scala-lang", "scala-reflect"))
 
 
 	val scalatags = libraryDependencies +=("com.lihaoyi" %%% "scalatags" % "0.6.7" )
@@ -149,11 +149,9 @@ lazy val Libraries = new {
 
   val alogging = Seq (
     resolvers += Resolver.bintrayRepo("rmgk", "maven"),
-    libraryDependencies += "de.rmgk" %%% "logging" % "0.1.1" exclude("org.scala-lang", "scala-reflect")
+    libraryDependencies += "de.rmgk" %%% "logging" % "0.2.0" exclude("org.scala-lang", "scala-reflect")
   )
 
-  val asciidoctor = libraryDependencies ++= Seq(
-    "org.asciidoctor" % "asciidoctorj" % "1.5.6",
-    "org.asciidoctor" % "asciidoctorj-pdf" % "1.5.0-alpha.11",
-  )
+  val asciidoctor = libraryDependencies += "org.asciidoctor" % "asciidoctorj" % "1.5.6"
+
 }
