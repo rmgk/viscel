@@ -3,14 +3,14 @@ package visceljs.render
 import rescala._
 import rescalatags._
 import viscel.shared.{ChapterPos, Contents, Gallery, SharedImage}
-import visceljs.Definitions.{class_chapters, class_preview, link_asset, button_index, button_asset}
+import visceljs.Definitions.{button_asset, button_index, class_chapters, class_preview, link_asset}
 import visceljs.{Actions, Body, Data, Make}
 
 import scala.annotation.tailrec
 import scalatags.JsDom.Frag
 import scalatags.JsDom.all.Tag
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.{SeqFrag, div, fieldset, legend, span, h1}
+import scalatags.JsDom.tags.{SeqFrag, div, fieldset, h1, legend, span}
 import scalatags.JsDom.tags2.{article, section}
 
 object Front {
@@ -36,7 +36,7 @@ object Front {
 				val preview3 = preview2.next
 				section(class_preview)(
 					List(preview1, preview2, preview3).map(p => p -> p.gallery.get)
-						.collect { case (p, Some(a)) => link_asset(p)(Make.asset(a, data): _*) })
+						.collect { case (p, Some(a)) => link_asset(p)(Make.asset(a, data)) })
 			}
 
 			def chapterlist: Tag = {

@@ -41,17 +41,17 @@ object Make {
 		})
 	}
 
-	def asset(asset: SharedImage, assetData: Data, addImageStyle: Modifier = ""): List[Modifier] = {
+	def asset(asset: SharedImage, assetData: Data, addImageStyle: Modifier = ""): Tag = {
 		asset.blob match {
-			case None => List(class_placeholder, "placeholder")
+			case None => span(class_placeholder, "placeholder")
 			case Some(blob@Blob(_, "application/x-shockwave-flash")) =>
 				`object`(
 					`type` := "application/x-shockwave-flash",
 					data := path_blob(blob),
 					width := asset.data.getOrElse("width", ""),
-					height := asset.data.getOrElse("height", "")) :: Nil
+					height := asset.data.getOrElse("height", ""))
 			case Some(blob@Blob(_, _)) =>
-				img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(addImageStyle) :: Nil
+				img(src := path_blob(blob), title := asset.data.getOrElse("title", ""), alt := asset.data.getOrElse("alt", ""))(addImageStyle)
 		}
 	}
 

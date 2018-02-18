@@ -8,7 +8,7 @@ import visceljs.Definitions.{button_asset, button_front}
 import visceljs.Make.postBookmark
 import visceljs.{Actions, Body, Data, Definitions, Make}
 
-import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, SeqNode, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, stringAttr, stringFrag}
+import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, stringAttr, stringFrag}
 import scalatags.JsDom.tags2.{article, section}
 
 object View {

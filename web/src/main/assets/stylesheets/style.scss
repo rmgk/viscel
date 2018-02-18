@@ -184,6 +184,7 @@ body#view {
     flex-flow: row;
     justify-content: space-around;
     align-items: flex-start;*/
+    cursor: pointer;
     @include no-selection;
     p {
       @include reset-selection;
