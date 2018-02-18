@@ -5,219 +5,217 @@ it seems to do what i want (black background for page in fullscreen)
 it stops working in opera27 (webkit) when these are combined into a list of selectors
 please improve :D */
 *:-webkit-full-screen {
-	background-color : black;
+  background-color: black;
 }
+
 *:fullscreen {
-	background-color : black;
+  background-color: black;
 }
+
 *:-moz-full-screen {
-	background-color : black;
+  background-color: black;
 }
 
 /* disable scrollbar in webkit based browsers */
 ::-webkit-scrollbar {
-	display: none;
+  display: none;
 }
 
 body {
-	color : #68e466;
-	background-color : black;
-	margin: 0px;
-	/* disable scrollbar in IE … untested so disabled
-	-ms-overflow-style: none; */
+  color: #68e466;
+  background-color: black;
+  margin: 0px;
+  /* disable scrollbar in IE … untested so disabled
+  -ms-overflow-style: none; */
 
-	/* disable any form of selection */
-	-webkit-user-select: none;  /* Chrome all / Safari all */
-	-moz-user-select: none;     /* Firefox all */
-	-ms-user-select: none;      /* IE 10+ */
-	user-select: none;          /* Likely future */
+  /* disable any form of selection */
+  -webkit-user-select: none; /* Chrome all / Safari all */
+  -moz-user-select: none; /* Firefox all */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none; /* Likely future */
 }
 
 a {
-	text-decoration:none;
-	color:#3654d9;
-	border-color: #3654d9;
-	cursor: pointer;
+  text-decoration: none;
+  color: #3654d9;
+  border-color: #3654d9;
+  cursor: pointer;
 }
 
 a:visited {
-	color:#404c80;
-	border-color: #404c80;
+  color: #404c80;
+  border-color: #404c80;
 }
 
 a:hover {
-	text-decoration:underline;
+  text-decoration: underline;
 }
 
 a.extern {
-	color:#7a1818;
+  color: #7a1818;
 }
 
 a.dead {
-	color: grey;
+  color: grey;
 }
 
 a.post {
-	color: #baca40;
+  color: #baca40;
 }
 
 article {
-	color: white;
+  color: white;
 }
 
 article p {
-	/* enable comment selection */
-	-webkit-user-select: text;  /* Chrome all / Safari all */
-	-moz-user-select: text;     /* Firefox all */
-	-ms-user-select: text;      /* IE 10+ */
-	user-select: text;          /* Likely future */
+  /* enable comment selection */
+  -webkit-user-select: text; /* Chrome all / Safari all */
+  -moz-user-select: text; /* Firefox all */
+  -ms-user-select: text; /* IE 10+ */
+  user-select: text; /* Likely future */
 }
 
-
 img {
-	-webkit-tap-highlight-color: transparent;
-	margin: 0;
-	padding: 0;
-	border: none;
-	background-color: white;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: white;
 }
 
 img::selection {
-	background: transparent;
+  background: transparent;
 }
 
-fieldset , header {
-	margin: 2cm 10px;
-	padding: 5px 10px 10px 10px;
-	background-color:#00000b;
-	border: 1px solid #310000;
+fieldset, header {
+  margin: 2cm 10px;
+  padding: 5px 10px 10px 10px;
+  background-color: #00000b;
+  border: 1px solid #310000;
 }
 
 header {
-	text-align: center;
+  text-align: center;
 }
 
 legend {
-	margin: 0px;
-	padding: 0px;
-	background-color:#00000b;
-	border-style: none;
-	border-color: #310000;
-	border-width: 1px;
-	display:inline;
-	font-size:large;
+  margin: 0px;
+  padding: 0px;
+  background-color: #00000b;
+  border-style: none;
+  border-color: #310000;
+  border-width: 1px;
+  display: inline;
+  font-size: large;
 }
 
-
 nav {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
-	border-style: solid none solid none;
-	border-color: #310000;
-	border-width: 1px 0px 1px 0px;
-	padding:0.2cm;
-	margin:0px 0px 0px 0px;
-	background-color:#00000b;
-	color: #808080;
+  border-style: solid none solid none;
+  border-color: #310000;
+  border-width: 1px 0px 1px 0px;
+  padding: 0.2cm;
+  margin: 0px 0px 0px 0px;
+  background-color: #00000b;
+  color: #808080;
 }
 
 nav > * {
-	flex: 1 0 0;
-	text-align: center;
+  flex: 1 0 0;
+  text-align: center;
 }
 
 aside input {
-	display: block;
-	min-width: calc(100%/3);
-	margin: 1em auto;
+  display: block;
+  min-width: calc(100% / 3);
+  margin: 1em auto;
 }
-
 
 /* index specific */
 #index fieldset > ul, ol {
-	column-width: 20em;
-	-webkit-column-width: 20em;
-	-moz-column-width: 20em;
-	list-style-type: none;
+  column-width: 20em;
+  -webkit-column-width: 20em;
+  -moz-column-width: 20em;
+  list-style-type: none;
 }
 
 #index nav input {
-	width: 100%;
+  width: 100%;
 }
-
 
 /* front specific */
 #front .preview {
-	display: flex;
-	flex-flow: row nowrap;
-	justify-content: space-around;
-	margin: 2cm 1cm;
-	padding: 0.5cm 0px;
-	background-color:#00000b;
-	border-style: solid;
-	border-color: #310000;
-	border-width: 1px;
-	text-align: center;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-around;
+  margin: 2cm 1cm;
+  padding: 0.5cm 0px;
+  background-color: #00000b;
+  border-style: solid;
+  border-color: #310000;
+  border-width: 1px;
+  text-align: center;
 }
 
 .preview article {
-	display: inline;
+  display: inline;
 }
 
 .preview > * {
-	margin: 0px 0.2%;
+  margin: 0px 0.2%;
 }
 
 .preview img {
-	display: inline;
-	max-width: 100%;
-	height: auto;
-	vertical-align: top;
+  display: inline;
+  max-width: 100%;
+  height: auto;
+  vertical-align: top;
 }
 
 .chapters fieldset {
-	margin: 0.5cm 10px;
+  margin: 0.5cm 10px;
 }
 
 .chapters a {
-	margin-right: 0.5em;
+  margin-right: 0.5em;
 }
 
 /* view specific */
 
 body#view {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	/*align-items: center;*/
-	min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /*align-items: center;*/
+  min-height: 100vh;
 }
 
-
 #view section {
-	text-align: center;
-	/*display: flex;
-	flex: 1 0 auto;
-	flex-flow: row;
-	justify-content: space-around;
-	align-items: flex-start;*/
+  text-align: center;
+  /*display: flex;
+  flex: 1 0 auto;
+  flex-flow: row;
+  justify-content: space-around;
+  align-items: flex-start;*/
 }
 
 #view nav {
-	align-self: flex-end;
-	flex: 0 0 auto;
-	width: 100%;
+  align-self: flex-end;
+  flex: 0 0 auto;
+  width: 100%;
 }
 
 @media only screen and (max-width: 1024px) {
-	#view img {
-		width: 100%;
-	}
+  #view img {
+    width: 100%;
+  }
 }
+
 @media only screen and (min-height: 1024px) and (min-width: 1024px) {
-	#view img {
-		max-height: 100vh;
-	}
+  #view img {
+    max-height: 100vh;
+  }
 }
