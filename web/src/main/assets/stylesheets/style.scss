@@ -88,9 +88,7 @@ fieldset , header {
 	margin: 2cm 10px;
 	padding: 5px 10px 10px 10px;
 	background-color:#00000b;
-	border-style: solid;
-	border-color: #310000;
-	border-width: 1px;
+	border: 1px solid #310000;
 }
 
 header {
@@ -153,13 +151,10 @@ aside input {
 	display: flex;
 	flex-flow: row nowrap;
 	justify-content: space-around;
-	text-align:left;
 	margin: 2cm 1cm;
 	padding: 0.5cm 0px;
 	background-color:#00000b;
-	border-style: solid;
-	border-color: #310000;
-	border-width: 1px;
+	border: 1px solid #310000;
 	text-align: center;
 }
 
