@@ -3,10 +3,10 @@ package viscel.shared
 import de.rmgk.logging.{Level, Logger}
 
 object Log {
-  val common: Logger = de.rmgk.logging.Logger(tag = "", level = Level.Info, tracing = false)
+  val common: Logger = de.rmgk.logging.Logger(tag = "", level = Level.Info)
   val Tool: Logger = common.copy(tag = "Tool")
   val Main: Logger = common
-  val Devel: Logger = common.copy(tag = "Devel", level = Level.Error, tracing = true)
+  val Devel: Logger = common.copy(tag = "Devel", Level.Error, Logger.tracing)
   val Narrate: Logger = common.copy(tag = "Narrate")
   val Web: Logger = common.copy(tag = "Web")
   val Store: Logger = common.copy(tag = "IO")
