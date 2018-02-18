@@ -3,15 +3,15 @@ package viscel.server
 import akka.http.scaladsl.model._
 import io.circe.Encoder
 import io.circe.syntax._
-import viscel.scribe.{Article, ImageRef, Chapter, ReadableContent, Scribe}
+import viscel.scribe.{Article, Chapter, ImageRef, ReadableContent, Scribe}
 import viscel.shared.{ChapterPos, Contents, Description, Gallery, SharedImage}
 import viscel.store.{NarratorCache, User}
 
-import scalatags.Text.attrs.{`type`, action, content, href, rel, src, title, value, name => attrname}
+import scalatags.Text.attrs.{`for`, `type`, action, cls, content, href, id, rel, src, title, value, name => attrname}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
-import scalatags.Text.tags.{body, br, form, head, html, input, link, meta, script, a => anchor}
+import scalatags.Text.tags.{body, div, fieldset, form, frag, h1, head, html, input, label, legend, link, meta, script}
 import scalatags.Text.tags2.section
-import scalatags.Text.{Modifier, TypedTag}
+import scalatags.text.Frag
 
 class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
 
@@ -57,7 +57,7 @@ class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
   val path_js: String = "js"
 
 
-  def makeHtml(stuff: Modifier*): TypedTag[String] =
+  def makeHtml(stuff: Frag*): Tag =
     html(
       head(
         title := "Viscel",
@@ -69,7 +69,7 @@ class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
     ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
     "<!DOCTYPE html>" + tag.render))
 
-  val fullHtml: TypedTag[String] = makeHtml(body("if nothing happens, your javascript does not work"), script(src := path_js))
+  val fullHtml: Tag = makeHtml(body("if nothing happens, your javascript does not work"), script(src := path_js))
 
   val landing: HttpResponse = htmlResponse(fullHtml)
 
@@ -79,19 +79,27 @@ class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
 
   def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
 
-  val toolsPage: TypedTag[String] = makeHtml(body(section(anchor(href := "stop")("stop")),
-    section(
-      form(action := "import",
-        "id: ", input(`type` := "text", attrname := "id"), br,
-        "name: ", input(`type` := "text", attrname := "name"), br,
-        "path: ", input(`type` := "text", attrname := "path"), br,
-        input(`type` := "submit", value := "import"))),
-    section(
-      form(action := "add",
-        "url: ", input(`type` := "text", attrname := "url"), br,
-        input(`type` := "submit", value := "add")))
-  ))
+  def labelledInput(name: String, inputType: String = "text"): Frag =
+    div(cls := "pure-control-group",
+        label(name, `for` := name), input(id := name, `type` := inputType, attrname := name)
+    )
 
+
+  val toolsPage: Tag = makeHtml(
+    body(h1("Tools"),
+         makeToolForm("stop", Nil),
+         makeToolForm("import", Seq("id", "name", "path")),
+         makeToolForm("add", Seq("url"))
+    )
+  )
+
+  private def makeToolForm(formAction: String, inputs: Seq[String]) = {
+    section(form(cls := "pure-form pure-form-aligned", action := formAction,
+                 fieldset(legend(formAction.capitalize),
+                          frag(inputs.map(labelledInput(_)): _*),
+                          div(cls := "pure-controls",
+                              input(`type` := "submit", cls := "pure-button pure-button-primary", value := formAction)))))
+  }
   val toolsResponse: HttpResponse = htmlResponse(toolsPage)
 
 }
