@@ -4,9 +4,9 @@ import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import rescala._
 import rescalatags._
-import visceljs.Definitions.{class_extern, class_post, link_asset, link_front}
+import visceljs.Definitions.{button_asset, button_front}
 import visceljs.Make.postBookmark
-import visceljs.{Actions, Body, Data, Make}
+import visceljs.{Actions, Body, Data, Definitions, Make}
 
 import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, SeqNode, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, stringAttr, stringFrag}
 import scalatags.JsDom.tags2.{article, section}
@@ -71,13 +71,13 @@ object View {
 
 		val navigation: Frag =
 			dataSignal.map { data => Make.navigation(
-				link_asset(data.prev, navigate.fire(Prev))("prev", rel := "prev"),
-				link_front(data.description, "front"),
+        button_asset(data.prev, navigate.fire(Prev))("prev", rel := "prev"),
+				button_front(data.description, "front"),
 				Make.fullscreenToggle("TFS"),
-				a(s"mode(${data.fitType % 8})", class_post, onclick := { () => navigate.fire(Mode(data.fitType + 1)) }),
-				postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), "pause"),
-				a(href := data.gallery.get.fold("")(_.origin))(class_extern)("site"),
-				link_asset(data.next, navigate.fire(Next))("next", rel := "next"))
+				Make.lcButton(navigate.fire(Mode(data.fitType + 1)), s"mode(${data.fitType % 8})"),
+				postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), "bookmark"),
+				a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin))("site"),
+        button_asset(data.next, navigate.fire(Next))("next", rel := "next"))
 			}.asFrag
 
 		Body(id = "view", title = dataSignal.map(data => s"${data.pos + 1} – ${data.description.name}"),

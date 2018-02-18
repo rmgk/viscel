@@ -1,19 +1,30 @@
 @import "lib/purecss/build/pure";
+@import "_common/_animation";
+
+$font-color: rgb(198, 211, 195);
+$theme-color: #16982B;
+//$border-color: #310000;
+$border-color: transparentize($theme-color, 0.8);
+$background-color: black;
+
+@mixin common-bg {
+  background-color: $background-color;
+}
 
 /* i wont pretend that i fully understand what im doing here
 it seems to do what i want (black background for page in fullscreen)
 it stops working in opera27 (webkit) when these are combined into a list of selectors
 please improve :D */
 *:-webkit-full-screen {
-  background-color: black;
+  @include common-bg;
 }
 
 *:fullscreen {
-  background-color: black;
+  @include common-bg;
 }
 
 *:-moz-full-screen {
-  background-color: black;
+  @include common-bg;
 }
 
 /* disable scrollbar in webkit based browsers */
@@ -22,9 +33,8 @@ please improve :D */
 }
 
 body {
-  color: #68e466;
-  background-color: black;
-  margin: 0px;
+  @include common-bg;
+  color: $font-color;
   /* disable scrollbar in IE … untested so disabled
   -ms-overflow-style: none; */
 
@@ -37,35 +47,14 @@ body {
 
 a {
   text-decoration: none;
-  color: #3654d9;
-  border-color: #3654d9;
+  color: $font-color;
   cursor: pointer;
 }
 
-a:visited {
-  color: #404c80;
-  border-color: #404c80;
-}
-
-a:hover {
+#front section.chapters a:hover {
   text-decoration: underline;
 }
 
-a.extern {
-  color: #7a1818;
-}
-
-a.dead {
-  color: grey;
-}
-
-a.post {
-  color: #baca40;
-}
-
-article {
-  color: white;
-}
 
 article p {
   /* enable comment selection */
@@ -73,6 +62,8 @@ article p {
   -moz-user-select: text; /* Firefox all */
   -ms-user-select: text; /* IE 10+ */
   user-select: text; /* Likely future */
+  max-width: 800px;
+  margin: auto;
 }
 
 img {
@@ -87,96 +78,87 @@ img::selection {
   background: transparent;
 }
 
-fieldset, header {
+fieldset, h1 {
   margin: 2cm 10px;
-  padding: 5px 10px 10px 10px;
-  background-color: #00000b;
-  border: 1px solid #310000;
+  padding: 10px 10px 10px 10px;
+  border: 1px solid $border-color;
 }
 
-header {
+h1 {
   text-align: center;
 }
 
 legend {
-  margin: 0px;
-  padding: 0px;
-  background-color: #00000b;
-  border: 1px none #310000;
-  display: inline;
   font-size: large;
 }
 
 nav {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  border-style: solid none solid none;
-  border-color: #310000;
-  border-width: 1px 0px 1px 0px;
-  padding: 0.2cm;
-  margin: 0px 0px 0px 0px;
-  background-color: #00000b;
-  color: #808080;
-}
-
-nav > * {
-  flex: 1 0 0;
   text-align: center;
+  & > * {
+    display: inline;
+  }
 }
 
-aside input {
-  display: block;
-  min-width: calc(100% / 3);
-  margin: 1em auto;
+input {
+  color: black;
+}
+
+.pure-button {
+  color: $font-color;
+  background-color: lighten($background-color, 10%);
+}
+
+fieldset a:visited {
+  color: $theme-color;
 }
 
 /* index specific */
-#index fieldset > ul, ol {
-  column-width: 20em;
-  -webkit-column-width: 20em;
-  -moz-column-width: 20em;
-  list-style-type: none;
-}
 
-#index nav input {
-  width: 100%;
+#index {
+  fieldset a {
+    @include underline-from-center;
+  }
+  nav {
+    margin-top: 1cm;
+  }
+  fieldset > ul, ol {
+    column-width: 20em;
+    -webkit-column-width: 20em;
+    -moz-column-width: 20em;
+    list-style-type: none;
+  }
 }
 
 /* front specific */
-#front .preview {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-around;
-  margin: 2cm 1cm;
-  padding: 0.5cm 0px;
-  background-color: #00000b;
-  border: 1px solid #310000;
-  text-align: center;
-}
+#front {
+  .preview {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    margin: 2cm 1cm;
+    padding: 0.5cm 0.5cm;
+    border: 1px solid $border-color;
+    text-align: center;
+  }
 
-.preview article {
-  display: inline;
-}
+  .preview > * {
+    margin: 0px 0.2%;
+  }
 
-.preview > * {
-  margin: 0px 0.2%;
-}
+  .preview img {
+    display: inline;
+    max-width: 100%;
+    height: auto;
+    vertical-align: top;
+  }
 
-.preview img {
-  display: inline;
-  max-width: 100%;
-  height: auto;
-  vertical-align: top;
-}
+  .chapters fieldset {
+    margin: 0.5cm 10px;
+  }
 
-.chapters fieldset {
-  margin: 0.5cm 10px;
-}
-
-.chapters a {
-  margin-right: 0.5em;
+  .chapters a {
+    margin-right: 0.5em;
+  }
 }
 
 /* view specific */
@@ -189,27 +171,56 @@ body#view {
   min-height: 100vh;
 }
 
-#view section {
-  text-align: center;
-  /*display: flex;
-  flex: 1 0 auto;
-  flex-flow: row;
-  justify-content: space-around;
-  align-items: flex-start;*/
+#view {
+  section {
+    text-align: center;
+    /*display: flex;
+    flex: 1 0 auto;
+    flex-flow: row;
+    justify-content: space-around;
+    align-items: flex-start;*/
+  }
+
+  nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-self: flex-end;
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 0;
+
+    &> * {
+      flex-grow: 1;
+    }
+
+    .pure-button {
+      border-radius: 0;
+    }
+  }
 }
 
-#view nav {
-  align-self: flex-end;
-  flex: 0 0 auto;
-  width: 100%;
-}
-
+//smallish screens
 @media only screen and (max-width: 1024px) {
   #view img {
     width: 100%;
   }
+
+  // put prev & next into its own first row
+  #view nav {
+    flex-wrap: wrap;
+    :first-child {
+      order: -2;
+      flex-basis: 50%;
+    }
+    :last-child {
+      order: -1;
+      flex-basis: 50%;
+    }
+  }
 }
 
+//bigish screens
 @media only screen and (min-height: 1024px) and (min-width: 1024px) {
   #view img {
     max-height: 100vh;

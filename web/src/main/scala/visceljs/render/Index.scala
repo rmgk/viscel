@@ -33,7 +33,7 @@ object Index {
 
 			val inputQuery = Var(inputQueryString)
 			inputQuery.observe(inputQueryString = _)
-			val inputField = input(value := inputQueryString, `type` := "textfield", tabindex := "1", onkeyup := ({ (inp: html.Input) =>
+			val inputField = input(value := inputQueryString, `type` := "text", tabindex := "1", onkeyup := ({ (inp: html.Input) =>
 				inputQuery.set(inp.value.toString.toLowerCase)
 			}: js.ThisFunction))
 
@@ -55,13 +55,13 @@ object Index {
 
 			val callback: Signal[() => Boolean] = firstSelected map {sel => {() => sel.foreach(gotoFront(_)); false} }
 
-			val searchForm = form(inputField, onsubmit := callback)
+			val searchForm = form(cls:="pure-form")(inputField, onsubmit := callback)
 
 			div(
 					Make.navigation(Make.fullscreenToggle("TFS"), searchForm, link_tools("tools")),
 					Make.group(s"Updates", filteredHasNewPages),
 					Make.group(s"Bookmarks", filteredIsCurrent),
-					Make.group(s"Available", filteredAvailable)): Tag
+					Make.group(s"Available", filteredAvailable))
 		}
 
 		val rendered = fragS.asFrag

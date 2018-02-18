@@ -94,11 +94,12 @@ class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
   )
 
   private def makeToolForm(formAction: String, inputs: Seq[String]) = {
-    section(form(cls := "pure-form pure-form-aligned", action := formAction,
-                 fieldset(legend(formAction.capitalize),
-                          frag(inputs.map(labelledInput(_)): _*),
-                          div(cls := "pure-controls",
-                              input(`type` := "submit", cls := "pure-button pure-button-primary", value := formAction)))))
+    section(
+      fieldset(legend(formAction.capitalize),
+               form(cls := "pure-form pure-form-aligned", action := formAction,
+                    frag(inputs.map(labelledInput(_)): _*),
+                    div(cls := "pure-controls",
+                        input(`type` := "submit", cls := "pure-button", value := formAction)))))
   }
   val toolsResponse: HttpResponse = htmlResponse(toolsPage)
 

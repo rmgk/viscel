@@ -7,4 +7,7 @@ import scala.scalajs.js
 import scalatags.JsDom.Frag
 import scalatags.JsDom.implicits.stringFrag
 
-case class Body(frag: Frag = "", id: String = "", title: Signal[String] = Var(""), keypress: js.Function1[KeyboardEvent, _] = js.undefined.asInstanceOf[js.Function1[KeyboardEvent, _]])
+case class Body(frag: Frag = "",
+                id: String = "",
+                title: Signal[String] = Var(""),
+                keypress: js.Function1[KeyboardEvent, _] = js.undefined.asInstanceOf[js.Function1[KeyboardEvent, _]])

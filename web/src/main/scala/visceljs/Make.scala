@@ -1,7 +1,6 @@
 package visceljs
 
 import org.scalajs.dom.html.UList
-import rescala.implicitEngine
 import rescala.Signal
 import viscel.shared.{Blob, Description, SharedImage}
 import visceljs.Definitions._
@@ -15,12 +14,12 @@ object Make {
 
 	def postBookmark(bm: Int, data: Data, handler: Data => Unit, ts: Frag*): HtmlTag = {
 		if (data.bookmark != bm) {
-			a(class_post)(ts)(onclick := { () =>
+			Make.lcButton{
 				ViscelJS.postBookmark(data.description, bm)
 				handler(data.copy(bookmark = bm))
-			})
+			}(ts)
 		}
-		else span(class_dead, ts)
+		else button(class_button_disabled, ts)
 	}
 
 	def postForceHint(nar: Description, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
@@ -56,7 +55,9 @@ object Make {
 		}
 	}
 
-	def fullscreenToggle(stuff: Frag*): Tag = a(onclick := (() => ViscelJS.toggleFullscreen()))(stuff)
+	def fullscreenToggle(stuff: Frag*): HtmlTag = a(cls := "pure-button", onclick := (() => ViscelJS.toggleFullscreen()))(stuff)
+
+  def lcButton(action: => Unit, m: Modifier*): HtmlTag = button(class_button, Actions.onLeftClick(action))(m:_*)
 
 	def group(name: String, entries: Signal[Seq[(Description, Int, Int)]]): Tag = {
 		val elements: UList = ul.render
@@ -79,6 +80,6 @@ object Make {
 		section(fieldset(rLegend, elements))
 	}
 
-	def navigation(links: Frag*): HtmlTag =
-		nav(links)
+	def navigation(links: Tag*): HtmlTag =
+		nav(class_button_group)(links.map(t => if (Set("a", "button").contains(t.tag)) t(class_button) else t))
 }
