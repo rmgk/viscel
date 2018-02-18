@@ -106,6 +106,7 @@ class Server(userStore: Users,
         }
       } ~
       path("css") {
+        getFromFile("web/target/web/sass/main/stylesheets/style.css") ~
         getFromResource("style.css")
       } ~
       path("vitzen.css") {
