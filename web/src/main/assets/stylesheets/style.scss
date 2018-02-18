@@ -171,7 +171,6 @@ fieldset a:visited {
 body#view {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   /*align-items: center;*/
   min-height: 100vh;
 }
@@ -179,6 +178,7 @@ body#view {
 #view {
   section {
     text-align: center;
+    flex-grow: 1;
     /*display: flex;
     flex: 1 0 auto;
     flex-flow: row;
