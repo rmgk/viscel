@@ -115,6 +115,7 @@ lazy val Libraries = new {
 
   lazy val shared: Def.SettingsDefinition = Seq(
     resolvers += Resolver.bintrayRepo("rmgk", "maven"),
+    resolvers += Resolver.bintrayRepo("stg-tud", "maven"),
     libraryDependencies ++= Seq(
       "de.rmgk" %%% "logging" % "0.2.0",
       "de.tuda.stg" %%% "rescala" % "0.21.1",
