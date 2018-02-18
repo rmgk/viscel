@@ -112,8 +112,8 @@ class Server(userStore: Users,
         getFromResource("vitzen.css")
       } ~
       path("js") {
-        getFromFile("web/target/scala-2.12/viscel-js-opt.js") ~ getFromFile("web/target/scala-2.12/viscel-js-fastopt.js") ~
-          getFromResource("viscel-js-opt.js") ~ getFromResource("viscel-js-fastopt.js")
+        getFromFile("web/target/scala-2.12/web-opt.js") ~ getFromFile("web/target/scala-2.12/web-fastopt.js") ~
+          getFromResource("web-opt.js") ~ getFromResource("web-fastopt.js")
       } ~
       path("viscel-js-fastopt.js.map") {
         getFromFile("js/target/scala-2.12/viscel-js-fastopt.js.map")

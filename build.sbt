@@ -17,7 +17,7 @@ lazy val viscel = project.in(file("."))
 lazy val web = project.in(file("web"))
   .enablePlugins(ScalaJSPlugin)
   .settings(
-    name := "web-resources",
+    name := "web",
     Settings.common,
     Libraries.shared,
     Libraries.js,
@@ -142,6 +142,7 @@ lazy val Libraries = new {
   lazy val js: Def.SettingsDefinition = libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.9.4",
     "de.tuda.stg" %%% "rescalatags" % "0.21.0",
+    "org.webjars.npm" % "purecss" % "1.0.0",
     )
 
 

@@ -1,3 +1,5 @@
+@import "lib/purecss/build/pure";
+
 /* i wont pretend that i fully understand what im doing here
 it seems to do what i want (black background for page in fullscreen)
 it stops working in opera27 (webkit) when these are combined into a list of selectors
@@ -154,7 +156,9 @@ aside input {
 	margin: 2cm 1cm;
 	padding: 0.5cm 0px;
 	background-color:#00000b;
-	border: 1px solid #310000;
+	border-style: solid;
+	border-color: #310000;
+	border-width: 1px;
 	text-align: center;
 }
 
