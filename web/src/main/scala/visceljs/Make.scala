@@ -19,12 +19,12 @@ object Make {
 				handler(data.copy(bookmark = bm))
 			}(ts)
 		}
-		else button(class_button_disabled, ts)
+		else {
+      button(class_button_disabled, ts)
+    }
 	}
 
-	def postForceHint(nar: Description, ts: Frag*): HtmlTag = a(class_post)(ts)(onclick := { () =>
-		ViscelJS.hint(nar, force = true)
-	})
+	def postForceHint(nar: Description, ts: Frag*): HtmlTag = lcButton(ViscelJS.hint(nar, force = true), class_button)(ts)
 
 	def imageStyle(fitType: Int): Modifier = {
 		def s(mw: Boolean = false, mh: Boolean = false, w: Boolean = false, h: Boolean = false) =
@@ -81,5 +81,5 @@ object Make {
 	}
 
 	def navigation(links: Tag*): HtmlTag =
-		nav(class_button_group)(links.map(t => if (Set("a", "button").contains(t.tag)) t(class_button) else t))
+		nav(class_button_group)(links)
 }

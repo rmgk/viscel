@@ -55,7 +55,6 @@ object ViscelJS {
 	def hint(nar: Description, force: Boolean = false): Unit = dom.ext.Ajax.post(s"hint/narrator/${encodeURIComponent(nar.id)}" + (if (force) "?force=true" else ""))
 
 	def postBookmark(nar: Description, pos: Int): Future[Map[String, Int]] = {
-
 		val res = dom.ext.Ajax.post("bookmarks", s"narration=${encodeURIComponent(nar.id)}&bookmark=$pos", headers = Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
 			.map(res => decode[Map[String, Int]](res.responseText).toTry.get)
 		bookmarkSource.set(Signals.fromFuture(res))

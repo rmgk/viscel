@@ -58,7 +58,7 @@ object Index {
 			val searchForm = form(cls:="pure-form")(inputField, onsubmit := callback)
 
 			div(
-					Make.navigation(Make.fullscreenToggle("TFS"), searchForm, link_tools("tools")),
+					Make.navigation(Make.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
 					Make.group(s"Updates", filteredHasNewPages),
 					Make.group(s"Bookmarks", filteredIsCurrent),
 					Make.group(s"Available", filteredAvailable))

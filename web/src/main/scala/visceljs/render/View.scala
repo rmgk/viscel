@@ -71,13 +71,13 @@ object View {
 
 		val navigation: Frag =
 			dataSignal.map { data => Make.navigation(
-        button_asset(data.prev, navigate.fire(Prev))("prev", rel := "prev"),
-				button_front(data.description, "front"),
-				Make.fullscreenToggle("TFS"),
-				Make.lcButton(navigate.fire(Mode(data.fitType + 1)), s"mode(${data.fitType % 8})"),
-				postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), "bookmark"),
-				a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin))("site"),
-        button_asset(data.next, navigate.fire(Next))("next", rel := "next"))
+        button_asset(data.prev, navigate.fire(Prev))("⎗", rel := "prev"),
+				button_front(data.description, "\uD83D\uDDD0"),
+				Make.fullscreenToggle("\uD83D\uDDD6"),
+				Make.lcButton(navigate.fire(Mode(data.fitType + 1)), s"🖵 ${data.fitType % 8}"),
+				postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), "\uD83D\uDD16"),
+				a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin))("\uD83D\uDD78"),
+        button_asset(data.next, navigate.fire(Next))("⎘", rel := "next"))
 			}.asFrag
 
 		Body(id = "view", title = dataSignal.map(data => s"${data.pos + 1} – ${data.description.name}"),
