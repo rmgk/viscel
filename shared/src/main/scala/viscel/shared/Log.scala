@@ -6,7 +6,7 @@ object Log {
   val common: Logger = de.rmgk.logging.Logger(tag = "", level = Level.Info)
   val Tool: Logger = common.copy(tag = "Tool")
   val Main: Logger = common
-  val Devel: Logger = common.copy(tag = "Devel", Level.Error, Logger.tracing)
+  val Devel: Logger = common.copy(tag = "Devel", Level.Trace, Logger.tracing)
   val Narrate: Logger = common.copy(tag = "Narrate")
   val Web: Logger = common.copy(tag = "Web")
   val Store: Logger = common.copy(tag = "IO")

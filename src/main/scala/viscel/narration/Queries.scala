@@ -87,10 +87,11 @@ object Queries {
     Append(queryImage(imageQuery), queryNext(nextQuery))
   }
   def queryMixedArchive(query: String): Wrapper = {
-    Selection.many(query).wrapEach { elem =>
+    Selection.many(query).wrapEach { intoMixedArchive }
+  }
+  def intoMixedArchive(elem: Element): WebContent Or Every[Report] = {
       if (elem.tagName() === "a") extractMore(elem)
       else extractChapter(elem)
-    }
   }
   def queryChapterArchive(query: String): Wrapper = {
     Selection.many(query).wrapFlat(elementIntoChapterPointer)
