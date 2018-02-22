@@ -8,7 +8,6 @@ import viscel.narration.{Metarrator, Templates}
 import viscel.scribe.{ImageRef, Vurl}
 import viscel.selection.ReportTools.extract
 import viscel.selection.Selection
-import viscel.shared.Log
 
 import scala.util.matching.Regex
 
@@ -21,17 +20,13 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   val pageR: Regex = """'([^']+)'""".r
   val serverR: Regex = """(?s).*var server = '([^']+)';.*""".r
 
-  val archiveWrapper = Shuffle.of(queryChapterArchive("#chapters a[data-chapter-id]"))(_.reverse)
+  val archiveWrapper = Shuffle(queryChapterArchive("#chapters a[data-chapter-id]"), chapterReverse)
   val pageWrapper = Selection.many("script").wrap { scripts =>
-    Log.Devel.trace(s"extracting $scripts")
     extract {
       val scriptSource = scripts.last.html()
       val pagesR(pages) = scriptSource
-      Log.Devel.trace(s"pages $pages")
       val dataurlR(dataurl) = scriptSource
-      Log.Devel.trace(s"data $dataurl")
       val serverR(server) = scriptSource
-      Log.Devel.trace(s"server $server")
       pageR.findAllMatchIn(pages).map { m =>
         val page = m.group(1)
         ImageRef(s"$server$dataurl/$page", scripts.head.ownerDocument().location())

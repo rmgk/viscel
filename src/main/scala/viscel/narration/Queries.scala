@@ -127,7 +127,7 @@ object Queries {
     case (a :: as, t) => (t :: a) :: as
   }.map(_.reverse).reverse
 
-  def reverse(stories: List[WebContent]): List[WebContent] =
+  def chapterReverse(stories: List[WebContent]): List[WebContent] =
     groupedOn(stories) { case Chapter(_) => true; case _ => false }.reverse.flatMap {
       case (h :: t) => h :: t.reverse
       case Nil => Nil

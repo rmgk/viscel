@@ -103,7 +103,7 @@ object Vid {
       case _ => (pageFun, archFun)
     }
 
-    val archFunRev = if (has("archiveReverse")) archFunReplace.map(Shuffle(_, reverse)) else archFunReplace
+    val archFunRev = if (has("archiveReverse")) archFunReplace.map(Shuffle(_, chapterReverse)) else archFunReplace
 
     (pageFunReplace, archFunRev) match {
       case (Some(pf), None) => Good(NarratorADT(cid, name, Link(startUrl) :: Nil, pf))
