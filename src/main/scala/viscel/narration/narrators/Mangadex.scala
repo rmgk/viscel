@@ -1,6 +1,7 @@
 package viscel.narration.narrators
 
 import io.circe.{Decoder, Encoder}
+import org.jsoup.helper.StringUtil
 import org.scalactic._
 import viscel.narration.Queries._
 import viscel.narration.interpretation.NarrationInterpretation.{NarratorADT, Shuffle, WrapPart}
@@ -29,7 +30,7 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
       val serverR(server) = scriptSource
       pageR.findAllMatchIn(pages).map { m =>
         val page = m.group(1)
-        ImageRef(s"$server$dataurl/$page", scripts.head.ownerDocument().location())
+        ImageRef(StringUtil.resolve(scripts.head.ownerDocument().baseUri(),s"$server$dataurl/$page"), scripts.head.ownerDocument().location())
       }.toList
     }
   }
