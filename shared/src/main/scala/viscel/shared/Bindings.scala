@@ -9,4 +9,6 @@ object Bindings {
   val descriptions = Binding[() => Iterable[Description]]("descriptions")
 
   val contents = Binding[String => Option[Contents]]("contents")
+
+  val hint = Binding[(Description, Boolean) => Unit]("hint")
 }

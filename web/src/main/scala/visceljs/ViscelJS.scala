@@ -57,7 +57,7 @@ object ViscelJS {
   }
 
 
-  def hint(nar: Description, force: Boolean = false): Unit = dom.ext.Ajax.post(s"hint/narrator/${encodeURIComponent(nar.id)}" + (if (force) "?force=true" else ""))
+  var hint: (Description, Boolean) => Unit = _
 
   def postBookmark(nar: Description, pos: Int): Future[Map[String, Int]] = {
     val res = dom.ext.Ajax.post("bookmarks", s"narration=${encodeURIComponent(nar.id)}&bookmark=$pos", headers = Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
@@ -113,6 +113,7 @@ object ViscelJS {
     val connection: Future[RemoteRef] = registry.request(WS(s"ws://${dom.window.location.host}/ws"))
     connection.foreach { remote =>
       requestContents = registry.lookup(Bindings.contents, remote)
+      hint = (d, h) => registry.lookup(Bindings.hint, remote).apply(d, h).failed.foreach(Log.Web.error)
       descriptionSource.set(Signals.fromFuture(
         registry.lookup(Bindings.descriptions, remote).apply()
           .map(_.map(n => n.id -> n).toMap)))

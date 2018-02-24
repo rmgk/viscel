@@ -47,6 +47,11 @@ class Server(userStore: Users,
 
   registry.bind(Bindings.contents)(pages.narration)
   registry.bind(Bindings.descriptions)(() => pages.narrations())
+  registry.bind(Bindings.hint){(description, force) =>
+    val nar = narratorCache.get(description.id)
+    if (nar.isDefined) narratorHint.fire(nar.get -> force)
+    else Log.warn(s"got hint for unknown $description")
+  }
 
 
 
@@ -151,18 +156,6 @@ class Server(userStore: Users,
           path(Segment / Segment) { (part1, part2) =>
             getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).getOrElse(MediaTypes.`image/jpeg`), () => HttpCharsets.`UTF-8`))
           }
-      } ~
-      pathPrefix("hint") {
-        path("narrator" / Segment) { narratorID =>
-          rejectNone(narratorCache.get(narratorID)) { nar =>
-            parameters('force.as[Boolean].?) { force =>
-              complete {
-                narratorHint.fire(nar -> force.getOrElse(false))
-                force.toString
-              }
-            }
-          }
-        }
       } ~
       path("export" / Segment) { (id) =>
         if (!user.admin) reject

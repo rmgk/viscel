@@ -78,7 +78,7 @@ object Actions {
   def gotoFront(nar: Description, scrolltop: Boolean = false): Unit = {
     pushFront(nar)
     setBodyFront(nar.id, scrolltop)
-    ViscelJS.hint(nar)
+    ViscelJS.hint(nar, false)
   }
 
   def gotoView(data: Data, scrolltop: Boolean = true): Unit = {
