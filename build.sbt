@@ -120,6 +120,12 @@ lazy val Libraries = new {
       "de.rmgk" %%% "logging" % "0.2.1",
       "de.tuda.stg" %%% "rescala" % "0.21.1",
       "com.lihaoyi" %%% "scalatags" % "0.6.7",
+      "de.tuda.stg" %%% "retier-communication" % "0+",
+      "de.tuda.stg" %%% "retier-serializer-circe" % "0+",
+      "de.tuda.stg" %%% "retier-transmitter-rescala" % "0+",
+      // for websockets
+      "de.tuda.stg" %%% "retier-communicator-ws-akka" % "0+",
+      "com.typesafe.akka" %% "akka-stream" % "2.5.10",
       ).++(Seq(
       "circe-core",
       "circe-generic",

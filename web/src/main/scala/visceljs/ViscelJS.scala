@@ -5,7 +5,10 @@ import io.circe.generic.auto._
 import io.circe.parser.decode
 import org.scalajs.dom
 import org.scalajs.dom.raw.HashChangeEvent
-import rescala.{Observe, Evt, Signal, Signals, Var}
+import rescala.{Evt, Observe, Signal, Signals, Var, _}
+import retier.communicator.ws.akka.WS
+import retier.registry.Registry
+import retier.transmitter.RemoteRef
 import viscel.shared._
 
 import scala.collection.immutable.Map
@@ -27,10 +30,12 @@ object ViscelJS {
       val res = dom.ext.Ajax.get(url = path)
         .map { res => decode[R](res.responseText).toTry.get }
       res.failed.foreach { e =>
-        Console.println(s"request $path failed with ${e.getMessage}")
+        Log.Web.error(s"request $path failed with ${e.getMessage}")
       }
       res
     }
+
+  var requestContents: String => Future[Option[Contents]] = _
 
   implicit val readAssets: Decoder[List[SharedImage]] = Predef.implicitly[Decoder[List[SharedImage]]]
 
@@ -48,7 +53,7 @@ object ViscelJS {
 
   def content(nar: Description): Signal[Contents] = {
     contents.getOrElseUpdate(nar.id,
-                             Signals.fromFuture(ajax[Contents](s"narration/${encodeURIComponent(nar.id)}")))
+                             Signals.fromFuture(requestContents(nar.id).map(_.get)))
   }
 
 
@@ -104,7 +109,12 @@ object ViscelJS {
 
   def main(args: Array[String]): Unit = {
     setBody(Body(frag = div("loading data …")), scrolltop = true)
-    triggerDispatch.fire()
+    val registry = new Registry
+    val connection: Future[RemoteRef] = registry.request(WS(s"ws://${dom.window.location.host}/ws"))
+    connection.foreach { remote =>
+      requestContents = registry.lookup(Bindings.contents, remote)
+      triggerDispatch.fire()
+    }
   }
 
   //	@JSExport(name = "spore")

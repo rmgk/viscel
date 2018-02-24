@@ -12,10 +12,13 @@ import akka.http.scaladsl.server.{Directive, Route}
 import io.circe.generic.auto._
 import org.scalactic.TypeCheckedTripleEquals._
 import rescala.Evt
+import retier.communicator.ws.akka._
+import retier.registry.Registry
 import viscel.ReplUtil
 import viscel.crawl.RequestUtil
 import viscel.narration.Narrator
 import viscel.scribe.Scribe
+import viscel.shared.Bindings
 import viscel.shared.Log.{Server => Log}
 import viscel.store.{BlobStore, NarratorCache, User, Users}
 import viscel.vitzen.VitzenPages
@@ -37,6 +40,15 @@ class Server(userStore: Users,
              postsPath: Path,
              vitzen: VitzenPages,
             ) {
+
+  val webSocket = WebSocketListener()
+  val registry = new Registry
+  registry.listen(webSocket)
+
+
+  registry.bind(Bindings.contents)(pages.narration)
+
+
 
   def authenticate(credentials: Option[BasicHttpCredentials]): Option[User] = credentials match {
     case Some(BasicHttpCredentials(user, password)) =>
@@ -121,6 +133,9 @@ class Server(userStore: Users,
         getFromFile("web/target/scala-2.12/web-opt.js") ~ getFromFile("web/target/scala-2.12/web-fastopt.js") ~
           getFromResource("web-opt.js") ~ getFromResource("web-fastopt.js")
       } ~
+      path("ws") {
+        webSocket
+      } ~
       path("viscel-js-fastopt.js.map") {
         getFromFile("js/target/scala-2.12/viscel-js-fastopt.js.map")
       } ~
@@ -132,11 +147,6 @@ class Server(userStore: Users,
       } ~
       path("narrations") {
         complete(pages.jsonResponse(pages.narrations()))
-      } ~
-      path("narration" / Segment) { collectionId =>
-        rejectNone(pages.narration(collectionId)) { content =>
-          complete(pages.jsonResponse(content))
-        }
       } ~
       pathPrefix("blob" / Segment) { (sha1) =>
         val filename = blobStore.hashToPath(sha1).toFile
