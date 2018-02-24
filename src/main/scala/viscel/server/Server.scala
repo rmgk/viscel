@@ -24,6 +24,7 @@ import viscel.vitzen.VitzenPages
 import rescala.Event
 
 import scala.collection.immutable.Map
+import scala.collection.mutable
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
@@ -42,9 +43,10 @@ class Server(userStore: Users,
              bookUpdates: Event[String]
             ) {
 
-  val userSocketCache: Map[String, Route] = Map.empty
+  val userSocketCache: mutable.Map[String, Route] = mutable.Map.empty
   def userSocket(user: String): Route = synchronized {
-    userSocketCache.getOrElse(user, {
+    userSocketCache.getOrElseUpdate(user, {
+      Log.debug(s"create new websocket for $user")
       val webSocket = WebSocketListener()
       val registry = new Registry
       registry.listen(webSocket)
