@@ -113,7 +113,7 @@ object ViscelJS {
     val connection: Future[RemoteRef] = registry.request(WS(s"ws://${dom.window.location.host}/ws"))
     connection.foreach { remote =>
       requestContents = registry.lookup(Bindings.contents, remote)
-      hint = (d, h) => registry.lookup(Bindings.hint, remote).apply(d, h).failed.foreach(Log.Web.error)
+      hint = (d, h) => registry.lookup(Bindings.hint, remote).apply(d, h).failed.foreach(Log.Web.error(_))
       descriptionSource.set(Signals.fromFuture(
         registry.lookup(Bindings.descriptions, remote).apply()
           .map(_.map(n => n.id -> n).toMap)))

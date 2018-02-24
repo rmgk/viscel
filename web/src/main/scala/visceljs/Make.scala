@@ -24,7 +24,7 @@ object Make {
     }
   }
 
-  def postForceHint(nar: Description, ts: Frag*): HtmlTag = lcButton(ViscelJS.hint(nar, force = true), class_button)(ts)
+  def postForceHint(nar: Description, ts: Frag*): HtmlTag = lcButton(ViscelJS.hint(nar, true), class_button)(ts)
 
   def imageStyle(fitType: Int): Modifier = {
     def s(mw: Boolean = false, mh: Boolean = false, w: Boolean = false, h: Boolean = false) =

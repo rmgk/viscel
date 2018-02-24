@@ -122,10 +122,8 @@ lazy val Libraries = new {
       "com.lihaoyi" %%% "scalatags" % "0.6.7",
       "de.tuda.stg" %%% "retier-communication" % "0+",
       "de.tuda.stg" %%% "retier-serializer-circe" % "0+",
-      "de.tuda.stg" %%% "retier-transmitter-rescala" % "0+",
       // for websockets
       "de.tuda.stg" %%% "retier-communicator-ws-akka" % "0+",
-      "com.typesafe.akka" %% "akka-stream" % "2.5.10",
       ).++(Seq(
       "circe-core",
       "circe-generic",
@@ -142,8 +140,9 @@ lazy val Libraries = new {
     "org.asciidoctor" % "asciidoctorj" % "1.5.6",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test",
     "org.scalacheck" %% "scalacheck" % "1.13.5" % "test",
+    "com.typesafe.akka" %% "akka-stream" % "2.5.10",
     ).++(
-    Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.0.11"))
+    Seq("akka-http-core", "akka-http" ).map(n => "com.typesafe.akka" %% n % "10.0.11"))
     .map(_ exclude("org.scala-lang", "scala-reflect"))
 
   lazy val js: Def.SettingsDefinition = libraryDependencies ++= Seq(
