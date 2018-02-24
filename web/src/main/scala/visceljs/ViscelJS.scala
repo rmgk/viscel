@@ -59,8 +59,8 @@ object ViscelJS {
 
   var postBookmarkF: Bindings.SetBookmark => Future[Bindings.Bookmarks] = _
 
-  def postBookmark(nar: Description, pos: Int): Future[Map[String, Int]] = {
-    postBookmarkF(Some((nar, pos)))
+  def postBookmark(nar: Description, pos: Int): Unit = {
+    postBookmarkF(Some((nar, pos))).failed.foreach(e => Log.Web.error(s"posting bookmarks failed: $e"))
   }
 
 
@@ -110,7 +110,8 @@ object ViscelJS {
     val connection: Future[RemoteRef] = registry.request(WS(s"ws://${dom.window.location.host}/ws"))
     connection.foreach { remote =>
       requestContents = registry.lookup(Bindings.contents, remote)
-      hint = (d, h) => registry.lookup(Bindings.hint, remote).apply(d, h).failed.foreach(Log.Web.error(_))
+      hint = (d, h) => registry.lookup(Bindings.hint, remote).apply(d, h).failed
+        .foreach(e =>Log.Web.error(s"sending hint failed: $e"))
       descriptionSource.set(Signals.fromFuture(
         registry.lookup(Bindings.descriptions, remote).apply()
           .map(_.map(n => n.id -> n).toMap)))
