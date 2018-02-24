@@ -4,9 +4,9 @@ import io.circe.{Decoder, Encoder}
 import org.jsoup.helper.StringUtil
 import org.scalactic._
 import viscel.narration.Queries._
-import viscel.narration.interpretation.NarrationInterpretation.{NarratorADT, Shuffle, WrapPart}
+import viscel.narration.interpretation.NarrationInterpretation.{Append, LinkDataDecision, NarratorADT, Shuffle, WrapPart}
 import viscel.narration.{Metarrator, Templates}
-import viscel.scribe.{ImageRef, Vurl}
+import viscel.scribe.{ImageRef, Link, Volatile, Vurl}
 import viscel.selection.ReportTools.extract
 import viscel.selection.Selection
 
@@ -21,7 +21,12 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   val pageR: Regex = """'([^']+)'""".r
   val serverR: Regex = """(?s).*var server = '([^']+)';.*""".r
 
-  val archiveWrapper = Shuffle(queryChapterArchive("#chapters a[data-chapter-id]"), chapterReverse)
+  val chaptersWrapper = Shuffle(queryChapterArchive("#chapters a[data-chapter-id]"), chapterReverse)
+  val otherArchives = Shuffle.reverse(
+    Selection
+      .many("#chapters .pagination .paging a:not(:has(span))")
+      .wrapEach(extractURL(_).map(u => Link(u, Volatile, List("secondary")))))
+  val archiveWrapper = LinkDataDecision(_.nonEmpty, chaptersWrapper, Append(otherArchives, chaptersWrapper))
   val pageWrapper = Selection.many("script").wrap { scripts =>
     extract {
       val scriptSource = scripts.last.html()
@@ -30,7 +35,7 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
       val serverR(server) = scriptSource
       pageR.findAllMatchIn(pages).map { m =>
         val page = m.group(1)
-        ImageRef(StringUtil.resolve(scripts.head.ownerDocument().baseUri(),s"$server$dataurl/$page"), scripts.head.ownerDocument().location())
+        ImageRef(StringUtil.resolve(scripts.head.ownerDocument().baseUri(), s"$server$dataurl/$page"), scripts.head.ownerDocument().location())
       }.toList
     }
   }

@@ -67,7 +67,6 @@ class Scribe(basedir: Path, descriptionCache: DescriptionCache) {
       case Some(i) =>
         descriptionCache.updateSize(book.id, i)
         Files.write(bookpath(book.id), List(scribeDataRow.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
-
     }
   }
 

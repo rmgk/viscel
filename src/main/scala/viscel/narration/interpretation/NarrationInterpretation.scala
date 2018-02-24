@@ -105,6 +105,7 @@ object NarrationInterpretation {
   }
   object Shuffle {
     def of[T, U](target: WrapPart[T])(fun: T => U): Shuffle[T, U] = Shuffle(target, fun)
+    def reverse[T](target: WrapPart[List[T]]): Shuffle[List[T], List[T]] = Shuffle(target, _.reverse)
   }
 
   case class Focus[T](selection: WrapPart[List[Element]], continue: WrapPart[List[T]]) extends WrapPart[List[T]]
