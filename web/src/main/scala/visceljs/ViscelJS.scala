@@ -104,18 +104,23 @@ object ViscelJS {
     }
   }
 
+  val wsUri: String = {
+    val wsProtocol = if (dom.document.location.protocol == "https:") "wss" else "ws"
+    s"$wsProtocol://${dom.document.location.host}${dom.document.location.pathname}ws"
+  }
+
   def main(args: Array[String]): Unit = {
     setBody(Body(frag = div("loading data …")), scrolltop = true)
     val registry = new Registry
-    val connection: Future[RemoteRef] = registry.request(WS(s"ws://${dom.window.location.host}/ws"))
+    val connection: Future[RemoteRef] = registry.request(WS(wsUri))
     connection.foreach { remote =>
       requestContents = registry.lookup(Bindings.contents, remote)
       hint = (d, h) => registry.lookup(Bindings.hint, remote).apply(d, h).failed
-        .foreach(e =>Log.Web.error(s"sending hint failed: $e"))
+        .foreach(e => Log.Web.error(s"sending hint failed: $e"))
       descriptionSource.set(Signals.fromFuture(
         registry.lookup(Bindings.descriptions, remote).apply()
           .map(_.map(n => n.id -> n).toMap)))
-      postBookmarkF = set => registry.lookup(Bindings.bookmarks, remote).apply(set).map{ bms =>
+      postBookmarkF = set => registry.lookup(Bindings.bookmarks, remote).apply(set).map { bms =>
         bookmarks.set(bms)
         bms
       }
