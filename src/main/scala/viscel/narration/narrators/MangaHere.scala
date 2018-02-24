@@ -12,7 +12,7 @@ case class MangaHereNarrator(id: String, name: String, archiveUri: Vurl)
 
 object MangaHere extends Metarrator[MangaHereNarrator]("MangaHere") {
 
-  val archiveWrapper = Shuffle.of(queryMixedArchive(".detail_list > ul:first-of-type > li , .detail_list > ul:first-of-type a"))(_.reverse)
+  val archiveWrapper = Shuffle(queryMixedArchive(".detail_list > ul:first-of-type > li , .detail_list > ul:first-of-type a"), chapterReverse)
   val pageWrapper = Decision(_.ownerDocument().location().endsWith("featured.html"),
       Constant(Good(Nil)),
       queryImageNext("#image", ".next_page:not([href$=featured.html])"))
