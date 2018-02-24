@@ -117,7 +117,7 @@ lazy val Libraries = new {
     resolvers += Resolver.bintrayRepo("rmgk", "maven"),
     resolvers += Resolver.bintrayRepo("stg-tud", "maven"),
     libraryDependencies ++= Seq(
-      "de.rmgk" %%% "logging" % "0.2.0",
+      "de.rmgk" %%% "logging" % "0.2.1",
       "de.tuda.stg" %%% "rescala" % "0.21.1",
       "com.lihaoyi" %%% "scalatags" % "0.6.7",
       ).++(Seq(
