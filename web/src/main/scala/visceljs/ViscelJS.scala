@@ -14,7 +14,6 @@ import scala.collection.immutable.Map
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
-import scala.scalajs.js.URIUtils.encodeURIComponent
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.div
 
@@ -38,8 +37,7 @@ object ViscelJS {
 
   implicit val readAssets: Decoder[List[SharedImage]] = Predef.implicitly[Decoder[List[SharedImage]]]
 
-  val bookmarkSource: Var[Signal[Map[String, Int]]] = Var(Signals.fromFuture(ajax[Map[String, Int]]("bookmarks")))
-  val bookmarks: Signal[Map[String, Int]] = bookmarkSource.flatten
+  val bookmarks: Var[Map[String, Int]] = Var.empty
   private val descriptionSource = Var.empty[Signal[Map[String, Description]]]
   var descriptions: Signal[Map[String, Description]] = descriptionSource.flatten
 
@@ -59,11 +57,10 @@ object ViscelJS {
 
   var hint: (Description, Boolean) => Unit = _
 
+  var postBookmarkF: Bindings.SetBookmark => Future[Bindings.Bookmarks] = _
+
   def postBookmark(nar: Description, pos: Int): Future[Map[String, Int]] = {
-    val res = dom.ext.Ajax.post("bookmarks", s"narration=${encodeURIComponent(nar.id)}&bookmark=$pos", headers = Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8"))
-      .map(res => decode[Map[String, Int]](res.responseText).toTry.get)
-    bookmarkSource.set(Signals.fromFuture(res))
-    res
+    postBookmarkF(Some((nar, pos)))
   }
 
 
@@ -117,6 +114,12 @@ object ViscelJS {
       descriptionSource.set(Signals.fromFuture(
         registry.lookup(Bindings.descriptions, remote).apply()
           .map(_.map(n => n.id -> n).toMap)))
+      postBookmarkF = set => registry.lookup(Bindings.bookmarks, remote).apply(set).map{ bms =>
+        bookmarks.set(bms)
+        bms
+      }
+
+      postBookmarkF(None)
 
       triggerDispatch.fire()
     }

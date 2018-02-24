@@ -40,19 +40,37 @@ class Server(userStore: Users,
              vitzen: VitzenPages,
             ) {
 
-  val webSocket = WebSocketListener()
-  val registry = new Registry
-  registry.listen(webSocket)
+  val userSocketCache: Map[String, Route] = Map.empty
+  def userSocket(user: String): Route = synchronized {
+    userSocketCache.getOrElse(user, {
+      val webSocket = WebSocketListener()
+      val registry = new Registry
+      registry.listen(webSocket)
 
+      registry.bind(Bindings.contents)(pages.narration)
+      registry.bind(Bindings.descriptions)(() => pages.narrations())
+      registry.bind(Bindings.hint) { (description, force) =>
+        val nar = narratorCache.get(description.id)
+        if (nar.isDefined) narratorHint.fire(nar.get -> force)
+        else Log.warn(s"got hint for unknown $description")
+      }
+      registry.bind(Bindings.bookmarks) { set =>
+        userStore.get(user).map { user =>
+          set.fold(user) { case (desc, pos) =>
+            setBookmark(user, pos, desc.id)
+          }.bookmarks
+        }.getOrElse(Map.empty)
+      }
 
-  registry.bind(Bindings.contents)(pages.narration)
-  registry.bind(Bindings.descriptions)(() => pages.narrations())
-  registry.bind(Bindings.hint){(description, force) =>
-    val nar = narratorCache.get(description.id)
-    if (nar.isDefined) narratorHint.fire(nar.get -> force)
-    else Log.warn(s"got hint for unknown $description")
+      webSocket
+    })
   }
 
+
+  private def setBookmark(user: User, bmpos: Int, colid: String): User = {
+    if (bmpos > 0) userStore.userUpdate(user.setBookmark(colid, bmpos))
+    else userStore.userUpdate(user.removeBookmark(colid))
+  }
 
 
   def authenticate(credentials: Option[BasicHttpCredentials]): Option[User] = credentials match {
@@ -98,15 +116,6 @@ class Server(userStore: Users,
   import system.dispatcher
 
 
-  def handleBookmarksForm(user: User)(continue: User => Route): Route =
-    formFields(('narration.as[String].?, 'bookmark.as[Int].?)) { (colidOption, bmposOption) =>
-      val newUser = for (bmpos <- bmposOption; colid <- colidOption) yield {
-        if (bmpos > 0) userStore.userUpdate(user.setBookmark(colid, bmpos))
-        else userStore.userUpdate(user.removeBookmark(colid))
-      }
-      continue(newUser.getOrElse(user))
-    }
-
   def defaultRoute(user: User): Route =
     path("") {
       complete(pages.landing)
@@ -124,7 +133,7 @@ class Server(userStore: Users,
       } ~
       path("css") {
         getFromFile("web/target/web/sass/main/stylesheets/style.css") ~
-        getFromResource("style.css")
+          getFromResource("style.css")
       } ~
       path("style.css.map") {
         getFromFile("web/target/web/sass/main/stylesheets/style.css.map") ~
@@ -132,23 +141,20 @@ class Server(userStore: Users,
       } ~
       path("vitzen.css") {
         getFromFile("web/target/web/sass/main/stylesheets/vitzen.css") ~
-        getFromResource("vitzen.css")
+          getFromResource("vitzen.css")
       } ~
       path("js") {
         getFromFile("web/target/scala-2.12/web-opt.js") ~ getFromFile("web/target/scala-2.12/web-fastopt.js") ~
           getFromResource("web-opt.js") ~ getFromResource("web-fastopt.js")
       } ~
       path("ws") {
-        webSocket
+        userSocket(user.id)
       } ~
       path("web-fastopt.js.map") {
         getFromFile("web/target/scala-2.12/web-fastopt.js.map")
       } ~
       path("web-opt.js.map") {
         getFromFile("web/target/scala-2.12/web-opt.js.map")
-      } ~
-      path("bookmarks") {
-        handleBookmarksForm(user)(newUser => complete(pages.bookmarks(newUser)))
       } ~
       pathPrefix("blob" / Segment) { (sha1) =>
         val filename = blobStore.hashToPath(sha1).toFile

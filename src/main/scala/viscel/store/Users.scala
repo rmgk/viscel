@@ -32,6 +32,8 @@ class Users(usersDir: Path) {
     case e: IOException => Bad(One(e.getMessage))
   }
 
+  def get(name: String): Option[User] = userCache.get(name)
+
   def getOrAddFirstUser(name: String, orElse: => User): Option[User] = {
     userCache.get(name).orElse(
       (load(name) match {
