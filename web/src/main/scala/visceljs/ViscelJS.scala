@@ -1,7 +1,6 @@
 package visceljs
 
 import io.circe.Decoder
-import io.circe.generic.auto._
 import io.circe.parser.decode
 import org.scalajs.dom
 import org.scalajs.dom.raw.HashChangeEvent
@@ -41,7 +40,8 @@ object ViscelJS {
 
   val bookmarkSource: Var[Signal[Map[String, Int]]] = Var(Signals.fromFuture(ajax[Map[String, Int]]("bookmarks")))
   val bookmarks: Signal[Map[String, Int]] = bookmarkSource.flatten
-  val descriptions: Signal[Map[String, Description]] = Signals.fromFuture(ajax[List[Description]]("narrations").map(_.map(n => n.id -> n).toMap))
+  private val descriptionSource = Var.empty[Signal[Map[String, Description]]]
+  var descriptions: Signal[Map[String, Description]] = descriptionSource.flatten
 
   private val contents: scala.collection.mutable.Map[String, Signal[Contents]] = mutable.Map()
 
@@ -113,6 +113,10 @@ object ViscelJS {
     val connection: Future[RemoteRef] = registry.request(WS(s"ws://${dom.window.location.host}/ws"))
     connection.foreach { remote =>
       requestContents = registry.lookup(Bindings.contents, remote)
+      descriptionSource.set(Signals.fromFuture(
+        registry.lookup(Bindings.descriptions, remote).apply()
+          .map(_.map(n => n.id -> n).toMap)))
+
       triggerDispatch.fire()
     }
   }

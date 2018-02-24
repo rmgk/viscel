@@ -9,7 +9,6 @@ import akka.http.scaladsl.server.Directives.{path, _}
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
 import akka.http.scaladsl.server.{Directive, Route}
-import io.circe.generic.auto._
 import org.scalactic.TypeCheckedTripleEquals._
 import rescala.Evt
 import retier.communicator.ws.akka._
@@ -47,6 +46,7 @@ class Server(userStore: Users,
 
 
   registry.bind(Bindings.contents)(pages.narration)
+  registry.bind(Bindings.descriptions)(() => pages.narrations())
 
 
 
@@ -136,17 +136,14 @@ class Server(userStore: Users,
       path("ws") {
         webSocket
       } ~
-      path("viscel-js-fastopt.js.map") {
-        getFromFile("js/target/scala-2.12/viscel-js-fastopt.js.map")
+      path("web-fastopt.js.map") {
+        getFromFile("web/target/scala-2.12/web-fastopt.js.map")
       } ~
-      path("viscel-js-opt.js.map") {
-        getFromFile("js/target/scala-2.12/viscel-js-opt.js.map")
+      path("web-opt.js.map") {
+        getFromFile("web/target/scala-2.12/web-opt.js.map")
       } ~
       path("bookmarks") {
         handleBookmarksForm(user)(newUser => complete(pages.bookmarks(newUser)))
-      } ~
-      path("narrations") {
-        complete(pages.jsonResponse(pages.narrations()))
       } ~
       pathPrefix("blob" / Segment) { (sha1) =>
         val filename = blobStore.hashToPath(sha1).toFile

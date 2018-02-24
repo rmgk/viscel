@@ -1,10 +1,12 @@
 package viscel.shared
 
+import io.circe.generic.auto._
 import retier.registry.Binding
 import retier.serializer.circe._
-import io.circe.generic.auto._
 
 
 object Bindings {
+  val descriptions = Binding[() => Iterable[Description]]("descriptions")
+
   val contents = Binding[String => Option[Contents]]("contents")
 }
