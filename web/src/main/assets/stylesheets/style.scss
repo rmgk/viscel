@@ -73,7 +73,8 @@ article p {
 
 img {
   -webkit-tap-highlight-color: transparent;
-  margin: 0;
+  margin: 0 auto;
+  display: block;
   padding: 0;
   border: none;
   background-color: white;
@@ -151,10 +152,7 @@ fieldset a:visited {
   }
 
   .preview img {
-    display: inline;
     max-width: 100%;
-    height: auto;
-    vertical-align: top;
   }
 
   .chapters fieldset {
