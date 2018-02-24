@@ -14,91 +14,91 @@ import scalatags.JsDom.all.{Modifier, bindJsAnyLike, onclick}
 
 object Actions {
 
-	val viewE = Evt[View.Navigate]
-	val viewDispatchS = Var.empty[(String, Int)]
-	val viewDispatchChangeE = Signal.dynamic {
-		val nars = ViscelJS.descriptions()
-		val (id, pos) =  viewDispatchS()
-		val nar = nars.getOrElse(id, throw EmptySignalControlThrowable)
-		val content = ViscelJS.content(nar): @unchecked
-		val bm = ViscelJS.bookmarks().getOrElse(nar.id, 0)
-		View.Goto(Data(nar, content(), bm).move(_.first.next(pos - 1)))
-	}.changed
-	viewDispatchChangeE.observe(_ => viewDispatchS.setEmpty())
+  val viewE = Evt[View.Navigate]
+  val viewDispatchS = Var.empty[(String, Int)]
+  val viewDispatchChangeE = Signal.dynamic {
+    val nars = ViscelJS.descriptions()
+    val (id, pos) = viewDispatchS()
+    val nar = nars.getOrElse(id, throw EmptySignalControlThrowable)
+    val content = ViscelJS.content(nar): @unchecked
+    val bm = ViscelJS.bookmarks().getOrElse(nar.id, 0)
+    View.Goto(Data(nar, content(), bm).move(_.first.next(pos - 1)))
+  }.changed
+  viewDispatchChangeE.observe(_ => viewDispatchS.setEmpty())
 
-	val frontS = Var.empty[String]
-	val frontData = Signal.dynamic {
-		val id = frontS()
-		val description = ViscelJS.descriptions()(id)
-		val bm = ViscelJS.bookmarks().getOrElse(id, 0)
-		val content = ViscelJS.content(description): @unchecked
-		Data(description, content(), bm)
-	}
+  val frontS = Var.empty[String]
+  val frontData = Signal.dynamic {
+    val id = frontS()
+    val description = ViscelJS.descriptions()(id)
+    val bm = ViscelJS.bookmarks().getOrElse(id, 0)
+    val content = ViscelJS.content(description): @unchecked
+    Data(description, content(), bm)
+  }
 
-	val bodyFront = Front.gen(frontData)
-	val viewBody = View.gen(viewE || viewDispatchChangeE)
-	val indexBody = Index.gen()
-
-
-	def dispatchPath(path: String): Unit = {
-		val paths = List(path.split("/"): _*)
-		Console.println(s"dispatch $paths")
-		paths match {
-			case Nil | "" :: Nil =>
-				setBodyIndex()
-			case id :: Nil =>
-				setBodyFront(decodeURIComponent(id))
-			case id :: posS :: Nil =>
-				val pos = Integer.parseInt(posS)
-				val nid = decodeURIComponent(id)
-				viewDispatchS.set(nid -> pos)
-				ViscelJS.setBody(viewBody, scrolltop = true)
-			case _ => setBodyIndex()
-		}
-	}
-
-	def scrollTop() = dom.window.scrollTo(0, 0)
-
-	def pushIndex(): Unit = dom.window.history.pushState(null, "main", path_main)
-	def pushFront(nar: Description): Unit = dom.window.history.pushState(null, "front", path_front(nar))
-	def pushView(data: Data): Unit = dom.window.history.pushState(null, "view", path_asset(data))
-
-	def onLeftClick(a: => Unit): Modifier = onclick := { (e: MouseEvent) =>
-		if (e.button == 0) {
-			e.preventDefault()
-			a
-		}
-	}
-
-	def gotoIndex(): Unit = {
-		pushIndex()
-		setBodyIndex(scrolltop = true)
-	}
-
-	def gotoFront(nar: Description, scrolltop: Boolean = false): Unit = {
-		pushFront(nar)
-		setBodyFront(nar.id, scrolltop)
-		ViscelJS.hint(nar)
-	}
-
-	def gotoView(data: Data, scrolltop: Boolean = true): Unit = {
-		pushView(data)
-		setBodyView(data, scrolltop)
-	}
+  val bodyFront = Front.gen(frontData)
+  val viewBody = View.gen(viewE || viewDispatchChangeE)
+  val indexBody = Index.gen()
 
 
-	def setBodyIndex(scrolltop: Boolean = false) = ViscelJS.setBody(indexBody, scrolltop)
+  def dispatchPath(path: String): Unit = {
+    val paths = List(path.split("/"): _*)
+    Console.println(s"dispatch $paths")
+    paths match {
+      case Nil | "" :: Nil =>
+        setBodyIndex()
+      case id :: Nil =>
+        setBodyFront(decodeURIComponent(id))
+      case id :: posS :: Nil =>
+        val pos = Integer.parseInt(posS)
+        val nid = decodeURIComponent(id)
+        viewDispatchS.set(nid -> pos)
+        ViscelJS.setBody(viewBody, scrolltop = true)
+      case _ => setBodyIndex()
+    }
+  }
 
-	def setBodyFront(descriptionid: String, scrolltop: Boolean = false): Unit = {
-		frontS.set(descriptionid)
-		ViscelJS.setBody(bodyFront, scrolltop)
-	}
+  def scrollTop() = dom.window.scrollTo(0, 0)
+
+  def pushIndex(): Unit = dom.window.history.pushState(null, "main", path_main)
+  def pushFront(nar: Description): Unit = dom.window.history.pushState(null, "front", path_front(nar))
+  def pushView(data: Data): Unit = dom.window.history.pushState(null, "view", path_asset(data))
+
+  def onLeftClick(a: => Unit): Modifier = onclick := { (e: MouseEvent) =>
+    if (e.button == 0) {
+      e.preventDefault()
+      a
+    }
+  }
+
+  def gotoIndex(): Unit = {
+    pushIndex()
+    setBodyIndex(scrolltop = true)
+  }
+
+  def gotoFront(nar: Description, scrolltop: Boolean = false): Unit = {
+    pushFront(nar)
+    setBodyFront(nar.id, scrolltop)
+    ViscelJS.hint(nar)
+  }
+
+  def gotoView(data: Data, scrolltop: Boolean = true): Unit = {
+    pushView(data)
+    setBodyView(data, scrolltop)
+  }
 
 
-	def setBodyView(data: Data, scrolltop: Boolean = false): Unit = {
-		viewE.fire(View.Goto(data))
-		ViscelJS.setBody(viewBody, scrolltop)
-	}
+  def setBodyIndex(scrolltop: Boolean = false) = ViscelJS.setBody(indexBody, scrolltop)
+
+  def setBodyFront(descriptionid: String, scrolltop: Boolean = false): Unit = {
+    frontS.set(descriptionid)
+    ViscelJS.setBody(bodyFront, scrolltop)
+  }
+
+
+  def setBodyView(data: Data, scrolltop: Boolean = false): Unit = {
+    viewE.fire(View.Goto(data))
+    ViscelJS.setBody(viewBody, scrolltop)
+  }
 
 
 }

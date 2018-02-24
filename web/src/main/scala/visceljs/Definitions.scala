@@ -35,7 +35,7 @@ object Definitions {
 
   def link_asset(data: Data): Tag = a.apply(onLeftClick(gotoView(data)), href := path_asset(data))
   def button_asset(data: Data): Tag = button_asset(data, gotoView(data))
-    def button_asset(data: Data, onleft: => Unit): Tag = {
+  def button_asset(data: Data, onleft: => Unit): Tag = {
     if (data.gallery.isEnd) button(class_button_disabled)
     else Make.lcButton(onleft)
   }
