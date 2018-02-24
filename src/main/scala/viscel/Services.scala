@@ -44,7 +44,7 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
   lazy val desciptionCache = new DescriptionCache(cachedir)
   lazy val blobs = new BlobStore(blobdir)
   lazy val userStore = new Users(usersdir)
-  lazy val scribe = new viscel.scribe.Scribe(scribedir, desciptionCache)
+  lazy val scribe = new viscel.scribe.Scribe(scribedir, desciptionCache, bookUpdates)
   lazy val narratorCache: NarratorCache = new NarratorCache(metarratorconfigdir, definitionsdir)
 
 
@@ -85,7 +85,8 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
                                system = system,
                                narratorCache = narratorCache,
                                postsPath = postsdir,
-                               vitzen = vitzenPages)
+                               vitzen = vitzenPages,
+                               bookUpdates = bookUpdates)
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
     RouteResult.route2HandlerFlow(server.route)(
       RoutingSettings.default(system),
@@ -120,6 +121,7 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
   /* ====== notifications ====== */
 
   lazy val narrationHint: Evt[(Narrator, Boolean)] = Evt[(Narrator, Boolean)]()
+  lazy val bookUpdates: Evt[String] = Evt[String]()
 
 
 }

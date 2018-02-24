@@ -9,10 +9,11 @@ import viscel.store.{DescriptionCache, Json}
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashSet
 import io.circe.syntax._
+import rescala.Evt
 import viscel.scribe.ScribePicklers._
 
 
-class Scribe(basedir: Path, descriptionCache: DescriptionCache) {
+class Scribe(basedir: Path, descriptionCache: DescriptionCache, updated: Evt[String]) {
 
   /** creates a new book able to add new pages */
   def findOrCreate(narrator: Narrator): Book = synchronized(find(narrator.id).getOrElse {create(narrator)})
@@ -67,6 +68,7 @@ class Scribe(basedir: Path, descriptionCache: DescriptionCache) {
       case Some(i) =>
         descriptionCache.updateSize(book.id, i)
         Files.write(bookpath(book.id), List(scribeDataRow.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
+        updated.fire(book.id)
     }
   }
 

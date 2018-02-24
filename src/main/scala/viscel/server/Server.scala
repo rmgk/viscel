@@ -21,6 +21,7 @@ import viscel.shared.Bindings
 import viscel.shared.Log.{Server => Log}
 import viscel.store.{BlobStore, NarratorCache, User, Users}
 import viscel.vitzen.VitzenPages
+import rescala.Event
 
 import scala.collection.immutable.Map
 import scala.concurrent.Future
@@ -38,6 +39,7 @@ class Server(userStore: Users,
              narratorCache: NarratorCache,
              postsPath: Path,
              vitzen: VitzenPages,
+             bookUpdates: Event[String]
             ) {
 
   val userSocketCache: Map[String, Route] = Map.empty
@@ -61,7 +63,6 @@ class Server(userStore: Users,
           }.bookmarks
         }.getOrElse(Map.empty)
       }
-
       webSocket
     })
   }
