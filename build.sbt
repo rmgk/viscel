@@ -118,7 +118,7 @@ lazy val Libraries = new {
     resolvers += Resolver.bintrayRepo("stg-tud", "maven"),
     libraryDependencies ++= Seq(
       "de.rmgk" %%% "logging" % "0.2.1",
-      "de.tuda.stg" %%% "rescala" % "0.21.1",
+      "de.tuda.stg" %%% "rescala" % "0.22.0",
       "com.lihaoyi" %%% "scalatags" % "0.6.7",
       "de.tuda.stg" %%% "retier-communication" % "0+",
       "de.tuda.stg" %%% "retier-serializer-circe" % "0+",
@@ -147,7 +147,7 @@ lazy val Libraries = new {
 
   lazy val js: Def.SettingsDefinition = libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.9.4",
-    "de.tuda.stg" %%% "rescalatags" % "0.21.0",
+    "de.tuda.stg" %%% "rescalatags" % "0.22.0",
     "org.webjars.npm" % "purecss" % "1.0.0",
     )
 
