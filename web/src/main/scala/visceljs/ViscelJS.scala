@@ -1,7 +1,6 @@
 package visceljs
 
 import io.circe.Decoder
-import io.circe.parser.decode
 import org.scalajs.dom
 import org.scalajs.dom.raw.HashChangeEvent
 import rescala.{Evt, Observe, Signal, Signals, Var, _}
@@ -21,17 +20,6 @@ import scalatags.JsDom.tags.div
 object ViscelJS {
 
   var offlineMode = false
-
-  def ajax[R: Decoder](path: String): Future[R] =
-    if (offlineMode) Future.failed(new Throwable("offline mode"))
-    else {
-      val res = dom.ext.Ajax.get(url = path)
-        .map { res => decode[R](res.responseText).toTry.get }
-      res.failed.foreach { e =>
-        Log.Web.error(s"request $path failed with ${e.getMessage}")
-      }
-      res
-    }
 
   var requestContents: String => Future[Option[Contents]] = _
 
