@@ -40,7 +40,7 @@ object Definitions {
     else Make.lcButton(onleft)
   }
 
-  def link_front(nar: Description, ts: Frag*): Tag = a(onLeftClick(gotoFront(nar)), href := path_front(nar))(ts)
+  def link_front(nar: Description, ts: Modifier*): Tag = a(onLeftClick(gotoFront(nar)), href := path_front(nar))(ts: _*)
   def button_front(nar: Description, ts: Modifier*): Tag = Make.lcButton(gotoFront(nar))(ts: _*)
 
 
