@@ -4,7 +4,7 @@ import viscel.shared.{Blob, Description}
 import visceljs.Actions.{gotoFront, gotoIndex, gotoView, onLeftClick}
 
 import scala.scalajs.js.URIUtils.encodeURIComponent
-import scalatags.JsDom.all.{Frag, SeqFrag, Tag, a, button, cls, href, stringAttr}
+import scalatags.JsDom.all.{Frag, SeqFrag, Tag, a, button, cls, href, stringAttr, Modifier}
 
 
 object Definitions {
@@ -41,7 +41,7 @@ object Definitions {
   }
 
   def link_front(nar: Description, ts: Frag*): Tag = a(onLeftClick(gotoFront(nar)), href := path_front(nar))(ts)
-  def button_front(nar: Description, ts: Frag*): Tag = Make.lcButton(gotoFront(nar))(ts)
+  def button_front(nar: Description, ts: Modifier*): Tag = Make.lcButton(gotoFront(nar))(ts: _*)
 
 
 }

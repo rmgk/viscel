@@ -12,15 +12,15 @@ import scalatags.JsDom.tags2.{nav, section}
 
 object Make {
 
-  def postBookmark(bm: Int, data: Data, handler: Data => Unit, ts: Frag*): HtmlTag = {
+  def postBookmark(bm: Int, data: Data, handler: Data => Unit, ts: Modifier*): HtmlTag = {
     if (data.bookmark != bm) {
       Make.lcButton {
         ViscelJS.postBookmark(data.description, bm)
         handler(data.copy(bookmark = bm))
-      }(ts)
+      }(ts: _*)
     }
     else {
-      button(class_button_disabled, ts)
+      button(class_button_disabled)(ts: _*)
     }
   }
 
@@ -56,7 +56,7 @@ object Make {
     }
   }
 
-  def fullscreenToggle(stuff: Frag*): HtmlTag = a(cls := "pure-button", onclick := (() => ViscelJS.toggleFullscreen()))(stuff)
+  def fullscreenToggle(stuff: Modifier*): HtmlTag = a(cls := "pure-button", onclick := (() => ViscelJS.toggleFullscreen()))(stuff: _*)
 
   def lcButton(action: => Unit, m: Modifier*): HtmlTag = button(class_button, Actions.onLeftClick(action))(m: _*)
 

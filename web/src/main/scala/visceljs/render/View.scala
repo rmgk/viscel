@@ -6,9 +6,9 @@ import rescala._
 import rescalatags._
 import visceljs.Definitions.{button_asset, button_front}
 import visceljs.Make.postBookmark
-import visceljs.{Actions, Body, Data, Definitions, Make}
+import visceljs.{Actions, Body, Data, Definitions, Icons, Make}
 
-import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, stringAttr, stringFrag}
+import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, stringAttr, stringFrag, title}
 import scalatags.JsDom.tags2.{article, section}
 
 object View {
@@ -72,13 +72,13 @@ object View {
     val navigation: Frag =
       dataSignal.map { data =>
         Make.navigation(
-          button_asset(data.prev, navigate.fire(Prev))("⎗", rel := "prev"),
-          button_front(data.description, "\uD83D\uDDD0"),
-          Make.fullscreenToggle("\uD83D\uDDD6"),
-          Make.lcButton(navigate.fire(Mode(data.fitType + 1)), s"🖵 ${data.fitType % 8}"),
-          postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), "\uD83D\uDD16"),
-          a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin))("\uD83D\uDD78"),
-          button_asset(data.next, navigate.fire(Next))("⎘", rel := "next"))
+          button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
+          button_front(data.description, Icons.front, title := "back to front page"),
+          Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
+          Make.lcButton(navigate.fire(Mode(data.fitType + 1)), Icons.modus, s" ${data.fitType % 8}", title := "cycle image display mode"),
+          postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), Icons.bookmark, title := "save bookmark"),
+          a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin))(Icons.externalLink, title := "visit original page"),
+          button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
       }.asFrag
 
     Body(id = "view", title = dataSignal.map(data => s"${data.pos + 1} – ${data.description.name}"),

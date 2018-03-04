@@ -1,4 +1,5 @@
 @import "lib/purecss/build/pure";
+@import "_font-awesome.scss";
 @import "_common/_animation";
 
 $font-color: rgb(198, 211, 195);
@@ -204,7 +205,6 @@ body#view {
 
     .pure-button {
       border-radius: 0;
-      height: 36px;
     }
   }
 }
