@@ -21,10 +21,10 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   val pageR: Regex = """'([^']+)'""".r
   val serverR: Regex = """(?s).*var server = '([^']+)';.*""".r
 
-  val chaptersWrapper = Shuffle(queryChapterArchive("#chapters a[data-chapter-id]"), chapterReverse)
+  val chaptersWrapper = Shuffle(queryChapterArchive("#chapters tr:has([title=English]) a[data-chapter-id]"), chapterReverse)
   val otherArchives = Shuffle.reverse(
     Selection
-      .many("#chapters .pagination .paging a:not(:has(span))")
+      .all("#chapters .pagination .paging a:not(:has(span))")
       .wrapEach(extractURL(_).map(u => Link(u, Volatile, List("secondary")))))
   val archiveWrapper = LinkDataDecision(_.nonEmpty, chaptersWrapper, Append(otherArchives, chaptersWrapper))
   val pageWrapper = Selection.many("script").wrap { scripts =>
