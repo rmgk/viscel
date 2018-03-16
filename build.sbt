@@ -41,7 +41,6 @@ lazy val Settings = new {
 
   lazy val common: sbt.Def.SettingsDefinition = Seq(
 
-    version := "7.2",
     scalaVersion := "2.12.4",
 
     maxErrors := 10,
@@ -129,7 +128,7 @@ lazy val Libraries = new {
       "circe-generic",
       "circe-generic-extras",
       "circe-parser",
-      ).map(n => "io.circe" %%% n % "0.9.1"))
+      ).map(n => "io.circe" %%% n % "0.9.2"))
       .map(_ exclude("org.scala-lang", "scala-reflect"))
   )
 
@@ -142,7 +141,7 @@ lazy val Libraries = new {
     "org.scalacheck" %% "scalacheck" % "1.13.5" % "test",
     "com.typesafe.akka" %% "akka-stream" % "2.5.10",
     ).++(
-    Seq("akka-http-core", "akka-http" ).map(n => "com.typesafe.akka" %% n % "10.0.11"))
+    Seq("akka-http-core", "akka-http" ).map(n => "com.typesafe.akka" %% n % "10.1.0"))
     .map(_ exclude("org.scala-lang", "scala-reflect"))
 
   lazy val js: Def.SettingsDefinition = libraryDependencies ++= Seq(
