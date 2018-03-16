@@ -3,7 +3,7 @@ package visceljs.render
 import rescala._
 import rescalatags._
 import viscel.shared.{ChapterPos, Contents, Gallery, SharedImage}
-import visceljs.Definitions.{button_asset, button_index, class_chapters, class_preview, link_asset}
+import visceljs.Definitions.{class_chapters, class_preview}
 import visceljs.{Actions, Body, Data, Make}
 
 import scala.annotation.tailrec
@@ -13,7 +13,8 @@ import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{SeqFrag, div, fieldset, h1, legend, span}
 import scalatags.JsDom.tags2.{article, section}
 
-object Front {
+class Front(actions: Actions) {
+  import actions.Tags._
 
 
   def gen(dataS: Signal[Data]): Body = {
@@ -27,8 +28,8 @@ object Front {
         button_index("index"),
         button_asset(data.move(_.first))("first page"),
         Make.fullscreenToggle("fullscreen"),
-        Make.postBookmark(0, data, _ => Actions.gotoFront(narration, scrolltop = false), "remove bookmark"),
-        Make.postForceHint(narration, "force check"))
+        postBookmark(0, data, _ => actions.gotoFront(narration, scrolltop = false), "remove bookmark"),
+        postForceHint(narration, "force check"))
 
       val preview = {
         val preview1 = data.move(_.next(bookmark - 1).prev(2))

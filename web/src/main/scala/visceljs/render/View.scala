@@ -4,20 +4,22 @@ import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import rescala._
 import rescalatags._
-import visceljs.Definitions.{button_asset, button_front}
-import visceljs.Make.postBookmark
+import visceljs.render.View._
 import visceljs.{Actions, Body, Data, Definitions, Icons, Make}
 
 import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, stringAttr, stringFrag, title}
 import scalatags.JsDom.tags2.{article, section}
 
 object View {
-
   sealed trait Navigate
   case object Next extends Navigate
   case object Prev extends Navigate
   case class Mode(i: Int) extends Navigate
   case class Goto(data: Data) extends Navigate
+}
+
+
+class View(act: Actions) {
 
   def onLeftClickPrevNext(handler: Navigate => Unit): Modifier = onclick := { (e: MouseEvent) =>
     val node = e.currentTarget.asInstanceOf[dom.html.Element]
@@ -54,8 +56,8 @@ object View {
 
     Event {navigationEvents().map(e => e -> dataSignal())}.observe { case (ev, data) =>
       if (ev == Prev || ev == Next) {
-        Actions.pushView(data)
-        Actions.scrollTop()
+        act.pushView(data)
+        act.scrollTop()
       }
       /*val pregen =*/ data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
 
@@ -72,13 +74,13 @@ object View {
     val navigation: Frag =
       dataSignal.map { data =>
         Make.navigation(
-          button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
-          button_front(data.description, Icons.front, title := "back to front page"),
+          act.Tags.button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
+          act.Tags.button_front(data.description, Icons.front, title := "back to front page"),
           Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
-          Make.lcButton(navigate.fire(Mode(data.fitType + 1)), Icons.modus, s" ${data.fitType % 8}", title := "cycle image display mode"),
-          postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), Icons.bookmark, title := "save bookmark"),
+          act.Tags.lcButton(navigate.fire(Mode(data.fitType + 1)), Icons.modus, s" ${data.fitType % 8}", title := "cycle image display mode"),
+          act.Tags.postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), Icons.bookmark, title := "save bookmark"),
           a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin))(Icons.externalLink, title := "visit original page"),
-          button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
+          act.Tags.button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
       }.asFrag
 
     Body(id = "view", title = dataSignal.map(data => s"${data.pos + 1} – ${data.description.name}"),

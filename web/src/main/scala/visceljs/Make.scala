@@ -12,20 +12,6 @@ import scalatags.JsDom.tags2.{nav, section}
 
 object Make {
 
-  def postBookmark(bm: Int, data: Data, handler: Data => Unit, ts: Modifier*): HtmlTag = {
-    if (data.bookmark != bm) {
-      Make.lcButton {
-        ViscelJS.postBookmark(data.description, bm)
-        handler(data.copy(bookmark = bm))
-      }(ts: _*)
-    }
-    else {
-      button(class_button_disabled)(ts: _*)
-    }
-  }
-
-  def postForceHint(nar: Description, ts: Frag*): HtmlTag = lcButton(ViscelJS.hint(nar, true), class_button)(ts)
-
   def imageStyle(fitType: Int): Modifier = {
     def s(mw: Boolean = false, mh: Boolean = false, w: Boolean = false, h: Boolean = false) =
       s"max-height: ${if (mh) "100vh" else "none"}; max-width: ${if (mw) "100vw" else "none"}; height: ${if (h) "100vh" else "auto"}; width: ${if (w) "100vw" else "auto"}"
@@ -56,11 +42,10 @@ object Make {
     }
   }
 
-  def fullscreenToggle(stuff: Modifier*): HtmlTag = a(cls := "pure-button", onclick := (() => ViscelJS.toggleFullscreen()))(stuff: _*)
+  def fullscreenToggle(stuff: Modifier*): HtmlTag = a(cls := "pure-button", onclick := (() => Definitions.toggleFullscreen()))(stuff: _*)
 
-  def lcButton(action: => Unit, m: Modifier*): HtmlTag = button(class_button, Actions.onLeftClick(action))(m: _*)
 
-  def group(name: String, entries: Signal[Seq[(Description, Int, Int)]]): Tag = {
+  def group(name: String, actions: Actions, entries: Signal[Seq[(Description, Int, Int)]]): Tag = {
     val elements: UList = ul.render
     val rLegend = legend(name).render
     entries.observe { es =>
@@ -69,7 +54,7 @@ object Make {
       var cTotal = 0
       var cPos = 0
       es.foreach { case (desc, pos, unread) =>
-        val e = link_front(desc, s"${desc.name}${if (unread == 0) "" else s" ($unread)"}",
+        val e = actions.Tags.link_front(desc, s"${desc.name}${if (unread == 0) "" else s" ($unread)"}",
           {if (desc.unknownNarrator) span(" ", Icons.archive, cls := "unlinked", title := "not linked to live sources") else frag()})
         elements.appendChild(li(e).render)
         if (unread > 0) cUnread += unread
