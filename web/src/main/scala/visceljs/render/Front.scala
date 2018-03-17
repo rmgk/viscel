@@ -1,25 +1,27 @@
 package visceljs.render
 
+import org.scalajs.dom.html
 import rescala._
-import rescalatags._
+import visceljs.visceltags._
 import viscel.shared.{ChapterPos, Contents, Gallery, SharedImage}
 import visceljs.Definitions.{class_chapters, class_preview}
 import visceljs.{Actions, Body, Data, Make}
 
 import scala.annotation.tailrec
+import scalatags.JsDom
 import scalatags.JsDom.Frag
-import scalatags.JsDom.all.Tag
+import scalatags.JsDom.all.{Tag, id, stringAttr}
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.{SeqFrag, div, fieldset, h1, legend, span}
+import scalatags.JsDom.tags.{SeqFrag, body, fieldset, h1, legend}
 import scalatags.JsDom.tags2.{article, section}
 
 class Front(actions: Actions) {
-  import actions.Tags._
 
+  import actions.Tags._
 
   def gen(dataS: Signal[Data]): Body = {
 
-    val fragS: Signal[Tag] = dataS.map { data =>
+    val fragS: Signal[JsDom.TypedTag[html.Body]] = dataS.map { data =>
       val Data(narration, Contents(gallery, chapters), bookmark, _) = data
 
       val top = h1(s"${narration.name} ($bookmark/${narration.size})")
@@ -28,7 +30,7 @@ class Front(actions: Actions) {
         button_index("index"),
         button_asset(data.move(_.first))("first page"),
         Make.fullscreenToggle("fullscreen"),
-        postBookmark(0, data, _ => actions.gotoFront(narration, scrolltop = false), "remove bookmark"),
+        postBookmark(0, data, _ => actions.gotoFront(dataS, data.description, scrolltop = false), "remove bookmark"),
         postForceHint(narration, "force check"))
 
       val preview = {
@@ -64,12 +66,12 @@ class Front(actions: Actions) {
 
       }
 
-      div(top, navigation, preview, chapterlist)
-    }.withDefault(span("loading please wait"))
+      body(id := "front", top, navigation, preview, chapterlist)
+    }
 
 
     Body(id = "front", title = dataS.map(_.description.name),
-         frag = fragS.asFrag)
+         bodyTag = fragS)
 
   }
 }

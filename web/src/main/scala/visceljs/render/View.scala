@@ -3,11 +3,11 @@ package visceljs.render
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import rescala._
-import rescalatags._
+import visceljs.visceltags._
 import visceljs.render.View._
 import visceljs.{Actions, Body, Data, Definitions, Icons, Make}
 
-import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, stringAttr, stringFrag, title}
+import scalatags.JsDom.all.{body, id, Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, stringAttr, stringFrag, title}
 import scalatags.JsDom.tags2.{article, section}
 
 object View {
@@ -56,26 +56,25 @@ class View(act: Actions) {
 
     navigationEvents.map(e => e -> dataSignal()).observe { case (ev, data) =>
       if (ev == Prev || ev == Next) {
-        act.pushView(data)
         act.scrollTop()
       }
       /*val pregen =*/ data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
 
     }
 
-    val mainPart: Signal[HtmlTag] = dataSignal.map[HtmlTag] { data =>
+    val mainPart: Signal[Frag] = dataSignal.map[HtmlTag] { data =>
       data.gallery.get.fold[HtmlTag](p(s"loading image data …")) { asst =>
         article(Make.asset(asst, data, Make.imageStyle(data.fitType)))(asst.data.get("longcomment").fold(List[Tag]())(p(_) :: Nil))
       }
     }
 
-    lazy val mainSection = section(mainPart.asFrag)(onLeftClickPrevNext(navigate.fire))
+    val mainSection = section(mainPart.asFrag)(onLeftClickPrevNext(navigate.fire))
 
     val navigation: Frag =
       dataSignal.map { data =>
         Make.navigation(
           act.Tags.button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
-          act.Tags.button_front(data.description, Icons.front, title := "back to front page"),
+          act.Tags.lcButton(act.gotoFront(dataSignal, data.description))(Icons.front, title := "back to front page"),
           Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
           act.Tags.lcButton(navigate.fire(Mode(data.fitType + 1)), Icons.modus, s" ${data.fitType % 8}", title := "cycle image display mode"),
           act.Tags.postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), Icons.bookmark, title := "save bookmark"),
@@ -84,7 +83,7 @@ class View(act: Actions) {
       }.asFrag
 
     Body(id = "view", title = dataSignal.map(data => s"${data.pos + 1} – ${data.description.name}"),
-         frag = List(mainSection, navigation),
+         bodyTag = Signal{body(id := "view", mainSection, navigation)},
          keypress = (x: dom.KeyboardEvent) => handleKeypress.fire(x))
 
 

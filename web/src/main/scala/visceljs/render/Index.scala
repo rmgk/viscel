@@ -2,13 +2,14 @@ package visceljs.render
 
 import org.scalajs.dom.html
 import rescala._
-import visceljs.visceltags._
 import viscel.shared.Description
 import visceljs.Definitions.link_tools
+import visceljs.visceltags._
 import visceljs.{Actions, Body, Make, SearchUtil}
 
 import scala.collection.immutable.Map
 import scala.scalajs.js
+import scalatags.JsDom
 import scalatags.JsDom.all._
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags2.aside
@@ -19,7 +20,7 @@ class Index(actions: Actions, bookmarks: Signal[Map[String, Int]], descriptions:
 
   def gen(): Body = {
 
-    val fragS: Signal[Frag] = rescala.reactives.Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
+    val fragS: Signal[JsDom.TypedTag[html.Body]] = rescala.reactives.Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
 
       val bookmarkedNarrations: List[(Description, Int, Int)] =
         bookmarks.toList.flatMap { case (id, pos) =>
@@ -57,17 +58,15 @@ class Index(actions: Actions, bookmarks: Signal[Map[String, Int]], descriptions:
 
       val searchForm = form(cls := "pure-form")(inputField, onsubmit := callback)
 
-      frag(
+      body(id := "index",
         Make.navigation(Make.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
         Make.group(s"Updates", actions, filteredHasNewPages),
         Make.group(s"Bookmarks", actions, filteredIsCurrent),
         Make.group(s"Available", actions, filteredAvailable))
     }
 
-    val rendered = fragS.asFrag
 
-    Body(id = "index", title = Var("Viscel"),
-         frag = rendered)
+    Body(id = "index", title = Var("Viscel"), bodyTag = fragS)
   }
 
 

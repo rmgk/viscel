@@ -29,10 +29,9 @@ object ViscelJS {
       val hint: (Description, Boolean) => Unit =
         (d, h) => registry.lookup(Bindings.hint, remote).apply(d, h).failed
           .foreach(e => Log.Web.error(s"sending hint failed: $e"))
-      val descriptions = Signals.fromFuture(
-        registry.lookup(Bindings.descriptions, remote).apply()
-          .map(_.map(n => n.id -> n).toMap))
 
+      val descriptionFuture = registry.lookup(Bindings.descriptions, remote).apply()
+      val descriptions = Signals.fromFuture(descriptionFuture.map { desc => desc.map(n => n.id -> n).toMap})
       val bookmarks = Var.empty[Bindings.Bookmarks]
 
       val postBookmarkF = (set: Bindings.SetBookmark) => registry.lookup(Bindings.bookmarks, remote).apply(set).map { bms =>
@@ -42,6 +41,7 @@ object ViscelJS {
 
       postBookmarkF(None)
 
+
       val app = new ReaderApp(requestContents = requestContents,
                               hint = hint,
                               descriptions = descriptions,
@@ -49,7 +49,6 @@ object ViscelJS {
                               postBookmarkF = postBookmarkF)
 
       dom.document.body = app.bodyElement
-      app.triggerDispatch.fire()
     }
   }
 

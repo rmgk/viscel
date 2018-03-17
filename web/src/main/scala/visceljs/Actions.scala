@@ -3,60 +3,28 @@ package visceljs
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import rescala._
-import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import viscel.shared.Description
-import viscel.shared.Log.{Web => Log}
 import visceljs.Definitions.{class_button, class_button_disabled, path_asset, path_front, path_main}
 import visceljs.render.View
 
-import scala.scalajs.js.URIUtils.decodeURIComponent
 import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, href, onclick}
 
 
 class Actions(app: ReaderApp) {
 
   val viewE = Evt[View.Navigate]
-  val viewDispatchS = Var.empty[(String, Int)]
-  val viewDispatchChangeE = Signal.dynamic {
-    val nars = app.descriptions()
-    val (id, pos) = viewDispatchS()
-    val nar = nars.getOrElse(id, throw EmptySignalControlThrowable)
-    val content = app.content(nar): @unchecked
-    val bm = app.bookmarks().getOrElse(nar.id, 0)
-    View.Goto(Data(nar, content(), bm).move(_.first.next(pos - 1)))
-  }.changed
-  viewDispatchChangeE.observe(_ => viewDispatchS.setEmpty())
-
-  val frontS = Var.empty[String]
-  val frontData = Signal.dynamic {
-    val id = frontS()
-    val description = app.descriptions()(id)
-    val bm = app.bookmarks().getOrElse(id, 0)
-    val content = app.content(description): @unchecked
-    Data(description, content(), bm)
-  }
-
-  lazy val bodyFront = app.front.gen(frontData)
-  lazy val viewBody = app.view.gen(viewE || viewDispatchChangeE)
-  lazy val indexBody = app.index.gen()
+//  val viewDispatchChangeE = Signal.dynamic {
+//    val nars = app.descriptions()
+//    val (id, pos) = ("VD_TwoKinds", 1)
+//    val nar = nars.getOrElse(id, throw EmptySignalControlThrowable)
+//    val content = app.content(nar): @unchecked
+//    val bm = app.bookmarks().getOrElse(nar.id, 0)
+//    View.Goto(Data(nar, content(), bm).move(_.first.next(pos - 1)))
+//  }.changed
 
 
-  def dispatchPath(path: String): Unit = {
-    val paths = List(path.split("/"): _*)
-    Log.debug(s"dispatch $paths")
-    paths match {
-      case Nil | "" :: Nil =>
-        setBodyIndex()
-      case id :: Nil =>
-        setBodyFront(decodeURIComponent(id))
-      case id :: posS :: Nil =>
-        val pos = Integer.parseInt(posS)
-        val nid = decodeURIComponent(id)
-        viewDispatchS.set(nid -> pos)
-        app.setBody(viewBody, scrolltop = true)
-      case _ => setBodyIndex()
-    }
-  }
+
+  lazy val viewBody = app.view.gen(viewE)
 
   def scrollTop() = dom.window.scrollTo(0, 0)
 
@@ -72,27 +40,23 @@ class Actions(app: ReaderApp) {
   }
 
   def gotoIndex(): Unit = {
-    pushIndex()
-    setBodyIndex(scrolltop = true)
+    //pushIndex()
+    app.manualStates.fire(app.IndexState)
+    //setBodyIndex(scrolltop = true)
   }
 
-  def gotoFront(nar: Description, scrolltop: Boolean = false): Unit = {
-    pushFront(nar)
-    setBodyFront(nar.id, scrolltop)
-    app.hint(nar, false)
+  def gotoFront(desc: Description): Unit = {
+    gotoFront(app.getDataSignal(desc.id), desc)
+  }
+  def gotoFront(data: Signal[Data], description: Description, scrolltop: Boolean = false): Unit = {
+    //pushFront(description)
+    app.manualStates.fire(app.FrontState(data))
   }
 
   def gotoView(data: Data, scrolltop: Boolean = true): Unit = {
-    pushView(data)
+    //pushView(data)
     setBodyView(data, scrolltop)
-  }
-
-
-  def setBodyIndex(scrolltop: Boolean = false) = app.setBody(indexBody, scrolltop)
-
-  def setBodyFront(descriptionid: String, scrolltop: Boolean = false): Unit = {
-    frontS.set(descriptionid)
-    app.setBody(bodyFront, scrolltop)
+    app.manualStates.fire(app.ViewState(Signal{data}))
   }
 
 
@@ -111,7 +75,6 @@ class Actions(app: ReaderApp) {
     }
 
     def link_front(nar: Description, ts: Modifier*): Tag = a(onLeftClick(gotoFront(nar)), href := path_front(nar))(ts: _*)
-    def button_front(nar: Description, ts: Modifier*): Tag = lcButton(gotoFront(nar))(ts: _*)
 
     def postBookmark(bm: Int, data: Data, handler: Data => Unit, ts: Modifier*): HtmlTag = {
       if (data.bookmark != bm) {
