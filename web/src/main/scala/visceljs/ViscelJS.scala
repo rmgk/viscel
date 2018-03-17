@@ -1,7 +1,7 @@
 package visceljs
 
 import org.scalajs.dom
-import rescala.{Signals, Var, _}
+import rescala._
 import retier.communicator.ws.akka.WS
 import retier.registry.Registry
 import retier.transmitter.RemoteRef
@@ -10,7 +10,7 @@ import viscel.shared._
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.div
+import scalatags.JsDom.tags.body
 
 
 object ViscelJS {
@@ -21,7 +21,7 @@ object ViscelJS {
   }
 
   def main(args: Array[String]): Unit = {
-    dom.document.body.appendChild(div("loading data …").render)
+    dom.document.body = body("loading data …").render
     val registry = new Registry
     val connection: Future[RemoteRef] = registry.request(WS(wsUri))
     connection.foreach { remote =>
@@ -48,6 +48,7 @@ object ViscelJS {
                               bookmarks = bookmarks,
                               postBookmarkF = postBookmarkF)
 
+      dom.document.body = app.bodyElement
       app.triggerDispatch.fire()
     }
   }
