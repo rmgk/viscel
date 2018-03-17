@@ -34,10 +34,11 @@ object ViscelJS {
       val descriptions = Signals.fromFuture(descriptionFuture.map { desc => desc.map(n => n.id -> n).toMap})
       val bookmarks = Var.empty[Bindings.Bookmarks]
 
-      val postBookmarkF = (set: Bindings.SetBookmark) => registry.lookup(Bindings.bookmarks, remote).apply(set).map { bms =>
+      val postBookmarkF = {(set: Bindings.SetBookmark) => registry.lookup(Bindings.bookmarks, remote).apply(set).map { bms =>
         bookmarks.set(bms)
         bms
-      }
+      }}.andThen(fut => {fut.onComplete(r => Log.Web.debug(s"retrieved bookmarks successful: ${r.isSuccess}")); fut})
+
 
       postBookmarkF(None)
 

@@ -5,6 +5,7 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 import org.scalajs.dom.raw.HashChangeEvent
 import rescala._
+import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import viscel.shared.{Bindings, Contents, Description, Log, SharedImage}
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.{Front, Index, View}
@@ -59,7 +60,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
   def pathToState(path: String): AppState = {
     val paths = List(path.substring(1).split("/"): _*)
-    Log.Web.debug(s"signal dispatch $paths")
+    Log.Web.debug(s"get state for $paths")
     paths match {
       case Nil | "" :: Nil => IndexState
       case encodedId :: Nil =>
@@ -76,21 +77,18 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
   private def getHash = {
     dom.window.location.hash
   }
-  private def stateFromHash() = {
-    pathToState(getHash)
-  }
 
   val hashChange: Event[HashChangeEvent] = fromCallback[HashChangeEvent](dom.window.onhashchange = _)
   hashChange.observe(hc => Log.Web.debug(s"hash change event: $hc"))
 
-  val hashBasedStates = hashChange.map(_ => stateFromHash())
+  val hashBasedStates = hashChange.map(_ => pathToState(getHash))
 
 
   val manualStates: Evt[AppState] = Evt()
 
   val appStates: Event[AppState] = hashBasedStates || manualStates
 
-  val currentAppState = appStates.latest(stateFromHash())
+  val currentAppState = appStates.latest(pathToState(getHash))
 
   Signal.dynamic {
     currentAppState.value match {
@@ -114,7 +112,10 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
   val navigateFrontEvt: Evt[Description] = Evt()
   val navigateFront: Event[Description] = navigateFrontEvt
 
-  val frontData: Signal[Data] = appStates.collect { case FrontState(nar) => nar }.latest().flatten
+  val frontData: Signal[Data] = currentAppState.map {
+    case FrontState(nar) => nar
+    case _ => throw EmptySignalControlThrowable
+  }.flatten
 
   lazy val bodyFront = front.gen(frontData)
 
@@ -137,8 +138,11 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
 
   def content(nar: Description): Signal[Contents] = {
-    contents.getOrElseUpdate(nar.id,
-                             Signals.fromFuture(requestContents(nar.id).map(_.get)))
+    contents.getOrElseUpdate(nar.id, {
+      val eventualContents = requestContents(nar.id).map(_.get)
+      eventualContents.onComplete(t => Log.Web.debug(s"received contents for ${nar.id} (sucessful: ${t.isSuccess})"))
+      Signals.fromFuture(eventualContents)
+    })
   }
 
 
