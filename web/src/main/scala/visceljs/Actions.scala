@@ -5,6 +5,7 @@ import org.scalajs.dom.MouseEvent
 import rescala._
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import viscel.shared.Description
+import viscel.shared.Log.{Web => Log}
 import visceljs.Definitions.{class_button, class_button_disabled, path_asset, path_front, path_main}
 import visceljs.render.View
 
@@ -42,7 +43,7 @@ class Actions(app: ReaderApp) {
 
   def dispatchPath(path: String): Unit = {
     val paths = List(path.split("/"): _*)
-    Console.println(s"dispatch $paths")
+    Log.debug(s"dispatch $paths")
     paths match {
       case Nil | "" :: Nil =>
         setBodyIndex()

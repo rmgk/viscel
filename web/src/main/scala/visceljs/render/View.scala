@@ -54,7 +54,7 @@ class View(act: Actions) {
       }
     }
 
-    Event {navigationEvents().map(e => e -> dataSignal())}.observe { case (ev, data) =>
+    navigationEvents.map(e => e -> dataSignal()).observe { case (ev, data) =>
       if (ev == Prev || ev == Next) {
         act.pushView(data)
         act.scrollTop()
