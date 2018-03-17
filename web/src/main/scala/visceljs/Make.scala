@@ -42,7 +42,9 @@ object Make {
     }
   }
 
-  def fullscreenToggle(stuff: Modifier*): HtmlTag = a(cls := "pure-button", onclick := (() => Definitions.toggleFullscreen()))(stuff: _*)
+  def fullscreenToggle(stuff: Modifier*): HtmlTag =
+    a(if (Definitions.isFullscreen()) Definitions.class_button_active else Definitions.class_button,
+      onclick := (() => Definitions.toggleFullscreen()))(stuff: _*)
 
 
   def group(name: String, actions: Actions, entries: Signal[Seq[(Description, Int, Int)]]): Tag = {
