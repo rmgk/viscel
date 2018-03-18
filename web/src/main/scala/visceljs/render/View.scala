@@ -70,7 +70,7 @@ class View(act: Actions) {
       dataSignal.map[Frag] { data =>
         Make.navigation(
           act.Tags.button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
-          act.Tags.lcButton(act.gotoFront(dataSignal, data.description))(Icons.front, title := "back to front page"),
+          act.Tags.lcButton(act.gotoFront(data.description))(Icons.front, title := "back to front page"),
           Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
           act.Tags.lcButton(navigate.fire(Mode(data.fitType + 1)), Icons.modus, s" ${data.fitType % 8}", title := "cycle image display mode"),
           act.Tags.postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), Icons.bookmark, title := "save bookmark"),

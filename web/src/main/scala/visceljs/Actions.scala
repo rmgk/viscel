@@ -42,10 +42,8 @@ class Actions(app: ReaderApp) {
     //setBodyIndex(scrolltop = true)
   }
 
-  def gotoFront(desc: Description): Unit = {
-    gotoFront(app.getDataSignal(desc.id), desc)
-  }
-  def gotoFront(data: Signal[Data], description: Description, scrolltop: Boolean = false): Unit = {
+
+  def gotoFront(description: Description, scrolltop: Boolean = false): Unit = {
     app.manualStates.fire(app.FrontState(description.id))
   }
 

@@ -28,7 +28,7 @@ class Front(actions: Actions) {
         button_index("index"),
         button_asset(data.move(_.first))("first page"),
         Make.fullscreenToggle("fullscreen"),
-        postBookmark(0, data, _ => actions.gotoFront(dataS, data.description, scrolltop = false), "remove bookmark"),
+        postBookmark(0, data, _ => actions.gotoFront(data.description, scrolltop = false), "remove bookmark"),
         postForceHint(narration, "force check"))
 
       val preview = {
