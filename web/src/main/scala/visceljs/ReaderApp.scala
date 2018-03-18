@@ -118,21 +118,21 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     {
       Signal.dynamic {
         currentAppState.value match {
-          case IndexState => ("main", path_main, "Viscel")
+          case IndexState => (path_main, "Viscel")
           case FrontState(_) =>
             val desc = currentData.value.description
-            ("front", path_front(desc), desc.name)
+            (path_front(desc), desc.name)
           case ViewState(_, _) =>
             val data = currentData.value
-            ("view", path_asset(data), s"${data.pos + 1} – ${data.description.name}")
+            (path_asset(data), s"${data.pos + 1} – ${data.description.name}")
         }
-      }.observe { case (n, u, t) =>
+      }.observe { case (u, t) =>
         dom.window.document.title = t
         val h = getHash
         // for some reason, the leading # is not returned by getHash, when nothing follows
         if (h != u && !(u == "#" && h == "")) {
-          dom.window.history.pushState(null, n, u)
-          Log.Web.debug(s"pushing ${(n, u)} (hash was '$h') history has length ${dom.window.history.length}")
+          dom.window.history.pushState(null, null, u)
+          Log.Web.debug(s"pushing history '$u' was '$h' length ${dom.window.history.length}")
         }
       }
     }
