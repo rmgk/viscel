@@ -2,10 +2,9 @@ package visceljs
 
 import org.scalajs.dom
 import org.scalajs.dom.{DocumentFragment, Element, Node}
-import rescala._
 import rescala.core.{CreationTicket, Initializer, Scheduler, Struct}
 import rescala.reactives.Signals.Diff
-import rescala.reactives.{Observe, Signal}
+import rescala.reactives.{Event, Evt, Observe, Signal}
 
 import scala.language.higherKinds
 import scalatags.JsDom.TypedTag
@@ -54,8 +53,8 @@ object visceltags extends lowPriorityimplicits {
   }
 
 
-  def eventFromCallback[T](cb: (T => Unit) => Unit): Event[T] = {
-    val evt = Evt[T]
+  def eventFromCallback[T, S <: Struct](cb: (T => Unit) => Unit)(implicit ct: CreationTicket[S], s: Scheduler[S]): Event[T, S] = {
+    val evt = Evt[T, S]
     cb(evt.fire)
     evt
   }

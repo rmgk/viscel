@@ -16,7 +16,6 @@ import scalatags.JsDom.tags2.aside
 
 class Index(actions: Actions, bookmarks: Signal[Map[String, Int]], descriptions: Signal[Map[String, Description]]) {
 
-  var inputQueryString = ""
 
   def gen(): Signal[JsDom.TypedTag[html.Body]] = {
 
@@ -32,9 +31,8 @@ class Index(actions: Actions, bookmarks: Signal[Map[String, Int]], descriptions:
       val (hasNewPages, isCurrent) = bookmarkedNarrations.partition(_._3 > 15)
       val available = descriptions.values.toList.filter(d => !bookmarks.contains(d.id)).map(n => (n, 0, n.size))
 
-      val inputQuery = Var(inputQueryString)
-      inputQuery.observe(inputQueryString = _)
-      val inputField = input(value := inputQueryString, `type` := "text", tabindex := "1", onkeyup := ({ (inp: html.Input) =>
+      val inputQuery = Var("")
+      val inputField = input(value := inputQuery, `type` := "text", tabindex := "1", onkeyup := ({ (inp: html.Input) =>
         inputQuery.set(inp.value.toString.toLowerCase)
       }: js.ThisFunction))
 

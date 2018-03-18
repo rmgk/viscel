@@ -2,6 +2,7 @@ package visceljs
 
 import org.scalajs.dom
 import org.scalajs.dom.raw.KeyboardEvent
+import rescala.levelbased.SimpleStruct
 import rescala.{Event, Evt}
 
 object Navigation {
@@ -11,7 +12,7 @@ object Navigation {
   case class Mode(i: Int) extends Navigate
 
 
-  val handleKeypress = visceljs.visceltags.eventFromCallback[KeyboardEvent](dom.document.onkeydown = _)
+  val handleKeypress = visceljs.visceltags.eventFromCallback[KeyboardEvent, SimpleStruct](dom.document.onkeydown = _)
   val navigate = Evt[Navigate]
   val keypressNavigations = handleKeypress.map(_.key).collect {
     case "ArrowLeft" | "a" | "," => Prev
