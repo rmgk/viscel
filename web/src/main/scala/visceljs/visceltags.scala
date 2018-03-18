@@ -2,6 +2,7 @@ package visceljs
 
 import org.scalajs.dom
 import org.scalajs.dom.{DocumentFragment, Element, Node}
+import rescala._
 import rescala.core.{CreationTicket, Initializer, Scheduler, Struct}
 import rescala.reactives.Signals.Diff
 import rescala.reactives.{Observe, Signal}
@@ -50,6 +51,13 @@ object visceltags extends lowPriorityimplicits {
     def apply(t: dom.Element, s: Style, signal: Sig[T]): Unit = {
       signal.observe { value => implicitly[StyleValue[T]].apply(t, s, value) }
     }
+  }
+
+
+  def eventFromCallback[T](cb: (T => Unit) => Unit): Event[T] = {
+    val evt = Evt[T]
+    cb(evt.fire)
+    evt
   }
 
 

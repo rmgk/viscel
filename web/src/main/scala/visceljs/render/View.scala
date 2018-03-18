@@ -2,6 +2,7 @@ package visceljs.render
 
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
+import org.scalajs.dom.raw.KeyboardEvent
 import rescala._
 import visceljs.render.View._
 import visceljs.visceltags._
@@ -18,7 +19,7 @@ object View {
   case class Goto(data: Data) extends Navigate
 
 
-  val handleKeypress = Evt[dom.KeyboardEvent]
+  val handleKeypress = visceljs.visceltags.eventFromCallback[KeyboardEvent](dom.document.onkeydown = _)
   val navigate = Evt[Navigate]
   val keypressNavigations = handleKeypress.map(_.key).collect {
     case "ArrowLeft" | "a" | "," => Prev

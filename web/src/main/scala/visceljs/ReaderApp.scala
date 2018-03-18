@@ -35,11 +35,6 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
   lazy val front = new Front(actions)
   lazy val view = new View(actions)
 
-  def fromCallback[T](cb: (T => Unit) => Unit): Event[T] = {
-    val evt = Evt[T]
-    cb(evt.fire)
-    evt
-  }
 
 
   implicit val readAssets: Decoder[List[SharedImage]] = Predef.implicitly[Decoder[List[SharedImage]]]
@@ -80,7 +75,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     dom.window.location.hash
   }
 
-  val hashChange: Event[HashChangeEvent] = fromCallback[HashChangeEvent](dom.window.onhashchange = _)
+  val hashChange: Event[HashChangeEvent] = visceltags.eventFromCallback[HashChangeEvent](dom.window.onhashchange = _)
   hashChange.observe(hc => Log.Web.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
 
   val hashBasedStates = hashChange.map(hc => pathToState(new URL(hc.newURL).hash): @unchecked)
