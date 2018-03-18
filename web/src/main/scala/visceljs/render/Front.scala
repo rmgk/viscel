@@ -20,7 +20,7 @@ class Front(actions: Actions) {
 
   def gen(dataS: Signal[Data]): Signal[JsDom.TypedTag[html.Body]] = {
     dataS.map { data =>
-      val Data(narration, Contents(gallery, chapters), bookmark, _) = data
+      val Data(narration, Contents(gallery, chapters), bookmark) = data
 
       val top = h1(s"${narration.name} ($bookmark/${narration.size})")
 

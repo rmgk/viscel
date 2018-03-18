@@ -2,7 +2,7 @@ package visceljs
 
 import viscel.shared.{SharedImage, Contents, Description, Gallery}
 
-case class Data(description: Description, content: Contents, bookmark: Int, fitType: Int = 0) {
+case class Data(description: Description, content: Contents, bookmark: Int) {
   def id: String = description.id
   def pos: Int = content.gallery.pos
   def gallery: Gallery[SharedImage] = content.gallery

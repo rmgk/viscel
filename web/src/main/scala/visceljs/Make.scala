@@ -69,6 +69,6 @@ object Make {
     section(fieldset(rLegend, elements))
   }
 
-  def navigation(links: Tag*): HtmlTag =
-    nav(class_button_group)(links)
+  def navigation(links: Modifier*): HtmlTag =
+    nav(class_button_group)(links :_*)
 }

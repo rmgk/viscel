@@ -46,29 +46,30 @@ class View(act: Actions) {
     }
   }
 
-  def gen(dataSignal: Signal[Data], navigate: Evt[Navigate]): Signal[JsDom.TypedTag[Body]] = {
+  def gen(dataSignal: Signal[Data], fitType: Signal[Int], navigate: Evt[Navigate]): Signal[JsDom.TypedTag[Body]] = {
 
-    val mainPart: Signal[Frag] = dataSignal.map[HtmlTag] { data =>
+    val mainPart: Signal[Frag] = Signal {
+      val data = dataSignal.value
       data.gallery.get.fold[HtmlTag](p(s"loading image data …")) { asst =>
-        article(Make.asset(asst, data, Make.imageStyle(data.fitType)))(asst.data.get("longcomment").fold(List[Tag]())(p(_) :: Nil))
+        article(Make.asset(asst, data, Make.imageStyle(fitType.value)))(asst.data.get("longcomment").fold(List[Tag]())(p(_) :: Nil))
       }
     }
 
-    val mainSection = section(mainPart.asFrag)(onLeftClickPrevNext(navigate.fire))
-
-    val navigation: Frag =
-      dataSignal.map[Frag] { data =>
+    val navigation: Signal[Frag] = Signal {
+      val data = dataSignal.value
+      val ft = fitType.value
         Make.navigation(
           act.Tags.button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
           act.Tags.lcButton(act.gotoFront(data.description))(Icons.front, title := "back to front page"),
           Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
-          act.Tags.lcButton(navigate.fire(Mode(data.fitType + 1)), Icons.modus, s" ${data.fitType % 8}", title := "cycle image display mode"),
+          act.Tags.lcButton(navigate.fire(Mode(ft + 1)), Icons.modus, s" $ft", title := "cycle image display mode"),
           act.Tags.postBookmark(data.pos + 1, data, _ => Unit, Icons.bookmark, title := "save bookmark"),
           a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin))(Icons.externalLink, title := "visit original page"),
           act.Tags.button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
-      }.asFrag
+      }
 
-    Signal {body(id := "view", mainSection, navigation)}
+    val mainSection = section(mainPart.asFrag)(onLeftClickPrevNext(navigate.fire))
+    Signal {body(id := "view", mainSection, navigation.asFrag)}
 
 
   }

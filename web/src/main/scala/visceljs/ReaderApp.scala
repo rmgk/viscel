@@ -118,7 +118,10 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     }
     currentPosition.observe(p => Log.Web.debug(s"current position is $p"))
 
-
+    val fitType = navigationEvents.fold(0){
+      case (_, Mode(i)) => i % 8
+      case (i, _) => i
+    }
 
     targetStates.observe(s => Log.Web.debug(s"state: $s"))
 
@@ -157,7 +160,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
     val indexBody = index.gen()
     val frontBody = front.gen(currentData)
-    val viewBody = view.gen(currentData, View.navigate)
+    val viewBody = view.gen(currentData, fitType, View.navigate)
 
 
     val bodyElement: html.Body = {
