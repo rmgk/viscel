@@ -2,12 +2,14 @@ package visceljs
 
 import io.circe.Decoder
 import org.scalajs.dom
+import org.scalajs.dom.experimental.URL
 import org.scalajs.dom.html
 import org.scalajs.dom.raw.HashChangeEvent
 import rescala._
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import viscel.shared.{Bindings, Contents, Description, Log, SharedImage}
 import visceljs.Definitions.{path_asset, path_front, path_main}
+import visceljs.render.View.{Goto, Mode, Next, Prev, navigationEvents}
 import visceljs.render.{Front, Index, View}
 import visceljs.visceltags._
 
@@ -46,8 +48,8 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
   sealed trait AppState
   case object IndexState extends AppState
-  case class FrontState(desc: Signal[Data]) extends AppState
-  case class ViewState(data: Signal[Data]) extends AppState
+  case class FrontState(id: String) extends AppState
+  case class ViewState(id: String, pos: Int) extends AppState
 
   def getDataSignal(id: String): Signal[Data] = {
     Signal.dynamic {
@@ -65,11 +67,11 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
       case Nil | "" :: Nil => IndexState
       case encodedId :: Nil =>
         val id = decodeURIComponent(encodedId)
-        FrontState(getDataSignal(id))
+        FrontState(id)
       case encodedId :: posS :: Nil =>
         val id = decodeURIComponent(encodedId)
         val pos = Integer.parseInt(posS)
-        ViewState(getDataSignal(id).map(_.move(_.first.next(pos - 1))))
+        ViewState(id, pos - 1)
       case _ => IndexState
     }
   }
@@ -79,45 +81,73 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
   }
 
   val hashChange: Event[HashChangeEvent] = fromCallback[HashChangeEvent](dom.window.onhashchange = _)
-  hashChange.observe(hc => Log.Web.debug(s"hash change event: $hc"))
+  hashChange.observe(hc => Log.Web.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
 
-  val hashBasedStates = hashChange.map(_ => pathToState(getHash))
+  val hashBasedStates = hashChange.map(hc => pathToState(new URL(hc.newURL).hash): @unchecked)
 
 
   val manualStates: Evt[AppState] = Evt()
 
-  val appStates: Event[AppState] = hashBasedStates || manualStates
+  val targetStates: Event[AppState] = hashBasedStates || manualStates
 
-  val currentAppState = appStates.latest(pathToState(getHash))
+  navigationEvents.observe(n => Log.Web.debug(s"navigating $n"))
 
-  Signal.dynamic {
-    currentAppState.value match {
-      case IndexState => ("main", path_main)
-      case FrontState(data) => ("front", path_front(data.value.description))
-      case ViewState(data) => ("view", path_asset(data.value))
-    }
-  }.observe { case (n, u) =>
-    val h = getHash
-    // for some reason, the leading # is not returned by getHash, when nothing follows
-    if (h != u && !(u == "#" && h == "")) {
-      Log.Web.debug(s"pushing ${(n, u)} (hash was '$h')")
-      dom.window.history.pushState(null, n, u)
-    }
+  val currentPosition: Signal[Int] = Events.foldAll(0) { (pos) =>
+    Events.Match(
+      navigationEvents >> {
+        case Prev if pos > 0 => pos - 1
+        case Next => pos + 1
+        case Prev | Next => pos
+        case Mode(n) => pos
+        case Goto(target) => target.pos
+      },
+      targetStates >> {
+        case ViewState(_, p) => p
+        case _ => pos
+      }
+    )
   }
 
-  appStates.observe(s => Log.Web.debug(s"state: $s"))
+  val currentAppState: Signal[AppState] = targetStates.latest(pathToState(getHash))
 
-  lazy val indexBody = index.gen()
+
+  targetStates.observe(s => Log.Web.debug(s"state: $s"))
+
 
   val navigateFrontEvt: Evt[Description] = Evt()
   val navigateFront: Event[Description] = navigateFrontEvt
 
-  val frontData: Signal[Data] = currentAppState.map {
-    case FrontState(nar) => nar
-    case _ => throw EmptySignalControlThrowable
-  }.flatten
+  val currentData: Signal[Data] = {
+    val c = currentAppState.map {
+      case FrontState(nar) => getDataSignal(nar)
+      case ViewState(id, _) => getDataSignal(id)
+      case _ => throw EmptySignalControlThrowable
+    }.flatten
+    Signal {
+      c.value.atPos(currentPosition.value)
+    }
+  }
 
-  lazy val bodyFront = front.gen(frontData)
+  {
+    Signal.dynamic {
+      currentAppState.value match {
+        case IndexState => ("main", path_main)
+        case FrontState(_) => ("front", path_front(currentData.value.description))
+        case ViewState(_, _) => ("view", path_asset(currentData.value))
+      }
+    }.observe { case (n, u) =>
+      val h = getHash
+      // for some reason, the leading # is not returned by getHash, when nothing follows
+      if (h != u && !(u == "#" && h == "")) {
+        dom.window.history.pushState(null, n, u)
+        Log.Web.debug(s"pushing ${(n, u)} (hash was '$h') history has length ${dom.window.history.length}")
+      }
+    }
+  }
+
+  lazy val indexBody = index.gen()
+  lazy val frontBody = front.gen(currentData)
+  lazy val viewBody = view.gen(currentData, View.navigate)
 
 
   val bodyElement: html.Body = {
@@ -125,8 +155,8 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     // rendered signals
     val selectedBodySignal: Signal[Body] = currentAppState.map {
       case IndexState => indexBody
-      case FrontState(_) => bodyFront
-      case ViewState(_) => actions.viewBody
+      case FrontState(_) => frontBody
+      case ViewState(_, _) => viewBody
     }
     selectedBodySignal.observe(s => Log.Web.debug(s"selected body: $s"))
     val bodySignal: Signal[TypedTag[html.Body]] = selectedBodySignal.map(_.bodyTag).flatten
@@ -153,7 +183,6 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
   private var titleObserver: Observe = null
   def setBody(abody: Body, scrolltop: Boolean): Unit = {
-    dom.document.onkeydown = abody.keypress
     if (titleObserver != null) titleObserver.remove()
     titleObserver = abody.title.observe(dom.document.title = _)
     if (scrolltop) actions.scrollTop()

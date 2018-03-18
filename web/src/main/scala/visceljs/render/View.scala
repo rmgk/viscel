@@ -3,11 +3,11 @@ package visceljs.render
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import rescala._
-import visceljs.visceltags._
 import visceljs.render.View._
+import visceljs.visceltags._
 import visceljs.{Actions, Body, Data, Definitions, Icons, Make}
 
-import scalatags.JsDom.all.{body, id, Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, div, href, onclick, p, rel, stringAttr, stringFrag, title}
+import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title}
 import scalatags.JsDom.tags2.{article, section}
 
 object View {
@@ -16,6 +16,28 @@ object View {
   case object Prev extends Navigate
   case class Mode(i: Int) extends Navigate
   case class Goto(data: Data) extends Navigate
+
+
+  val handleKeypress = Evt[dom.KeyboardEvent]
+  val navigate = Evt[Navigate]
+  val keypressNavigations = handleKeypress.map(_.key).collect {
+    case "ArrowLeft" | "a" | "," => Prev
+    case "ArrowRight" | "d" | "." => Next
+    case n if n.matches("""^\d+$""") => Mode(n.toInt)
+  }
+
+  val navigationEvents: Event[Navigate] = keypressNavigations || navigate
+
+
+
+//  navigationEvents.map(e => e -> dataSignal()).observe { case (ev, data) =>
+//    if (ev == Prev || ev == Next) {
+//      act.scrollTop()
+//    }
+//    /*val pregen =*/ data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
+//
+//  }
+
 }
 
 
@@ -32,35 +54,7 @@ class View(act: Actions) {
     }
   }
 
-  def gen(outerNavigation: Event[Navigate]): Body = {
-
-    val handleKeypress = Evt[dom.KeyboardEvent]
-    val navigate = Evt[Navigate]
-    val keypressNavigations = handleKeypress.map(_.key).collect {
-      case "ArrowLeft" | "a" | "," => Prev
-      case "ArrowRight" | "d" | "." => Next
-      case n if n.matches("""^\d+$""") => Mode(n.toInt)
-    }
-
-    val navigationEvents: Event[Navigate] = keypressNavigations || navigate || outerNavigation
-
-    val dataSignal: Signal[Data] = navigationEvents.reduce[Data] { (data, ev) =>
-      ev match {
-        case Prev if !data.gallery.isFirst => data.prev
-        case Next if !data.gallery.next(1).isEnd => data.next
-        case Prev | Next => data
-        case Mode(n) => data.copy(fitType = n)
-        case Goto(target) => target
-      }
-    }
-
-    navigationEvents.map(e => e -> dataSignal()).observe { case (ev, data) =>
-      if (ev == Prev || ev == Next) {
-        act.scrollTop()
-      }
-      /*val pregen =*/ data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
-
-    }
+  def gen(dataSignal: Signal[Data], navigate: Evt[Navigate]): Body = {
 
     val mainPart: Signal[Frag] = dataSignal.map[HtmlTag] { data =>
       data.gallery.get.fold[HtmlTag](p(s"loading image data …")) { asst =>
@@ -83,8 +77,7 @@ class View(act: Actions) {
       }.asFrag
 
     Body(id = "view", title = dataSignal.map(data => s"${data.pos + 1} – ${data.description.name}"),
-         bodyTag = Signal{body(id := "view", mainSection, navigation)},
-         keypress = (x: dom.KeyboardEvent) => handleKeypress.fire(x))
+         bodyTag = Signal{body(id := "view", mainSection, navigation)})
 
 
   }

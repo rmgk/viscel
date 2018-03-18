@@ -5,14 +5,12 @@ import org.scalajs.dom.MouseEvent
 import rescala._
 import viscel.shared.Description
 import visceljs.Definitions.{class_button, class_button_disabled, path_asset, path_front, path_main}
-import visceljs.render.View
 
 import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, href, onclick}
 
 
 class Actions(app: ReaderApp) {
 
-  val viewE = Evt[View.Navigate]
 //  val viewDispatchChangeE = Signal.dynamic {
 //    val nars = app.descriptions()
 //    val (id, pos) = ("VD_TwoKinds", 1)
@@ -24,7 +22,6 @@ class Actions(app: ReaderApp) {
 
 
 
-  lazy val viewBody = app.view.gen(viewE)
 
   def scrollTop() = dom.window.scrollTo(0, 0)
 
@@ -50,20 +47,15 @@ class Actions(app: ReaderApp) {
   }
   def gotoFront(data: Signal[Data], description: Description, scrolltop: Boolean = false): Unit = {
     //pushFront(description)
-    app.manualStates.fire(app.FrontState(data))
+    app.manualStates.fire(app.FrontState(description.id))
   }
 
   def gotoView(data: Data, scrolltop: Boolean = true): Unit = {
     //pushView(data)
-    setBodyView(data, scrolltop)
-    app.manualStates.fire(app.ViewState(Signal{data}))
+    app.setBody(app.viewBody, scrolltop)
+    app.manualStates.fire(app.ViewState(data.description.id, data.pos))
   }
 
-
-  def setBodyView(data: Data, scrolltop: Boolean = false): Unit = {
-    viewE.fire(View.Goto(data))
-    app.setBody(viewBody, scrolltop)
-  }
 
   object Tags {
     def button_index(ts: Modifier*): Tag = button(class_button, onLeftClick(gotoIndex()))(ts: _*)
