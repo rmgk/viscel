@@ -13,7 +13,7 @@ final class Gallery[+A] private(val pos: Int, entries: Array[A]) {
   def get: Option[A] = if (pos < size) Some(entries(pos)) else None
   def next(n: Int): Gallery[A] = copy(if (pos + n < size) pos + n else size)
   def prev(n: Int): Gallery[A] = copy(if (pos - n >= 0) pos - n else 0)
-  def atPos(n: Int): Gallery[A] = if (n < 0) copy(0) else if (n >= size) copy(size) else copy(n)
+  def atPos(n: Int): Gallery[A] = if (n < 0) copy(0) else if (n >= size) copy(size - 1) else copy(n)
   def size: Int = entries.length
   override def toString: String = s"Gallery(${Predef.genericWrapArray(entries).mkString(", ")})"
   def isFirst: Boolean = pos == 0
