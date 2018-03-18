@@ -80,9 +80,18 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
     val targetStates: Event[AppState] = hashBasedStates || manualStates
 
+    val initialState = pathToState(getHash)
+    val initialPos = initialState match {
+      case IndexState => 1
+      case FrontState(id) => 1
+      case ViewState(id, pos) => pos
+    }
+
+    Log.Web.debug(s"initial state: $initialState")
+
     navigationEvents.observe(n => Log.Web.debug(s"navigating $n"))
 
-    val currentPosition: Signal[Int] = Events.foldAll(0) { (pos) =>
+    val currentPosition: Signal[Int] = Events.foldAll(initialPos) { (pos) =>
       Events.Match(
         navigationEvents >> {
           case Prev if pos > 0 => pos - 1
@@ -98,7 +107,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
       )
     }
 
-    val currentAppState: Signal[AppState] = targetStates.latest(pathToState(getHash))
+    val currentAppState: Signal[AppState] = targetStates.latest(initialState)
 
 
     targetStates.observe(s => Log.Web.debug(s"state: $s"))
