@@ -146,9 +146,9 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
       }
     }
 
-    lazy val indexBody = index.gen()
-    lazy val frontBody = front.gen(currentData)
-    lazy val viewBody = view.gen(currentData, View.navigate)
+    val indexBody = index.gen()
+    val frontBody = front.gen(currentData)
+    val viewBody = view.gen(currentData, View.navigate)
 
 
     val bodyElement: html.Body = {
