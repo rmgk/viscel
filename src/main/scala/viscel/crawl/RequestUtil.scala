@@ -38,7 +38,7 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
 
 
   private def requestWithRedirects(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
-    Log.Web.info(s"request ${request.uri}" + request.header[Referer].fold("")(r => s" ($r)"))
+    Log.JS.info(s"request ${request.uri}" + request.header[Referer].fold("")(r => s" ($r)"))
 
     requestDecompressed(request).flatMap { response =>
       if (response.status.isRedirection() && response.header[Location].isDefined) {
@@ -93,7 +93,7 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
         .interpret[List[WebContent]](narrator.wrapper, doc, link)
         .fold(identity, r => throw WrappingException(link, r))
     } yield {
-      Log.Web.trace(s"reqest page $link, yielding $contents")
+      Log.JS.trace(s"reqest page $link, yielding $contents")
       PageData(link.ref, Vurl.fromString(doc.location()),
         contents = contents,
         date = extractLastModified(res).getOrElse(Instant.now()))

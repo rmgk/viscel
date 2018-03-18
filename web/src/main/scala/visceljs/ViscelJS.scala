@@ -29,7 +29,7 @@ object ViscelJS {
       val requestContents = registry.lookup(Bindings.contents, remote)
       val hint: (Description, Boolean) => Unit =
         (d, h) => registry.lookup(Bindings.hint, remote).apply(d, h).failed
-          .foreach(e => Log.Web.error(s"sending hint failed: $e"))
+          .foreach(e => Log.JS.error(s"sending hint failed: $e"))
 
       val descriptionFuture = registry.lookup(Bindings.descriptions, remote).apply()
       val descriptions = Signals.fromFuture(descriptionFuture.map { desc => desc.map(n => n.id -> n).toMap })
@@ -40,7 +40,7 @@ object ViscelJS {
           bookmarks.set(bms)
           bms
         }
-      }.andThen(fut => {fut.onComplete(r => Log.Web.debug(s"retrieved bookmarks successful: ${r.isSuccess}")); fut})
+      }.andThen(fut => {fut.onComplete(r => Log.JS.debug(s"retrieved bookmarks successful: ${r.isSuccess}")); fut})
 
 
       postBookmarkF(None)

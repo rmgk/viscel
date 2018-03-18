@@ -27,7 +27,7 @@ class Actions(hint: (Description, Boolean) => Unit,
 
 
   private def postBookmark(nar: Description, pos: Int): Unit = {
-    postBookmarkF(Some((nar, pos))).failed.foreach(e => Log.Web.error(s"posting bookmarks failed: $e"))
+    postBookmarkF(Some((nar, pos))).failed.foreach(e => Log.JS.error(s"posting bookmarks failed: $e"))
   }
 
 

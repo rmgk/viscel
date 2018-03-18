@@ -48,9 +48,9 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   val encoder: Encoder[MangadexNarrator] = Encoder.forProduct3("id", "name", "archiveUri")(nar => (nar.id, nar.name, nar.archiveUri))
 
   override def unapply(vurl: String): Option[Vurl] =
-    if (vurl.toString.startsWith("https://mangadex.com/manga/")) Some(Vurl.fromString(vurl)) else None
+    if (vurl.toString.startsWith("https://mangadex.org/manga/")) Some(Vurl.fromString(vurl)) else None
 
-  val extractID = """https://mangadex.com/manga/\d+/([^/]+)""".r
+  val extractID = """https://mangadex.org/manga/\d+/([^/]+)""".r
 
   override val wrap: WrapPart[List[MangadexNarrator]] =
     Selection.unique("#content h3.panel-title").wrapOne { title =>

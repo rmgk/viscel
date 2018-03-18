@@ -19,7 +19,7 @@ class Clockwork(path: Path,
                 narratorCache: NarratorCache,
                ) {
 
-  val log = viscel.shared.Log.Web
+  val log = viscel.shared.Log.Clockwork
 
   val dayInMillis: Long = 24L * 60L * 60L * 1000L
 

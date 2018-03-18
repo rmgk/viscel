@@ -44,7 +44,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
     def pathToState(path: String): AppState = {
       val paths = List(path.substring(1).split("/"): _*)
-      Log.Web.debug(s"get state for $paths")
+      Log.JS.debug(s"get state for $paths")
       paths match {
         case Nil | "" :: Nil => IndexState
         case encodedId :: Nil =>
@@ -63,7 +63,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     }
 
     val hashChange: Event[HashChangeEvent] = visceltags.eventFromCallback[HashChangeEvent, SimpleStruct](dom.window.onhashchange = _)
-    hashChange.observe(hc => Log.Web.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
+    hashChange.observe(hc => Log.JS.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
 
     val hashBasedStates = hashChange.map(hc => pathToState(new URL(hc.newURL).hash): @unchecked)
 
@@ -77,9 +77,9 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
       case ViewState(id, pos) => pos
     }
 
-    Log.Web.debug(s"initial state: $initialState")
+    Log.JS.debug(s"initial state: $initialState")
 
-    navigationEvents.observe(n => Log.Web.debug(s"navigating $n"))
+    navigationEvents.observe(n => Log.JS.debug(s"navigating $n"))
 
 
 
@@ -106,14 +106,14 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
         }
       )
     }
-    currentPosition.observe(p => Log.Web.debug(s"current position is $p"))
+    currentPosition.observe(p => Log.JS.debug(s"current position is $p"))
 
     val fitType = navigationEvents.fold(0){
       case (_, Mode(i)) => i % 8
       case (i, _) => i
     }
 
-    targetStates.observe(s => Log.Web.debug(s"state: $s"))
+    targetStates.observe(s => Log.JS.debug(s"state: $s"))
 
 
     val currentData: Signal[Data] = Signal {
@@ -144,7 +144,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
       // for some reason, the leading # is not returned by getHash, when nothing follows
       if (h != u && !(u == "#" && h == "")) {
         dom.window.history.pushState(null, null, u)
-        Log.Web.debug(s"pushing history '$u' was '$h' length ${dom.window.history.length}")
+        Log.JS.debug(s"pushing history '$u' was '$h' length ${dom.window.history.length}")
       }
     }
 
@@ -181,7 +181,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
   def content(nar: Description): Signal[Contents] = {
     contents.getOrElseUpdate(nar.id, {
       val eventualContents = requestContents(nar.id).map(_.get)
-      eventualContents.onComplete(t => Log.Web.debug(s"received contents for ${nar.id} (sucessful: ${t.isSuccess})"))
+      eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${nar.id} (sucessful: ${t.isSuccess})"))
       Signals.fromFuture(eventualContents)
     })
   }
