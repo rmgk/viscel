@@ -4,13 +4,14 @@ import io.circe.Decoder
 import org.scalajs.dom
 import org.scalajs.dom.experimental.URL
 import org.scalajs.dom.html
+import org.scalajs.dom.html.Body
 import org.scalajs.dom.raw.HashChangeEvent
 import rescala._
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
-import viscel.shared.{Bindings, Contents, Description, Log, SharedImage}
+import viscel.shared.{Contents, Description, Log, SharedImage}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Definitions.{path_asset, path_front, path_main}
-import visceljs.render.View.{Mode, Next, Prev, navigationEvents}
+import visceljs.Navigation.{Mode, Next, Prev, navigationEvents}
 import visceljs.render.{Front, Index, View}
 import visceljs.visceltags._
 
@@ -25,8 +26,6 @@ import scalatags.JsDom.all.{body, stringFrag}
 
 
 class ReaderApp(requestContents: String => Future[Option[Contents]],
-                postBookmarkF: Bindings.SetBookmark => Future[Bindings.Bookmarks],
-                val hint: (Description, Boolean) => Unit,
                 val descriptions: Signal[Map[String, Description]],
                 val bookmarks: Signal[Map[String, Int]],
                ) {
@@ -38,16 +37,8 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
 
 
-  val manualStates: Evt[AppState] = Evt()
 
-
-  def makeBody: html.Body = {
-
-
-    lazy val actions = new Actions(this)
-    lazy val index = new Index(actions, bookmarks, descriptions)
-    lazy val front = new Front(actions)
-    lazy val view = new View(actions)
+  def makeBody(index: Index, front: Front, view: View, manualStates: Event[AppState]): Body = {
 
 
     def pathToState(path: String): AppState = {
@@ -158,7 +149,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
     val indexBody = index.gen()
     val frontBody = front.gen(currentData)
-    val viewBody = view.gen(currentData, fitType, View.navigate)
+    val viewBody = view.gen(currentData, fitType, Navigation.navigate)
 
 
     val bodyElement: html.Body = {
@@ -192,9 +183,5 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
       eventualContents.onComplete(t => Log.Web.debug(s"received contents for ${nar.id} (sucessful: ${t.isSuccess})"))
       Signals.fromFuture(eventualContents)
     })
-  }
-
-  def postBookmark(nar: Description, pos: Int): Unit = {
-    postBookmarkF(Some((nar, pos))).failed.foreach(e => Log.Web.error(s"posting bookmarks failed: $e"))
   }
 }

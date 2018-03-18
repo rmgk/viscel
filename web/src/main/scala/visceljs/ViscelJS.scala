@@ -6,6 +6,7 @@ import retier.communicator.ws.akka.WS
 import retier.registry.Registry
 import retier.transmitter.RemoteRef
 import viscel.shared._
+import visceljs.render.{Front, Index, View}
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -31,25 +32,31 @@ object ViscelJS {
           .foreach(e => Log.Web.error(s"sending hint failed: $e"))
 
       val descriptionFuture = registry.lookup(Bindings.descriptions, remote).apply()
-      val descriptions = Signals.fromFuture(descriptionFuture.map { desc => desc.map(n => n.id -> n).toMap})
+      val descriptions = Signals.fromFuture(descriptionFuture.map { desc => desc.map(n => n.id -> n).toMap })
       val bookmarks = Var.empty[Bindings.Bookmarks]
 
-      val postBookmarkF = {(set: Bindings.SetBookmark) => registry.lookup(Bindings.bookmarks, remote).apply(set).map { bms =>
-        bookmarks.set(bms)
-        bms
-      }}.andThen(fut => {fut.onComplete(r => Log.Web.debug(s"retrieved bookmarks successful: ${r.isSuccess}")); fut})
+      val postBookmarkF = { (set: Bindings.SetBookmark) =>
+        registry.lookup(Bindings.bookmarks, remote).apply(set).map { bms =>
+          bookmarks.set(bms)
+          bms
+        }
+      }.andThen(fut => {fut.onComplete(r => Log.Web.debug(s"retrieved bookmarks successful: ${r.isSuccess}")); fut})
 
 
       postBookmarkF(None)
 
+      val manualStates = Evt[AppState]()
 
+      val actions = new Actions(hint = hint, postBookmarkF = postBookmarkF, manualStates = manualStates)
+      val index = new Index(actions, bookmarks, descriptions)
+      val front = new Front(actions)
+      val view = new View(actions)
       val app = new ReaderApp(requestContents = requestContents,
-                              hint = hint,
                               descriptions = descriptions,
                               bookmarks = bookmarks,
-                              postBookmarkF = postBookmarkF)
+                              )
 
-      dom.document.body = app.makeBody
+      dom.document.body = app.makeBody(index, front, view, manualStates)
     }
   }
 

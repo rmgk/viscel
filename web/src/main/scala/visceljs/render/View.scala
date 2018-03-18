@@ -3,34 +3,14 @@ package visceljs.render
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import org.scalajs.dom.html.Body
-import org.scalajs.dom.raw.KeyboardEvent
 import rescala._
-import visceljs.render.View._
+import visceljs.Navigation._
 import visceljs.visceltags._
 import visceljs.{Actions, Data, Definitions, Icons, Make}
 
 import scalatags.JsDom
 import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title}
 import scalatags.JsDom.tags2.{article, section}
-
-object View {
-  sealed trait Navigate
-  case object Next extends Navigate
-  case object Prev extends Navigate
-  case class Mode(i: Int) extends Navigate
-
-
-  val handleKeypress = visceljs.visceltags.eventFromCallback[KeyboardEvent](dom.document.onkeydown = _)
-  val navigate = Evt[Navigate]
-  val keypressNavigations = handleKeypress.map(_.key).collect {
-    case "ArrowLeft" | "a" | "," => Prev
-    case "ArrowRight" | "d" | "." => Next
-    case n if n.matches("""^\d+$""") => Mode(n.toInt)
-  }
-
-  val navigationEvents: Event[Navigate] = keypressNavigations || navigate
-
-}
 
 
 class View(act: Actions) {
