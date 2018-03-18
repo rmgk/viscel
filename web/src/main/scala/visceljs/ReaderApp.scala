@@ -9,7 +9,7 @@ import rescala._
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import viscel.shared.{Bindings, Contents, Description, Log, SharedImage}
 import visceljs.Definitions.{path_asset, path_front, path_main}
-import visceljs.render.View.{Goto, Mode, Next, Prev, navigationEvents}
+import visceljs.render.View.{Mode, Next, Prev, navigationEvents}
 import visceljs.render.{Front, Index, View}
 import visceljs.visceltags._
 
@@ -18,6 +18,7 @@ import scala.collection.mutable
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.URIUtils.decodeURIComponent
+import scala.util.Try
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all.{body, stringFrag}
 
@@ -77,7 +78,6 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     val hashBasedStates = hashChange.map(hc => pathToState(new URL(hc.newURL).hash): @unchecked)
 
 
-
     val targetStates: Event[AppState] = hashBasedStates || manualStates
 
     val initialState = pathToState(getHash)
@@ -91,14 +91,24 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
     navigationEvents.observe(n => Log.Web.debug(s"navigating $n"))
 
+
+
+    val currentAppState: Signal[AppState] = targetStates.latest(initialState)
+
+    val unnormalizedData: Signal[Data] = currentAppState.map {
+      case FrontState(nar) => getDataSignal(nar)
+      case ViewState(id, _) => getDataSignal(id)
+      case _ => throw EmptySignalControlThrowable
+    }.flatten
+
     val currentPosition: Signal[Int] = Events.foldAll(initialPos) { (pos) =>
       Events.Match(
         navigationEvents >> {
-          case Prev if pos > 0 => pos - 1
-          case Next => pos + 1
-          case Prev | Next => pos
-          case Mode(n) => pos
-          case Goto(target) => target.pos
+          case Prev => math.max(pos - 1, 0)
+          case Next =>
+            val last = Try(unnormalizedData.now.gallery.size - 1).getOrElse(Int.MaxValue)
+            math.min(pos + 1, last)
+          case Mode(_) => pos
         },
         targetStates >> {
           case ViewState(_, p) => p
@@ -108,42 +118,40 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     }
     currentPosition.observe(p => Log.Web.debug(s"current position is $p"))
 
-    val currentAppState: Signal[AppState] = targetStates.latest(initialState)
 
 
     targetStates.observe(s => Log.Web.debug(s"state: $s"))
 
 
-    val currentData: Signal[Data] = {
-      val c = currentAppState.map {
-        case FrontState(nar) => getDataSignal(nar)
-        case ViewState(id, _) => getDataSignal(id)
-        case _ => throw EmptySignalControlThrowable
-      }.flatten
-      Signal {
-        c.value.atPos(currentPosition.value)
-      }
+    val currentData: Signal[Data] = Signal {
+      unnormalizedData.value.atPos(currentPosition.value)
     }
 
-    {
-      Signal.dynamic {
-        currentAppState.value match {
-          case IndexState => (path_main, "Viscel")
-          case FrontState(_) =>
-            val desc = currentData.value.description
-            (path_front(desc), desc.name)
-          case ViewState(_, _) =>
-            val data = currentData.value
-            (path_asset(data), s"${data.pos + 1} – ${data.description.name}")
-        }
-      }.observe { case (u, t) =>
-        dom.window.document.title = t
-        val h = getHash
-        // for some reason, the leading # is not returned by getHash, when nothing follows
-        if (h != u && !(u == "#" && h == "")) {
-          dom.window.history.pushState(null, null, u)
-          Log.Web.debug(s"pushing history '$u' was '$h' length ${dom.window.history.length}")
-        }
+    navigationEvents.map(e => e -> currentData()).observe { case (ev, data) =>
+      if (ev == Prev || ev == Next) {
+        dom.window.scrollTo(0, 0)
+      }
+      /*val pregen =*/ data.gallery.next(1).get.map(asst => Make.asset(asst, data).render)
+
+    }
+
+    Signal.dynamic {
+      currentAppState.value match {
+        case IndexState => (path_main, "Viscel")
+        case FrontState(_) =>
+          val desc = currentData.value.description
+          (path_front(desc), desc.name)
+        case ViewState(_, _) =>
+          val data = currentData.value
+          (path_asset(data), s"${data.pos + 1} – ${data.description.name}")
+      }
+    }.observe { case (u, t) =>
+      dom.window.document.title = t
+      val h = getHash
+      // for some reason, the leading # is not returned by getHash, when nothing follows
+      if (h != u && !(u == "#" && h == "")) {
+        dom.window.history.pushState(null, null, u)
+        Log.Web.debug(s"pushing history '$u' was '$h' length ${dom.window.history.length}")
       }
     }
 

@@ -18,7 +18,6 @@ object View {
   case object Next extends Navigate
   case object Prev extends Navigate
   case class Mode(i: Int) extends Navigate
-  case class Goto(data: Data) extends Navigate
 
 
   val handleKeypress = visceljs.visceltags.eventFromCallback[KeyboardEvent](dom.document.onkeydown = _)
@@ -30,15 +29,6 @@ object View {
   }
 
   val navigationEvents: Event[Navigate] = keypressNavigations || navigate
-
-
-  //  navigationEvents.map(e => e -> dataSignal()).observe { case (ev, data) =>
-  //    if (ev == Prev || ev == Next) {
-  //      act.scrollTop()
-  //    }
-  //    /*val pregen =*/ data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
-  //
-  //  }
 
 }
 
@@ -73,7 +63,7 @@ class View(act: Actions) {
           act.Tags.lcButton(act.gotoFront(data.description))(Icons.front, title := "back to front page"),
           Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
           act.Tags.lcButton(navigate.fire(Mode(data.fitType + 1)), Icons.modus, s" ${data.fitType % 8}", title := "cycle image display mode"),
-          act.Tags.postBookmark(data.pos + 1, data, d => navigate.fire(Goto(d)), Icons.bookmark, title := "save bookmark"),
+          act.Tags.postBookmark(data.pos + 1, data, _ => Unit, Icons.bookmark, title := "save bookmark"),
           a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin))(Icons.externalLink, title := "visit original page"),
           act.Tags.button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
       }.asFrag

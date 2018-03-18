@@ -11,20 +11,6 @@ import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, hr
 
 class Actions(app: ReaderApp) {
 
-//  val viewDispatchChangeE = Signal.dynamic {
-//    val nars = app.descriptions()
-//    val (id, pos) = ("VD_TwoKinds", 1)
-//    val nar = nars.getOrElse(id, throw EmptySignalControlThrowable)
-//    val content = app.content(nar): @unchecked
-//    val bm = app.bookmarks().getOrElse(nar.id, 0)
-//    View.Goto(Data(nar, content(), bm).move(_.first.next(pos - 1)))
-//  }.changed
-
-
-
-
-  def scrollTop() = dom.window.scrollTo(0, 0)
-
   def pushIndex(): Unit = dom.window.history.pushState(null, "main", path_main)
   def pushFront(nar: Description): Unit = dom.window.history.pushState(null, "front", path_front(nar))
   def pushView(data: Data): Unit = dom.window.history.pushState(null, "view", path_asset(data))
