@@ -5,7 +5,7 @@ import rescala._
 import viscel.shared.Description
 import visceljs.Definitions.link_tools
 import visceljs.visceltags._
-import visceljs.{Actions, Body, Make, SearchUtil}
+import visceljs.{Actions, Make, SearchUtil}
 
 import scala.collection.immutable.Map
 import scala.scalajs.js
@@ -18,9 +18,9 @@ class Index(actions: Actions, bookmarks: Signal[Map[String, Int]], descriptions:
 
   var inputQueryString = ""
 
-  def gen(): Body = {
+  def gen(): Signal[JsDom.TypedTag[html.Body]] = {
 
-    val fragS: Signal[JsDom.TypedTag[html.Body]] = rescala.reactives.Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
+    rescala.reactives.Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
 
       val bookmarkedNarrations: List[(Description, Int, Int)] =
         bookmarks.toList.flatMap { case (id, pos) =>
@@ -64,9 +64,6 @@ class Index(actions: Actions, bookmarks: Signal[Map[String, Int]], descriptions:
         Make.group(s"Bookmarks", actions, filteredIsCurrent),
         Make.group(s"Available", actions, filteredAvailable))
     }
-
-
-    Body(id = "index", title = Var("Viscel"), bodyTag = fragS)
   }
 
 

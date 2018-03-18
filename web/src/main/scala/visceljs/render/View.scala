@@ -2,12 +2,14 @@ package visceljs.render
 
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
+import org.scalajs.dom.html.Body
 import org.scalajs.dom.raw.KeyboardEvent
 import rescala._
 import visceljs.render.View._
 import visceljs.visceltags._
-import visceljs.{Actions, Body, Data, Definitions, Icons, Make}
+import visceljs.{Actions, Data, Definitions, Icons, Make}
 
+import scalatags.JsDom
 import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title}
 import scalatags.JsDom.tags2.{article, section}
 
@@ -30,14 +32,13 @@ object View {
   val navigationEvents: Event[Navigate] = keypressNavigations || navigate
 
 
-
-//  navigationEvents.map(e => e -> dataSignal()).observe { case (ev, data) =>
-//    if (ev == Prev || ev == Next) {
-//      act.scrollTop()
-//    }
-//    /*val pregen =*/ data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
-//
-//  }
+  //  navigationEvents.map(e => e -> dataSignal()).observe { case (ev, data) =>
+  //    if (ev == Prev || ev == Next) {
+  //      act.scrollTop()
+  //    }
+  //    /*val pregen =*/ data.gallery.next(1).get.map(asst => div(Make.asset(asst, data)).render)
+  //
+  //  }
 
 }
 
@@ -55,7 +56,7 @@ class View(act: Actions) {
     }
   }
 
-  def gen(dataSignal: Signal[Data], navigate: Evt[Navigate]): Body = {
+  def gen(dataSignal: Signal[Data], navigate: Evt[Navigate]): Signal[JsDom.TypedTag[Body]] = {
 
     val mainPart: Signal[Frag] = dataSignal.map[HtmlTag] { data =>
       data.gallery.get.fold[HtmlTag](p(s"loading image data …")) { asst =>
@@ -77,8 +78,7 @@ class View(act: Actions) {
           act.Tags.button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
       }.asFrag
 
-    Body(id = "view", title = dataSignal.map(data => s"${data.pos + 1} – ${data.description.name}"),
-         bodyTag = Signal{body(id := "view", mainSection, navigation)})
+    Signal {body(id := "view", mainSection, navigation)}
 
 
   }

@@ -2,10 +2,9 @@ package visceljs.render
 
 import org.scalajs.dom.html
 import rescala._
-import visceljs.visceltags._
 import viscel.shared.{ChapterPos, Contents, Gallery, SharedImage}
 import visceljs.Definitions.{class_chapters, class_preview}
-import visceljs.{Actions, Body, Data, Make}
+import visceljs.{Actions, Data, Make}
 
 import scala.annotation.tailrec
 import scalatags.JsDom
@@ -19,9 +18,8 @@ class Front(actions: Actions) {
 
   import actions.Tags._
 
-  def gen(dataS: Signal[Data]): Body = {
-
-    val fragS: Signal[JsDom.TypedTag[html.Body]] = dataS.map { data =>
+  def gen(dataS: Signal[Data]): Signal[JsDom.TypedTag[html.Body]] = {
+    dataS.map { data =>
       val Data(narration, Contents(gallery, chapters), bookmark, _) = data
 
       val top = h1(s"${narration.name} ($bookmark/${narration.size})")
@@ -68,10 +66,5 @@ class Front(actions: Actions) {
 
       body(id := "front", top, navigation, preview, chapterlist)
     }
-
-
-    Body(id = "front", title = dataS.map(_.description.name),
-         bodyTag = fragS)
-
   }
 }
