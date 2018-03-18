@@ -8,6 +8,7 @@ import org.scalajs.dom.raw.HashChangeEvent
 import rescala._
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import viscel.shared.{Bindings, Contents, Description, Log, SharedImage}
+import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.render.View.{Mode, Next, Prev, navigationEvents}
 import visceljs.render.{Front, Index, View}
@@ -35,10 +36,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
 
   private val contents: scala.collection.mutable.Map[String, Signal[Contents]] = mutable.Map()
 
-  sealed trait AppState
-  case object IndexState extends AppState
-  case class FrontState(id: String) extends AppState
-  case class ViewState(id: String, pos: Int) extends AppState
+
 
   val manualStates: Evt[AppState] = Evt()
 

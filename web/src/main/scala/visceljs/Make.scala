@@ -56,7 +56,7 @@ object Make {
       var cTotal = 0
       var cPos = 0
       es.foreach { case (desc, pos, unread) =>
-        val e = actions.Tags.link_front(desc, s"${desc.name}${if (unread == 0) "" else s" ($unread)"}",
+        val e = actions.link_front(desc, s"${desc.name}${if (unread == 0) "" else s" ($unread)"}",
           {if (desc.unknownNarrator) span(" ", Icons.archive, cls := "unlinked", title := "not linked to live sources") else frag()})
         elements.appendChild(li(e).render)
         if (unread > 0) cUnread += unread

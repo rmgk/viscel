@@ -54,7 +54,7 @@ class Index(actions: Actions, bookmarks: Signal[Map[String, Int]], descriptions:
         filteredHasNewPages().headOption.orElse(filteredIsCurrent().headOption).orElse(filteredAvailable().headOption).map(_._1)
       }
 
-      val callback: Signal[() => Boolean] = firstSelected map { sel => { () => sel.foreach(actions.gotoFront(_)); false } }
+      val callback: Signal[() => Boolean] = firstSelected map { sel => { () => sel.foreach(actions.gotoFront); false } }
 
       val searchForm = form(cls := "pure-form")(inputField, onsubmit := callback)
 
@@ -73,7 +73,7 @@ class Index(actions: Actions, bookmarks: Signal[Map[String, Int]], descriptions:
     val filteredS: Signal[List[Description]] = inputQuery.map(query => SearchUtil.search(query, narrations.map(n => n.name -> n)))
     filteredS.observe { desc =>
       results.innerHTML = ""
-      desc.foreach(nar => results.appendChild(li(actions.Tags.link_front(nar, nar.name)).render))
+      desc.foreach(nar => results.appendChild(li(actions.link_front(nar, nar.name)).render))
     }
 
     fieldset(legend("Search"), results)

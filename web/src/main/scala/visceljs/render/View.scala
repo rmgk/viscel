@@ -59,13 +59,13 @@ class View(act: Actions) {
       val data = dataSignal.value
       val ft = fitType.value
         Make.navigation(
-          act.Tags.button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
-          act.Tags.lcButton(act.gotoFront(data.description))(Icons.front, title := "back to front page"),
+          act.button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
+          act.lcButton(act.gotoFront(data.description))(Icons.front, title := "back to front page"),
           Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
-          act.Tags.lcButton(navigate.fire(Mode(ft + 1)), Icons.modus, s" $ft", title := "cycle image display mode"),
-          act.Tags.postBookmark(data.pos + 1, data, _ => Unit, Icons.bookmark, title := "save bookmark"),
+          act.lcButton(navigate.fire(Mode(ft + 1)), Icons.modus, s" $ft", title := "cycle image display mode"),
+          act.postBookmark(data.pos + 1, data, _ => Unit, Icons.bookmark, title := "save bookmark"),
           a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin))(Icons.externalLink, title := "visit original page"),
-          act.Tags.button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
+          act.button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
       }
 
     val mainSection = section(mainPart.asFrag)(onLeftClickPrevNext(navigate.fire))

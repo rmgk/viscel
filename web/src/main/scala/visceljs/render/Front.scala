@@ -16,7 +16,7 @@ import scalatags.JsDom.tags2.{article, section}
 
 class Front(actions: Actions) {
 
-  import actions.Tags._
+  import actions._
 
   def gen(dataS: Signal[Data]): Signal[JsDom.TypedTag[html.Body]] = {
     dataS.map { data =>
@@ -28,7 +28,7 @@ class Front(actions: Actions) {
         button_index("index"),
         button_asset(data.move(_.first))("first page"),
         Make.fullscreenToggle("fullscreen"),
-        postBookmark(0, data, _ => actions.gotoFront(data.description, scrolltop = false), "remove bookmark"),
+        postBookmark(0, data, _ => gotoFront(data.description), "remove bookmark"),
         postForceHint(narration, "force check"))
 
       val preview = {
