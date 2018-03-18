@@ -66,7 +66,7 @@ class View(act: Actions) {
     val mainSection = section(mainPart.asFrag)(onLeftClickPrevNext(navigate.fire))
 
     val navigation: Frag =
-      dataSignal.map { data =>
+      dataSignal.map[Frag] { data =>
         Make.navigation(
           act.Tags.button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
           act.Tags.lcButton(act.gotoFront(dataSignal, data.description))(Icons.front, title := "back to front page"),
