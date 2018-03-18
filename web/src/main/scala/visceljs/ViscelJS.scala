@@ -49,7 +49,7 @@ object ViscelJS {
                               bookmarks = bookmarks,
                               postBookmarkF = postBookmarkF)
 
-      dom.document.body = app.bodyElement
+      dom.document.body = app.makeBody
     }
   }
 

@@ -36,7 +36,6 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
   lazy val view = new View(actions)
 
 
-
   implicit val readAssets: Decoder[List[SharedImage]] = Predef.implicitly[Decoder[List[SharedImage]]]
 
   private val contents: scala.collection.mutable.Map[String, Signal[Contents]] = mutable.Map()
@@ -55,110 +54,114 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     }
   }
 
-  def pathToState(path: String): AppState = {
-    val paths = List(path.substring(1).split("/"): _*)
-    Log.Web.debug(s"get state for $paths")
-    paths match {
-      case Nil | "" :: Nil => IndexState
-      case encodedId :: Nil =>
-        val id = decodeURIComponent(encodedId)
-        FrontState(id)
-      case encodedId :: posS :: Nil =>
-        val id = decodeURIComponent(encodedId)
-        val pos = Integer.parseInt(posS)
-        ViewState(id, pos - 1)
-      case _ => IndexState
-    }
-  }
-
-  private def getHash = {
-    dom.window.location.hash
-  }
-
-  val hashChange: Event[HashChangeEvent] = visceltags.eventFromCallback[HashChangeEvent](dom.window.onhashchange = _)
-  hashChange.observe(hc => Log.Web.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
-
-  val hashBasedStates = hashChange.map(hc => pathToState(new URL(hc.newURL).hash): @unchecked)
-
-
   val manualStates: Evt[AppState] = Evt()
 
-  val targetStates: Event[AppState] = hashBasedStates || manualStates
 
-  navigationEvents.observe(n => Log.Web.debug(s"navigating $n"))
+  def makeBody: html.Body = {
 
-  val currentPosition: Signal[Int] = Events.foldAll(0) { (pos) =>
-    Events.Match(
-      navigationEvents >> {
-        case Prev if pos > 0 => pos - 1
-        case Next => pos + 1
-        case Prev | Next => pos
-        case Mode(n) => pos
-        case Goto(target) => target.pos
-      },
-      targetStates >> {
-        case ViewState(_, p) => p
-        case _ => pos
-      }
-    )
-  }
-
-  val currentAppState: Signal[AppState] = targetStates.latest(pathToState(getHash))
-
-
-  targetStates.observe(s => Log.Web.debug(s"state: $s"))
-
-
-  val navigateFrontEvt: Evt[Description] = Evt()
-  val navigateFront: Event[Description] = navigateFrontEvt
-
-  val currentData: Signal[Data] = {
-    val c = currentAppState.map {
-      case FrontState(nar) => getDataSignal(nar)
-      case ViewState(id, _) => getDataSignal(id)
-      case _ => throw EmptySignalControlThrowable
-    }.flatten
-    Signal {
-      c.value.atPos(currentPosition.value)
-    }
-  }
-
-  {
-    Signal.dynamic {
-      currentAppState.value match {
-        case IndexState => ("main", path_main)
-        case FrontState(_) => ("front", path_front(currentData.value.description))
-        case ViewState(_, _) => ("view", path_asset(currentData.value))
-      }
-    }.observe { case (n, u) =>
-      val h = getHash
-      // for some reason, the leading # is not returned by getHash, when nothing follows
-      if (h != u && !(u == "#" && h == "")) {
-        dom.window.history.pushState(null, n, u)
-        Log.Web.debug(s"pushing ${(n, u)} (hash was '$h') history has length ${dom.window.history.length}")
+    def pathToState(path: String): AppState = {
+      val paths = List(path.substring(1).split("/"): _*)
+      Log.Web.debug(s"get state for $paths")
+      paths match {
+        case Nil | "" :: Nil => IndexState
+        case encodedId :: Nil =>
+          val id = decodeURIComponent(encodedId)
+          FrontState(id)
+        case encodedId :: posS :: Nil =>
+          val id = decodeURIComponent(encodedId)
+          val pos = Integer.parseInt(posS)
+          ViewState(id, pos - 1)
+        case _ => IndexState
       }
     }
-  }
 
-  lazy val indexBody = index.gen()
-  lazy val frontBody = front.gen(currentData)
-  lazy val viewBody = view.gen(currentData, View.navigate)
-
-
-  val bodyElement: html.Body = {
-    // we hide everything in here, because printing the html.Body actually causes it to no longer display the inner
-    // rendered signals
-    val selectedBodySignal: Signal[Body] = currentAppState.map {
-      case IndexState => indexBody
-      case FrontState(_) => frontBody
-      case ViewState(_, _) => viewBody
+    def getHash: String = {
+      dom.window.location.hash
     }
-    selectedBodySignal.observe(s => Log.Web.debug(s"selected body: $s"))
-    val bodySignal: Signal[TypedTag[html.Body]] = selectedBodySignal.map(_.bodyTag).flatten
-    val bodyTag: Signal[TypedTag[html.Body]] = bodySignal
-      .withDefault(body("loading more data"))
-      .recover { case t => body(t.toString) }
-    bodyTag.asFrag.render
+
+    val hashChange: Event[HashChangeEvent] = visceltags.eventFromCallback[HashChangeEvent](dom.window.onhashchange = _)
+    hashChange.observe(hc => Log.Web.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
+
+    val hashBasedStates = hashChange.map(hc => pathToState(new URL(hc.newURL).hash): @unchecked)
+
+
+
+    val targetStates: Event[AppState] = hashBasedStates || manualStates
+
+    navigationEvents.observe(n => Log.Web.debug(s"navigating $n"))
+
+    val currentPosition: Signal[Int] = Events.foldAll(0) { (pos) =>
+      Events.Match(
+        navigationEvents >> {
+          case Prev if pos > 0 => pos - 1
+          case Next => pos + 1
+          case Prev | Next => pos
+          case Mode(n) => pos
+          case Goto(target) => target.pos
+        },
+        targetStates >> {
+          case ViewState(_, p) => p
+          case _ => pos
+        }
+      )
+    }
+
+    val currentAppState: Signal[AppState] = targetStates.latest(pathToState(getHash))
+
+
+    targetStates.observe(s => Log.Web.debug(s"state: $s"))
+
+
+    val currentData: Signal[Data] = {
+      val c = currentAppState.map {
+        case FrontState(nar) => getDataSignal(nar)
+        case ViewState(id, _) => getDataSignal(id)
+        case _ => throw EmptySignalControlThrowable
+      }.flatten
+      Signal {
+        c.value.atPos(currentPosition.value)
+      }
+    }
+
+    {
+      Signal.dynamic {
+        currentAppState.value match {
+          case IndexState => ("main", path_main)
+          case FrontState(_) => ("front", path_front(currentData.value.description))
+          case ViewState(_, _) => ("view", path_asset(currentData.value))
+        }
+      }.observe { case (n, u) =>
+        val h = getHash
+        // for some reason, the leading # is not returned by getHash, when nothing follows
+        if (h != u && !(u == "#" && h == "")) {
+          dom.window.history.pushState(null, n, u)
+          Log.Web.debug(s"pushing ${(n, u)} (hash was '$h') history has length ${dom.window.history.length}")
+        }
+      }
+    }
+
+    lazy val indexBody = index.gen()
+    lazy val frontBody = front.gen(currentData)
+    lazy val viewBody = view.gen(currentData, View.navigate)
+
+
+    val bodyElement: html.Body = {
+      // we hide everything in here, because printing the html.Body actually causes it to no longer display the inner
+      // rendered signals
+      val selectedBodySignal: Signal[Body] = currentAppState.map {
+        case IndexState => indexBody
+        case FrontState(_) => frontBody
+        case ViewState(_, _) => viewBody
+      }
+      selectedBodySignal.observe(s => Log.Web.debug(s"selected body: $s"))
+      val bodySignal: Signal[TypedTag[html.Body]] = selectedBodySignal.map(_.bodyTag).flatten
+      val bodyTag: Signal[TypedTag[html.Body]] = bodySignal
+        .withDefault(body("loading more data"))
+        .recover { case t => body(t.toString) }
+      bodyTag.asFrag.render
+    }
+
+    bodyElement
   }
 
 

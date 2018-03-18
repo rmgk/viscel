@@ -46,13 +46,10 @@ class Actions(app: ReaderApp) {
     gotoFront(app.getDataSignal(desc.id), desc)
   }
   def gotoFront(data: Signal[Data], description: Description, scrolltop: Boolean = false): Unit = {
-    //pushFront(description)
     app.manualStates.fire(app.FrontState(description.id))
   }
 
   def gotoView(data: Data, scrolltop: Boolean = true): Unit = {
-    //pushView(data)
-    app.setBody(app.viewBody, scrolltop)
     app.manualStates.fire(app.ViewState(data.description.id, data.pos))
   }
 
