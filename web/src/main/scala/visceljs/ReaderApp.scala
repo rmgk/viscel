@@ -106,6 +106,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
         }
       )
     }
+    currentPosition.observe(p => Log.Web.debug(s"current position is $p"))
 
     val currentAppState: Signal[AppState] = targetStates.latest(initialState)
 

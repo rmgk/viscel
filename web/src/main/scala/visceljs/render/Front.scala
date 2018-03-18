@@ -32,7 +32,7 @@ class Front(actions: Actions) {
         postForceHint(narration, "force check"))
 
       val preview = {
-        val preview1 = data.move(_.next(bookmark - 1).prev(2))
+        val preview1 = data.atPos(bookmark-3)
         val preview2 = preview1.next
         val preview3 = preview2.next
         section(class_preview)(
