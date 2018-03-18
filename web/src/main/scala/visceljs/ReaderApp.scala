@@ -38,16 +38,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
   case object IndexState extends AppState
   case class FrontState(id: String) extends AppState
   case class ViewState(id: String, pos: Int) extends AppState
-
-  def getDataSignal(id: String): Signal[Data] = {
-    Signal.dynamic {
-      val description = descriptions.value(id)
-      val bm = bookmarks().getOrElse(description.id, 0)
-      val cont = content(description): @unchecked
-      Data(description, cont.value, bm)
-    }
-  }
-
+  
   val manualStates: Evt[AppState] = Evt()
 
 
@@ -162,6 +153,14 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     bodyElement
   }
 
+  def getDataSignal(id: String): Signal[Data] = {
+    Signal.dynamic {
+      val description = descriptions.value(id)
+      val bm = bookmarks().getOrElse(description.id, 0)
+      val cont = content(description): @unchecked
+      Data(description, cont.value, bm)
+    }
+  }
 
   def content(nar: Description): Signal[Contents] = {
     contents.getOrElseUpdate(nar.id, {
@@ -170,7 +169,6 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
       Signals.fromFuture(eventualContents)
     })
   }
-
 
   def postBookmark(nar: Description, pos: Int): Unit = {
     postBookmarkF(Some((nar, pos))).failed.foreach(e => Log.Web.error(s"posting bookmarks failed: $e"))
