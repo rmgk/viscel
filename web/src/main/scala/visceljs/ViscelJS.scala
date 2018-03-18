@@ -54,6 +54,7 @@ object ViscelJS {
       val app = new ReaderApp(requestContents = requestContents,
                               descriptions = descriptions,
                               bookmarks = bookmarks,
+                              hint = hint
                               )
 
       dom.document.body = app.makeBody(index, front, view, manualStates)

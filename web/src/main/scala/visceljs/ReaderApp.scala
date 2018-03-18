@@ -29,6 +29,7 @@ import scalatags.JsDom.all.{body, stringFrag}
 class ReaderApp(requestContents: String => Future[Option[Contents]],
                 val descriptions: Signal[Map[String, Description]],
                 val bookmarks: Signal[Map[String, Int]],
+                hint: (Description, Boolean) => Unit
                ) {
 
 
@@ -179,6 +180,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
   }
 
   def content(nar: Description): Signal[Contents] = {
+    hint(nar, false)
     contents.getOrElseUpdate(nar.id, {
       val eventualContents = requestContents(nar.id).map(_.get)
       eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${nar.id} (sucessful: ${t.isSuccess})"))
