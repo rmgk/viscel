@@ -151,36 +151,38 @@ object Book {
     val pageMap: mutable.HashMap[Vurl, PageData] = mutable.HashMap[Vurl, PageData]()
     val blobMap: mutable.HashMap[Vurl, BlobData] = mutable.HashMap[Vurl, BlobData]()
 
-    val entries: ArrayBuffer[ScribeDataRow] = {
-
-      def putIfAbsent[A, B](hashMap: mutable.HashMap[A, B], k: A, v: B): Boolean = {
-        var res = false
-        hashMap.getOrElseUpdate(k, {res = true; v})
-        res
-      }
-
-      Log.info(s"reading $path")
-
-      val fileStream = Files.lines(path, StandardCharsets.UTF_8)
-      try {
-        fileStream.skip(1).collect(Collectors.toList()).asScala.view.zipWithIndex.reverseIterator.map { case (line, nr) =>
-          io.circe.parser.decode[ScribeDataRow](line) match {
-            case Right(s) => s
-            case Left(t) =>
-              Log.error(s"Failed to decode $path:${nr + 2}: $line")
-              throw t
-          }
-        }.filter {
-          case spage@PageData(il, _, _, _) => putIfAbsent(pageMap, il, spage)
-          case sblob@BlobData(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
-        }.to[ArrayBuffer].reverse
-      }
-      finally {
-        fileStream.close()
-      }
+    def putIfAbsent[A, B](hashMap: mutable.HashMap[A, B], k: A, v: B): Boolean = {
+      var res = false
+      hashMap.getOrElseUpdate(k, {res = true; v})
+      res
     }
-    val id = path.getFileName.toString
-    val name = io.circe.parser.decode[String](Files.lines(path).findFirst().get()).toTry.get
-    new Book(id, name, pageMap, blobMap, entries)
+
+    Log.info(s"reading $path")
+
+    val fileStream = Files.lines(path, StandardCharsets.UTF_8)
+    try {
+      val lines = fileStream.collect(Collectors.toList()).asScala
+      val name = io.circe.parser.decode[String](lines.head).toTry.get
+
+      val entries = lines.view.drop(1).zipWithIndex.reverseIterator.map { case (line, nr) =>
+        io.circe.parser.decode[ScribeDataRow](line) match {
+          case Right(s) => s
+          case Left(t) =>
+            Log.error(s"Failed to decode $path:${nr + 2}: $line")
+            throw t
+        }
+      }.filter {
+        case spage@PageData(il, _, _, _) => putIfAbsent(pageMap, il, spage)
+        case sblob@BlobData(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
+      }.to[ArrayBuffer].reverse
+
+      val id = path.getFileName.toString
+      new Book(id, name, pageMap, blobMap, entries)
+    }
+    finally {
+      fileStream.close()
+    }
+
+
   }
 }
