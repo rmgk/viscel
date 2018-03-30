@@ -53,7 +53,7 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   val extractID = """https://mangadex.org/manga/\d+/([^/]+)""".r
 
   override val wrap: WrapPart[List[MangadexNarrator]] =
-    Selection.unique("#content h3.panel-title").wrapOne { title =>
+    Selection.unique("#content > div:first-child h3.panel-title").wrapOne { title =>
       val extractID(id) = title.ownerDocument().baseUri()
       Good(MangadexNarrator(s"Mangadex_$id", s"[MD] ${title.text()}", title.ownerDocument().baseUri()) :: Nil)
     }
