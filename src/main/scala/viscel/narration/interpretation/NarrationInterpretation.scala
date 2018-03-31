@@ -50,7 +50,7 @@ object NarrationInterpretation {
         case AdditionalErrors(target, augmentation) => recurse(target).badMap(augmentation)
         case SelectionWrap(sel, fun) => applySelection(doc, sel).flatMap(fun)
         case Combine(left, right, fun) => withGood(recurse(left), recurse(right))(fun)
-        case s@Shuffle(_, _) => s.run(doc, link)
+        case Shuffle(target, fun) => recurse(target).map(fun)
         case LinkDataDecision(pred, isTrue, isFalse) => if (pred(link.data)) recurse(isTrue) else recurse(isFalse)
         case Focus(selection, continue) => recurse(selection).flatMap { listOfElements =>
           listOfElements.validatedBy(interpret(continue, _, link)).map(_.flatten)
@@ -99,10 +99,7 @@ object NarrationInterpretation {
   case class Alternative[+T](left: WrapPart[T], right: WrapPart[T]) extends WrapPart[T]
 
 
-  case class Shuffle[T, +U](target: WrapPart[T], fun: T => U) extends WrapPart[U] {
-    // need the inner run method so scala gets the types right, pattern match seems to dislike the T
-    def run(doc: Element, link: Link): Or[U, Every[Report]] = interpret(target, doc, link).map(fun)
-  }
+  case class Shuffle[T, +U](target: WrapPart[T], fun: T => U) extends WrapPart[U]
   object Shuffle {
     def of[T, U](target: WrapPart[T])(fun: T => U): Shuffle[T, U] = Shuffle(target, fun)
     def reverse[T](target: WrapPart[List[T]]): Shuffle[List[T], List[T]] = Shuffle(target, _.reverse)

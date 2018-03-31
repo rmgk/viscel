@@ -10,6 +10,81 @@
 -- archiveReverse: reverses the chapters in the archive (not the order of images)
 
 
+
+
+---------------------------------------------- DEAD ---
+
+-- -:Bizarre Uprising
+-- http://www.bizarreuprising.com/view/1/awakening-splash
+-- :i div.v_comic > div.v_comiccontent > img
+-- :n div.v_bottomnav > a:has(img[alt=next])
+
+-- -:Sakana no Sadness
+-- http://old.sakanacomic.com/archive/
+-- :am #leftside h2 , #leftside .pagebox a
+-- :i #comic-inner > img
+
+-- taken offline (commercialized)
+-- -:Amazing Agent Jennifer
+-- http://www.amazingagentjennifer.com/strips-aaj/a_beautiful_campus
+-- :ia #comic > a:nth-child(2) > img
+
+-- taken offline (commercialized)
+-- -:Amazing Agent Luna
+-- http://www.amazingagentluna.com/strips-aal/file_01_-_page_1
+-- :ia #comic > a:nth-child(2) > img
+
+-- taken offline (commercialized)
+-- -:Vampire Cheerleaders
+-- http://www.vampirecheerleaders.net/strips-vc/fang_service
+-- :i #comic img[src~=/comics/]
+-- :n a:has(#next_day1)
+
+-- taken offline (commercialized)
+-- -AoiHouse:AOI House
+-- http://www.aoihouse.net/strips-aoi/chewed_out
+-- :ia #comic > a:nth-child(2) > img
+
+-- taken offline (commercialized)
+-- -:Dracula Everlasting
+-- http://www.draculaeverlasting.com/strips-de/abraham_van_helsing_journal_i
+-- :ia #comic > a:nth-child(2) > img
+
+-- -Xylia:Xylia Tales
+-- http://xyliatales.com/?comic_id=0
+-- :ia #comic  img[src~=comics/\d{8}]
+
+-- -:Alpha Luna
+-- http://www.alphaluna.net/archive/
+-- :am #page > div.content > div > h2 , #page > div.content > div > ul > li > a
+-- :i #comic img
+
+-- technically not dead … but the page layout is super weird and I do not care enough to fix
+-- -:Bloop
+-- https://www.jhallcomics.com/bloop/2017/10/27/boop-boop-boop
+-- :i div.image-block-wrapper noscript img
+-- :n a:has(img[alt=forward])
+
+-- archivePage("NX_RedString", "Red String", "http://www.redstring.strawberrycomics.com/archive.php",
+--   Selection.many("#comicwrap h2 > a").wrapFlat(elementIntoChapterPointer),
+--   queryImageInAnchor("#comic")),
+
+-- -:Demon Aid
+-- http://demonaidcomic.com/index.php?id=14
+-- :ia #comic
+
+-- -:Erstwhile
+-- http://www.erstwhiletales.com/comicslist/
+-- :ac #content > div > div > div.entry a
+-- :ia #comic-1 img
+
+
+---------------------------------------------- NOT DEAD ---
+
+
+
+
+
 -:Rave Kitty
 http://ravekitty.comicgenesis.com/d/20040116.html
 :i img[src~=/comics/\d{8}]
@@ -60,11 +135,6 @@ http://carciphona.smackjeeves.com/archive/
 -:EGS Newspaper
 http://www.egscomics.com/egsnp.php?id=12
 :ia #comic
-
--:Erstwhile
-http://www.erstwhiletales.com/comicslist/
-:ac #content > div > div > div.entry a
-:ia #comic-1 img
 
 -:Ever Night
 http://evernightcomic.com/comic/chapter-0-page-1/
@@ -257,8 +327,8 @@ http://fern.junglestudio.com/comics/GC/index.php?date=2006-12-12
 
 -:Haiku Comics
 http://haikucomics.com/2009/01/14/haikuone/
-:i #comic-1 > img
-:n #comicinfo .nav-next a
+:i #featured-comic .entry-content img
+:n #featured-comic .nav-next a
 
 -:Memoriam
 http://memoriam.smackjeeves.com/comics/1080096/pg-1/
@@ -410,8 +480,8 @@ http://www.whompcomic.com/2010/06/14/06142010/
 
 -:Parallax
 http://www.parallaxcomic.com/comic/archive
-:ac .cc-storyline-header a[href~=comic/page]
-:ia #cc-comic
+:chapterArchive #archiveboxes a[href~=comic/page]
+:image+next #cc-comic
 
 -:The Lonely Vincent Bellingham
 http://www.lonelyvincent.com/lonelyvincent/archive
@@ -422,10 +492,6 @@ http://www.lonelyvincent.com/lonelyvincent/archive
 http://www.ohjoysextoy.com/introduction/
 :i #comic img
 :n #sidebar-overcomic a.navi.navi-next
-
--:Demon Aid
-http://demonaidcomic.com/index.php?id=14
-:ia #comic
 
 -:Mare Internvm
 http://www.marecomic.com/archive/
@@ -818,8 +884,8 @@ http://nmg.thecomicseries.com/archive/
 :i #comicimage, #comicimagewrap embed
 
 -:You Suck
-http://yousuckthecomic.com/go/1-legolas
-:ia img#cc-comic
+http://yousuck.sexy/1
+:ia img[src~=/comics/]
 
 -:Sandra on the Rocks
 http://www.sandraontherocks.com/strips-sotr/start_by_running
@@ -849,58 +915,8 @@ http://www.magickchicks.com/strips-mc/tis_but_a_trifle
 -- skip some broken pages
 :url_replace http://www.magickchicks.com/strips-mc/Illustration_special_by_Shouri ::: http://www.magickchicks.com/strips-mc/You_backstabbing_coward ::: http://www.magickchicks.com/strips-mc/Holiday_Special_Guest_Strip_by_Maritza_and_Bachan ::: http://www.magickchicks.com/strips-mc/Regain_your_energy ::: http://www.magickchicks.com/strips-mc/mc20120413a ::: http://www.magickchicks.com/strips-mc/Watch_your_buns ::: http://www.magickchicks.com/strips-mc/My_tum_tum ::: http://www.magickchicks.com/strips-mc/Holy_moley ::: http://www.magickchicks.com/strips-mc/dc20121220 ::: http://www.magickchicks.com/strips-mc/Wildly_out_of_character
 
-
-
----------------------------------------------- DEAD ---
-
--- -:Bizarre Uprising
--- http://www.bizarreuprising.com/view/1/awakening-splash
--- :i div.v_comic > div.v_comiccontent > img
--- :n div.v_bottomnav > a:has(img[alt=next])
-
-
--- -:Sakana no Sadness
--- http://old.sakanacomic.com/archive/
--- :am #leftside h2 , #leftside .pagebox a
--- :i #comic-inner > img
-
--- taken offline (commercialized)
--- -:Amazing Agent Jennifer
--- http://www.amazingagentjennifer.com/strips-aaj/a_beautiful_campus
--- :ia #comic > a:nth-child(2) > img
-
--- taken offline (commercialized)
--- -:Amazing Agent Luna
--- http://www.amazingagentluna.com/strips-aal/file_01_-_page_1
--- :ia #comic > a:nth-child(2) > img
-
--- taken offline (commercialized)
--- -:Vampire Cheerleaders
--- http://www.vampirecheerleaders.net/strips-vc/fang_service
--- :i #comic img[src~=/comics/]
--- :n a:has(#next_day1)
-
--- taken offline (commercialized)
--- -AoiHouse:AOI House
--- http://www.aoihouse.net/strips-aoi/chewed_out
--- :ia #comic > a:nth-child(2) > img
-
--- taken offline (commercialized)
--- -:Dracula Everlasting
--- http://www.draculaeverlasting.com/strips-de/abraham_van_helsing_journal_i
--- :ia #comic > a:nth-child(2) > img
-
--- -Xylia:Xylia Tales
--- http://xyliatales.com/?comic_id=0
--- :ia #comic  img[src~=comics/\d{8}]
-
--- -:Alpha Luna
--- http://www.alphaluna.net/archive/
--- :am #page > div.content > div > h2 , #page > div.content > div > ul > li > a
--- :i #comic img
-
--- technically not dead … but the page layout is super weird and I do not care enough to fix
--- -:Bloop
--- https://www.jhallcomics.com/bloop/2017/10/27/boop-boop-boop
--- :i div.image-block-wrapper noscript img
--- :n a:has(img[alt=forward])
+-NX_Skullkickers:Skull☠kickers
+http://comic.skullkickers.com/comic/archive
+:chapterArchive .cc-chapterrow a[href~=/comic/]
+:image #cc-comic , #cc-comicbody .cc-showbig img
+:next #comicleft .nav .next

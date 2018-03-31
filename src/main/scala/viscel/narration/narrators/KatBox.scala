@@ -29,7 +29,7 @@ object KatBox {
     ("peterandcompany", "Peter and Company", None),
     ("peterandwhitney", "Peter and Whitney", None),
     ("pmp", "Practice Makes Perfect", None),
-    ("rascals", "Rascals", None),
+    ("rascals", "Rascals", Some[Vurl]("http://rascals.katbox.net/rascals/")),
     ("theeye", "The Eye of Ramalach", None),
     ("tinaofthesouth", "Tina of the South", None),
     ("uberquest", "Uber Quest", None),
@@ -41,7 +41,8 @@ object KatBox {
         Decision(_.childNodeSize() == 0, Constant(Good(Nil)), {
 
           val vurl_? = Selection.wrapOne(Queries.extractURL)
-          val img_? = Selection.unique("img").wrapOne(i => ReportTools.extract(i.absUrl("src")))
+          // not awabanner2015 is a workaround for the rascals archives
+          val img_? = Selection.unique("img:not([src~=awabanner2015])").wrapOne(i => ReportTools.extract(i.absUrl("src")))
           Combine.of(img_?, vurl_?) { (img, vurl) =>
             List(ImageRef(
               ref = img.replaceFirst("-\\d+x\\d+\\.", "."),

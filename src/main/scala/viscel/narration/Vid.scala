@@ -37,7 +37,7 @@ object Vid {
     "n" -> "next",
     "am" -> "mixedArchive",
     "ac" -> "chapterArchive",
-  )
+    )
   def normalizeAttributeName(att: String): String = {
     attributeReplacements.getOrElse(att, att)
   }
@@ -68,13 +68,20 @@ object Vid {
     override def describe: String = s"${annotated.describe} in $path lines [${lines.map(_.p).mkString(", ")}]"
   }
 
+  private def generateID(id: String, name: String) =
+    if (id.matches("""^\w+\_.\w+""")) id
+    else "VD_" + (
+      if (id.nonEmpty) id
+      else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
+
+
   def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): NarratorADT Or ErrorMessage = {
-    val cid = "VD_" + (if (id.nonEmpty) id else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
+    val cid = generateID(id, name)
     type Wrap = Wrapper
 
     def has(keys: String*): Boolean = keys.forall(attrs.contains)
 
-    def annotate(f: Wrapper, lines: Line*): Option[Wrap] = Some(AdditionalErrors(f , _.map(AdditionalPosition(lines, path))))
+    def annotate(f: Wrapper, lines: Line*): Option[Wrap] = Some(AdditionalErrors(f, _.map(AdditionalPosition(lines, path))))
 
     val pageFun: Option[Wrap] = attrs match {
       case extract"image+next $img" => annotate(queryImageInAnchor(img.s), img)
@@ -98,7 +105,7 @@ object Vid {
 
     val (pageFunReplace, archFunReplace) = attrs match {
       case extract"url_replace $replacer" =>
-        val replacements: List[(String, String)] = replacer.s.split("\\s+:::\\s+").sliding(2, 2).map{case Array(a, b) => (a, b)}.toList
+        val replacements: List[(String, String)] = replacer.s.split("\\s+:::\\s+").sliding(2, 2).map { case Array(a, b) => (a, b) }.toList
         (pageFun.map(TransformUrls(_, replacements)), archFun.map(TransformUrls(_, replacements)))
       case _ => (pageFun, archFun)
     }

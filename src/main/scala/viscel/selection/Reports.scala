@@ -6,13 +6,14 @@ import org.scalactic.{Every, One, Or, attempt}
 import viscel.selection.ReportTools.show
 
 import scala.collection.immutable.Set
+import scala.collection.JavaConverters._
 
 trait Report {
   def describe: String
 }
 
 object ReportTools {
-  def show(element: Element) = s"${element.tag} #${element.id} .${element.classNames}"
+  def show(element: Element) = s"${element.tag} ${element.attributes().asScala.map(_.html()).mkString(" ")}"
   def augmentBad[G, B, C](res: G Or Every[B])(aug: B => C): G Or Every[C] = res.badMap(_.map(aug))
   def append[T, E](as: Or[List[T], Every[E]]*): Or[List[T], Every[E]] = combinable(as).combined.map(_.flatten.toList)
   def cons[T, E](a: T Or Every[E], b: List[T] Or Every[E]): Or[List[T], Every[E]] = withGood(a, b)(_ :: _)

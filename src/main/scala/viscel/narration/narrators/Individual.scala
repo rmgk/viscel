@@ -139,7 +139,7 @@ object Individual {
 
     LinkDataDecision(_.exists("archive" == _),
       Selection.many("table #number a").wrapFlat(elementIntoChapterPointer),
-      Decision(_.ownerDocument().baseUri() == "http://www.namirdeiter.com/comics/index.php?date=20020819", Constant(Good(Nil)),
+      Decision({_.ownerDocument().baseUri() == "http://www.yousayitfirst.com/"}, Constant(Good(Nil)),
         queryImageInAnchor("body > center > div.mainwindow > center:nth-child(2) > table center img"))))
 
 
@@ -178,9 +178,6 @@ object Individual {
         Append(combined, next_?)
       }),
     SimpleForward("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#cc-comic")),
-    archivePage("NX_Skullkickers", "Skull☠kickers", "http://comic.skullkickers.com/archive.php",
-      Selection.many("#sleft > h2 > a").wrapFlat(elementIntoChapterPointer),
-      queryImageInAnchor("#sleft img.ksc")),
     SimpleForward("NX_StickyDillyBuns", "Sticky Dilly Buns", "http://www.stickydillybuns.com/strips-sdb/awesome_leading_man",
       Alternative(queryImageInAnchor("#comic img"), queryNext("#cndnext"))),
     archivePage("NX_PennyAndAggie", "Penny & Aggie", "http://www.pennyandaggie.com/index.php?p=1",
@@ -200,9 +197,6 @@ object Individual {
     archivePage("NX_TodayNothingHappened", "Today Nothing Happened", "http://www.todaynothinghappened.com/archive.php",
       Selection.many("#wrapper > div.rant a.link").wrapEach(extractMore),
       queryImage("#comic > img")),
-    archivePage("NX_RedString", "Red String", "http://www.redstring.strawberrycomics.com/archive.php",
-      Selection.many("#comicwrap h2 > a").wrapFlat(elementIntoChapterPointer),
-      queryImageInAnchor("#comic")),
     SimpleForward("NX_Dreamless", "Dreamless", "http://dreamless.keenspot.com/d/20090105.html",
       Alternative(queryImageNext("img.ksc", "a:has(#next_day1)"),queryNext("a:has(#next_day1)"))),
     archivePage("NX_PhoenixRequiem", "The Phoenix Requiem", "http://requiem.seraph-inn.com/archives.html",
