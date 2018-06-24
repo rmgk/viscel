@@ -10,8 +10,8 @@ object Viscel {
 
   val port = Opts.option[Int]("port", help = "Weberver listening port.").withDefault(2358)
   val interface = Opts.option[String]("interface", metavar = "interface", help = "Interface to bind the server on.").withDefault("0")
-  val noserver = Opts.flag("noserver", "Do not start the server.").orFalse
-  val nocore = Opts.flag("nodownload", "Do not start the downloader.").orFalse
+  val server = Opts.flag("noserver", "Do not start the server.").orTrue
+  val core = Opts.flag("nodownload", "Do not start the downloader.").orTrue
   val optBasedir = Opts.option[Path]("basedir", short = "b", metavar = "directory",
     help = "Base directory to store settings and data.").withDefault(Paths.get("./data/"))
   val shutdown = Opts.flag("shutdown", "Shutdown directly.").orFalse
@@ -22,19 +22,19 @@ object Viscel {
     help = "Directory to store posts. Can be absolute, otherwise relative to basedir.").withDefault(Paths.get("./posts/"))
 
   val command = Command(name = "viscel", header = "Start viscel!") {
-    (optBasedir, port, interface, noserver, nocore, cleanblobs, optBlobdir, shutdown, optPostsdir).mapN {
-      (optBasedir, port, interface, noserver, nocore, cleanblobs, optBlobdir, shutdown, optPostsdir) =>
+    (optBasedir, port, interface, server, core, cleanblobs, optBlobdir, shutdown, optPostsdir).mapN {
+      (optBasedir, port, interface, server, core, cleanblobs, optBlobdir, shutdown, optPostsdir) =>
         val services = new Services(optBasedir, optBlobdir, optPostsdir, interface, port)
 
         if (cleanblobs) {
           services.replUtil.cleanBlobDirectory()
         }
 
-        if (!noserver) {
+        if (server) {
           services.startServer()
         }
 
-        if (!nocore) {
+        if (core) {
           services.clockwork.recheckPeriodically()
           services.activateNarrationHint()
         }
