@@ -54,6 +54,7 @@ class Clockwork(path: Path,
         log.info(s"[${narrator.id}] update complete")
         updateDates(narrator.id)
       }
+      fut.onComplete { _ => synchronized {if (running.isEmpty) System.gc()} }
     }
   }
 
