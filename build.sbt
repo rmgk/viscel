@@ -115,12 +115,13 @@ lazy val Libraries = new {
     "org.scalactic" %% "scalactic" % "3.0.5",
     "org.jsoup" % "jsoup" % "1.11.3",
     "com.monovore" %% "decline" % "0.4.1",
-    "org.scalatest" %% "scalatest" % "3.0.5" % "test",
-    "org.scalacheck" %% "scalacheck" % "1.14.0" % "test",
     "com.typesafe.akka" %% "akka-stream" % "2.5.13",
     ).++(
     Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.1.3")
-  ).map(_ exclude("org.scala-lang", "scala-reflect"))
+  ).map(_ exclude("org.scala-lang", "scala-reflect")).++(Seq(
+    "org.scalatest" %% "scalatest" % "3.0.5" % "test",
+    "org.scalacheck" %% "scalacheck" % "1.14.0" % "test",
+  ))
 
   lazy val js: Def.SettingsDefinition = libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.9.4",
