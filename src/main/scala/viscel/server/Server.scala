@@ -20,7 +20,6 @@ import viscel.scribe.Scribe
 import viscel.shared.Bindings
 import viscel.shared.Log.{Server => Log}
 import viscel.store.{BlobStore, NarratorCache, User, Users}
-import viscel.vitzen.VitzenPages
 import rescala.Event
 
 import scala.collection.immutable.Map
@@ -39,7 +38,6 @@ class Server(userStore: Users,
              system: ActorSystem,
              narratorCache: NarratorCache,
              postsPath: Path,
-             vitzen: VitzenPages,
              bookUpdates: Event[String]
             ) {
 
@@ -142,10 +140,6 @@ class Server(userStore: Users,
         getFromFile("web/target/web/sass/main/stylesheets/style.css.map") ~
           getFromResource("style.css.map")
       } ~
-      path("vitzen.css") {
-        getFromFile("web/target/web/sass/main/stylesheets/vitzen.css") ~
-          getFromResource("vitzen.css")
-      } ~
       path("js") {
         getFromFile("web/target/scala-2.12/web-opt.js") ~ getFromFile("web/target/scala-2.12/web-fastopt.js") ~
           getFromResource("web-opt.js") ~ getFromResource("web-fastopt.js")
@@ -200,19 +194,8 @@ class Server(userStore: Users,
       } ~
       path("tools") {
         complete(pages.toolsResponse)
-      } ~
-      pathPrefix("vitzen") {
-        path("") {
-          complete(vitzen.archive())
-        }~
-        path("posts" / Segments) { name =>
-          val path = name.filter(_ != "..").mkString("/")
-          if (path.endsWith("adoc"))
-            complete(vitzen.getContent(path))
-          else
-            getFromFile(postsPath.resolve(path).toFile)
-        }
       }
+
 
   def rejectNone[T](opt: => Option[T])(route: T => Route): Route = opt.map {route}.getOrElse(reject)
 }

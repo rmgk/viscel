@@ -9,13 +9,11 @@ import akka.http.scaladsl.server.{RouteResult, RoutingLog}
 import akka.http.scaladsl.settings.{ParserSettings, RoutingSettings}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.ActorMaterializer
-import org.asciidoctor.Asciidoctor
 import rescala.Evt
 import viscel.crawl.{Clockwork, RequestUtil}
 import viscel.narration.Narrator
 import viscel.server.{Server, ServerPages}
 import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users}
-import viscel.vitzen.{AsciiData, VitzenPages}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
@@ -60,11 +58,6 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
 
   lazy val requests = new RequestUtil(blobs, http)(executionContext, materializer)
 
-  /* ====== asciidoctor ====== */
-
-  lazy val asciidoctor: Asciidoctor = Asciidoctor.Factory.create()
-  lazy val asciiData: AsciiData = new AsciiData(asciidoctor, postsdir)
-
   /* ====== repl util extra tasks ====== */
 
   lazy val replUtil = new ReplUtil(this)
@@ -73,7 +66,6 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
   /* ====== main webserver ====== */
 
   lazy val serverPages = new ServerPages(scribe, narratorCache)
-  lazy val vitzenPages = new VitzenPages(asciiData, postsdir)
   lazy val server = new Server(userStore = userStore,
                                scribe = scribe,
                                blobStore = blobs,
@@ -85,7 +77,6 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
                                system = system,
                                narratorCache = narratorCache,
                                postsPath = postsdir,
-                               vitzen = vitzenPages,
                                bookUpdates = bookUpdates)
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
     RouteResult.route2HandlerFlow(server.route)(

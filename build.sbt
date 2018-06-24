@@ -115,7 +115,6 @@ lazy val Libraries = new {
     "org.scalactic" %% "scalactic" % "3.0.5",
     "org.jsoup" % "jsoup" % "1.11.3",
     "com.monovore" %% "decline" % "0.4.1",
-    "org.asciidoctor" % "asciidoctorj" % "1.5.6",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test",
     "org.scalacheck" %% "scalacheck" % "1.14.0" % "test",
     "com.typesafe.akka" %% "akka-stream" % "2.5.13",
@@ -127,6 +126,7 @@ lazy val Libraries = new {
     "org.scala-js" %%% "scalajs-dom" % "0.9.4",
     "de.tuda.stg" %%% "rescalatags" % rescalaVersion,
     "org.webjars.npm" % "purecss" % "1.0.0",
+    "org.webjars" % "font-awesome" % "5.0.13-2",
     )
 
 

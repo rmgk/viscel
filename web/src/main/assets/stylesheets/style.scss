@@ -1,6 +1,6 @@
 @import "lib/purecss/build/pure";
-@import "_font-awesome.scss";
-@import "_common/_animation";
+@import "lib/font-awesome/svg-with-js/css/fa-svg-with-js.css";
+@import "underline-animation";
 
 $font-color: rgb(198, 211, 195);
 $theme-color: #16982B;
