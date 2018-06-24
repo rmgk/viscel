@@ -2,9 +2,9 @@ package visceljs
 
 import org.scalajs.dom
 import rescala._
-import retier.communicator.ws.akka.WS
-import retier.registry.Registry
-import retier.transmitter.RemoteRef
+import loci.communicator.ws.akka.WS
+import loci.registry.Registry
+import loci.transmitter.RemoteRef
 import viscel.shared._
 import visceljs.render.{Front, Index, View}
 
@@ -24,7 +24,7 @@ object ViscelJS {
   def main(args: Array[String]): Unit = {
     dom.document.body = body("loading data …").render
     val registry = new Registry
-    val connection: Future[RemoteRef] = registry.request(WS(wsUri))
+    val connection: Future[RemoteRef] = registry.connect(WS(wsUri))
     connection.foreach { remote =>
       val requestContents = registry.lookup(Bindings.contents, remote)
       val hint: (Description, Boolean) => Unit =

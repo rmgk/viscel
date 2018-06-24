@@ -9,6 +9,8 @@ import org.scalajs.dom.raw.HashChangeEvent
 import rescala._
 import rescala.levelbased.SimpleStruct
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
+import scalatags.JsDom.TypedTag
+import scalatags.JsDom.all.{body, stringFrag}
 import viscel.shared.{Contents, Description, Log, SharedImage}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Definitions.{path_asset, path_front, path_main}
@@ -22,8 +24,6 @@ import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.URIUtils.decodeURIComponent
 import scala.util.Try
-import scalatags.JsDom.TypedTag
-import scalatags.JsDom.all.{body, stringFrag}
 
 
 class ReaderApp(requestContents: String => Future[Option[Contents]],
@@ -63,7 +63,8 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
       dom.window.location.hash
     }
 
-    val hashChange: Event[HashChangeEvent] = visceltags.eventFromCallback[HashChangeEvent, SimpleStruct](dom.window.onhashchange = _)
+    val hashChange: Event[HashChangeEvent] =
+      visceltags.eventFromCallback[HashChangeEvent, SimpleStruct](dom.window.onhashchange = _)
     hashChange.observe(hc => Log.JS.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
 
     val hashBasedStates = hashChange.map(hc => pathToState(new URL(hc.newURL).hash): @unchecked)
@@ -92,12 +93,12 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
       case _ => throw EmptySignalControlThrowable
     }.flatten
 
-    val currentPosition: Signal[Int] = Events.foldAll(initialPos) { (pos) =>
+    val currentPosition: Signal[Int] = Events.foldAll(initialPos) { pos =>
       Events.Match(
         navigationEvents >> {
           case Prev => math.max(pos - 1, 0)
           case Next =>
-            val last = Try(unnormalizedData.now.gallery.size - 1).getOrElse(Int.MaxValue)
+            val last = Try(unnormalizedData.readValueOnce.gallery.size - 1).getOrElse(Int.MaxValue)
             math.min(pos + 1, last)
           case Mode(_) => pos
         },

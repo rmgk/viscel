@@ -35,8 +35,8 @@ object visceltags extends lowPriorityimplicits {
 
 
     private class REFrag(rendered: Signal[Out, S], val observe: Observe[S], engine: Scheduler[S]) extends ResultFrag {
-      override def applyTo(t: Element): Unit = t.appendChild(rendered.now(engine))
-      override def render: Out = rendered.now(engine)
+      override def applyTo(t: Element): Unit = t.appendChild(rendered.readValueOnce(engine))
+      override def render: Out = rendered.readValueOnce(engine)
     }
   }
 

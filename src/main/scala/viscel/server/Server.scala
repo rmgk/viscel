@@ -11,8 +11,8 @@ import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionCont
 import akka.http.scaladsl.server.{Directive, Route}
 import org.scalactic.TypeCheckedTripleEquals._
 import rescala.Evt
-import retier.communicator.ws.akka._
-import retier.registry.Registry
+import loci.communicator.ws.akka._
+import loci.registry.Registry
 import viscel.ReplUtil
 import viscel.crawl.RequestUtil
 import viscel.narration.Narrator

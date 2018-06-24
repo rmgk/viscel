@@ -1,8 +1,8 @@
 package viscel.shared
 
 import io.circe.generic.auto._
-import retier.registry.Binding
-import retier.serializer.circe._
+import loci.registry.Binding
+import loci.serializer.circe._
 
 
 object Bindings {

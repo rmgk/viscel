@@ -1,38 +1,38 @@
 
 lazy val viscel = project.in(file("."))
-  .settings(
-    name := "viscel",
-    Settings.main,
-    Libraries.shared,
-    Libraries.main,
-    (Compile / compile) := ((Compile / compile) dependsOn (web / Compile / fastOptJS)).value,
-    Compile / compile := ((compile in Compile) dependsOn (web / Assets / SassKeys.sassify)).value,
-    (Compile / resources) += (web / Compile / fastOptJS / artifactPath).value,
-    (Compile / resources) ++= (web / Assets / SassKeys.sassify).value,
-    sharedSource,
-    )
-  .enablePlugins(JavaServerAppPackaging)
-  .dependsOn(shared % Provided)
+                  .settings(
+                    name := "viscel",
+                    Settings.main,
+                    Libraries.shared,
+                    Libraries.main,
+                    (Compile / compile) := ((Compile / compile) dependsOn (web / Compile / fastOptJS)).value,
+                    Compile / compile := ((compile in Compile) dependsOn (web / Assets / SassKeys.sassify)).value,
+                    (Compile / resources) += (web / Compile / fastOptJS / artifactPath).value,
+                    (Compile / resources) ++= (web / Assets / SassKeys.sassify).value,
+                    sharedSource,
+                    )
+                  .enablePlugins(JavaServerAppPackaging)
+                  .dependsOn(shared % Provided)
 
 lazy val web = project.in(file("web"))
-  .enablePlugins(ScalaJSPlugin)
-  .settings(
-    name := "web",
-    Settings.common,
-    Libraries.shared,
-    Libraries.js,
-    sharedSource,
-    scalaJSUseMainModuleInitializer := true,
-    )
-  .dependsOn(shared % Provided)
-  .enablePlugins(SbtSassify)
+               .enablePlugins(ScalaJSPlugin)
+               .settings(
+                 name := "web",
+                 Settings.common,
+                 Libraries.shared,
+                 Libraries.js,
+                 sharedSource,
+                 scalaJSUseMainModuleInitializer := true,
+                 )
+               .dependsOn(shared % Provided)
+               .enablePlugins(SbtSassify)
 
 lazy val shared = project.in(file("shared"))
-  .settings(
-    name := "shared",
-    Settings.common,
-    Libraries.shared,
-    )
+                  .settings(
+                    name := "shared",
+                    Settings.common,
+                    Libraries.shared,
+                    )
 
 lazy val sharedSource = (Compile / unmanagedSourceDirectories) += (shared / Compile / scalaSource).value
 
@@ -41,7 +41,7 @@ lazy val Settings = new {
 
   lazy val common: sbt.Def.SettingsDefinition = Seq(
 
-    scalaVersion := "2.12.4",
+    scalaVersion := "2.12.6",
 
     maxErrors := 10,
     shellPrompt := { state => Project.extract(state).currentRef.project + "> " },
@@ -89,64 +89,43 @@ lazy val Settings = new {
       //"-XX:+UseParallelOldGC",
       //"-XX:+UseConcMarkSweepGC",
       //"-XX:+PrintTenuringDistribution",
-      ),
-
-    (console / initialCommands) :=
-      """import akka.actor.{ ActorSystem, Props, Actor }
-        |import akka.io.IO
-        |import akka.util.Timeout
-        |import org.jsoup._
-        |import scala.collection.JavaConversions._
-        |import scala.concurrent._
-        |import scala.concurrent.duration._
-        |import scala.concurrent.ExecutionContext.Implicits.global
-        |import viscel._
-        |import viscel.server._
-        |import viscel.store._
-        |import viscel.ReplUtil
-        |import viscel.narration._
-        |import viscel.narration.narrators._
-      """.stripMargin)
+      ))
 
 }
 
 lazy val Libraries = new {
 
+  private val rescalaVersion = "0.23.0"
+
   lazy val shared: Def.SettingsDefinition = Seq(
     resolvers += Resolver.bintrayRepo("rmgk", "maven"),
     resolvers += Resolver.bintrayRepo("stg-tud", "maven"),
-    libraryDependencies ++= Seq(
+    libraryDependencies ++= (Seq(
       "de.rmgk" %%% "logging" % "0.2.1",
-      "de.tuda.stg" %%% "rescala" % "0.22.0",
-      "com.lihaoyi" %%% "scalatags" % "0.6.7",
-      "de.tuda.stg" %%% "retier-communication" % "0+",
-      "de.tuda.stg" %%% "retier-serializer-circe" % "0+",
-      // for websockets
-      "de.tuda.stg" %%% "retier-communicator-ws-akka" % "0+",
-      ).++(Seq(
-      "circe-core",
-      "circe-generic",
-      "circe-generic-extras",
-      "circe-parser",
-      ).map(n => "io.circe" %%% n % "0.9.2"))
-      .map(_ exclude("org.scala-lang", "scala-reflect"))
+      "de.tuda.stg" %%% "rescala" % rescalaVersion,
+      "com.lihaoyi" %%% "scalatags" % "0.6.7"
+    ) ++ Seq("communication", "communicator-ws-akka", "serializer-circe")
+         .map(n => "de.tuda.stg" %%% s"scala-loci-$n" % "0.2.0")
+      ++ Seq("core", "generic", "generic-extras", "parser")
+         .map(n => "io.circe" %%% s"circe-$n" % "0.9.3")
+      ).map(_ exclude("org.scala-lang", "scala-reflect"))
   )
 
   lazy val main: Def.SettingsDefinition = libraryDependencies ++= Seq(
     "org.scalactic" %% "scalactic" % "3.0.5",
-    "org.jsoup" % "jsoup" % "1.11.2",
+    "org.jsoup" % "jsoup" % "1.11.3",
     "com.monovore" %% "decline" % "0.4.1",
     "org.asciidoctor" % "asciidoctorj" % "1.5.6",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test",
-    "org.scalacheck" %% "scalacheck" % "1.13.5" % "test",
-    "com.typesafe.akka" %% "akka-stream" % "2.5.10",
+    "org.scalacheck" %% "scalacheck" % "1.14.0" % "test",
+    "com.typesafe.akka" %% "akka-stream" % "2.5.13",
     ).++(
-    Seq("akka-http-core", "akka-http" ).map(n => "com.typesafe.akka" %% n % "10.1.0"))
-    .map(_ exclude("org.scala-lang", "scala-reflect"))
+    Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.1.3")
+  ).map(_ exclude("org.scala-lang", "scala-reflect"))
 
   lazy val js: Def.SettingsDefinition = libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.9.4",
-    "de.tuda.stg" %%% "rescalatags" % "0.22.0",
+    "de.tuda.stg" %%% "rescalatags" % rescalaVersion,
     "org.webjars.npm" % "purecss" % "1.0.0",
     )
 
