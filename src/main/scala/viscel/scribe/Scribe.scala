@@ -9,7 +9,7 @@ import viscel.store.{DescriptionCache, Json}
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashSet
 import io.circe.syntax._
-import rescala.Evt
+import rescala.default.{Evt, implicitScheduler}
 import viscel.scribe.ScribePicklers._
 
 

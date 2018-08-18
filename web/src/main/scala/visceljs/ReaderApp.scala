@@ -6,8 +6,8 @@ import org.scalajs.dom.experimental.URL
 import org.scalajs.dom.html
 import org.scalajs.dom.html.Body
 import org.scalajs.dom.raw.HashChangeEvent
-import rescala._
-import rescala.levelbased.SimpleStruct
+import rescala.default._
+import rescala.levelbased.LevelStructImpl
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all.{body, stringFrag}
@@ -64,7 +64,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     }
 
     val hashChange: Event[HashChangeEvent] =
-      visceltags.eventFromCallback[HashChangeEvent, SimpleStruct](dom.window.onhashchange = _)
+      visceltags.eventFromCallback[HashChangeEvent, LevelStructImpl](dom.window.onhashchange = _)
     hashChange.observe(hc => Log.JS.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
 
     val hashBasedStates = hashChange.map(hc => pathToState(new URL(hc.newURL).hash): @unchecked)

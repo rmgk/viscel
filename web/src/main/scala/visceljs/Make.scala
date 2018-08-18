@@ -1,7 +1,7 @@
 package visceljs
 
 import org.scalajs.dom.html.UList
-import rescala.Signal
+import rescala.default.{Signal, implicitScheduler}
 import viscel.shared.{Blob, Description, SharedImage}
 import visceljs.Definitions._
 

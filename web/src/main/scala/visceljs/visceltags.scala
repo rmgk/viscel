@@ -24,7 +24,7 @@ object visceltags extends lowPriorityimplicits {
       * converts a Signal of a scalatags Tag to a scalatags Frag which automatically reflects changes to the signal in the dom
       */
     def asFrag(implicit ct: CreationTicket[S], engine: Scheduler[S]): ResultFrag = {
-      ct { creation => asFragInner(engine)(creation) }
+      ct.transaction { init => asFragInner(engine)(init) }
     }
 
     private def asFragInner(engine: Scheduler[S])(implicit creation: Initializer[S]): REFrag = {

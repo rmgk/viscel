@@ -9,10 +9,10 @@ import akka.http.scaladsl.server.Directives.{path, _}
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
 import akka.http.scaladsl.server.{Directive, Route}
-import org.scalactic.TypeCheckedTripleEquals._
-import rescala.Evt
 import loci.communicator.ws.akka._
 import loci.registry.Registry
+import org.scalactic.TypeCheckedTripleEquals._
+import rescala.default.{Event, Evt, implicitScheduler}
 import viscel.ReplUtil
 import viscel.crawl.RequestUtil
 import viscel.narration.Narrator
@@ -20,7 +20,6 @@ import viscel.scribe.Scribe
 import viscel.shared.Bindings
 import viscel.shared.Log.{Server => Log}
 import viscel.store.{BlobStore, NarratorCache, User, Users}
-import rescala.Event
 
 import scala.collection.immutable.Map
 import scala.collection.mutable

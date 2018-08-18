@@ -1,7 +1,7 @@
 package visceljs
 
 import org.scalajs.dom
-import rescala._
+import rescala.default._
 import loci.communicator.ws.akka.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef

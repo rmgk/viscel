@@ -3,7 +3,7 @@ package visceljs.render
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import org.scalajs.dom.html.Body
-import rescala._
+import rescala.default._
 import visceljs.Navigation._
 import visceljs.visceltags._
 import visceljs.{Actions, Data, Definitions, Icons, Make}

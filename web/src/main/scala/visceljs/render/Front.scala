@@ -1,7 +1,7 @@
 package visceljs.render
 
 import org.scalajs.dom.html
-import rescala._
+import rescala.default._
 import viscel.shared.{ChapterPos, Contents, Gallery, SharedImage}
 import visceljs.Definitions.{class_chapters, class_preview}
 import visceljs.{Actions, Data, Make}

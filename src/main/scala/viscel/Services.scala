@@ -9,7 +9,7 @@ import akka.http.scaladsl.server.{RouteResult, RoutingLog}
 import akka.http.scaladsl.settings.{ParserSettings, RoutingSettings}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.ActorMaterializer
-import rescala.Evt
+import rescala.default.{Evt,implicitScheduler}
 import viscel.crawl.{Clockwork, RequestUtil}
 import viscel.narration.Narrator
 import viscel.server.{Server, ServerPages}

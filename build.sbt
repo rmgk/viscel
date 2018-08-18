@@ -95,7 +95,7 @@ lazy val Settings = new {
 
 lazy val Libraries = new {
 
-  private val rescalaVersion = "0.23.0"
+  private val rescalaVersion = "0.24.0"
 
   lazy val shared: Def.SettingsDefinition = Seq(
     resolvers += Resolver.bintrayRepo("rmgk", "maven"),
@@ -115,9 +115,10 @@ lazy val Libraries = new {
     "org.scalactic" %% "scalactic" % "3.0.5",
     "org.jsoup" % "jsoup" % "1.11.3",
     "com.monovore" %% "decline" % "0.4.1",
-    "com.typesafe.akka" %% "akka-stream" % "2.5.13",
+    // akk http requires explicit dependency on akka-stream
+    "com.typesafe.akka" %% "akka-stream" % "2.5.14",
     ).++(
-    Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.1.3")
+    Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.1.4")
   ).map(_ exclude("org.scala-lang", "scala-reflect")).++(Seq(
     "org.scalatest" %% "scalatest" % "3.0.5" % "test",
     "org.scalacheck" %% "scalacheck" % "1.14.0" % "test",

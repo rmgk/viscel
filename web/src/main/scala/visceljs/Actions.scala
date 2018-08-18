@@ -1,7 +1,7 @@
 package visceljs
 
 import org.scalajs.dom.MouseEvent
-import rescala._
+import rescala.default._
 import viscel.shared.{Bindings, Description, Log}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Definitions.{class_button, class_button_disabled, path_asset, path_front}

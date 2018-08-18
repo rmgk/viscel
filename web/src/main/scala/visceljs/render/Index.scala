@@ -1,7 +1,7 @@
 package visceljs.render
 
 import org.scalajs.dom.html
-import rescala._
+import rescala.default._
 import viscel.shared.Description
 import visceljs.Definitions.link_tools
 import visceljs.visceltags._
