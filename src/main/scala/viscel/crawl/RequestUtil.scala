@@ -56,7 +56,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
           response.addHeader(Location.apply(
             extractResponseLocation(Vurl.fromUri(request.uri), response).uri)))
       }
-      else Future.failed(RequestException(request, response))
+      else Future.failed(RequestException(request.uri.toString(), response.status.toString()))
     }
   }
 

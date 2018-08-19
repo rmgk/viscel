@@ -59,8 +59,8 @@ class Clockwork(path: Path,
   }
 
   private def logError(narrator: Narrator): Throwable => Unit = {
-    case RequestException(request, response) =>
-      log.error(s"[${narrator.id}] error request: ${request.uri} failed: ${response.status}")
+    case RequestException(uri, status) =>
+      log.error(s"[${narrator.id}] error request: $uri failed: $status")
     case WrappingException(link, reports) =>
       log.error(
         s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
