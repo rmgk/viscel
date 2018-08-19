@@ -4,7 +4,7 @@ import java.nio.file.Path
 import java.util.{Timer, TimerTask}
 
 import viscel.narration.Narrator
-import viscel.scribe.Scribe
+import viscel.scribe.{Scribe, ScribeNarratorAdapter}
 import viscel.store.{BlobStore, Json, NarratorCache, Users}
 
 import scala.collection.immutable.Map
