@@ -36,7 +36,7 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
   def add(start: String, requestUtil: WebRequestInterface): Future[List[Narrator]] = {
     def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
-      requestUtil.get(VRequest.Text(url)).map { resp =>
+      requestUtil.get(VRequest.Text(url)(_ => Nil)).map { resp =>
         val nars = NarrationInterpretation.interpret(metarrator.wrap,
                                                      Jsoup.parse(resp.content, resp.location.uriString()),
                                                      Link(url)).get
