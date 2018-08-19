@@ -20,7 +20,7 @@ class Book private(val id: String,
                   ) {
 
   def add(entry: ScribeDataRow): Option[Int] = {
-    val index = entries.lastIndexWhere(_.matchesRef(entry))
+    val index = entries.lastIndexWhere(entry.matchesRef)
     if (index < 0 || entries(index).differentContent(entry)) {
       val addCount = entry match {
         case alp@PageData(il, _, _, _) =>

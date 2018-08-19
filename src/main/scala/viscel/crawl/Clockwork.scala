@@ -43,8 +43,7 @@ class Clockwork(path: Path,
   def runNarrator(narrator: Narrator, recheckInterval: Long): Unit = synchronized {
     if (!running.contains(narrator.id) && needsRecheck(narrator.id, recheckInterval)) {
 
-      val book = scribe.findOrCreate(narrator)
-      val crawl = new Crawl(narrator, book, scribe, requestUtil)(ec)
+      val crawl = new Crawl(narrator, scribe, requestUtil)(ec)
       running = running.updated(narrator.id, crawl)
       implicit val iec: ExecutionContext = ec
 
