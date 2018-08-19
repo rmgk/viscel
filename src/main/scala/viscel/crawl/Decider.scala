@@ -33,7 +33,7 @@ case class Decider(images: List[ImageRef],
   def tryNextImage(): (Decision, Decider) = {
     images match {
       case h :: t =>
-        (ImageD(h), copy(images = t,  imageDecisions = imageDecisions + 1))
+        (Decision.ImageD(h), copy(images = t, imageDecisions = imageDecisions + 1))
       case Nil =>
         tryNextLink()
     }
@@ -42,7 +42,7 @@ case class Decider(images: List[ImageRef],
   def tryNextLink(): (Decision, Decider) = {
     links match {
       case link :: t =>
-        (LinkD(link), copy(links = t))
+        (Decision.LinkD(link), copy(links = t))
       case Nil =>
         rightmostRecheck()
     }
@@ -57,7 +57,7 @@ case class Decider(images: List[ImageRef],
   def rightmostRecheck(): (Decision, Decider) = {
 
     val nextDecider = if (recheckStarted) this else {
-      if (imageDecisions > 0) return (Done, this)
+      if (imageDecisions > 0) return (Decision.Done, this)
       copy(
         recheckStarted = true,
         recheck = book.computeRightmostLinks()
@@ -66,13 +66,13 @@ case class Decider(images: List[ImageRef],
 
     if (rechecksDone == 0 || (rechecksDone == 1 && requestAfterRecheck > 1)) {
       nextDecider.recheck match {
-        case Nil => (Done, nextDecider.copy(rechecksDone = rechecksDone + 1))
+        case Nil => (Decision.Done, nextDecider.copy(rechecksDone = rechecksDone + 1))
         case link :: tail =>
-          (LinkD(link), nextDecider.copy(recheck = tail, rechecksDone = rechecksDone + 1))
+          (Decision.LinkD(link), nextDecider.copy(recheck = tail, rechecksDone = rechecksDone + 1))
       }
     }
     else {
-      (Done, nextDecider)
+      (Decision.Done, nextDecider)
     }
   }
 }

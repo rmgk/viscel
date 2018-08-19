@@ -37,9 +37,9 @@ class Crawl(narrator: Narrator,
   def interpret(decider: Decider): Future[Unit] = {
     val (decision, nextDecider) = decider.tryNextImage()
     decision match {
-      case ImageD(image) => handleImage(image).flatMap(_ => interpret(nextDecider))
-      case LinkD(link) => handleLink(link, nextDecider).flatMap(interpret)
-      case Done => Future.successful(())
+      case Decision.ImageD(image) => handleImage(image).flatMap(_ => interpret(nextDecider))
+      case Decision.LinkD(link) => handleLink(link, nextDecider).flatMap(interpret)
+      case Decision.Done => Future.successful(())
     }
   }
 
