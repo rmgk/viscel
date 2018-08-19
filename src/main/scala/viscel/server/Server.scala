@@ -14,7 +14,7 @@ import loci.registry.Registry
 import org.scalactic.TypeCheckedTripleEquals._
 import rescala.default.{Event, Evt, implicitScheduler}
 import viscel.ReplUtil
-import viscel.crawl.RequestUtil
+import viscel.crawl.{WebRequestInterface}
 import viscel.narration.Narrator
 import viscel.scribe.Scribe
 import viscel.shared.Bindings
@@ -29,7 +29,7 @@ import scala.util.{Failure, Success}
 class Server(userStore: Users,
              scribe: Scribe,
              blobStore: BlobStore,
-             requestUtil: RequestUtil,
+             requestUtil: WebRequestInterface,
              terminate: () => Unit,
              narratorHint: Evt[(Narrator, Boolean)],
              pages: ServerPages,

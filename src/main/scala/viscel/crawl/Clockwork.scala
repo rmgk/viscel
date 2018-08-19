@@ -5,7 +5,7 @@ import java.util.{Timer, TimerTask}
 
 import viscel.narration.Narrator
 import viscel.scribe.Scribe
-import viscel.store.{Json, NarratorCache, Users}
+import viscel.store.{BlobStore, Json, NarratorCache, Users}
 
 import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
@@ -14,7 +14,8 @@ import scala.concurrent.ExecutionContext
 class Clockwork(path: Path,
                 scribe: Scribe,
                 ec: ExecutionContext,
-                requestUtil: RequestUtil,
+                requestUtil: WebRequestInterface,
+                blobStore: BlobStore,
                 userStore: Users,
                 narratorCache: NarratorCache,
                ) {
@@ -43,7 +44,7 @@ class Clockwork(path: Path,
   def runNarrator(narrator: Narrator, recheckInterval: Long): Unit = synchronized {
     if (!running.contains(narrator.id) && needsRecheck(narrator.id, recheckInterval)) {
 
-      val crawl = new Crawl(narrator, scribe, requestUtil)(ec)
+      val crawl = new Crawl(narrator, scribe, blobStore, requestUtil)(ec)
       running = running.updated(narrator.id, crawl)
       implicit val iec: ExecutionContext = ec
 

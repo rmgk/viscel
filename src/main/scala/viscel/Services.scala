@@ -9,8 +9,8 @@ import akka.http.scaladsl.server.{RouteResult, RoutingLog}
 import akka.http.scaladsl.settings.{ParserSettings, RoutingSettings}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.ActorMaterializer
-import rescala.default.{Evt,implicitScheduler}
-import viscel.crawl.{Clockwork, RequestUtil}
+import rescala.default.{Evt, implicitScheduler}
+import viscel.crawl.{AkkaHttpRequester, Clockwork}
 import viscel.narration.Narrator
 import viscel.server.{Server, ServerPages}
 import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users}
@@ -56,7 +56,7 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
 
   /* ====== http requests ====== */
 
-  lazy val requests = new RequestUtil(blobs, http)(executionContext, materializer)
+  lazy val requests = new AkkaHttpRequester(http)(executionContext, materializer)
 
   /* ====== repl util extra tasks ====== */
 
@@ -98,8 +98,13 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
 
   /* ====== clockwork ====== */
 
-  lazy val clockwork: Clockwork = new Clockwork(cachedir.resolve("crawl-times.json"),
-                                                scribe, executionContext, requests, userStore, narratorCache)
+  lazy val clockwork: Clockwork = new Clockwork(path = cachedir.resolve("crawl-times.json"),
+                                                scribe = scribe,
+                                                ec = executionContext,
+                                                requestUtil = requests,
+                                                blobStore = blobs,
+                                                userStore = userStore,
+                                                narratorCache = narratorCache)
 
   def activateNarrationHint() = {
     narrationHint.observe { case (narrator, force) =>

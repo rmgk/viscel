@@ -2,7 +2,8 @@ package viscel.store
 
 import java.nio.file.Path
 
-import viscel.crawl.RequestUtil
+import org.jsoup.Jsoup
+import viscel.crawl.WebRequestInterface
 import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
 import viscel.narration.{Metarrator, Narrator, Narrators, Vid}
@@ -33,17 +34,18 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
   def loadNarrators[T](metarrator: Metarrator[T]): Set[NarratorADT] = load(metarrator).map(metarrator.toNarrator)
 
-  def add(start: String, requestUtil: RequestUtil): Future[List[Narrator]] = {
-    import requestUtil.ec
+  def add(start: String, requestUtil: WebRequestInterface): Future[List[Narrator]] = {
     def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
-      requestUtil.requestDocument(url).map { case (doc, _) =>
-        val nars = NarrationInterpretation.interpret(metarrator.wrap, doc, Link(url)).get
+      requestUtil.request(url).map { resp =>
+        val nars = NarrationInterpretation.interpret(metarrator.wrap,
+                                                     Jsoup.parse(resp.content, resp.location.uriString()),
+                                                     Link(url)).get
         synchronized {
           save(metarrator, nars ++ load(metarrator))
           updateCache()
           nars.map(metarrator.toNarrator)
         }
-      }
+      }(scala.concurrent.ExecutionContext.global)
 
     try {
       Narrators.metas.map(m => (m, m.unapply(start)))

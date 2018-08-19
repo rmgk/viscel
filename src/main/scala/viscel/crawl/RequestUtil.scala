@@ -9,19 +9,23 @@ import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Acce
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import viscel.narration.Narrator
-import viscel.narration.interpretation.NarrationInterpretation
-import viscel.scribe.{BlobData, Link, PageData, Vurl, WebContent}
-import viscel.shared.{Blob, Log}
-import viscel.store.BlobStore
+import viscel.scribe.Vurl
+import viscel.shared.Log
 
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 
+case class VResponse[T](content: T, location: Vurl, mime: String, lastModified: Option[Instant])
 
-class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionContext, materializer: Materializer) {
+trait WebRequestInterface {
+  def request(source: Vurl, origin: Option[Vurl] = None): Future[VResponse[String]]
+  def requestBlob(source: Vurl, origin: Option[Vurl] = None): Future[VResponse[Array[Byte]]]
+}
+
+
+class AkkaHttpRequester(ioHttp: HttpExt)
+                       (implicit val ec: ExecutionContext, materializer: Materializer)
+  extends WebRequestInterface {
 
   val timeout = FiniteDuration(300, SECONDS)
 
@@ -29,7 +33,7 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
     Deflate.decodeMessage(Gzip.decodeMessage(r)).toStrict(timeout)
   private def requestDecompressed(request: HttpRequest): Future[HttpResponse] =
     ioHttp.singleRequest(request.withHeaders(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)))
-      .flatMap(decompress)
+    .flatMap(decompress)
 
   def extractResponseLocation(base: Vurl, httpResponse: HttpResponse): Vurl =
     httpResponse.header[Location].fold(base)(l => Vurl.fromUri(l.uri.resolvedAgainst(base.uri)))
@@ -57,47 +61,35 @@ class RequestUtil(blobs: BlobStore, ioHttp: HttpExt)(implicit val ec: ExecutionC
   }
 
 
-  def request[R](source: Vurl, origin: Option[Vurl] = None): Future[HttpResponse] = {
+  private def requestInternal[R](source: Vurl, origin: Option[Vurl] = None): Future[VResponse[HttpResponse]] = {
     val req = HttpRequest(
       method = HttpMethods.GET,
       uri = source.uri,
       headers = origin.map(x => Referer.apply(x.uri)).toList)
-    requestWithRedirects(req)
+    requestWithRedirects(req).map{ resp =>
+      VResponse(resp,
+                location = extractResponseLocation(source, resp),
+                mime = resp.entity.contentType.mediaType.toString(),
+                lastModified = extractLastModified(resp))
+    }
   }
 
-  def requestDocument(source: Vurl): Future[(Document, HttpResponse)] =
-    for {
-      resp <- request(source)
-      html <- Unmarshal(resp).to[String]
-      location = extractResponseLocation(source, resp).uriString()
-      doc = Jsoup.parse(html, location)
-    } yield (doc, resp)
 
-  def requestBlob[R](source: Vurl, origin: Option[Vurl] = None): Future[BlobData] =
+  override def request(source: Vurl, origin: Option[Vurl]): Future[VResponse[String]] = {
     for {
-      res <- request(source, origin)
-      entity <- res.entity.toStrict(timeout) //should be strict already, but we do not know here
-      bytes = entity.data.toArray[Byte]
-      sha1 = blobs.write(bytes)
-    } yield
-      BlobData(source, extractResponseLocation(source, res),
-        blob = Blob(
-          sha1 = sha1,
-          mime = res.entity.contentType.mediaType.toString()),
-        date = extractLastModified(res).getOrElse(Instant.now()))
-
-  def requestPage(link: Link, narrator: Narrator): Future[PageData] =
-    for {
-      (doc, res) <- requestDocument(link.ref)
-      contents = NarrationInterpretation
-        .interpret[List[WebContent]](narrator.wrapper, doc, link)
-        .fold(identity, r => throw WrappingException(link, r))
-    } yield {
-      Log.Clockwork.trace(s"reqest page $link, yielding $contents")
-      PageData(link.ref, Vurl.fromString(doc.location()),
-        contents = contents,
-        date = extractLastModified(res).getOrElse(Instant.now()))
+      resp <- requestInternal(source)
+      html <- Unmarshal(resp.content).to[String]
     }
+      yield resp.copy(content = html)
+  }
+  override def requestBlob(source: Vurl, origin: Option[Vurl]): Future[VResponse[Array[Byte]]] = {
+    for {
+      resp <- requestInternal(source, origin)
+      entity <- resp.content.entity.toStrict(timeout) //should be strict already, but we do not know here
+    }
+      yield resp.copy(content = entity.data.toArray[Byte])
+
+  }
 
 
 }
