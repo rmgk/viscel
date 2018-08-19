@@ -31,39 +31,39 @@ class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobS
 
   def storeImage(response: VResponse[Array[Byte]]): List[VRequest] = {
 
-      val sha1 = blobStore.write(response.content)
-      val blob = BlobData(response.request.href, response.location,
-                          blob = Blob(
-                            sha1 = sha1,
-                            mime = response.mime),
-                          date = response.lastModified.getOrElse(Instant.now()))
+    val sha1 = blobStore.write(response.content)
+    val blob = BlobData(response.request.href, response.location,
+                        blob = Blob(
+                          sha1 = sha1,
+                          mime = response.mime),
+                        date = response.lastModified.getOrElse(Instant.now()))
 
-      scribe.addRowTo(book, blob)
-      Nil
-    }
+    scribe.addRowTo(book, blob)
+    Nil
+  }
 
 
   def storePage(link: Link)(response: VResponse[String]): List[VRequest] = {
 
-      val doc = Jsoup.parse(response.content, response.location.uriString())
+    val doc = Jsoup.parse(response.content, response.location.uriString())
 
-      val contents = NarrationInterpretation
-                     .interpret[List[WebContent]](narrator.wrapper, doc, link)
-                     .fold(identity, r => throw WrappingException(link, r))
+    val contents = NarrationInterpretation
+                   .interpret[List[WebContent]](narrator.wrapper, doc, link)
+                   .fold(identity, r => throw WrappingException(link, r))
 
 
-      Log.Clockwork.trace(s"request page ${response.location}, yielding $contents")
-      val page = PageData(response.request.href,
-                          Vurl.fromString(doc.location()),
-                          contents = contents,
-                          date = response.lastModified.getOrElse(Instant.now()))
+    Log.Clockwork.trace(s"request page ${response.location}, yielding $contents")
+    val page = PageData(response.request.href,
+                        Vurl.fromString(doc.location()),
+                        contents = contents,
+                        date = response.lastModified.getOrElse(Instant.now()))
 
-      scribe.addRowTo(book, page)
-      contents.collect {
-        case ir@ImageRef(_, _, _) if !book.hasBlob(ir.ref) => vreqFromImageRef(ir)
-        case l@Link(_, _, _) if !book.hasPage(l.ref)   => vreqFromLink(l)
-      }
+    scribe.addRowTo(book, page)
+    contents.collect {
+      case ir@ImageRef(_, _, _) if !book.hasBlob(ir.ref) => vreqFromImageRef(ir)
+      case l@Link(_, _, _) if !book.hasPage(l.ref) => vreqFromLink(l)
     }
+  }
 
 
 }
