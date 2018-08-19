@@ -15,11 +15,19 @@ import viscel.shared.Log
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 
-case class VResponse[T](content: T, location: Vurl, mime: String, lastModified: Option[Instant])
+sealed trait VRequest {
+  val href: Vurl
+  val origin: Option[Vurl]
+}
+object VRequest {
+  case class Text(href: Vurl, origin: Option[Vurl] = None)(val handler: VResponse[String] => List[VRequest]) extends VRequest
+  case class Blob(href: Vurl, origin: Option[Vurl] = None)(val handler: VResponse[Array[Byte]] => List[VRequest]) extends VRequest
+}
+case class VResponse[T](content: T, request: VRequest, location: Vurl, mime: String, lastModified: Option[Instant])
 
 trait WebRequestInterface {
-  def request(source: Vurl, origin: Option[Vurl] = None): Future[VResponse[String]]
-  def requestBlob(source: Vurl, origin: Option[Vurl] = None): Future[VResponse[Array[Byte]]]
+  def request(request: VRequest.Text): Future[VResponse[String]]
+  def request(request: VRequest.Blob): Future[VResponse[Array[Byte]]]
 }
 
 
@@ -61,35 +69,35 @@ class AkkaHttpRequester(ioHttp: HttpExt)
   }
 
 
-  private def requestInternal[R](source: Vurl, origin: Option[Vurl] = None): Future[VResponse[HttpResponse]] = {
+  private def requestInternal[R](request: VRequest): Future[VResponse[HttpResponse]] = {
     val req = HttpRequest(
       method = HttpMethods.GET,
-      uri = source.uri,
-      headers = origin.map(x => Referer.apply(x.uri)).toList)
+      uri = request.href.uri,
+      headers = request.origin.map(x => Referer.apply(x.uri)).toList)
     requestWithRedirects(req).map{ resp =>
       VResponse(resp,
-                location = extractResponseLocation(source, resp),
+                request,
+                location = extractResponseLocation(request.href, resp),
                 mime = resp.entity.contentType.mediaType.toString(),
                 lastModified = extractLastModified(resp))
     }
   }
 
 
-  override def request(source: Vurl, origin: Option[Vurl]): Future[VResponse[String]] = {
+  override def request(request: VRequest.Text): Future[VResponse[String]] = {
     for {
-      resp <- requestInternal(source)
+      resp <- requestInternal(request)
       html <- Unmarshal(resp.content).to[String]
     }
       yield resp.copy(content = html)
   }
-  override def requestBlob(source: Vurl, origin: Option[Vurl]): Future[VResponse[Array[Byte]]] = {
+
+  override def request(request: VRequest.Blob): Future[VResponse[Array[Byte]]] = {
     for {
-      resp <- requestInternal(source, origin)
+      resp <- requestInternal(request)
       entity <- resp.content.entity.toStrict(timeout) //should be strict already, but we do not know here
     }
       yield resp.copy(content = entity.data.toArray[Byte])
 
   }
-
-
 }

@@ -3,7 +3,7 @@ package viscel.store
 import java.nio.file.Path
 
 import org.jsoup.Jsoup
-import viscel.crawl.WebRequestInterface
+import viscel.crawl.{VRequest, WebRequestInterface}
 import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
 import viscel.narration.{Metarrator, Narrator, Narrators, Vid}
@@ -36,7 +36,7 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
   def add(start: String, requestUtil: WebRequestInterface): Future[List[Narrator]] = {
     def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
-      requestUtil.request(url).map { resp =>
+      requestUtil.request(VRequest.Text(url)).map { resp =>
         val nars = NarrationInterpretation.interpret(metarrator.wrap,
                                                      Jsoup.parse(resp.content, resp.location.uriString()),
                                                      Link(url)).get

@@ -5,60 +5,45 @@ import java.time.Instant
 import org.jsoup.Jsoup
 import viscel.narration.Narrator
 import viscel.narration.interpretation.NarrationInterpretation
-import viscel.scribe.{BlobData, Book, ImageRef, Link, PageData, Scribe, Vurl, WebContent}
+import viscel.scribe.{BlobData, ImageRef, Link, PageData, Scribe, Vurl, WebContent}
 import viscel.shared.{Blob, Log}
 import viscel.store.BlobStore
 
 import scala.concurrent.{ExecutionContext, Future}
 
+class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobStore) {
+  val book = scribe.findOrCreate(narrator)
 
-class Crawl(narrator: Narrator,
-            scribe: Scribe,
-            blobStore: BlobStore,
-            requestUtil: WebRequestInterface)
-           (implicit ec: ExecutionContext) {
+  private def vreqFromImageRef(ir: ImageRef): VRequest.Blob = VRequest.Blob(ir.ref, Some(ir.origin))(storeImage)
+  private def vreqFromLink(link: Link): VRequest.Text = VRequest.Text(link.ref, None)(storePage(link))
 
-  val book: Book = scribe.findOrCreate(narrator)
+  def missingBlobs(): List[VRequest.Blob] = book.emptyImageRefs().map(vreqFromImageRef)
+  def linksToCheck(): List[VRequest.Text] = book.volatileAndEmptyLinks().map(vreqFromLink)
+  def rechecks(): List[VRequest.Text] = book.computeRightmostLinks().map(vreqFromLink)
 
-  def start(): Future[Unit] = {
+  def init(): Unit = {
     val entry = book.beginning
     if (entry.isEmpty || entry.get.contents != narrator.archive) {
-      scribe
-      .addRowTo(book, PageData(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
-    }
-    val decider = Decider(
-      images = book.emptyImageRefs(),
-      links = book.volatileAndEmptyLinks(),
-      book = book)
-
-    interpret(decider)
-  }
-
-  def interpret(decider: Decider): Future[Unit] = {
-    val (decision, nextDecider) = decider.tryNextImage()
-    decision match {
-      case Decision.ImageD(image) => handleImage(image).flatMap(_ => interpret(nextDecider))
-      case Decision.LinkD(link) => handleLink(link, nextDecider).flatMap(interpret)
-      case Decision.Done => Future.successful(())
+      scribe.addRowTo(book,
+                      PageData(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
     }
   }
 
-  private def handleImage(image: ImageRef): Future[Unit] =
-    requestUtil.requestBlob(image.ref, Some(image.origin)).map { response =>
+  def storeImage(response: VResponse[Array[Byte]]): List[VRequest] = {
 
       val sha1 = blobStore.write(response.content)
-      val blob = BlobData(image.ref, response.location,
+      val blob = BlobData(response.request.href, response.location,
                           blob = Blob(
                             sha1 = sha1,
                             mime = response.mime),
                           date = response.lastModified.getOrElse(Instant.now()))
 
       scribe.addRowTo(book, blob)
+      Nil
     }
 
 
-  private def handleLink(link: Link, decider: Decider) =
-    requestUtil.request(link.ref) map { response =>
+  def storePage(link: Link)(response: VResponse[String]): List[VRequest] = {
 
       val doc = Jsoup.parse(response.content, response.location.uriString())
 
@@ -67,15 +52,53 @@ class Crawl(narrator: Narrator,
                      .fold(identity, r => throw WrappingException(link, r))
 
 
-      Log.Clockwork.trace(s"reqest page $link, yielding $contents")
-      val page = PageData(link.ref,
+      Log.Clockwork.trace(s"request page ${response.location}, yielding $contents")
+      val page = PageData(response.request.href,
                           Vurl.fromString(doc.location()),
                           contents = contents,
                           date = response.lastModified.getOrElse(Instant.now()))
 
       scribe.addRowTo(book, page)
-      decider.addContents(contents)
+      contents.collect {
+        case ir@ImageRef(_, _, _) => vreqFromImageRef(ir)
+        case l@Link(_, _, _) => vreqFromLink(l)
+      }
     }
 
+
+}
+
+class Crawl(graph: ScribeNarratorAdapter,
+            requestUtil: WebRequestInterface)
+           (implicit ec: ExecutionContext) {
+
+  def start(): Future[Unit] = {
+    graph.init()
+
+    val decider = Decider(
+      images = graph.missingBlobs(),
+      links = graph.linksToCheck(),
+      recheck = graph.rechecks()
+    )
+
+    interpret(decider)
+  }
+
+  def interpret(decider: Decider): Future[Unit] = {
+    val (decision, nextDecider) = decider.tryNextImage()
+    decision match {
+      case Some(image@VRequest.Blob(_, _)) =>
+        requestUtil.request(image).flatMap { response =>
+          val requests = image.handler(response)
+          interpret(decider.addContents(requests))
+        }
+      case Some(link@VRequest.Text(_, _)) =>
+        requestUtil.request(link).flatMap { response =>
+          val requests = link.handler(response)
+          interpret(decider.addContents(requests))
+        }
+      case None => Future.successful(())
+    }
+  }
 
 }
