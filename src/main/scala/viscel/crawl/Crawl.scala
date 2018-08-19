@@ -22,7 +22,7 @@ class Crawl(narrator: Narrator,
     if (entry.isEmpty || entry.get.contents != narrator.archive) {
       scribe.addRowTo(book, PageData(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
     }
-    val decider = new Decider(
+    val decider = Decider(
       images = book.emptyImageRefs(),
       links = book.volatileAndEmptyLinks(),
       book = book)
@@ -31,10 +31,10 @@ class Crawl(narrator: Narrator,
   }
 
   def interpret(decider: Decider): Future[Unit] = {
-    val decision = decider.tryNextImage()
+    val (decision, nextDecider) = decider.tryNextImage()
     decision match {
-      case ImageD(image) => handleImage(image).flatMap(_ => interpret(decider))
-      case LinkD(link) => handleLink(link, decider).flatMap(_ => interpret(decider))
+      case ImageD(image) => handleImage(image).flatMap(_ => interpret(nextDecider))
+      case LinkD(link) => handleLink(link, nextDecider).flatMap(interpret)
       case Done => Future.successful(())
     }
   }
@@ -44,8 +44,8 @@ class Crawl(narrator: Narrator,
 
   private def handleLink(link: Link, decider: Decider) =
     requestUtil.requestPage(link, narrator) map { page =>
-      decider.addContents(page.contents)
       scribe.addRowTo(book, page)
+      decider.addContents(page.contents)
     }
 
 
