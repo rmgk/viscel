@@ -26,8 +26,8 @@ object VRequest {
 case class VResponse[T](content: T, request: VRequest, location: Vurl, mime: String, lastModified: Option[Instant])
 
 trait WebRequestInterface {
-  def request(request: VRequest.Text): Future[VResponse[String]]
-  def request(request: VRequest.Blob): Future[VResponse[Array[Byte]]]
+  def get(request: VRequest.Text): Future[VResponse[String]]
+  def get(request: VRequest.Blob): Future[VResponse[Array[Byte]]]
 }
 
 
@@ -84,7 +84,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
   }
 
 
-  override def request(request: VRequest.Text): Future[VResponse[String]] = {
+  override def get(request: VRequest.Text): Future[VResponse[String]] = {
     for {
       resp <- requestInternal(request)
       html <- Unmarshal(resp.content).to[String]
@@ -92,7 +92,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
       yield resp.copy(content = html)
   }
 
-  override def request(request: VRequest.Blob): Future[VResponse[Array[Byte]]] = {
+  override def get(request: VRequest.Blob): Future[VResponse[Array[Byte]]] = {
     for {
       resp <- requestInternal(request)
       entity <- resp.content.entity.toStrict(timeout) //should be strict already, but we do not know here

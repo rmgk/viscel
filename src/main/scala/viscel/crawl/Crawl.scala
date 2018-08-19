@@ -24,12 +24,12 @@ class Crawl(graph: ScribeNarratorAdapter,
     val (decision, nextDecider) = decider.tryNextImage()
     decision match {
       case Some(image@VRequest.Blob(_, _)) =>
-        requestUtil.request(image).flatMap { response =>
+        requestUtil.get(image).flatMap { response =>
           val requests = image.handler(response)
           interpret(nextDecider.addContents(requests))
         }
       case Some(link@VRequest.Text(_, _)) =>
-        requestUtil.request(link).flatMap { response =>
+        requestUtil.get(link).flatMap { response =>
           val requests = link.handler(response)
           interpret(nextDecider.addContents(requests))
         }
