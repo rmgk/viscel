@@ -60,8 +60,8 @@ class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobS
 
       scribe.addRowTo(book, page)
       contents.collect {
-        case ir@ImageRef(_, _, _) => vreqFromImageRef(ir)
-        case l@Link(_, _, _) => vreqFromLink(l)
+        case ir@ImageRef(_, _, _) if !book.hasBlob(ir.ref) => vreqFromImageRef(ir)
+        case l@Link(_, _, _) if !book.hasPage(l.ref)   => vreqFromLink(l)
       }
     }
 
