@@ -90,12 +90,12 @@ class Crawl(graph: ScribeNarratorAdapter,
       case Some(image@VRequest.Blob(_, _)) =>
         requestUtil.request(image).flatMap { response =>
           val requests = image.handler(response)
-          interpret(decider.addContents(requests))
+          interpret(nextDecider.addContents(requests))
         }
       case Some(link@VRequest.Text(_, _)) =>
         requestUtil.request(link).flatMap { response =>
           val requests = link.handler(response)
-          interpret(decider.addContents(requests))
+          interpret(nextDecider.addContents(requests))
         }
       case None => Future.successful(())
     }
