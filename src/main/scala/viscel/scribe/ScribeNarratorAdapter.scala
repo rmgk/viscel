@@ -3,7 +3,7 @@ package viscel.scribe
 import java.time.Instant
 
 import org.jsoup.Jsoup
-import viscel.crawl.{VRequest, VResponse, WrappingException}
+import viscel.crawl.{CrawlTask, VRequest, VResponse, WrappingException}
 import viscel.narration.Narrator
 import viscel.narration.interpretation.NarrationInterpretation
 import viscel.shared.{Blob, Log}
@@ -12,12 +12,11 @@ import viscel.store.BlobStore
 class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobStore) {
   val book = scribe.findOrCreate(narrator)
 
-  private def vreqFromImageRef(ir: ImageRef): VRequest.Blob = VRequest.Blob(ir.ref, Some(ir.origin))(storeImage)
-  private def vreqFromLink(link: Link): VRequest.Text = VRequest.Text(link.ref, None)(storePage(link))
+  private def imageRefTask(ir: ImageRef): CrawlTask.Image = CrawlTask.Image(VRequest(ir.ref, Some(ir.origin)))
+  private def linkTask(link: Link): CrawlTask.Page = CrawlTask.Page(VRequest(link.ref, None), link)
 
-  def missingBlobs(): List[VRequest.Blob] = book.emptyImageRefs().map(vreqFromImageRef)
-  def linksToCheck(): List[VRequest.Text] = book.volatileAndEmptyLinks().map(vreqFromLink)
-  def rechecks(): List[VRequest.Text] = book.computeRightmostLinks().map(vreqFromLink)
+  def initialTasks(): List[CrawlTask] = book.emptyImageRefs().map(imageRefTask) ::: book.volatileAndEmptyLinks().map(linkTask)
+  def rechecks(): List[CrawlTask] = book.computeRightmostLinks().map(linkTask)
 
   def init(): Unit = {
     val entry = book.beginning
@@ -41,7 +40,7 @@ class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobS
   }
 
 
-  def storePage(link: Link)(response: VResponse[String]): List[VRequest] = {
+  def storePage(link: Link)(response: VResponse[String]): List[CrawlTask] = {
 
     val doc = Jsoup.parse(response.content, response.location.uriString())
 
@@ -58,8 +57,8 @@ class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobS
 
     scribe.addRowTo(book, page)
     contents.collect {
-      case ir@ImageRef(_, _, _) if !book.hasBlob(ir.ref) => vreqFromImageRef(ir)
-      case l@Link(_, _, _) if !book.hasPage(l.ref) => vreqFromLink(l)
+      case ir@ImageRef(_, _, _) if !book.hasBlob(ir.ref) => imageRefTask(ir)
+      case l@Link(_, _, _) if !book.hasPage(l.ref) => linkTask(l)
     }
   }
 

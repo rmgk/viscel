@@ -69,7 +69,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
   }
 
 
-  override def get(request: VRequest.Text): Future[VResponse[String]] = {
+  override def getString(request: VRequest): Future[VResponse[String]] = {
     for {
       resp <- requestInternal(request)
       html <- Unmarshal(resp.content).to[String]
@@ -77,7 +77,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
       yield resp.copy(content = html)
   }
 
-  override def get(request: VRequest.Blob): Future[VResponse[Array[Byte]]] = {
+  override def getBytes(request: VRequest): Future[VResponse[Array[Byte]]] = {
     for {
       resp <- requestInternal(request)
       entity <- resp.content.entity.toStrict(timeout) //should be strict already, but we do not know here

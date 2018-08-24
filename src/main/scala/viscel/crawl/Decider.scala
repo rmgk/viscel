@@ -1,35 +1,36 @@
 package viscel.crawl
 
-case class Decider(images: List[VRequest.Blob],
-                   links: List[VRequest.Text],
-                   recheck: List[VRequest.Text] = Nil,
+
+case class Decider(images: List[CrawlTask] = Nil,
+                   links: List[CrawlTask] = Nil,
+                   recheck: List[CrawlTask] = Nil,
                    requestAfterRecheck: Int = 0,
                    imageDecisions: Int = 0,
                    rechecksDone: Int = 0,
                    recheckStarted: Boolean = false,
                   ) {
 
-  type Decision = Option[VRequest]
-  def Done: Option[Nothing] = None
+  import scala.{None => Done}
+  type Decision = Option[CrawlTask]
 
   /** Adds the contents to the current decision pool.
     * Does some recheck logic, see [[rightmostRecheck]].
-    * Adds everything in a left to right order, so downloads happen as users would read.
-    * Does filter already contained content. */
-  def addContents(contents: List[VRequest]): Decider = {
+    * Adds everything in a left to right order, so downloads happen as users would read. */
+  def addTasks(toAdd: List[CrawlTask]): Decider = {
     val nextDecider = if (recheckStarted) {
-      copy(requestAfterRecheck = requestAfterRecheck + (if (contents.isEmpty && requestAfterRecheck == 0) 2 else 1))
+      copy(requestAfterRecheck = requestAfterRecheck + (if (toAdd.isEmpty && requestAfterRecheck == 0) 2 else 1))
     } else this
 
-    contents.reverse.foldLeft(nextDecider) {
-      case (dec, link@VRequest.Text(_, _)) => dec.copy(links = link :: links)
-      case (dec, art@VRequest.Blob(_, _)) => dec.copy(images = art :: images)
+    toAdd.reverse.foldLeft(nextDecider) {
+      case (dec, ct@CrawlTask.Page(_, _)) => dec.copy(links = ct :: links)
+      case (dec, art@CrawlTask.Image(_)) => dec.copy(images = art :: images)
       case (dec, _) => dec
     }
   }
 
+  def decide(): (Decision, Decider) = tryNextImage()
 
-  def tryNextImage(): (Decision, Decider) = {
+  private def tryNextImage(): (Decision, Decider) = {
     images match {
       case h :: t =>
         (Some(h), copy(images = t, imageDecisions = imageDecisions + 1))
@@ -38,7 +39,7 @@ case class Decider(images: List[VRequest.Blob],
     }
   }
 
-  def tryNextLink(): (Decision, Decider) = {
+  private def tryNextLink(): (Decision, Decider) = {
     links match {
       case link :: t =>
         (Some(link), copy(links = t))
@@ -53,7 +54,7 @@ case class Decider(images: List[VRequest.Blob],
     *   - Initializes the path to the rightmost child elements starting from the root.
     * Checks one or two layers deep, depending on weather we find anything in the last layer.
     * If we find nothing, then we check no further (there was something there before, why is it gone?) */
-  def rightmostRecheck(): (Decision, Decider) = {
+  private def rightmostRecheck(): (Decision, Decider) = {
 
     if (!recheckStarted && (imageDecisions > 0) ) return (Done, this)
 

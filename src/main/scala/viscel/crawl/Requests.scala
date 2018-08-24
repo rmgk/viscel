@@ -6,17 +6,11 @@ import viscel.scribe.Vurl
 
 import scala.concurrent.Future
 
-sealed trait VRequest {
-  val href: Vurl
-  val origin: Option[Vurl]
-}
-object VRequest {
-  case class Text(href: Vurl, origin: Option[Vurl] = None)(val handler: VResponse[String] => List[VRequest]) extends VRequest
-  case class Blob(href: Vurl, origin: Option[Vurl] = None)(val handler: VResponse[Array[Byte]] => List[VRequest]) extends VRequest
-}
+case class VRequest(href: Vurl, origin: Option[Vurl] = None)
 case class VResponse[T](content: T, request: VRequest, location: Vurl, mime: String, lastModified: Option[Instant])
 
 trait WebRequestInterface {
-  def get(request: VRequest.Text): Future[VResponse[String]]
-  def get(request: VRequest.Blob): Future[VResponse[Array[Byte]]]
+  def getString(request: VRequest): Future[VResponse[String]]
+  def getBytes(request: VRequest): Future[VResponse[Array[Byte]]]
 }
+
