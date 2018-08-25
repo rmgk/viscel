@@ -10,7 +10,7 @@ import viscel.shared.{Blob, Log}
 import viscel.store.BlobStore
 
 class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobStore) {
-  val book = scribe.findOrCreate(narrator)
+  @volatile private var book: Book = scribe.findOrCreate(narrator)
 
   private def imageRefTask(ir: ImageRef): CrawlTask.Image = CrawlTask.Image(VRequest(ir.ref, Some(ir.origin)))
   private def linkTask(link: Link): CrawlTask.Page = CrawlTask.Page(VRequest(link.ref, None), link)
@@ -21,7 +21,7 @@ class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobS
   def init(): Unit = {
     val entry = book.beginning
     if (entry.isEmpty || entry.get.contents != narrator.archive) {
-      scribe.addRowTo(book,
+      book = scribe.addPageTo(book,
                       PageData(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
     }
   }
@@ -35,7 +35,7 @@ class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobS
                           mime = response.mime),
                         date = response.lastModified.getOrElse(Instant.now()))
 
-    scribe.addRowTo(book, blob)
+    book = scribe.addImageTo(book, blob)
     Nil
   }
 
@@ -55,7 +55,7 @@ class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobS
                         contents = contents,
                         date = response.lastModified.getOrElse(Instant.now()))
 
-    scribe.addRowTo(book, page)
+    book = scribe.addPageTo(book, page)
     contents.collect {
       case ir@ImageRef(_, _, _) if !book.hasBlob(ir.ref) => imageRefTask(ir)
       case l@Link(_, _, _) if !book.hasPage(l.ref) => linkTask(l)

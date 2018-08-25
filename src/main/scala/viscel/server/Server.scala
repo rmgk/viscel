@@ -5,16 +5,16 @@ import java.nio.file.Path
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenges}
-import akka.http.scaladsl.server.Directives.{path, _}
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
 import akka.http.scaladsl.server.{Directive, Route}
 import loci.communicator.ws.akka._
 import loci.registry.Registry
 import org.scalactic.TypeCheckedTripleEquals._
-import rescala.default.{Event, Evt, implicitScheduler}
+import rescala.default.{Evt, implicitScheduler}
 import viscel.ReplUtil
-import viscel.crawl.{WebRequestInterface}
+import viscel.crawl.WebRequestInterface
 import viscel.narration.Narrator
 import viscel.scribe.Scribe
 import viscel.shared.Bindings
@@ -37,7 +37,6 @@ class Server(userStore: Users,
              system: ActorSystem,
              narratorCache: NarratorCache,
              postsPath: Path,
-             bookUpdates: Event[String]
             ) {
 
   val userSocketCache: mutable.Map[String, Route] = mutable.Map.empty

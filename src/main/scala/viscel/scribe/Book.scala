@@ -12,40 +12,29 @@ import scala.collection.mutable
 
 case class Book(id: String,
                 name: String,
-                pagetre: Map[Vurl, PageData],
+                pages: Map[Vurl, PageData],
                 blobs: Map[Vurl, BlobData],
                ) {
 
+  def addBlob(blob: BlobData): Book = copy(blobs = blobs.updated(blob.ref, blob))
 
-  def add(entry: ScribeDataRow): Option[Int] = { ???
-//    val index = entries.lastIndexWhere(entry.matchesRef)
-//    if (index < 0 || entries(index).differentContent(entry)) {
-//      val addCount = entry match {
-//        case alp@PageData(il, _, _, _) =>
-//          pageMap.put(il, alp)
-//          val oldCount = if (index < 0) 0 else {
-//            assert(entries(index).isInstanceOf[PageData], s"entries matching page data $alp matches ${entries(index)}")
-//            entries(index).asInstanceOf[PageData].articleCount
-//          }
-//          Option(alp.articleCount - oldCount)
-//        case alb@BlobData(il, _, _, _) =>
-//          blobMap.put(il, alb)
-//          Option(0)
-//      }
-//      if (index >= 0) entries.remove(index)
-//      entries += entry
-//      addCount
-//    }
-//    else None
+  def addPage(entry: PageData): (Book, Option[Int]) = {
+    val oldPage = pages.get(entry.ref)
+    if (oldPage.isEmpty || oldPage.get.differentContent(entry)) {
+      val newBook = copy(pages = pages.updated(entry.ref, entry))
+      val oldCount = oldPage.fold(0)(_.articleCount)
+      (newBook, Some(entry.articleCount - oldCount))
+    }
+    else (this, None)
   }
 
-  def beginning: Option[PageData] = pagetre.get(Vurl.entrypoint)
-  def hasPage(ref: Vurl): Boolean = pagetre.contains(ref)
+  def beginning: Option[PageData] = pages.get(Vurl.entrypoint)
+  def hasPage(ref: Vurl): Boolean = pages.contains(ref)
   def hasBlob(ref: Vurl): Boolean = blobs.contains(ref)
 
 
   private def pageContents: Iterator[WebContent] = {
-    pagetre.valuesIterator.flatMap(_.contents)
+    pages.valuesIterator.flatMap(_.contents)
   }
 
   def emptyImageRefs(): List[ImageRef] = pageContents.collect {
@@ -85,7 +74,7 @@ case class Book(id: String,
         case Nil => acc
         case h :: t => h match {
           case Link(loc, policy, data) =>
-            pagetre.get(loc) match {
+            pages.get(loc) match {
               case None => flatten(t, acc)
               case Some(alp) => flatten(unseen(alp.contents) reverse_::: t, acc)
             }
@@ -128,7 +117,7 @@ object Recheck {
       next match {
         case None => acc
         case Some(link) =>
-          book.pagetre.get(link.ref) match {
+          book.pages.get(link.ref) match {
             case None => link :: acc
             case Some(scribePage) =>
               rightmost(scribePage, link :: acc)

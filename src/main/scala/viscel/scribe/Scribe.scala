@@ -1,19 +1,20 @@
 package viscel.scribe
 
-import java.nio.file.{Files, Path, StandardOpenOption}
+import java.nio.file.{Files, Path}
 
+import better.files.File
+import io.circe.syntax._
 import viscel.narration.Narrator
+import viscel.scribe.ScribePicklers._
 import viscel.shared.Description
 import viscel.store.{DescriptionCache, Json}
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashSet
-import io.circe.syntax._
-import rescala.default.{Evt, implicitScheduler}
-import viscel.scribe.ScribePicklers._
+import scala.scalajs.niocharset.StandardCharsets
 
 
-class Scribe(basedir: Path, descriptionCache: DescriptionCache, updated: Evt[String]) {
+class Scribe(basedir: Path, descriptionCache: DescriptionCache) {
 
   /** creates a new book able to add new pages */
   def findOrCreate(narrator: Narrator): Book = synchronized(find(narrator.id).getOrElse {create(narrator)})
@@ -62,17 +63,27 @@ class Scribe(basedir: Path, descriptionCache: DescriptionCache, updated: Evt[Str
     }.to[HashSet]
   }
 
-  def addRowTo(book: Book, scribeDataRow: ScribeDataRow) = synchronized {
-    book.add(scribeDataRow) match {
+
+  def addImageTo(book: Book, blobData: BlobData): Book = synchronized {
+    writeScribeDataRow(book, blobData)
+    book.addBlob(blobData)
+  }
+
+  def addPageTo(book: Book, pageData: PageData): Book = synchronized {
+    val (newBook, written) = book.addPage(pageData)
+    written match {
       case None =>
       case Some(i) =>
         descriptionCache.updateSize(book.id, i)
-        Files.write(bookpath(book.id), List(scribeDataRow.asJson.noSpaces).asJava, StandardOpenOption.APPEND)
-        updated.fire(book.id)
+        writeScribeDataRow(book, pageData)
     }
+    newBook
+  }
+
+  private def writeScribeDataRow(book: Book, blobData: ScribeDataRow) = {
+    File(bookpath(book.id)).appendLine(blobData.asJson.noSpaces)(charset = StandardCharsets.UTF_8)
   }
 
   private def bookpath(id: String) = basedir.resolve(id)
-
 
 }
