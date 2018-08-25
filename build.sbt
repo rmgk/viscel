@@ -34,6 +34,12 @@ lazy val shared = project.in(file("shared"))
                     Libraries.shared,
                     )
 
+lazy val benchmarks = project.in(file("benchmarks"))
+                      .settings(name := "benchmarks",
+                                Settings.common)
+                      .enablePlugins(JmhPlugin)
+                      .dependsOn(viscel)
+
 lazy val sharedSource = (Compile / unmanagedSourceDirectories) += (shared / Compile / scalaSource).value
 
 
@@ -114,6 +120,7 @@ lazy val Libraries = new {
   lazy val main: Def.SettingsDefinition = libraryDependencies ++= Seq(
     "org.scalactic" %% "scalactic" % "3.0.5",
     "org.jsoup" % "jsoup" % "1.11.3",
+    "com.github.pathikrit"  %% "better-files"  % "3.6.0",
     "com.monovore" %% "decline" % "0.4.1",
     // akk http requires explicit dependency on akka-stream
     "com.typesafe.akka" %% "akka-stream" % "2.5.14",
