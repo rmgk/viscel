@@ -1,13 +1,12 @@
 package viscel.scribe
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
-import java.util.stream.Collectors
+import java.nio.file.Path
 
+import better.files.File
 import viscel.scribe.ScribePicklers._
 import viscel.shared.Log.{Scribe => Log}
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -160,30 +159,29 @@ object Book {
 
     Log.info(s"reading $path")
 
-    val fileStream = Files.lines(path, StandardCharsets.UTF_8)
-    try {
-      val lines = fileStream.collect(Collectors.toList()).asScala
-      val name = io.circe.parser.decode[String](lines.head).toTry.get
+    val (name: String, entries: ArrayBuffer[ScribeDataRow]) = loadEntries(path)
 
-      val entries = lines.view.drop(1).zipWithIndex.reverseIterator.map { case (line, nr) =>
-        io.circe.parser.decode[ScribeDataRow](line) match {
-          case Right(s) => s
-          case Left(t) =>
-            Log.error(s"Failed to decode $path:${nr + 2}: $line")
-            throw t
-        }
-      }.filter {
-        case spage@PageData(il, _, _, _) => putIfAbsent(pageMap, il, spage)
-        case sblob@BlobData(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
-      }.to[ArrayBuffer].reverse
+    val filtered = entries.reverseIterator.filter {
+      case spage@PageData(il, _, _, _) => putIfAbsent(pageMap, il, spage)
+      case sblob@BlobData(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
+    }.to[ArrayBuffer].reverse
 
-      val id = path.getFileName.toString
-      new Book(id, name, pageMap, blobMap, entries)
-    }
-    finally {
-      fileStream.close()
-    }
+    val id = path.getFileName.toString
+    new Book(id, name, pageMap, blobMap, filtered)
+  }
 
+  def loadEntries(path: Path): (String, ArrayBuffer[ScribeDataRow]) = {
+    val lines = File(path).lineIterator(StandardCharsets.UTF_8)
+    val name = io.circe.parser.decode[String](lines.next()).toTry.get
 
+    val entries = lines.zipWithIndex.map { case (line, nr) =>
+      io.circe.parser.decode[ScribeDataRow](line) match {
+        case Right(s) => s
+        case Left(t) =>
+          Log.error(s"Failed to decode $path:${nr + 2}: $line")
+          throw t
+      }
+    }.to[ArrayBuffer]
+    (name, entries)
   }
 }
