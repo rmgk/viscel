@@ -80,21 +80,8 @@ lazy val Settings = new {
     fork := true,
 
     javaOptions ++= Seq(
-      "-verbose:gc",
-      "-XX:+PrintGCDetails",
-      //"-Xverify:none",
-      //"-server",
-      //"-Xms16m",
-      //"-Xmx256m",
-      //"-Xss1m",
-      //"-XX:MinHeapFreeRatio=5",
-      //"-XX:MaxHeapFreeRatio=10",
-      //"-XX:NewRatio=12",
-      //"-XX:+UseSerialGC",
-      //"-XX:+UseParallelGC",
-      //"-XX:+UseParallelOldGC",
-      //"-XX:+UseConcMarkSweepGC",
-      //"-XX:+PrintTenuringDistribution",
+//      "-verbose:gc",
+//      "-XX:+PrintGCDetails",
       ))
 
 }
