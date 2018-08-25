@@ -8,102 +8,65 @@ import viscel.scribe.ScribePicklers._
 import viscel.shared.Log.{Scribe => Log}
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 
-class Book private(val id: String,
-                   val name: String,
-                   pageMap: mutable.Map[Vurl, PageData],
-                   blobMap: mutable.Map[Vurl, BlobData],
-                   entries: ArrayBuffer[ScribeDataRow],
-                  ) {
+case class Book(id: String,
+                name: String,
+                pagetre: Map[Vurl, PageData],
+                blobs: Map[Vurl, BlobData],
+               ) {
 
 
-  def add(entry: ScribeDataRow): Option[Int] = {
-    val index = entries.lastIndexWhere(entry.matchesRef)
-    if (index < 0 || entries(index).differentContent(entry)) {
-      val addCount = entry match {
-        case alp@PageData(il, _, _, _) =>
-          pageMap.put(il, alp)
-          val oldCount = if (index < 0) 0 else {
-            assert(entries(index).isInstanceOf[PageData], s"entries matching page data $alp matches ${entries(index)}")
-            entries(index).asInstanceOf[PageData].articleCount
-          }
-          Option(alp.articleCount - oldCount)
-        case alb@BlobData(il, _, _, _) =>
-          blobMap.put(il, alb)
-          Option(0)
-      }
-      if (index >= 0) entries.remove(index)
-      entries += entry
-      addCount
-    }
-    else None
+  def add(entry: ScribeDataRow): Option[Int] = { ???
+//    val index = entries.lastIndexWhere(entry.matchesRef)
+//    if (index < 0 || entries(index).differentContent(entry)) {
+//      val addCount = entry match {
+//        case alp@PageData(il, _, _, _) =>
+//          pageMap.put(il, alp)
+//          val oldCount = if (index < 0) 0 else {
+//            assert(entries(index).isInstanceOf[PageData], s"entries matching page data $alp matches ${entries(index)}")
+//            entries(index).asInstanceOf[PageData].articleCount
+//          }
+//          Option(alp.articleCount - oldCount)
+//        case alb@BlobData(il, _, _, _) =>
+//          blobMap.put(il, alb)
+//          Option(0)
+//      }
+//      if (index >= 0) entries.remove(index)
+//      entries += entry
+//      addCount
+//    }
+//    else None
   }
 
-  def beginning: Option[PageData] = pageMap.get(Vurl.entrypoint)
-  def hasPage(ref: Vurl): Boolean = pageMap.contains(ref)
-  def hasBlob(ref: Vurl): Boolean = blobMap.contains(ref)
+  def beginning: Option[PageData] = pagetre.get(Vurl.entrypoint)
+  def hasPage(ref: Vurl): Boolean = pagetre.contains(ref)
+  def hasBlob(ref: Vurl): Boolean = blobs.contains(ref)
 
-  def emptyImageRefs(): List[ImageRef] = entries.collect {
-    case PageData(ref, _, _, contents) => contents
-  }.flatten.collect {
-    case art@ImageRef(ref, _, _) if !blobMap.contains(ref) => art
+
+  private def pageContents: Iterator[WebContent] = {
+    pagetre.valuesIterator.flatMap(_.contents)
+  }
+
+  def emptyImageRefs(): List[ImageRef] = pageContents.collect {
+    case art@ImageRef(ref, _, _) if !hasBlob(ref) => art
   }.toList
 
-  def volatileAndEmptyLinks(): List[Link] = entries.collect {
-    case PageData(ref, _, _, contents) => contents
-  }.flatten.collect {
+
+  def volatileAndEmptyLinks(): List[Link] = pageContents.collect {
     case link@Link(ref, Volatile, _) => link
-    case link@Link(ref, _, _) if !pageMap.contains(ref) => link
+    case link@Link(ref, _, _) if !hasPage(ref) => link
   }.toList
 
-  def size(): Int = pages().count {
+  def size(): Int = linearizedContents().count {
     case Article(_, _) => true
     case _ => false
   }
 
-  def allBlobs(): Iterator[BlobData] = entries.iterator.collect { case sb@BlobData(_, _, _, _) => sb }
+  def allBlobs(): Iterator[BlobData] = blobs.valuesIterator
 
 
-  /** Starts from the entrypoint, traverses the last Link,
-    * collect the path, returns the path from the rightmost child to the root. */
-  def computeRightmostLinks(): List[Link] = {
-
-    val seen = mutable.HashSet[Vurl]()
-
-    @scala.annotation.tailrec
-    def rightmost(current: PageData, acc: List[Link]): List[Link] = {
-      /* Get the last Link for the current PageData  */
-      val next = current.contents.reverseIterator.find {
-        case Link(loc, _, _) if seen.add(loc) => true
-        case _ => false
-      } collect { // essentially a typecast …
-        case l@Link(_, _, _) => l
-      }
-      next match {
-        case None => acc
-        case Some(link) =>
-          pageMap.get(link.ref) match {
-            case None => link :: acc
-            case Some(scribePage) =>
-              rightmost(scribePage, link :: acc)
-          }
-      }
-    }
-
-    pageMap.get(Vurl.entrypoint) match {
-      case None =>
-        Log.warn(s"Book $id was emtpy")
-        Nil
-      case Some(initialPage) =>
-        rightmost(initialPage, Nil)
-    }
-
-  }
-
-
-  def pages(): List[ReadableContent] = {
+  def linearizedContents(): List[ReadableContent] = {
 
     Log.info(s"pages for $id")
 
@@ -122,19 +85,19 @@ class Book private(val id: String,
         case Nil => acc
         case h :: t => h match {
           case Link(loc, policy, data) =>
-            pageMap.get(loc) match {
+            pagetre.get(loc) match {
               case None => flatten(t, acc)
               case Some(alp) => flatten(unseen(alp.contents) reverse_::: t, acc)
             }
           case art@ImageRef(ref, origin, data) =>
-            val blob = blobMap.get(ref).map(_.blob)
+            val blob = blobs.get(ref).map(_.blob)
             flatten(t, Article(art, blob) :: acc)
           case chap@Chapter(_) => flatten(t, chap :: acc)
         }
       }
     }
 
-    pageMap.get(Vurl.entrypoint) match {
+    beginning match {
       case None =>
         Log.warn(s"Book $id was emtpy")
         Nil
@@ -146,42 +109,66 @@ class Book private(val id: String,
 
 }
 
+object Recheck {
+  /** Starts from the entrypoint, traverses the last Link,
+    * collect the path, returns the path from the rightmost child to the root. */
+  def computeRightmostLinks(book: Book): List[Link] = {
+
+    val seen = mutable.HashSet[Vurl]()
+
+    @scala.annotation.tailrec
+    def rightmost(current: PageData, acc: List[Link]): List[Link] = {
+      /* Get the last Link for the current PageData  */
+      val next = current.contents.reverseIterator.find {
+        case Link(loc, _, _) if seen.add(loc) => true
+        case _ => false
+      } collect { // essentially a typecast …
+        case l@Link(_, _, _) => l
+      }
+      next match {
+        case None => acc
+        case Some(link) =>
+          book.pagetre.get(link.ref) match {
+            case None => link :: acc
+            case Some(scribePage) =>
+              rightmost(scribePage, link :: acc)
+          }
+      }
+    }
+
+    book.beginning match {
+      case None =>
+        Log.warn(s"Book ${book.id} was emtpy")
+        Nil
+      case Some(initialPage) =>
+        rightmost(initialPage, Nil)
+    }
+
+  }
+}
+
 object Book {
   def load(path: Path) = {
-    val pageMap: mutable.HashMap[Vurl, PageData] = mutable.HashMap[Vurl, PageData]()
-    val blobMap: mutable.HashMap[Vurl, BlobData] = mutable.HashMap[Vurl, BlobData]()
-
-    def putIfAbsent[A, B](hashMap: mutable.HashMap[A, B], k: A, v: B): Boolean = {
-      var res = false
-      hashMap.getOrElseUpdate(k, {res = true; v})
-      res
-    }
 
     Log.info(s"reading $path")
 
-    val (name: String, entries: ArrayBuffer[ScribeDataRow]) = loadEntries(path)
-
-    val filtered = entries.reverseIterator.filter {
-      case spage@PageData(il, _, _, _) => putIfAbsent(pageMap, il, spage)
-      case sblob@BlobData(il, _, _, _) => putIfAbsent(blobMap, il, sblob)
-    }.to[ArrayBuffer].reverse
-
-    val id = path.getFileName.toString
-    new Book(id, name, pageMap, blobMap, filtered)
-  }
-
-  def loadEntries(path: Path): (String, ArrayBuffer[ScribeDataRow]) = {
     val lines = File(path).lineIterator(StandardCharsets.UTF_8)
     val name = io.circe.parser.decode[String](lines.next()).toTry.get
 
-    val entries = lines.zipWithIndex.map { case (line, nr) =>
+    val entryList = lines.zipWithIndex.map { case (line, nr) =>
       io.circe.parser.decode[ScribeDataRow](line) match {
         case Right(s) => s
         case Left(t) =>
           Log.error(s"Failed to decode $path:${nr + 2}: $line")
           throw t
       }
-    }.to[ArrayBuffer]
-    (name, entries)
+    }.toList
+
+    val pages = entryList.collect{ case pd@PageData(ref, _, date, contents) => (ref, pd) }.toMap
+    val blobs = entryList.collect{ case bd@BlobData(ref, loc, date, blob) => (ref, bd) }.toMap
+
+
+    val id = path.getFileName.toString
+    new Book(id, name, pages, blobs)
   }
 }

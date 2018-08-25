@@ -16,7 +16,7 @@ class ScribeNarratorAdapter(scribe: Scribe, narrator: Narrator, blobStore: BlobS
   private def linkTask(link: Link): CrawlTask.Page = CrawlTask.Page(VRequest(link.ref, None), link)
 
   def initialTasks(): List[CrawlTask] = book.emptyImageRefs().map(imageRefTask) ::: book.volatileAndEmptyLinks().map(linkTask)
-  def rechecks(): List[CrawlTask] = book.computeRightmostLinks().map(linkTask)
+  def rechecks(): List[CrawlTask] = Recheck.computeRightmostLinks(book).map(linkTask)
 
   def init(): Unit = {
     val entry = book.beginning

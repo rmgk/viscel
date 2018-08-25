@@ -28,7 +28,7 @@ class Scribe(basedir: Path, descriptionCache: DescriptionCache, updated: Evt[Str
   /** returns the list of pages of an id, an empty list if the id does not exist
     * used by the server to inform the client */
   def findPages(id: String): List[ReadableContent] = {
-    find(id).map(_.pages()).getOrElse(Nil)
+    find(id).map(_.linearizedContents()).getOrElse(Nil)
   }
 
   private def find(id: String): Option[Book] = synchronized {
