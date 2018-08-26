@@ -10,7 +10,7 @@ import akka.http.scaladsl.settings.{ParserSettings, RoutingSettings}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.ActorMaterializer
 import rescala.default.{Evt, implicitScheduler}
-import viscel.crawl.{AkkaHttpRequester, Clockwork}
+import viscel.crawl.{AkkaHttpRequester, Clockwork, Crawl}
 import viscel.narration.Narrator
 import viscel.server.{Server, ServerPages}
 import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users}
@@ -97,11 +97,11 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
 
   /* ====== clockwork ====== */
 
+  lazy val crawl: Crawl = new Crawl(scribe = scribe, blobStore = blobs, requestUtil = requests)(executionContext)
+
   lazy val clockwork: Clockwork = new Clockwork(path = cachedir.resolve("crawl-times.json"),
-                                                scribe = scribe,
+                                                crawl = crawl,
                                                 ec = executionContext,
-                                                requestUtil = requests,
-                                                blobStore = blobs,
                                                 userStore = userStore,
                                                 narratorCache = narratorCache)
 

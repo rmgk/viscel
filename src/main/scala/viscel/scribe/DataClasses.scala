@@ -51,7 +51,7 @@ sealed trait ScribeDataRow {
                                      blob: Blob
                                     ) extends ScribeDataRow
 
-/** The things a person is interested in [[Chapter]] and [[Article]], content of [[Book.linearizedContents]] */
+/** The things a person is interested in [[Chapter]] and [[Article]], content of [[ScribeDataRow]] */
 sealed trait ReadableContent
 
 /** Aggregate the [[article]] and the [[blob]], returned  */

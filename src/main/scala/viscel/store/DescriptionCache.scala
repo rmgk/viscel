@@ -7,8 +7,8 @@ import viscel.shared.Description
 
 
 /** Caches the [[viscel.shared.Description.size]] so the [[viscel.server.ServerPages.narrations]] can be efficiently computed. */
-class DescriptionCache(configdir: Path) {
-  private val descriptionpath: Path = configdir.resolve("descriptions.json")
+class DescriptionCache(cachedir: Path) {
+  private val descriptionpath: Path = cachedir.resolve("descriptions.json")
   private var descriptionCache: Map[String, Description] =
     Json.load[Map[String, Description]](descriptionpath).getOrElse(Map())
 

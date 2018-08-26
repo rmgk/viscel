@@ -4,23 +4,20 @@ import java.nio.file.Path
 import java.util.{Timer, TimerTask}
 
 import viscel.narration.Narrator
-import viscel.scribe.{Scribe, ScribeNarratorAdapter}
-import viscel.store.{BlobStore, Json, NarratorCache, Users}
+import viscel.store.{Json, NarratorCache, Users}
 
 import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
 
 
 class Clockwork(path: Path,
-                scribe: Scribe,
+                crawl: Crawl,
                 ec: ExecutionContext,
-                requestUtil: WebRequestInterface,
-                blobStore: BlobStore,
                 userStore: Users,
                 narratorCache: NarratorCache,
                ) {
 
-  val log = viscel.shared.Log.Clockwork
+  val log = viscel.shared.Log.Crawl
 
   val dayInMillis: Long = 24L * 60L * 60L * 1000L
 
@@ -29,7 +26,7 @@ class Clockwork(path: Path,
   val delay: Long = 0L
   val period: Long = 60L * 60L * 1000L // every hour
 
-  var running: Map[String, Crawl] = Map()
+  var running: Set[String] = Set.empty
 
   def recheckPeriodically(): Unit = {
     timer.scheduleAtFixedRate(new TimerTask {
@@ -41,14 +38,14 @@ class Clockwork(path: Path,
     }, delay, period)
   }
 
+
   def runNarrator(narrator: Narrator, recheckInterval: Long): Unit = synchronized {
     if (!running.contains(narrator.id) && needsRecheck(narrator.id, recheckInterval)) {
 
-      val crawl = new Crawl(new ScribeNarratorAdapter(scribe,narrator,blobStore), requestUtil)(ec)
-      running = running.updated(narrator.id, crawl)
+      running = running + narrator.id
       implicit val iec: ExecutionContext = ec
 
-      val fut = crawl.start().andThen { case _ => Clockwork.this.synchronized(running = running - narrator.id) }
+      val fut = crawl.start(narrator).andThen { case _ => Clockwork.this.synchronized(running = running - narrator.id) }
       fut.failed.foreach(logError(narrator))
       fut.foreach { _ =>
         log.info(s"[${narrator.id}] update complete")

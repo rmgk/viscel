@@ -9,7 +9,7 @@ object Log {
   val Devel: Logger = common.copy(tag = "Devel", Level.Trace, Logger.tracing)
   val Narrate: Logger = common.copy(tag = "Narrate")
   val JS: Logger = common.copy(tag = "JS")
-  val Clockwork: Logger = common.copy(tag = "CW")
+  val Crawl: Logger = common.copy(tag = "CW")
   val Store: Logger = common.copy(tag = "IO")
   val Scribe: Logger = common.copy(tag = "Scribe")
   val Server: Logger = common.copy(tag = "Serv")

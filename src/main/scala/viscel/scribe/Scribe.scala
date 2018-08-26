@@ -29,7 +29,7 @@ class Scribe(basedir: Path, descriptionCache: DescriptionCache) {
   /** returns the list of pages of an id, an empty list if the id does not exist
     * used by the server to inform the client */
   def findPages(id: String): List[ReadableContent] = {
-    find(id).map(_.linearizedContents()).getOrElse(Nil)
+    find(id).map(LinearizeContents.linearizedContents).getOrElse(Nil)
   }
 
   private def find(id: String): Option[Book] = synchronized {
@@ -50,7 +50,7 @@ class Scribe(basedir: Path, descriptionCache: DescriptionCache) {
 
   private def description(id: String): Description = descriptionCache.getOrElse(id) {
     val book = find(id).get
-    Description(id, book.name, book.size(), unknownNarrator = true)
+    Description(id, book.name, LinearizeContents.size(book), unknownNarrator = true)
   }
 
 
