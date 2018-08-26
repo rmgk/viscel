@@ -8,9 +8,9 @@ import viscel.narration.interpretation.NarrationInterpretation
 import viscel.scribe.{BlobData, Book, ImageRef, Link, PageData, Recheck, Volatile, Vurl, WebContent}
 import viscel.shared.Blob
 import viscel.store.BlobStore
-import viscel.crawl.Escritoire.{initialTasks, rechecks, imageRefTask, linkTask}
+import viscel.crawl.CrawlProcessing.{initialTasks, rechecks, imageRefTask, linkTask}
 
-class Escritoire(narrator: Narrator) {
+class CrawlProcessing(narrator: Narrator) {
 
   def init(book: Book): Option[PageData] = {
     val entry = book.beginning
@@ -55,7 +55,7 @@ class Escritoire(narrator: Narrator) {
   }
 }
 
-object Escritoire {
+object CrawlProcessing {
   def imageRefTask(ir: ImageRef): CrawlTask.Image = CrawlTask.Image(VRequest(ir.ref, Some(ir.origin)))
   def linkTask(link: Link): CrawlTask.Page = CrawlTask.Page(VRequest(link.ref, None), link)
 

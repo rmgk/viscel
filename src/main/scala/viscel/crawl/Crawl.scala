@@ -22,7 +22,7 @@ class Crawl(scribe: Scribe,
 
   def start(narrator: Narrator): Future[Unit] = {
     val book = scribe.findOrCreate(narrator)
-    val escritoire = new Escritoire(narrator)
+    val escritoire = new CrawlProcessing(narrator)
 
     val pageData = escritoire.init(book)
     val newBook = pageData.fold(book)(scribe.addPageTo(book, _))
@@ -30,14 +30,14 @@ class Crawl(scribe: Scribe,
     interpret(newBook, escritoire.decider(newBook), escritoire)
   }
 
-  def interpret(book: Book, decider: Decider, escritoire: Escritoire): Future[Unit] = {
+  def interpret(book: Book, decider: Decider, escritoire: CrawlProcessing): Future[Unit] = {
     def loop(book: Book, decider: Decider): Future[Unit] = {
       val (decision, nextDecider) = decider.decide()
       decision match {
         case Some(CrawlTask.Image(imageRequest)) =>
           requestUtil.getBytes(imageRequest).flatMap { response =>
             val blobData = escritoire.processImageResponse(response)
-            Log.Crawl.trace(s"Processing ${response.location}, storing ${blobData}")
+            Log.Crawl.trace(s"Processing ${response.location}, storing $blobData")
             blobStore.write(blobData.blob.sha1, response.content)
             val newBook = scribe.addImageTo(book, blobData)
             loop(newBook, nextDecider)
