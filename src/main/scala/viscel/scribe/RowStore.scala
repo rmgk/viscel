@@ -16,19 +16,16 @@ class RowStore(basePath: Path) {
   val base = File(basePath)
   assert(base.isDirectory, "row store base path must be directory")
 
-  def createNew(narrator: Narrator): Unit = {
+  def open(narrator: Narrator) = synchronized {
     val f = base / narrator.id.str
-    if (f.exists && f.size > 0) throw new IllegalStateException(s"already exists $f")
-    Json.store(f.path, narrator.name)
+    if (!f.exists || f.size <= 0) Json.store(f.path, narrator.name)
+    new RowAppender(f)
   }
 
   def allVids(): List[Vid] = synchronized {
     base.list(_.isRegularFile, 1).map(f => Vid.from(f.name)).toList
   }
 
-  def append(vid: Vid, row: ScribeDataRow): Unit = {
-    (base/ vid.str).appendLine(row.asJson.noSpaces)(charset = StandardCharsets.UTF_8)
-  }
 
   def load(id: Vid): Option[(String, List[ScribeDataRow])] = synchronized {
     Log.info(s"loading $id")
@@ -53,3 +50,8 @@ class RowStore(basePath: Path) {
   }
 }
 
+class RowAppender(file: File) {
+  def append(row: ScribeDataRow): Unit = {
+    file.appendLine(row.asJson.noSpaces)(charset = StandardCharsets.UTF_8)
+  }
+}

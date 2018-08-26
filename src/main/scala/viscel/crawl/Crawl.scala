@@ -1,9 +1,9 @@
 package viscel.crawl
 
 import viscel.narration.Narrator
-import viscel.scribe.{Book, Link, RowStore, Scribe}
+import viscel.scribe.{Book, Link, PageData, RowAppender, RowStore, Scribe}
 import viscel.shared.Log
-import viscel.store.BlobStore
+import viscel.store.{BlobStore, DescriptionCache}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -18,45 +18,54 @@ object CrawlTask {
 class Crawl(scribe: Scribe,
             blobStore: BlobStore,
             requestUtil: WebRequestInterface,
-            rowStore: RowStore)
+            rowStore: RowStore,
+            descriptionCache: DescriptionCache)
            (implicit ec: ExecutionContext) {
 
   def start(narrator: Narrator): Future[Unit] = {
-    val book = scribe.loadOrCreate(narrator)
+    val appender = rowStore.open(narrator)
+    val book = Book.load(narrator.id, rowStore).get
     val escritoire = new CrawlProcessing(narrator)
 
     val pageData = escritoire.init(book)
-    val newBook = pageData.fold(book)(scribe.addPageTo(book, _))
+    val newBook = pageData.fold(book)(addPageTo(book, appender, _))
 
-    interpret(newBook, escritoire.decider(newBook), escritoire)
+    interpret(newBook, escritoire.decider(newBook), escritoire, appender)
   }
 
-  def interpret(book: Book, decider: Decider, escritoire: CrawlProcessing): Future[Unit] = {
-    def loop(book: Book, decider: Decider): Future[Unit] = {
-      val (decision, nextDecider) = decider.decide()
-      decision match {
-        case Some(CrawlTask.Image(imageRequest)) =>
-          requestUtil.getBytes(imageRequest).flatMap { response =>
-            val blobData = escritoire.processImageResponse(response)
-            Log.Crawl.trace(s"Processing ${response.location}, storing $blobData")
-            blobStore.write(blobData.blob.sha1, response.content)
-            val newBook = scribe.addImageTo(book, blobData)
-            loop(newBook, nextDecider)
-          }
-        case Some(CrawlTask.Page(request, from)) =>
-          requestUtil.getString(request).flatMap { response =>
-            val pageData = escritoire.processPageResponse(book, from, response)
-            Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
-            val newBook = scribe.addPageTo(book, pageData)
-            val tasks = escritoire.computeTasks(pageData, newBook)
-            loop(newBook, nextDecider.addTasks(tasks))
-          }
-        case None => Future.successful(())
+  def interpret(book: Book, decider: Decider, escritoire: CrawlProcessing, rowAppender: RowAppender): Future[Unit] = {
+    val (decision, nextDecider) = decider.decide()
+    decision match {
+      case Some(CrawlTask.Image(imageRequest)) =>
+        requestUtil.getBytes(imageRequest).flatMap { response =>
+          val blobData = escritoire.processImageResponse(response)
+          Log.Crawl.trace(s"Processing ${response.location}, storing $blobData")
+          blobStore.write(blobData.blob.sha1, response.content)
+          rowAppender.append(blobData)
+          val newBook = book.addBlob(blobData)
+          interpret(newBook, nextDecider, escritoire, rowAppender)
+        }
+      case Some(CrawlTask.Page(request, from)) =>
+        requestUtil.getString(request).flatMap { response =>
+          val pageData = escritoire.processPageResponse(book, from, response)
+          Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
+          val newBook: Book = addPageTo(book, rowAppender, pageData)
+          val tasks = escritoire.computeTasks(pageData, newBook)
+          interpret(newBook, nextDecider.addTasks(tasks), escritoire, rowAppender)
+        }
+      case None                                => Future.successful(())
 
-      }
     }
+  }
 
-    loop(book, decider)
-
+  private def addPageTo(book: Book,
+                        rowAppender: RowAppender,
+                        pageData: PageData) = {
+    val (newBook, written) = book.addPage(pageData)
+    written.foreach { i =>
+      rowAppender.append(pageData)
+      descriptionCache.updateSize(newBook.id, i)
+    }
+    newBook
   }
 }

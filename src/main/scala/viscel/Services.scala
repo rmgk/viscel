@@ -40,12 +40,12 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
 
   /* ====== storage ====== */
 
-  lazy val desciptionCache = new DescriptionCache(cachedir)
-  lazy val blobs           = new BlobStore(blobdir)
-  lazy val userStore       = new Users(usersdir)
-  lazy val rowStore        = new RowStore(scribedir)
-  lazy val scribe          = new viscel.scribe.Scribe(rowStore, desciptionCache)
-  lazy val narratorCache   = new NarratorCache(metarratorconfigdir, definitionsdir)
+  lazy val descriptionCache = new DescriptionCache(cachedir)
+  lazy val blobs            = new BlobStore(blobdir)
+  lazy val userStore        = new Users(usersdir)
+  lazy val rowStore         = new RowStore(scribedir)
+  lazy val scribe           = new viscel.scribe.Scribe(rowStore, descriptionCache)
+  lazy val narratorCache    = new NarratorCache(metarratorconfigdir, definitionsdir)
 
 
   /* ====== execution ====== */
@@ -109,7 +109,8 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
   lazy val crawl: Crawl = new Crawl(scribe = scribe,
                                     blobStore = blobs,
                                     requestUtil = requests,
-                                    rowStore = rowStore)(executionContext)
+                                    rowStore = rowStore,
+                                    descriptionCache = descriptionCache)(executionContext)
 
   lazy val clockwork: Clockwork = new Clockwork(path = cachedir.resolve("crawl-times.json"),
                                                 crawl = crawl,
@@ -119,7 +120,7 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
 
   def activateNarrationHint() = {
     narrationHint.observe { case (narrator, force) =>
-      desciptionCache.invalidate(narrator.id)
+      descriptionCache.invalidate(narrator.id)
       clockwork.runNarrator(narrator, if (force) 0 else clockwork.dayInMillis * 1)
     }
   }
