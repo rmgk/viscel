@@ -137,7 +137,7 @@ object Recheck {
 }
 
 object Book {
-  def load(path: Path) = {
+  def load(path: Path): Book = {
 
     Log.info(s"reading $path")
 
