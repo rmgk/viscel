@@ -16,7 +16,11 @@ class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
 
   def narration(id: Vid): Option[Contents] = {
     @scala.annotation.tailrec
-    def recurse(content: List[ReadableContent], art: List[SharedImage], chap: List[ChapterPos], c: Int): (List[SharedImage], List[ChapterPos]) = {
+    def recurse(content: List[ReadableContent],
+                art: List[SharedImage],
+                chap: List[ChapterPos],
+                c: Int)
+    : (List[SharedImage], List[ChapterPos]) = {
       content match {
         case Nil => (art, chap)
         case h :: t => {
@@ -30,7 +34,7 @@ class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
       }
     }
 
-    val pages = scribe.findPages(id)
+    val pages = scribe.loadLinearizedContents(id)
     if (pages.isEmpty) None
     else {
       val (articles, chapters) = recurse(pages, Nil, Nil, 0)

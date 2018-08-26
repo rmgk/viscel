@@ -1,18 +1,11 @@
 package viscel.scribe
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.Path
-
-import better.files.File
-import viscel.scribe.ScribePicklers._
-import viscel.shared.Log.{Scribe => Log}
 import viscel.shared.Vid
-
 
 case class Book(id: Vid,
                 name: String,
-                pages: Map[Vurl, PageData],
-                blobs: Map[Vurl, BlobData],
+                pages: Map[Vurl, PageData] = Map(),
+                blobs: Map[Vurl, BlobData] = Map(),
                ) {
 
   def addBlob(blob: BlobData): Book = copy(blobs = blobs.updated(blob.ref, blob))
@@ -37,27 +30,22 @@ case class Book(id: Vid,
 }
 
 object Book {
-  def load(path: Path): Book = {
+  def load(id: Vid, rowStore: RowStore): Option[Book] = {
 
-    Log.info(s"reading $path")
+    rowStore.load(id) match {
+      case None => None
+      case Some((name, entryList)) =>
+        val pages: Map[Vurl, PageData] = entryList.collect {
+          case pd@PageData(ref, _, date, contents) => (ref, pd)
+        }(scala.collection.breakOut)
 
-    val lines = File(path).lineIterator(StandardCharsets.UTF_8)
-    val name = io.circe.parser.decode[String](lines.next()).toTry.get
+        val blobs: Map[Vurl, BlobData] = entryList.collect {
+          case bd@BlobData(ref, loc, date, blob) => (ref, bd)
+        }(scala.collection.breakOut)
 
-    val entryList = lines.zipWithIndex.map { case (line, nr) =>
-      io.circe.parser.decode[ScribeDataRow](line) match {
-        case Right(s) => s
-        case Left(t) =>
-          Log.error(s"Failed to decode $path:${nr + 2}: $line")
-          throw t
-      }
-    }.toList
-
-    val pages: Map[Vurl, PageData] = entryList.collect{ case pd@PageData(ref, _, date, contents) => (ref, pd) }(scala.collection.breakOut)
-    val blobs: Map[Vurl, BlobData] = entryList.collect{ case bd@BlobData(ref, loc, date, blob) => (ref, bd) }(scala.collection.breakOut)
+        Some(new Book(id, name, pages, blobs))
+    }
 
 
-    val id = Vid.from(path.getFileName.toString)
-    new Book(id, name, pages, blobs)
   }
 }

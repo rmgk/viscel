@@ -12,6 +12,7 @@ import akka.stream.ActorMaterializer
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{AkkaHttpRequester, Clockwork, Crawl}
 import viscel.narration.Narrator
+import viscel.scribe.RowStore
 import viscel.server.{Server, ServerPages}
 import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users}
 
@@ -42,7 +43,8 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
   lazy val desciptionCache = new DescriptionCache(cachedir)
   lazy val blobs = new BlobStore(blobdir)
   lazy val userStore = new Users(usersdir)
-  lazy val scribe = new viscel.scribe.Scribe(scribedir, desciptionCache)
+  lazy val rowStore = new RowStore(scribedir)
+  lazy val scribe = new viscel.scribe.Scribe(rowStore, desciptionCache)
   lazy val narratorCache: NarratorCache = new NarratorCache(metarratorconfigdir, definitionsdir)
 
 

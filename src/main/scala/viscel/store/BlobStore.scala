@@ -3,7 +3,7 @@ package viscel.store
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
 
-class BlobStore(basedir: Path) {
+class BlobStore(blobdir: Path) {
 
 
   def write(sha1: String, bytes: Array[Byte]): Unit = {
@@ -19,7 +19,7 @@ class BlobStore(basedir: Path) {
     sha1
   }
 
-  def hashToPath(h: String): Path = basedir.resolve(h.substring(0, 2)).resolve(h.substring(2))
+  def hashToPath(h: String): Path = blobdir.resolve(h.substring(0, 2)).resolve(h.substring(2))
 
 }
 
