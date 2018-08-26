@@ -8,7 +8,7 @@ import io.circe.syntax._
 import viscel.narration.Narrator
 import viscel.shared.Log.{Scribe => Log}
 import viscel.shared.Vid
-import viscel.store.ScribePicklers._
+import viscel.store.CustomPicklers._
 
 class RowStore(basePath: Path) {
 
