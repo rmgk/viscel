@@ -7,7 +7,6 @@ import viscel.crawl.{VRequest, WebRequestInterface}
 import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
 import viscel.narration.{Metarrator, Narrator, Narrators, ViscelDefinition}
-import viscel.scribe.{Link, Vurl}
 import viscel.shared.{Log, Vid}
 
 import scala.collection.immutable.{Map, Set}

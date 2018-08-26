@@ -6,9 +6,9 @@ import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.narration.interpretation.NarrationInterpretation.{Append, WrapPart, Wrapper}
-import viscel.scribe.{Chapter, ImageRef, Link, Policy, Vurl, WebContent}
 import viscel.selection.ReportTools.{extract, _}
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
+import viscel.store.{Chapter, ImageRef, Link, Policy, Vurl, WebContent}
 
 import scala.util.matching.Regex
 

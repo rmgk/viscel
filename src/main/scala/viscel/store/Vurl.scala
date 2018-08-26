@@ -1,4 +1,4 @@
-package viscel.scribe
+package viscel.store
 
 import java.net.URL
 

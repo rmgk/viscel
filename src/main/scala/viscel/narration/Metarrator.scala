@@ -2,7 +2,7 @@ package viscel.narration
 
 import io.circe.{Decoder, Encoder}
 import viscel.narration.interpretation.NarrationInterpretation.{NarratorADT, WrapPart}
-import viscel.scribe.Vurl
+import viscel.store.Vurl
 
 abstract class Metarrator[T](val id: String) {
   def toNarrator(t : T): NarratorADT

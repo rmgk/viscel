@@ -1,9 +1,8 @@
 package viscel.crawl
 
 import viscel.narration.Narrator
-import viscel.scribe.{Book, Link, PageData, RowAppender, RowStore}
 import viscel.shared.Log
-import viscel.store.{BlobStore, DescriptionCache}
+import viscel.store.{BlobStore, Book, DescriptionCache, Link, PageData, RowAppender, RowStore}
 
 import scala.concurrent.{ExecutionContext, Future}
 

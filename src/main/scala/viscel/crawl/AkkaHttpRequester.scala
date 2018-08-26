@@ -9,8 +9,8 @@ import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Acce
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
-import viscel.scribe.Vurl
 import viscel.shared.Log
+import viscel.store.Vurl
 
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{ExecutionContext, Future}

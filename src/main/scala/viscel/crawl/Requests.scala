@@ -2,7 +2,7 @@ package viscel.crawl
 
 import java.time.Instant
 
-import viscel.scribe.Vurl
+import viscel.store.Vurl
 
 import scala.concurrent.Future
 

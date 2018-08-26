@@ -8,9 +8,9 @@ import java.util.stream.Stream
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Queries._
 import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Append, NarratorADT, Shuffle, TransformUrls, Wrapper}
-import viscel.scribe.{Link, Vurl}
 import viscel.selection.Report
 import viscel.shared.{Log, Vid}
+import viscel.store.{Link, Vurl}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaIteratorConverter

@@ -1,4 +1,4 @@
-package viscel.scribe
+package viscel.store
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
@@ -6,10 +6,9 @@ import java.nio.file.Path
 import better.files.File
 import io.circe.syntax._
 import viscel.narration.Narrator
-import viscel.scribe.ScribePicklers._
 import viscel.shared.Log.{Scribe => Log}
 import viscel.shared.Vid
-import viscel.store.Json
+import viscel.store.ScribePicklers._
 
 class RowStore(basePath: Path) {
 

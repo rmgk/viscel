@@ -12,9 +12,8 @@ import akka.stream.ActorMaterializer
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{AkkaHttpRequester, Clockwork, Crawl}
 import viscel.narration.Narrator
-import viscel.scribe.RowStore
 import viscel.server.{ContentLoader, Server, ServerPages}
-import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users}
+import viscel.store.{BlobStore, DescriptionCache, NarratorCache, RowStore, Users}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 

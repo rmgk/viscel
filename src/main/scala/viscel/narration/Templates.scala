@@ -1,8 +1,8 @@
 package viscel.narration
 
 import viscel.narration.interpretation.NarrationInterpretation.{NarratorADT, PolicyDecision, Wrapper}
-import viscel.scribe.{Link, Volatile, Vurl}
 import viscel.shared.Vid
+import viscel.store.{Link, Volatile, Vurl}
 
 object Templates {
   def archivePage(pid: String,

@@ -13,10 +13,9 @@ import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
 import viscel.narration.Narrator
-import viscel.scribe.{Article, BlobData, Chapter, ImageRef, Link, PageData, ReadableContent, Vurl, WebContent}
+import viscel.store.{Article, BlobData, BlobStore, Chapter, ImageRef, Link, PageData, ReadableContent, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.shared.{Blob, ChapterPos, Description, Gallery, SharedImage, Vid}
-import viscel.store.BlobStore
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.HashSet

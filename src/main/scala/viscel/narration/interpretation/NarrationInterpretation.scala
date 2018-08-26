@@ -4,9 +4,9 @@ import org.jsoup.nodes.{Document, Element}
 import org.scalactic.Accumulation._
 import org.scalactic.{Every, Good, Or}
 import viscel.narration.{Contents, Narrator}
-import viscel.scribe.{ImageRef, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.{Report, Selection}
 import viscel.shared.Vid
+import viscel.store.{ImageRef, Link, Normal, Volatile, Vurl, WebContent}
 
 
 

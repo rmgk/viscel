@@ -7,7 +7,7 @@ import viscel.narration.Queries.RegexContext
 import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.{DocumentWrapper, WrapPart}
 import viscel.narration.{Metarrator, Queries, Templates}
-import viscel.scribe.Vurl
+import viscel.store.Vurl
 
 case class Cfury(id: String, name: String)
 

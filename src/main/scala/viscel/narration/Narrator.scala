@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.Wrapper
-import viscel.scribe.{Link, WebContent}
+import viscel.store.{Link, WebContent}
 import viscel.shared.Vid
 
 /** Describes the structure of a web collection */

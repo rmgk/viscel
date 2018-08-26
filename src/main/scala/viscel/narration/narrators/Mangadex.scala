@@ -6,9 +6,9 @@ import org.scalactic._
 import viscel.narration.Queries._
 import viscel.narration.interpretation.NarrationInterpretation.{Append, LinkDataDecision, NarratorADT, Shuffle, WrapPart}
 import viscel.narration.{Metarrator, Templates}
-import viscel.scribe.{ImageRef, Link, Volatile, Vurl}
 import viscel.selection.ReportTools.extract
 import viscel.selection.Selection
+import viscel.store.{ImageRef, Link, Volatile, Vurl}
 
 import scala.util.matching.Regex
 

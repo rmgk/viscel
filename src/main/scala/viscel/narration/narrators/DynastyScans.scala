@@ -4,7 +4,7 @@ import org.jsoup.helper.StringUtil
 import viscel.narration.Narrator
 import viscel.narration.Queries.queryChapterArchive
 import viscel.narration.Templates.archivePage
-import viscel.scribe.ImageRef
+import viscel.store.ImageRef
 import viscel.selection.ReportTools.extract
 import viscel.selection.Selection
 

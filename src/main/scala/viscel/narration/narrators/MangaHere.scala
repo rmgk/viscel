@@ -5,8 +5,8 @@ import org.scalactic._
 import viscel.narration.Queries._
 import viscel.narration.interpretation.NarrationInterpretation.{Constant, Decision, NarratorADT, Shuffle, WrapPart}
 import viscel.narration.{Metarrator, Templates}
-import viscel.scribe.Vurl
 import viscel.selection.Selection
+import viscel.store.Vurl
 
 case class MangaHereNarrator(id: String, name: String, archiveUri: Vurl)
 

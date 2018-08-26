@@ -3,9 +3,9 @@ package viscel.narration.narrators
 import org.scalactic.Good
 import viscel.narration.interpretation.NarrationInterpretation.{Combine, Constant, Decision, NarratorADT, Shuffle}
 import viscel.narration.{Narrator, Queries}
-import viscel.scribe.{ImageRef, Link, Volatile, Vurl}
 import viscel.selection.{ReportTools, Selection}
 import viscel.shared.Vid
+import viscel.store.{ImageRef, Link, Volatile, Vurl}
 
 import scala.collection.immutable.Set
 

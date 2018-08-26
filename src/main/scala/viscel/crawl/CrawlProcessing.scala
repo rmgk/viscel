@@ -6,9 +6,8 @@ import org.jsoup.Jsoup
 import viscel.crawl.CrawlProcessing.{imageRefTask, initialTasks, linkTask, rechecks}
 import viscel.narration.Narrator
 import viscel.narration.interpretation.NarrationInterpretation
-import viscel.scribe.{BlobData, Book, ImageRef, Link, PageData, Volatile, Vurl, WebContent}
 import viscel.shared.{Blob, Log}
-import viscel.store.BlobStore
+import viscel.store.{BlobData, BlobStore, Book, ImageRef, Link, PageData, Volatile, Vurl, WebContent}
 
 import scala.collection.mutable
 

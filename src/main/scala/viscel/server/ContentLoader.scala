@@ -1,8 +1,7 @@
 package viscel.server
 
-import viscel.scribe.{Article, Book, Chapter, ImageRef, Link, ReadableContent, RowStore, Vurl, WebContent}
 import viscel.shared.{ChapterPos, Contents, Description, Gallery, Log, SharedImage, Vid}
-import viscel.store.{DescriptionCache, NarratorCache}
+import viscel.store.{Article, Book, Chapter, DescriptionCache, ImageRef, Link, NarratorCache, ReadableContent, RowStore, Vurl, WebContent}
 
 import scala.collection.mutable
 

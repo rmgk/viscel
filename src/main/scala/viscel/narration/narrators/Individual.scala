@@ -6,11 +6,11 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Queries._
 import viscel.narration.Templates
 import viscel.narration.Templates.{SimpleForward, archivePage}
-import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combine, Constant, Decision, DocumentWrapper, LinkDataDecision, strNarratorADT => NarratorADT, NarratorADT => TNarratorADT, PolicyDecision, Shuffle, TransformUrls, Wrapper}
-import viscel.scribe.Vurl.fromString
-import viscel.scribe.{Chapter, ImageRef, Link, Normal, Volatile, Vurl, WebContent}
+import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combine, Constant, Decision, DocumentWrapper, LinkDataDecision, PolicyDecision, Shuffle, TransformUrls, Wrapper, NarratorADT => TNarratorADT, strNarratorADT => NarratorADT}
 import viscel.selection.ReportTools._
 import viscel.selection.Selection
+import viscel.store.Vurl.fromString
+import viscel.store.{Chapter, ImageRef, Link, Normal, Volatile, Vurl, WebContent}
 
 import scala.collection.immutable.Set
 
