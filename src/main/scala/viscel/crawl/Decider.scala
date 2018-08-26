@@ -22,8 +22,8 @@ case class Decider(images: List[CrawlTask] = Nil,
     } else this
 
     toAdd.reverse.foldLeft(nextDecider) {
-      case (dec, ct@CrawlTask.Page(_, _)) => dec.copy(links = ct :: links)
-      case (dec, art@CrawlTask.Image(_)) => dec.copy(images = art :: images)
+      case (dec, ct@CrawlTask.Page(_, _)) => dec.copy(links = ct :: dec.links)
+      case (dec, art@CrawlTask.Image(_)) => dec.copy(images = art :: dec.images)
       case (dec, _) => dec
     }
   }

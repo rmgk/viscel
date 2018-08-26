@@ -3,14 +3,18 @@ package viscel.store
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
 
+import viscel.shared.Log
+
 class BlobStore(blobdir: Path) {
 
 
   def write(sha1: String, bytes: Array[Byte]): Unit = {
     val path = hashToPath(sha1)
     Files.createDirectories(path.getParent)
-    if (!Files.exists(path))
+    if (!Files.exists(path)) {
+      Log.Store.trace(s"storing $path")
       Files.write(path, bytes)
+    }
   }
 
   def write(bytes: Array[Byte]): String = {

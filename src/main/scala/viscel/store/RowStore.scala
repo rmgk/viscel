@@ -6,7 +6,7 @@ import java.nio.file.Path
 import better.files.File
 import io.circe.syntax._
 import viscel.narration.Narrator
-import viscel.shared.Log.{Scribe => Log}
+import viscel.shared.Log.{Store => Log}
 import viscel.shared.Vid
 import viscel.store.CustomPicklers._
 
@@ -60,6 +60,7 @@ class RowStore(basePath: Path) {
 
 class RowAppender(file: File) {
   def append(row: ScribeDataRow): Unit = {
+    Log.trace(s"Store $row into $file")
     file.appendLine(row.asJson.noSpaces)(charset = StandardCharsets.UTF_8)
   }
 }

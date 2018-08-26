@@ -7,9 +7,9 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatest.FreeSpec
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import viscel.scribe.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Volatile}
+import viscel.store.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Volatile}
 import viscel.shared.Blob
-import viscel.scribe.ScribePicklers._
+import viscel.store.CustomPicklers._
 import viscel.store.Vurl
 
 

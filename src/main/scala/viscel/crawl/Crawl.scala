@@ -31,7 +31,7 @@ class Crawl(blobStore: BlobStore,
     new Crawling(escritoire, appender).interpret(newBook, escritoire.decider(newBook))
   }
 
-  class Crawling(escritoire: CrawlProcessing, rowAppender: RowAppender) {
+  class Crawling(procssing: CrawlProcessing, rowAppender: RowAppender) {
 
     def interpret(book: Book, decider: Decider): Future[Unit] = {
       val (decision, nextDecider) = decider.decide()
@@ -49,11 +49,13 @@ class Crawl(blobStore: BlobStore,
                                    request: VRequest,
                                    from: Link,
                                    decider: Decider): Future[Unit] = {
+      Log.Crawl.trace(s"Handling page response for $from, $request")
       requestUtil.getString(request).flatMap { response =>
-        val pageData = escritoire.processPageResponse(book, from, response)
+        val pageData = procssing.processPageResponse(book, from, response)
         Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
         val newBook: Book = addPageTo(book, rowAppender, pageData)
-        val tasks = escritoire.computeTasks(pageData, newBook)
+        val tasks = procssing.computeTasks(pageData, newBook)
+        Log.Crawl.trace(s"Add tasks: $tasks")
         interpret(newBook, decider.addTasks(tasks))
       }
     }
@@ -61,7 +63,7 @@ class Crawl(blobStore: BlobStore,
                                     imageRequest: VRequest,
                                     book: Book): Future[Unit] = {
       requestUtil.getBytes(imageRequest).flatMap { response =>
-        val blobData = escritoire.processImageResponse(response)
+        val blobData = procssing.processImageResponse(response)
         Log.Crawl.trace(s"Processing ${response.location}, storing $blobData")
         blobStore.write(blobData.blob.sha1, response.content)
         rowAppender.append(blobData)

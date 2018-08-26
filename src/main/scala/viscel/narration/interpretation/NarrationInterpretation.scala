@@ -15,7 +15,7 @@ object NarrationInterpretation {
   val Log = viscel.shared.Log.Narrate
 
 
-  def transformUrls(replacements: List[(String, String)])(stories: List[WebContent]) = {
+  def transformUrls(replacements: List[(String, String)])(stories: List[WebContent]): List[WebContent] = {
 
     def replaceVurl(url: Vurl): Vurl =
       replacements.foldLeft(url.uriString) {
@@ -31,7 +31,7 @@ object NarrationInterpretation {
 
   def applySelection(doc: Element, sel: Selection): List[Element] Or Every[Report] = {
     sel.pipeline.reverse.foldLeft(Good(List(doc)).orBad[Every[Report]]){ (elems, sel) =>
-      elems.flatMap { (els: List[Element]) =>
+      elems.flatMap { els: List[Element] =>
         val validated: Or[List[List[Element]], Every[Report]] = els.validatedBy(sel)
         validated.map(_.flatten)
       }
@@ -60,10 +60,8 @@ object NarrationInterpretation {
         case Constant(t) => t
         case Alternative(left, right) => recurse(left).orElse(recurse(right))
       }
-      Log.trace(s"$wrapper returned $res")
       res
     }
-    Log.trace(s"interpreting ${doc.baseUri()} with $outerWrapper")
     recurse(outerWrapper)
   }
 
