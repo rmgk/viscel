@@ -11,7 +11,7 @@ import scala.collection.immutable.HashSet
 class Scribe(rowStore: RowStore, descriptionCache: DescriptionCache) {
 
   /** creates a new book able to add new pages */
-  def findOrCreate(narrator: Narrator): Book = synchronized{
+  def loadOrCreate(narrator: Narrator): Book = synchronized{
     find(narrator.id).getOrElse(create(narrator))
   }
 

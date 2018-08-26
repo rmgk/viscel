@@ -27,34 +27,36 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
     Files.createDirectories(p)
     p
   }
-  val basepath: Path = relativeBasedir.toAbsolutePath
-  val blobdir: Path = basepath.resolve(relativeBlobdir)
-  lazy val scribedir: Path = create(basepath.resolve("db3"))
-  lazy val cachedir: Path = create(basepath.resolve("cache"))
+  val basepath           : Path = relativeBasedir.toAbsolutePath
+  val blobdir            : Path = basepath.resolve(relativeBlobdir)
   val metarratorconfigdir: Path = basepath.resolve("metarrators")
-  val definitionsdir: Path = basepath.resolve("definitions")
-  val exportdir: Path = basepath.resolve("export")
-  val usersdir: Path = basepath.resolve("users")
-  val postsdir: Path = basepath.resolve(relativePostdir)
+  val definitionsdir     : Path = basepath.resolve("definitions")
+  val exportdir          : Path = basepath.resolve("export")
+  val usersdir           : Path = basepath.resolve("users")
+  val postsdir           : Path = basepath.resolve(relativePostdir)
+  lazy val scribedir: Path = create(basepath.resolve("db3"))
+  lazy val cachedir : Path = create(basepath.resolve("cache"))
 
 
   /* ====== storage ====== */
 
   lazy val desciptionCache = new DescriptionCache(cachedir)
-  lazy val blobs = new BlobStore(blobdir)
-  lazy val userStore = new Users(usersdir)
-  lazy val rowStore = new RowStore(scribedir)
-  lazy val scribe = new viscel.scribe.Scribe(rowStore, desciptionCache)
-  lazy val narratorCache: NarratorCache = new NarratorCache(metarratorconfigdir, definitionsdir)
+  lazy val blobs           = new BlobStore(blobdir)
+  lazy val userStore       = new Users(usersdir)
+  lazy val rowStore        = new RowStore(scribedir)
+  lazy val scribe          = new viscel.scribe.Scribe(rowStore, desciptionCache)
+  lazy val narratorCache   = new NarratorCache(metarratorconfigdir, definitionsdir)
 
 
   /* ====== execution ====== */
 
-  lazy val system = ActorSystem()
-  lazy val materializer: ActorMaterializer = ActorMaterializer()(system)
-  lazy val http: HttpExt = Http(system)
-  lazy val executionContext: ExecutionContextExecutor = ExecutionContext.fromExecutor(new ThreadPoolExecutor(
-    0, 1, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]))
+  lazy val system                                     = ActorSystem()
+  lazy val materializer    : ActorMaterializer        = ActorMaterializer()(system)
+  lazy val http            : HttpExt                  = Http(system)
+  lazy val executionContext: ExecutionContextExecutor =
+    ExecutionContext.fromExecutor(new ThreadPoolExecutor(0, 1, 1L,
+                                                         TimeUnit.SECONDS,
+                                                         new LinkedBlockingQueue[Runnable]))
 
   /* ====== http requests ====== */
 
@@ -68,38 +70,46 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
   /* ====== main webserver ====== */
 
   lazy val serverPages = new ServerPages(scribe, narratorCache)
-  lazy val server = new Server(userStore = userStore,
-                               scribe = scribe,
-                               blobStore = blobs,
-                               requestUtil = requests,
-                               terminate = () => terminateServer(),
-                               narratorHint = narrationHint,
-                               pages = serverPages,
-                               replUtil = replUtil,
-                               system = system,
-                               narratorCache = narratorCache,
-                               postsPath = postsdir)
+  lazy val server      = new Server(userStore = userStore,
+                                    scribe = scribe,
+                                    blobStore = blobs,
+                                    requestUtil = requests,
+                                    terminate = () => terminateServer(),
+                                    narratorHint = narrationHint,
+                                    pages = serverPages,
+                                    replUtil = replUtil,
+                                    system = system,
+                                    narratorCache = narratorCache,
+                                    postsPath = postsdir
+  )
+
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
     RouteResult.route2HandlerFlow(server.route)(
-      RoutingSettings.default(system),
-      ParserSettings.default(system),
+      RoutingSettings
+      .default(system),
+      ParserSettings
+      .default(system),
       materializer,
-      RoutingLog.fromActorSystem(system)),
+      RoutingLog
+      .fromActorSystem(system)),
     interface, port)(materializer)
 
   def startServer(): Future[ServerBinding] = serverBinding
   def terminateServer(): Unit = {
     serverBinding
-      .flatMap(_.unbind())(system.dispatcher)
-      .onComplete { _ =>
-        system.terminate()
-      }(system.dispatcher)
+    .flatMap(_.unbind())(system.dispatcher)
+    .onComplete { _ =>
+      system.terminate()
+    }(system.dispatcher)
   }
 
 
   /* ====== clockwork ====== */
 
-  lazy val crawl: Crawl = new Crawl(scribe = scribe, blobStore = blobs, requestUtil = requests)(executionContext)
+  lazy val crawl: Crawl = new Crawl(scribe = scribe,
+                                    blobStore = blobs,
+                                    requestUtil = requests,
+                                    rowStore = rowStore)(executionContext)
 
   lazy val clockwork: Clockwork = new Clockwork(path = cachedir.resolve("crawl-times.json"),
                                                 crawl = crawl,

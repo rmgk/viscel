@@ -1,7 +1,7 @@
 package viscel.crawl
 
 import viscel.narration.Narrator
-import viscel.scribe.{Book, Link, Scribe}
+import viscel.scribe.{Book, Link, RowStore, Scribe}
 import viscel.shared.Log
 import viscel.store.BlobStore
 
@@ -17,11 +17,12 @@ object CrawlTask {
 
 class Crawl(scribe: Scribe,
             blobStore: BlobStore,
-            requestUtil: WebRequestInterface)
+            requestUtil: WebRequestInterface,
+            rowStore: RowStore)
            (implicit ec: ExecutionContext) {
 
   def start(narrator: Narrator): Future[Unit] = {
-    val book = scribe.findOrCreate(narrator)
+    val book = scribe.loadOrCreate(narrator)
     val escritoire = new CrawlProcessing(narrator)
 
     val pageData = escritoire.init(book)

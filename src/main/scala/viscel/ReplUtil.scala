@@ -128,7 +128,7 @@ class ReplUtil(services: Services) {
       override def archive: List[WebContent] = ???
       override def wrap(doc: Document, more: Link): Or[List[WebContent], Every[Report]] = ???
     }
-    val book = services.scribe.findOrCreate(narrator)
+    val book = services.scribe.loadOrCreate(narrator)
     services.scribe.addPageTo(book, PageData(Vurl.entrypoint, Vurl.entrypoint, Instant.now(), webcont))
     blobs.foreach(services.scribe.addImageTo(book, _))
 
