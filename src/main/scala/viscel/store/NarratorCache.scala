@@ -6,7 +6,7 @@ import org.jsoup.Jsoup
 import viscel.crawl.{VRequest, WebRequestInterface}
 import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
-import viscel.narration.{Metarrator, Narrator, Narrators, Vid}
+import viscel.narration.{Metarrator, Narrator, Narrators, ViscelDefinition}
 import viscel.scribe.{Link, Vurl}
 import viscel.shared.Log
 
@@ -16,7 +16,7 @@ import scala.concurrent.Future
 class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
 
-  private def calculateAll(): Set[Narrator] = Narrators.staticV2 ++ loadAll() ++ Vid.loadAll(definitionsdir)
+  private def calculateAll(): Set[Narrator] = Narrators.staticV2 ++ loadAll() ++ ViscelDefinition.loadAll(definitionsdir)
 
   def updateCache(): Unit = {
     cached = calculateAll()

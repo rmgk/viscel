@@ -17,7 +17,7 @@ import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.Map
 import scala.util.matching.Regex
 
-object Vid {
+object ViscelDefinition {
 
   case class Line(s: String, p: Int)
   type It = BufferedIterator[Line]
