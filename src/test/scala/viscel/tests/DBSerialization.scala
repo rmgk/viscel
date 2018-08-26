@@ -14,14 +14,16 @@ import viscel.scribe.ScribePicklers._
 
 class DBSerialization extends FreeSpec with GeneratorDrivenPropertyChecks {
 
-  implicit val genBlob: Arbitrary[Blob] = Arbitrary(for {sha <- Gen.alphaNumStr; mime <- Gen.alphaNumStr} yield Blob(sha, mime))
+  implicit val genBlob: Arbitrary[Blob] = Arbitrary(for {sha <- Gen.alphaNumStr
+                                                         mime <- Gen.alphaNumStr}
+                                                      yield Blob(sha, mime))
   implicit val genVurl: Arbitrary[Vurl] = Arbitrary(for {blob <- genBlob.arbitrary} yield Vurl.blobPlaceholder(blob))
   implicit val genLink: Arbitrary[Link] = Arbitrary(for {
     policy <- Gen.oneOf(Normal, Volatile)
     url <- genVurl.arbitrary
     data <- Gen.listOf(arbitrary[String])
   } yield Link(url, policy, data))
-  implicit val genInstalnt: Arbitrary[Instant] = Arbitrary(arbitrary[Int].map((i: Int) => Instant.ofEpochSecond(i)))
+  implicit val genInstant: Arbitrary[Instant] = Arbitrary(arbitrary[Int].map((i: Int) => Instant.ofEpochSecond(i)))
   implicit val genImageRef: Arbitrary[ImageRef] = Arbitrary(for {
     ref <- genVurl.arbitrary
     origin <- genVurl.arbitrary
@@ -65,15 +67,21 @@ class DBSerialization extends FreeSpec with GeneratorDrivenPropertyChecks {
     "Vurls" - {
       "entrypoint json" in assert(Vurl.entrypoint.asJson === "viscel:///initial".asJson)
       "entrypoint from string" in assert(Vurl.entrypoint === Vurl.fromString("viscel:///initial"))
-      "blob json" in forAll((blob: Blob) => assert(Vurl.blobPlaceholder(blob).asJson === s"viscel:///sha1/${blob.sha1}".asJson))
-      "blob from string" in forAll(Gen.alphaNumStr)((sha) => assert(Vurl.fromString(s"viscel:///sha1/$sha") === Vurl.blobPlaceholder(Blob(sha, ""))))
+      "blob json" in forAll { blob: Blob =>
+        assert(Vurl.blobPlaceholder(blob).asJson === s"viscel:///sha1/${blob.sha1}".asJson)
+      }
+      "blob from string" in forAll(Gen.alphaNumStr) { sha =>
+        assert(Vurl.fromString(s"viscel:///sha1/$sha") === Vurl.blobPlaceholder(Blob(sha, "")))
+      }
     }
     "DataRows" - {
       "read page" in assert(io.circe.parser.decode[ScribeDataRow](pageJson) === Right(pageDataRow))
       "round trip page" in assert(io.circe.parser.decode[ScribeDataRow](pageDataRow.asJson.noSpaces) === Right(pageDataRow))
       "read blob" in assert(io.circe.parser.decode[ScribeDataRow](blobJson) === Right(blobData))
       "round trip blob" in assert(io.circe.parser.decode[ScribeDataRow](blobData.asJson.noSpaces) === Right(blobData))
-      "arbitrary round trip" in forAll((pd: ScribeDataRow) => assert(io.circe.parser.decode[ScribeDataRow](pd.asJson.noSpaces) === Right(pd)))
+      "arbitrary round trip" in forAll { pd: ScribeDataRow =>
+        assert(io.circe.parser.decode[ScribeDataRow](pd.asJson.noSpaces) === Right(pd))
+      }
     }
   }
 
