@@ -28,24 +28,3 @@ case class Book(id: Vid,
   def allPages(): Iterator[PageData] = pages.valuesIterator
 
 }
-
-object Book {
-  def load(id: Vid, rowStore: RowStore): Option[Book] = {
-
-    rowStore.load(id) match {
-      case None => None
-      case Some((name, entryList)) =>
-        val pages: Map[Vurl, PageData] = entryList.collect {
-          case pd@PageData(ref, _, date, contents) => (ref, pd)
-        }(scala.collection.breakOut)
-
-        val blobs: Map[Vurl, BlobData] = entryList.collect {
-          case bd@BlobData(ref, loc, date, blob) => (ref, bd)
-        }(scala.collection.breakOut)
-
-        Some(new Book(id, name, pages, blobs))
-    }
-
-
-  }
-}

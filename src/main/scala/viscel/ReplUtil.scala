@@ -8,20 +8,19 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
+import scalatags.Text.RawFrag
+import scalatags.Text.attrs.src
+import scalatags.Text.implicits.stringAttr
+import scalatags.Text.tags.script
 import viscel.narration.Narrator
-import viscel.scribe.{Article, BlobData, Book, Chapter, ImageRef, Link, PageData, ReadableContent, Vurl, WebContent}
+import viscel.scribe.{Article, BlobData, Chapter, ImageRef, Link, PageData, ReadableContent, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.shared.{Blob, ChapterPos, Description, Gallery, SharedImage, Vid}
 import viscel.store.BlobStore
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
-import scala.collection.mutable
-import scalatags.Text.RawFrag
-import scalatags.Text.attrs.src
-import scalatags.Text.implicits.stringAttr
-import scalatags.Text.tags.script
-
 import scala.collection.immutable.HashSet
+import scala.collection.mutable
 
 class ReplUtil(services: Services) {
 
@@ -144,7 +143,7 @@ class ReplUtil(services: Services) {
     Log.info(s"scanning all blobs …")
     val blobsHashesInDB = {
       services.rowStore.allVids().flatMap { id =>
-        val book = Book.load(id, services.rowStore).get
+        val book = services.rowStore.load(id)
         book.allBlobs().map(_.blob.sha1)
       }.to[HashSet]
     }

@@ -1,6 +1,6 @@
 package viscel.server
 
-import viscel.scribe.{Article, Book, Chapter, ImageRef, LinearizeContents, ReadableContent, RowStore}
+import viscel.scribe.{Article, Chapter, ImageRef, LinearizeContents, ReadableContent, RowStore}
 import viscel.shared.{ChapterPos, Contents, Description, Gallery, SharedImage, Vid}
 import viscel.store.{DescriptionCache, NarratorCache}
 
@@ -8,7 +8,7 @@ class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptio
 
 
   private def description(id: Vid): Description = descriptionCache.getOrElse(id) {
-    val book = Book.load(id, rowStore).get
+    val book = rowStore.load(id)
     Description(id, book.name, LinearizeContents.size(book), unknownNarrator = true)
   }
 
@@ -21,19 +21,18 @@ class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptio
     : (List[SharedImage], List[ChapterPos]) = {
       content match {
         case Nil => (art, chap)
-        case h :: t => {
+        case h :: t =>
           h match {
             case Article(ImageRef(ref, origin, data), blob) =>
               val article = SharedImage(origin = origin.uriString, blob, data)
               recurse(t, article :: art, if (chap.isEmpty) List(ChapterPos("", 0)) else chap, c + 1)
             case Chapter(name) => recurse(t, art, ChapterPos(name, c) :: chap, c)
           }
-        }
       }
     }
 
     // load the book in an order suitable for viewing
-    val pages = Book.load(id, rowStore).map(LinearizeContents.linearizedContents).getOrElse(Nil)
+    val pages = LinearizeContents.linearizedContents(rowStore.load(id))
     if (pages.isEmpty) None
     else {
       val (articles, chapters) = recurse(pages, Nil, Nil, 0)
