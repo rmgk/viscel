@@ -30,31 +30,45 @@ class Crawl(scribe: Scribe,
     val pageData = escritoire.init(book)
     val newBook = pageData.fold(book)(addPageTo(book, appender, _))
 
-    interpret(newBook, escritoire.decider(newBook), escritoire, appender)
+    new Crawling(escritoire, appender).interpret(newBook, escritoire.decider(newBook))
   }
 
-  def interpret(book: Book, decider: Decider, escritoire: CrawlProcessing, rowAppender: RowAppender): Future[Unit] = {
-    val (decision, nextDecider) = decider.decide()
-    decision match {
-      case Some(CrawlTask.Image(imageRequest)) =>
-        requestUtil.getBytes(imageRequest).flatMap { response =>
-          val blobData = escritoire.processImageResponse(response)
-          Log.Crawl.trace(s"Processing ${response.location}, storing $blobData")
-          blobStore.write(blobData.blob.sha1, response.content)
-          rowAppender.append(blobData)
-          val newBook = book.addBlob(blobData)
-          interpret(newBook, nextDecider, escritoire, rowAppender)
-        }
-      case Some(CrawlTask.Page(request, from)) =>
-        requestUtil.getString(request).flatMap { response =>
-          val pageData = escritoire.processPageResponse(book, from, response)
-          Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
-          val newBook: Book = addPageTo(book, rowAppender, pageData)
-          val tasks = escritoire.computeTasks(pageData, newBook)
-          interpret(newBook, nextDecider.addTasks(tasks), escritoire, rowAppender)
-        }
-      case None                                => Future.successful(())
+  class Crawling(escritoire: CrawlProcessing, rowAppender: RowAppender) {
 
+    def interpret(book: Book, decider: Decider): Future[Unit] = {
+      val (decision, nextDecider) = decider.decide()
+      decision match {
+        case Some(CrawlTask.Image(imageRequest)) =>
+          handleImageResponse(nextDecider, imageRequest, book)
+        case Some(CrawlTask.Page(request, from)) =>
+          handlePageResponse(book, request, from, nextDecider)
+        case None                                => Future.successful(())
+
+      }
+    }
+
+    private def handlePageResponse(book: Book,
+                                   request: VRequest,
+                                   from: Link,
+                                   decider: Decider): Future[Unit] = {
+      requestUtil.getString(request).flatMap { response =>
+        val pageData = escritoire.processPageResponse(book, from, response)
+        Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
+        val newBook: Book = addPageTo(book, rowAppender, pageData)
+        val tasks = escritoire.computeTasks(pageData, newBook)
+        interpret(newBook, decider.addTasks(tasks))
+      }
+    }
+    private def handleImageResponse(decider: Decider,
+                                    imageRequest: VRequest,
+                                    book: Book): Future[Unit] = {
+      requestUtil.getBytes(imageRequest).flatMap { response =>
+        val blobData = escritoire.processImageResponse(response)
+        Log.Crawl.trace(s"Processing ${response.location}, storing $blobData")
+        blobStore.write(blobData.blob.sha1, response.content)
+        rowAppender.append(blobData)
+        interpret(book.addBlob(blobData), decider)
+      }
     }
   }
 
