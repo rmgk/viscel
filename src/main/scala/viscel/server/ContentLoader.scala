@@ -1,15 +1,17 @@
 package viscel.server
 
-import viscel.scribe.{Article, Chapter, ImageRef, LinearizeContents, ReadableContent, RowStore}
-import viscel.shared.{ChapterPos, Contents, Description, Gallery, SharedImage, Vid}
+import viscel.scribe.{Article, Book, Chapter, ImageRef, Link, ReadableContent, RowStore, Vurl, WebContent}
+import viscel.shared.{ChapterPos, Contents, Description, Gallery, Log, SharedImage, Vid}
 import viscel.store.{DescriptionCache, NarratorCache}
+
+import scala.collection.mutable
 
 class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptionCache: DescriptionCache) {
 
 
   private def description(id: Vid): Description = descriptionCache.getOrElse(id) {
     val book = rowStore.load(id)
-    Description(id, book.name, LinearizeContents.size(book), unknownNarrator = true)
+    Description(id, book.name, size(book), unknownNarrator = true)
   }
 
   def narration(id: Vid): Option[Contents] = {
@@ -32,7 +34,7 @@ class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptio
     }
 
     // load the book in an order suitable for viewing
-    val pages = LinearizeContents.linearizedContents(rowStore.load(id))
+    val pages = linearizedContents(rowStore.load(id))
     if (pages.isEmpty) None
     else {
       val (articles, chapters) = recurse(pages, Nil, Nil, 0)
@@ -52,6 +54,54 @@ class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptio
       }
     }
     nars ++ known.values
+  }
+
+
+
+  def size(book: Book): Int = linearizedContents(book).count {
+    case Article(_, _) => true
+    case _ => false
+  }
+
+  def linearizedContents(book: Book): List[ReadableContent] = {
+
+    Log.Scribe.info(s"pages for ${book.id}")
+
+    val seen = mutable.HashSet[Vurl]()
+
+    def unseen(contents: List[WebContent]): List[WebContent] = {
+      contents.filter {
+        case link@Link(loc, policy, data) => seen.add(loc)
+        case _ => true
+      }
+    }
+
+    @scala.annotation.tailrec
+    def flatten(remaining: List[WebContent], acc: List[ReadableContent]): List[ReadableContent] = {
+      remaining match {
+        case Nil => acc
+        case h :: t => h match {
+          case Link(loc, policy, data) =>
+            book.pages.get(loc) match {
+              case None => flatten(t, acc)
+              case Some(alp) => flatten(unseen(alp.contents) reverse_::: t, acc)
+            }
+          case art@ImageRef(ref, origin, data) =>
+            val blob = book.blobs.get(ref).map(_.blob)
+            flatten(t, Article(art, blob) :: acc)
+          case chap@Chapter(_) => flatten(t, chap :: acc)
+        }
+      }
+    }
+
+    book.beginning match {
+      case None =>
+        Log.Scribe.warn(s"Book ${book.id} was emtpy")
+        Nil
+      case Some(initialPage) =>
+        flatten(unseen(initialPage.contents.reverse), Nil)
+    }
+
   }
 
 }
