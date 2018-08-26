@@ -3,12 +3,14 @@ package viscel.crawl
 import java.time.Instant
 
 import org.jsoup.Jsoup
+import viscel.crawl.CrawlProcessing.{imageRefTask, initialTasks, linkTask, rechecks}
 import viscel.narration.Narrator
 import viscel.narration.interpretation.NarrationInterpretation
-import viscel.scribe.{BlobData, Book, ImageRef, Link, PageData, Recheck, Volatile, Vurl, WebContent}
-import viscel.shared.Blob
+import viscel.scribe.{BlobData, Book, ImageRef, Link, PageData, Volatile, Vurl, WebContent}
+import viscel.shared.{Blob, Log}
 import viscel.store.BlobStore
-import viscel.crawl.CrawlProcessing.{initialTasks, rechecks, imageRefTask, linkTask}
+
+import scala.collection.mutable
 
 class CrawlProcessing(narrator: Narrator) {
 
@@ -41,16 +43,16 @@ class CrawlProcessing(narrator: Narrator) {
 
 
     PageData(response.request.href,
-                        Vurl.fromString(doc.location()),
-                        contents = contents,
-                        date = response.lastModified.getOrElse(Instant.now()))
+             Vurl.fromString(doc.location()),
+             contents = contents,
+             date = response.lastModified.getOrElse(Instant.now()))
   }
 
 
   def computeTasks(pageData: PageData, book: Book): List[CrawlTask] = {
     pageData.contents.collect {
       case ir@ImageRef(_, _, _) if !book.hasBlob(ir.ref) => imageRefTask(ir)
-      case l@Link(_, _, _) if !book.hasPage(l.ref) => linkTask(l)
+      case l@Link(_, _, _) if !book.hasPage(l.ref)       => linkTask(l)
     }
   }
 }
@@ -59,8 +61,10 @@ object CrawlProcessing {
   def imageRefTask(ir: ImageRef): CrawlTask.Image = CrawlTask.Image(VRequest(ir.ref, Some(ir.origin)))
   def linkTask(link: Link): CrawlTask.Page = CrawlTask.Page(VRequest(link.ref, None), link)
 
-  def initialTasks(book: Book): List[CrawlTask] = emptyImageRefs(book).map(imageRefTask) ::: volatileAndEmptyLinks(book).map(linkTask)
-  def rechecks(book: Book): List[CrawlTask] = Recheck.computeRightmostLinks(book).map(linkTask)
+  def initialTasks(book: Book): List[CrawlTask] = emptyImageRefs(book).map(imageRefTask) :::
+                                                  volatileAndEmptyLinks(book)
+                                                  .map(linkTask)
+  def rechecks(book: Book): List[CrawlTask] = computeRightmostLinks(book).map(linkTask)
 
 
   def pageContents(book: Book): Iterator[WebContent] = {
@@ -72,9 +76,46 @@ object CrawlProcessing {
   }.toList
 
   def volatileAndEmptyLinks(book: Book): List[Link] = pageContents(book).collect {
-    case link@Link(ref, Volatile, _) => link
+    case link@Link(ref, Volatile, _)                => link
     case link@Link(ref, _, _) if !book.hasPage(ref) => link
   }.toList
+
+
+  /** Starts from the entrypoint, traverses the last Link,
+    * collect the path, returns the path from the rightmost child to the root. */
+  def computeRightmostLinks(book: Book): List[Link] = {
+
+    val seen = mutable.HashSet[Vurl]()
+
+    @scala.annotation.tailrec
+    def rightmost(current: PageData, acc: List[Link]): List[Link] = {
+      /* Get the last Link for the current PageData  */
+      val next = current.contents.reverseIterator.find {
+        case Link(loc, _, _) if seen.add(loc) => true
+        case _                                => false
+      } collect { // essentially a typecast …
+                   case l@Link(_, _, _) => l
+                 }
+      next match {
+        case None       => acc
+        case Some(link) =>
+          book.pages.get(link.ref) match {
+            case None             => link :: acc
+            case Some(scribePage) =>
+              rightmost(scribePage, link :: acc)
+          }
+      }
+    }
+
+    book.beginning match {
+      case None              =>
+        Log.Scribe.warn(s"Book ${book.id} was emtpy")
+        Nil
+      case Some(initialPage) =>
+        rightmost(initialPage, Nil)
+    }
+
+  }
 
 }
 
