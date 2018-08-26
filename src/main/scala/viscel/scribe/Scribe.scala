@@ -7,11 +7,10 @@ import viscel.store.DescriptionCache
 import scala.collection.immutable.HashSet
 
 
-
 class Scribe(rowStore: RowStore, descriptionCache: DescriptionCache) {
 
   /** creates a new book able to add new pages */
-  def loadOrCreate(narrator: Narrator): Book = synchronized{
+  def loadOrCreate(narrator: Narrator): Book = synchronized {
     find(narrator.id).getOrElse(create(narrator))
   }
 
@@ -28,7 +27,7 @@ class Scribe(rowStore: RowStore, descriptionCache: DescriptionCache) {
   def addPageTo(book: Book, pageData: PageData): Book = synchronized {
     val (newBook, written) = book.addPage(pageData)
     written match {
-      case None =>
+      case None    =>
       case Some(i) =>
         descriptionCache.updateSize(newBook.id, i)
         rowStore.append(newBook.id, pageData)
@@ -46,7 +45,7 @@ class Scribe(rowStore: RowStore, descriptionCache: DescriptionCache) {
   }
 
   def allDescriptions(): List[Description] = synchronized {
-      rowStore.allVids().map {description}
+    rowStore.allVids().map {description}
   }
 
   private def description(id: Vid): Description = descriptionCache.getOrElse(id) {
@@ -57,13 +56,11 @@ class Scribe(rowStore: RowStore, descriptionCache: DescriptionCache) {
 
   /** helper method for database clean */
   def allBlobsHashes(): Set[String] = {
-    rowStore.allVids().flatMap{ id =>
+    rowStore.allVids().flatMap { id =>
       val book = find(id).get
       book.allBlobs().map(_.blob.sha1)
     }.to[HashSet]
   }
-
-
 
 
 }
