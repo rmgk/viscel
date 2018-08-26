@@ -5,6 +5,7 @@ import viscel.narration.interpretation.NarrationInterpretation.{Combine, Constan
 import viscel.narration.{Narrator, Queries}
 import viscel.scribe.{ImageRef, Link, Volatile, Vurl}
 import viscel.selection.{ReportTools, Selection}
+import viscel.shared.Vid
 
 import scala.collection.immutable.Set
 
@@ -35,7 +36,7 @@ object KatBox {
     ("uberquest", "Uber Quest", None),
     ("yosh", "Yosh!", None),
   ).map { case (_id, _name, _url) =>
-    NarratorADT(s"KatBox_${_id}", _name, List(Link(_url.getOrElse(s"http://${_id}.katbox.net/archive/"), Volatile)),
+    NarratorADT(Vid.from(s"KatBox_${_id}"), _name, List(Link(_url.getOrElse(s"http://${_id}.katbox.net/archive/"), Volatile)),
       Shuffle.of(Selection.many("span.archive-link a.webcomic-link").focus {
         // laslindas at least seems to miss some pages, just skip them
         Decision(_.childNodeSize() == 0, Constant(Good(Nil)), {

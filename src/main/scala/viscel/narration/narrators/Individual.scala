@@ -6,7 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Queries._
 import viscel.narration.Templates
 import viscel.narration.Templates.{SimpleForward, archivePage}
-import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combine, Constant, Decision, DocumentWrapper, LinkDataDecision, NarratorADT, PolicyDecision, Shuffle, TransformUrls, Wrapper}
+import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combine, Constant, Decision, DocumentWrapper, LinkDataDecision, strNarratorADT => NarratorADT, NarratorADT => TNarratorADT, PolicyDecision, Shuffle, TransformUrls, Wrapper}
 import viscel.scribe.Vurl.fromString
 import viscel.scribe.{Chapter, ImageRef, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.ReportTools._
@@ -153,7 +153,7 @@ object Individual {
     })
 
 
-  val inlineCores = Set[NarratorADT](
+  val inlineCores = Set[TNarratorADT](
     archivePage("NX_Twokinds", "Twokinds", "http://twokinds.keenspot.com/archive/",
       queryMixedArchive("#content .chapter h2 , #content .chapter-links a"),
       queryImage("#content article.comic img[alt=Comic Page]")

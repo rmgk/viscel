@@ -7,13 +7,14 @@ import io.circe.generic.auto._
 import org.scalactic.Accumulation._
 import org.scalactic.{Bad, ErrorMessage, Every, Good, One, Or}
 import viscel.shared.Log.{Store => Log}
+import viscel.shared.Vid
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.immutable.Map
 
 class Users(usersDir: Path) {
 
-  def allBookmarks(): Seq[String] = {
+  def allBookmarks(): Seq[Vid] = {
     all() match {
       case Bad(err) =>
         Log.error(s"could not load bookmarked collections: $err")

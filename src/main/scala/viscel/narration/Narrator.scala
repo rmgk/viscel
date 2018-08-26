@@ -5,6 +5,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.Wrapper
 import viscel.scribe.{Link, WebContent}
+import viscel.shared.Vid
 
 /** Describes the structure of a web collection */
 trait Narrator {
@@ -12,7 +13,7 @@ trait Narrator {
     * and used to lookup the [[Narrator]] and the result in all data structures.
     * Typicall something like XX_WonderfulCollection where XX is some grouping string,
     * and WonderfulCollection the normalized [[name]] of the collection. */
-  def id: String
+  def id: Vid
   /** name of the collection */
   def name: String
 

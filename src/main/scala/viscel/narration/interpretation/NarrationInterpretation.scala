@@ -6,6 +6,7 @@ import org.scalactic.{Every, Good, Or}
 import viscel.narration.{Contents, Narrator}
 import viscel.scribe.{ImageRef, Link, Normal, Volatile, Vurl, WebContent}
 import viscel.selection.{Report, Selection}
+import viscel.shared.Vid
 
 
 
@@ -66,7 +67,10 @@ object NarrationInterpretation {
     recurse(outerWrapper)
   }
 
-  case class NarratorADT(id: String, name: String, archive: List[WebContent], wrap: Wrapper) extends Narrator {
+  def strNarratorADT(id: String, name: String, archive: List[WebContent], wrap: Wrapper): NarratorADT =
+    NarratorADT(Vid.from(id), name, archive, wrap)
+
+  case class NarratorADT(id: Vid, name: String, archive: List[WebContent], wrap: Wrapper) extends Narrator {
     override def wrap(doc: Document, link: Link): Contents = interpret(wrap, doc, link)
     override def wrapper: Wrapper = wrap
   }

@@ -2,7 +2,7 @@ package visceljs.render
 
 import org.scalajs.dom.html
 import rescala.default._
-import viscel.shared.Description
+import viscel.shared.{Description, Vid}
 import visceljs.Definitions.link_tools
 import visceljs.visceltags._
 import visceljs.{Actions, Make, SearchUtil}
@@ -13,8 +13,9 @@ import scalatags.JsDom
 import scalatags.JsDom.all._
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags2.aside
+import viscel.shared.Bindings.Bookmarks
 
-class Index(actions: Actions, bookmarks: Signal[Map[String, Int]], descriptions: Signal[Map[String, Description]]) {
+class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal[Map[Vid, Description]]) {
 
 
   def gen(): Signal[JsDom.TypedTag[html.Body]] = {

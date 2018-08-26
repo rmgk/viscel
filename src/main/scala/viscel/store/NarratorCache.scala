@@ -8,7 +8,7 @@ import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
 import viscel.narration.{Metarrator, Narrator, Narrators, ViscelDefinition}
 import viscel.scribe.{Link, Vurl}
-import viscel.shared.Log
+import viscel.shared.{Log, Vid}
 
 import scala.collection.immutable.{Map, Set}
 import scala.concurrent.Future
@@ -26,8 +26,8 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
   @volatile private var cached: Set[Narrator] = calculateAll()
   def all: Set[Narrator] = synchronized(cached)
 
-  @volatile private var narratorMap: Map[String, Narrator] = all.map(n => n.id -> n).toMap
-  def get(id: String): Option[Narrator] = narratorMap.get(id)
+  @volatile private var narratorMap: Map[Vid, Narrator] = all.map(n => n.id -> n).toMap
+  def get(id: Vid): Option[Narrator] = narratorMap.get(id)
 
 
   def loadAll(): Set[Narrator] = synchronized(Narrators.metas.iterator.flatMap[NarratorADT](loadNarrators(_).iterator).toSet)

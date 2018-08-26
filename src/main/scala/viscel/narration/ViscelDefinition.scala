@@ -10,7 +10,7 @@ import viscel.narration.Queries._
 import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Append, NarratorADT, Shuffle, TransformUrls, Wrapper}
 import viscel.scribe.{Link, Vurl}
 import viscel.selection.Report
-import viscel.shared.Log
+import viscel.shared.{Log, Vid}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaIteratorConverter
@@ -113,7 +113,7 @@ object ViscelDefinition {
     val archFunRev = if (has("archiveReverse")) archFunReplace.map(Shuffle(_, chapterReverse)) else archFunReplace
 
     (pageFunReplace, archFunRev) match {
-      case (Some(pf), None) => Good(NarratorADT(cid, name, Link(startUrl) :: Nil, pf))
+      case (Some(pf), None) => Good(NarratorADT(Vid.from(cid), name, Link(startUrl) :: Nil, pf))
       case (Some(pf), Some(af)) => Good(Templates.archivePage(cid, name, startUrl, af, pf))
       case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
     }

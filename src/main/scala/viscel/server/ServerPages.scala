@@ -4,9 +4,8 @@ import akka.http.scaladsl.model._
 import io.circe.Encoder
 import io.circe.syntax._
 import viscel.scribe.{Article, Chapter, ImageRef, ReadableContent, Scribe}
-import viscel.shared.{ChapterPos, Contents, Description, Gallery, SharedImage}
+import viscel.shared.{ChapterPos, Contents, Description, Gallery, SharedImage, Vid}
 import viscel.store.{NarratorCache, User}
-
 import scalatags.Text.attrs.{`for`, `type`, action, cls, content, href, id, rel, src, title, value, name => attrname}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{body, div, fieldset, form, frag, h1, head, html, input, label, legend, link, meta, script}
@@ -15,7 +14,7 @@ import scalatags.text.Frag
 
 class ServerPages(scribe: Scribe, narratorCache: NarratorCache) {
 
-  def narration(id: String): Option[Contents] = {
+  def narration(id: Vid): Option[Contents] = {
     @scala.annotation.tailrec
     def recurse(content: List[ReadableContent], art: List[SharedImage], chap: List[ChapterPos], c: Int): (List[SharedImage], List[ChapterPos]) = {
       content match {

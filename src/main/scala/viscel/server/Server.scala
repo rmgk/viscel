@@ -17,7 +17,7 @@ import viscel.ReplUtil
 import viscel.crawl.WebRequestInterface
 import viscel.narration.Narrator
 import viscel.scribe.Scribe
-import viscel.shared.Bindings
+import viscel.shared.{Bindings, Vid}
 import viscel.shared.Log.{Server => Log}
 import viscel.store.{BlobStore, NarratorCache, User, Users}
 
@@ -66,7 +66,7 @@ class Server(userStore: Users,
   }
 
 
-  private def setBookmark(user: User, bmpos: Int, colid: String): User = {
+  private def setBookmark(user: User, bmpos: Int, colid: Vid): User = {
     if (bmpos > 0) userStore.userUpdate(user.setBookmark(colid, bmpos))
     else userStore.userUpdate(user.removeBookmark(colid))
   }
@@ -160,7 +160,7 @@ class Server(userStore: Users,
       } ~
       path("export" / Segment) { (id) =>
         if (!user.admin) reject
-        else onComplete(Future(replUtil.export(id))) {
+        else onComplete(Future(replUtil.export(Vid.from(id)))) {
           case Success(v) => complete("success")
           case Failure(e) => complete(e.toString())
         }
@@ -168,7 +168,7 @@ class Server(userStore: Users,
       path("import") {
         if (!user.admin) reject
         else parameters(('id.as[String], 'name.as[String], 'path.as[String])) { (id, name, path) =>
-          onComplete(Future(replUtil.importFolder(path, s"Import_$id", name))) {
+          onComplete(Future(replUtil.importFolder(path, Vid.from(s"Import_$id"), name))) {
             case Success(v) => complete("success")
             case Failure(e) => complete(e.toString())
           }

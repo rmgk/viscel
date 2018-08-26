@@ -6,7 +6,7 @@ import better.files.File
 import io.circe.syntax._
 import viscel.narration.Narrator
 import viscel.scribe.ScribePicklers._
-import viscel.shared.Description
+import viscel.shared.{Description, Vid}
 import viscel.store.{DescriptionCache, Json}
 
 import scala.collection.JavaConverters._
@@ -28,11 +28,11 @@ class Scribe(basedir: Path, descriptionCache: DescriptionCache) {
 
   /** returns the list of pages of an id, an empty list if the id does not exist
     * used by the server to inform the client */
-  def findPages(id: String): List[ReadableContent] = {
+  def findPages(id: Vid): List[ReadableContent] = {
     find(id).map(LinearizeContents.linearizedContents).getOrElse(Nil)
   }
 
-  private def find(id: String): Option[Book] = synchronized {
+  private def find(id: Vid): Option[Book] = synchronized {
     val path = bookpath(id)
     if (Files.isRegularFile(path) && Files.size(path) > 0) {
       val book = Book.load(path)
@@ -43,12 +43,12 @@ class Scribe(basedir: Path, descriptionCache: DescriptionCache) {
 
   def allDescriptions(): List[Description] = synchronized {
     Files.list(basedir).iterator().asScala.filter(Files.isRegularFile(_)).map { path =>
-      val id = path.getFileName.toString
+      val id = Vid.from(path.getFileName.toString)
       description(id)
     }.toList
   }
 
-  private def description(id: String): Description = descriptionCache.getOrElse(id) {
+  private def description(id: Vid): Description = descriptionCache.getOrElse(id) {
     val book = find(id).get
     Description(id, book.name, LinearizeContents.size(book), unknownNarrator = true)
   }
@@ -57,7 +57,7 @@ class Scribe(basedir: Path, descriptionCache: DescriptionCache) {
   /** helper method for database clean */
   def allBlobsHashes(): Set[String] = {
     Files.list(basedir).iterator().asScala.filter(Files.isRegularFile(_)).flatMap { path =>
-      val id = path.getFileName.toString
+      val id = Vid.from(path.getFileName.toString)
       val book = find(id).get
       book.allBlobs().map(_.blob.sha1)
     }.to[HashSet]
@@ -80,10 +80,10 @@ class Scribe(basedir: Path, descriptionCache: DescriptionCache) {
     newBook
   }
 
-  private def writeScribeDataRow(book: Book, blobData: ScribeDataRow) = {
+  private def writeScribeDataRow(book: Book, blobData: ScribeDataRow): Unit = {
     File(bookpath(book.id)).appendLine(blobData.asJson.noSpaces)(charset = StandardCharsets.UTF_8)
   }
 
-  private def bookpath(id: String) = basedir.resolve(id)
+  private def bookpath(id: Vid) = basedir.resolve(id.str)
 
 }

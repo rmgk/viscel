@@ -1,9 +1,9 @@
 package visceljs
 
-import viscel.shared.{SharedImage, Contents, Description, Gallery}
+import viscel.shared.{Contents, Description, Gallery, SharedImage, Vid}
 
 case class Data(description: Description, content: Contents, bookmark: Int) {
-  def id: String = description.id
+  def id: Vid = description.id
   def pos: Int = content.gallery.pos
   def gallery: Gallery[SharedImage] = content.gallery
   def move(f: Gallery[SharedImage] => Gallery[SharedImage]): Data = copy(content = content.copy(gallery = f(gallery)))

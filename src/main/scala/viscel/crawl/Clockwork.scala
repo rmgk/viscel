@@ -4,6 +4,7 @@ import java.nio.file.Path
 import java.util.{Timer, TimerTask}
 
 import viscel.narration.Narrator
+import viscel.shared.Vid
 import viscel.store.{Json, NarratorCache, Users}
 
 import scala.collection.immutable.Map
@@ -26,7 +27,7 @@ class Clockwork(path: Path,
   val delay: Long = 0L
   val period: Long = 60L * 60L * 1000L // every hour
 
-  var running: Set[String] = Set.empty
+  var running: Set[Vid] = Set.empty
 
   def recheckPeriodically(): Unit = {
     timer.scheduleAtFixedRate(new TimerTask {
@@ -70,18 +71,18 @@ class Clockwork(path: Path,
       t.printStackTrace()
   }
 
-  private var updateTimes: Map[String, Long] = Json.load[Map[String, Long]](path).fold(x => x, err => {
+  private var updateTimes: Map[Vid, Long] = Json.load[Map[Vid, Long]](path).fold(x => x, err => {
     log.error(s"could not load $path: $err")
     Map()
   })
 
-  def updateDates(id: String): Unit = synchronized {
+  def updateDates(id: Vid): Unit = synchronized {
     val time = System.currentTimeMillis()
     updateTimes = updateTimes.updated(id, time)
     Json.store(path, updateTimes)
   }
 
-  def needsRecheck(id: String, recheckInterval: Long): Boolean = synchronized {
+  def needsRecheck(id: Vid, recheckInterval: Long): Boolean = synchronized {
     val lastRun = updateTimes.get(id)
     val time = System.currentTimeMillis()
     val res = lastRun.isEmpty || (time - lastRun.get > recheckInterval)

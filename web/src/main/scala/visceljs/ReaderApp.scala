@@ -11,7 +11,7 @@ import rescala.levelbased.LevelStructImpl
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all.{body, stringFrag}
-import viscel.shared.{Contents, Description, Log, SharedImage}
+import viscel.shared.{Contents, Description, Log, SharedImage, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.Navigation.{Mode, Next, Prev, navigationEvents}
@@ -26,16 +26,16 @@ import scala.scalajs.js.URIUtils.decodeURIComponent
 import scala.util.Try
 
 
-class ReaderApp(requestContents: String => Future[Option[Contents]],
-                val descriptions: Signal[Map[String, Description]],
-                val bookmarks: Signal[Map[String, Int]],
+class ReaderApp(requestContents: Vid => Future[Option[Contents]],
+                val descriptions: Signal[Map[Vid, Description]],
+                val bookmarks: Signal[Map[Vid, Int]],
                 hint: (Description, Boolean) => Unit
                ) {
 
 
   implicit val readAssets: Decoder[List[SharedImage]] = Predef.implicitly[Decoder[List[SharedImage]]]
 
-  private val contents: scala.collection.mutable.Map[String, Signal[Contents]] = mutable.Map()
+  private val contents: scala.collection.mutable.Map[Vid, Signal[Contents]] = mutable.Map()
 
 
 
@@ -49,10 +49,10 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
       paths match {
         case Nil | "" :: Nil => IndexState
         case encodedId :: Nil =>
-          val id = decodeURIComponent(encodedId)
+          val id = Vid.from(decodeURIComponent(encodedId))
           FrontState(id)
         case encodedId :: posS :: Nil =>
-          val id = decodeURIComponent(encodedId)
+          val id = Vid.from(decodeURIComponent(encodedId))
           val pos = Integer.parseInt(posS)
           ViewState(id, pos - 1)
         case _ => IndexState
@@ -171,7 +171,7 @@ class ReaderApp(requestContents: String => Future[Option[Contents]],
     bodyElement
   }
 
-  def getDataSignal(id: String): Signal[Data] = {
+  def getDataSignal(id: Vid): Signal[Data] = {
     Signal.dynamic {
       val description = descriptions.value(id)
       val bm = bookmarks().getOrElse(description.id, 0)

@@ -6,9 +6,10 @@ import java.nio.file.Path
 import better.files.File
 import viscel.scribe.ScribePicklers._
 import viscel.shared.Log.{Scribe => Log}
+import viscel.shared.Vid
 
 
-case class Book(id: String,
+case class Book(id: Vid,
                 name: String,
                 pages: Map[Vurl, PageData],
                 blobs: Map[Vurl, BlobData],
@@ -56,7 +57,7 @@ object Book {
     val blobs: Map[Vurl, BlobData] = entryList.collect{ case bd@BlobData(ref, loc, date, blob) => (ref, bd) }(scala.collection.breakOut)
 
 
-    val id = path.getFileName.toString
+    val id = Vid.from(path.getFileName.toString)
     new Book(id, name, pages, blobs)
   }
 }

@@ -11,7 +11,7 @@ import org.scalactic.{Every, Or}
 import viscel.narration.Narrator
 import viscel.scribe.{Article, BlobData, Chapter, ImageRef, Link, PageData, ReadableContent, Vurl, WebContent}
 import viscel.selection.Report
-import viscel.shared.{Blob, ChapterPos, Description, Gallery, SharedImage}
+import viscel.shared.{Blob, ChapterPos, Description, Gallery, SharedImage, Vid}
 import viscel.store.BlobStore
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
@@ -33,7 +33,7 @@ class ReplUtil(services: Services) {
     case _ => default
   }
 
-  def export(id: String): Unit = {
+  def export(id: Vid): Unit = {
 
     val narrationOption = services.serverPages.narration(id)
 
@@ -43,7 +43,7 @@ class ReplUtil(services: Services) {
     }
 
 
-    val p = services.exportdir.resolve(id)
+    val p = services.exportdir.resolve(id.str)
     Files.createDirectories(p)
 
 
@@ -89,7 +89,7 @@ class ReplUtil(services: Services) {
 
   }
 
-  def importFolder(path: String, nid: String, nname: String): Unit = {
+  def importFolder(path: String, nid: Vid, nname: String): Unit = {
 
     import scala.math.Ordering.Implicits.seqDerivedOrdering
 
@@ -123,7 +123,7 @@ class ReplUtil(services: Services) {
     }
 
     val narrator = new Narrator {
-      override def id: String = nid
+      override def id: Vid = nid
       override def name: String = nname
       override def archive: List[WebContent] = ???
       override def wrap(doc: Document, more: Link): Or[List[WebContent], Every[Report]] = ???
