@@ -16,7 +16,6 @@ import rescala.default.{Evt, implicitScheduler}
 import viscel.ReplUtil
 import viscel.crawl.WebRequestInterface
 import viscel.narration.Narrator
-import viscel.scribe.Scribe
 import viscel.shared.{Bindings, Vid}
 import viscel.shared.Log.{Server => Log}
 import viscel.store.{BlobStore, NarratorCache, User, Users}
@@ -27,7 +26,7 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class Server(userStore: Users,
-             scribe: Scribe,
+             contentLoader: ContentLoader,
              blobStore: BlobStore,
              requestUtil: WebRequestInterface,
              terminate: () => Unit,
@@ -47,8 +46,8 @@ class Server(userStore: Users,
       val registry = new Registry
       registry.listen(webSocket)
 
-      registry.bind(Bindings.contents)(pages.narration)
-      registry.bind(Bindings.descriptions)(() => pages.narrations())
+      registry.bind(Bindings.contents)(contentLoader.narration)
+      registry.bind(Bindings.descriptions)(() => contentLoader.narrations())
       registry.bind(Bindings.hint) { (description, force) =>
         val nar = narratorCache.get(description.id)
         if (nar.isDefined) narratorHint.fire(nar.get -> force)

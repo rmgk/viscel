@@ -1,7 +1,7 @@
 package viscel.crawl
 
 import viscel.narration.Narrator
-import viscel.scribe.{Book, Link, PageData, RowAppender, RowStore, Scribe}
+import viscel.scribe.{Book, Link, PageData, RowAppender, RowStore}
 import viscel.shared.Log
 import viscel.store.{BlobStore, DescriptionCache}
 
@@ -15,8 +15,7 @@ object CrawlTask {
 }
 
 
-class Crawl(scribe: Scribe,
-            blobStore: BlobStore,
+class Crawl(blobStore: BlobStore,
             requestUtil: WebRequestInterface,
             rowStore: RowStore,
             descriptionCache: DescriptionCache)

@@ -9,7 +9,7 @@ import io.circe.syntax._
 import org.jsoup.nodes.Document
 import org.scalactic.{Every, Or}
 import viscel.narration.Narrator
-import viscel.scribe.{Article, BlobData, Chapter, ImageRef, Link, PageData, ReadableContent, Vurl, WebContent}
+import viscel.scribe.{Article, BlobData, Book, Chapter, ImageRef, Link, PageData, ReadableContent, Vurl, WebContent}
 import viscel.selection.Report
 import viscel.shared.{Blob, ChapterPos, Description, Gallery, SharedImage, Vid}
 import viscel.store.BlobStore
@@ -20,6 +20,8 @@ import scalatags.Text.RawFrag
 import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
+
+import scala.collection.immutable.HashSet
 
 class ReplUtil(services: Services) {
 
@@ -35,7 +37,7 @@ class ReplUtil(services: Services) {
 
   def export(id: Vid): Unit = {
 
-    val narrationOption = services.serverPages.narration(id)
+    val narrationOption = services.contentLoader.narration(id)
 
     if (narrationOption.isEmpty) {
       Log.warn(s"$id not found")
@@ -140,7 +142,12 @@ class ReplUtil(services: Services) {
 
   def cleanBlobDirectory(): Unit = {
     Log.info(s"scanning all blobs …")
-    val blobsHashesInDB = services.scribe.allBlobsHashes()
+    val blobsHashesInDB = {
+      services.rowStore.allVids().flatMap { id =>
+        val book = Book.load(id, services.rowStore).get
+        book.allBlobs().map(_.blob.sha1)
+      }.to[HashSet]
+    }
     Log.info(s"scanning files …")
     val bsn = new BlobStore(services.basepath.resolve("blobbackup"))
 

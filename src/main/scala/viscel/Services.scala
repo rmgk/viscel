@@ -13,7 +13,7 @@ import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{AkkaHttpRequester, Clockwork, Crawl}
 import viscel.narration.Narrator
 import viscel.scribe.RowStore
-import viscel.server.{Server, ServerPages}
+import viscel.server.{ContentLoader, Server, ServerPages}
 import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -44,7 +44,6 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
   lazy val blobs            = new BlobStore(blobdir)
   lazy val userStore        = new Users(usersdir)
   lazy val rowStore         = new RowStore(scribedir)
-  lazy val scribe           = new viscel.scribe.Scribe(rowStore, descriptionCache)
   lazy val narratorCache    = new NarratorCache(metarratorconfigdir, definitionsdir)
 
 
@@ -69,9 +68,10 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
 
   /* ====== main webserver ====== */
 
-  lazy val serverPages = new ServerPages(scribe, narratorCache)
+  lazy val contentLoader = new ContentLoader(narratorCache, rowStore, descriptionCache)
+  lazy val serverPages = new ServerPages()
   lazy val server      = new Server(userStore = userStore,
-                                    scribe = scribe,
+                                    contentLoader = contentLoader,
                                     blobStore = blobs,
                                     requestUtil = requests,
                                     terminate = () => terminateServer(),
@@ -106,8 +106,7 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
 
   /* ====== clockwork ====== */
 
-  lazy val crawl: Crawl = new Crawl(scribe = scribe,
-                                    blobStore = blobs,
+  lazy val crawl: Crawl = new Crawl(blobStore = blobs,
                                     requestUtil = requests,
                                     rowStore = rowStore,
                                     descriptionCache = descriptionCache)(executionContext)
