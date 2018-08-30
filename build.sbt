@@ -108,9 +108,9 @@ lazy val Libraries = new {
     "org.scalactic" %% "scalactic" % "3.0.5",
     "org.jsoup" % "jsoup" % "1.11.3",
     "com.github.pathikrit"  %% "better-files"  % "3.6.0",
-    "com.monovore" %% "decline" % "0.4.1",
+    "com.monovore" %% "decline" % "0.5.0",
     // akk http requires explicit dependency on akka-stream
-    "com.typesafe.akka" %% "akka-stream" % "2.5.14",
+    "com.typesafe.akka" %% "akka-stream" % "2.5.16",
     ).++(
     Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.1.4")
   ).map(_ exclude("org.scala-lang", "scala-reflect")).++(Seq(
