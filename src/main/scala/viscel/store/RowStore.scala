@@ -26,7 +26,7 @@ class RowStore(basePath: Path) {
   }
 
 
-  def load(id: Vid): Book = synchronized {
+  def load(id: Vid): (String, List[ScribeDataRow]) = synchronized {
     Log.info(s"loading $id")
 
     val f = File(basePath)./(id.str)
@@ -44,18 +44,15 @@ class RowStore(basePath: Path) {
             throw t
         }
       }.toList
-
-      val pages: Map[Vurl, PageData] = entryList.collect {
-        case pd@PageData(ref, _, date, contents) => (ref, pd)
-      }(scala.collection.breakOut)
-
-      val blobs: Map[Vurl, BlobData] = entryList.collect {
-        case bd@BlobData(ref, loc, date, blob) => (ref, bd)
-      }(scala.collection.breakOut)
-
-      Book(id, name, pages, blobs)
+      (name, entryList)
     }
   }
+
+  def loadBook(id: Vid): Book = {
+    val (name, entryList) = load(id)
+    Book.fromEntries(id, name, entryList)
+  }
+
 }
 
 class RowAppender(file: File) {

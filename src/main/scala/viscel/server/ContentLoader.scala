@@ -9,7 +9,7 @@ class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptio
 
 
   private def description(id: Vid): Description = descriptionCache.getOrElse(id) {
-    val book = rowStore.load(id)
+    val book = rowStore.loadBook(id)
     Description(id, book.name, size(book), unknownNarrator = true)
   }
 
@@ -33,7 +33,7 @@ class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptio
     }
 
     // load the book in an order suitable for viewing
-    val pages = linearizedContents(rowStore.load(id))
+    val pages = linearizedContents(rowStore.loadBook(id))
     if (pages.isEmpty) None
     else {
       val (articles, chapters) = recurse(pages, Nil, Nil, 0)

@@ -1,6 +1,5 @@
 package viscel.tests
 
-import org.scalacheck.Arbitrary
 import org.scalatest.FreeSpec
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import viscel.crawl.{CrawlTask, Decider}
@@ -19,8 +18,7 @@ class DeciderTests extends FreeSpec with GeneratorDrivenPropertyChecks {
 
   "empty" - {
     "decide" in { assert(empty.decide() === None ) }
-    "add" in {
-      val req = Arbitrary.arbitrary[CrawlTask].sample.get
+    "add" in forAll { req: CrawlTask =>
       val Some((decision, next)) = empty.addTasks(List(req)).decide()
       assert (decision === req)
       assert(next.decide() === None)
@@ -31,7 +29,6 @@ class DeciderTests extends FreeSpec with GeneratorDrivenPropertyChecks {
       assert(decider.decide() === None)
       assert(decider.imageDecisions === requests.count(_.isInstanceOf[CrawlTask.Image]))
     }
-
   }
 
 }

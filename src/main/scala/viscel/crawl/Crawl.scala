@@ -22,7 +22,7 @@ class Crawl(blobStore: BlobStore,
 
   def start(narrator: Narrator): Future[Unit] = {
     val appender = rowStore.open(narrator)
-    val book = rowStore.load(narrator.id)
+    val book = rowStore.loadBook(narrator.id)
     val processing = new CrawlProcessing(narrator)
 
     val pageData = processing.init(book)

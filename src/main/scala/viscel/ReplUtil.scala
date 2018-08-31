@@ -142,7 +142,7 @@ class ReplUtil(services: Services) {
     Log.info(s"scanning all blobs …")
     val blobsHashesInDB = {
       services.rowStore.allVids().flatMap { id =>
-        val book = services.rowStore.load(id)
+        val book = services.rowStore.loadBook(id)
         book.allBlobs().map(_.blob.sha1)
       }.to[HashSet]
     }
