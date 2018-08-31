@@ -9,7 +9,7 @@ import io.circe.generic.extras._
 import io.circe.{Decoder, Encoder, Json => cJson}
 import viscel.shared.Blob
 
-/** Single row in a [[Scribe]] [[Book]]. Is either a [[PageData]] or a [[BlobData]]. */
+/** Single row in a [[RowStore]]. Is either a [[PageData]] or a [[BlobData]]. */
 sealed trait ScribeDataRow {
   /** reference that spawned this entry */
   def ref: Vurl
@@ -23,7 +23,7 @@ sealed trait ScribeDataRow {
   }
 }
 
-/** A web page parsed and stored in [[Scribe]]
+/** A web page parsed and stored in [[RowStore]] and [[Book]]
   *
   * @param ref      reference that spawned this entry
   * @param loc      location that was finally resolved and downloaded
@@ -38,7 +38,7 @@ sealed trait ScribeDataRow {
   def articleCount: Int = contents.count(_.isInstanceOf[ImageRef])
 }
 
-/** A reference to a binary object stored in [[Scribe]]
+/** A reference to a binary object stored in [[RowStore]] and [[Book]]
   *
   * @param ref  reference that spawned this entry, linked to [[ImageRef.ref]]
   * @param loc  location that was finally resolved and downloaded
