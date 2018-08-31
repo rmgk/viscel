@@ -6,7 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Queries._
 import viscel.narration.Templates
 import viscel.narration.Templates.{SimpleForward, archivePage}
-import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combination, Constant, Decision, DocumentWrapper, LinkDataDecision, PolicyDecision, Shuffle, TransformUrls, Wrapper, NarratorADT => TNarratorADT, strNarratorADT => NarratorADT}
+import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combination, Constant, Decision, ElementWrapper, LinkDataDecision, PolicyDecision, Shuffle, TransformUrls, Wrapper, NarratorADT => TNarratorADT, strNarratorADT => NarratorADT}
 import viscel.selection.ReportTools._
 import viscel.selection.Selection
 import viscel.store.Vurl.fromString
@@ -57,7 +57,7 @@ object Individual {
     LinkDataDecision(_.exists("archive" == _), {
       Selection.many("#main p:containsOwn(Chapter)").focus {
         Append(
-          DocumentWrapper(chap => extract(Chapter(chap.ownText()) :: Nil)),
+          ElementWrapper(chap => extract(Chapter(chap.ownText()) :: Nil)),
           Selection.many("a").wrapEach(extractMore))
       }
     }, {
@@ -87,7 +87,7 @@ object Individual {
             .unique(".comiclist table.wide_gallery")
             .many("[id~=^comic_\\d+$] .picture a").focus {
             val element_? = Selection.unique("img").wrapOne {intoArticle}
-            val origin_? = DocumentWrapper(extractURL)
+            val origin_? = ElementWrapper(extractURL)
             Combination.of(element_?, origin_?) { (element, origin) =>
               element.copy(
                 ref = element.ref.uriString.replace("/t", "/"),
@@ -185,7 +185,7 @@ object Individual {
       queryImageNext(".comicImage", "center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])")),
     archivePage("NX_MegaTokyo", "MegaTokyo", "http://megatokyo.com/archive.php",
       Selection.many("div.content:has(a[id~=^C-\\d+$])").focus {
-        val chapter_? = DocumentWrapper(chap => extract(Chapter(chap.child(0).text())::Nil))
+        val chapter_? = ElementWrapper(chap => extract(Chapter(chap.child(0).text()) :: Nil))
         val elements_? = Selection.many("li a").wrapEach(extractMore)
         Append(chapter_?, elements_?)
       }, {
@@ -201,7 +201,7 @@ object Individual {
       Alternative(queryImageNext("img.ksc", "a:has(#next_day1)"),queryNext("a:has(#next_day1)"))),
     archivePage("NX_PhoenixRequiem", "The Phoenix Requiem", "http://requiem.seraph-inn.com/archives.html",
       Selection.many("#container div.main > table tr:contains(Chapter)").focus {
-        val chapter_? = DocumentWrapper(chap => extract(Chapter(chap.child(0).text())::Nil))
+        val chapter_? = ElementWrapper(chap => extract(Chapter(chap.child(0).text()) :: Nil))
         val elements_? = Selection.many("a").wrapEach(extractMore)
         Append(chapter_?, elements_?)
       },

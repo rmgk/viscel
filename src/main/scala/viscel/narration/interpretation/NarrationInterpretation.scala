@@ -42,7 +42,7 @@ object NarrationInterpretation {
     def recurse[Ti](wrapper: WrapPart[Ti]): Ti Or Every[Report] = {
       val res: Or[Ti, Every[Report]] = wrapper match {
         case OmnipotentWrapper(narrator)             => narrator(doc.ownerDocument(), link)
-        case DocumentWrapper(wrap)                   => wrap(doc)
+        case ElementWrapper(wrap)                    => wrap(doc)
         case PolicyDecision(volatile, normal)        => link match {
           case Link(_, Volatile, _) => recurse(volatile)
           case Link(_, Normal, _)   => recurse(normal)
@@ -78,7 +78,7 @@ object NarrationInterpretation {
 
   sealed trait WrapPart[+T]
   case class OmnipotentWrapper(narrator: (Document, Link) => Contents) extends Wrapper
-  case class DocumentWrapper[T](wrapPage: Element => T Or Every[Report]) extends WrapPart[T]
+  case class ElementWrapper[T](wrapPage: Element => T Or Every[Report]) extends WrapPart[T]
   case class PolicyDecision[T](volatile: WrapPart[T], normal: WrapPart[T]) extends WrapPart[T]
   case class LinkDataDecision[T](pred: List[String] => Boolean, isTrue: WrapPart[T], isFalse: WrapPart[T]) extends WrapPart[T]
 

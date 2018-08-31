@@ -5,7 +5,7 @@ import io.circe.{Decoder, Encoder}
 import org.scalactic.Good
 import viscel.narration.Queries.RegexContext
 import viscel.narration.interpretation.NarrationInterpretation
-import viscel.narration.interpretation.NarrationInterpretation.{DocumentWrapper, WrapPart}
+import viscel.narration.interpretation.NarrationInterpretation.{ElementWrapper, WrapPart}
 import viscel.narration.{Metarrator, Queries, Templates}
 import viscel.store.Vurl
 
@@ -25,7 +25,7 @@ object Comicfury extends Metarrator[Cfury]("Comicfury") {
     case _ => None
   }
 
-  override def wrap: WrapPart[List[Cfury]] = DocumentWrapper { document =>
+  override def wrap: WrapPart[List[Cfury]] = ElementWrapper { document =>
     val rex"http://($cid[^\.]+)\.thecomicseries.com/" = document.baseUri()
     Good(Cfury(cid, s"[CF] $cid") :: Nil)
   }
