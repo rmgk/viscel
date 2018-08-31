@@ -14,6 +14,7 @@ sealed trait ScribeDataRow {
   /** reference that spawned this entry */
   def ref: Vurl
   def matchesRef(o: ScribeDataRow): Boolean = ref == o.ref
+  /** Basically equals, but ignoring date */
   def differentContent(o: ScribeDataRow): Boolean = (this, o) match {
     case (PageData(ref1, loc1, _, contents1), PageData(ref2, loc2, _, contents2)) =>
       !(ref1 == ref2 && loc1 == loc2 && contents1 == contents2)

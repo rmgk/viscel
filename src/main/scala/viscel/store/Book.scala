@@ -10,6 +10,8 @@ case class Book(id: Vid,
 
   def addBlob(blob: BlobData): Book = copy(blobs = blobs.updated(blob.ref, blob))
 
+  /** Add a new page to this book.
+    * @return New book and an estimate of the increased size, or None if the book is unchanged. */
   def addPage(entry: PageData): (Book, Option[Int]) = {
     val oldPage = pages.get(entry.ref)
     if (oldPage.isEmpty || oldPage.get.differentContent(entry)) {
