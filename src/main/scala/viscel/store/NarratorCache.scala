@@ -36,9 +36,9 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
   def add(start: String, requestUtil: WebRequestInterface): Future[List[Narrator]] = {
     def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
       requestUtil.getString(VRequest(url)).map { resp =>
-        val nars = NarrationInterpretation.interpret(metarrator.wrap,
-                                                     Jsoup.parse(resp.content, resp.location.uriString()),
-                                                     Link(url)).get
+        val payload = resp.content
+        val doc = Jsoup.parse(payload, resp.location.uriString())
+        val nars = NarrationInterpretation.NI(Link(url), payload, doc).interpret(metarrator.wrap).get
         synchronized {
           save(metarrator, nars ++ load(metarrator))
           updateCache()

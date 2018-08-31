@@ -34,10 +34,11 @@ class CrawlProcessing(narrator: Narrator) {
 
   def processPageResponse(book: Book, link: Link, response: VResponse[String]): PageData = {
 
+    val payload = response.content
     val doc = Jsoup.parse(response.content, response.location.uriString())
 
-    val contents = NarrationInterpretation
-                   .interpret[List[WebContent]](narrator.wrapper, doc, link)
+    val contents = NarrationInterpretation.NI(link, payload, doc)
+                   .interpret[List[WebContent]](narrator.wrapper)
                    .fold(identity, r => throw WrappingException(link, r))
 
 

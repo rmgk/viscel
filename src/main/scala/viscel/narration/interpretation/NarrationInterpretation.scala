@@ -38,39 +38,41 @@ object NarrationInterpretation {
     }
   }
 
-  def interpret[T](outerWrapper: WrapPart[T], doc: Element, link: Link): T Or Every[Report] = {
-    def recurse[Ti](wrapper: WrapPart[Ti]): Ti Or Every[Report] = {
-      val res: Or[Ti, Every[Report]] = wrapper match {
-        case OmnipotentWrapper(narrator)             => narrator(doc.ownerDocument(), link)
-        case ElementWrapper(wrap)                    => wrap(doc)
+  case class NI(link: Link, textContent: String, document: Document) {
+    def interpret[T](outerWrapper: WrapPart[T]): T Or Every[Report] = {
+      recurse(outerWrapper)(document)
+    }
+    def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T Or Every[Report] = {
+      val res: Or[T, Every[Report]] = wrapper match {
+        case OmnipotentWrapper(narrator)             => narrator(element.ownerDocument(), link)
+        case ElementWrapper(wrap)                    => wrap(element)
         case PolicyDecision(volatile, normal)        => link match {
           case Link(_, Volatile, _) => recurse(volatile)
           case Link(_, Normal, _)   => recurse(normal)
         }
         case TransformUrls(target, replacements)     => recurse(target).map(transformUrls(replacements))
         case AdditionalErrors(target, augmentation)  => recurse(target).badMap(augmentation)
-        case SelectionWrap(sel, fun)                 => applySelection(doc, sel).flatMap(fun)
+        case SelectionWrap(sel, fun)                 => applySelection(element, sel).flatMap(fun)
         case Combination(left, right, fun)           => withGood(recurse(left), recurse(right))(fun)
         case Shuffle(target, fun)                    => recurse(target).map(fun)
         case LinkDataDecision(pred, isTrue, isFalse) => if (pred(link.data)) recurse(isTrue) else recurse(isFalse)
         case Focus(selection, continue)              => recurse(selection).flatMap { listOfElements =>
-          listOfElements.validatedBy(interpret(continue, _, link)).map(_.flatten)
+          listOfElements.validatedBy(recurse(continue)(_)).map(_.flatten)
         }
-        case Decision(pred, isTrue, isFalse)         => if (pred(doc)) recurse(isTrue) else recurse(isFalse)
+        case Decision(pred, isTrue, isFalse)         => if (pred(element)) recurse(isTrue) else recurse(isFalse)
         case Constant(t)                             => t
         case Alternative(left, right)                => recurse(left).orElse(recurse(right))
       }
       res
     }
-
-    recurse(outerWrapper)
   }
+
+
 
   def strNarratorADT(id: String, name: String, archive: List[WebContent], wrap: Wrapper): NarratorADT =
     NarratorADT(Vid.from(id), name, archive, wrap)
 
   case class NarratorADT(id: Vid, name: String, archive: List[WebContent], wrap: Wrapper) extends Narrator {
-    override def wrap(doc: Document, link: Link): Contents = interpret(wrap, doc, link)
     override def wrapper: Wrapper = wrap
   }
 

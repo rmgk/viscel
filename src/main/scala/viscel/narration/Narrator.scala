@@ -1,11 +1,9 @@
 package viscel.narration
 
-import org.jsoup.nodes.Document
 import org.scalactic.TypeCheckedTripleEquals._
-import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.Wrapper
-import viscel.store.{Link, WebContent}
 import viscel.shared.Vid
+import viscel.store.WebContent
 
 /** Describes the structure of a web collection */
 trait Narrator {
@@ -20,15 +18,8 @@ trait Narrator {
   /** Starting link, or multiple links in case the structure is very static */
   def archive: List[WebContent]
 
-  /** Wraps a [[Document]] into [[Contents]]
-    *
-    * @param doc  root document returned when downloading link
-    * @param link link that describes the doc
-    * @return list of all the contents of the document, or all error messages during parsing
-    */
-  def wrap(doc: Document, link: Link): Contents
-
-  def wrapper: Wrapper = NarrationInterpretation.OmnipotentWrapper(wrap)
+  /** Interpret to wraps a [[org.jsoup.nodes.Document]] into [[Contents]] */
+  def wrapper: Wrapper
 
   final override def equals(other: Any): Boolean = other match {
     case o: Narrator => id === o.id

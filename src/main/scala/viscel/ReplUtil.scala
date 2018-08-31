@@ -6,16 +6,14 @@ import java.time.Instant
 
 import io.circe.generic.auto._
 import io.circe.syntax._
-import org.jsoup.nodes.Document
-import org.scalactic.{Every, Or}
 import scalatags.Text.RawFrag
 import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
 import viscel.narration.Narrator
-import viscel.store.{Article, BlobData, BlobStore, Chapter, ImageRef, Link, PageData, ReadableContent, Vurl, WebContent}
-import viscel.selection.Report
+import viscel.narration.interpretation.NarrationInterpretation.Wrapper
 import viscel.shared.{Blob, ChapterPos, Description, Gallery, SharedImage, Vid}
+import viscel.store.{Article, BlobData, BlobStore, Chapter, ImageRef, PageData, ReadableContent, Vurl, WebContent}
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.HashSet
@@ -126,7 +124,7 @@ class ReplUtil(services: Services) {
       override def id: Vid = nid
       override def name: String = nname
       override def archive: List[WebContent] = ???
-      override def wrap(doc: Document, more: Link): Or[List[WebContent], Every[Report]] = ???
+      override def wrapper: Wrapper = ???
     }
     val id = narrator.id
     val appender = services.rowStore.open(narrator)
