@@ -61,7 +61,6 @@ class AkkaHttpRequester(ioHttp: HttpExt)
       headers = request.origin.map(x => Referer.apply(x.uri)).toList)
     requestWithRedirects(req).map{ resp =>
       VResponse(resp,
-                request,
                 location = extractResponseLocation(request.href, resp),
                 mime = resp.entity.contentType.mediaType.toString(),
                 lastModified = extractLastModified(resp))

@@ -7,7 +7,7 @@ import viscel.store.Vurl
 import scala.concurrent.Future
 
 case class VRequest(href: Vurl, origin: Option[Vurl] = None)
-case class VResponse[T](content: T, request: VRequest, location: Vurl, mime: String, lastModified: Option[Instant])
+case class VResponse[T](content: T, location: Vurl, mime: String, lastModified: Option[Instant])
 
 trait WebRequestInterface {
   def getString(request: VRequest): Future[VResponse[String]]

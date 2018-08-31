@@ -64,7 +64,7 @@ class Crawl(blobStore: BlobStore,
                                     imageRequest: VRequest,
                                     book: Book): Future[Unit] = {
       requestUtil.getBytes(imageRequest).flatMap { response =>
-        val blobData = processing.processImageResponse(response)
+        val blobData = processing.processImageResponse(imageRequest, response)
         Log.Crawl.trace(s"Processing ${response.location}, storing $blobData")
         blobStore.write(blobData.blob.sha1, response.content)
         rowAppender.append(blobData)

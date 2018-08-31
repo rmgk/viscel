@@ -1,8 +1,10 @@
 package viscel.narration.interpretation
 
+import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
 import org.scalactic.Accumulation._
 import org.scalactic.{Every, Good, Or}
+import viscel.crawl.VResponse
 import viscel.narration.{Contents, Narrator}
 import viscel.selection.{Report, Selection}
 import viscel.shared.Vid
@@ -38,8 +40,9 @@ object NarrationInterpretation {
     }
   }
 
-  case class NI(link: Link, textContent: String, document: Document) {
+  case class NI(link: Link, response: VResponse[String]) {
     def interpret[T](outerWrapper: WrapPart[T]): T Or Every[Report] = {
+      val document = Jsoup.parse(response.content, response.location.uriString())
       recurse(outerWrapper)(document)
     }
     def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T Or Every[Report] = {

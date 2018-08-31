@@ -2,7 +2,6 @@ package viscel.crawl
 
 import java.time.Instant
 
-import org.jsoup.Jsoup
 import viscel.crawl.CrawlProcessing.{imageRefTask, initialTasks, linkTask, rechecks}
 import viscel.narration.Narrator
 import viscel.narration.interpretation.NarrationInterpretation
@@ -23,8 +22,8 @@ class CrawlProcessing(narrator: Narrator) {
 
   def decider(book: Book): Decider = Decider(recheck = rechecks(book)).addTasks(initialTasks(book))
 
-  def processImageResponse(response: VResponse[Array[Byte]]): BlobData = {
-    BlobData(response.request.href, response.location,
+  def processImageResponse(request: VRequest, response: VResponse[Array[Byte]]): BlobData = {
+    BlobData(request.href, response.location,
              blob = Blob(
                sha1 = BlobStore.sha1hex(response.content),
                mime = response.mime),
@@ -33,17 +32,13 @@ class CrawlProcessing(narrator: Narrator) {
 
 
   def processPageResponse(book: Book, link: Link, response: VResponse[String]): PageData = {
-
-    val payload = response.content
-    val doc = Jsoup.parse(response.content, response.location.uriString())
-
-    val contents = NarrationInterpretation.NI(link, payload, doc)
+    val contents = NarrationInterpretation.NI(link, response)
                    .interpret[List[WebContent]](narrator.wrapper)
                    .fold(identity, r => throw WrappingException(link, r))
 
 
-    PageData(response.request.href,
-             Vurl.fromString(doc.location()),
+    PageData(link.ref,
+             response.location,
              contents = contents,
              date = response.lastModified.getOrElse(Instant.now()))
   }
