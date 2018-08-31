@@ -23,14 +23,14 @@ object NarrationInterpretation {
       }
 
     stories.map {
-      case Link(url, policy, data) => Link(replaceVurl(url), policy, data)
+      case Link(url, policy, data)     => Link(replaceVurl(url), policy, data)
       case ImageRef(url, origin, data) => ImageRef(replaceVurl(url), origin, data)
-      case o => o
+      case o                           => o
     }
   }
 
   def applySelection(doc: Element, sel: Selection): List[Element] Or Every[Report] = {
-    sel.pipeline.reverse.foldLeft(Good(List(doc)).orBad[Every[Report]]){ (elems, sel) =>
+    sel.pipeline.reverse.foldLeft(Good(List(doc)).orBad[Every[Report]]) { (elems, sel) =>
       elems.flatMap { els: List[Element] =>
         val validated: Or[List[List[Element]], Every[Report]] = els.validatedBy(sel)
         validated.map(_.flatten)
@@ -41,27 +41,28 @@ object NarrationInterpretation {
   def interpret[T](outerWrapper: WrapPart[T], doc: Element, link: Link): T Or Every[Report] = {
     def recurse[Ti](wrapper: WrapPart[Ti]): Ti Or Every[Report] = {
       val res: Or[Ti, Every[Report]] = wrapper match {
-        case OmnipotentWrapper(narrator) => narrator(doc.ownerDocument(), link)
-        case DocumentWrapper(wrap) => wrap(doc)
-        case PolicyDecision(volatile, normal) => link match {
+        case OmnipotentWrapper(narrator)             => narrator(doc.ownerDocument(), link)
+        case DocumentWrapper(wrap)                   => wrap(doc)
+        case PolicyDecision(volatile, normal)        => link match {
           case Link(_, Volatile, _) => recurse(volatile)
-          case Link(_, Normal, _) => recurse(normal)
+          case Link(_, Normal, _)   => recurse(normal)
         }
-        case TransformUrls(target, replacements) => recurse(target).map(transformUrls(replacements))
-        case AdditionalErrors(target, augmentation) => recurse(target).badMap(augmentation)
-        case SelectionWrap(sel, fun) => applySelection(doc, sel).flatMap(fun)
-        case Combine(left, right, fun) => withGood(recurse(left), recurse(right))(fun)
-        case Shuffle(target, fun) => recurse(target).map(fun)
+        case TransformUrls(target, replacements)     => recurse(target).map(transformUrls(replacements))
+        case AdditionalErrors(target, augmentation)  => recurse(target).badMap(augmentation)
+        case SelectionWrap(sel, fun)                 => applySelection(doc, sel).flatMap(fun)
+        case Combine(left, right, fun)               => withGood(recurse(left), recurse(right))(fun)
+        case Shuffle(target, fun)                    => recurse(target).map(fun)
         case LinkDataDecision(pred, isTrue, isFalse) => if (pred(link.data)) recurse(isTrue) else recurse(isFalse)
-        case Focus(selection, continue) => recurse(selection).flatMap { listOfElements =>
+        case Focus(selection, continue)              => recurse(selection).flatMap { listOfElements =>
           listOfElements.validatedBy(interpret(continue, _, link)).map(_.flatten)
         }
-        case Decision(pred, isTrue, isFalse) => if (pred(doc)) recurse(isTrue) else recurse(isFalse)
-        case Constant(t) => t
-        case Alternative(left, right) => recurse(left).orElse(recurse(right))
+        case Decision(pred, isTrue, isFalse)         => if (pred(doc)) recurse(isTrue) else recurse(isFalse)
+        case Constant(t)                             => t
+        case Alternative(left, right)                => recurse(left).orElse(recurse(right))
       }
       res
     }
+
     recurse(outerWrapper)
   }
 
