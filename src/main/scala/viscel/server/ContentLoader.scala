@@ -56,11 +56,7 @@ class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptio
   }
 
 
-
-  def size(book: Book): Int = linearizedContents(book).count {
-    case Article(_, _) => true
-    case _ => false
-  }
+  def size(book: Book): Int = linearizedContents(book).count {_.isInstanceOf[Article]}
 
   def linearizedContents(book: Book): List[ReadableContent] = {
 
