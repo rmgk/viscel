@@ -23,15 +23,15 @@ class Crawl(blobStore: BlobStore,
   def start(narrator: Narrator): Future[Unit] = {
     val appender = rowStore.open(narrator)
     val book = rowStore.load(narrator.id)
-    val escritoire = new CrawlProcessing(narrator)
+    val processing = new CrawlProcessing(narrator)
 
-    val pageData = escritoire.init(book)
+    val pageData = processing.init(book)
     val newBook = pageData.fold(book)(addPageTo(book, appender, _))
 
-    new Crawling(escritoire, appender).interpret(newBook, escritoire.decider(newBook))
+    new Crawling(processing, appender).interpret(newBook, processing.decider(newBook))
   }
 
-  class Crawling(procssing: CrawlProcessing, rowAppender: RowAppender) {
+  class Crawling(processing: CrawlProcessing, rowAppender: RowAppender) {
 
     def interpret(book: Book, decider: Decider): Future[Unit] = {
       val (decision, nextDecider) = decider.decide()
@@ -51,10 +51,10 @@ class Crawl(blobStore: BlobStore,
                                    decider: Decider): Future[Unit] = {
       Log.Crawl.trace(s"Handling page response for $from, $request")
       requestUtil.getString(request).flatMap { response =>
-        val pageData = procssing.processPageResponse(book, from, response)
+        val pageData = processing.processPageResponse(book, from, response)
         Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
         val newBook: Book = addPageTo(book, rowAppender, pageData)
-        val tasks = procssing.computeTasks(pageData, newBook)
+        val tasks = processing.computeTasks(pageData, newBook)
         Log.Crawl.trace(s"Add tasks: $tasks")
         interpret(newBook, decider.addTasks(tasks))
       }
@@ -63,7 +63,7 @@ class Crawl(blobStore: BlobStore,
                                     imageRequest: VRequest,
                                     book: Book): Future[Unit] = {
       requestUtil.getBytes(imageRequest).flatMap { response =>
-        val blobData = procssing.processImageResponse(response)
+        val blobData = processing.processImageResponse(response)
         Log.Crawl.trace(s"Processing ${response.location}, storing $blobData")
         blobStore.write(blobData.blob.sha1, response.content)
         rowAppender.append(blobData)
