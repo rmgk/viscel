@@ -3,47 +3,15 @@ package viscel.tests
 import java.time.Instant
 
 import io.circe.syntax._
-import org.scalacheck.{Arbitrary, Gen}
-import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen
 import org.scalatest.FreeSpec
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import viscel.store.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Volatile}
 import viscel.shared.Blob
 import viscel.store.CustomPicklers._
-import viscel.store.Vurl
-
+import viscel.store.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Vurl}
+import viscel.tests.DataGenerators._
 
 class DBSerialization extends FreeSpec with GeneratorDrivenPropertyChecks {
-
-  implicit val genBlob: Arbitrary[Blob] = Arbitrary(for {sha <- Gen.alphaNumStr
-                                                         mime <- Gen.alphaNumStr}
-                                                      yield Blob(sha, mime))
-  implicit val genVurl: Arbitrary[Vurl] = Arbitrary(for {blob <- genBlob.arbitrary} yield Vurl.blobPlaceholder(blob))
-  implicit val genLink: Arbitrary[Link] = Arbitrary(for {
-    policy <- Gen.oneOf(Normal, Volatile)
-    url <- genVurl.arbitrary
-    data <- Gen.listOf(arbitrary[String])
-  } yield Link(url, policy, data))
-  implicit val genInstant: Arbitrary[Instant] = Arbitrary(arbitrary[Int].map((i: Int) => Instant.ofEpochSecond(i)))
-  implicit val genImageRef: Arbitrary[ImageRef] = Arbitrary(for {
-    ref <- genVurl.arbitrary
-    origin <- genVurl.arbitrary
-    data <- arbitrary[Map[String, String]]
-  } yield ImageRef(ref, origin, data))
-  implicit val genPageData: Arbitrary[PageData] = Arbitrary(for {
-    ref <- arbitrary[Vurl]
-    loc <- arbitrary[Vurl]
-    date <- arbitrary[Instant]
-    contents <- Gen.listOf(Gen.oneOf(arbitrary[ImageRef], arbitrary[Link]))
-  } yield PageData(ref, loc, date, contents))
-  implicit val genBlobData: Arbitrary[BlobData] = Arbitrary(for {
-    ref <- arbitrary[Vurl]
-    loc <- arbitrary[Vurl]
-    date <- arbitrary[Instant]
-    blob <- arbitrary[Blob]
-  } yield BlobData(ref, loc, date, blob))
-  implicit val scribeDataRow: Arbitrary[ScribeDataRow] = Arbitrary(Gen.oneOf(arbitrary[BlobData], arbitrary[PageData]))
-
 
   val pageJson = """{"$type":"Page","ref":"http://xkcd.com/1/","loc":"http://xkcd.com/1/","date":"2016-08-03T20:04:33.010Z","contents":[{"$type":"Article","ref":"http://imgs.xkcd.com/comics/barrel_cropped_(1).jpg","origin":"http://xkcd.com/1/","data":{"alt":"Barrel - Part 1","title":"Don't we all.","longcomment":"Don't we all."}},{"$type":"Link","ref":"http://xkcd.com/2/"}]}"""
   val pageData = PageData(

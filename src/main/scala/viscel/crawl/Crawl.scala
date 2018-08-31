@@ -34,14 +34,15 @@ class Crawl(blobStore: BlobStore,
   class Crawling(processing: CrawlProcessing, rowAppender: RowAppender) {
 
     def interpret(book: Book, decider: Decider): Future[Unit] = {
-      val (decision, nextDecider) = decider.decide()
-      decision match {
-        case Some(CrawlTask.Image(imageRequest)) =>
-          handleImageResponse(nextDecider, imageRequest, book)
-        case Some(CrawlTask.Page(request, from)) =>
-          handlePageResponse(book, request, from, nextDecider)
-        case None                                => Future.successful(())
-
+      decider.decide() match {
+        case Some((ct, nextDecider)) =>
+          ct match {
+            case CrawlTask.Image(imageRequest) =>
+              handleImageResponse(nextDecider, imageRequest, book)
+            case CrawlTask.Page(request, from) =>
+              handlePageResponse(book, request, from, nextDecider)
+          }
+        case None => Future.successful(())
       }
     }
 

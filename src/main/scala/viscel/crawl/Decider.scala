@@ -10,8 +10,7 @@ case class Decider(images: List[CrawlTask] = Nil,
                    recheckStarted: Boolean = false,
                   ) {
 
-  import scala.{None => Done}
-  type Decision = Option[CrawlTask]
+  type Decision = Option[(CrawlTask, Decider)]
 
   /** Adds the contents to the current decision pool.
     * Does some recheck logic, see [[rightmostRecheck]].
@@ -28,21 +27,21 @@ case class Decider(images: List[CrawlTask] = Nil,
     }
   }
 
-  def decide(): (Decision, Decider) = tryNextImage()
+  def decide(): Decision = tryNextImage()
 
-  private def tryNextImage(): (Decision, Decider) = {
+  private def tryNextImage(): Decision = {
     images match {
       case h :: t =>
-        (Some(h), copy(images = t, imageDecisions = imageDecisions + 1))
+        Some((h, copy(images = t, imageDecisions = imageDecisions + 1)))
       case Nil =>
         tryNextLink()
     }
   }
 
-  private def tryNextLink(): (Decision, Decider) = {
+  private def tryNextLink(): Decision = {
     links match {
       case link :: t =>
-        (Some(link), copy(links = t))
+        Some((link, copy(links = t)))
       case Nil =>
         rightmostRecheck()
     }
@@ -54,19 +53,19 @@ case class Decider(images: List[CrawlTask] = Nil,
     *   - Initializes the path to the rightmost child elements starting from the root.
     * Checks one or two layers deep, depending on weather we find anything in the last layer.
     * If we find nothing, then we check no further (there was something there before, why is it gone?) */
-  private def rightmostRecheck(): (Decision, Decider) = {
+  private def rightmostRecheck(): Decision = {
 
-    if (!recheckStarted && (imageDecisions > 0) ) return (Done, this)
+    if (!recheckStarted && (imageDecisions > 0) ) return None
 
     if (rechecksDone == 0 || (rechecksDone == 1 && requestAfterRecheck > 1)) {
       recheck match {
-        case Nil => (Done, copy(recheckStarted = true, rechecksDone = rechecksDone + 1))
+        case Nil => None
         case link :: tail =>
-          (Some(link), copy(recheckStarted = true, recheck = tail, rechecksDone = rechecksDone + 1))
+          Some((link, copy(recheckStarted = true, recheck = tail, rechecksDone = rechecksDone + 1)))
       }
     }
     else {
-      (Done, this)
+      None
     }
   }
 }
