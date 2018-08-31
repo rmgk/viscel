@@ -6,7 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Queries._
 import viscel.narration.Templates
 import viscel.narration.Templates.{SimpleForward, archivePage}
-import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combine, Constant, Decision, DocumentWrapper, LinkDataDecision, PolicyDecision, Shuffle, TransformUrls, Wrapper, NarratorADT => TNarratorADT, strNarratorADT => NarratorADT}
+import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combination, Constant, Decision, DocumentWrapper, LinkDataDecision, PolicyDecision, Shuffle, TransformUrls, Wrapper, NarratorADT => TNarratorADT, strNarratorADT => NarratorADT}
 import viscel.selection.ReportTools._
 import viscel.selection.Selection
 import viscel.store.Vurl.fromString
@@ -88,7 +88,7 @@ object Individual {
             .many("[id~=^comic_\\d+$] .picture a").focus {
             val element_? = Selection.unique("img").wrapOne {intoArticle}
             val origin_? = DocumentWrapper(extractURL)
-            Combine.of(element_?, origin_?) { (element, origin) =>
+            Combination.of(element_?, origin_?) { (element, origin) =>
               element.copy(
                 ref = element.ref.uriString.replace("/t", "/"),
                 origin = origin,
@@ -174,7 +174,7 @@ object Individual {
         val asset_? = Selection.unique("#cc-comic").wrapOne(intoArticle)
         val next_? = queryNext("#cc-comicbody > a")
         val comment_? = Selection.unique("#commentary > div.cc-newsarea > div.cc-newsbody").wrapOne(e => Good(e.text()))
-        val combined = Combine.of(asset_?, comment_?){(asset, comment) => asset.copy(data = asset.data.updated("longcomment", comment)) :: Nil}
+        val combined = Combination.of(asset_?, comment_?){ (asset, comment) => asset.copy(data = asset.data.updated("longcomment", comment)) :: Nil}
         Append(combined, next_?)
       }),
     SimpleForward("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#cc-comic")),

@@ -50,7 +50,7 @@ object NarrationInterpretation {
         case TransformUrls(target, replacements)     => recurse(target).map(transformUrls(replacements))
         case AdditionalErrors(target, augmentation)  => recurse(target).badMap(augmentation)
         case SelectionWrap(sel, fun)                 => applySelection(doc, sel).flatMap(fun)
-        case Combine(left, right, fun)               => withGood(recurse(left), recurse(right))(fun)
+        case Combination(left, right, fun)           => withGood(recurse(left), recurse(right))(fun)
         case Shuffle(target, fun)                    => recurse(target).map(fun)
         case LinkDataDecision(pred, isTrue, isFalse) => if (pred(link.data)) recurse(isTrue) else recurse(isFalse)
         case Focus(selection, continue)              => recurse(selection).flatMap { listOfElements =>
@@ -94,10 +94,10 @@ object NarrationInterpretation {
     (l: List[Element]) => l.validatedBy(fun).map(_.flatten)
   )
 
-  def Append[T](left: WrapPart[List[T]], right: WrapPart[List[T]]): WrapPart[List[T]] = Combine.of(left, right){ (l, r) => l ::: r }
-  case class Combine[A, B, +T](left: WrapPart[A], right: WrapPart[B], fun: (A, B) => T) extends WrapPart[T]
-  object Combine {
-    def of[A, B, T](left: WrapPart[A], right: WrapPart[B])(fun: (A, B) => T): Combine[A, B, T] = Combine(left, right, fun)
+  def Append[T](left: WrapPart[List[T]], right: WrapPart[List[T]]): WrapPart[List[T]] = Combination.of(left, right){ (l, r) => l ::: r }
+  case class Combination[A, B, +T](left: WrapPart[A], right: WrapPart[B], fun: (A, B) => T) extends WrapPart[T]
+  object Combination {
+    def of[A, B, T](left: WrapPart[A], right: WrapPart[B])(fun: (A, B) => T): Combination[A, B, T] = Combination(left, right, fun)
   }
   case class Alternative[+T](left: WrapPart[T], right: WrapPart[T]) extends WrapPart[T]
 

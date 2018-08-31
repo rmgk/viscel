@@ -1,7 +1,7 @@
 package viscel.narration.narrators
 
 import org.scalactic.Good
-import viscel.narration.interpretation.NarrationInterpretation.{Combine, Constant, Decision, NarratorADT, Shuffle}
+import viscel.narration.interpretation.NarrationInterpretation.{Combination, Constant, Decision, NarratorADT, Shuffle}
 import viscel.narration.{Narrator, Queries}
 import viscel.selection.{ReportTools, Selection}
 import viscel.shared.Vid
@@ -44,7 +44,7 @@ object KatBox {
           val vurl_? = Selection.wrapOne(Queries.extractURL)
           // not awabanner2015 is a workaround for the rascals archives
           val img_? = Selection.unique("img:not([src~=awabanner2015])").wrapOne(i => ReportTools.extract(i.absUrl("src")))
-          Combine.of(img_?, vurl_?) { (img, vurl) =>
+          Combination.of(img_?, vurl_?) { (img, vurl) =>
             List(ImageRef(
               ref = img.replaceFirst("-\\d+x\\d+\\.", "."),
               origin = vurl,
