@@ -4,11 +4,21 @@ import io.circe.{Decoder, Encoder}
 import viscel.narration.interpretation.NarrationInterpretation.{Combination, JsonWrapper, Location, NarratorADT, WrapPart, Wrapper}
 import viscel.narration.{Metarrator, Templates}
 import viscel.selection.ReportTools.extract
-import viscel.store.{Chapter, ImageRef, Link, Vurl}
+import viscel.store.{Chapter, ImageRef, Link, Vurl, WebContent}
+
+import scala.util.Try
 
 case class MangadexNarrator(id: String, name: String, archiveUri: Vurl)
 
 object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
+
+  case class ChapterInfo(volume: Option[Int], num: Int, numStr: String, title: String, id: String) {
+    def sorting: (Int, Int, String, String, String) = (volume.getOrElse(Int.MaxValue), num, numStr, title, id)
+    def contents: List[WebContent] =
+      Chapter(s"(${volume.fold("")(i => s"$i: ")}$num) $title") ::
+      Link(Vurl.fromString(s"https://mangadex.org/api/?id=$id&type=chapter")) ::
+      Nil
+  }
 
   val archiveWrapper: Wrapper = {
     JsonWrapper { json =>
@@ -17,33 +27,35 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
         chaptersMap.keys.get.collect(Function.unlift { cid =>
           val chap = chaptersMap.downField(cid)
           val lang = chap.get[String]("lang_code").right.get
-          val vol = chap.get[String]("volume").right.get.toInt
-          val chapname = chap.get[String]("chapter").right.get
-          val firstnum = "(\\d+)".r.findFirstIn(chapname).get.toInt
           if (lang != "gb") None
-          else Some((vol, firstnum, chapname, cid))
-        }).toList.sorted.flatMap { chap =>
-          Chapter(s"${chap._1}: ${chap._3}") ::
-          Link(Vurl.fromString(s"https://mangadex.org/api/?id=${chap._4}&type=chapter")) ::
-          Nil
-        }
-
+          else {
+            val chapname = chap.get[String]("chapter").right.get
+            Some(ChapterInfo(
+              volume = Try {chap.get[String]("volume").right.get.toInt}.toOption,
+              numStr = chapname,
+              num = "(\\d+)".r.findFirstIn(chapname).get.toInt,
+              title = chap.get[String]("title").right.get,
+              id = cid
+            ))
+          }
+        }).toList.sortBy(_.sorting).flatMap {_.contents}
       }
     }
   }
 
   val pageWrapper: Wrapper = {
-    Combination.of(Location,
-                   JsonWrapper { json =>
-                     val c = json.hcursor
-                     extract {
-                       val hash = c.get[String]("hash").right.get
-                       val server = c.get[String]("server").right.get
-                       c.downField("page_array").values.get.map { fname =>
-                         Vurl.fromString(s"$server$hash/${fname.as[String].right.get}")
-                       }.toList
-                     }
-                   }) { (loc, vurls) => vurls.map(ImageRef(_, loc)) }
+    JsonWrapper { json =>
+      val c = json.hcursor
+      extract {
+        val hash = c.get[String]("hash").right.get
+        val server = c.get[String]("server").right.get
+        val cid = c.get[String]("id").right.get
+        c.downField("page_array").values.get.zipWithIndex.map { case (fname, i) =>
+          val url = Vurl.fromString(s"$server$hash/${fname.as[String].right.get}")
+          ImageRef(url, Vurl.fromString(s"https://mangadex.org/chapter/$cid/$i"))
+        }.toList
+      }
+    }
   }
 
 
