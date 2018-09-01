@@ -1,12 +1,13 @@
 package viscel.narration.interpretation
 
+import io.circe.Json
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
-import org.scalactic.{Every, Good, Or}
+import org.scalactic.{Bad, Every, Good, Or}
 import viscel.crawl.VResponse
 import viscel.narration.Narrator
-import viscel.selection.{Report, Selection}
+import viscel.selection.{ExtractionFailed, Report, Selection}
 import viscel.shared.Vid
 import viscel.store.{ImageRef, Link, Normal, Volatile, Vurl, WebContent}
 
@@ -64,6 +65,11 @@ object NarrationInterpretation {
         case Decision(pred, isTrue, isFalse)         => if (pred(element)) recurse(isTrue) else recurse(isFalse)
         case Constant(t)                             => t
         case Alternative(left, right)                => recurse(left).orElse(recurse(right))
+        case JsonWrapper(fun)                        =>
+          io.circe.parser.parse(response.content)
+          .fold[Json Or Report](b => Bad(ExtractionFailed(b)), Good(_))
+          .accumulating
+          .flatMap(fun)
       }
       res
     }
@@ -115,6 +121,8 @@ object NarrationInterpretation {
   case class Decision[T](pred: Element => Boolean, isTrue: WrapPart[T], isFalse: WrapPart[T]) extends WrapPart[T]
 
   case class Constant[T](c: T Or Every[Report]) extends WrapPart[T]
+
+  case class JsonWrapper[T](fun: Json => T Or Every[Report]) extends WrapPart[T]
 
 }
 
