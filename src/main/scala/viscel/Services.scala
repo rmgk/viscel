@@ -84,13 +84,10 @@ class Services(relativeBasedir: Path, relativeBlobdir: Path, relativePostdir: Pa
 
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
     RouteResult.route2HandlerFlow(server.route)(
-      RoutingSettings
-      .default(system),
-      ParserSettings
-      .default(system),
+      RoutingSettings.default(system),
+      ParserSettings.default(system),
       materializer,
-      RoutingLog
-      .fromActorSystem(system)),
+      RoutingLog.fromActorSystem(system)),
     interface, port)(materializer)
 
   def startServer(): Future[ServerBinding] = serverBinding
