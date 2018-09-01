@@ -48,9 +48,9 @@ object NarrationInterpretation {
     def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T Or Every[Report] = {
       val res: Or[T, Every[Report]] = wrapper match {
         case ElementWrapper(wrap)                    => wrap(element)
-        case PolicyDecision(volatile, normal)        => link match {
-          case Link(_, Volatile, _) => recurse(volatile)
-          case Link(_, Normal, _)   => recurse(normal)
+        case PolicyDecision(volatile, normal)        => link.policy match {
+          case Volatile => recurse(volatile)
+          case Normal   => recurse(normal)
         }
         case TransformUrls(target, replacements)     => recurse(target).map(transformUrls(replacements))
         case AdditionalErrors(target, augmentation)  => recurse(target).badMap(augmentation)
