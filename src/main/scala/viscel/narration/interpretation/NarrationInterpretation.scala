@@ -48,29 +48,29 @@ object NarrationInterpretation {
     }
     def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T Or Every[Report] = {
       val res: Or[T, Every[Report]] = wrapper match {
-        case ElementWrapper(wrap)                    => wrap(element)
-        case PolicyDecision(volatile, normal)        => link.policy match {
+        case ElementWrapper(wrap)                   => wrap(element)
+        case PolicyDecision(volatile, normal)       => link.policy match {
           case Volatile => recurse(volatile)
           case Normal   => recurse(normal)
         }
-        case TransformUrls(target, replacements)     => recurse(target).map(transformUrls(replacements))
-        case AdditionalErrors(target, augmentation)  => recurse(target).badMap(augmentation)
-        case SelectionWrap(sel, fun)                 => applySelection(element, sel).flatMap(fun)
-        case Combination(left, right, fun)           => withGood(recurse(left), recurse(right))(fun)
-        case Shuffle(target, fun)                    => recurse(target).map(fun)
-        case LinkDecision(pred, isTrue, isFalse) => if (pred(link)) recurse(isTrue) else recurse(isFalse)
-        case Focus(selection, continue)              => recurse(selection).flatMap { listOfElements =>
+        case TransformUrls(target, replacements)    => recurse(target).map(transformUrls(replacements))
+        case AdditionalErrors(target, augmentation) => recurse(target).badMap(augmentation)
+        case SelectionWrap(sel, fun)                => applySelection(element, sel).flatMap(fun)
+        case Combination(left, right, fun)          => withGood(recurse(left), recurse(right))(fun)
+        case Shuffle(target, fun)                   => recurse(target).map(fun)
+        case LinkDecision(pred, isTrue, isFalse)    => if (pred(link)) recurse(isTrue) else recurse(isFalse)
+        case Focus(selection, continue)             => recurse(selection).flatMap { listOfElements =>
           listOfElements.validatedBy(recurse(continue)(_)).map(_.flatten)
         }
-        case Decision(pred, isTrue, isFalse)         => if (pred(element)) recurse(isTrue) else recurse(isFalse)
-        case Constant(t)                             => t
-        case Alternative(left, right)                => recurse(left).orElse(recurse(right))
-        case JsonWrapper(fun)                        =>
+        case Decision(pred, isTrue, isFalse)        => if (pred(element)) recurse(isTrue) else recurse(isFalse)
+        case Constant(t)                            => t
+        case Alternative(left, right)               => recurse(left).orElse(recurse(right))
+        case JsonWrapper(fun)                       =>
           io.circe.parser.parse(response.content)
           .fold[Json Or Report](b => Bad(ExtractionFailed(b)), Good(_))
           .accumulating
           .flatMap(fun)
-        case Location => Good(response.location)
+        case Location                               => Good(response.location)
       }
       res
     }
