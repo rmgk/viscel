@@ -1,12 +1,13 @@
 package viscel.narration.narrators
 
-import io.circe.{Decoder, Encoder}
+import io.circe.{Decoder, DecodingFailure, Encoder}
+import org.scalactic.Accumulation._
+import org.scalactic.{Every, Good, One, Or}
 import viscel.narration.interpretation.NarrationInterpretation.{Combination, JsonWrapper, Location, NarratorADT, WrapPart, Wrapper}
 import viscel.narration.{Metarrator, Templates}
-import viscel.selection.ReportTools.extract
+import viscel.selection.JsonDecoding
+import viscel.selection.ReportTools.{EitherOps, extract}
 import viscel.store.{Chapter, ImageRef, Link, Vurl, WebContent}
-
-import scala.util.Try
 
 case class MangadexNarrator(id: String, name: String, archiveUri: Vurl)
 
@@ -22,39 +23,34 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   val archiveWrapper: Wrapper = {
     JsonWrapper { json =>
-      extract {
-        val chaptersMap = json.hcursor.downField("chapter")
-        chaptersMap.keys.get.collect(Function.unlift { cid =>
-          val chap = chaptersMap.downField(cid)
-          val lang = chap.get[String]("lang_code").right.get
-          if (lang != "gb") None
-          else {
-            val chapname = chap.get[String]("chapter").right.get
-            Some(ChapterInfo(
-              volume = Try {chap.get[String]("volume").right.get.toInt}.toOption,
-              numStr = chapname,
-              num = "(\\d+)".r.findFirstIn(chapname).get.toInt,
-              title = chap.get[String]("title").right.get,
-              id = cid
-            ))
-          }
-        }).toList.sortBy(_.sorting).flatMap {_.contents}
-      }
+      val chaptersMap = json.hcursor.downField("chapter")
+      chaptersMap.keys.get.filter(cid => chaptersMap.downField(cid).get[String]("lang_code").getOrElse("") == "gb")
+      .map { cid =>
+        val chap = chaptersMap.downField(cid)
+        val chapname: Or[String, One[DecodingFailure]] = chap.get[String]("chapter").ors
+        val volume = chap.get[String]("volume").ors.map(_.toInt).toOption
+        val num: Or[Int, Every[DecodingFailure]] =
+          chapname
+          .flatMap(cn => Or.from("(\\d+)".r.findFirstIn(cn), One(DecodingFailure(s"$chapname contains no int", Nil))))
+          .map(_.toInt)
+        val title = chap.get[String]("title").ors
+        withGood(Good(volume), num, chapname, title, Good(cid)) {ChapterInfo.apply}
+      }.toList.validatedBy(x => x).map(_.sortBy(_.sorting).flatMap {_.contents}).badMap(_.map(JsonDecoding))
     }
   }
 
   val pageWrapper: Wrapper = {
     JsonWrapper { json =>
       val c = json.hcursor
-      extract {
-        val hash = c.get[String]("hash").right.get
-        val server = c.get[String]("server").right.get
-        val cid = c.get[String]("id").right.get
+      val hash = c.get[String]("hash").ors
+      val server = c.get[String]("server").ors
+      val cid = c.get[String]("id").ors
+      withGood(hash, server, cid) { (hash, server, cid) =>
         c.downField("page_array").values.get.zipWithIndex.map { case (fname, i) =>
           val url = Vurl.fromString(s"$server$hash/${fname.as[String].right.get}")
           ImageRef(url, Vurl.fromString(s"https://mangadex.org/chapter/$cid/$i"))
         }.toList
-      }
+      }.badMap(_.map(JsonDecoding))
     }
   }
 

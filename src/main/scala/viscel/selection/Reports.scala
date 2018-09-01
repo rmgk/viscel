@@ -1,5 +1,6 @@
 package viscel.selection
 
+import io.circe.DecodingFailure
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation.{withGood, convertGenTraversableOnceToCombinable => combinable}
 import org.scalactic.{Every, One, Or, attempt}
@@ -19,6 +20,10 @@ object ReportTools {
   def cons[T, E](a: T Or Every[E], b: List[T] Or Every[E]): Or[List[T], Every[E]] = withGood(a, b)(_ :: _)
   def combine[T, E](as: T Or Every[E]*): Or[List[T], Every[E]] = combinable(as).combined.map(_.toList)
   def extract[R](op: => R): R Or One[ExtractionFailed] = attempt(op).badMap(ExtractionFailed.apply).accumulating
+
+  implicit class EitherOps[E, V](val either: Either[E, V]) extends AnyVal {
+    def ors: Or[V, One[E]] = Or.from(either).accumulating
+  }
 }
 
 trait Stack {
@@ -50,4 +55,8 @@ case class Fatal(msg: String) extends Report with Stack {
 
 case class ExtractionFailed(cause: Throwable) extends Report with Stack {
   override def describe: String = s"extraction failed '${cause.getMessage}' at $position"
+}
+
+case class JsonDecoding(decodingFailure: DecodingFailure) extends Report {
+  override def describe: String = decodingFailure.getMessage()
 }
