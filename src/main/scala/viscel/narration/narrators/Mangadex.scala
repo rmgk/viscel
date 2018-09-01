@@ -9,6 +9,8 @@ import viscel.selection.JsonDecoding
 import viscel.selection.ReportTools.{EitherOps, extract}
 import viscel.store.{Chapter, ImageRef, Link, Vurl, WebContent}
 
+import scala.util.Try
+
 case class MangadexNarrator(id: String, name: String, archiveUri: Vurl)
 
 object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
@@ -28,7 +30,7 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
       .map { cid =>
         val chap = chaptersMap.downField(cid)
         val chapname: Or[String, One[DecodingFailure]] = chap.get[String]("chapter").ors
-        val volume = chap.get[String]("volume").ors.map(_.toInt).toOption
+        val volume = chap.get[String]("volume").toOption.flatMap(v => Try(v.toInt).toOption)
         val num: Or[Int, Every[DecodingFailure]] =
           chapname
           .flatMap(cn => Or.from("(\\d+)".r.findFirstIn(cn), One(DecodingFailure(s"$chapname contains no int", Nil))))
@@ -44,11 +46,11 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
       val c = json.hcursor
       val hash = c.get[String]("hash").ors
       val server = c.get[String]("server").ors
-      val cid = c.get[String]("id").ors
+      val cid = c.get[Int]("id").ors
       withGood(hash, server, cid) { (hash, server, cid) =>
         c.downField("page_array").values.get.zipWithIndex.map { case (fname, i) =>
           val url = Vurl.fromString(s"$server$hash/${fname.as[String].right.get}")
-          ImageRef(url, Vurl.fromString(s"https://mangadex.org/chapter/$cid/$i"))
+          ImageRef(url, Vurl.fromString(s"https://mangadex.org/chapter/$cid/${i+1}"))
         }.toList
       }.badMap(_.map(JsonDecoding))
     }
