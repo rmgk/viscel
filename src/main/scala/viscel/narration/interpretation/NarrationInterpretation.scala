@@ -1,11 +1,11 @@
 package viscel.narration.interpretation
 
 import org.jsoup.Jsoup
-import org.jsoup.nodes.{Document, Element}
+import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.{Every, Good, Or}
 import viscel.crawl.VResponse
-import viscel.narration.{Contents, Narrator}
+import viscel.narration.Narrator
 import viscel.selection.{Report, Selection}
 import viscel.shared.Vid
 import viscel.store.{ImageRef, Link, Normal, Volatile, Vurl, WebContent}
@@ -47,7 +47,6 @@ object NarrationInterpretation {
     }
     def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T Or Every[Report] = {
       val res: Or[T, Every[Report]] = wrapper match {
-        case OmnipotentWrapper(narrator)             => narrator(element.ownerDocument(), link)
         case ElementWrapper(wrap)                    => wrap(element)
         case PolicyDecision(volatile, normal)        => link match {
           case Link(_, Volatile, _) => recurse(volatile)
@@ -82,7 +81,6 @@ object NarrationInterpretation {
   type Wrapper = WrapPart[List[WebContent]]
 
   sealed trait WrapPart[+T]
-  case class OmnipotentWrapper(narrator: (Document, Link) => Contents) extends Wrapper
   case class ElementWrapper[T](wrapPage: Element => T Or Every[Report]) extends WrapPart[T]
   case class PolicyDecision[T](volatile: WrapPart[T], normal: WrapPart[T]) extends WrapPart[T]
   case class LinkDataDecision[T](pred: List[String] => Boolean, isTrue: WrapPart[T], isFalse: WrapPart[T]) extends WrapPart[T]
