@@ -48,8 +48,9 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
       val server = c.get[String]("server").ors
       val cid = c.get[Int]("id").ors
       withGood(hash, server, cid) { (hash, server, cid) =>
+        val absServer =  if (server.startsWith("/")) s"https://mangadex.org$server" else server
         c.downField("page_array").values.get.zipWithIndex.map { case (fname, i) =>
-          val url = Vurl.fromString(s"$server$hash/${fname.as[String].right.get}")
+          val url = Vurl.fromString(s"$absServer$hash/${fname.as[String].right.get}")
           ImageRef(url, Vurl.fromString(s"https://mangadex.org/chapter/$cid/${i+1}"))
         }.toList
       }.badMap(_.map(JsonDecoding))
