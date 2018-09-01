@@ -78,6 +78,21 @@
 -- :ac #content > div > div > div.entry a
 -- :ia #comic-1 img
 
+-- -:Final Arcanum
+-- http://www.finalarcanum.com/archive/
+-- :am .archive__table td.archive__header h2 , .archive__table .archive__pagename a
+-- :i #comic_image
+
+-- -:Lavender Legend
+-- http://lavenderlegend.com/lavender-legend/lavender-legend-1-cover/
+-- :i #content .webcomic-image img
+-- :n .next-webcomic-link
+
+-- -:Fantasy Realms
+-- http://www.fantasyrealmsonline.com/manga.php
+-- :am body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table strong , body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table a
+-- :i body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table > tbody > tr:nth-child(1) > td > div  img
+
 
 ---------------------------------------------- NOT DEAD ---
 
@@ -100,9 +115,8 @@ http://www.bardsworth.com/?comic=brain
 :ia #comic img
 
 -:Blank It
-http://blankitcomics.com/blankit-0001/
-:i #comic > img
-:n #comicnav > a[rel=next]
+http://blankitcomics.com/comic/well-what-would-you-do
+:image+next #comic img
 
 -:Gone with the Blastwave
 http://www.blastwave-comic.com/index.php?p=comic&nro=1
@@ -120,21 +134,28 @@ http://cortland.comicgenesis.com/d/20040320.html
 :n #navlinks > a:has(img[alt=Next comic])
 
 -:Exiern
-http://www.exiern.com/2005/09/06/so-far/
+http://archive.exiern.com/comic/so-far/
 -- image contains workarounds for
 -- http://www.exiern.com/2015/06/30/it-is/
 -- http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page29-web.jpg
-:image #comic-1 > img , img.wp-image-4762 , img[src=http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page29-web.jpg] , img[src=http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page30-web.jpg]
-:next #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
+-- :image #comic-1 > img , img.wp-image-4762 , img[src=http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page29-web.jpg] , img[src=http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page30-web.jpg]
+-- :next #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
+:image+next #comic img
 
 -:Carciphona
 http://carciphona.smackjeeves.com/archive/
 :am #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
 :i #comic_image
 
+
+-NX_ElGoonishShive:El Goonish Shive
+http://egscomics.com/comic/archive
+:chapterArchive #leftarea .cc-storyline-header a
+:image+next #cc-comic
+
 -:EGS Newspaper
 http://www.egscomics.com/egsnp.php?id=12
-:ia #comic
+:ia #cc-comic
 
 -:Ever Night
 http://evernightcomic.com/comic/chapter-0-page-1/
@@ -151,11 +172,6 @@ http://fallouttoyworks.keenspot.com/d/20120326.html
 :i #comicpage > img
 :n a:has(#anext)
 
--:Fantasy Realms
-http://www.fantasyrealmsonline.com/manga.php
-:am body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table strong , body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table a
-:i body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table > tbody > tr:nth-child(1) > td > div  img
-
 -:Feywinds
 http://www.feywinds.com/archive/
 :am #content h2 , #content h3 a[href~=/feywinds/(fw|page-)]
@@ -165,11 +181,6 @@ http://www.feywinds.com/archive/
 http://flipside.keenspot.com/comic/book0/fs01pg01.html
 :i body > center > table > tbody > tr:nth-child(2) > td > center > img
 :n a:contains(Next >)
-
--:Lavender Legend
-http://lavenderlegend.com/lavender-legend/lavender-legend-1-cover/
-:i #content .webcomic-image img
-:n .next-webcomic-link
 
 -:Lint
 http://lint.webcomic.ws/archive/
@@ -364,11 +375,6 @@ http://earthsongsaga.com/archives.php
 :i img[src~=images/vol]
 :url_replace http://earthsongsaga.com/vol4/ch14cover.php ::: http://earthsongsaga.com/vol5/ch14cover.php
 
--:Final Arcanum
-http://www.finalarcanum.com/archive/
-:am .archive__table td.archive__header h2 , .archive__table .archive__pagename a
-:i #comic_image
-
 -:Snow by Night
 http://www.snowbynight.com/story.php
 :am .content_main h2 , .content_main .archive_pages a
@@ -481,7 +487,8 @@ http://www.whompcomic.com/2010/06/14/06142010/
 -:Parallax
 http://www.parallaxcomic.com/comic/archive
 :chapterArchive #archiveboxes a[href~=comic/page]
-:image+next #cc-comic
+:image #cc-comic
+:next .cc-nav .cc-next
 
 -:The Lonely Vincent Bellingham
 http://www.lonelyvincent.com/lonelyvincent/archive
@@ -506,7 +513,8 @@ http://www.mashcomic.com/comic/archive
 -:Metacarpolis
 http://www.metacarpolis.com/metacarpolis/archive
 :ac .cc-storyline-header a[href]
-:ia #cc-comic
+:image #cc-comic
+:next #navtop .cc-next
 
 -:Cassiopeia Quinn
 http://www.cassiopeiaquinn.com/comic/archive

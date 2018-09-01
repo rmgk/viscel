@@ -165,9 +165,6 @@ object Individual {
         Append(chapter_?, pages_?)
       },
       queryImage("#comic_strip > a > img")),
-    archivePage("NX_ElGoonishShive", "El Goonish Shive", "http://www.egscomics.com/archives.php",
-      Selection.many("#leftarea > h3 > a").wrapFlat(elementIntoChapterPointer),
-      queryImageInAnchor("#comic")),
     archivePage("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
       Selection.many(".cc-chapterrow a[href]").wrapFlat(elementIntoChapterPointer),
       {
