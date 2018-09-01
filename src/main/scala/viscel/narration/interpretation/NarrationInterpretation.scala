@@ -58,7 +58,7 @@ object NarrationInterpretation {
         case SelectionWrap(sel, fun)                 => applySelection(element, sel).flatMap(fun)
         case Combination(left, right, fun)           => withGood(recurse(left), recurse(right))(fun)
         case Shuffle(target, fun)                    => recurse(target).map(fun)
-        case LinkDataDecision(pred, isTrue, isFalse) => if (pred(link.data)) recurse(isTrue) else recurse(isFalse)
+        case LinkDecision(pred, isTrue, isFalse) => if (pred(link)) recurse(isTrue) else recurse(isFalse)
         case Focus(selection, continue)              => recurse(selection).flatMap { listOfElements =>
           listOfElements.validatedBy(recurse(continue)(_)).map(_.flatten)
         }
@@ -70,6 +70,7 @@ object NarrationInterpretation {
           .fold[Json Or Report](b => Bad(ExtractionFailed(b)), Good(_))
           .accumulating
           .flatMap(fun)
+        case Location => Good(response.location)
       }
       res
     }
@@ -89,7 +90,9 @@ object NarrationInterpretation {
   sealed trait WrapPart[+T]
   case class ElementWrapper[T](wrapPage: Element => T Or Every[Report]) extends WrapPart[T]
   case class PolicyDecision[T](volatile: WrapPart[T], normal: WrapPart[T]) extends WrapPart[T]
-  case class LinkDataDecision[T](pred: List[String] => Boolean, isTrue: WrapPart[T], isFalse: WrapPart[T]) extends WrapPart[T]
+  case class LinkDecision[T](pred: Link => Boolean, isTrue: WrapPart[T], isFalse: WrapPart[T]) extends WrapPart[T]
+  def LinkDataDecision[T](pred: List[String] => Boolean, isTrue: WrapPart[T], isFalse: WrapPart[T]) =
+    LinkDecision(p => pred(p.data), isTrue, isFalse)
 
   case class TransformUrls(target: Wrapper, replacements: List[(String, String)]) extends Wrapper
   case class AdditionalErrors[+E](target: WrapPart[E], augmentation: Every[Report] => Every[Report]) extends WrapPart[E]
@@ -123,6 +126,7 @@ object NarrationInterpretation {
   case class Constant[T](c: T Or Every[Report]) extends WrapPart[T]
 
   case class JsonWrapper[T](fun: Json => T Or Every[Report]) extends WrapPart[T]
+  case object Location extends WrapPart[Vurl]
 
 }
 
