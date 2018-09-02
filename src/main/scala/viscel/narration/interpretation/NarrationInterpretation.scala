@@ -11,6 +11,8 @@ import viscel.selection.{ExtractionFailed, Report, Selection}
 import viscel.shared.Vid
 import viscel.store.{ImageRef, Link, Normal, Volatile, Vurl, WebContent}
 
+import scala.util.matching.Regex
+
 
 
 object NarrationInterpretation {
@@ -71,6 +73,8 @@ object NarrationInterpretation {
           .accumulating
           .flatMap(fun)
         case Location                               => Good(response.location)
+        case LocationMatch(regex, isTrue, isFalse)  =>
+          if (regex.findFirstIn(response.location.uriString()).isDefined) recurse(isTrue) else recurse(isFalse)
       }
       res
     }
@@ -127,6 +131,7 @@ object NarrationInterpretation {
 
   case class JsonWrapper[T](fun: Json => T Or Every[Report]) extends WrapPart[T]
   case object Location extends WrapPart[Vurl]
+  case class LocationMatch[T](regex: Regex, isTrue: WrapPart[T], isFalse: WrapPart[T]) extends WrapPart[T]
 
 }
 

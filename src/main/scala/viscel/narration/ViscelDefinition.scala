@@ -7,7 +7,7 @@ import java.util.stream.Stream
 
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Queries._
-import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Append, NarratorADT, Shuffle, TransformUrls, Wrapper}
+import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, NarratorADT, Shuffle, TransformUrls, Wrapper}
 import viscel.selection.Report
 import viscel.shared.{Log, Vid}
 import viscel.store.{Link, Vurl}
@@ -85,6 +85,13 @@ object ViscelDefinition {
 
     val pageFun: Option[Wrap] = attrs match {
       case extract"image+next $img" => annotate(queryImageInAnchor(img.s), img)
+
+      case extract"image $img next $next skip $skip" => annotate(
+        Append(Alternative(queryImage(img.s),
+                           LocationMatch(skip.s.r,
+                                         Constant(Good(Nil)),
+                                         queryImage(img.s))),
+               queryNext(next.s)), img, next)
 
       case extract"image $img next $next" => annotate(queryImageNext(img.s, next.s), img, next)
 

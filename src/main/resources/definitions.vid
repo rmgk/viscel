@@ -135,12 +135,9 @@ http://cortland.comicgenesis.com/d/20040320.html
 
 -:Exiern
 http://archive.exiern.com/comic/so-far/
--- image contains workarounds for
--- http://www.exiern.com/2015/06/30/it-is/
--- http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page29-web.jpg
--- :image #comic-1 > img , img.wp-image-4762 , img[src=http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page29-web.jpg] , img[src=http://exiern.com/wp-content/uploads/2017/05/Exiern-chapter2color-page30-web.jpg]
--- :next #sidebar-undercomic > div.comic_navi_wrapper a.navi.navi-next
-:image+next #comic img
+:image #comic img
+:next #comic-nav-wrapper a.comic-nav-next
+:skip comic/(happy-halloween|typhan-knee-through-the-looking-glass-valentines-day-sex-drive-2017|merry-christmas|many-thanks-to-\w+|exiern-new-years-day-special-2018|the-day-after|dark_reflections_is_back_for_2018)/
 
 -:Carciphona
 http://carciphona.smackjeeves.com/archive/
