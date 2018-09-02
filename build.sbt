@@ -119,10 +119,10 @@ lazy val Libraries = new {
   ))
 
   lazy val js: Def.SettingsDefinition = libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "0.9.4",
+    "org.scala-js" %%% "scalajs-dom" % "0.9.6",
     "de.tuda.stg" %%% "rescalatags" % rescalaVersion,
     "org.webjars.npm" % "purecss" % "1.0.0",
-    "org.webjars" % "font-awesome" % "5.0.13-2",
+    "org.webjars" % "font-awesome" % "5.3.1",
     )
 
 
