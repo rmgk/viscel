@@ -925,3 +925,8 @@ http://comic.skullkickers.com/comic/archive
 :chapterArchive .cc-chapterrow a[href~=/comic/]
 :image #cc-comic , #cc-comicbody .cc-showbig img
 :next #comicleft .nav .next
+
+-:Rubi Whipple
+http://rubiwhipple.com/comic/issue-1-cover/
+:image #comic img
+:next #comic-foot a.comic-nav-next
