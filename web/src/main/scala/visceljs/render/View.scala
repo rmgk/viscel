@@ -44,7 +44,7 @@ class View(act: Actions) {
           Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
           act.lcButton(navigate.fire(Mode(ft + 1)), Icons.modus, s" $ft", title := "cycle image display mode"),
           act.postBookmark(data.pos + 1, data, _ => Unit, Icons.bookmark, title := "save bookmark"),
-          a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin))(Icons.externalLink, title := "visit original page"),
+          a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin), rel := "noreferrer")(Icons.externalLink, title := "visit original page"),
           act.button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
       }
 
