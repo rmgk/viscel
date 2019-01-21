@@ -58,8 +58,8 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   }
 
 
-  val extractData = """https://mangadex.(?:org|com)/manga/(\d+)/([^/]+)""".r
-  val apiLink = """https://mangadex.(?:org|com)/api/?id=(\d+)&type=manga""".r
+  val extractData = """https://mangadex.(?:org|com)/(?:manga|title)/(\d+)/([^/]+)""".r
+  val apiLink = """https://mangadex.(?:org|com)/api/\?id=(\d+)&type=manga""".r
 
   override def toNarrator(nar: MangadexNarrator): NarratorADT = {
     val uri = nar.archiveUri.uriString() match {
@@ -70,8 +70,10 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   }
 
-  val decoder: Decoder[MangadexNarrator] = Decoder.forProduct3("id", "name", "archiveUri")((i, n, a) => MangadexNarrator(i, n, a))
-  val encoder: Encoder[MangadexNarrator] = Encoder.forProduct3("id", "name", "archiveUri")(nar => (nar.id, nar.name, nar.archiveUri))
+  val decoder: Decoder[MangadexNarrator] = Decoder.forProduct3("id", "name", "archiveUri")(
+    (i, n, a) => MangadexNarrator(i, n, a))
+  val encoder: Encoder[MangadexNarrator] = Encoder.forProduct3("id", "name", "archiveUri")(
+    nar => (nar.id, nar.name, nar.archiveUri))
 
   def apiFromNum(num: String): Vurl = Vurl.fromString(s"https://mangadex.org/api/?id=$num&type=manga")
 
