@@ -85,7 +85,7 @@ class Server(userStore: Users,
 
 
   def sprayLikeBasicAuth[T](realm: String, authenticator: Option[BasicHttpCredentials] => Option[T]): Directive[Tuple1[T]] =
-    extractExecutionContext.flatMap { implicit ec ⇒
+    extractExecutionContext.flatMap { _ =>
       authenticateOrRejectWithChallenge[BasicHttpCredentials, T] { cred ⇒
         authenticator(cred) match {
           case Some(t) ⇒ Future.successful(AuthenticationResult.success(t))
