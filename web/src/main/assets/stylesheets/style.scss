@@ -49,6 +49,11 @@ please improve :D */
   display: none;
 }
 
+/* disable scrollbar according to some new spec */
+html {
+  scrollbar-width: none;
+}
+
 body {
   @include common-bg;
   color: $font-color;
