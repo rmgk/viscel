@@ -178,7 +178,7 @@ class Server(userStore: Users,
         else parameter('url.as[String]) { url =>
           onComplete(narratorCache.add(url, requestUtil)) {
             case Success(v) => complete(s"found $v")
-            case Failure(e) => failWith(e)
+            case Failure(e) => complete(e.toString)
           }
         }
       } ~
