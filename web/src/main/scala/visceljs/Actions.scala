@@ -1,10 +1,10 @@
 package visceljs
 
 import rescala.default._
-import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, href}
+import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, href, disabled}
 import viscel.shared.{Bindings, Description, Log}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
-import visceljs.Definitions.{class_button, class_button_disabled, lcButton, onLeftClick, path_asset, path_front}
+import visceljs.Definitions.{lcButton, onLeftClick, path_asset, path_front}
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -29,7 +29,7 @@ class Actions(hint: (Description, Boolean) => Unit,
   def link_asset(data: Data): Tag = a.apply(onLeftClick(gotoView(data)), href := path_asset(data))
   def button_asset(data: Data): Tag = button_asset(data, gotoView(data))
   def button_asset(data: Data, onleft: => Unit): Tag = {
-    if (data.gallery.isEnd) button(class_button_disabled)
+    if (data.gallery.isEnd) button(disabled)
     else lcButton(onleft)
   }
 
@@ -43,10 +43,10 @@ class Actions(hint: (Description, Boolean) => Unit,
       }(ts: _*)
     }
     else {
-      button(class_button_disabled)(ts: _*)
+      button(disabled)(ts: _*)
     }
   }
 
-  def postForceHint(nar: Description, ts: Modifier*): HtmlTag = lcButton(hint(nar, true), class_button)(ts: _*)
+  def postForceHint(nar: Description, ts: Modifier*): HtmlTag = lcButton(hint(nar, true))(ts: _*)
 
 }

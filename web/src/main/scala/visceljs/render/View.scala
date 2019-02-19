@@ -4,13 +4,13 @@ import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import org.scalajs.dom.html.Body
 import rescala.default._
-import visceljs.Navigation._
-import visceljs.visceltags._
-import visceljs.{Actions, Data, Definitions, Icons, Make}
 import scalatags.JsDom
 import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title}
 import scalatags.JsDom.tags2.{article, section}
 import visceljs.Definitions.lcButton
+import visceljs.Navigation._
+import visceljs.visceltags._
+import visceljs.{Actions, Data, Icons, Make}
 
 
 class View(act: Actions) {
@@ -44,7 +44,7 @@ class View(act: Actions) {
           Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
           lcButton(navigate.fire(Mode(ft + 1)), Icons.modus, s" $ft", title := "cycle image display mode"),
           act.postBookmark(data.pos + 1, data, _ => Unit, Icons.bookmark, title := "save bookmark"),
-          a(Definitions.class_button, href := data.gallery.get.fold("")(_.origin), rel := "noreferrer")(Icons.externalLink, title := "visit original page"),
+          a(href := data.gallery.get.fold("")(_.origin), rel := "noreferrer")(Icons.externalLink, title := "visit original page"),
           act.button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
       }
 

@@ -24,11 +24,9 @@ object Definitions {
   val class_dead = cls := "dead"
   val class_preview = cls := "preview"
   val class_chapters = cls := "chapters"
-  val class_button = cls := "button"
-  val class_button_disabled = cls := "button disabled"
 
 
-  def link_tools(ts: Frag*): Tag = a(class_button, href := path_tools)(ts)
+  def link_tools(ts: Frag*): Tag = a(href := path_tools)(ts)
 
   private def getDefined[T](ts: T*): Option[T] = ts.find(v => v != null && !scalajs.js.isUndefined(v))
   private val dDocument = scala.scalajs.js.Dynamic.global.document
@@ -59,7 +57,7 @@ object Definitions {
     if (isFullscreen()) exitFullscreen.foreach(_.call(dDocument)) else requestFullscreen.foreach(_.call(de))
   }
 
-  def lcButton(action: => Unit, m: Modifier*): HtmlTag = button(class_button, onLeftClick(action))(m: _*)
+  def lcButton(action: => Unit, m: Modifier*): HtmlTag = button(onLeftClick(action))(m: _*)
   def onLeftClick(a: => Unit): Modifier = onclick := { (e: MouseEvent) =>
     if (e.button == 0) {
       e.preventDefault()
