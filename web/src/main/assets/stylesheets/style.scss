@@ -1,17 +1,16 @@
-@import "lib/purecss/build/pure";
+@import 'lib/normalize.css/normalize';
 @import "lib/font-awesome/css/svg-with-js";
 @import "underline-animation";
 
-$font-color: rgb(198, 211, 195);
-$theme-color: #16982B;
-//$border-color: #310000;
-$border-color: transparentize($theme-color, 0.8);
+$font-color: snow;
+$theme-color: limegreen;
+$button-color: #111;
+$back-color: #0a0a0a;
 $background-color: black;
 
-@mixin common-bg {
-  background-color: $background-color;
-}
-
+// no selection is important for double click behaviour
+// i.e., without this, clicking fast causes things to be selected,
+// instead of switching between pages quickly
 @mixin no-selection {
   /* disable any form of selection */
   -webkit-user-select: none; /* Chrome all / Safari all */
@@ -28,22 +27,6 @@ $background-color: black;
   user-select: initial; /* Likely future */
 }
 
-/* i wont pretend that i fully understand what im doing here
-it seems to do what i want (black background for page in fullscreen)
-it stops working in opera27 (webkit) when these are combined into a list of selectors
-please improve :D */
-*:-webkit-full-screen {
-  @include common-bg;
-}
-
-*:fullscreen {
-  @include common-bg;
-}
-
-*:-moz-full-screen {
-  @include common-bg;
-}
-
 /* disable scrollbar in webkit based browsers */
 ::-webkit-scrollbar {
   display: none;
@@ -52,13 +35,9 @@ please improve :D */
 /* disable scrollbar according to some new spec */
 html {
   scrollbar-width: none;
-}
-
-body {
-  @include common-bg;
+  background-color: $background-color;
   color: $font-color;
-  /* disable scrollbar in IE … untested so disabled
-  -ms-overflow-style: none; */
+  font-family: sans-serif;
 }
 
 a {
@@ -66,6 +45,7 @@ a {
   color: $font-color;
   cursor: pointer;
 }
+
 
 #front section.chapters a:hover {
   text-decoration: underline;
@@ -78,65 +58,80 @@ article p {
 }
 
 img {
-  -webkit-tap-highlight-color: transparent;
   margin: 0 auto;
   display: block;
-  padding: 0;
-  border: none;
   background-color: white;
-}
-
-img::selection {
-  background: transparent;
-}
-
-fieldset, h1 {
-  margin: 2cm 10px;
-  padding: 10px 10px 10px 10px;
-  border: 1px solid $border-color;
 }
 
 h1 {
   text-align: center;
 }
 
-legend {
-  font-size: large;
-}
 
 nav {
   text-align: center;
-  & > * {
+  form {
     display: inline;
   }
 }
 
 input {
   color: black;
+  background-color: snow;
+  padding: 0.5em;
+  border: none;
 }
 
-.pure-button {
+
+.button {
+  cursor: pointer;
+  padding: 0.5em;
   color: $font-color;
-  background-color: lighten($background-color, 10%);
+  background-color: $button-color;
+  border: none;
 }
 
-fieldset a:visited {
+.button:hover {
+  background-image: linear-gradient(transparent, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.1));
+}
+
+.disabled {
+  opacity: 0.40;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+
+section a:visited {
   color: $theme-color;
 }
 
-/* index specific */
+
+@mixin boxish {
+  background-color: $back-color;
+  box-shadow: 0 0 2px transparentize($font-color, 0.9), 0 2px 4px transparentize($font-color, 0.95);
+  border-radius: 5px;
+  margin: 1em;
+  padding: 1em;
+}
+
 
 #index {
-  fieldset a {
+  section a {
     @include underline-from-center;
   }
-  nav {
-    margin-top: 1cm;
+  section {
+    @include boxish;
   }
-  fieldset > ul, ol {
+  h1 {
+    font-size: 1.5em;
+    margin-top: 0;
+  }
+  nav {
+    margin: 2em 0;
+  }
+  section > ul, ol {
     column-width: 20em;
-    -webkit-column-width: 20em;
-    -moz-column-width: 20em;
     list-style-type: none;
   }
   .unlinked {
@@ -147,29 +142,30 @@ fieldset a:visited {
 /* front specific */
 #front {
   .preview {
+    margin-top: 1em;
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-around;
-    margin: 2cm 1cm;
-    padding: 0.5cm 0.5cm;
-    border: 1px solid $border-color;
-    text-align: center;
   }
 
   .preview > * {
-    margin: 0px 0.2%;
+    margin: 0 0.2%;
   }
 
   .preview img {
     max-width: 100%;
   }
 
-  .chapters fieldset {
-    margin: 0.5cm 10px;
-  }
-
-  .chapters a {
-    margin-right: 0.5em;
+  article {
+    @include boxish;
+    h1 {
+      font-size: 1em;
+      color: $theme-color;
+      margin: 0 0 1em 0;
+    }
+    > * {
+      margin-right: .5em;
+    }
   }
 }
 
@@ -186,11 +182,6 @@ body#view {
   section {
     text-align: center;
     flex-grow: 1;
-    /*display: flex;
-    flex: 1 0 auto;
-    flex-flow: row;
-    justify-content: space-around;
-    align-items: flex-start;*/
     cursor: pointer;
     @include no-selection;
     p {
@@ -209,10 +200,6 @@ body#view {
 
     &> * {
       flex-grow: 1;
-    }
-
-    .pure-button {
-      border-radius: 0;
     }
   }
 }

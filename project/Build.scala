@@ -52,7 +52,7 @@ object Dependencies {
   val lociCommunicationCirce =  libraryDependencies += lociDependency.value("serializer-circe")
   val lociCommunicationUpickle =  libraryDependencies += lociDependency.value("serializer-upickle")
   val pprint = libraryDependencies += "com.lihaoyi" %%% "pprint" % "0.5.3"
-  val purecss = libraryDependencies += ("org.webjars.npm" % "purecss" % "1.0.0")
+  val normalizecss = libraryDependencies += "org.webjars.npm" % "normalize.css" % "8.0.1"
   val rmgkLogging = libraryDependencies += ("de.rmgk" %%% "logging" % "0.2.1")
   val scalacheck = libraryDependencies += ("org.scalacheck" %% "scalacheck" % "1.14.0" % "test")
   val scalactic = libraryDependencies += ("org.scalactic" %% "scalactic" % "3.0.5")

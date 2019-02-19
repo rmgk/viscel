@@ -1,25 +1,19 @@
 package visceljs
 
-import org.scalajs.dom.MouseEvent
 import rescala.default._
+import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, href}
 import viscel.shared.{Bindings, Description, Log}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
-import visceljs.Definitions.{class_button, class_button_disabled, path_asset, path_front}
+import visceljs.Definitions.{class_button, class_button_disabled, lcButton, onLeftClick, path_asset, path_front}
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
-import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, href, onclick}
 
 class Actions(hint: (Description, Boolean) => Unit,
               postBookmarkF: Bindings.SetBookmark => Future[Bindings.Bookmarks],
               manualStates: Evt[AppState]) {
 
-  private def onLeftClick(a: => Unit): Modifier = onclick := { (e: MouseEvent) =>
-    if (e.button == 0) {
-      e.preventDefault()
-      a
-    }
-  }
+
 
   private def gotoIndex(): Unit = manualStates.fire(IndexState)
   def gotoFront(description: Description): Unit = manualStates.fire(FrontState(description.id))
@@ -55,5 +49,4 @@ class Actions(hint: (Description, Boolean) => Unit,
 
   def postForceHint(nar: Description, ts: Modifier*): HtmlTag = lcButton(hint(nar, true), class_button)(ts: _*)
 
-  def lcButton(action: => Unit, m: Modifier*): HtmlTag = button(class_button, onLeftClick(action))(m: _*)
 }

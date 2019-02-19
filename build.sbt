@@ -21,7 +21,7 @@ val Libraries = new {
 
 
 
-  val js: Def.SettingsDefinition = shared ++ Seq(scalajsdom, purecss, fontawesome, rescalatags)
+  val js: Def.SettingsDefinition = shared ++ Seq(scalajsdom, normalizecss, fontawesome, rescalatags)
 }
 
 lazy val viscel = project.in(file("."))

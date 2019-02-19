@@ -2,13 +2,11 @@ package visceljs
 
 import org.scalajs.dom.html.UList
 import rescala.default.{Signal, implicitScheduler}
+import scalatags.JsDom.all.{alt, stringFrag, _}
+import scalatags.JsDom.attrs.style
+import scalatags.JsDom.tags2.{nav, section}
 import viscel.shared.{Blob, Description, SharedImage}
 import visceljs.Definitions._
-
-import scalatags.JsDom.all.{stringFrag, alt, _}
-import scalatags.JsDom.attrs.{onclick, style}
-import scalatags.JsDom.tags.a
-import scalatags.JsDom.tags2.{nav, section}
 
 object Make {
 
@@ -42,14 +40,12 @@ object Make {
     }
   }
 
-  def fullscreenToggle(stuff: Modifier*): HtmlTag =
-    a(if (Definitions.isFullscreen()) Definitions.class_button_active else Definitions.class_button,
-      onclick := (() => Definitions.toggleFullscreen()))(stuff: _*)
+  def fullscreenToggle(stuff: Modifier*): HtmlTag = lcButton(Definitions.toggleFullscreen())(stuff: _*)
 
 
   def group(name: String, actions: Actions, entries: Signal[Seq[(Description, Int, Int)]]): Tag = {
     val elements: UList = ul.render
-    val rLegend = legend(name).render
+    val rLegend = h1(name).render
     entries.observe { es =>
       elements.innerHTML = ""
       var cUnread = 0
@@ -66,9 +62,9 @@ object Make {
       rLegend.textContent = s"$name $cUnread ($cPos/$cTotal)"
     }
 
-    section(fieldset(rLegend, elements))
+    section(rLegend, elements)
   }
 
   def navigation(links: Modifier*): HtmlTag =
-    nav(class_button_group)(links :_*)
+    nav(links :_*)
 }

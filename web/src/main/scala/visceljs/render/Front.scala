@@ -2,17 +2,17 @@ package visceljs.render
 
 import org.scalajs.dom.html
 import rescala.default._
+import scalatags.JsDom
+import scalatags.JsDom.Frag
+import scalatags.JsDom.all.{Tag, id, stringAttr, frag}
+import scalatags.JsDom.implicits.stringFrag
+import scalatags.JsDom.tags.{SeqFrag, body, h1}
+import scalatags.JsDom.tags2.{article, section}
 import viscel.shared.{ChapterPos, Contents, Gallery, SharedImage}
 import visceljs.Definitions.{class_chapters, class_preview}
 import visceljs.{Actions, Data, Make}
 
 import scala.annotation.tailrec
-import scalatags.JsDom
-import scalatags.JsDom.Frag
-import scalatags.JsDom.all.{Tag, id, stringAttr}
-import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.{SeqFrag, body, fieldset, h1, legend}
-import scalatags.JsDom.tags2.{article, section}
 
 class Front(actions: Actions) {
 
@@ -49,7 +49,7 @@ class Front(actions: Actions) {
             (next, link_asset(data.move(_ => next))(s"$i") :: stringFrag(" ") :: acc)
           }
 
-          article(fieldset(legend(chap), links))
+          article(if (chap.isEmpty) links else frag(h1(chap), links))
         }
 
 

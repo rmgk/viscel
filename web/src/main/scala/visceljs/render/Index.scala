@@ -55,7 +55,7 @@ class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal
 
       val callback: Signal[() => Boolean] = firstSelected map { sel => { () => sel.foreach(actions.gotoFront); false } }
 
-      val searchForm = form(cls := "pure-form")(inputField, onsubmit := callback)
+      val searchForm = form(inputField, onsubmit := callback)
 
       body(id := "index",
         Make.navigation(Make.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
