@@ -11,7 +11,7 @@ import rescala.levelbased.LevelStructImpl
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all.{body, stringFrag}
-import viscel.shared.{Contents, Description, Log, SharedImage, Vid}
+import viscel.shared.{Bookmark, Contents, Description, Log, SharedImage, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.Navigation.{Mode, Next, Prev, navigationEvents}
@@ -28,7 +28,7 @@ import scala.util.Try
 
 class ReaderApp(requestContents: Vid => Future[Option[Contents]],
                 val descriptions: Signal[Map[Vid, Description]],
-                val bookmarks: Signal[Map[Vid, Int]],
+                val bookmarks: Signal[Map[Vid, Bookmark]],
                 hint: (Description, Boolean) => Unit
                ) {
 
@@ -174,9 +174,9 @@ class ReaderApp(requestContents: Vid => Future[Option[Contents]],
   def getDataSignal(id: Vid): Signal[Data] = {
     Signal.dynamic {
       val description = descriptions.value(id)
-      val bm = bookmarks().getOrElse(description.id, 0)
+      val bm = bookmarks().get(description.id)
       val cont = content(description): @unchecked
-      Data(description, cont.value, bm)
+      Data(description, cont.value, bm.fold(0)(_.position))
     }
   }
 

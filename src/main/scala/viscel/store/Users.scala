@@ -53,7 +53,10 @@ class Users(usersDir: Path) {
 
   def load(id: String): User Or ErrorMessage = load(path(id))
 
-  private def load(p: Path): User Or ErrorMessage = Json.load[User](p).badMap(e => e.getMessage)
+  private def load(p: Path): User Or ErrorMessage =
+    Json.load[User](p).orElse{
+      Json.load[LegacyUser](p).map(_.toUser)
+    }.badMap(e => e.getMessage)
 
   private def store(user: User): Unit = Json.store(path(user.id), user)
 

@@ -13,7 +13,7 @@ import scala.collection.JavaConverters._
 object Json {
 
   def store[T: Encoder](p: Path, data: T): Unit = synchronized {
-    val jsonBytes = data.asJson.noSpaces :: Nil
+    val jsonBytes = data.asJson.spaces2 :: Nil
     Files.createDirectories(p.getParent)
     Files.write(p, jsonBytes.asJava, UTF_8, CREATE, WRITE, TRUNCATE_EXISTING)
   }

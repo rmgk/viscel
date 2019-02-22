@@ -12,8 +12,8 @@ object Bindings {
 
   val hint = Binding[(Description, Boolean) => Unit]("hint")
 
-  type SetBookmark = Option[(Description, Int)]
-  type Bookmarks = Map[Vid, Int]
+  type SetBookmark = Option[(Description, Bookmark)]
+  type Bookmarks = Map[Vid, Bookmark]
   val bookmarks = Binding[SetBookmark => Bookmarks]("bookmarks")
 
   val bookUpdate = Binding[Description => Unit]("bookUpdate")

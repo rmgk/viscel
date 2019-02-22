@@ -1,8 +1,8 @@
 package visceljs
 
 import rescala.default._
-import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, href, disabled}
-import viscel.shared.{Bindings, Description, Log}
+import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, disabled, href}
+import viscel.shared.{Bindings, Bookmark, Description, Log}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Definitions.{lcButton, onLeftClick, path_asset, path_front}
 
@@ -21,7 +21,8 @@ class Actions(hint: (Description, Boolean) => Unit,
 
 
   private def postBookmark(nar: Description, pos: Int): Unit = {
-    postBookmarkF(Some((nar, pos))).failed.foreach(e => Log.JS.error(s"posting bookmarks failed: $e"))
+    postBookmarkF(Some((nar, Bookmark(pos, System.currentTimeMillis()))))
+      .failed.foreach(e => Log.JS.error(s"posting bookmarks failed: $e"))
   }
 
 

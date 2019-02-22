@@ -23,9 +23,9 @@ class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal
     rescala.reactives.Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
 
       val bookmarkedNarrations: List[(Description, Int, Int)] =
-        bookmarks.toList.flatMap { case (id, pos) =>
+        bookmarks.toList.flatMap { case (id, bookmark) =>
           descriptions.get(id).map { nr =>
-            (nr, pos, nr.size - pos)
+            (nr, bookmark.position, nr.size - bookmark.position)
           }
         }
 

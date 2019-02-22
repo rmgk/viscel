@@ -2,6 +2,7 @@ package viscel.server
 
 import akka.http.scaladsl.model._
 import io.circe.Encoder
+import io.circe.generic.auto._
 import io.circe.syntax._
 import scalatags.Text.attrs.{`for`, `type`, action, cls, content, href, id, rel, src, title, value, name => attrname}
 import scalatags.Text.implicits.{Tag, stringAttr, stringFrag}

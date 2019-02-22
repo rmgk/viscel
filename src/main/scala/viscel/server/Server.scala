@@ -16,7 +16,7 @@ import rescala.default.{Evt, implicitScheduler}
 import viscel.ReplUtil
 import viscel.crawl.WebRequestInterface
 import viscel.narration.Narrator
-import viscel.shared.{Bindings, Vid}
+import viscel.shared.{Bindings, Bookmark, Vid}
 import viscel.shared.Log.{Server => Log}
 import viscel.store.{BlobStore, NarratorCache, User, Users}
 
@@ -55,8 +55,8 @@ class Server(userStore: Users,
       }
       registry.bind(Bindings.bookmarks) { set =>
         userStore.get(user).map { user =>
-          set.fold(user) { case (desc, pos) =>
-            setBookmark(user, pos, desc.id)
+          set.fold(user) { case (desc, bm) =>
+            setBookmark(user, bm, desc.id)
           }.bookmarks
         }.getOrElse(Map.empty)
       }
@@ -65,8 +65,8 @@ class Server(userStore: Users,
   }
 
 
-  private def setBookmark(user: User, bmpos: Int, colid: Vid): User = {
-    if (bmpos > 0) userStore.userUpdate(user.setBookmark(colid, bmpos))
+  private def setBookmark(user: User, bm: Bookmark, colid: Vid): User = {
+    if (bm.position > 0) userStore.userUpdate(user.setBookmark(colid, bm))
     else userStore.userUpdate(user.removeBookmark(colid))
   }
 
