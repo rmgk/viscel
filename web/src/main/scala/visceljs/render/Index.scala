@@ -1,7 +1,7 @@
 package visceljs.render
 
 import org.scalajs.dom.html
-import org.scalajs.dom.raw.KeyboardEvent
+import org.scalajs.dom.Event
 import rescala.default._
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
@@ -59,14 +59,14 @@ class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal
       bookmarked.reverse_:::(available)
     }
 
-    val searchInput = Evt[KeyboardEvent]
+    val searchInput = Evt[Event]
     val searchString: Signal[String] = searchInput.map { ke =>
       val sv = ke.currentTarget.asInstanceOf[html.Input].value.toString.toLowerCase
       println(s"search val $sv")
       sv
     }.latest("")
     val inputField = input(value := searchString, `type` := "text", tabindex := "1",
-                           onkeyup := { k: KeyboardEvent => searchInput.fire(k) }).render
+                           oninput := { k: Event => searchInput.fire(k) })
 
     def searchable(l : List[FrontPageEntry]) = l.map(e => e.name -> e)
 
@@ -98,7 +98,7 @@ class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal
       () => {first.foreach(actions.gotoFront); false}
     }
 
-    val searchForm = form(inputField, onsubmit := callback)
+    val searchForm = inputField(onchange := callback)
 
     val groupNames = Seq("Recent",
                      "Updates",

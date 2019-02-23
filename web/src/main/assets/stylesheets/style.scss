@@ -70,14 +70,9 @@ h1 {
 
 nav {
   text-align: center;
-  form {
-    // display block together with the padding remove some visual bugs when the nav breaks
-    // the padding is aligned to the padding of the a and button elements
-    display: inline-block;
-    padding-bottom: 0.5em;
-  }
 
-  a, button {
+  & > a, & > button {
+    display: inline-block;
     cursor: pointer;
     padding: 0.5em 2em;
     color: $font-color;
