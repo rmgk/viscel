@@ -4,9 +4,10 @@
 
 $font-color: snow;
 $theme-color: limegreen;
-$button-color: #212121;
-$back-color: #212121;
 $background-color: black;
+// material design colors … abused ;-P
+$border-color: #424242;
+$backplate-color: #212121;
 
 // no selection is important for double click behaviour
 // i.e., without this, clicking fast causes things to be selected,
@@ -80,7 +81,7 @@ nav {
     cursor: pointer;
     padding: 0.5em 2em;
     color: $font-color;
-    background-color: $button-color;
+    background-color: $backplate-color;
     border: none;
     &:hover, &:active {
       background-image: linear-gradient(transparent, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.1));
@@ -107,8 +108,8 @@ section a:visited {
 
 
 @mixin titled-box {
-  background-color: $back-color;
-  box-shadow: 0 0 2px transparentize($font-color, 0.7), 1px 1px 4px transparentize($font-color, 0.8);
+  background-color: $backplate-color;
+  border: 1px solid $border-color;
   border-radius: 5px;
   margin: 5%;
   padding: 1em 5%;
