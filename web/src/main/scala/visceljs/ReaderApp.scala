@@ -150,7 +150,7 @@ class ReaderApp(requestContents: Vid => Future[Option[Contents]],
       }
     }
 
-    val indexBody = index.gen()
+    val indexBody = Signal{index.gen()}
     val frontBody = front.gen(currentData)
     val viewBody = view.gen(currentData, fitType, Navigation.navigate)
 

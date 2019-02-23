@@ -1,12 +1,11 @@
 package visceljs
 
-import org.scalajs.dom.html.UList
-import rescala.default.{Signal, implicitScheduler}
 import scalatags.JsDom.all.{alt, stringFrag, _}
 import scalatags.JsDom.attrs.style
 import scalatags.JsDom.tags2.{nav, section}
-import viscel.shared.{Blob, Description, SharedImage}
+import viscel.shared.{Blob, SharedImage}
 import visceljs.Definitions._
+import visceljs.render.FrontPageEntry
 
 object Make {
 
@@ -43,26 +42,30 @@ object Make {
   def fullscreenToggle(stuff: Modifier*): HtmlTag = lcButton(Definitions.toggleFullscreen())(stuff: _*)
 
 
-  def group(name: String, actions: Actions, entries: Signal[Seq[(Description, Int, Int)]]): Tag = {
-    val elements: UList = ul.render
-    val rLegend = h1(name).render
-    entries.observe { es =>
-      elements.innerHTML = ""
-      var cUnread = 0
-      var cTotal = 0
-      var cPos = 0
-      es.foreach { case (desc, pos, unread) =>
-        val e = actions.link_front(desc, s"${desc.name}${if (unread == 0) "" else s" ($unread)"}",
-          {if (desc.unknownNarrator) span(" ", Icons.archive, cls := "unlinked", title := "not linked to live sources") else frag()})
-        elements.appendChild(li(e).render)
-        if (unread > 0) cUnread += unread
-        cTotal += desc.size
-        cPos += pos
-      }
-      rLegend.textContent = s"$name $cUnread ($cPos/$cTotal)"
+  def group(name: String, actions: Actions, entries: Seq[FrontPageEntry]): Tag = {
+    var cUnread = 0
+    var cTotal = 0
+    var cPos = 0
+    val elements = entries.map { fpe =>
+      val desc = fpe.description
+      val unread = fpe.newPages
+      val e = actions.link_front(desc,
+                                 s"${desc.name}${if (unread == 0) "" else s" ($unread)"}",
+        {
+          if (desc.unknownNarrator) span(" ",
+                                         Icons.archive,
+                                         cls := "unlinked",
+                                         title := "not linked to live sources")
+          else frag()
+        })
+      if (unread > 0) cUnread += unread
+      cTotal += desc.size
+      cPos += fpe.bookmarkPosition
+      li(e)
     }
 
-    section(rLegend, elements)
+    section(h1(s"$name $cUnread ($cPos/$cTotal)"), ul(elements),
+            if (elements.isEmpty) cls := "empty" else "")
   }
 
   def navigation(links: Modifier*): HtmlTag =

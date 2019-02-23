@@ -123,6 +123,9 @@ section a:visited {
   section {
     @include titled-box;
   }
+  section.empty {
+    display: none;
+  }
   h1 {
     font-size: 1.5em;
     margin-top: 0;

@@ -5,11 +5,11 @@ import org.scalajs.dom.{DocumentFragment, Element, Node}
 import rescala.core.{CreationTicket, Initializer, Scheduler, Struct}
 import rescala.reactives.Signals.Diff
 import rescala.reactives.{Event, Evt, Observe, Signal}
-
-import scala.language.higherKinds
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all.{Attr, AttrValue, Frag, Style, StyleValue, span, stringFrag}
 import scalatags.generic
+
+import scala.language.higherKinds
 
 
 object visceltags extends lowPriorityimplicits {
@@ -87,7 +87,7 @@ object visceltags extends lowPriorityimplicits {
       { case Some(Diff(lastFrag, newFrag)) =>
         val olds = nodeList(lastFrag)
         val news = nodeList(newFrag)
-        val parent = olds.head.parentNode
+        val parent = olds.headOption.map(_.parentNode).orNull
         if (parent != null && !scalajs.js.isUndefined(parent)) {
           replaceAll(parent, olds, news)
         }

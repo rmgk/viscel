@@ -1,68 +1,117 @@
 package visceljs.render
 
 import org.scalajs.dom.html
+import org.scalajs.dom.raw.KeyboardEvent
 import rescala.default._
-import viscel.shared.{Description, Vid}
+import scalatags.JsDom.TypedTag
+import scalatags.JsDom.all._
+import scalatags.JsDom.implicits.stringFrag
+import scalatags.JsDom.tags2.aside
+import viscel.shared.Bindings.Bookmarks
+import viscel.shared.{Bookmark, Description, Vid}
 import visceljs.Definitions.link_tools
 import visceljs.visceltags._
 import visceljs.{Actions, Make, SearchUtil}
 
 import scala.collection.immutable.Map
-import scala.scalajs.js
-import scalatags.JsDom
-import scalatags.JsDom.all._
-import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags2.aside
-import viscel.shared.Bindings.Bookmarks
+
+trait FrontPageEntry {
+  def sortOrder: Int
+  def newPages: Int
+  def hasNewPages: Boolean = newPages > 15
+  def description: Description
+  def name: String = description.name
+  def bookmarkPosition: Int
+  def noBookmark: Boolean = bookmarkPosition == 0
+  def bookmarksFirst: Boolean = bookmarkPosition == 1 && newPages > 0
+  def recentOrder: Long
+}
+
+case class BookmarkedEntry(description: Description, bookmark: Bookmark) extends FrontPageEntry {
+  def sortOrder: Int = bookmark.position - description.size
+  def newPages: Int = description.size - bookmark.position
+  override def bookmarkPosition: Int = bookmark.position
+  override def recentOrder: Long = -bookmark.timestamp
+}
+
+case class AvailableEntry(description: Description) extends FrontPageEntry {
+  override def sortOrder: Int = -description.size
+  def newPages = 0
+  override def bookmarkPosition: Int = 0
+  override def recentOrder: Long = 0
+}
 
 class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal[Map[Vid, Description]]) {
 
+  def gen(): TypedTag[html.Body] = {
 
-  def gen(): Signal[JsDom.TypedTag[html.Body]] = {
+    val entries = Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
 
-    rescala.reactives.Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
-
-      val bookmarkedNarrations: List[(Description, Int, Int)] =
-        bookmarks.toList.flatMap { case (id, bookmark) =>
-          descriptions.get(id).map { nr =>
-            (nr, bookmark.position, nr.size - bookmark.position)
+      val bookmarked: List[FrontPageEntry] =
+        bookmarks.toList.flatMap { case (ids, bookmark) =>
+          descriptions.get(ids).map { desc =>
+            BookmarkedEntry(desc, bookmark)
           }
         }
+      val available: List[FrontPageEntry] =
+        descriptions.values.toList.filter(d => !bookmarks.contains(d.id)).map(AvailableEntry)
 
-      val (hasNewPages, isCurrent) = bookmarkedNarrations.partition(_._3 > 15)
-      val available = descriptions.values.toList.filter(d => !bookmarks.contains(d.id)).map(n => (n, 0, n.size))
-
-      val inputQuery = Var("")
-      val inputField = input(value := inputQuery, `type` := "text", tabindex := "1", onkeyup := ({ (inp: html.Input) =>
-        inputQuery.set(inp.value.toString.toLowerCase)
-      }: js.ThisFunction))
-
-      val filteredHasNewPages = inputQuery.map { query =>
-        if (query.isEmpty) hasNewPages.sortBy(-_._3)
-        else SearchUtil.search(query, hasNewPages.map(n => n._1.name -> n))
-      }
-
-      val filteredIsCurrent = inputQuery.map { query =>
-        if (query.isEmpty) isCurrent.sortBy(_._1.name)
-        else SearchUtil.search(query, isCurrent.map(n => n._1.name -> n))
-      }
-
-      val filteredAvailable = inputQuery.map { query => SearchUtil.search(query, available.map(n => n._1.name -> n)) }
-
-      val firstSelected: Signal[Option[Description]] = Signal {
-        filteredHasNewPages().headOption.orElse(filteredIsCurrent().headOption).orElse(filteredAvailable().headOption).map(_._1)
-      }
-
-      val callback: Signal[() => Boolean] = firstSelected map { sel => { () => sel.foreach(actions.gotoFront); false } }
-
-      val searchForm = form(inputField, onsubmit := callback)
-
-      body(id := "index",
-        Make.navigation(Make.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
-        Make.group(s"Updates", actions, filteredHasNewPages),
-        Make.group(s"Bookmarks", actions, filteredIsCurrent),
-        Make.group(s"Available", actions, filteredAvailable))
+      bookmarked.reverse_:::(available)
     }
+
+    val searchInput = Evt[KeyboardEvent]
+    val searchString: Signal[String] = searchInput.map { ke =>
+      val sv = ke.currentTarget.asInstanceOf[html.Input].value.toString.toLowerCase
+      println(s"search val $sv")
+      sv
+    }.latest("")
+    val inputField = input(value := searchString, `type` := "text", tabindex := "1",
+                           onkeyup := { k: KeyboardEvent => searchInput.fire(k) }).render
+
+    def searchable(l : List[FrontPageEntry]) = l.map(e => e.name -> e)
+
+    val sortedFilteredEntries = Signal {
+      val query = searchString.value
+      if (query.isEmpty) entries.value.sortBy(_.sortOrder)
+      else SearchUtil.search(query, searchable(entries.value))
+    }
+
+    val groups = sortedFilteredEntries.map { entries =>
+
+      val (available, bookmarked) = entries.partition(_.noBookmark)
+      val (marked, bookmarked2) = bookmarked.partition(_.bookmarksFirst)
+      val (bookMarked3, noNewPages) = bookmarked2.partition(_.hasNewPages)
+      val recent = bookMarked3.sortBy(_.recentOrder).take(12)
+      val normal = bookMarked3.filterNot(recent.contains)
+
+      Seq("Recent" -> recent,
+          "Updates" -> normal,
+          "Marked" -> marked,
+          "Bookmarks" -> noNewPages,
+          "Available" -> available)
+    }
+
+
+    val callback: Signal[() => Boolean] = groups.map { gs =>
+      val displayOrder = gs.map(_._2)
+      val first: Option[Description] = displayOrder.find(_.nonEmpty).map{ _.head.description}
+      () => {first.foreach(actions.gotoFront); false}
+    }
+
+    val searchForm = form(inputField, onsubmit := callback)
+
+    val groupNames = Seq("Recent",
+                     "Updates",
+                     "Marked",
+                     "Bookmarks",
+                     "Available")
+
+    body(id := "index",
+         Make.navigation(Make.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
+          SeqFrag(groupNames.map{ gn =>
+            groups.map(g => Make.group(gn, actions, g.toMap.apply(gn))).asFrag
+          })
+         )
   }
 
 
