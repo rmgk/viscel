@@ -14,6 +14,14 @@ class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptio
   }
 
   def narration(id: Vid): Option[Contents] = {
+
+    // load the book in an order suitable for viewing
+    val pages = linearizedContents(rowStore.loadBook(id))
+    if (pages.isEmpty) None
+    else Some(pagesToContents(pages))
+  }
+
+  def pagesToContents(pages: List[ReadableContent]): Contents = {
     @scala.annotation.tailrec
     def recurse(content: List[ReadableContent],
                 art: List[SharedImage],
@@ -31,14 +39,8 @@ class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptio
           }
       }
     }
-
-    // load the book in an order suitable for viewing
-    val pages = linearizedContents(rowStore.loadBook(id))
-    if (pages.isEmpty) None
-    else {
-      val (articles, chapters) = recurse(pages, Nil, Nil, 0)
-      Some(Contents(Gallery.fromSeq(articles.reverse), chapters))
-    }
+    val (articles, chapters) = recurse(pages, Nil, Nil, 0)
+    Contents(Gallery.fromSeq(articles.reverse), chapters)
   }
 
   def narrations(): Set[Description] = {
