@@ -547,7 +547,7 @@ http://www.sandraontherocks.com/strips-sotr/start_by_running
 http://www.goblinscomic.org/archive/
 :chapterArchive #textarea a
 :image+next #cc-comic
-:url_replace /(\d{8}(?:-\d+)?)/ ::: /comic/$1 ::: www.goblinscomic.org ::: goblinscomic.com
+-- :url_replace /(\d{8}(?:-\d+)?)/ ::: /comic/$1 ::: www.goblinscomic.org ::: goblinscomic.com
 
 -:Eerie Cuties
 http://www.eeriecuties.com/strips-ec/%28chapter_1%29_it_is_gonna_eat_me%21
@@ -569,17 +569,18 @@ http://www.magickchicks.com/strips-mc/tis_but_a_trifle
 
 -NX_Skullkickers:Skull☠kickers
 http://comic.skullkickers.com/comic/archive
-:chapterArchive .cc-chapterrow a[href~=/comic/]
+:chapterArchive .cc-storyline-header a[href~=/comic/]
 :image #cc-comic , #cc-comicbody .cc-showbig img
-:next #comicleft .nav .next
+:next #comicleft nav a[rel=next]
 
 -:Rubi Whipple
 http://rubiwhipple.com/comic/issue-1-cover/
 :image #comic img
 :next #comic-foot a.comic-nav-next
 
-
-
+-NX_LetsSpeakEnglish:Let’s Speak English
+http://www.marycagle.com/letsspeakenglish/prologue-1-off-we-go
+:image+next #cc-comic
 
 
 
@@ -632,9 +633,9 @@ http://www.fanboys-online.com/index.php?id=483
 :n #comicwrap a.next
 
 -:Love Not Found
-http://www.lovenotfound.com/comic/archive
-:ac .cc-chapterrow a[href]
-:ia #cc-comic
+http://www.lovenotfound.com/
+:chapterArchive #chapter option
+:image+next #comic img
 
 -:Alice and the Nightmare
 http://www.aliceandthenightmare.com/comic/archive
@@ -719,7 +720,7 @@ http://www.cassiopeiaquinn.com/comic/archive
 
 -:Harpy Gee
 http://www.harpygee.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header:contains(Chapter) a[href]
 :ia #cc-comic
 
 -:Namesake
@@ -882,8 +883,7 @@ http://www.praguerace.com/comic/archive
 
 -:Sister Claire
 http://www.sisterclaire.com/comic/archive
-:ac #pagecontent > a:matches(Book \d+: Chapter)
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Spinnerette
@@ -893,7 +893,7 @@ http://www.spinnyverse.com/comic/archive
 
 -:6 Gun Mage
 http://www.6gunmage.com/comic/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:The Boy Who Fell
@@ -908,7 +908,7 @@ http://monsterkind.enenkay.com/comic/archive
 
 -GoGetARoomie:Go Get a Roomie!
 http://www.gogetaroomie.com/comic/archive
-:ac .cc-storyline-header [href]
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Supernormal Step
@@ -918,9 +918,9 @@ http://www.supernormalstep.com/archives/archive
 
 -:Awaken
 http://www.awakencomic.com/comic/archive
-:ac .cc-chapterrow:not(:has(a[href~=valentine-extra])) a[href]
+:ac .cc-storyline-header a[href]:contains(CHAPTER)
 :i #cc-comic , #cc-comicbody .cc-showbig img
-:n .nav .next
+:n nav a[rel=next]
 
 -:The Rock Cocks
 http://rockcocks.slipshine.net/comic/archive

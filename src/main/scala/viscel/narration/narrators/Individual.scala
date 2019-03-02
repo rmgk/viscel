@@ -165,15 +165,6 @@ object Individual {
         Append(chapter_?, pages_?)
       },
       queryImage("#comic_strip > a > img")),
-    archivePage("NX_LetsSpeakEnglish", "Let’s Speak English", "http://www.marycagle.com/archive.php",
-      Selection.many(".cc-chapterrow a[href]").wrapFlat(elementIntoChapterPointer),
-      {
-        val asset_? = Selection.unique("#cc-comic").wrapOne(intoArticle)
-        val next_? = queryNext("#cc-comicbody > a")
-        val comment_? = Selection.unique("#commentary > div.cc-newsarea > div.cc-newsbody").wrapOne(e => Good(e.text()))
-        val combined = Combination.of(asset_?, comment_?){ (asset, comment) => asset.copy(data = asset.data.updated("longcomment", comment)) :: Nil}
-        Append(combined, next_?)
-      }),
     SimpleForward("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#cc-comic")),
     SimpleForward("NX_StickyDillyBuns", "Sticky Dilly Buns", "http://www.stickydillybuns.com/strips-sdb/awesome_leading_man",
       Alternative(queryImageInAnchor("#comic img"), queryNext("#cndnext"))),
