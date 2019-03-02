@@ -582,6 +582,18 @@ http://rubiwhipple.com/comic/issue-1-cover/
 http://www.marycagle.com/letsspeakenglish/prologue-1-off-we-go
 :image+next #cc-comic
 
+-:Strawberry Death Cake
+https://www.theduckwebcomics.com/Strawberry_Death_Cake/5004702/
+:image #comic img
+:next #top_arrows a:has(.arrow_next)
+
+-NX_StickyDillyBuns:Sticky Dilly Buns
+http://www.stickydillybuns.com/strips-sdb/Awesome_leading_man
+:image #cc-comic
+:next #cnav a.next
+
+
+
 
 
 

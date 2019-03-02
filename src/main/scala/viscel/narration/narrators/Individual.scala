@@ -166,8 +166,6 @@ object Individual {
       },
       queryImage("#comic_strip > a > img")),
     SimpleForward("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#cc-comic")),
-    SimpleForward("NX_StickyDillyBuns", "Sticky Dilly Buns", "http://www.stickydillybuns.com/strips-sdb/awesome_leading_man",
-      Alternative(queryImageInAnchor("#comic img"), queryNext("#cndnext"))),
     archivePage("NX_PennyAndAggie", "Penny & Aggie", "http://www.pennyandaggie.com/index.php?p=1",
       Selection.many("form[name=jump] > select[name=menu] > option[value]").wrapFlat(elementIntoChapterPointer),
       queryImageNext(".comicImage", "center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])")),
