@@ -40,8 +40,8 @@ object Resolvers {
 
 object Dependencies {
   val akkaHttp = libraryDependencies ++= Seq("akka-http-core", "akka-http").map(n => "com.typesafe.akka" %% n % "10.1.7")
-  val akkaStream = libraryDependencies += ("com.typesafe.akka" %% "akka-stream" % "2.5.19")
-  val betterFiles = libraryDependencies += ("com.github.pathikrit" %% "better-files" % "3.7.0")
+  val akkaStream = libraryDependencies += ("com.typesafe.akka" %% "akka-stream" % "2.5.21")
+  val betterFiles = libraryDependencies += ("com.github.pathikrit" %% "better-files" % "3.7.1")
   val circe = libraryDependencies ++= Seq("core", "generic", "generic-extras", "parser").map(n => "io.circe" %%% s"circe-$n" % "0.11.1")
   val decline = libraryDependencies += ("com.monovore" %% "decline" % "0.5.1")
   val fastparse = libraryDependencies += "com.lihaoyi" %%% "fastparse" % "2.1.0"
@@ -55,7 +55,7 @@ object Dependencies {
   val normalizecss = libraryDependencies += "org.webjars.npm" % "normalize.css" % "8.0.1"
   val rmgkLogging = libraryDependencies += ("de.rmgk" %%% "logging" % "0.2.1")
   val scalacheck = libraryDependencies += ("org.scalacheck" %% "scalacheck" % "1.14.0" % "test")
-  val scalactic = libraryDependencies += ("org.scalactic" %% "scalactic" % "3.0.5")
+  val scalactic = libraryDependencies += ("org.scalactic" %% "scalactic" % "3.0.6")
   val scalajsdom = libraryDependencies += ("org.scala-js" %%% "scalajs-dom" % "0.9.6")
   val scalaswing = libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "2.0.3"
   val scalatags = libraryDependencies += ("com.lihaoyi" %%% "scalatags" % "0.6.7")

@@ -17,11 +17,12 @@ val Libraries = new {
     rmgkLogging, scalatags, lociCommunication, circe, rescala, lociCommunicationCirce
   )
 
-  val main = shared ++ Def.settings(scalactic, jsoup, betterFiles, decline, akkaHttp, akkaStream, scalatest, scalacheck)
+  val main = Def.settings(scalactic, jsoup, betterFiles, decline, akkaHttp, akkaStream,
+                                    scalatest, scalacheck)
 
 
 
-  val js: Def.SettingsDefinition = shared ++ Seq(scalajsdom, normalizecss, fontawesome, rescalatags)
+  val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, rescalatags)
 }
 
 lazy val viscel = project.in(file("."))
