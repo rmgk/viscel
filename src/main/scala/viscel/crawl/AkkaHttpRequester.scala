@@ -30,7 +30,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
   def extractResponseLocation(base: Vurl, httpResponse: HttpResponse): Vurl =
     httpResponse.header[Location].fold(base)(l => Vurl.fromUri(l.uri.resolvedAgainst(base.uri)))
   def extractLastModified(httpResponse: HttpResponse): Option[Instant] =
-    httpResponse.header[`Last-Modified`].map(h => Instant.ofEpochMilli(h.date().clicks()))
+    httpResponse.header[`Last-Modified`].map(h => Instant.ofEpochMilli(h.date.clicks))
 
 
   private def requestWithRedirects(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {

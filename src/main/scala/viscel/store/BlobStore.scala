@@ -28,9 +28,7 @@ class BlobStore(blobdir: Path) {
 }
 
 object BlobStore {
-  def sha1hex(b: Array[Byte]) = {
-    val digester = MessageDigest.getInstance("SHA1")
-    val sha1 = digester.digest(b)
-    sha1.map { h => f"$h%02x" }.mkString
-  }
+  private val sha1digester: MessageDigest = MessageDigest.getInstance("SHA-1")
+  def sha1(b: Array[Byte]): Array[Byte] = sha1digester.clone().asInstanceOf[MessageDigest].digest(b)
+  def sha1hex(b: Array[Byte]): String = sha1(b).map { h => f"$h%02x" }.mkString
 }
