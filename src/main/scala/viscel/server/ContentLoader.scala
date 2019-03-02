@@ -62,9 +62,8 @@ class ContentLoader(narratorCache: NarratorCache, rowStore: RowStore, descriptio
 
     Log.Scribe.info(s"pages for ${book.id}")
 
-
+    val seen = mutable.HashSet[Vurl]()
     def unseen(contents: List[WebContent]): List[WebContent] = {
-      val seen = mutable.HashSet[Vurl]()
       contents.filter {
         case link@Link(loc, policy, data) => seen.add(loc)
         case _ => true
