@@ -68,6 +68,23 @@ h1 {
   text-align: center;
 }
 
+@mixin buttonish {
+  display: inline-block;
+  cursor: pointer;
+  padding: 0.5em;
+  color: $font-color;
+  background-color: $backplate-color;
+  border: none;
+  &:hover, &:active {
+    background-image: linear-gradient(transparent, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.1));
+  }
+
+  &:disabled {
+    opacity: 0.40;
+    cursor: initial;
+  }
+}
+
 nav {
   text-align: center;
 
@@ -76,24 +93,11 @@ nav {
   }
 
   & > a, & > button {
-    display: inline-block;
-    cursor: pointer;
-    padding: 0.5em;
-    color: $font-color;
-    background-color: $backplate-color;
-    border: none;
-    &:hover, &:active {
-      background-image: linear-gradient(transparent, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.1));
-    }
-
-    &:disabled {
-      opacity: 0.40;
-      cursor: initial;
-    }
+    @include buttonish;
   }
 }
 
-input {
+input[type="text"] {
   color: black;
   background-color: snow;
   padding: 0.5em;
@@ -115,8 +119,13 @@ section a:visited {
   text-align: right;
 }
 
+#tools {
+  label {
+    padding-right: 1em;
+  }
+}
 
-#index {
+#index, #tools {
   section a {
     @include underline-from-center;
   }
