@@ -33,7 +33,7 @@ case class Book(id: Vid,
 object Book {
   def fromEntries(id: Vid,
                   name: String,
-                  entryList: List[ScribeDataRow])
+                  entryList: Seq[ScribeDataRow])
   : Book = {
     val pages: Map[Vurl, PageData] = entryList.collect {
       case pd@PageData(ref, _, date, contents) => (ref, pd)

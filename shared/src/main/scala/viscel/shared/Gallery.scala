@@ -6,8 +6,7 @@ import io.circe.{Encoder, Decoder}
 
 final class Gallery[+A] private(val pos: Int, entries: Array[A]) {
   private def copy(position: Int) = new Gallery(position, entries)
-  def toList: List[A] = List(entries: _*)
-  def toSeq: Seq[A] = genericWrapArray(entries)
+  def toSeq: IndexedSeq[A] = genericWrapArray(entries)
   def first: Gallery[A] = copy(0)
   def end: Gallery[A] = copy(entries.length)
   def get: Option[A] = if (pos < size) Some(entries(pos)) else None
