@@ -71,10 +71,14 @@ h1 {
 nav {
   text-align: center;
 
+  & > form {
+    display: inline-block;
+  }
+
   & > a, & > button {
     display: inline-block;
     cursor: pointer;
-    padding: 0.5em 2em;
+    padding: 0.5em;
     color: $font-color;
     background-color: $backplate-color;
     border: none;

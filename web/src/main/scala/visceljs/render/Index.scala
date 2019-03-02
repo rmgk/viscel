@@ -98,7 +98,7 @@ class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal
       () => {first.foreach(actions.gotoFront); false}
     }
 
-    val searchForm = inputField(onchange := callback)
+    val searchForm = form(inputField, onsubmit := callback)
 
     val groupNames = Seq("Recent",
                      "Updates",
