@@ -752,7 +752,7 @@ http://www.flightofthebinturong.com/archives
 http://www.tryinghuman.com/archive
 :am #middle table td b , #middle table td center a
 :i #cc-comic
-:url_replace --(\d)$ ::: --0$1 ::: chapter-(3|4)-([^-]) ::: chapter-$1--$2
+:url_replace --(\d)$ ::: --0$1 ::: chapter-(3|4)-([^-]) ::: chapter-$1--$2 ::: chapter-(12|13|14|15|16|17|18)--cover ::: chapter-$1-cover
 
 
 -:Zombie Roomie
