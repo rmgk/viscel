@@ -10,6 +10,7 @@ import viscel.store.Vurl
 
 case class MangaHereNarrator(id: String, name: String, archiveUri: Vurl)
 
+// currently borked
 object MangaHere extends Metarrator[MangaHereNarrator]("MangaHere") {
 
   val archiveWrapper = Shuffle(queryMixedArchive(".detail_list > ul:first-of-type > li , .detail_list > ul:first-of-type a"), chapterReverse)

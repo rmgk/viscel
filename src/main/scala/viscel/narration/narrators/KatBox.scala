@@ -9,7 +9,7 @@ import viscel.store.{ImageRef, Link, Volatile, Vurl}
 
 import scala.collection.immutable.Set
 
-
+// also dead for the time beeing
 object KatBox {
 
   val cores: Set[Narrator] = Set[(String, String, Option[Vurl])](

@@ -7,7 +7,6 @@ object Narrators {
 
   val staticV2: Set[Narrator] =
     Individual.inlineCores ++
-      KatBox.cores ++
       PetiteSymphony.cores ++
       Snafu.cores ++
       CloneManga.cores ++
@@ -15,6 +14,6 @@ object Narrators {
         Misfile, NamirDeiter, YouSayItFirst,
         UnlikeMinerva, DynastyScans.Citrus)
 
-  val metas: List[Metarrator[_]] = MangaHere :: Comicfury :: Mangadex :: Nil
+  val metas: List[Metarrator[_]] = Comicfury :: Mangadex :: Nil
 
 }
