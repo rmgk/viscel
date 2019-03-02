@@ -750,8 +750,10 @@ http://www.flightofthebinturong.com/archives
 
 -:Trying Human
 http://www.tryinghuman.com/archive
-:am #middle table td b , #middle table td a[href~=/index.php\?id=\d]
+:am #middle table td b , #middle table td center a
 :i #cc-comic
+:url_replace --(\d)$ ::: --0$1 ::: chapter-(3|4)-([^-]) ::: chapter-$1--$2
+
 
 -:Zombie Roomie
 http://www.zombieroomie.com/2009/10/26/issues/
