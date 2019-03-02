@@ -105,10 +105,6 @@ http://ravekitty.comicgenesis.com/d/20040116.html
 :i img[src~=/comics/\d{8}]
 :n a:containsOwn(Next comic)
 
--:Bear vs Zombie
-http://bearversuszombies.smackjeeves.com/comics/507662/chapter-1/
-:i #comic_image
-:n #content a[title=Next Page]
 
 -:Bardsworth
 http://www.bardsworth.com/?comic=brain
@@ -139,10 +135,6 @@ http://archive.exiern.com/comic/so-far/
 :next #comic-nav-wrapper a.comic-nav-next
 :skip comic/(happy-halloween|typhan-knee-through-the-looking-glass-valentines-day-sex-drive-2017|merry-christmas|many-thanks-to-\w+|exiern-new-years-day-special-2018|the-day-after|dark_reflections_is_back_for_2018)/
 
--:Carciphona
-http://carciphona.smackjeeves.com/archive/
-:am #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
-:i #comic_image
 
 
 -NX_ElGoonishShive:El Goonish Shive
@@ -287,11 +279,6 @@ http://valiant.spiderforest.com/?comic_id=0
 :i body > div > img
 :n a:containsOwn(Next Comic)
 
--:Winters in Lavelle
-http://wintersinlavelle.com/
-:ac #sidenav > ul > li:gt(0) > a
-:ia #comicimg
-
 
 -:Yet Another Fantasy Gamer Comic
 http://yafgc.net/archive/
@@ -338,18 +325,9 @@ http://haikucomics.com/2009/01/14/haikuone/
 :i #featured-comic .entry-content img
 :n #featured-comic .nav-next a
 
--:Memoriam
-http://memoriam.smackjeeves.com/comics/1080096/pg-1/
-:ia #comic_image
-
 -:Nymph
 http://fern.junglestudio.com/comics/nymph/01.html
 :ia img[src~=images/ny\d\d\.]
-
--:Reila
-http://reila.smackjeeves.com/comics/1001394/cover/
-:ia #comic_image
-
 
 -:The First Daughter
 http://thefirstdaughter.keenspot.com/d/20100704.html
@@ -398,6 +376,227 @@ http://www.amyachronicles.com/archives/comic/09292009
 -- has an archive at http://www.amyachronicles.com/archives/
 -- but thats misses content
 :ia #comic img
+
+
+
+-:The Awakened
+http://www.theawakenedcomic.com/comic/chapter-one-page-one/
+:ia #comic img
+
+-:Ianua
+http://www.lesserkeystudios.com/ianua/page-1/
+-- archive at http://www.lesserkeystudios.com/ianua/archive/ has broken links
+-- currently the last image has a next to a broken page
+:i #art > p:nth-child(4) > img
+:n #art > p:nth-child(3) > a:contains(Next)
+
+-:Gaia
+http://www.sandraandwoo.com/gaia/archive/
+:am #column > div.post-page h3 , #column > div.post-page .archive-title a[rel=bookmark]
+:i #comic img
+:archiveReverse
+
+-:Replay
+http://replaycomic.com/comic/red-desert/
+:ia #comic img
+
+-:The Cummoner
+http://www.totempole666.com/archives-2/
+:am #post-188 > div > div.entry .comic-archive-chapter-wrap:has(a:contains(cover)) h3 , #post-188 > div > div.entry .comic-archive-chapter-wrap:has(a:contains(cover)) a[rel=bookmark]
+:i #comic img
+
+-:Applegeeks
+http://www.applegeeks.com/comics/viewcomic.php?issue=1
+:i #castheader > img
+:n #sidebar > div > p:last-of-type > a
+
+-:Counter Rose
+http://www.counter-rose.com/page.php?p=1
+:ia #cg_img img
+
+-DrMcNinja:Dr. McNinja
+http://drmcninja.com/issues/
+:ac #column > div > div > div.serieslist-content > h2 > a
+:i #comic > img
+:n #comic-head > a.next
+
+-:Lovecraft is Missing
+http://lovecraftismissing.com/?p=930
+:is #comic img[src~=comics]
+:n #column > div.post > div.comicdate > div > a[rel=next]
+
+-:Absurd Notions
+http://www.absurdnotions.org/listing.html
+:am body > center > table > tbody > tr > td:nth-child(1) , body > center > table > tbody > tr > td:nth-child(2) a
+:is body > center > img:not([src=bykp.gif])
+
+-:Why The Long Face
+http://www.absurdnotions.org/listwtlf.html
+:ac body > center > font:nth-child(2) > a[href~=wtlf\d{6}\.html]
+:is body > center > font:nth-child(1) > img[src~=lf\d{8}\.|wtlf_\d{8}]
+
+-Krakow:Krakow 2.0
+http://www.marilith.com/krakow2/calendar.php
+:ac body > center > ul > li > a
+:is body > center > img
+:n a:has(img[src=images/next_day.gif])
+
+-:Marilith
+http://www.marilith.com/calendar.php
+:ac body > table > tbody > tr:nth-child(2) > td > table:nth-child(1) > tbody > tr:nth-child(2) > td > ul > li > a
+:i body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2) > table > tbody > tr:nth-child(2) > td > a > img
+:n a:has(img[src=images/next.gif])
+
+-:Teahouse
+http://teahousecomic.com/comic/archive.php
+:am #maincontent p[align=center] > img[src~=archives] , #maincontent a[href~=^/comic/\?id]
+:i #comicimg
+
+-:SkyFall
+http://www.skyfallmanga.com/archive_main.php
+:am body > center > table > tbody > tr:nth-child(5) > td > center > center b , body > center > table > tbody > tr:nth-child(5) > td > center > center a
+:is body > center > table > tbody > tr > td > center > img:not([src=images/blank.jpg])
+:n body > center > table > tbody > tr > td > center > a:has(img[src~=images/next.png])
+
+-:Wonder Kittens
+http://www.wonderkittens.com/comics/index.php?date=20130204&until=week
+:is img[src~=/comics/\d{8}]
+:n a:contains(Next)
+
+-:Stick in the Mud
+http://www.konradokonski.com/SITM/comic/title-0001/
+:ia #comic img
+:url_replace http://www.konradokonski.com/SITM/comic/sitm-filler-reading-time/ ::: http://www.konradokonski.com/SITM/comic/sitm-316/
+
+
+-:A Quartz Bead
+http://www.konradokonski.com/aquartzbead/?page_id=2
+:am #post-2 > div > div.entry > div.comic-archive-chapter-wrap > h3, #post-2 > div > div.entry > div.comic-archive-chapter-wrap > div.comic-archive-list-wrap  a
+:i #comic img
+
+-:Sawdust
+http://www.konradokonski.com/sawdust/archives/
+:am #content .entry h3 , #content .entry .archive-title > a
+:archiveReverse
+:i #comic img
+
+-:Questionable Content
+http://questionablecontent.net/view.php?comic=1
+:ia #strip
+
+-:By Moon Alone
+http://www.bymoonalone.com/comic.php?date=2008-01-01
+:i img[src~=^comic/pages/]
+:n a:has(img[src=img/forward01.gif])
+
+-:Weirding Willows
+http://weirdingwillows.keenspot.com/d/20140915.html
+:i #comicpage img
+:n a:has(#anext)
+
+-:Seed
+http://seed.thecomicseries.com/archive/
+:am #noncomiccontent h3 , #noncomiccontent a[href~=comics/\d]
+:i #comicimage
+
+-:Everblue
+http://everblue-comic.com/comic?sort=1
+:ia #comic a.next img[itemprop=image][src~=assets/images/comics/\d{8}]
+
+-:Solstoria
+http://solstoria.net/comic/54/
+:ia #content .webcomic-image img.size-full
+
+-:The Hope Virus
+http://hopevirus.keenspot.com/d/20160104.html
+:i #comicspot img.ksc
+:a #nexty
+
+-:Advent Boner
+http://legacy-control.com/comic/advent-boner-3/
+:ia #comic-1 img
+
+-:Slimy Thief
+http://slimythief.com/?p=32
+:i #comic > img
+:n #next > a
+
+-:It’s Walky!
+http://www.itswalky.com/comic/and-now/
+:ia #comic img
+
+-:Drowtales Moonless Age
+http://www.drowtales.com/mainarchive.php?sid=4192
+:is #content_middle img , #content_middle object:not(:has(embed)), #content_middle embed , #content_middle > div[style~=background-image:url]
+:n #link_next_top
+
+-:Never Mind the Gap
+http://nmg.thecomicseries.com/archive/
+:am #archive .chaptertitle , #archive .archivecomic a
+:i #comicimage, #comicimagewrap embed
+
+-:You Suck
+http://yousuck.sexy/1
+:ia img[src~=/comics/]
+
+-:Sandra on the Rocks
+http://www.sandraontherocks.com/strips-sotr/start_by_running
+:image+next #cc-comic
+
+-:Goblins
+http://www.goblinscomic.org/archive/
+:chapterArchive #textarea a
+:image+next #cc-comic
+:url_replace /(\d{8}(?:-\d+)?)/ ::: /comic/$1 ::: www.goblinscomic.org ::: goblinscomic.com
+
+-:Eerie Cuties
+http://www.eeriecuties.com/strips-ec/%28chapter_1%29_it_is_gonna_eat_me%21
+:image+next #cc-comic
+
+-:Dangerously Chloe
+http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl
+:image+next #cc-comic
+
+-MenageA3:Ménage à 3
+http://www.ma3comic.com/strips-ma3/For_New_Readers
+:image+next #cc-comic
+
+-:Magic Chicks
+http://www.magickchicks.com/strips-mc/tis_but_a_trifle
+:image+next #cc-comic
+-- skip some broken pages
+:url_replace http://www.magickchicks.com/strips-mc/Illustration_special_by_Shouri ::: http://www.magickchicks.com/strips-mc/You_backstabbing_coward ::: http://www.magickchicks.com/strips-mc/Holiday_Special_Guest_Strip_by_Maritza_and_Bachan ::: http://www.magickchicks.com/strips-mc/Regain_your_energy ::: http://www.magickchicks.com/strips-mc/mc20120413a ::: http://www.magickchicks.com/strips-mc/Watch_your_buns ::: http://www.magickchicks.com/strips-mc/My_tum_tum ::: http://www.magickchicks.com/strips-mc/Holy_moley ::: http://www.magickchicks.com/strips-mc/dc20121220 ::: http://www.magickchicks.com/strips-mc/Wildly_out_of_character
+
+-NX_Skullkickers:Skull☠kickers
+http://comic.skullkickers.com/comic/archive
+:chapterArchive .cc-chapterrow a[href~=/comic/]
+:image #cc-comic , #cc-comicbody .cc-showbig img
+:next #comicleft .nav .next
+
+-:Rubi Whipple
+http://rubiwhipple.com/comic/issue-1-cover/
+:image #comic img
+:next #comic-foot a.comic-nav-next
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -732,201 +931,62 @@ http://rockcocks.slipshine.net/comic/archive
 -- end of hiveworks
 --------------------------------------------------------------------------------------
 
--:The Awakened
-http://www.theawakenedcomic.com/comic/chapter-one-page-one/
-:ia #comic img
-
--:Ianua
-http://www.lesserkeystudios.com/ianua/page-1/
--- archive at http://www.lesserkeystudios.com/ianua/archive/ has broken links
--- currently the last image has a next to a broken page
-:i #art > p:nth-child(4) > img
-:n #art > p:nth-child(3) > a:contains(Next)
-
--:Gaia
-http://www.sandraandwoo.com/gaia/archive/
-:am #column > div.post-page h3 , #column > div.post-page .archive-title a[rel=bookmark]
-:i #comic img
-:archiveReverse
-
--:Replay
-http://replaycomic.com/comic/red-desert/
-:ia #comic img
-
--:The Cummoner
-http://www.totempole666.com/archives-2/
-:am #post-188 > div > div.entry .comic-archive-chapter-wrap:has(a:contains(cover)) h3 , #post-188 > div > div.entry .comic-archive-chapter-wrap:has(a:contains(cover)) a[rel=bookmark]
-:i #comic img
-
--:Applegeeks
-http://www.applegeeks.com/comics/viewcomic.php?issue=1
-:i #castheader > img
-:n #sidebar > div > p:last-of-type > a
-
--:Counter Rose
-http://www.counter-rose.com/page.php?p=1
-:ia #cg_img img
-
--DrMcNinja:Dr. McNinja
-http://drmcninja.com/issues/
-:ac #column > div > div > div.serieslist-content > h2 > a
-:i #comic > img
-:n #comic-head > a.next
-
--:Lovecraft is Missing
-http://lovecraftismissing.com/?p=930
-:is #comic img[src~=comics]
-:n #column > div.post > div.comicdate > div > a[rel=next]
-
--:Absurd Notions
-http://www.absurdnotions.org/listing.html
-:am body > center > table > tbody > tr > td:nth-child(1) , body > center > table > tbody > tr > td:nth-child(2) a
-:is body > center > img:not([src=bykp.gif])
-
--:Why The Long Face
-http://www.absurdnotions.org/listwtlf.html
-:ac body > center > font:nth-child(2) > a[href~=wtlf\d{6}\.html]
-:is body > center > font:nth-child(1) > img[src~=lf\d{8}\.|wtlf_\d{8}]
-
--Krakow:Krakow 2.0
-http://www.marilith.com/krakow2/calendar.php
-:ac body > center > ul > li > a
-:is body > center > img
-:n a:has(img[src=images/next_day.gif])
-
--:Marilith
-http://www.marilith.com/calendar.php
-:ac body > table > tbody > tr:nth-child(2) > td > table:nth-child(1) > tbody > tr:nth-child(2) > td > ul > li > a
-:i body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2) > table > tbody > tr:nth-child(2) > td > a > img
-:n a:has(img[src=images/next.gif])
-
--:Teahouse
-http://teahousecomic.com/comic/archive.php
-:am #maincontent p[align=center] > img[src~=archives] , #maincontent a[href~=^/comic/\?id]
-:i #comicimg
-
--:SkyFall
-http://www.skyfallmanga.com/archive_main.php
-:am body > center > table > tbody > tr:nth-child(5) > td > center > center b , body > center > table > tbody > tr:nth-child(5) > td > center > center a
-:is body > center > table > tbody > tr > td > center > img:not([src=images/blank.jpg])
-:n body > center > table > tbody > tr > td > center > a:has(img[src~=images/next.png])
-
--:Wonder Kittens
-http://www.wonderkittens.com/comics/index.php?date=20130204&until=week
-:is img[src~=/comics/\d{8}]
-:n a:contains(Next)
-
--:Stick in the Mud
-http://www.konradokonski.com/SITM/comic/title-0001/
-:ia #comic img
-:url_replace http://www.konradokonski.com/SITM/comic/sitm-filler-reading-time/ ::: http://www.konradokonski.com/SITM/comic/sitm-316/
 
 
--:A Quartz Bead
-http://www.konradokonski.com/aquartzbead/?page_id=2
-:am #post-2 > div > div.entry > div.comic-archive-chapter-wrap > h3, #post-2 > div > div.entry > div.comic-archive-chapter-wrap > div.comic-archive-list-wrap  a
-:i #comic img
 
--:Sawdust
-http://www.konradokonski.com/sawdust/archives/
-:am #content .entry h3 , #content .entry .archive-title > a
-:archiveReverse
-:i #comic img
 
--:Questionable Content
-http://questionablecontent.net/view.php?comic=1
-:ia #strip
 
--:By Moon Alone
-http://www.bymoonalone.com/comic.php?date=2008-01-01
-:i img[src~=^comic/pages/]
-:n a:has(img[src=img/forward01.gif])
 
--:Weirding Willows
-http://weirdingwillows.keenspot.com/d/20140915.html
-:i #comicpage img
-:n a:has(#anext)
 
--:Seed
-http://seed.thecomicseries.com/archive/
-:am #noncomiccontent h3 , #noncomiccontent a[href~=comics/\d]
-:i #comicimage
 
--:Everblue
-http://everblue-comic.com/comic?sort=1
-:ia #comic a.next img[itemprop=image][src~=assets/images/comics/\d{8}]
 
--:Solstoria
-http://solstoria.net/comic/54/
-:ia #content .webcomic-image img.size-full
 
--:The Hope Virus
-http://hopevirus.keenspot.com/d/20160104.html
-:i #comicspot img.ksc
-:a #nexty
 
--:Advent Boner
-http://legacy-control.com/comic/advent-boner-3/
-:ia #comic-1 img
 
--:Slimy Thief
-http://slimythief.com/?p=32
-:i #comic > img
-:n #next > a
 
--:It’s Walky!
-http://www.itswalky.com/comic/and-now/
-:ia #comic img
 
--:Drowtales Moonless Age
-http://www.drowtales.com/mainarchive.php?sid=4192
-:is #content_middle img , #content_middle object:not(:has(embed)), #content_middle embed , #content_middle > div[style~=background-image:url]
-:n #link_next_top
 
--:Never Mind the Gap
-http://nmg.thecomicseries.com/archive/
-:am #archive .chaptertitle , #archive .archivecomic a
-:i #comicimage, #comicimagewrap embed
+--------------------------------------------------------------------------------------
+-- http://www.smackjeeves.com/
+--------------------------------------------------------------------------------------
 
--:You Suck
-http://yousuck.sexy/1
-:ia img[src~=/comics/]
 
--:Sandra on the Rocks
-http://www.sandraontherocks.com/strips-sotr/start_by_running
-:image+next #cc-comic
+-:Carciphona
+http://carciphona.smackjeeves.com/archive/
+:am #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
+:i #comic_image
 
--:Goblins
-http://www.goblinscomic.org/archive/
-:chapterArchive #textarea a
-:image+next #cc-comic
-:url_replace /(\d{8}(?:-\d+)?)/ ::: /comic/$1 ::: www.goblinscomic.org ::: goblinscomic.com
+-:Winters in Lavelle
+http://wintersinlavelle.smackjeeves.com/archive/
+:mixedArchive #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
+:image #comic_image
 
--:Eerie Cuties
-http://www.eeriecuties.com/strips-ec/%28chapter_1%29_it_is_gonna_eat_me%21
-:image+next #cc-comic
+-:Rain LGBT
+http://rainlgbt.smackjeeves.com/archive/
+:mixedArchive #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
+:image #comic_image
 
--:Dangerously Chloe
-http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl
-:image+next #cc-comic
+-:Bear vs Zombie
+http://bearversuszombies.smackjeeves.com/comics/507662/chapter-1/
+:i #comic_image
+:n #content a[title=Next Page]
 
--MenageA3:Ménage à 3
-http://www.ma3comic.com/strips-ma3/For_New_Readers
-:image+next #cc-comic
+-:Memoriam
+http://memoriam.smackjeeves.com/comics/1080096/pg-1/
+:ia #comic_image
 
--:Magic Chicks
-http://www.magickchicks.com/strips-mc/tis_but_a_trifle
-:image+next #cc-comic
--- skip some broken pages
-:url_replace http://www.magickchicks.com/strips-mc/Illustration_special_by_Shouri ::: http://www.magickchicks.com/strips-mc/You_backstabbing_coward ::: http://www.magickchicks.com/strips-mc/Holiday_Special_Guest_Strip_by_Maritza_and_Bachan ::: http://www.magickchicks.com/strips-mc/Regain_your_energy ::: http://www.magickchicks.com/strips-mc/mc20120413a ::: http://www.magickchicks.com/strips-mc/Watch_your_buns ::: http://www.magickchicks.com/strips-mc/My_tum_tum ::: http://www.magickchicks.com/strips-mc/Holy_moley ::: http://www.magickchicks.com/strips-mc/dc20121220 ::: http://www.magickchicks.com/strips-mc/Wildly_out_of_character
+-:Reila
+http://reila.smackjeeves.com/comics/1001394/cover/
+:ia #comic_image
 
--NX_Skullkickers:Skull☠kickers
-http://comic.skullkickers.com/comic/archive
-:chapterArchive .cc-chapterrow a[href~=/comic/]
-:image #cc-comic , #cc-comicbody .cc-showbig img
-:next #comicleft .nav .next
 
--:Rubi Whipple
-http://rubiwhipple.com/comic/issue-1-cover/
-:image #comic img
-:next #comic-foot a.comic-nav-next
+
+
+--------------------------------------------------------------------------------------
+-- end of http://www.smackjeeves.com/
+--------------------------------------------------------------------------------------
+
+
+
+
+
