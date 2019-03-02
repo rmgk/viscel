@@ -1,7 +1,7 @@
 package viscel
 
 import java.nio.file.{Files, Path}
-import java.util.concurrent.{ArrayBlockingQueue, ThreadPoolExecutor, TimeUnit}
+import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http.ServerBinding
@@ -58,7 +58,6 @@ akka.http {
 		connecting-timeout = 30s
 		response-chunk-aggregation-limit = 32m
 		chunkless-streaming = off
-
 	}
 	host-connection-pool {
 		max-connections = 1
@@ -78,11 +77,10 @@ akka {
 }
 """
 
-  /** execution of viscel is essentially a single non blocking process, where lots of IO happens. */
   lazy val executionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(new ThreadPoolExecutor(0, 1, 1L,
                                                          TimeUnit.SECONDS,
-                                                         new ArrayBlockingQueue[Runnable](8)))
+                                                         new LinkedBlockingQueue[Runnable]()))
 
   lazy val system: ActorSystem = ActorSystem(name = "viscel",
                                              config = Some(parseString(actorConfig)),
@@ -109,16 +107,14 @@ akka {
                                             narratorCache = narratorCache,
                                             narrationHint = narrationHint,
                                             userStore = userStore,
-                                            requestUtil = requests
-  )
+                                            requestUtil = requests)
   lazy val server        = new Server(userStore = userStore,
                                       blobStore = blobs,
                                       terminate = () => terminateServer(),
                                       pages = serverPages,
                                       replUtil = replUtil,
                                       interactions = interactions,
-                                      executionContext = executionContext
-  )
+                                      executionContext = executionContext)
 
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
     RouteResult.route2HandlerFlow(server.route)(

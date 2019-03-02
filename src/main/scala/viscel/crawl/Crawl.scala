@@ -18,7 +18,7 @@ class Crawl(blobStore: BlobStore,
             requestUtil: WebRequestInterface,
             rowStore: RowStore,
             descriptionCache: DescriptionCache)
-           (implicit ec: ExecutionContext) {
+           (implicit executionContext: ExecutionContext) {
 
   def start(narrator: Narrator): Future[Unit] = {
     val appender = rowStore.open(narrator)
