@@ -1,6 +1,7 @@
 package viscel
 
 import java.nio.file.{Files, Path}
+import java.util.TimerTask
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.ActorSystem
@@ -14,14 +15,15 @@ import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{AkkaHttpRequester, Clockwork, Crawl}
 import viscel.narration.Narrator
 import viscel.server.{ContentLoader, Interactions, Server, ServerPages}
+import viscel.shared.Log
 import viscel.store.{BlobStore, DescriptionCache, NarratorCache, RowStore, Users}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 class Services(relativeBasedir: Path,
-               relativeBlobdir: Path,
-               interface: String,
-               port: Int) {
+  relativeBlobdir: Path,
+  interface: String,
+  port: Int) {
 
 
   /* ====== paths ====== */
@@ -125,12 +127,20 @@ akka {
     interface, port)(materializer)
 
   def startServer(): Future[ServerBinding] = serverBinding
+
+  /** Termination works by firs stopping the server nicely
+    * and then killing the actor system, which in turn stops
+    * crawler from downloading, shutting down the whole application */
   def terminateServer(): Unit = {
-    serverBinding
-    .flatMap(_.unbind())(system.dispatcher)
-    .onComplete { _ =>
-      system.terminate()
-    }(system.dispatcher)
+    new java.util.Timer(true).schedule(new TimerTask {
+      override def run(): Unit = serverBinding
+                                 .flatMap(_.unbind())(executionContext)
+                                 .onComplete { _ =>
+                                   system.terminate()
+                                   Log.Main.info("shutdown")
+                                 }(executionContext)
+    }, 1000)
+
   }
 
 

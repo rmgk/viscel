@@ -3,16 +3,12 @@ package viscel.server
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenges}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.directives.AuthenticationResult
-import akka.http.scaladsl.server.directives.BasicDirectives.extractExecutionContext
-import akka.http.scaladsl.server.{Directive, Route}
-import org.scalactic.TypeCheckedTripleEquals._
+import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.directives.AuthenticationDirective
 import viscel.ReplUtil
-import viscel.shared.Log.{Server => Log}
 import viscel.shared.Vid
 import viscel.store.{BlobStore, User, Users}
 
-import scala.collection.immutable.Map
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -27,46 +23,26 @@ class Server(userStore: Users,
 
   implicit def implicitExecutionContext: ExecutionContext = executionContext
 
-  def authenticate(credentials: Option[BasicHttpCredentials]): Option[User] = credentials match {
-    case Some(BasicHttpCredentials(user, password)) =>
-      Log.trace(s"login: $user $password")
-      if (user.matches("\\w+")) {
-        userStore.getOrAddFirstUser(user, User(user, password, admin = true, Map())).filter(_.password === password)
-      }
-      else None
-    case None => None
-  }
+  def route: Route = decodeRequest(encodeResponse(basicAuth(subPathRoute)))
 
+  val basicAuth: AuthenticationDirective[User] = {
+    val realm = "Username is used to store configuration; Passwords are saved in plain text; User is created on first login"
 
-  def sprayLikeBasicAuth[T](realm: String, authenticator: Option[BasicHttpCredentials] => Option[T]): Directive[Tuple1[T]] =
-    extractExecutionContext.flatMap { _ =>
-      authenticateOrRejectWithChallenge[BasicHttpCredentials, T] { cred ⇒
-        authenticator(cred) match {
-          case Some(t) ⇒ Future.successful(AuthenticationResult.success(t))
-          case None ⇒ Future.successful(AuthenticationResult.failWithChallenge(HttpChallenges.basic(realm)))
-        }
+    authenticateOrRejectWithChallenge[BasicHttpCredentials, User] { credentials ⇒
+      val userOption = credentials.flatMap { bc =>
+        interactions.authenticate(bc.username, bc.password)
       }
-    }
-
-  def route: Route = {
-    decodeRequest {
-      encodeResponse {
-        sprayLikeBasicAuth(
-          realm = "Username is used to store configuration; Passwords are saved in plain text; User is created on first login",
-          authenticator = authenticate) { user =>
-          extractRequest { request =>
-            request.headers.find(h => h.is("x-path-prefix")) match {
-              case None         => defaultRoute(user)
-              case Some(prefix) => pathPrefix(prefix.value()) {defaultRoute(user)}
-            }
-          }
-        }
-      }
+      Future.successful(userOption.toRight(HttpChallenges.basic(realm)))
     }
   }
 
-
-
+  def subPathRoute(user: User): Route =
+    extractRequest { request =>
+      request.headers.find(h => h.is("x-path-prefix")) match {
+        case None         => defaultRoute(user)
+        case Some(prefix) => pathPrefix(prefix.value()) {defaultRoute(user)}
+      }
+    }
 
   def defaultRoute(user: User): Route =
     path("") {
@@ -75,11 +51,7 @@ class Server(userStore: Users,
       path("stop") {
         if (!user.admin) reject
         else complete {
-          Future {
-            Thread.sleep(100)
-            terminate()
-            Log.info("shutdown complete")
-          }
+          terminate()
           "shutdown"
         }
       } ~
@@ -96,7 +68,7 @@ class Server(userStore: Users,
           getFromResource("web-opt.js") ~ getFromResource("web-fastopt.js")
       } ~
       path("ws") {
-        interactions.userSocket(user)
+        interactions.userSocket(user.id)
       } ~
       path("web-fastopt.js.map") {
         getFromFile("web/target/scala-2.12/web-fastopt.js.map")

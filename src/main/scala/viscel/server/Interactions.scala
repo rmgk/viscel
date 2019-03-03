@@ -1,7 +1,7 @@
 package viscel.server
 
-import akka.http.scaladsl.server.Route
-import loci.communicator.ws.akka.WebSocketListener
+import loci.communicator.Listener
+import loci.communicator.ws.akka.{WS, WebSocketListener, WebSocketRoute}
 import loci.registry.Registry
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.WebRequestInterface
@@ -11,6 +11,9 @@ import viscel.shared.Log.{Server => Log}
 import viscel.shared.{Bindings, Bookmark, Description, Vid}
 import viscel.store.{NarratorCache, User, Users}
 
+import cats.syntax.eq._
+import cats.instances.string._
+import scala.collection.immutable.Map
 import scala.collection.mutable
 import scala.concurrent.Future
 
@@ -22,33 +25,40 @@ class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
 
   def addNarratorsFrom(url: String): Future[List[Narrator]] = narratorCache.add(url, requestUtil)
 
-  private val userSocketCache: mutable.Map[String, Route] = mutable.Map.empty
-
-  def userSocket(user: User): Route = synchronized {
-    userSocketCache.getOrElseUpdate(user.id, bindUserSocketRegistry(user))
+  def authenticate(username: String, password: String): Option[User] = {
+    Log.trace(s"login: $username")
+    if (username.matches("\\w+")) {
+      userStore.getOrAddFirstUser(username, User(username, password, admin = true, Map()))
+        .filter(_.password === password)
+    }
+    else None
   }
 
-  private def bindUserSocketRegistry(user: User): Route = {
-    Log.debug(s"create new websocket for $user")
+  type WsRoute = Listener[WS] with WebSocketRoute
+
+  private val userSocketCache: mutable.Map[User.Id, WsRoute] = mutable.Map.empty
+
+  def userSocket(userid: User.Id): WsRoute = synchronized {
+    userSocketCache.getOrElseUpdate(userid, bindUserSocketRegistry(userid))
+  }
+
+  private def bindUserSocketRegistry(userid: User.Id): WsRoute = {
+    Log.debug(s"create new websocket for $userid")
     val webSocket = WebSocketListener()
     val registry = new Registry
     registry.listen(webSocket)
     registry.bind(Bindings.contents) {contentLoader.narration}
     registry.bind(Bindings.descriptions) { () => contentLoader.narrations() }
     registry.bind(Bindings.hint) {handleHint}
-    registry.bind(Bindings.bookmarks) {handleBookmarks(user)}
+    registry.bind(Bindings.bookmarks) {handleBookmarks(userid)}
     webSocket
   }
 
-  private def handleBookmarks(user: User)(command: SetBookmark): Map[Vid, Bookmark] = {
+  private def handleBookmarks(userid: User.Id)(command: SetBookmark): Map[Vid, Bookmark] = {
+    val user = userStore.get(userid).get
     command.fold(user) { case (desc, bm) =>
-      setBookmark(user, bm, desc.id)
+      userStore.setBookmark(user, desc.id, bm)
     }.bookmarks
-  }
-
-  private def setBookmark(user: User, bm: Bookmark, colid: Vid): User = {
-    if (bm.position > 0) userStore.userUpdate(user.setBookmark(colid, bm))
-    else userStore.userUpdate(user.removeBookmark(colid))
   }
 
   private def handleHint(description: Description, force: Boolean): Unit = {
