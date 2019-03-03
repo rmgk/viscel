@@ -82,7 +82,8 @@ object CustomPicklers {
   val blobName: String = BlobData.getClass.getSimpleName.dropRight(1)
   val pageName: String = PageData.getClass.getSimpleName.dropRight(1)
 
-  /** use "\$type" field in json to detect type, was upickle default and is used every [[Book]] ... */
+  /** use "\$type" field in json to detect type,
+    * was upickle default and is used by every [[Book]] ... */
   implicit val config: Configuration = Configuration.default.withDefaults
                                        .withDiscriminator("$" + "type")
   .copy(transformConstructorNames = {
