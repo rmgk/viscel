@@ -7,7 +7,7 @@ import io.circe.export.Exported
 import io.circe.generic.extras._
 import io.circe.generic.extras.auto._
 import io.circe.{Decoder, Encoder}
-import viscel.shared.{Blob, Log}
+import viscel.shared.Blob
 
 /** Single row in a [[RowStore]]. Is either a [[PageData]] or a [[BlobData]]. */
 sealed trait ScribeDataRow {
