@@ -4,10 +4,10 @@ import java.time.Instant
 
 import cats.syntax.either._
 import io.circe.export.Exported
-import io.circe.generic.extras.auto._
 import io.circe.generic.extras._
-import io.circe.{Decoder, Encoder, Json => cJson}
-import viscel.shared.Blob
+import io.circe.generic.extras.auto._
+import io.circe.{Decoder, Encoder}
+import viscel.shared.{Blob, Log}
 
 /** Single row in a [[RowStore]]. Is either a [[PageData]] or a [[BlobData]]. */
 sealed trait ScribeDataRow {
@@ -79,8 +79,17 @@ sealed trait Policy
 object CustomPicklers {
   def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[Policy]] = exportDecoder[Policy]
 
+  val blobName: String = BlobData.getClass.getSimpleName.dropRight(1)
+  val pageName: String = PageData.getClass.getSimpleName.dropRight(1)
+
   /** use "\$type" field in json to detect type, was upickle default and is used every [[Book]] ... */
-  implicit val config: Configuration = Configuration.default.withDefaults.withDiscriminator("$" + "type")
+  implicit val config: Configuration = Configuration.default.withDefaults
+                                       .withDiscriminator("$" + "type")
+  .copy(transformConstructorNames = {
+    case `blobName` => "Blob"
+    case `pageName` => "Page"
+    case other => other
+  })
 
 
   /** allow "Article" as an [[ImageRef]] in the serialized format */
@@ -96,21 +105,8 @@ object CustomPicklers {
 
 
   /** rename [[BlobData]] and [[PageData]] to just "Page" and "Blob" in the serialized format */
-  implicit val appendlogReader: Decoder[ScribeDataRow] = semiauto.deriveDecoder[ScribeDataRow].prepare { cursor =>
-    val t = cursor.downField("$type")
-    t.as[String] match {
-      case Right("Blob") => t.set(io.circe.Json.fromString("BlobData")).up
-      case Right("Page") => t.set(io.circe.Json.fromString("PageData")).up
-      case _ => cursor
-    }
-  }
-  implicit val appendLogWriter: Encoder[ScribeDataRow] = semiauto.deriveEncoder[ScribeDataRow].mapJson { js =>
-    js.hcursor.get[String]("$type") match {
-      case Right("BlobData") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Blob")))
-      case Right("PageData") => js.deepMerge(cJson.obj("$type" -> cJson.fromString("Page")))
-      case _ => js
-    }
-  }
+  implicit val appendlogReader: Decoder[ScribeDataRow] = semiauto.deriveDecoder[ScribeDataRow]
+  implicit val appendLogWriter: Encoder[ScribeDataRow] = semiauto.deriveEncoder[ScribeDataRow]
 
 
   /** coding for instants saved to the database */
