@@ -6,7 +6,7 @@ import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Queries._
 import viscel.narration.Templates
 import viscel.narration.Templates.{SimpleForward, archivePage}
-import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combination, Constant, Decision, ElementWrapper, LinkDataDecision, PolicyDecision, Shuffle, TransformUrls, Wrapper, NarratorADT => TNarratorADT, strNarratorADT => NarratorADT}
+import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combination, Constant, Decision, ElementWrapper, Focus, LinkDataDecision, PolicyDecision, Shuffle, TransformUrls, Wrapper, NarratorADT => TNarratorADT, strNarratorADT => NarratorADT}
 import viscel.selection.ReportTools._
 import viscel.selection.Selection
 import viscel.store.Vurl.fromString
@@ -166,9 +166,6 @@ object Individual {
       },
       queryImage("#comic_strip > a > img")),
     SimpleForward("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#cc-comic")),
-    archivePage("NX_PennyAndAggie", "Penny & Aggie", "http://www.pennyandaggie.com/index.php?p=1",
-      Selection.many("form[name=jump] > select[name=menu] > option[value]").wrapFlat(elementIntoChapterPointer),
-      queryImageNext(".comicImage", "center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])")),
     archivePage("NX_MegaTokyo", "MegaTokyo", "http://megatokyo.com/archive.php",
       Selection.many("div.content:has(a[id~=^C-\\d+$])").focus {
         val chapter_? = ElementWrapper(chap => extract(Chapter(chap.child(0).text()) :: Nil))
@@ -179,10 +176,6 @@ object Individual {
           Constant(Good(List(Link(Vurl.fromString("http://megatokyo.com/strip/1429"))))),
           queryImageNext("#strip img", "#comic .next a"))
       }),
-    SimpleForward("NX_WhatBirdsKnow", "What Birds Know", "http://fribergthorelli.com/wbk/index.php/page-1/", queryImageNext("#comic-1 img", "a.navi-next")),
-    archivePage("NX_TodayNothingHappened", "Today Nothing Happened", "http://www.todaynothinghappened.com/archive.php",
-      Selection.many("#wrapper > div.rant a.link").wrapEach(extractMore),
-      queryImage("#comic > img")),
     SimpleForward("NX_Dreamless", "Dreamless", "http://dreamless.keenspot.com/d/20090105.html",
       Alternative(queryImageNext("img.ksc", "a:has(#next_day1)"),queryNext("a:has(#next_day1)"))),
     archivePage("NX_PhoenixRequiem", "The Phoenix Requiem", "http://requiem.seraph-inn.com/archives.html",
@@ -192,10 +185,12 @@ object Individual {
         Append(chapter_?, elements_?)
       },
       queryImage("#container img[src~=^pages/]")),
-    SimpleForward("NX_ErrantStory", "Errant Story", "http://www.errantstory.com/2002-11-04/15", queryImageNext("#comic > img", "#column > div.nav > h4.nav-next > a")),
     archivePage("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
-      queryMixedArchive("#main_text div.archivediv h2, #main_text div.archivediv a"),
-      queryImage("#wrapper2 img")),
+      Focus(
+        Selection.many("div[id~=adv\\d+Div]").wrap{advs => Good(advs.reverse) },
+        queryMixedArchive("div.archivediv h2, div.archivediv a"),
+        ),
+      queryImage("img.comicnormal")),
     archivePage("NX_DreamScar", "dream*scar", "http://dream-scar.net/archive.php",
       Selection.many("#static > b , #static > a").wrapEach { elem =>
         if (elem.tagName() === "b") extract {Chapter(elem.text())}

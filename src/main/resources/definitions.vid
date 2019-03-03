@@ -603,16 +603,26 @@ http://www.dominic-deegan.com/contents.php
 :images body > div.comic > img
 :next #bottom a:has(img[alt=Next])
 
+-NX_ErrantStory:Errant Story
+http://www.errantstory.com/2002-11-04/15
+:image #comic > img
+:next #column > div.nav > h4.nav-next > a
 
+-NX_WhatBirdsKnow:What Birds Know
+http://fribergthorelli.com/wbk/index.php/page-1/
+:image #comic-1 img
+:next a.navi-next
 
+-NX_TodayNothingHappened:Today Nothing Happened
+http://www.todaynothinghappened.com/archive.php
+:mixedArchive #wrapper > div.rant a.link
+:image #comic > img
 
-
-
-
-
-
-
-
+-NX_PennyAndAggie:Penny & Aggie
+http://www.pennyandaggie.com/index.php?p=1291
+:chapterArchive form[name=jump] > select[name=menu] > option[value]
+:image .comicImage
+:next center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])
 
 
 
