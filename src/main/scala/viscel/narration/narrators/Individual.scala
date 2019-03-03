@@ -2,7 +2,6 @@ package viscel.narration.narrators
 
 import org.scalactic.Accumulation._
 import org.scalactic.Good
-import org.scalactic.TypeCheckedTripleEquals._
 import viscel.narration.Queries._
 import viscel.narration.Templates
 import viscel.narration.Templates.{SimpleForward, archivePage}
@@ -154,49 +153,14 @@ object Individual {
 
 
   val inlineCores = Set[TNarratorADT](
-    archivePage("NX_Twokinds", "Twokinds", "http://twokinds.keenspot.com/archive/",
-      queryMixedArchive("#content .chapter h2 , #content .chapter-links a"),
-      queryImage("#content article.comic img[alt=Comic Page]")
-    ),
-    archivePage("NX_Fragile", "Fragile", "http://www.fragilestory.com/archive",
-      Selection.unique("#content_post").many(".c_arch:has(div.a_2)").focus {
-        val chapter_? = Selection.first("div.a_2 > p").wrapEach(extractChapter)
-        val pages_? = Selection.many("a").wrapEach(extractMore)
-        Append(chapter_?, pages_?)
-      },
-      queryImage("#comic_strip > a > img")),
-    SimpleForward("NX_CliqueRefresh", "Clique Refresh", "http://cliquerefresh.com/comic/start-it-up/", queryImageInAnchor("#cc-comic")),
-    archivePage("NX_MegaTokyo", "MegaTokyo", "http://megatokyo.com/archive.php",
-      Selection.many("div.content:has(a[id~=^C-\\d+$])").focus {
-        val chapter_? = ElementWrapper(chap => extract(Chapter(chap.child(0).text()) :: Nil))
-        val elements_? = Selection.many("li a").wrapEach(extractMore)
-        Append(chapter_?, elements_?)
-      }, {
-        Decision(_.ownerDocument().location().endsWith("megatokyo.com/strip/1428"),
-          Constant(Good(List(Link(Vurl.fromString("http://megatokyo.com/strip/1429"))))),
-          queryImageNext("#strip img", "#comic .next a"))
-      }),
     SimpleForward("NX_Dreamless", "Dreamless", "http://dreamless.keenspot.com/d/20090105.html",
       Alternative(queryImageNext("img.ksc", "a:has(#next_day1)"),queryNext("a:has(#next_day1)"))),
-    archivePage("NX_PhoenixRequiem", "The Phoenix Requiem", "http://requiem.seraph-inn.com/archives.html",
-      Selection.many("#container div.main > table tr:contains(Chapter)").focus {
-        val chapter_? = ElementWrapper(chap => extract(Chapter(chap.child(0).text()) :: Nil))
-        val elements_? = Selection.many("a").wrapEach(extractMore)
-        Append(chapter_?, elements_?)
-      },
-      queryImage("#container img[src~=^pages/]")),
     archivePage("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
       Focus(
         Selection.many("div[id~=adv\\d+Div]").wrap{advs => Good(advs.reverse) },
         queryMixedArchive("div.archivediv h2, div.archivediv a"),
         ),
       queryImage("img.comicnormal")),
-    archivePage("NX_DreamScar", "dream*scar", "http://dream-scar.net/archive.php",
-      Selection.many("#static > b , #static > a").wrapEach { elem =>
-        if (elem.tagName() === "b") extract {Chapter(elem.text())}
-        else extractMore(elem)
-      },
-      queryImage("#comic")),
 //    SimpleForward("NX_AvasDemon", "Ava’s Demon", "http://www.avasdemon.com/chapters.php",
 //      Selection.many("table[id~=chapter\\d+_table]").wrap {
 //        _.zipWithIndex.map { case (elem, idx) =>

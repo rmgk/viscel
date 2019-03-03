@@ -624,6 +624,44 @@ http://www.pennyandaggie.com/index.php?p=1291
 :image .comicImage
 :next center > span.a11pixbluelinks > div.mainNav > a:has(img[src~=next_day.gif])
 
+-NX_Twokinds:Twokinds
+http://twokinds.keenspot.com/archive/
+:mixedArchive #content .chapter h2 , #content .chapter-links a
+:image #content article.comic img[alt=Comic Page]
+
+-NX_Fragile:Fragile
+http://www.fragilestory.com/archive
+:mixedArchive #content_post .c_arch .a_2 > p:first-child , #content_post .c_arch .a_2 a
+:image #comic_strip img
+
+-NX_CliqueRefresh:Clique Refresh
+http://cliquerefresh.com/comic/start-it-up/
+:image+next #cc-comic
+
+-NX_MegaTokyo:MegaTokyo
+http://megatokyo.com/archive.php
+:mixedArchive div.content h2:has(a[id~=^C-\d+$]) , div.content:has(a[id~=^C-\d+$]) li a
+:image #strip img 
+:next #comic .next a
+-- skip the kinetic novel bit
+:url_replace megatokyo.com/strip/1428$ ::: megatokyo.com/strip/1429
+
+-NX_PhoenixRequiem:The Phoenix Requiem
+http://requiem.seraph-inn.com/archives.html
+:mixedArchive #container div.main > table tr:contains(Chapter) h2 , #container div.main > table tr:contains(Chapter) a
+:image #container img[src~=^pages/]
+
+-NX_DreamScar:dream*scar
+http://dream-scar.net/archive.php
+:mixedArchive #static > b , #static > a
+:image #comic
+
+
+
+
+
+
+
 
 
 
