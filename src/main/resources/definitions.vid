@@ -656,6 +656,44 @@ http://dream-scar.net/archive.php
 :mixedArchive #static > b , #static > a
 :image #comic
 
+-:Apartment for Two
+http://www.apartmentfor2.com/comics/
+:image td:has(#title) > center img[src~=/comics/] , #comic a img[src~=/comics/]
+:next a[rel=next]
+
+-:Nicole and Derek
+http://nicoleandderek.com/index.php#archive
+:chapterArchive #pulldown form[name=jump] > select[name=menu] > option[value]
+:image td:has(#title) > center img[src~=/comics/]
+:next a[rel=next][href~=date=\d+$]
+:archiveReverse
+
+-NX_Candi:Candi
+http://candicomics.com/index.html
+:chapterArchive #navdrop form[name="dropdown"] select[name="section"] option[value~=/d/]
+:image #comicplace > span > img
+:next #comicnav a:has(img#next_day2)
+:url_replace d/20150122.html ::: d/20150123.html
+
+-NX_Flipside:Flipside
+http://flipside.keenspot.com/chapters.php
+:mixedArchive td:matches(Chapter) > div:first-child , td:matches(Intermission) > p > b , td:matches(Chapter|Intermission) table[style~=smaller] a
+:image img.ksc
+
+
+-NX_BetterDays:Better Days
+http://jaynaylor.com/betterdays/
+:chapterArchive #chapters li > a
+:images #comicentry .content img
+
+-NX_OriginalLife:Original Life
+http://jaynaylor.com/originallife/
+:chapterArchive #chapters li > a
+:images #comicentry .content img
+
+
+
+
 
 
 

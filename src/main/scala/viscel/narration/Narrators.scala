@@ -10,7 +10,7 @@ object Narrators {
       PetiteSymphony.cores ++
       Snafu.cores ++
       CloneManga.cores ++
-      Set(Candi, Flipside, Inverloch, JayNaylor.BetterDays, JayNaylor.OriginalLife,
+      Set(Inverloch,
         Misfile, NamirDeiter, YouSayItFirst,
         UnlikeMinerva, DynastyScans.Citrus)
 

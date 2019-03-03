@@ -3,52 +3,16 @@ package viscel.narration.narrators
 import org.scalactic.Accumulation._
 import org.scalactic.Good
 import viscel.narration.Queries._
-import viscel.narration.Templates
 import viscel.narration.Templates.{SimpleForward, archivePage}
 import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combination, Constant, Decision, ElementWrapper, Focus, LinkDataDecision, PolicyDecision, Shuffle, TransformUrls, Wrapper, NarratorADT => TNarratorADT, strNarratorADT => NarratorADT}
 import viscel.selection.ReportTools._
 import viscel.selection.Selection
 import viscel.store.Vurl.fromString
-import viscel.store.{Chapter, ImageRef, Link, Normal, Volatile, Vurl, WebContent}
+import viscel.store.{Chapter, ImageRef, Link, Normal, Volatile}
 
 import scala.collection.immutable.Set
 
 object Individual {
-
-  val Candi = NarratorADT("NX_Candi", "Candi", Link("http://candicomics.com/archive.html", Volatile, "archive" :: Nil) :: Nil, {
-
-    val wrapVolume: Wrapper =
-      Selection.many("#candimidd > table > tbody > tr > td:nth-child(2n) a").wrapFlat {elementIntoChapterPointer}
-
-    val wrapArchive: Wrapper = {
-      val volumes_? : Wrapper = Shuffle.of(Selection.many("#candimidd > p:nth-child(2) a").wrapEach { e =>
-        extractMore(e).map(morePolicy(Volatile))
-      })(_.drop(1))
-      // the list of volumes is also the first volume, so we append that
-      Append(wrapVolume, volumes_?)
-    }
-
-    PolicyDecision(
-      LinkDataDecision(_.exists("archive" == _), wrapArchive, wrapVolume),
-      queryImageNext("#comicplace > span > img", "#comicnav a:has(img#next_day2)"))
-  })
-
-
-
-  val Flipside = Templates.archivePage("NX_Flipside", "Flipside", "http://flipside.keenspot.com/chapters.php",
-    {
-      Selection.many("td:matches(Chapter|Intermission)").focus {
-        val name = Decision[List[WebContent]](_.text.contains("Chapter"),
-          Selection.unique("td:root > div:first-child").wrapEach { e => Good(Chapter(e.text())) },
-          Selection.unique("p > b").wrapEach { e => Good(Chapter(e.text)) }
-        )
-
-        val pages = Shuffle.of(Selection.many("a").wrapEach(extractMore)) {_.distinct}
-
-        Append[WebContent](name, pages)
-      }
-    },
-    Selection.unique("img.ksc").wrapEach(intoArticle))
 
 
   val Inverloch = NarratorADT("NX_Inverloch", "Inverloch",
@@ -64,17 +28,6 @@ object Individual {
         Constant(Good(Nil)),
         queryImageNext("#main > p:nth-child(1) > img", "#main a:containsOwn(Next)"))
     }))
-
-  object JayNaylor {
-    def common(id: String, name: String, archiveUri: Vurl) = Templates.archivePage(id, name, archiveUri,
-      Selection.many("#chapters li > a").wrapFlat {elementIntoChapterPointer},
-      queryImages("#comicentry .content img"))
-
-    def BetterDays = common("NX_BetterDays", "Better Days", "http://jaynaylor.com/betterdays/archives/chapter-1-honest-girls/")
-
-    def OriginalLife = common("NX_OriginalLife", "Original Life", "http://jaynaylor.com/originallife/")
-
-  }
 
 
   val Misfile = NarratorADT("NX_Misfile", "Misfile",
@@ -124,12 +77,13 @@ object Individual {
         LinkDataDecision(_.exists("archive" == _), {
           Append(
             wrapIssue,
-            Selection.many("body > center > div > center > h2 > a").wrapEach(extractMore(_).map(morePolicy(Volatile))))
+            Selection.many("body > center > div > cüenter > h2 > a").wrapEach(extractMore(_).map(morePolicy(Volatile))))
         },
           wrapIssue),
         Decision(_.ownerDocument().baseUri() == "http://www.namirdeiter.com/comics/index.php?date=20020819", Constant(Good(Nil)),
           Decision(_.ownerDocument().baseUri() == "http://www.namirdeiter.com/", Constant(Good(Nil)),
-            queryImageInAnchor("body > center > div > center:nth-child(3) > table center img"))))
+            Decision(_.ownerDocument().baseUri() == "http://www.namirdeiter.com/comics/index.php?date=20150413", Constant(Good(Nil)),
+              queryImageInAnchor("body > center > div > center:nth-child(3) > table center img")))))
     })
 
 
