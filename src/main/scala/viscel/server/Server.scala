@@ -48,67 +48,70 @@ class Server(userStore: Users,
     path("") {
       complete(pages.landing)
     } ~
-      path("stop") {
-        if (!user.admin) reject
-        else complete {
-          terminate()
-          "shutdown"
-        }
-      } ~
-      path("css") {
-        getFromFile("web/target/web/sass/main/stylesheets/style.css") ~
-          getFromResource("style.css")
-      } ~
-      path("style.css.map") {
-        getFromFile("web/target/web/sass/main/stylesheets/style.css.map") ~
-          getFromResource("style.css.map")
-      } ~
-      path("js") {
-        getFromFile("web/target/scala-2.12/web-opt.js") ~ getFromFile("web/target/scala-2.12/web-fastopt.js") ~
-          getFromResource("web-opt.js") ~ getFromResource("web-fastopt.js")
-      } ~
-      path("ws") {
-        interactions.userSocket(user.id)
-      } ~
-      path("web-fastopt.js.map") {
-        getFromFile("web/target/scala-2.12/web-fastopt.js.map")
-      } ~
-      path("web-opt.js.map") {
-        getFromFile("web/target/scala-2.12/web-opt.js.map")
-      } ~
-      pathPrefix("blob" / Segment) { sha1 =>
-        val filename = blobStore.hashToPath(sha1).toFile
-        pathEnd {getFromFile(filename)} ~
-          path(Segment / Segment) { (part1, part2) =>
-            getFromFile(filename, ContentType(MediaTypes.getForKey(part1 -> part2).getOrElse(MediaTypes.`image/jpeg`), () => HttpCharsets.`UTF-8`))
-          }
-      } ~
-      path("export" / Segment) { id =>
-        if (!user.admin) reject
-        else onComplete(Future(replUtil.export(Vid.from(id)))) {
+    path("stop") {
+      if (!user.admin) reject
+      else complete {
+        terminate()
+        "shutdown"
+      }
+    } ~
+    path("css") {
+      getFromFile("web/target/web/sass/main/stylesheets/style.css") ~
+      getFromResource("style.css")
+    } ~
+    path("style.css.map") {
+      getFromFile("web/target/web/sass/main/stylesheets/style.css.map") ~
+      getFromResource("style.css.map")
+    } ~
+    path("js") {
+      getFromFile("web/target/scala-2.12/web-opt.js") ~ getFromFile(
+        "web/target/scala-2.12/web-fastopt.js") ~
+      getFromResource("web-opt.js") ~ getFromResource("web-fastopt.js")
+    } ~
+    path("ws") {
+      interactions.userSocket(user.id)
+    } ~
+    path("web-fastopt.js.map") {
+      getFromFile("web/target/scala-2.12/web-fastopt.js.map")
+    } ~
+    path("web-opt.js.map") {
+      getFromFile("web/target/scala-2.12/web-opt.js.map")
+    } ~
+    pathPrefix("blob" / Segment) { sha1 =>
+      val filename = blobStore.hashToPath(sha1).toFile
+      pathEnd {getFromFile(filename)} ~
+      path(Segment / Segment) { (part1, part2) =>
+        getFromFile(filename,
+                    ContentType(MediaTypes.getForKey(part1 -> part2).getOrElse(MediaTypes.`image/jpeg`),
+                                () => HttpCharsets.`UTF-8`))
+      }
+    } ~
+    path("export" / Segment) { id =>
+      if (!user.admin) reject
+      else onComplete(Future(replUtil.export(Vid.from(id)))) {
+        case Success(v) => complete("success")
+        case Failure(e) => complete(e.toString())
+      }
+    } ~
+    path("import") {
+      if (!user.admin) reject
+      else parameters(('id.as[String], 'name.as[String], 'path.as[String])) { (id, name, path) =>
+        onComplete(Future(replUtil.importFolder(path, Vid.from(s"Import_$id"), name))) {
           case Success(v) => complete("success")
           case Failure(e) => complete(e.toString())
         }
-      } ~
-      path("import") {
-        if (!user.admin) reject
-        else parameters(('id.as[String], 'name.as[String], 'path.as[String])) { (id, name, path) =>
-          onComplete(Future(replUtil.importFolder(path, Vid.from(s"Import_$id"), name))) {
-            case Success(v) => complete("success")
-            case Failure(e) => complete(e.toString())
-          }
-        }
-      } ~
-      path("add") {
-        if (!user.admin) reject
-        else parameter('url.as[String]) { url =>
-          onComplete(interactions.addNarratorsFrom(url)) {
-            case Success(v) => complete(s"found $v")
-            case Failure(e) => complete(e.toString)
-          }
-        }
-      } ~
-      path("tools") {
-        complete(pages.toolsResponse)
       }
+    } ~
+    path("add") {
+      if (!user.admin) reject
+      else parameter('url.as[String]) { url =>
+        onComplete(interactions.addNarratorsFrom(url)) {
+          case Success(v) => complete(s"found $v")
+          case Failure(e) => complete(e.toString)
+        }
+      }
+    } ~
+    path("tools") {
+      complete(pages.toolsResponse)
+    }
 }
