@@ -196,10 +196,6 @@ object Individual {
     archivePage("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
       queryMixedArchive("#main_text div.archivediv h2, #main_text div.archivediv a"),
       queryImage("#wrapper2 img")),
-    SimpleForward("NX_Nimona", "Nimona", "http://gingerhaze.com/nimona/comic/page-1",
-      queryImageNext("img[src~=/nimona-pages/]", "a:has(img[src=http://gingerhaze.com/sites/default/files/comicdrop/comicdrop_next_label_file.png])")),
-    SimpleForward("NX_DominicDeegan", "Dominic Deegan", "http://www.dominic-deegan.com/view.php?date=2002-05-21",
-      Append(queryImages("body > div.comic > img"), queryNext("#bottom a:has(img[alt=Next])"))),
     archivePage("NX_DreamScar", "dream*scar", "http://dream-scar.net/archive.php",
       Selection.many("#static > b , #static > a").wrapEach { elem =>
         if (elem.tagName() === "b") extract {Chapter(elem.text())}
@@ -234,12 +230,6 @@ object Individual {
 //          }
 //        }.combined.map(_.flatten)
 //      }),
-    archivePage("NX_Spindrift", "Spindrift", "http://www.spindrift-comic.com/archive",
-      queryMixedArchive("#pjax-container > div.content > div:nth-child(1) .archivehead .shead , #pjax-container > div.content > div:nth-child(1) .archive-comic-container a"),
-      queryImage("#comic-image")),
-    archivePage("NX_Anathema", "Anathema", "http://anathema.smackjeeves.com/archive//",
-      queryMixedArchive("#chapter_table td[colspan=4] a h2, #chapter_table a[onmouseout=hideddrivetip()]"),
-      queryImage("#comic_image")),
     SimpleForward("NX_xkcd", "xkcd", "http://xkcd.com/1/",
       {
         val assets_? = Selection.all("#comic img").wrapEach{ intoArticle(_).map { article =>

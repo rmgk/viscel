@@ -592,11 +592,16 @@ http://www.stickydillybuns.com/strips-sdb/Awesome_leading_man
 :image #cc-comic
 :next #cnav a.next
 
+-NX_Spindrift:Spindrift
+http://www.spindrift-comic.com/archive
+:mixedArchive #pjax-container > div.content > div:nth-child(1) .archivehead .shead , #pjax-container > div.content > div:nth-child(1) .archive-comic-container a
+:image #comic-image
 
-
-
-
-
+-NX_DominicDeegan:Dominic Deegan
+http://www.dominic-deegan.com/contents.php
+:chapterArchive blockquote center b a[href~=dominic-deegan.com/view.php]
+:images body > div.comic > img
+:next #bottom a:has(img[alt=Next])
 
 
 
@@ -993,6 +998,10 @@ http://memoriam.smackjeeves.com/comics/1080096/pg-1/
 http://reila.smackjeeves.com/comics/1001394/cover/
 :ia #comic_image
 
+-NX_Anathema:Anathema
+http://anathema.smackjeeves.com/archive/
+:mixedArchive #chapter_table .chapter_title h2, #chapter_table a[onmouseout=hideddrivetip()]
+:image #comic_image
 
 
 
