@@ -4,7 +4,7 @@ import org.scalactic.Accumulation._
 import org.scalactic.Good
 import viscel.narration.Queries._
 import viscel.narration.Templates.{SimpleForward, archivePage}
-import viscel.narration.interpretation.NarrationInterpretation.{Alternative, Append, Combination, Constant, Decision, ElementWrapper, Focus, LinkDataDecision, PolicyDecision, Shuffle, TransformUrls, Wrapper, NarratorADT => TNarratorADT, strNarratorADT => NarratorADT}
+import viscel.narration.interpretation.NarrationInterpretation.{Append, Combination, Constant, Decision, ElementWrapper, Focus, LinkDataDecision, PolicyDecision, Wrapper, NarratorADT => TNarratorADT, strNarratorADT => NarratorADT}
 import viscel.selection.ReportTools._
 import viscel.selection.Selection
 import viscel.store.Vurl.fromString
@@ -69,32 +69,6 @@ object Individual {
     })
 
 
-  val NamirDeiter = NarratorADT("NX_NamirDeiter", "Namir Deiter",
-    Link(s"http://www.namirdeiter.com/archive/index.php?year=1", Volatile, "archive" :: Nil) :: Nil, {
-      def wrapIssue: Wrapper = Selection.many("table #arctitle > a").wrapFlat(elementIntoChapterPointer)
-
-      PolicyDecision(
-        LinkDataDecision(_.exists("archive" == _), {
-          Append(
-            wrapIssue,
-            Selection.many("body > center > div > cüenter > h2 > a").wrapEach(extractMore(_).map(morePolicy(Volatile))))
-        },
-          wrapIssue),
-        Decision(_.ownerDocument().baseUri() == "http://www.namirdeiter.com/comics/index.php?date=20020819", Constant(Good(Nil)),
-          Decision(_.ownerDocument().baseUri() == "http://www.namirdeiter.com/", Constant(Good(Nil)),
-            Decision(_.ownerDocument().baseUri() == "http://www.namirdeiter.com/comics/index.php?date=20150413", Constant(Good(Nil)),
-              queryImageInAnchor("body > center > div > center:nth-child(3) > table center img")))))
-    })
-
-
-  val YouSayItFirst = NarratorADT("NX_YouSayItFirst", "You Say It First",
-    Range.inclusive(1, 9).map(i => Link(s"http://www.yousayitfirst.com/archive/index.php?year=$i", data = List("archive"))).toList,
-
-    LinkDataDecision(_.exists("archive" == _),
-      Selection.many("table #number a").wrapFlat(elementIntoChapterPointer),
-      Decision({_.ownerDocument().baseUri() == "http://www.yousayitfirst.com/"}, Constant(Good(Nil)),
-        queryImageInAnchor("body > center > div.mainwindow > center:nth-child(2) > table center img"))))
-
 
   val UnlikeMinerva = NarratorADT("NX_UnlikeMinerva", "Unlike Minerva",
     Range.inclusive(1, 25).map(i => Link(s"http://www.unlikeminerva.com/archive/phase1.php?week=$i")).toList :::
@@ -107,15 +81,34 @@ object Individual {
 
 
   val inlineCores = Set[TNarratorADT](
-    SimpleForward("NX_Dreamless", "Dreamless", "http://dreamless.keenspot.com/d/20090105.html",
-      Alternative(queryImageNext("img.ksc", "a:has(#next_day1)"),queryNext("a:has(#next_day1)"))),
     archivePage("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
       Focus(
         Selection.many("div[id~=adv\\d+Div]").wrap{advs => Good(advs.reverse) },
         queryMixedArchive("div.archivediv h2, div.archivediv a"),
         ),
       queryImage("img.comicnormal")),
-//    SimpleForward("NX_AvasDemon", "Ava’s Demon", "http://www.avasdemon.com/chapters.php",
+    SimpleForward("NX_xkcd", "xkcd", "http://xkcd.com/1/",
+      {
+        val assets_? = Selection.all("#comic img").wrapEach{ intoArticle(_).map { article =>
+          article.data.get("title").fold(article)(t => article.copy(data = article.data.updated("longcomment", t)))}}
+        val next_? = queryNext("a[rel=next]:not([href=#])")
+        Append(assets_?, next_?)
+      }),
+    archivePage("NX_TheDreamer", "The Dreamer", "http://thedreamercomic.com/read-pages/",
+      Focus(Selection.many("#archive_wrap > div").wrap{advs => Good(advs.reverse) },
+            queryMixedArchive(".dreamer_flip_box_inner .flip_box_front .issue_title , .dreamer_flip_box_inner .issue_pages a")),
+                queryImage("#comicnav div.imageWrap img")),
+    SimpleForward("NX_CheerImgur", "Cheer by Forview", "http://imgur.com/a/GTprX/",
+      {
+        Selection.unique("div.post-images").many("div.post-image-container").wrapEach { div =>
+          extract(ImageRef(
+            ref = s"http://i.imgur.com/${div.attr("id")}.png",
+            origin = "http://imgur.com/a/GTprX/"))
+        }
+      })
+  )
+
+  //    SimpleForward("NX_AvasDemon", "Ava’s Demon", "http://www.avasdemon.com/chapters.php",
 //      Selection.many("table[id~=chapter\\d+_table]").wrap {
 //        _.zipWithIndex.map { case (elem, idx) =>
 //          Selection(elem).many("a").wrap { as =>
@@ -143,24 +136,5 @@ object Individual {
 //          }
 //        }.combined.map(_.flatten)
 //      }),
-    SimpleForward("NX_xkcd", "xkcd", "http://xkcd.com/1/",
-      {
-        val assets_? = Selection.all("#comic img").wrapEach{ intoArticle(_).map { article =>
-          article.data.get("title").fold(article)(t => article.copy(data = article.data.updated("longcomment", t)))}}
-        val next_? = queryNext("a[rel=next]:not([href=#])")
-        Append(assets_?, next_?)
-      }),
-    archivePage("NX_TheDreamer", "The Dreamer", "http://www.thedreamercomic.com/read_pgmain.php",
-      Shuffle.of(Selection.many(".act_wrap").focus {queryMixedArchive("h2, .flip_box_front .issue_title , .flip_box_back .issue_pages a")}){_.reverse},
-      TransformUrls(queryImage("#comicnav > div.comicWrap > div.imageWrap > img"), List("\\.jpg.*" -> ".jpg"))),
-    SimpleForward("NX_CheerImgur", "Cheer by Forview", "http://imgur.com/a/GTprX/",
-      {
-        Selection.unique("div.post-images").many("div.post-image-container").wrapEach { div =>
-          extract(ImageRef(
-            ref = s"http://i.imgur.com/${div.attr("id")}.png",
-            origin = "http://imgur.com/a/GTprX/"))
-        }
-      })
-  )
 
 }

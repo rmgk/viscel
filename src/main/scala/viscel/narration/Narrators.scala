@@ -10,9 +10,7 @@ object Narrators {
       PetiteSymphony.cores ++
       Snafu.cores ++
       CloneManga.cores ++
-      Set(Inverloch,
-        Misfile, NamirDeiter, YouSayItFirst,
-        UnlikeMinerva, DynastyScans.Citrus)
+      Set(Inverloch, Misfile, UnlikeMinerva)
 
   val metas: List[Metarrator[_]] = Comicfury :: Mangadex :: Nil
 

@@ -680,7 +680,6 @@ http://flipside.keenspot.com/chapters.php
 :mixedArchive td:matches(Chapter) > div:first-child , td:matches(Intermission) > p > b , td:matches(Chapter|Intermission) table[style~=smaller] a
 :image img.ksc
 
-
 -NX_BetterDays:Better Days
 http://jaynaylor.com/betterdays/
 :chapterArchive #chapters li > a
@@ -691,6 +690,26 @@ http://jaynaylor.com/originallife/
 :chapterArchive #chapters li > a
 :images #comicentry .content img
 
+-NX_YouSayItFirst:You Say It First
+http://www.yousayitfirst.com/
+:chapterArchive #pulldown form[name=jump] > select[name=menu] > option[value]
+:image td:has(#title) > center img[src~=/comics/]
+:next a[rel=next][href~=date=\d+$]
+:archiveReverse
+
+-NX_NamirDeiter:Namir Deiter
+http://www.namirdeiter.com/
+:chapterArchive #pulldown form[name=jump] > select[name=menu] > option[value]:gt(2)
+:image td:has(#title) > center img[src~=/comics/]
+:next a[rel=next][href~=date=\d+$]
+:archiveReverse
+-- at that url derek and nicole starts … so we kill it :-)
+:url_replace /comics/index.php\?date=20150413 ::: /
+
+-NX_Dreamless:Dreamless
+http://dreamless.keenspot.com/d/20090105.html
+:image img.ksc
+:next a:has(#next_day1)
 
 
 
