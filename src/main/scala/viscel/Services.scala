@@ -115,8 +115,7 @@ akka {
                                       terminate = () => terminateServer(),
                                       pages = serverPages,
                                       replUtil = replUtil,
-                                      interactions = interactions,
-                                      executionContext = executionContext)
+                                      interactions = interactions)
 
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
     RouteResult.route2HandlerFlow(server.route)(

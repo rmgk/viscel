@@ -9,7 +9,7 @@ import viscel.ReplUtil
 import viscel.shared.Vid
 import viscel.store.{BlobStore, User, Users}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class Server(userStore: Users,
@@ -18,10 +18,8 @@ class Server(userStore: Users,
              pages: ServerPages,
              replUtil: ReplUtil,
              interactions: Interactions,
-             executionContext: ExecutionContext
             ) {
 
-  implicit def implicitExecutionContext: ExecutionContext = executionContext
 
   def route: Route = decodeRequest(encodeResponse(basicAuth(subPathRoute)))
 
@@ -86,19 +84,14 @@ class Server(userStore: Users,
                                 () => HttpCharsets.`UTF-8`))
       }
     } ~
-    path("export" / Segment) { id =>
-      if (!user.admin) reject
-      else onComplete(Future(replUtil.export(Vid.from(id)))) {
-        case Success(v) => complete("success")
-        case Failure(e) => complete(e.toString())
-      }
-    } ~
     path("import") {
       if (!user.admin) reject
       else parameters(('id.as[String], 'name.as[String], 'path.as[String])) { (id, name, path) =>
-        onComplete(Future(replUtil.importFolder(path, Vid.from(s"Import_$id"), name))) {
-          case Success(v) => complete("success")
-          case Failure(e) => complete(e.toString())
+        extractExecutionContext { ec =>
+          onComplete(Future(replUtil.importFolder(path, Vid.from(s"Import_$id"), name))(ec)) {
+            case Success(v) => complete("success")
+            case Failure(e) => complete(e.toString())
+          }
         }
       }
     } ~
