@@ -47,8 +47,8 @@ class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
     val webSocket = WebSocketListener()
     val registry = new Registry
     registry.listen(webSocket)
-    registry.bind(Bindings.contents) {contentLoader.narration}
-    registry.bind(Bindings.descriptions) { () => contentLoader.narrations() }
+    registry.bind(Bindings.contents) {contentLoader.contents}
+    registry.bind(Bindings.descriptions) { () => contentLoader.descriptions() }
     registry.bind(Bindings.hint) {handleHint}
     registry.bind(Bindings.bookmarks) {handleBookmarks(userid)}
     webSocket

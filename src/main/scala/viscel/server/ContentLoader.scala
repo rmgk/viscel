@@ -10,14 +10,14 @@ class ContentLoader(narratorCache: NarratorCache,
                     descriptionCache: DescriptionCache) {
 
 
-  def narration(id: Vid): Option[Contents] = {
+  def contents(id: Vid): Option[Contents] = {
     // load the book in an order suitable for viewing
     val pages = ContentLoader.linearizedPages(rowStore.loadBook(id))
     if (pages.isEmpty) None
     else Some(ContentLoader.pagesToContents(pages))
   }
 
-  def narrations(): Set[Description] = {
+  def descriptions(): Set[Description] = {
     val books = rowStore.allVids().map {description}
     var known = books.map(d => d.id -> d).toMap
     val nars = narratorCache.all.map { n =>

@@ -1,8 +1,7 @@
 package viscel
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths, StandardCopyOption}
-import java.time.Instant
+import java.nio.file.{Files, StandardCopyOption}
 
 import io.circe.generic.auto._
 import io.circe.syntax._
@@ -10,19 +9,15 @@ import scalatags.Text.RawFrag
 import scalatags.Text.attrs.src
 import scalatags.Text.implicits.stringAttr
 import scalatags.Text.tags.script
-import viscel.narration.Narrator
-import viscel.narration.interpretation.NarrationInterpretation.Wrapper
-import viscel.shared.{Blob, ChapterPos, Description, Gallery, SharedImage, Vid}
-import viscel.store.{Article, BlobData, BlobStore, Chapter, ImageRef, PageData, ReadableContent, Vurl, WebContent}
+import viscel.MimeUtil.mimeToExt
+import viscel.shared.{ChapterPos, Description, Gallery, SharedImage, Vid}
+import viscel.store.BlobStore
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
 
-class ReplUtil(services: Services) {
-
-  val Log = viscel.shared.Log.Tool
-
+object MimeUtil {
   def mimeToExt(mime: String, default: String = ""): String = mime match {
     case "image/jpeg" => "jpg"
     case "image/gif" => "gif"
@@ -30,10 +25,17 @@ class ReplUtil(services: Services) {
     case "image/bmp" => "bmp"
     case _ => default
   }
+}
+
+class ReplUtil(services: Services) {
+
+  val Log = viscel.shared.Log.Tool
+
+
 
   def export(id: Vid): Unit = {
 
-    val narrationOption = services.contentLoader.narration(id)
+    val narrationOption = services.contentLoader.contents(id)
 
     if (narrationOption.isEmpty) {
       Log.warn(s"$id not found")
@@ -63,7 +65,7 @@ class ReplUtil(services: Services) {
           case (a, apos) =>
             a.copy(blob = a.blob.map { blob =>
               val name = f"${apos + 1}%05d.${mimeToExt(blob.mime, default = "bmp")}"
-              Files.copy(services.blobs.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
+              Files.copy(services.blobStore.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
               blob.copy(sha1 = s"$cname/$name")
             })
         }
@@ -84,54 +86,6 @@ class ReplUtil(services: Services) {
 
     Files.copy(js, p.resolve("js"), StandardCopyOption.REPLACE_EXISTING)
     Files.copy(css, p.resolve("css"), StandardCopyOption.REPLACE_EXISTING)
-
-  }
-
-  def importFolder(path: String, nid: Vid, nname: String): Unit = {
-
-    import scala.math.Ordering.Implicits.seqDerivedOrdering
-
-    Log.info(s"try to import $nid($nname) form $path")
-
-    val files = Files.walk(Paths.get(path))
-    val sortedFiles = try {files.iterator().asScala.toList.sortBy(_.iterator().asScala.map(_.toString).toList)}
-    finally files.close()
-    val story: List[ReadableContent] = sortedFiles.flatMap { p =>
-      if (Files.isDirectory(p)) Some(Chapter(name = p.getFileName.toString))
-      else if (Files.isRegularFile(p)) {
-        val mime = Files.probeContentType(p)
-        if (mimeToExt(mime, default = "") == "") None
-        else {
-          Log.info(s"processing $p")
-          val sha1 = services.blobs.write(Files.readAllBytes(p))
-          val blob = Blob(sha1, mime)
-          Some(Article(ImageRef(Vurl.blobPlaceholder(blob), Vurl.blobPlaceholder(blob)), Some(blob)))
-        }
-      }
-      else None
-    }
-
-    val webcont = story.collect {
-      case chap@Chapter(_) => chap
-      case Article(ar, _) => ar
-    }
-
-    val blobs = story.collect {
-      case Article(ar, Some(blob)) => BlobData(ar.ref, ar.origin, Instant.now(), blob)
-    }
-
-    val narrator = new Narrator {
-      override def id: Vid = nid
-      override def name: String = nname
-      override def archive: List[WebContent] = ???
-      override def wrapper: Wrapper = ???
-    }
-    val id = narrator.id
-    val appender = services.rowStore.open(narrator)
-    appender.append(PageData(Vurl.entrypoint, Vurl.entrypoint, Instant.now(), webcont))
-    blobs.foreach(appender.append)
-    services.descriptionCache.invalidate(id)
-
 
   }
 
@@ -166,3 +120,5 @@ class ReplUtil(services: Services) {
 
 
 }
+
+

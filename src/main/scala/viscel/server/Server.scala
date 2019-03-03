@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenges}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.AuthenticationDirective
-import viscel.ReplUtil
+import viscel.FolderImporter
 import viscel.shared.Vid
 import viscel.store.{BlobStore, User, Users}
 
@@ -16,7 +16,7 @@ class Server(userStore: Users,
              blobStore: BlobStore,
              terminate: () => Unit,
              pages: ServerPages,
-             replUtil: ReplUtil,
+             folderImporter: FolderImporter,
              interactions: Interactions,
             ) {
 
@@ -88,7 +88,7 @@ class Server(userStore: Users,
       if (!user.admin) reject
       else parameters(('id.as[String], 'name.as[String], 'path.as[String])) { (id, name, path) =>
         extractExecutionContext { ec =>
-          onComplete(Future(replUtil.importFolder(path, Vid.from(s"Import_$id"), name))(ec)) {
+          onComplete(Future(folderImporter.importFolder(path, Vid.from(s"Import_$id"), name))(ec)) {
             case Success(v) => complete("success")
             case Failure(e) => complete(e.toString())
           }

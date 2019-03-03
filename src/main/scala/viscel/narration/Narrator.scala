@@ -9,7 +9,7 @@ import viscel.store.WebContent
 trait Narrator {
   /** [[id]] of each [[Narrator]] is globally unique,
     * and used to lookup the [[Narrator]] and the result in all data structures.
-    * Typicall something like XX_WonderfulCollection where XX is some grouping string,
+    * Typically something like XX_WonderfulCollection where XX is some grouping string,
     * and WonderfulCollection the normalized [[name]] of the collection. */
   def id: Vid
   /** name of the collection */

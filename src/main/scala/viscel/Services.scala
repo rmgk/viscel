@@ -45,10 +45,11 @@ class Services(relativeBasedir: Path,
   /* ====== storage ====== */
 
   lazy val descriptionCache = new DescriptionCache(cachedir)
-  lazy val blobs            = new BlobStore(blobdir)
+  lazy val blobStore        = new BlobStore(blobdir)
   lazy val userStore        = new Users(usersdir)
   lazy val rowStore         = new RowStore(scribedir)
   lazy val narratorCache    = new NarratorCache(metarratorconfigdir, definitionsdir)
+  lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
 
 
   /* ====== execution ====== */
@@ -111,10 +112,10 @@ akka {
                                             userStore = userStore,
                                             requestUtil = requests)
   lazy val server        = new Server(userStore = userStore,
-                                      blobStore = blobs,
+                                      blobStore = blobStore,
                                       terminate = () => terminateServer(),
                                       pages = serverPages,
-                                      replUtil = replUtil,
+                                      folderImporter = folderImporter,
                                       interactions = interactions)
 
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
@@ -145,7 +146,7 @@ akka {
 
   /* ====== clockwork ====== */
 
-  lazy val crawl: Crawl = new Crawl(blobStore = blobs,
+  lazy val crawl: Crawl = new Crawl(blobStore = blobStore,
                                     requestUtil = requests,
                                     rowStore = rowStore,
                                     descriptionCache = descriptionCache)(executionContext)
