@@ -677,7 +677,7 @@ http://candicomics.com/index.html
 
 -NX_Flipside:Flipside
 http://flipside.keenspot.com/chapters.php
-:mixedArchive td:matches(Chapter) > div:first-child , td:matches(Intermission) > p > b , td:matches(Chapter|Intermission) table[style~=smaller] a
+:mixedArchive td:matches(Chapter) > div:first-child , td:matches(Intermission) > p > b , td:matches(Chapter|Intermission) [style~=smaller] a
 :image img.ksc
 
 -NX_BetterDays:Better Days
