@@ -4,7 +4,9 @@ import Dependencies._
 
 val commonSettings: sbt.Def.SettingsDefinition = Seq(
     scalaVersion := version_212,
-    Compile / compile / scalacOptions ++= strictScalacOptions)
+    Compile / compile / scalacOptions ++= strictScalacOptions,
+    resolvers ++= Resolvers.all
+)
 
 val Libraries = new {
 
@@ -12,8 +14,8 @@ val Libraries = new {
   val rescalatags = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % rescalaVersion
   val rescala = libraryDependencies += "de.tuda.stg" %%% "rescala" % rescalaVersion
 
+  
   val shared = Def.settings(
-    resolvers ++= Resolvers.all,
     rmgkLogging, scalatags, lociCommunication, circe, rescala, lociCommunicationCirce
   )
 
@@ -30,7 +32,8 @@ lazy val viscel = project.in(file("."))
                     name := "viscel",
                     commonSettings,
                     fork := true,
-                    Libraries.main,
+                    resolvers ++= Resolvers.all,
+                      Libraries.main,
                     (Compile / compile) := ((Compile / compile) dependsOn (web / Compile / fastOptJS)).value,
                     Compile / compile := ((compile in Compile) dependsOn (web / Assets / SassKeys.sassify)).value,
                     (Compile / resources) += (web / Compile / fastOptJS / artifactPath).value,
