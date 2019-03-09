@@ -79,8 +79,8 @@ sealed trait Policy
 object CustomPicklers {
   def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[Policy]] = exportDecoder[Policy]
 
-  val blobName: String = BlobData.getClass.getSimpleName.dropRight(1)
-  val pageName: String = PageData.getClass.getSimpleName.dropRight(1)
+  val blobName: String = classOf[BlobData].getSimpleName
+  val pageName: String = classOf[PageData].getSimpleName
 
   /** use "\$type" field in json to detect type,
     * was upickle default and is used by every [[Book]] ... */
