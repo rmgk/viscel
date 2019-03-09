@@ -59,7 +59,7 @@ object Dependencies {
   val scalajsdom = libraryDependencies += ("org.scala-js" %%% "scalajs-dom" % "0.9.6")
   val scalaswing = libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "2.0.3"
   val scalatags = libraryDependencies += ("com.lihaoyi" %%% "scalatags" % "0.6.7")
-  val scalatest = libraryDependencies += ("org.scalatest" %% "scalatest" % "3.0.5" % "test")
+  val scalatest = libraryDependencies += ("org.scalatest" %% "scalatest" % "3.0.6" % "test")
   val scalaXml = libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.1.1"
   val sourcecode = libraryDependencies += "com.lihaoyi" %%% "sourcecode" % "0.1.4"
 }
