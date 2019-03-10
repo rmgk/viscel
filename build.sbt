@@ -5,7 +5,6 @@ import Dependencies._
 val commonSettings: sbt.Def.SettingsDefinition = Seq(
     scalaVersion := version_212,
     Compile / compile / scalacOptions ++= strictScalacOptions,
-    resolvers ++= Resolvers.all
 )
 
 val Libraries = new {
@@ -14,12 +13,12 @@ val Libraries = new {
   val rescalatags = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % rescalaVersion
   val rescala = libraryDependencies += "de.tuda.stg" %%% "rescala" % rescalaVersion
 
-  
+
   val shared = Def.settings(
-    rmgkLogging, scalatags, lociCommunication, circe, rescala, lociCommunicationCirce
+    rmgkLogging, scalatags, loci.communication, circe, rescala, loci.circe, loci.wsAkka
   )
 
-  val main = Def.settings(scalactic, jsoup, betterFiles, decline, akkaHttp, akkaStream,
+  val main = Def.settings(scalactic, jsoup, betterFiles, decline, akkaHttp,
                                     scalatest, scalacheck)
 
 
@@ -27,20 +26,20 @@ val Libraries = new {
   val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, rescalatags)
 }
 
-lazy val viscel = project.in(file("."))
-                  .settings(
-                    name := "viscel",
-                    commonSettings,
-                    fork := true,
-                    resolvers ++= Resolvers.all,
-                      Libraries.main,
-                    (Compile / compile) := ((Compile / compile) dependsOn (web / Compile / fastOptJS)).value,
-                    Compile / compile := ((compile in Compile) dependsOn (web / Assets / SassKeys.sassify)).value,
-                    (Compile / resources) += (web / Compile / fastOptJS / artifactPath).value,
-                    (Compile / resources) ++= (web / Assets / SassKeys.sassify).value,
-                    )
-                  .enablePlugins(JavaServerAppPackaging)
-                  .dependsOn(sharedJVM)
+lazy val viscel = project
+    .in(file("."))
+    .settings(
+      name := "viscel",
+      commonSettings,
+      fork := true,
+      Libraries.main,
+      (Compile / compile) := ((Compile / compile) dependsOn (web / Compile / fastOptJS)).value,
+      Compile / compile := ((compile in Compile) dependsOn (web / Assets / SassKeys.sassify)).value,
+      (Compile / resources) += (web / Compile / fastOptJS / artifactPath).value,
+      (Compile / resources) ++= (web / Assets / SassKeys.sassify).value,
+    )
+    .enablePlugins(JavaServerAppPackaging)
+    .dependsOn(sharedJVM)
 
 lazy val web = project.in(file("web"))
                .enablePlugins(ScalaJSPlugin)
