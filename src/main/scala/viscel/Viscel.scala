@@ -21,6 +21,7 @@ object Viscel {
                                              help = "Do not start the downloader.").orTrue
   val optBasedir : Opts[Path]    = Opts.option[Path](long = "basedir", metavar = "directory",
                                                      help = "Base directory to store settings and data.")
+                                   .withDefault(Paths.get("./data/"))
   val optStatic  : Opts[Path]    = Opts.option[Path](long = "static", metavar = "directory",
                                                      help = "Directory of static resources.")
                                    .withDefault(Paths.get("./static/"))
