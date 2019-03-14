@@ -1,10 +1,9 @@
 package viscel.narration
 
-import java.io.{BufferedReader, InputStreamReader}
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
-import java.util.stream.Stream
+import java.nio.file.Path
 
+import better.files._
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Queries._
 import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, NarratorADT, Shuffle, TransformUrls, Wrapper}
@@ -13,7 +12,6 @@ import viscel.shared.{Log, Vid}
 import viscel.store.{Link, Vurl}
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.Map
 import scala.util.matching.Regex
 
@@ -141,7 +139,10 @@ object ViscelDefinition {
   }
 
   def parse(lines: Iterator[String], path: String): List[Narrator] Or ErrorMessage = {
-    val preprocessed = lines.map(_.trim).zipWithIndex.map(p => Line(p._1, p._2 + 1)).filter(l => l.s.nonEmpty && !l.s.startsWith("--")).buffered
+    val preprocessed = lines.map(_.trim)
+                       .zipWithIndex.map(p => Line(p._1, p._2 + 1))
+                       .filter(l => l.s.nonEmpty && !l.s.startsWith("--"))
+                       .buffered
 
     def go(it: It, acc: List[Narrator]): List[Narrator] Or ErrorMessage =
       if (!it.hasNext) {
@@ -157,29 +158,28 @@ object ViscelDefinition {
     go(preprocessed, Nil)
   }
 
-  def load(stream: Stream[String], path: String): List[Narrator] = {
+  def load(stream: Iterator[String], path: String): List[Narrator] = {
     Log.Store.info(s"parsing definitions from $path")
-    try parse(stream.iterator().asScala, path.toString) match {
+    parse(stream, path.toString) match {
       case Good(res) => res
       case Bad(err) =>
         Log.Store.warn(s"failed to parse $path errors: $err")
         Nil
     }
-    finally stream.close()
   }
 
   def loadAll(dir: Path): List[Narrator] = {
-    val dynamic = if (!Files.exists(dir)) Nil
-    else {
-      val paths = Files.newDirectoryStream(dir, "*.vid")
-      paths.iterator().asScala.flatMap { path =>
-        load(Files.lines(path, StandardCharsets.UTF_8), path.toString)
-      }.toList
-    }
+    val defdir = File(dir)
 
-    val stream = new BufferedReader(new InputStreamReader(getClass.getClassLoader.getResourceAsStream("definitions.vid"), StandardCharsets.UTF_8)).lines()
-    val res = load(stream, "definitions.vid")
-    (res ::: dynamic).reverse
+    val res = if (!defdir.exists) Nil
+    else {
+      val paths = defdir.glob("*.vid").toList
+      paths.flatMap { path =>
+        load(path.lines(StandardCharsets.UTF_8).toArray.iterator, path.pathAsString)
+      }
+    }
+    Log.Narrate.info(s"Found ${res.size} definitions in $defdir.")
+    res
   }
 
 }

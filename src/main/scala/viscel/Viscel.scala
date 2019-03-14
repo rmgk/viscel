@@ -2,8 +2,9 @@ package viscel
 
 import java.nio.file.{Path, Paths}
 
+import better.files.File
 import cats.implicits._
-import com.monovore.decline.{Opts, Command}
+import com.monovore.decline.{Command, Opts}
 import viscel.shared.Log
 
 object Viscel {
@@ -20,7 +21,9 @@ object Viscel {
                                              help = "Do not start the downloader.").orTrue
   val optBasedir : Opts[Path]    = Opts.option[Path](long = "basedir", metavar = "directory",
                                                      help = "Base directory to store settings and data.")
-                                   .withDefault(Paths.get("./data/"))
+  val optStatic  : Opts[Path]    = Opts.option[Path](long = "static", metavar = "directory",
+                                                     help = "Directory of static resources.")
+                                   .withDefault(Paths.get("./static/"))
   val shutdown   : Opts[Boolean] = Opts.flag(long = "shutdown",
                                              help = "Shutdown directly.")
                                    .orFalse
@@ -35,9 +38,21 @@ object Viscel {
                                    .withDefault(Paths.get("./posts/"))
 
   val command: Command[Services] = Command(name = "viscel", header = "Start viscel!") {
-    (optBasedir, port, interface, server, core, cleanblobs, optBlobdir, shutdown).mapN {
-      (optBasedir, port, interface, server, core, cleanblobs, optBlobdir, shutdown) =>
-        val services = new Services(optBasedir, optBlobdir, interface, port)
+    (optBasedir, port, interface, server, core, cleanblobs, optBlobdir, shutdown, optStatic).mapN {
+      (optBasedir, port, interface, server, core, cleanblobs, optBlobdir, shutdown, optStatic) =>
+
+        val staticCandidates = List(File(optBasedir.resolve(optStatic)),
+                                    File(optStatic))
+
+        val staticDir =
+          staticCandidates.find(_.isDirectory)
+          .getOrElse {
+            println("Missing static resource directory.")
+            println(s"Searched in ${staticCandidates.mkString(" ")}")
+            sys.exit(0)
+          }
+
+        val services = new Services(optBasedir, optBlobdir, staticDir.path, interface, port)
 
         if (cleanblobs) {
           services.replUtil.cleanBlobDirectory()

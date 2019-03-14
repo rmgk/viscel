@@ -21,9 +21,10 @@ import viscel.store.{BlobStore, DescriptionCache, NarratorCache, RowStore, Users
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 class Services(relativeBasedir: Path,
-  relativeBlobdir: Path,
-  interface: String,
-  port: Int) {
+               relativeBlobdir: Path,
+               val staticDir: Path,
+               val interface: String,
+               val port: Int) {
 
 
   /* ====== paths ====== */
@@ -35,7 +36,7 @@ class Services(relativeBasedir: Path,
   val basepath           : Path = relativeBasedir.toAbsolutePath
   val blobdir            : Path = basepath.resolve(relativeBlobdir)
   val metarratorconfigdir: Path = basepath.resolve("metarrators")
-  val definitionsdir     : Path = basepath.resolve("definitions")
+  val definitionsdir     : Path = staticDir
   val exportdir          : Path = basepath.resolve("export")
   val usersdir           : Path = basepath.resolve("users")
   lazy val scribedir: Path = create(basepath.resolve("db3"))
@@ -116,7 +117,9 @@ akka {
                                       terminate = () => terminateServer(),
                                       pages = serverPages,
                                       folderImporter = folderImporter,
-                                      interactions = interactions)
+                                      interactions = interactions,
+                                      staticPath = staticDir
+                                      )
 
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
     RouteResult.route2HandlerFlow(server.route)(

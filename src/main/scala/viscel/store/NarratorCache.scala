@@ -59,7 +59,7 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
   def load[T](metarrator: Metarrator[T]): Set[T] = {
     val json = Json.load[Set[T]](path(metarrator))(io.circe.Decoder.decodeSet(metarrator.decoder))
     json.fold(x => x, err => {
-      Log.Store.warn(s"could not load ${path(metarrator)}: $err")
+      Log.Store.trace(s"could not load ${path(metarrator)}: $err")
       Set()
     })
   }

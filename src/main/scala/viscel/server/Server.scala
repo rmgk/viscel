@@ -1,5 +1,7 @@
 package viscel.server
 
+import java.nio.file.Path
+
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenges}
 import akka.http.scaladsl.server.Directives._
@@ -18,10 +20,29 @@ class Server(userStore: Users,
              pages: ServerPages,
              folderImporter: FolderImporter,
              interactions: Interactions,
+             staticPath: Path
             ) {
 
 
-  def route: Route = decodeRequest(encodeResponse(basicAuth(subPathRoute)))
+  def route: Route = decodeRequest(subPathRoute(staticRoute ~ dynamicRoute))
+
+  def subPathRoute(continue: Route): Route =
+    extractRequest { request =>
+      request.headers.find(h => h.is("x-path-prefix")) match {
+        case None         => continue
+        case Some(prefix) => pathPrefix(prefix.value()) {continue}
+      }
+    }
+
+  def stc(name: String, file: String): Route =
+    path(name){getFromFile(staticPath.resolve(file).toFile)}
+
+  val staticRoute: Route =
+    stc("js", "web-fastopt.js.gz") ~
+    stc("css", "style.css.gz") ~
+    stc("web-fastopt.js.map", "web-fastopt.js.map.gz") ~
+    stc("style.css.map", "style.css.map.gz")
+
 
   val basicAuth: AuthenticationDirective[User] = {
     val realm = "Username is used to store configuration; Passwords are saved in plain text; User is created on first login"
@@ -34,15 +55,21 @@ class Server(userStore: Users,
     }
   }
 
-  def subPathRoute(user: User): Route =
-    extractRequest { request =>
-      request.headers.find(h => h.is("x-path-prefix")) match {
-        case None         => defaultRoute(user)
-        case Some(prefix) => pathPrefix(prefix.value()) {defaultRoute(user)}
+  val dynamicRoute: Route = basicAuth(authedRoute)
+
+
+  val blobRoute: Route =
+    pathPrefix("blob" / Segment) { sha1 =>
+      val filename = blobStore.hashToPath(sha1).toFile
+      pathEnd {getFromFile(filename)} ~
+      path(Segment / Segment) { (part1, part2) =>
+        getFromFile(filename,
+                    ContentType(MediaTypes.getForKey(part1 -> part2).getOrElse(MediaTypes.`image/jpeg`),
+                                () => HttpCharsets.`UTF-8`))
       }
     }
 
-  def defaultRoute(user: User): Route =
+  def authedRoute(user: User): Route = blobRoute ~ encodeResponse {
     path("") {
       complete(pages.landing)
     } ~
@@ -53,36 +80,8 @@ class Server(userStore: Users,
         "shutdown"
       }
     } ~
-    path("css") {
-      getFromFile("web/target/web/sass/main/stylesheets/style.css") ~
-      getFromResource("style.css")
-    } ~
-    path("style.css.map") {
-      getFromFile("web/target/web/sass/main/stylesheets/style.css.map") ~
-      getFromResource("style.css.map")
-    } ~
-    path("js") {
-      getFromFile("web/target/scala-2.12/web-opt.js") ~ getFromFile(
-        "web/target/scala-2.12/web-fastopt.js") ~
-      getFromResource("web-opt.js") ~ getFromResource("web-fastopt.js")
-    } ~
     path("ws") {
       interactions.userSocket(user.id)
-    } ~
-    path("web-fastopt.js.map") {
-      getFromFile("web/target/scala-2.12/web-fastopt.js.map")
-    } ~
-    path("web-opt.js.map") {
-      getFromFile("web/target/scala-2.12/web-opt.js.map")
-    } ~
-    pathPrefix("blob" / Segment) { sha1 =>
-      val filename = blobStore.hashToPath(sha1).toFile
-      pathEnd {getFromFile(filename)} ~
-      path(Segment / Segment) { (part1, part2) =>
-        getFromFile(filename,
-                    ContentType(MediaTypes.getForKey(part1 -> part2).getOrElse(MediaTypes.`image/jpeg`),
-                                () => HttpCharsets.`UTF-8`))
-      }
     } ~
     path("import") {
       if (!user.admin) reject
@@ -107,4 +106,5 @@ class Server(userStore: Users,
     path("tools") {
       complete(pages.toolsResponse)
     }
+  }
 }

@@ -1,4 +1,6 @@
-import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
+import java.nio.file.Files
+
+import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 import Settings._
 import Dependencies._
 
@@ -26,6 +28,8 @@ val Libraries = new {
   val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, rescalatags)
 }
 
+val vbundle = TaskKey[File]("vbundle", "bundles all the viscel ressources")
+
 lazy val viscel = project
     .in(file("."))
     .settings(
@@ -33,11 +37,22 @@ lazy val viscel = project
       commonSettings,
       fork := true,
       Libraries.main,
-      (Compile / compile) := ((Compile / compile) dependsOn (web / Compile / fastOptJS)).value,
-      Compile / compile := ((compile in Compile) dependsOn (web / Assets / SassKeys.sassify)).value,
-      (Compile / resources) += (web / Compile / fastOptJS / artifactPath).value,
-      (Compile / resources) ++= (web / Assets / SassKeys.sassify).value,
-    )
+      vbundle := {
+        val jsfile = (web / Compile / fastOptJS / artifactPath).value
+        val styles = (web / Assets / SassKeys.sassify).value
+        val bundleTarget = (Universal / target).value.toPath.resolve("stage/static")
+        Files.createDirectories(bundleTarget)
+        def gzipToTarget(f: File): Unit = IO.gzip(f, bundleTarget.resolve(f.name + ".gz").toFile)
+        gzipToTarget(jsfile)
+        val vidPath = sourceDirectory.value.toPath.resolve("main/vid").toFile
+        val vids = IO.listFiles(vidPath)
+        vids.foreach{f => IO.copyFile(f, bundleTarget.resolve(f.name).toFile)}
+        gzipToTarget(jsfile.toPath.getParent.resolve(jsfile.name + ".map").toFile)
+        styles.foreach(gzipToTarget)
+        bundleTarget.toFile
+      },
+      (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
+      )
     .enablePlugins(JavaServerAppPackaging)
     .dependsOn(sharedJVM)
 
