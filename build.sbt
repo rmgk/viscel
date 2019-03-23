@@ -24,11 +24,25 @@ val Libraries = new {
                                     scalatest, scalacheck)
 
 
-
-  val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, rescalatags)
+  val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, rescalatags,
+                                       Resolvers.stg)
 }
 
-val vbundle = TaskKey[File]("vbundle", "bundles all the viscel ressources")
+val vbundle = TaskKey[File]("vbundle", "bundles all the viscel resources")
+val vbundleDef = vbundle := {
+  val jsfile = (web / Compile / fastOptJS / artifactPath).value
+  val styles = (web / Assets / SassKeys.sassify).value
+  val bundleTarget = (Universal / target).value.toPath.resolve("stage/static")
+  Files.createDirectories(bundleTarget)
+  def gzipToTarget(f: File): Unit = IO.gzip(f, bundleTarget.resolve(f.name + ".gz").toFile)
+  gzipToTarget(jsfile)
+  val vidPath = sourceDirectory.value.toPath.resolve("main/vid").toFile
+  val vids = IO.listFiles(vidPath)
+  vids.foreach { f => IO.copyFile(f, bundleTarget.resolve(f.name).toFile) }
+  gzipToTarget(jsfile.toPath.getParent.resolve(jsfile.name + ".map").toFile)
+  styles.foreach(gzipToTarget)
+  bundleTarget.toFile
+}
 
 lazy val viscel = project
     .in(file("."))
@@ -37,20 +51,7 @@ lazy val viscel = project
       commonSettings,
       fork := true,
       Libraries.main,
-      vbundle := {
-        val jsfile = (web / Compile / fastOptJS / artifactPath).value
-        val styles = (web / Assets / SassKeys.sassify).value
-        val bundleTarget = (Universal / target).value.toPath.resolve("stage/static")
-        Files.createDirectories(bundleTarget)
-        def gzipToTarget(f: File): Unit = IO.gzip(f, bundleTarget.resolve(f.name + ".gz").toFile)
-        gzipToTarget(jsfile)
-        val vidPath = sourceDirectory.value.toPath.resolve("main/vid").toFile
-        val vids = IO.listFiles(vidPath)
-        vids.foreach{f => IO.copyFile(f, bundleTarget.resolve(f.name).toFile)}
-        gzipToTarget(jsfile.toPath.getParent.resolve(jsfile.name + ".map").toFile)
-        styles.foreach(gzipToTarget)
-        bundleTarget.toFile
-      },
+      vbundleDef,
       (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
       )
     .enablePlugins(JavaServerAppPackaging)
