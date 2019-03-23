@@ -4,7 +4,7 @@ package viscel.crawl
 case class Decider(links: List[VRequest] = Nil,
                    recheck: List[VRequest] = Nil,
                    requestAfterRecheck: Int = 0,
-                   imageDecisions: Int = 0,
+                   decisions: Int = 0,
                    rechecksDone: Int = 0,
                    recheckStarted: Boolean = false,
                   ) {
@@ -23,12 +23,10 @@ case class Decider(links: List[VRequest] = Nil,
 
   }
 
-  def decide(): Decision = tryNextLink()
-
-  private def tryNextLink(): Decision = {
+  def decide(): Decision = {
     links match {
       case link :: t =>
-        Some((link, copy(links = t)))
+        Some((link, copy(links = t, decisions = decisions + 1)))
       case Nil =>
         rightmostRecheck()
     }
@@ -42,7 +40,7 @@ case class Decider(links: List[VRequest] = Nil,
     * If we find nothing, then we check no further (there was something there before, why is it gone?) */
   private def rightmostRecheck(): Decision = {
 
-    if (!recheckStarted && (imageDecisions > 0) ) return None
+    if (!recheckStarted && (decisions > 0) ) return None
 
     if (rechecksDone == 0 || (rechecksDone == 1 && requestAfterRecheck > 1)) {
       recheck match {
