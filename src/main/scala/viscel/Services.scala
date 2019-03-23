@@ -162,6 +162,7 @@ akka {
 
   def activateNarrationHint() = {
     narrationHint.observe { case (narrator, force) =>
+      if (force) narratorCache.updateCache()
       descriptionCache.invalidate(narrator.id)
       clockwork.runNarrator(narrator, if (force) 0 else clockwork.dayInMillis * 1)
     }

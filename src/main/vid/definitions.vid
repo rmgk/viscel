@@ -580,7 +580,8 @@ http://rubiwhipple.com/comic/issue-1-cover/
 
 -NX_LetsSpeakEnglish:Let’s Speak English
 http://www.marycagle.com/letsspeakenglish/prologue-1-off-we-go
-:image+next #cc-comic
+:image #cc-comic
+:next a[rel=next]
 
 -:Strawberry Death Cake
 https://www.theduckwebcomics.com/Strawberry_Death_Cake/5004702/
@@ -873,7 +874,7 @@ http://www.flightofthebinturong.com/archives
 http://www.tryinghuman.com/archive
 :am #middle table td b , #middle table td center a
 :i #cc-comic
-:url_replace --(\d)$ ::: --0$1 ::: chapter-(3|4)-([^-]) ::: chapter-$1--$2 ::: chapter-(12|13|14|15|16|17|18)--cover ::: chapter-$1-cover
+:url_replace --(\d)$ ::: --0$1 ::: chapter-(3|4)-([^-]) ::: chapter-$1--$2 ::: chapter-(12|13|14|15|16|17|18)--cover ::: chapter-$1-cover ::: chapter-22-868 ::: chapter-21-868
 
 
 -:Zombie Roomie
@@ -1027,7 +1028,8 @@ http://www.boywhofell.com/comic/archive
 -:Monsterkind
 http://monsterkind.enenkay.com/comic/archive
 :ac .cc-storyline-header a[href]
-:ia #cc-comic
+:image #cc-comic
+:next a[rel=next]
 
 -GoGetARoomie:Go Get a Roomie!
 http://www.gogetaroomie.com/comic/archive
