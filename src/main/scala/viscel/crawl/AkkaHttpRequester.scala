@@ -74,7 +74,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
   override def get(request: VRequest): Future[VResponse[Either[Array[Byte], String]]] = {
     for {
       resp <- requestInternal(request)
-      content <- if (resp.content.entity.contentType.mediaType.isText)
+      content <- if (!resp.content.entity.contentType.binary)
                    Unmarshal(resp.content).to[String].map(_.asRight)
                  else resp.content.entity.toStrict(timeout).map(_.data.toArray[Byte].asLeft)
     } yield resp.copy(content = content)
