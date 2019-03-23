@@ -39,8 +39,9 @@ class Services(relativeBasedir: Path,
   val definitionsdir     : Path = staticDir
   val exportdir          : Path = basepath.resolve("export")
   val usersdir           : Path = basepath.resolve("users")
-  lazy val scribedir: Path = create(basepath.resolve("db3"))
-  lazy val cachedir : Path = create(basepath.resolve("cache"))
+  val db3dir             : Path = basepath.resolve("db3")
+  lazy val db4dir  : Path = create(basepath.resolve("db4"))
+  lazy val cachedir: Path = create(basepath.resolve("cache"))
 
 
   /* ====== storage ====== */
@@ -48,7 +49,7 @@ class Services(relativeBasedir: Path,
   lazy val descriptionCache = new DescriptionCache(cachedir)
   lazy val blobStore        = new BlobStore(blobdir)
   lazy val userStore        = new Users(usersdir)
-  lazy val rowStore         = new RowStore(scribedir)
+  lazy val rowStore         = new RowStore(db3dir, db4dir)
   lazy val narratorCache    = new NarratorCache(metarratorconfigdir, definitionsdir)
   lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
 
@@ -119,7 +120,7 @@ akka {
                                       folderImporter = folderImporter,
                                       interactions = interactions,
                                       staticPath = staticDir
-                                      )
+  )
 
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
     RouteResult.route2HandlerFlow(server.route)(

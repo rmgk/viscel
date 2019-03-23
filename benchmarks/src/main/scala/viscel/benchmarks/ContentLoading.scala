@@ -38,14 +38,14 @@ class ContentLoading {
   def setup(): Unit = {
     services = new Services(Paths.get(dbpath), Paths.get("./blobs/"), "localhost", 2358)
     vid = Vid.from(bookId)
-    loadedContents = services.rowStore.load(vid)
+    loadedContents = services.rowStore.loadOld(vid)
     book = Book.fromEntries(vid, loadedContents._1, loadedContents._2)
     pages = ContentLoader.linearizedPages(book)
   }
 
   @Benchmark
   def loadContents(bh: Blackhole) = {
-    services.rowStore.load(vid)
+    services.rowStore.loadOld(vid)
   }
 
   @Benchmark

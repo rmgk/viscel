@@ -2,34 +2,52 @@ package viscel.store
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 import better.files.File
-import io.circe.syntax._
 import viscel.narration.Narrator
 import viscel.shared.Log.{Store => Log}
-import viscel.shared.Vid
+import viscel.shared.{Blob, Vid}
 import viscel.store.CustomPicklers._
+import viscel.store.v4.{DataRow, RowStoreV4}
 
-class RowStore(basePath: Path) {
+class RowStore(db3dir: Path, db4dir: Path) {
 
-  val base = File(basePath)
-  assert(base.isDirectory, "row store base path must be directory")
+  val oldBase  = File(db3dir)
+  val newBase  = File(db4dir)
+  val newStore = new RowStoreV4(db4dir)
+  if (oldBase.isDirectory && newBase.isEmpty) {
+    Log.info(s"Updating `$oldBase` to `$newBase`, do not abort. " +
+             s"If something fails, delete `$newBase` to try again.")
+    oldBase.list(_.isRegularFile, 1).foreach { file =>
+      val id = Vid.from(file.name)
+      val (name, entries) = loadOld(id, oldBase)
+      val apppender = open(id, name)
+      entries.foreach(apppender.append)
+    }
+  }
+
 
   def open(narrator: Narrator): RowAppender = synchronized {
-    val f = base / narrator.id.str
-    if (!f.exists || f.size <= 0) Json.store(f.path, narrator.name)
-    new RowAppender(f)
+    open(narrator.id, narrator.name)
+  }
+
+  private def open(id: Vid, name: String): RowAppender = synchronized {
+    val f = oldBase / id.str
+    if (!f.exists || f.size <= 0) Json.store(f.path, name)
+    new RowAppender(newStore.open(id, name).append)
   }
 
   def allVids(): List[Vid] = synchronized {
-    base.list(_.isRegularFile, 1).map(f => Vid.from(f.name)).toList
+    oldBase.list(_.isRegularFile, 1).map(f => Vid.from(f.name)).toList
   }
 
 
-  def load(id: Vid): (String, List[ScribeDataRow]) = synchronized {
+  def loadOld(id: Vid, basedir: File = newBase): (String, List[ScribeDataRow]) = synchronized {
     Log.info(s"loading $id")
 
-    val f = File(basePath)./(id.str)
+    val f = basedir / id.str
 
     if (!f.isRegularFile || f.size == 0) throw new IllegalStateException(s"$f does not contain a book")
     else {
@@ -49,15 +67,36 @@ class RowStore(basePath: Path) {
   }
 
   def loadBook(id: Vid): Book = {
-    val (name, entryList) = load(id)
-    Book.fromEntries(id, name, entryList)
+    ???
   }
 
 }
 
-class RowAppender(file: File) {
+class RowAppender(newAppend: DataRow => Unit) {
   def append(row: ScribeDataRow): Unit = {
-    Log.trace(s"Store $row into $file")
-    file.appendLine(row.asJson.noSpaces)(charset = StandardCharsets.UTF_8)
+    val (ref, loc, date, newContents) = row match {
+      case PageData(ref, loc, date, contents) =>
+
+        val newContents = contents.map {
+          case Chapter(name)           => DataRow.Chapter(name)
+          case ImageRef(ref, _, data)  => DataRow.Link(ref,
+                                                       data.toList.flatMap(p => List(p._1, p._2)))
+          case Link(ref, policy, data) => DataRow.Link(ref, policy.toString :: data)
+        }
+        (ref, loc, date, newContents)
+
+      case BlobData(ref, loc, date, Blob(sha1, mime)) =>
+        (ref, loc, date, List(DataRow.Blob(sha1, mime)))
+    }
+
+    val dr = DataRow(ref,
+                     if (ref != loc) Some(loc) else None,
+                     if (date.isBefore(Instant.now()
+                                       .minus(1, ChronoUnit.MINUTES))) Some(date) else None,
+                     None,
+                     newContents)
+
+    newAppend(dr)
+
   }
 }

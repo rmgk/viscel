@@ -7,7 +7,7 @@ import viscel.MimeUtil.mimeToExt
 import viscel.narration.Narrator
 import viscel.narration.interpretation.NarrationInterpretation.Wrapper
 import viscel.shared.{Blob, Vid}
-import viscel.store._
+import viscel.store.{RowStore, _}
 
 class FolderImporter(blobStore: BlobStore, rowStore: RowStore, descriptionCache: DescriptionCache) {
 
