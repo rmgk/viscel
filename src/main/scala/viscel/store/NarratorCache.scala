@@ -7,6 +7,7 @@ import viscel.narration.interpretation.NarrationInterpretation
 import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
 import viscel.narration.{Metarrator, Narrator, Narrators, ViscelDefinition}
 import viscel.shared.{Log, Vid}
+import viscel.store.v4.DataRow
 
 import scala.collection.immutable.{Map, Set}
 import scala.concurrent.Future
@@ -34,9 +35,9 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
   def add(start: String, requestUtil: WebRequestInterface): Future[List[Narrator]] = {
     def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
-      requestUtil.get(VRequest(url)).map { resp =>
+      requestUtil.get(VRequest(DataRow.Link(url))).map { resp =>
         val respc = resp.copy(content = resp.content.right.get)
-        val nars = NarrationInterpretation.NI(Link(url), respc).interpret(metarrator.wrap).get
+        val nars = NarrationInterpretation.NI(DataRow.Link(url), respc).interpret(metarrator.wrap).get
         synchronized {
           save(metarrator, nars ++ load(metarrator))
           updateCache()

@@ -2,14 +2,14 @@ package viscel.tests
 
 import org.scalatest.FreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import viscel.crawl.{CrawlTask, Decider}
+import viscel.crawl.{Decider, VRequest}
 import viscel.tests.DataGenerators._
 
 class DeciderTests extends FreeSpec with ScalaCheckDrivenPropertyChecks {
 
   val empty = Decider()
 
-  def allDecisions(decider: Decider, acc: List[CrawlTask] = Nil): (Decider, List[CrawlTask]) = {
+  def allDecisions(decider: Decider, acc: List[VRequest] = Nil): (Decider, List[VRequest]) = {
     decider.decide() match {
       case None => (decider, acc)
       case Some((decision, next)) => allDecisions(next, decision :: acc)
@@ -18,12 +18,12 @@ class DeciderTests extends FreeSpec with ScalaCheckDrivenPropertyChecks {
 
   "empty" - {
     "decide" in { assert(empty.decide() === None ) }
-    "add" in forAll { req: CrawlTask =>
+    "add" in forAll { req: VRequest =>
       val Some((decision, next)) = empty.addTasks(List(req)).decide()
       assert (decision === req)
       assert(next.decide() === None)
     }
-    "add all" in forAll { requests: List[CrawlTask] =>
+    "add all" in forAll { requests: List[VRequest] =>
       val (decider, decisions) = allDecisions(empty.addTasks(requests))
       assert(requests.toSet === decisions.toSet)
       assert(decider.decide() === None)

@@ -9,7 +9,9 @@ import viscel.crawl.VResponse
 import viscel.narration.Narrator
 import viscel.selection.{ExtractionFailed, Report, Selection}
 import viscel.shared.Vid
-import viscel.store.{ImageRef, Link, Volatile, Vurl, WebContent}
+import viscel.store.Vurl
+import viscel.store.v3.Volatile
+import viscel.store.v4.DataRow
 
 import scala.util.matching.Regex
 
@@ -19,7 +21,7 @@ object NarrationInterpretation {
   val Log = viscel.shared.Log.Narrate
 
 
-  def transformUrls(replacements: List[(String, String)])(stories: List[WebContent]): List[WebContent] = {
+  def transformUrls(replacements: List[(String, String)])(stories: List[DataRow.Content]): List[DataRow.Content] = {
 
     def replaceVurl(url: Vurl): Vurl =
       replacements.foldLeft(url.uriString) {
@@ -27,8 +29,7 @@ object NarrationInterpretation {
       }
 
     stories.map {
-      case Link(url, policy, data)     => Link(replaceVurl(url), policy, data)
-      case ImageRef(url, origin, data) => ImageRef(replaceVurl(url), origin, data)
+      case DataRow.Link(url, data)     => DataRow.Link(replaceVurl(url), data)
       case o                           => o
     }
   }
@@ -42,7 +43,7 @@ object NarrationInterpretation {
     }
   }
 
-  case class NI(link: Link, response: VResponse[String]) {
+  case class NI(link: DataRow.Link, response: VResponse[String]) {
     def interpret[T](outerWrapper: WrapPart[T]): T Or Every[Report] = {
       val document = Jsoup.parse(response.content, response.location.uriString())
       recurse(outerWrapper)(document)
@@ -75,19 +76,19 @@ object NarrationInterpretation {
   }
 
 
-  case class NarratorADT(id: Vid, name: String, archive: List[WebContent], wrap: Wrapper)
+  case class NarratorADT(id: Vid, name: String, archive: List[DataRow.Content], wrap: Wrapper)
     extends Narrator {
     override def wrapper: Wrapper = wrap
   }
 
-  type Wrapper = WrapPart[List[WebContent]]
+  type Wrapper = WrapPart[List[DataRow.Content]]
 
   sealed trait WrapPart[+T] {
     def map[U](fun: T => U): WrapPart[U] = MapW(this, fun)
   }
 
   def PolicyDecision[T](volatile: WrapPart[T], normal: WrapPart[T]) =
-    Condition(ContextW.map(_.link.policy == Volatile), volatile, normal)
+    Condition(ContextW.map(_.link.data.headOption.contains(Volatile.toString)), volatile, normal)
 
   case class Condition[T](pred: WrapPart[Boolean], isTrue: WrapPart[T], isFalse: WrapPart[T])
     extends WrapPart[T]
@@ -129,7 +130,7 @@ object NarrationInterpretation {
 
   case class Constant[T](c: T) extends WrapPart[T]
 
-  case class ContextData(link: Link, response: VResponse[String])
+  case class ContextData(link: DataRow.Link, response: VResponse[String])
   // single data element extraction
   case object ContextW extends WrapPart[ContextData]
   case object JsonW extends WrapPart[Json]

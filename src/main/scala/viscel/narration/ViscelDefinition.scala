@@ -6,10 +6,11 @@ import java.nio.file.Path
 import better.files._
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Queries._
-import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, NarratorADT, MapW, TransformUrls, Wrapper}
+import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, MapW, NarratorADT, TransformUrls, Wrapper}
 import viscel.selection.Report
 import viscel.shared.{Log, Vid}
-import viscel.store.{Link, Vurl}
+import viscel.store.Vurl
+import viscel.store.v4.DataRow
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Map
@@ -119,7 +120,7 @@ object ViscelDefinition {
     val archFunRev = if (has("archiveReverse")) archFunReplace.map(MapW(_, chapterReverse)) else archFunReplace
 
     (pageFunReplace, archFunRev) match {
-      case (Some(pf), None) => Good(NarratorADT(Vid.from(cid), name, Link(startUrl) :: Nil, pf))
+      case (Some(pf), None) => Good(NarratorADT(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, pf))
       case (Some(pf), Some(af)) => Good(Templates.archivePage(cid, name, startUrl, af, pf))
       case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
     }

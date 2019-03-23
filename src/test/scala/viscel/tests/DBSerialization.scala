@@ -7,8 +7,9 @@ import org.scalacheck.Gen
 import org.scalatest.FreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import viscel.shared.Blob
-import viscel.store.CustomPicklers._
-import viscel.store.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Vurl}
+import viscel.store.Vurl
+import viscel.store.v3.CustomPicklers._
+import viscel.store.v3.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow}
 import viscel.tests.DataGenerators._
 
 class DBSerialization extends FreeSpec with ScalaCheckDrivenPropertyChecks {

@@ -1,4 +1,4 @@
-package viscel.store
+package viscel.store.v3
 
 import java.time.Instant
 
@@ -8,6 +8,7 @@ import io.circe.generic.extras._
 import io.circe.generic.extras.auto._
 import io.circe.{Decoder, Encoder}
 import viscel.shared.Blob
+import viscel.store.Vurl
 
 /** Single row in a [[StoreManager]]. Is either a [[PageData]] or a [[BlobData]]. */
 sealed trait ScribeDataRow {

@@ -4,7 +4,9 @@ import viscel.narration.interpretation.NarrationInterpretation.{Combination, Con
 import viscel.narration.{Narrator, Queries}
 import viscel.selection.{ReportTools, Selection}
 import viscel.shared.Vid
-import viscel.store.{ImageRef, Link, Volatile, Vurl}
+import viscel.store.Vurl
+import viscel.store.v3.Volatile
+import viscel.store.v4.DataRow
 
 import scala.collection.immutable.Set
 
@@ -35,7 +37,8 @@ object KatBox {
     ("uberquest", "Uber Quest", None),
     ("yosh", "Yosh!", None),
   ).map { case (_id, _name, _url) =>
-    NarratorADT(Vid.from(s"KatBox_${_id}"), _name, List(Link(_url.getOrElse(s"http://${_id}.katbox.net/archive/"), Volatile)),
+    NarratorADT(Vid.from(s"KatBox_${_id}"), _name,
+                List(DataRow.Link(_url.getOrElse(s"http://${_id}.katbox.net/archive/"), List(Volatile.toString))),
                 MapW.reverse(Selection.many("span.archive-link a.webcomic-link").focus {
         // laslindas at least seems to miss some pages, just skip them
         Decision(_.childNodeSize() == 0, Constant(Nil), {
@@ -44,10 +47,7 @@ object KatBox {
           // not awabanner2015 is a workaround for the rascals archives
           val img_? = Selection.unique("img:not([src~=awabanner2015])").wrapOne(i => ReportTools.extract(i.absUrl("src")))
           Combination.of(img_?, vurl_?) { (img, vurl) =>
-            List(ImageRef(
-              ref = img.replaceFirst("-\\d+x\\d+\\.", "."),
-              origin = vurl,
-              data = Map()))
+            List(DataRow.Link(img.replaceFirst("-\\d+x\\d+\\.", ".")))
           }
         })
       })

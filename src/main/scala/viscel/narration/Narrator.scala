@@ -3,7 +3,7 @@ package viscel.narration
 import cats.syntax.eq.catsSyntaxEq
 import viscel.narration.interpretation.NarrationInterpretation.Wrapper
 import viscel.shared.Vid
-import viscel.store.WebContent
+import viscel.store.v4.DataRow
 
 /** Describes the structure of a web collection */
 trait Narrator {
@@ -16,9 +16,9 @@ trait Narrator {
   def name: String
 
   /** Starting link, or multiple links in case the structure is very static */
-  def archive: List[WebContent]
+  def archive: List[DataRow.Content]
 
-  /** Interpret to wraps a [[org.jsoup.nodes.Document]] into [[Contents]] */
+  /** Interpret to wraps a [[org.jsoup.nodes.Document]] */
   def wrapper: Wrapper
 
   /** Override equals to store in Sets.

@@ -3,15 +3,11 @@ package viscel.crawl
 import viscel.narration.Narrator
 import viscel.shared.Log
 import viscel.store.v4.{DataRow, RowAppender, RowStoreV4}
-import viscel.store.{BlobStore, Book, DescriptionCache, Link}
+import viscel.store.{BlobStore, Book, DescriptionCache}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 
-sealed trait CrawlTask
-object CrawlTask {
-  case class Page(req: VRequest, from: Link) extends CrawlTask
-}
 
 
 class Crawl(blobStore: BlobStore,
@@ -35,20 +31,15 @@ class Crawl(blobStore: BlobStore,
 
     def interpret(book: Book, decider: Decider): Future[Unit] = {
       decider.decide() match {
-        case Some((ct, nextDecider)) =>
-          ct match {
-            case CrawlTask.Page(request, from) =>
-              handlePageResponse(book, request, from, nextDecider)
-          }
+        case Some((ct, nextDecider)) => handlePageResponse(book, ct, nextDecider)
         case None                    => Future.successful(())
       }
     }
 
     private def handlePageResponse(book: Book,
                                    request: VRequest,
-                                   from: Link,
                                    decider: Decider): Future[Unit] = {
-      Log.Crawl.trace(s"Handling page response for $from, $request")
+      Log.Crawl.trace(s"Handling page response for $request")
       requestUtil.get(request).flatMap { response: VResponse[Either[Array[Byte], String]] =>
         response.content match {
           case Left(array) =>
@@ -59,7 +50,7 @@ class Crawl(blobStore: BlobStore,
             blobStore.write(sha1, array)
             interpret(addPageTo(book, rowAppender, datarow), decider)
           case Right(str)  =>
-            val pageData = processing.processPageResponse(book, from, response.copy(content = str))
+            val pageData = processing.processPageResponse(book, request.link, response.copy(content = str))
             Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
             val newBook: Book = addPageTo(book, rowAppender, pageData)
             val tasks = processing.computeTasks(pageData, newBook)

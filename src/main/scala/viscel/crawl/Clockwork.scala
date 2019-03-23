@@ -63,7 +63,7 @@ class Clockwork(path: Path,
       log.error(
         s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
            |$narrator
-           |  failed on ${link.ref.uriString()} (${link.policy}${if (link.data.nonEmpty) s", ${link.data}" else ""}):
+           |  failed on ${link.ref.uriString()} (${if (link.data.nonEmpty) s", ${link.data}" else ""}):
            |  ${reports.map {_.describe}.mkString("\n  ")}
            |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
     case t =>

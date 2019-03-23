@@ -6,7 +6,8 @@ import io.circe.{Decoder, DecodingFailure, Encoder}
 import viscel.narration.interpretation.NarrationInterpretation.{Combination, ContextW, JsonW, NarratorADT, WrapPart, Wrapper}
 import viscel.narration.{Metarrator, Templates}
 import viscel.selection.JsonDecoding
-import viscel.store.{Chapter, ImageRef, Link, Vurl, WebContent}
+import viscel.store.Vurl
+import viscel.store.v4.DataRow
 
 import scala.util.Try
 
@@ -16,9 +17,9 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   case class ChapterInfo(volume: Option[Int], num: Int, numStr: String, title: String, id: String) {
     def sorting: (Int, Int, String, String, String) = (volume.getOrElse(Int.MaxValue), num, numStr, title, id)
-    def contents: List[WebContent] =
-      Chapter(s"(${volume.fold("")(i => s"$i: ")}$num) $title") ::
-      Link(Vurl.fromString(s"https://mangadex.org/api/?id=$id&type=chapter")) ::
+    def contents: List[DataRow.Content] =
+      DataRow.Chapter(s"(${volume.fold("")(i => s"$i: ")}$num) $title") ::
+      DataRow.Link(Vurl.fromString(s"https://mangadex.org/api/?id=$id&type=chapter")) ::
       Nil
   }
 
@@ -57,7 +58,7 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
         val absServer = if (server.startsWith("/")) s"https://mangadex.org$server" else server
         c.downField("page_array").values.get.zipWithIndex.map { case (fname, i) =>
           val url = Vurl.fromString(s"$absServer$hash/${fname.as[String].right.get}")
-          ImageRef(url, Vurl.fromString(s"https://mangadex.org/chapter/$cid/${i + 1}"))
+          DataRow.Link(url)
         }.toList
       }.leftMap(JsonDecoding).right.get
     }

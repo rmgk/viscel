@@ -2,7 +2,9 @@ package viscel.narration
 
 import viscel.narration.interpretation.NarrationInterpretation.{NarratorADT, PolicyDecision, Wrapper}
 import viscel.shared.Vid
-import viscel.store.{Link, Volatile, Vurl}
+import viscel.store.Vurl
+import viscel.store.v3.Volatile
+import viscel.store.v4.DataRow
 
 object Templates {
   def archivePage(vid: String,
@@ -11,7 +13,7 @@ object Templates {
                   wrapArchive: Wrapper,
                   wrapPage: Wrapper,
                  ): NarratorADT =
-    NarratorADT(Vid.from(vid), pname, Link(start, Volatile) :: Nil,
+    NarratorADT(Vid.from(vid), pname, DataRow.Link(start, List(Volatile.toString)) :: Nil,
       PolicyDecision(
         volatile = wrapArchive,
         normal = wrapPage))
@@ -21,5 +23,5 @@ object Templates {
                     start: Vurl,
                     wrapPage: Wrapper
                    ): NarratorADT =
-    NarratorADT(Vid.from(vid), pname, Link(start) :: Nil, wrapPage)
+    NarratorADT(Vid.from(vid), pname, DataRow.Link(start) :: Nil, wrapPage)
 }

@@ -1,12 +1,13 @@
 package viscel.crawl
 
-import viscel.crawl.CrawlProcessing.{initialTasks, linkTask, rechecks}
+import cats.implicits.catsSyntaxOptionId
+import viscel.crawl.CrawlProcessing.{initialTasks, rechecks}
 import viscel.narration.Narrator
 import viscel.narration.interpretation.NarrationInterpretation
 import viscel.shared.Log
 import viscel.store._
+import viscel.store.v3.Volatile
 import viscel.store.v4.DataRow
-import cats.implicits.catsSyntaxOptionId
 
 import scala.collection.mutable
 
@@ -14,7 +15,7 @@ class CrawlProcessing(narrator: Narrator) {
 
   def init(book: Book): Option[DataRow] = {
     val entry = book.beginning
-    val transformed = narrator.archive.map(RowStoreTransition.transformContent)
+    val transformed = narrator.archive
     if (entry.isEmpty || entry.get.contents != transformed) {
       Some(DataRow(Vurl.entrypoint, contents = transformed))
     } else None
@@ -30,11 +31,10 @@ class CrawlProcessing(narrator: Narrator) {
     toDataRow(request.href, response, contents)
   }
 
-  def processPageResponse(book: Book, link: Link, response: VResponse[String]): DataRow = {
+  def processPageResponse(book: Book, link: DataRow.Link, response: VResponse[String]): DataRow = {
     val contents = NarrationInterpretation.NI(link, response)
-                   .interpret[List[WebContent]](narrator.wrapper)
+                   .interpret[List[DataRow.Content]](narrator.wrapper)
                    .fold(identity, r => throw WrappingException(link, r))
-                   .map(RowStoreTransition.transformContent)
 
     toDataRow(link.ref, response, contents)
   }
@@ -49,41 +49,34 @@ class CrawlProcessing(narrator: Narrator) {
   }
 
 
-  def computeTasks(pageData: DataRow, book: Book): List[CrawlTask] = {
+  def computeTasks(pageData: DataRow, book: Book): List[VRequest] = {
     pageData.contents.collect {
-      case l: DataRow.Link if !book.hasPage(l.ref) => linkTask(LinkWithReferer(l, pageData.ref))
+      case l: DataRow.Link if !book.hasPage(l.ref) => VRequest(l, Some(pageData.ref))
     }
   }
 }
 
 object CrawlProcessing {
-  val VolativeStr = Volatile.toString
-  def linkTask(lwr: LinkWithReferer): CrawlTask.Page =
-    CrawlTask.Page(VRequest(lwr.link.ref, Some(lwr.referer)),
-                   Link(lwr.link.ref, lwr.link.data.headOption match {
-                     case Some(VolativeStr) => Volatile
-                     case otherwise               => Normal
-                   },
-                        lwr.link.data.filterNot(_ == Volatile.toString)))
+  val VolatileStr = Volatile.toString
 
-  def initialTasks(book: Book): List[CrawlTask] = book.unresolvedLinks.map(linkTask) :::
-                                                  book.volatileAndEmptyLinks.map(linkTask)
-  def rechecks(book: Book): List[CrawlTask] = computeRightmostLinks(book).map(linkTask)
+  def initialTasks(book: Book): List[VRequest] =
+    book.allLinks.filter(l => !book.hasPage(l.link.ref) || l.link.data.contains(VolatileStr)).map(VRequest.from).toList
+  def rechecks(book: Book): List[VRequest] = computeRightmostLinks(book).map(VRequest.from)
 
 
   /** Starts from the entrypoint, traverses the last Link,
     * collect the path, returns the path from the rightmost child to the root. */
-  def computeRightmostLinks(book: Book): List[LinkWithReferer] = {
+  def computeRightmostLinks(book: Book): List[WithReferer] = {
 
     val seen = mutable.HashSet[Vurl]()
 
     @scala.annotation.tailrec
-    def rightmost(current: DataRow, acc: List[LinkWithReferer]): List[LinkWithReferer] = {
+    def rightmost(current: DataRow, acc: List[WithReferer]): List[WithReferer] = {
       /* Get the last Link for the current PageData  */
       val next = current.contents.reverseIterator.find {
         case DataRow.Link(loc, _) if seen.add(loc) => true
         case _                                     => false
-      } collect { case l: DataRow.Link => LinkWithReferer(l, current.ref) }
+      } collect { case l: DataRow.Link => WithReferer(l, current.ref) }
       next match {
         case None       => acc
         case Some(link) =>

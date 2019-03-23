@@ -4,9 +4,9 @@ import java.time.Instant
 
 import cats.syntax.either._
 import io.circe.export.Exported
-import io.circe.generic.extras.semiauto._
-import io.circe.generic.extras.auto._
 import io.circe.generic.extras.Configuration
+import io.circe.generic.extras.auto._
+import io.circe.generic.extras.semiauto._
 import io.circe.{Decoder, Encoder}
 import viscel.store.Vurl
 import viscel.store.v4.DataRow._
@@ -21,9 +21,17 @@ final case class DataRow(ref: Vurl,
 
 object DataRow {
   sealed trait Content
-  final case class Link(ref: Vurl, data: List[String] = Nil) extends Content
+  final case class Link(ref: Vurl, data: List[String] = Nil) extends Content {
+    lazy val dataMap: Map[String, String] = data.sliding(2, 2).filter(_.size == 2).map {
+      case List(a, b) => a -> b
+    }.toMap
+  }
   final case class Blob(sha1: String, mime: String) extends Content
   final case class Chapter(name: String) extends Content
+
+  def ImageRef(ref: Vurl, data: Map[String, String] = Map()): DataRow.Link = {
+    Link(ref, data.flatMap(f => List(f._1, f._2)).toList)
+  }
 }
 
 object V4Codecs {

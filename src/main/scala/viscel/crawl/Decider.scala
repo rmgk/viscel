@@ -1,28 +1,26 @@
 package viscel.crawl
 
 
-case class Decider(links: List[CrawlTask] = Nil,
-                   recheck: List[CrawlTask] = Nil,
+case class Decider(links: List[VRequest] = Nil,
+                   recheck: List[VRequest] = Nil,
                    requestAfterRecheck: Int = 0,
                    imageDecisions: Int = 0,
                    rechecksDone: Int = 0,
                    recheckStarted: Boolean = false,
                   ) {
 
-  type Decision = Option[(CrawlTask, Decider)]
+  type Decision = Option[(VRequest, Decider)]
 
   /** Adds the contents to the current decision pool.
     * Does some recheck logic, see [[rightmostRecheck]].
     * Adds everything in a left to right order, so downloads happen as users would read. */
-  def addTasks(toAdd: List[CrawlTask]): Decider = {
+  def addTasks(toAdd: List[VRequest]): Decider = {
     val nextDecider = if (recheckStarted) {
       copy(requestAfterRecheck = requestAfterRecheck + (if (toAdd.isEmpty && requestAfterRecheck == 0) 2 else 1))
     } else this
 
-    toAdd.reverse.foldLeft(nextDecider) {
-      case (dec, ct@CrawlTask.Page(_, _)) => dec.copy(links = ct :: dec.links)
-      case (dec, _) => dec
-    }
+    nextDecider.copy(links = toAdd reverse_::: nextDecider.links)
+
   }
 
   def decide(): Decision = tryNextLink()

@@ -47,9 +47,7 @@ object ContentLoader {
   def size(book: Book): Int = ContentLoader.linearizedPages(book).count(_.isLeft)
 
   case class OriginData(link: DataRow.Link) {
-    def dataMap: Map[String, String] = link.data.sliding(2, 2).filter(_.size == 2).map {
-      case List(a, b) => a -> b
-    }.toMap
+
   }
 
   type LinearResult = List[Either[SharedImage, DataRow.Chapter]]
@@ -73,7 +71,7 @@ object ContentLoader {
     }
 
     @scala.annotation.tailrec
-    def flatten(lastLink: Option[OriginData],
+    def flatten(lastLink: Option[DataRow.Link],
                 remaining: List[DataRow.Content],
                 acc: LinearResult): LinearResult = {
       remaining match {
@@ -82,14 +80,14 @@ object ContentLoader {
           case l @ DataRow.Link(loc, _) =>
             book.pages.get(loc) match {
               case None      => flatten(lastLink, t, acc)
-              case Some(alp) => flatten(OriginData(l).some,
+              case Some(alp) => flatten(l.some,
                                         unseen(alp.ref, alp.contents) reverse_::: t,
                                         acc)
             }
           case DataRow.Blob(sha1, mime) =>
             val ll = lastLink.get
             flatten(lastLink, t,
-                    SharedImage(ll.link.ref.uriString(),
+                    SharedImage(seenOrigins(ll.ref).uriString(),
                                 Blob(sha1, mime).some,
                                 ll.dataMap).asLeft :: acc)
           case ch: DataRow.Chapter      => flatten(lastLink, t, ch.asRight :: acc)

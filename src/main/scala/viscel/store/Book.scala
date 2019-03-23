@@ -3,7 +3,7 @@ package viscel.store
 import viscel.shared.Vid
 import viscel.store.v4.DataRow
 
-case class LinkWithReferer(link: DataRow.Link, referer: Vurl)
+case class WithReferer(link: DataRow.Link, referer: Vurl)
 
 case class Book(id: Vid,
                 name: String,
@@ -13,21 +13,16 @@ case class Book(id: Vid,
   def hasPage(ref: Vurl): Boolean = pages.contains(ref)
   def hasBlob(ref: Vurl): Boolean = ???
 
-  def allBlobs(): Iterator[BlobData] = ???
+  def allBlobs(): Iterator[DataRow.Blob] =
+    allContents.collect{case (l : DataRow.Blob, c) => l}
 
-  def unresolvedLinks: List[LinkWithReferer] =
-    allLinks.filter(l => !hasPage(l.link.ref)).toList
-
-
-  def volatileAndEmptyLinks: List[LinkWithReferer] =
-    allLinks.filter(_.link.data.contains(Volatile.toString)).toList
-
-  def allLinks: Iterator[LinkWithReferer] = {
-    pages.valuesIterator.flatMap(dr => dr.contents.iterator.map(c => (c, dr)))
-      .collect{case (l : DataRow.Link, c) => LinkWithReferer(l, c.loc.getOrElse(c.ref)) }
+  def allLinks: Iterator[WithReferer] = {
+    allContents.collect{case (l : DataRow.Link, c) => WithReferer(l, c.loc.getOrElse(c.ref)) }
   }
 
-  def addBlob(blob: BlobData): Book = ???
+  private def allContents: Iterator[(DataRow.Content, DataRow)] = {
+    pages.valuesIterator.flatMap(dr => dr.contents.iterator.map(c => (c, dr)))
+  }
 
   /** Add a new page to this book.
     *

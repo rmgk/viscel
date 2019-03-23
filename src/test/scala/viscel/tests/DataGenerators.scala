@@ -4,10 +4,11 @@ import java.time.Instant
 
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
-import viscel.crawl.{CrawlTask, VRequest}
+import viscel.crawl.VRequest
 import viscel.shared.Blob
+import viscel.store.Vurl
+import viscel.store.v3.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Volatile}
 import viscel.store.v4.DataRow
-import viscel.store.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Volatile, Vurl}
 
 object DataGenerators {
   implicit val genBlob: Arbitrary[Blob] = Arbitrary(for {sha <- Gen.alphaNumStr
@@ -41,12 +42,7 @@ object DataGenerators {
   implicit val genVRequest: Arbitrary[VRequest] = Arbitrary(for {
     href <- arbitrary[Vurl]
     origin <- arbitrary[Option[Vurl]]
-  } yield VRequest(href, origin))
-  implicit val genCrawlTaskPage: Arbitrary[CrawlTask.Page] = Arbitrary(for {
-    req <- arbitrary[VRequest]
-    from <- arbitrary[Link]
-  } yield CrawlTask.Page(req, from))
-  implicit val genCrawlTask: Arbitrary[CrawlTask] = Arbitrary(arbitrary[CrawlTask.Page])
+  } yield VRequest(DataRow.Link(href), origin))
 
   implicit val genDataRow: Arbitrary[DataRow] = Arbitrary(for {
     vurl <- arbitrary[Vurl]

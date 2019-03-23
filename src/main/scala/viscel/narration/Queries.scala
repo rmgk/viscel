@@ -8,7 +8,8 @@ import org.scalactic._
 import viscel.narration.interpretation.NarrationInterpretation.{Append, WrapPart, Wrapper}
 import viscel.selection.ReportTools._
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
-import viscel.store.{Chapter, ImageRef, Link, Vurl, WebContent}
+import viscel.store.Vurl
+import viscel.store.v4.DataRow
 
 import scala.util.matching.Regex
 
@@ -22,17 +23,17 @@ object Queries {
     case _ => Bad(One(FailedElement(s"extract uri", UnhandledTag, element)))
   }
 
-  def selectMore(elements: List[Element]): List[Link] Or Every[Report] =
+  def selectMore(elements: List[Element]): List[DataRow.Link] Or Every[Report] =
     if (elements.isEmpty) Good(Nil)
     else elements.validatedBy(extractMore).flatMap {
       case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
       case pointers => Bad(One(FailedElement("next not unique", QueryNotUnique, elements: _*)))
     }
 
-  def extractMore(element: Element): Link Or Every[Report] =
-    extractURL(element).map(uri => Link(uri))
+  def extractMore(element: Element): DataRow.Link Or Every[Report] =
+    extractURL(element).map(uri => DataRow.Link(uri))
 
-  def intoArticle(img: Element): ImageRef Or Every[Report] = {
+  def intoArticle(img: Element): DataRow.Link Or Every[Report] = {
     def getAttr(k: String): Option[(String, String)] = {
       val res = img.attr(k)
       if (res.isEmpty) None else Some(k -> res)
@@ -40,54 +41,50 @@ object Queries {
 
     img.tagName() match {
       case "img" =>
-        extract(ImageRef(
+        extract(DataRow.ImageRef(
           ref = Vurl.fromString(img.attr("abs:src")),
-          origin = Vurl.fromString(img.ownerDocument().location()),
           data = List("alt", "title", "width", "height").flatMap(getAttr).toMap))
       case "embed" =>
-        extract(ImageRef(
+        extract(DataRow.ImageRef(
           ref = Vurl.fromString(img.attr("abs:src")),
-          origin = Vurl.fromString(img.ownerDocument().location()),
           data = List("width", "height", "type").flatMap(getAttr).toMap))
       case "object" =>
-        extract(ImageRef(
+        extract(DataRow.ImageRef(
           ref = Vurl.fromString(img.attr("abs:data")),
-          origin = Vurl.fromString(img.ownerDocument().location()),
           data = List("width", "height", "type").flatMap(getAttr).toMap))
       case _ =>
         val extractBG = """.*background\-image\:url\(([^)]+)\).*""".r("url")
         img.attr("style") match {
           case extractBG(url) =>
-            extract(ImageRef(
-              ref = Vurl.fromString(StringUtil.resolve(img.ownerDocument().location(), url)),
-              origin = Vurl.fromString(img.ownerDocument().location())))
+            extract(DataRow.ImageRef(
+              ref = Vurl.fromString(StringUtil.resolve(img.ownerDocument().location(), url))))
           case _ => Bad(One(FailedElement(s"into article", UnhandledTag, img)))
         }
     }
 
   }
 
-  def extractChapter(elem: Element): Chapter Or Every[Report] = extract {
+  def extractChapter(elem: Element): DataRow.Chapter Or Every[Report] = extract {
     def firstNotEmpty(choices: String*) = choices.find(!_.isBlank).getOrElse("")
 
-    Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
+    DataRow.Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
   }
 
-  def queryImage(query: String): WrapPart[List[ImageRef]] = Selection.unique(query).wrapEach(intoArticle)
-  def queryImages(query: String): WrapPart[List[ImageRef]] = Selection.many(query).wrapEach(intoArticle)
+  def queryImage(query: String): WrapPart[List[DataRow.Link]] = Selection.unique(query).wrapEach(intoArticle)
+  def queryImages(query: String): WrapPart[List[DataRow.Link]] = Selection.many(query).wrapEach(intoArticle)
   /** extracts article at query result
     * optionally extracts direct parent of query result as link */
-  def queryImageInAnchor(query: String): Wrapper = Selection.unique(query).wrapFlat[WebContent] { image =>
-    intoArticle(image).map[List[WebContent]] { (art: ImageRef) =>
-      val wc: List[WebContent] = extractMore(image.parent()).toOption.toList
+  def queryImageInAnchor(query: String): Wrapper = Selection.unique(query).wrapFlat[DataRow.Content] { image =>
+    intoArticle(image).map { art: DataRow.Link =>
+      val wc: List[DataRow.Content] = extractMore(image.parent()).toOption.toList
       art ::  wc }
   }
-  def queryNext(query: String): WrapPart[List[Link]] = Selection.all(query).wrap(selectMore)
+  def queryNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).wrap(selectMore)
   def queryImageNext(imageQuery: String, nextQuery: String): Wrapper = {
     Append(queryImage(imageQuery), queryNext(nextQuery))
   }
   def queryMixedArchive(query: String): Wrapper = {
-    def intoMixedArchive(elem: Element): WebContent Or Every[Report] = {
+    def intoMixedArchive(elem: Element): DataRow.Content Or Every[Report] = {
       if (elem.tagName() === "a") extractMore(elem)
       else extractChapter(elem)
     }
@@ -97,21 +94,21 @@ object Queries {
 
   def queryChapterArchive(query: String): Wrapper = {
     /** takes an element, extracts its uri and text and generates a description pointing to that chapter */
-    def elementIntoChapterPointer(chapter: Element): Contents =
+    def elementIntoChapterPointer(chapter: Element): List[DataRow.Content] Or Every[Report] =
       combine(extractChapter(chapter), extractMore(chapter))
 
     Selection.many(query).wrapFlat(elementIntoChapterPointer)
   }
 
 
-  def chapterReverse(stories: List[WebContent]): List[WebContent] = {
+  def chapterReverse(stories: List[DataRow.Content]): List[DataRow.Content] = {
     def groupedOn[T](l: List[T])(p: T => Boolean): List[List[T]] = l.foldLeft(List[List[T]]()) {
       case (acc, t) if p(t) => List(t) :: acc
       case (Nil, t)         => List(t) :: Nil
       case (a :: as, t)     => (t :: a) :: as
     }.map(_.reverse).reverse
 
-    groupedOn(stories) { case Chapter(_) => true; case _ => false }.reverse.flatMap {
+    groupedOn(stories) { case DataRow.Chapter(_) => true; case _ => false }.reverse.flatMap {
       case h :: t => h :: t.reverse
       case Nil    => Nil
     }
