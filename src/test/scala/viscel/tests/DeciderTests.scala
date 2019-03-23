@@ -1,11 +1,11 @@
 package viscel.tests
 
 import org.scalatest.FreeSpec
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import viscel.crawl.{CrawlTask, Decider}
 import viscel.tests.DataGenerators._
 
-class DeciderTests extends FreeSpec with GeneratorDrivenPropertyChecks {
+class DeciderTests extends FreeSpec with ScalaCheckDrivenPropertyChecks {
 
   val empty = Decider()
 

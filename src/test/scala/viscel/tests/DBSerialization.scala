@@ -5,13 +5,13 @@ import java.time.Instant
 import io.circe.syntax._
 import org.scalacheck.Gen
 import org.scalatest.FreeSpec
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import viscel.shared.Blob
 import viscel.store.CustomPicklers._
 import viscel.store.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Vurl}
 import viscel.tests.DataGenerators._
 
-class DBSerialization extends FreeSpec with GeneratorDrivenPropertyChecks {
+class DBSerialization extends FreeSpec with ScalaCheckDrivenPropertyChecks {
 
   val pageJson = """{"$type":"Page","ref":"http://xkcd.com/1/","loc":"http://xkcd.com/1/","date":"2016-08-03T20:04:33.010Z","contents":[{"$type":"Article","ref":"http://imgs.xkcd.com/comics/barrel_cropped_(1).jpg","origin":"http://xkcd.com/1/","data":{"alt":"Barrel - Part 1","title":"Don't we all.","longcomment":"Don't we all."}},{"$type":"Link","ref":"http://xkcd.com/2/"}]}"""
   val pageData = PageData(

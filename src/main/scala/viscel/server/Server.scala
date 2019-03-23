@@ -38,9 +38,9 @@ class Server(userStore: Users,
     path(name){getFromFile(staticPath.resolve(file).toFile)}
 
   val staticRoute: Route =
-    stc("js", "web-fastopt.js.gz") ~
+    stc("js", "viscel-web-fastopt.js.gz") ~
     stc("css", "style.css.gz") ~
-    stc("web-fastopt.js.map", "web-fastopt.js.map.gz") ~
+    stc("viscel-web-fastopt.js.map", "viscel-web-fastopt.js.map.gz") ~
     stc("style.css.map", "style.css.map.gz")
 
 

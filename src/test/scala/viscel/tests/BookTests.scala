@@ -2,12 +2,12 @@ package viscel.tests
 
 import org.scalacheck.Arbitrary
 import org.scalatest.FreeSpec
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import viscel.shared.Vid
 import viscel.store.{BlobData, Book, PageData, ScribeDataRow}
 import viscel.tests.DataGenerators._
 
-class BookTests extends FreeSpec with GeneratorDrivenPropertyChecks {
+class BookTests extends FreeSpec with ScalaCheckDrivenPropertyChecks {
 
   val empty = Book(Vid.from("Test"), "Testbook")
 
@@ -26,7 +26,7 @@ class BookTests extends FreeSpec with GeneratorDrivenPropertyChecks {
       assert(one.allPages().toList === List(page))
       assert(count.isDefined)
 
-      assert(one.addPage(page) === (one, None), "adding is idempotent")
+      assert(one.addPage(page) === (one -> None), "adding is idempotent")
 
     }
   }

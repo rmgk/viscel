@@ -18,7 +18,7 @@ object DataGenerators {
     url <- genVurl.arbitrary
     data <- Gen.listOf(arbitrary[String])
   } yield Link(url, policy, data))
-  implicit val genInstant: Arbitrary[Instant] = Arbitrary(arbitrary[Int].map((i: Int) => Instant.ofEpochSecond(i)))
+  implicit val genInstant: Arbitrary[Instant] = Arbitrary(arbitrary[Long].map((i: Long) => Instant.ofEpochSecond(i)))
   implicit val genImageRef: Arbitrary[ImageRef] = Arbitrary(for {
     ref <- genVurl.arbitrary
     origin <- genVurl.arbitrary
