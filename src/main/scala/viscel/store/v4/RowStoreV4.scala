@@ -8,7 +8,7 @@ import io.circe.syntax._
 import viscel.narration.Narrator
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.Vid
-import viscel.store.Json
+import viscel.store.{Book, Json}
 import viscel.store.v4.V4Codecs._
 
 class RowStoreV4 (db4dir: Path) {
@@ -49,12 +49,17 @@ class RowStoreV4 (db4dir: Path) {
       }
     }
 
+  def loadBook(id: Vid): Book = {
+    val (name, rows) = load(id)
+    Book.fromEntries(id, name, rows)
   }
 
-  class RowAppender(file: File) {
-    def append(row: DataRow): Unit = {
-      Log.trace(s"Store $row into $file")
-      file.appendLine(row.asJson.noSpaces)(charset = StandardCharsets.UTF_8)
-    }
 
+}
+
+class RowAppender(file: File) {
+  def append(row: DataRow): Unit = {
+    Log.trace(s"Store $row into $file")
+    file.appendLine(row.asJson.noSpaces)(charset = StandardCharsets.UTF_8)
+  }
 }

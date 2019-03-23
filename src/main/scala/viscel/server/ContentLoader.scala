@@ -1,7 +1,10 @@
 package viscel.server
 
-import viscel.shared.{ChapterPos, Contents, Description, Gallery, Log, SharedImage, Vid}
+import viscel.shared.{Blob, ChapterPos, Contents, Description, Gallery, Log, SharedImage, Vid}
 import viscel.store._
+import viscel.store.v4.DataRow
+
+import cats.implicits.catsSyntaxOptionId
 
 import scala.collection.mutable
 
@@ -43,43 +46,64 @@ object ContentLoader {
 
   def size(book: Book): Int = ContentLoader.linearizedPages(book).count {_.isInstanceOf[Article]}
 
+  case class OriginData(link: DataRow.Link) {
+    def dataMap: Map[String, String] = link.data.sliding(2, 2).filter(_.size == 2).map {
+      case List(a, b) => a -> b
+    }.toMap
+  }
+
   def linearizedPages(book: Book): List[ReadableContent] = {
 
     //Log.Scribe.info(s"pages for ${book.id}")
 
-    val seen = mutable.HashSet[Vurl]()
+    val seenOrigins = mutable.HashMap[Vurl, Vurl]()
 
-    def unseen(contents: List[WebContent]): List[WebContent] = {
+
+    def unseen(origin: Vurl, contents: List[DataRow.Content]): List[DataRow.Content] = {
       contents.filter {
-        case link@Link(loc, policy, data) => seen.add(loc)
-        case _                            => true
+        case link @ DataRow.Link(loc, data) =>
+          if (seenOrigins.contains(loc)) false
+          else {
+            seenOrigins += (loc -> origin)
+            true
+          }
+        case _                              => true
       }
     }
 
     @scala.annotation.tailrec
-    def flatten(remaining: List[WebContent], acc: List[ReadableContent]): List[ReadableContent] = {
+    def flatten(lastLink: Option[OriginData],
+                remaining: List[DataRow.Content],
+                acc: List[ReadableContent]): List[ReadableContent] = {
       remaining match {
         case Nil    => acc
         case h :: t => h match {
-          case Link(loc, policy, data)         =>
+          case l @ DataRow.Link(loc, _) =>
             book.pages.get(loc) match {
-              case None      => flatten(t, acc)
-              case Some(alp) => flatten(unseen(alp.contents) reverse_::: t, acc)
+              case None      => flatten(lastLink, t, acc)
+              case Some(alp) => flatten(OriginData(l).some,
+                                        unseen(alp.ref, alp.contents) reverse_::: t,
+                                        acc)
             }
-          case art@ImageRef(ref, origin, data) =>
-            val blob = book.blobs.get(ref).map(_.blob)
-            flatten(t, Article(art, blob) :: acc)
-          case chap@Chapter(_)                 => flatten(t, chap :: acc)
+          case DataRow.Blob(sha1, mime) =>
+            val ll = lastLink.get
+            flatten(lastLink, t,
+                    Article(
+                      ImageRef(ll.link.ref,
+                               seenOrigins(ll.link.ref),
+                               ll.dataMap
+                      ), Some(Blob(sha1, mime))) :: acc)
+          case DataRow.Chapter(str)     => flatten(lastLink, t, Chapter(str) :: acc)
         }
       }
     }
 
     book.beginning match {
       case None              =>
-        Log.Scribe.warn(s"Book ${book.id} was emtpy")
+        Log.Scribe.warn(s"Book ${book.id} was empty")
         Nil
       case Some(initialPage) =>
-        flatten(unseen(initialPage.contents.reverse), Nil)
+        flatten(None, unseen(initialPage.ref, initialPage.contents.reverse), Nil)
     }
 
   }
@@ -95,14 +119,14 @@ object ContentLoader {
         case Nil    => (art, chap)
         case h :: t =>
           h match {
-            case Article(ImageRef(ref, origin, data), blob) =>
+            case Article(ImageRef(_, origin, data), blob) =>
               val article = SharedImage(origin = origin.uriString, blob, data)
               recurse(t, article :: art, if (chap.isEmpty) List(ChapterPos("", 0)) else chap, c + 1)
-            case Chapter(name)                              => recurse(t,
-                                                                       art,
-                                                                       ChapterPos(name,
-                                                                                  c) :: chap,
-                                                                       c)
+            case Chapter(name)                            => recurse(t,
+                                                                     art,
+                                                                     ChapterPos(name,
+                                                                                c) :: chap,
+                                                                     c)
           }
       }
     }

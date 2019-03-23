@@ -24,9 +24,6 @@ object DataRow {
   final case class Link(ref: Vurl, data: List[String] = Nil) extends Content
   final case class Blob(sha1: String, mime: String) extends Content
   final case class Chapter(name: String) extends Content
-
-
-
 }
 
 object V4Codecs {

@@ -6,6 +6,7 @@ import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 import viscel.crawl.{CrawlTask, VRequest}
 import viscel.shared.Blob
+import viscel.store.v4.DataRow
 import viscel.store.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Volatile, Vurl}
 
 object DataGenerators {
@@ -41,13 +42,13 @@ object DataGenerators {
     href <- arbitrary[Vurl]
     origin <- arbitrary[Option[Vurl]]
   } yield VRequest(href, origin))
-  implicit val genCrawlTaskImage: Arbitrary[CrawlTask.Image] = Arbitrary(for {
-    req <- arbitrary[VRequest]
-  } yield CrawlTask.Image(req))
   implicit val genCrawlTaskPage: Arbitrary[CrawlTask.Page] = Arbitrary(for {
     req <- arbitrary[VRequest]
     from <- arbitrary[Link]
   } yield CrawlTask.Page(req, from))
-  implicit val genCrawlTask: Arbitrary[CrawlTask] = Arbitrary(
-    Gen.oneOf(arbitrary[CrawlTask.Image], arbitrary[CrawlTask.Page]))
+  implicit val genCrawlTask: Arbitrary[CrawlTask] = Arbitrary(arbitrary[CrawlTask.Page])
+
+  implicit val genDataRow: Arbitrary[DataRow] = Arbitrary(for {
+    vurl <- arbitrary[Vurl]
+  } yield DataRow(vurl, contents = Nil))
 }

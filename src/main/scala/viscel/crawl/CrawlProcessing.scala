@@ -1,103 +1,96 @@
 package viscel.crawl
 
-import java.time.Instant
-
-import viscel.crawl.CrawlProcessing.{imageRefTask, initialTasks, linkTask, rechecks}
+import viscel.crawl.CrawlProcessing.{initialTasks, linkTask, rechecks}
 import viscel.narration.Narrator
 import viscel.narration.interpretation.NarrationInterpretation
-import viscel.shared.{Blob, Log}
-import viscel.store.{BlobData, BlobStore, Book, ImageRef, Link, PageData, Volatile, Vurl, WebContent}
+import viscel.shared.Log
+import viscel.store._
+import viscel.store.v4.DataRow
+import cats.implicits.catsSyntaxOptionId
 
 import scala.collection.mutable
 
 class CrawlProcessing(narrator: Narrator) {
 
-  def init(book: Book): Option[PageData] = {
+  def init(book: Book): Option[DataRow] = {
     val entry = book.beginning
-    if (entry.isEmpty || entry.get.contents != narrator.archive) {
-      Some(PageData(Vurl.entrypoint, Vurl.entrypoint, date = Instant.now(), contents = narrator.archive))
+    val transformed = narrator.archive.map(RowStoreTransition.transformContent)
+    if (entry.isEmpty || entry.get.contents != transformed) {
+      Some(DataRow(Vurl.entrypoint, contents = transformed))
     } else None
   }
 
 
   def decider(book: Book): Decider = Decider(recheck = rechecks(book)).addTasks(initialTasks(book))
 
-  def processImageResponse(request: VRequest, response: VResponse[Array[Byte]]): BlobData = {
-    BlobData(request.href, response.location,
-             blob = Blob(
-               sha1 = BlobStore.sha1hex(response.content),
-               mime = response.mime),
-             date = response.lastModified.getOrElse(Instant.now()))
+  def processImageResponse(request: VRequest, response: VResponse[Array[Byte]]): DataRow = {
+    val contents = List(DataRow.Blob(
+      sha1 = BlobStore.sha1hex(response.content),
+      mime = response.mime))
+    toDataRow(request.href, response, contents)
   }
 
-
-  def processPageResponse(book: Book, link: Link, response: VResponse[String]): PageData = {
+  def processPageResponse(book: Book, link: Link, response: VResponse[String]): DataRow = {
     val contents = NarrationInterpretation.NI(link, response)
                    .interpret[List[WebContent]](narrator.wrapper)
                    .fold(identity, r => throw WrappingException(link, r))
+                   .map(RowStoreTransition.transformContent)
 
-
-    PageData(link.ref,
-             response.location,
-             contents = contents,
-             date = response.lastModified.getOrElse(Instant.now()))
+    toDataRow(link.ref, response, contents)
+  }
+  def toDataRow(request: Vurl,
+                        response: VResponse[_],
+                        contents: List[DataRow.Content]): DataRow = {
+    DataRow(request,
+            response.location.some.filter(_ != request),
+            response.lastModified,
+            response.etag,
+            contents)
   }
 
 
-  def computeTasks(pageData: PageData, book: Book): List[CrawlTask] = {
+  def computeTasks(pageData: DataRow, book: Book): List[CrawlTask] = {
     pageData.contents.collect {
-      case ir@ImageRef(_, _, _) if !book.hasBlob(ir.ref) => imageRefTask(ir)
-      case l@Link(_, _, _) if !book.hasPage(l.ref)       => linkTask(l)
+      case l: DataRow.Link if !book.hasPage(l.ref) => linkTask(LinkWithReferer(l, pageData.ref))
     }
   }
 }
 
 object CrawlProcessing {
-  def imageRefTask(ir: ImageRef): CrawlTask.Image = CrawlTask.Image(VRequest(ir.ref, Some(ir.origin)))
-  def linkTask(link: Link): CrawlTask.Page = CrawlTask.Page(VRequest(link.ref, None), link)
+  val VolativeStr = Volatile.toString
+  def linkTask(lwr: LinkWithReferer): CrawlTask.Page =
+    CrawlTask.Page(VRequest(lwr.link.ref, Some(lwr.referer)),
+                   Link(lwr.link.ref, lwr.link.data.headOption match {
+                     case Some(VolativeStr) => Volatile
+                     case otherwise               => Normal
+                   },
+                        lwr.link.data.filterNot(_ == Volatile.toString)))
 
-  def initialTasks(book: Book): List[CrawlTask] = emptyImageRefs(book).map(imageRefTask) :::
-                                                  volatileAndEmptyLinks(book)
-                                                  .map(linkTask)
+  def initialTasks(book: Book): List[CrawlTask] = book.unresolvedLinks.map(linkTask) :::
+                                                  book.volatileAndEmptyLinks.map(linkTask)
   def rechecks(book: Book): List[CrawlTask] = computeRightmostLinks(book).map(linkTask)
-
-
-  def pageContents(book: Book): Iterator[WebContent] = {
-    book.allPages().flatMap(_.contents)
-  }
-
-  def emptyImageRefs(book: Book): List[ImageRef] = pageContents(book).collect {
-    case art@ImageRef(ref, _, _) if !book.hasBlob(ref) => art
-  }.toList
-
-  def volatileAndEmptyLinks(book: Book): List[Link] = pageContents(book).collect {
-    case link@Link(ref, Volatile, _)                => link
-    case link@Link(ref, _, _) if !book.hasPage(ref) => link
-  }.toList
 
 
   /** Starts from the entrypoint, traverses the last Link,
     * collect the path, returns the path from the rightmost child to the root. */
-  def computeRightmostLinks(book: Book): List[Link] = {
+  def computeRightmostLinks(book: Book): List[LinkWithReferer] = {
 
     val seen = mutable.HashSet[Vurl]()
 
     @scala.annotation.tailrec
-    def rightmost(current: PageData, acc: List[Link]): List[Link] = {
+    def rightmost(current: DataRow, acc: List[LinkWithReferer]): List[LinkWithReferer] = {
       /* Get the last Link for the current PageData  */
       val next = current.contents.reverseIterator.find {
-        case Link(loc, _, _) if seen.add(loc) => true
-        case _                                => false
-      } collect { // essentially a typecast …
-                   case l@Link(_, _, _) => l
-                 }
+        case DataRow.Link(loc, _) if seen.add(loc) => true
+        case _                                     => false
+      } collect { case l: DataRow.Link => LinkWithReferer(l, current.ref) }
       next match {
         case None       => acc
         case Some(link) =>
-          book.pages.get(link.ref) match {
-            case None             => link :: acc
-            case Some(scribePage) =>
-              rightmost(scribePage, link :: acc)
+          book.pages.get(link.link.ref) match {
+            case None          => link :: acc
+            case Some(dataRow) =>
+              rightmost(dataRow, link :: acc)
           }
       }
     }

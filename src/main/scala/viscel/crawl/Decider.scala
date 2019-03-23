@@ -1,8 +1,7 @@
 package viscel.crawl
 
 
-case class Decider(images: List[CrawlTask] = Nil,
-                   links: List[CrawlTask] = Nil,
+case class Decider(links: List[CrawlTask] = Nil,
                    recheck: List[CrawlTask] = Nil,
                    requestAfterRecheck: Int = 0,
                    imageDecisions: Int = 0,
@@ -22,21 +21,11 @@ case class Decider(images: List[CrawlTask] = Nil,
 
     toAdd.reverse.foldLeft(nextDecider) {
       case (dec, ct@CrawlTask.Page(_, _)) => dec.copy(links = ct :: dec.links)
-      case (dec, art@CrawlTask.Image(_)) => dec.copy(images = art :: dec.images)
       case (dec, _) => dec
     }
   }
 
-  def decide(): Decision = tryNextImage()
-
-  private def tryNextImage(): Decision = {
-    images match {
-      case h :: t =>
-        Some((h, copy(images = t, imageDecisions = imageDecisions + 1)))
-      case Nil =>
-        tryNextLink()
-    }
-  }
+  def decide(): Decision = tryNextLink()
 
   private def tryNextLink(): Decision = {
     links match {

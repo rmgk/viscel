@@ -152,7 +152,7 @@ akka {
 
   lazy val crawl: Crawl = new Crawl(blobStore = blobStore,
                                     requestUtil = requests,
-                                    rowStore = rowStore,
+                                    rowStore = rowStore.newStore,
                                     descriptionCache = descriptionCache)(executionContext)
 
   lazy val clockwork: Clockwork = new Clockwork(path = cachedir.resolve("crawl-times.json"),

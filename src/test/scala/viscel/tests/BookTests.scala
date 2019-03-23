@@ -4,7 +4,8 @@ import org.scalacheck.Arbitrary
 import org.scalatest.FreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import viscel.shared.Vid
-import viscel.store.{BlobData, Book, PageData, ScribeDataRow}
+import viscel.store.v4.DataRow
+import viscel.store.{BlobData, Book}
 import viscel.tests.DataGenerators._
 
 class BookTests extends FreeSpec with ScalaCheckDrivenPropertyChecks {
@@ -20,10 +21,10 @@ class BookTests extends FreeSpec with ScalaCheckDrivenPropertyChecks {
 
       assert(one.addBlob(blob) === one, "adding is idempotent")
     }
-    "add page" in forAll { page: PageData =>
+    "add page" in forAll { page: DataRow =>
       val (one, count) = empty.addPage(page)
       assert(one.hasPage(page.ref))
-      assert(one.allPages().toList === List(page))
+      assert(one.allLinks.map(_.link).toList === List(page))
       assert(count.isDefined)
 
       assert(one.addPage(page) === (one -> None), "adding is idempotent")
@@ -33,30 +34,25 @@ class BookTests extends FreeSpec with ScalaCheckDrivenPropertyChecks {
 
 
   "loading" - {
-    "from entries behaves as adding individually" in forAll { rows: List[ScribeDataRow] =>
+    "from entries behaves as adding individually" in forAll { rows: List[DataRow] =>
       val load = Book.fromEntries(empty.id, empty.name, rows)
       val addAll = rows.foldLeft(empty) {
-        case (b, blobData: BlobData) => b.addBlob(blobData)
-        case (b, pageData: PageData) => b.addPage(pageData)._1
+        case (b, pageData) => b.addPage(pageData)._1
       }
       assert(load === addAll)
     }
-    "adding pages, no count no changes" in forAll { rows: List[ScribeDataRow] =>
+    "adding pages, no count no changes" in forAll { rows: List[DataRow] =>
       val duplicated = scala.util.Random.shuffle(rows reverse_::: rows)
-      duplicated.foldLeft(empty) {
-        case (b, blobData: BlobData) => b.addBlob(blobData)
-        case (b, pageData: PageData) =>
-          val (next, count) = b.addPage(pageData)
-          if (count.isEmpty) {
-            assert(next === b)
-          }
-          next
+      duplicated.foldLeft(empty) { case (b, pageData) =>
+        val (next, count) = b.addPage(pageData)
+        if (count.isEmpty) {
+          assert(next === b)
+        }
+        next
       }
 
     }
   }
-
-
 
 
 }

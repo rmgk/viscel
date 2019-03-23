@@ -14,6 +14,7 @@ import viscel.store.v4.{DataRow, RowStoreV4}
 
 class RowStore(db3dir: Path, db4dir: Path) {
 
+
   val oldBase  = File(db3dir)
   val newBase  = File(db4dir)
   val newStore = new RowStoreV4(db4dir)
@@ -40,7 +41,7 @@ class RowStore(db3dir: Path, db4dir: Path) {
   }
 
   def allVids(): List[Vid] = synchronized {
-    oldBase.list(_.isRegularFile, 1).map(f => Vid.from(f.name)).toList
+    File(db4dir).list(_.isRegularFile, 1).map(f => Vid.from(f.name)).toList
   }
 
 
@@ -66,37 +67,38 @@ class RowStore(db3dir: Path, db4dir: Path) {
     }
   }
 
-  def loadBook(id: Vid): Book = {
-    ???
-  }
+  def loadBook(id: Vid) = newStore.loadBook(id)
+
 
 }
 
-class RowAppender(newAppend: DataRow => Unit) {
-  def append(row: ScribeDataRow): Unit = {
+object RowStoreTransition {
+  def transform(row: ScribeDataRow): DataRow = {
     val (ref, loc, date, newContents) = row match {
       case PageData(ref, loc, date, contents) =>
-
-        val newContents = contents.map {
-          case Chapter(name)           => DataRow.Chapter(name)
-          case ImageRef(ref, _, data)  => DataRow.Link(ref,
-                                                       data.toList.flatMap(p => List(p._1, p._2)))
-          case Link(ref, policy, data) => DataRow.Link(ref, policy.toString :: data)
-        }
-        (ref, loc, date, newContents)
+        (ref, loc, date, contents.map(transformContent))
 
       case BlobData(ref, loc, date, Blob(sha1, mime)) =>
         (ref, loc, date, List(DataRow.Blob(sha1, mime)))
     }
 
-    val dr = DataRow(ref,
-                     if (ref != loc) Some(loc) else None,
-                     if (date.isBefore(Instant.now()
-                                       .minus(1, ChronoUnit.MINUTES))) Some(date) else None,
-                     None,
-                     newContents)
+    DataRow(ref,
+            if (ref != loc) Some(loc) else None,
+            if (date.isBefore(Instant.now()
+                              .minus(1, ChronoUnit.MINUTES))) Some(date) else None,
+            None,
+            newContents)
+  }
+  def transformContent(contents: WebContent): DataRow.Content = contents match {
+    case Chapter(name)           => DataRow.Chapter(name)
+    case ImageRef(ref, _, data)  => DataRow.Link(ref,
+                                                 data.toList.flatMap(p => List(p._1, p._2)))
+    case Link(ref, policy, data) => DataRow.Link(ref, policy.toString :: data)
+  }
+}
 
-    newAppend(dr)
-
+class RowAppender(newAppend: DataRow => Unit) {
+  def append(row: ScribeDataRow): Unit = {
+    newAppend(RowStoreTransition.transform(row))
   }
 }

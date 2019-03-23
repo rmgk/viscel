@@ -1,29 +1,42 @@
 package viscel.store
 
 import viscel.shared.Vid
+import viscel.store.v4.DataRow
+
+case class LinkWithReferer(link: DataRow.Link, referer: Vurl)
 
 case class Book(id: Vid,
                 name: String,
-                pages: Map[Vurl, PageData] = Map(),
-                blobs: Map[Vurl, BlobData] = Map(),
+                pages: Map[Vurl, DataRow] = Map()
                ) {
-  def beginning: Option[PageData] = pages.get(Vurl.entrypoint)
+  def beginning: Option[DataRow] = pages.get(Vurl.entrypoint)
   def hasPage(ref: Vurl): Boolean = pages.contains(ref)
-  def hasBlob(ref: Vurl): Boolean = blobs.contains(ref)
+  def hasBlob(ref: Vurl): Boolean = ???
 
-  def allBlobs(): Iterator[BlobData] = blobs.valuesIterator
-  def allPages(): Iterator[PageData] = pages.valuesIterator
+  def allBlobs(): Iterator[BlobData] = ???
 
-  def addBlob(blob: BlobData): Book = copy(blobs = blobs.updated(blob.ref, blob))
+  def unresolvedLinks: List[LinkWithReferer] =
+    allLinks.filter(l => !hasPage(l.link.ref)).toList
+
+
+  def volatileAndEmptyLinks: List[LinkWithReferer] =
+    allLinks.filter(_.link.data.contains(Volatile.toString)).toList
+
+  def allLinks: Iterator[LinkWithReferer] = {
+    pages.valuesIterator.flatMap(dr => dr.contents.iterator.map(c => (c, dr)))
+      .collect{case (l : DataRow.Link, c) => LinkWithReferer(l, c.loc.getOrElse(c.ref)) }
+  }
+
+  def addBlob(blob: BlobData): Book = ???
 
   /** Add a new page to this book.
+    *
     * @return New book and an estimate of the increased size, or None if the book is unchanged. */
-  def addPage(entry: PageData): (Book, Option[Int]) = {
+  def addPage(entry: DataRow): (Book, Option[Int]) = {
     val oldPage = pages.get(entry.ref)
-    if (oldPage.isEmpty || oldPage.get.differentContent(entry)) {
+    if (oldPage.isEmpty || oldPage.get != entry) {
       val newBook = copy(pages = pages.updated(entry.ref, entry))
-      val oldCount = oldPage.fold(0)(_.articleCount)
-      (newBook, Some(entry.articleCount - oldCount))
+      (newBook, Some(0))
     }
     else (this, None)
   }
@@ -33,16 +46,9 @@ case class Book(id: Vid,
 object Book {
   def fromEntries(id: Vid,
                   name: String,
-                  entryList: Seq[ScribeDataRow])
+                  entryList: Iterable[DataRow])
   : Book = {
-    val pages: Map[Vurl, PageData] = entryList.collect {
-      case pd@PageData(ref, _, date, contents) => (ref, pd)
-    }(scala.collection.breakOut)
-
-    val blobs: Map[Vurl, BlobData] = entryList.collect {
-      case bd@BlobData(ref, loc, date, blob) => (ref, bd)
-    }(scala.collection.breakOut)
-
-    Book(id, name, pages, blobs)
+    val pages: Map[Vurl, DataRow] = entryList.map(pd  => (pd.ref, pd))(scala.collection.breakOut)
+    Book(id, name, pages)
   }
 }

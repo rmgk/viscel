@@ -4,12 +4,13 @@ import java.time.Instant
 
 import akka.http.scaladsl.HttpExt
 import akka.http.scaladsl.coding.{Deflate, Gzip}
-import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Accept-Encoding`, `Last-Modified`}
+import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Accept-Encoding`, `Last-Modified`, ETag}
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import viscel.shared.Log
 import viscel.store.Vurl
+import cats.implicits.catsSyntaxEitherId
 
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,6 +32,8 @@ class AkkaHttpRequester(ioHttp: HttpExt)
     httpResponse.header[Location].fold(base)(l => Vurl.fromUri(l.uri.resolvedAgainst(base.uri)))
   def extractLastModified(httpResponse: HttpResponse): Option[Instant] =
     httpResponse.header[`Last-Modified`].map(h => Instant.ofEpochMilli(h.date.clicks))
+  def extractEtag(httpResponse: HttpResponse): Option[String] =
+    httpResponse.header[ETag].map(_.toString())
 
 
   private def requestWithRedirects(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
@@ -62,25 +65,19 @@ class AkkaHttpRequester(ioHttp: HttpExt)
       VResponse(resp,
                 location = extractResponseLocation(request.href, resp),
                 mime = resp.entity.contentType.mediaType.toString(),
-                lastModified = extractLastModified(resp))
+                lastModified = extractLastModified(resp),
+                etag = extractEtag(resp))
     }
   }
 
 
-  override def getString(request: VRequest): Future[VResponse[String]] = {
+  override def get(request: VRequest): Future[VResponse[Either[Array[Byte], String]]] = {
     for {
       resp <- requestInternal(request)
-      html <- Unmarshal(resp.content).to[String]
-    }
-      yield resp.copy(content = html)
+      content <- if (resp.content.entity.contentType.mediaType.isText)
+                   Unmarshal(resp.content).to[String].map(_.asRight)
+                 else resp.content.entity.toStrict(timeout).map(_.data.toArray[Byte].asLeft)
+    } yield resp.copy(content = content)
   }
 
-  override def getBytes(request: VRequest): Future[VResponse[Array[Byte]]] = {
-    for {
-      resp <- requestInternal(request)
-      entity <- resp.content.entity.toStrict(timeout) //should be strict already, but we do not know here
-    }
-      yield resp.copy(content = entity.data.toArray[Byte])
-
-  }
 }
