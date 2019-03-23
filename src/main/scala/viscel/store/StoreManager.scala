@@ -6,49 +6,41 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 import better.files.File
-import viscel.narration.Narrator
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.{Blob, Vid}
 import viscel.store.CustomPicklers._
 import viscel.store.v4.{DataRow, RowStoreV4}
 
-class RowStore(db3dir: Path, db4dir: Path) {
+class StoreManager(db3dir: Path, db4dir: Path) {
 
 
   val oldBase  = File(db3dir)
   val newBase  = File(db4dir)
   val newStore = new RowStoreV4(db4dir)
-  if (oldBase.isDirectory && newBase.isEmpty) {
-    Log.info(s"Updating `$oldBase` to `$newBase`, do not abort. " +
-             s"If something fails, delete `$newBase` to try again.")
-    oldBase.list(_.isRegularFile, 1).foreach { file =>
-      val id = Vid.from(file.name)
-      val (name, entries) = loadOld(id, oldBase)
-      val apppender = open(id, name)
-      entries.foreach(apppender.append)
+  val oldStore = new OldRowStore(db3dir)
+  def transition(): RowStoreV4 = {
+    if (oldBase.isDirectory && newBase.isEmpty) {
+      Log.info(s"Updating `$oldBase` to `$newBase`, do not abort. " +
+               s"If something fails, delete `$newBase` to try again.")
+      oldBase.list(_.isRegularFile, 1).foreach { file =>
+        val id = Vid.from(file.name)
+        val (name, entries) = oldStore.loadOld(id)
+        val apppender = newStore.open(id, name)
+        entries.foreach { entry =>
+          apppender.append(RowStoreTransition.transform(entry))
+        }
+      }
     }
+    newStore
   }
+}
 
+class OldRowStore(oldBase: Path) {
 
-  def open(narrator: Narrator): RowAppender = synchronized {
-    open(narrator.id, narrator.name)
-  }
-
-  private def open(id: Vid, name: String): RowAppender = synchronized {
-    val f = oldBase / id.str
-    if (!f.exists || f.size <= 0) Json.store(f.path, name)
-    new RowAppender(newStore.open(id, name).append)
-  }
-
-  def allVids(): List[Vid] = synchronized {
-    File(db4dir).list(_.isRegularFile, 1).map(f => Vid.from(f.name)).toList
-  }
-
-
-  def loadOld(id: Vid, basedir: File = newBase): (String, List[ScribeDataRow]) = synchronized {
+  def loadOld(id: Vid): (String, List[ScribeDataRow]) = synchronized {
     Log.info(s"loading $id")
 
-    val f = basedir / id.str
+    val f = File(oldBase) / id.str
 
     if (!f.isRegularFile || f.size == 0) throw new IllegalStateException(s"$f does not contain a book")
     else {
@@ -66,10 +58,6 @@ class RowStore(db3dir: Path, db4dir: Path) {
       (name, entryList)
     }
   }
-
-  def loadBook(id: Vid) = newStore.loadBook(id)
-
-
 }
 
 object RowStoreTransition {
@@ -94,11 +82,5 @@ object RowStoreTransition {
     case ImageRef(ref, _, data)  => DataRow.Link(ref,
                                                  data.toList.flatMap(p => List(p._1, p._2)))
     case Link(ref, policy, data) => DataRow.Link(ref, policy.toString :: data)
-  }
-}
-
-class RowAppender(newAppend: DataRow => Unit) {
-  def append(row: ScribeDataRow): Unit = {
-    newAppend(RowStoreTransition.transform(row))
   }
 }

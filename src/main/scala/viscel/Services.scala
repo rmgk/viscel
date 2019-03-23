@@ -16,7 +16,7 @@ import viscel.crawl.{AkkaHttpRequester, Clockwork, Crawl}
 import viscel.narration.Narrator
 import viscel.server.{ContentLoader, Interactions, Server, ServerPages}
 import viscel.shared.Log
-import viscel.store.{BlobStore, DescriptionCache, NarratorCache, RowStore, Users}
+import viscel.store.{BlobStore, DescriptionCache, NarratorCache, StoreManager, Users}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
@@ -49,7 +49,7 @@ class Services(relativeBasedir: Path,
   lazy val descriptionCache = new DescriptionCache(cachedir)
   lazy val blobStore        = new BlobStore(blobdir)
   lazy val userStore        = new Users(usersdir)
-  lazy val rowStore         = new RowStore(db3dir, db4dir)
+  lazy val rowStore         = new StoreManager(db3dir, db4dir).transition()
   lazy val narratorCache    = new NarratorCache(metarratorconfigdir, definitionsdir)
   lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
 
@@ -152,7 +152,7 @@ akka {
 
   lazy val crawl: Crawl = new Crawl(blobStore = blobStore,
                                     requestUtil = requests,
-                                    rowStore = rowStore.newStore,
+                                    rowStore = rowStore,
                                     descriptionCache = descriptionCache)(executionContext)
 
   lazy val clockwork: Clockwork = new Clockwork(path = cachedir.resolve("crawl-times.json"),

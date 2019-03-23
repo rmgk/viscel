@@ -15,6 +15,11 @@ class RowStoreV4 (db4dir: Path) {
 
     val base = File(db4dir)
 
+
+  def allVids(): List[Vid] = synchronized {
+    base.list(_.isRegularFile, 1).map(f => Vid.from(f.name)).toList
+  }
+
     def open(narrator: Narrator): RowAppender = synchronized {
       open(narrator.id, narrator.name)
     }

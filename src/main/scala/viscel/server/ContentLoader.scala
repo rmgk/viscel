@@ -2,14 +2,14 @@ package viscel.server
 
 import viscel.shared.{Blob, ChapterPos, Contents, Description, Gallery, Log, SharedImage, Vid}
 import viscel.store._
-import viscel.store.v4.DataRow
-
+import viscel.store.v4.{DataRow, RowStoreV4}
 import cats.implicits.catsSyntaxOptionId
+import cats.implicits.catsSyntaxEitherId
 
 import scala.collection.mutable
 
 class ContentLoader(narratorCache: NarratorCache,
-                    rowStore: RowStore,
+                    rowStore: RowStoreV4,
                     descriptionCache: DescriptionCache) {
 
 
@@ -44,7 +44,7 @@ class ContentLoader(narratorCache: NarratorCache,
 
 object ContentLoader {
 
-  def size(book: Book): Int = ContentLoader.linearizedPages(book).count {_.isInstanceOf[Article]}
+  def size(book: Book): Int = ContentLoader.linearizedPages(book).count(_.isLeft)
 
   case class OriginData(link: DataRow.Link) {
     def dataMap: Map[String, String] = link.data.sliding(2, 2).filter(_.size == 2).map {
@@ -52,7 +52,8 @@ object ContentLoader {
     }.toMap
   }
 
-  def linearizedPages(book: Book): List[ReadableContent] = {
+  type LinearResult = List[Either[SharedImage, DataRow.Chapter]]
+  def linearizedPages(book: Book): LinearResult = {
 
     //Log.Scribe.info(s"pages for ${book.id}")
 
@@ -74,7 +75,7 @@ object ContentLoader {
     @scala.annotation.tailrec
     def flatten(lastLink: Option[OriginData],
                 remaining: List[DataRow.Content],
-                acc: List[ReadableContent]): List[ReadableContent] = {
+                acc: LinearResult): LinearResult = {
       remaining match {
         case Nil    => acc
         case h :: t => h match {
@@ -88,12 +89,10 @@ object ContentLoader {
           case DataRow.Blob(sha1, mime) =>
             val ll = lastLink.get
             flatten(lastLink, t,
-                    Article(
-                      ImageRef(ll.link.ref,
-                               seenOrigins(ll.link.ref),
-                               ll.dataMap
-                      ), Some(Blob(sha1, mime))) :: acc)
-          case DataRow.Chapter(str)     => flatten(lastLink, t, Chapter(str) :: acc)
+                    SharedImage(ll.link.ref.uriString(),
+                                Blob(sha1, mime).some,
+                                ll.dataMap).asLeft :: acc)
+          case ch: DataRow.Chapter      => flatten(lastLink, t, ch.asRight :: acc)
         }
       }
     }
@@ -108,25 +107,21 @@ object ContentLoader {
 
   }
 
-  def pagesToContents(pages: List[ReadableContent]): Contents = {
+  def pagesToContents(pages: LinearResult): Contents = {
     @scala.annotation.tailrec
-    def recurse(content: List[ReadableContent],
-                art: List[SharedImage],
-                chap: List[ChapterPos],
-                c: Int)
+    def recurse(content: LinearResult,
+                images: List[SharedImage],
+                chapters: List[ChapterPos],
+                counter: Int)
     : (List[SharedImage], List[ChapterPos]) = {
       content match {
-        case Nil    => (art, chap)
+        case Nil    => (images, chapters)
         case h :: t =>
           h match {
-            case Article(ImageRef(_, origin, data), blob) =>
-              val article = SharedImage(origin = origin.uriString, blob, data)
-              recurse(t, article :: art, if (chap.isEmpty) List(ChapterPos("", 0)) else chap, c + 1)
-            case Chapter(name)                            => recurse(t,
-                                                                     art,
-                                                                     ChapterPos(name,
-                                                                                c) :: chap,
-                                                                     c)
+            case Left(article)        =>
+              recurse(t, article :: images, if (chapters.isEmpty) List(ChapterPos("", 0)) else chapters, counter + 1)
+            case Right(chap) =>
+              recurse(t, images, ChapterPos(chap.name, counter) :: chapters, counter)
           }
       }
     }
