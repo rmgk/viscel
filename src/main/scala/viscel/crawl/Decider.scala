@@ -19,7 +19,7 @@ case class Decider(links: List[VRequest] = Nil,
       copy(requestAfterRecheck = requestAfterRecheck + (if (toAdd.isEmpty && requestAfterRecheck == 0) 2 else 1))
     } else this
 
-    nextDecider.copy(links = toAdd reverse_::: nextDecider.links)
+    nextDecider.copy(links = toAdd ::: nextDecider.links)
 
   }
 
