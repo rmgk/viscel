@@ -24,13 +24,6 @@ class CrawlProcessing(narrator: Narrator) {
 
   def decider(book: Book): Decider = Decider(recheck = rechecks(book)).addTasks(initialTasks(book))
 
-  def processImageResponse(request: VRequest, response: VResponse[Array[Byte]]): DataRow = {
-    val contents = List(DataRow.Blob(
-      sha1 = BlobStore.sha1hex(response.content),
-      mime = response.mime))
-    toDataRow(request.href, response, contents)
-  }
-
   def processPageResponse(book: Book, link: DataRow.Link, response: VResponse[String]): DataRow = {
     val contents = NarrationInterpretation.NI(link, response)
                    .interpret[List[DataRow.Content]](narrator.wrapper)
