@@ -1,6 +1,6 @@
 package viscel.narration
 
-import org.scalactic.TypeCheckedTripleEquals._
+import cats.syntax.eq.catsSyntaxEq
 import viscel.narration.interpretation.NarrationInterpretation.Wrapper
 import viscel.shared.Vid
 import viscel.store.WebContent
@@ -21,6 +21,8 @@ trait Narrator {
   /** Interpret to wraps a [[org.jsoup.nodes.Document]] into [[Contents]] */
   def wrapper: Wrapper
 
+  /** Override equals to store in Sets.
+    * There never should be two equal Narrators, but things break if there were. */
   final override def equals(other: Any): Boolean = other match {
     case o: Narrator => id === o.id
     case _ => false

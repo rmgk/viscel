@@ -1,7 +1,6 @@
 package viscel.narration.narrators
 
-import org.scalactic.Good
-import viscel.narration.interpretation.NarrationInterpretation.{Combination, Constant, Decision, NarratorADT, Shuffle}
+import viscel.narration.interpretation.NarrationInterpretation.{Combination, Constant, Decision, MapW, NarratorADT}
 import viscel.narration.{Narrator, Queries}
 import viscel.selection.{ReportTools, Selection}
 import viscel.shared.Vid
@@ -37,9 +36,9 @@ object KatBox {
     ("yosh", "Yosh!", None),
   ).map { case (_id, _name, _url) =>
     NarratorADT(Vid.from(s"KatBox_${_id}"), _name, List(Link(_url.getOrElse(s"http://${_id}.katbox.net/archive/"), Volatile)),
-      Shuffle.of(Selection.many("span.archive-link a.webcomic-link").focus {
+                MapW.reverse(Selection.many("span.archive-link a.webcomic-link").focus {
         // laslindas at least seems to miss some pages, just skip them
-        Decision(_.childNodeSize() == 0, Constant(Good(Nil)), {
+        Decision(_.childNodeSize() == 0, Constant(Nil), {
 
           val vurl_? = Selection.wrapOne(Queries.extractURL)
           // not awabanner2015 is a workaround for the rascals archives
@@ -51,7 +50,7 @@ object KatBox {
               data = Map()))
           }
         })
-      })(_.reverse)
+      })
     )
   }
 }

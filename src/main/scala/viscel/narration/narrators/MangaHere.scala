@@ -3,7 +3,7 @@ package viscel.narration.narrators
 import io.circe.{Decoder, Encoder}
 import org.scalactic._
 import viscel.narration.Queries._
-import viscel.narration.interpretation.NarrationInterpretation.{Constant, Decision, NarratorADT, Shuffle, WrapPart}
+import viscel.narration.interpretation.NarrationInterpretation.{Constant, Decision, NarratorADT, MapW, WrapPart}
 import viscel.narration.{Metarrator, Templates}
 import viscel.selection.Selection
 import viscel.store.Vurl
@@ -13,9 +13,9 @@ case class MangaHereNarrator(id: String, name: String, archiveUri: Vurl)
 // currently borked
 object MangaHere extends Metarrator[MangaHereNarrator]("MangaHere") {
 
-  val archiveWrapper = Shuffle(queryMixedArchive(".detail_list > ul:first-of-type > li , .detail_list > ul:first-of-type a"), chapterReverse)
+  val archiveWrapper = MapW(queryMixedArchive(".detail_list > ul:first-of-type > li , .detail_list > ul:first-of-type a"), chapterReverse)
   val pageWrapper = Decision(_.ownerDocument().location().endsWith("featured.html"),
-      Constant(Good(Nil)),
+      Constant(Nil),
       queryImageNext("#image", ".next_page:not([href$=featured.html])"))
 
 

@@ -1,12 +1,11 @@
 package viscel.narration.narrators
 
+import cats.implicits._
+import io.circe.Decoder.Result
 import io.circe.{Decoder, DecodingFailure, Encoder}
-import org.scalactic.Accumulation._
-import org.scalactic.{Every, Good, One, Or}
-import viscel.narration.interpretation.NarrationInterpretation.{Combination, JsonWrapper, Location, NarratorADT, WrapPart, Wrapper}
+import viscel.narration.interpretation.NarrationInterpretation.{Combination, ContextW, JsonW, NarratorADT, WrapPart, Wrapper}
 import viscel.narration.{Metarrator, Templates}
 import viscel.selection.JsonDecoding
-import viscel.selection.ReportTools.{EitherOps, extract}
 import viscel.store.{Chapter, ImageRef, Link, Vurl, WebContent}
 
 import scala.util.Try
@@ -24,36 +23,43 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   }
 
   val archiveWrapper: Wrapper = {
-    JsonWrapper { json =>
+    JsonW.map { json =>
       val chaptersMap = json.hcursor.downField("chapter")
-      chaptersMap.keys.get.filter(cid => chaptersMap.downField(cid).get[String]("lang_code").getOrElse("") == "gb")
+      chaptersMap.keys.get
+      .filter(cid => chaptersMap.downField(cid).get[String]("lang_code").getOrElse("") == "gb")
       .map { cid =>
         val chap = chaptersMap.downField(cid)
-        val chapname: Or[String, One[DecodingFailure]] = chap.get[String]("chapter").ors
+        val chapname: Result[String] = chap.get[String]("chapter")
         val volume = chap.get[String]("volume").toOption.flatMap(v => Try(v.toInt).toOption)
-        val num: Or[Int, Every[DecodingFailure]] =
+        val num =
           chapname
-          .flatMap(cn => Or.from("(\\d+)".r.findFirstIn(cn), One(DecodingFailure(s"$chapname contains no int", Nil))))
+          .flatMap(cn => "(\\d+)".r.findFirstIn(cn)
+                                 .toRight(DecodingFailure(s"$chapname contains no int", Nil)))
           .map(_.toInt)
-        val title = chap.get[String]("title").ors
-        withGood(Good(volume), num, chapname, title, Good(cid)) {ChapterInfo.apply}
-      }.toList.validatedBy(x => x).map(_.sortBy(_.sorting).flatMap {_.contents}).badMap(_.map(JsonDecoding))
+        val title = chap.get[String]("title")
+        val tuple: (Result[Option[Int]], Result[Int], Result[String], Result[String], Result[String]) =
+          (volume.asRight, num, chapname, title, cid.asRight)
+        tuple.mapN {ChapterInfo.apply}
+      }.toList.sequence
+        .map(_.sortBy(_.sorting).flatMap {_.contents})
+        .leftMap(JsonDecoding)
+        .right.get
     }
   }
 
   val pageWrapper: Wrapper = {
-    JsonWrapper { json =>
+    JsonW.map { json =>
       val c = json.hcursor
-      val hash = c.get[String]("hash").ors
-      val server = c.get[String]("server").ors
-      val cid = c.get[Int]("id").ors
-      withGood(hash, server, cid) { (hash, server, cid) =>
-        val absServer =  if (server.startsWith("/")) s"https://mangadex.org$server" else server
+      val hash = c.get[String]("hash")
+      val server = c.get[String]("server")
+      val cid = c.get[Int]("id")
+      (hash, server, cid).mapN { (hash, server, cid) =>
+        val absServer = if (server.startsWith("/")) s"https://mangadex.org$server" else server
         c.downField("page_array").values.get.zipWithIndex.map { case (fname, i) =>
           val url = Vurl.fromString(s"$absServer$hash/${fname.as[String].right.get}")
-          ImageRef(url, Vurl.fromString(s"https://mangadex.org/chapter/$cid/${i+1}"))
+          ImageRef(url, Vurl.fromString(s"https://mangadex.org/chapter/$cid/${i + 1}"))
         }.toList
-      }.badMap(_.map(JsonDecoding))
+      }.leftMap(JsonDecoding).right.get
     }
   }
 
@@ -85,11 +91,9 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   override val wrap: WrapPart[List[MangadexNarrator]] =
     Combination.of(
-      Location,
-    JsonWrapper { json =>
-      extract {
+      ContextW.map(_.response.location),
+      JsonW.map { json =>
         json.hcursor.downField("manga").downField("title").as[String].right.get
-      }
     }
     ){(loc, title) =>
       val id = title.toLowerCase.replaceAll("\\W", "-")

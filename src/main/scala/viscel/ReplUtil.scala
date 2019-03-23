@@ -48,7 +48,7 @@ class ReplUtil(services: Services) {
 
 
     val content = narrationOption.get
-    val description: Description = ???
+    val description: Description = Description(Vid.from(""), "", 0, unknownNarrator = true)
 
     val chapters: List[(ChapterPos, Seq[SharedImage])] =
       content.chapters.foldLeft((content.gallery.size, List[(ChapterPos, Seq[SharedImage])]())) {

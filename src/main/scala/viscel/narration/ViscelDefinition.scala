@@ -6,7 +6,7 @@ import java.nio.file.Path
 import better.files._
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Queries._
-import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, NarratorADT, Shuffle, TransformUrls, Wrapper}
+import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, NarratorADT, MapW, TransformUrls, Wrapper}
 import viscel.selection.Report
 import viscel.shared.{Log, Vid}
 import viscel.store.{Link, Vurl}
@@ -87,7 +87,7 @@ object ViscelDefinition {
       case extract"image $img next $next skip $skip" => annotate(
         Append(Alternative(queryImage(img.s),
                            LocationMatch(skip.s.r,
-                                         Constant(Good(Nil)),
+                                         Constant(Nil),
                                          queryImage(img.s))),
                queryNext(next.s)), img, next)
 
@@ -110,12 +110,13 @@ object ViscelDefinition {
 
     val (pageFunReplace, archFunReplace) = attrs match {
       case extract"url_replace $replacer" =>
-        val replacements: List[(String, String)] = replacer.s.split("\\s+:::\\s+").sliding(2, 2).map { case Array(a, b) => (a, b) }.toList
+        val replacements: List[(String, String)] =
+          replacer.s.split("\\s+:::\\s+").sliding(2, 2).map { case Array(a, b) => (a, b) }.toList
         (pageFun.map(TransformUrls(_, replacements)), archFun.map(TransformUrls(_, replacements)))
       case _ => (pageFun, archFun)
     }
 
-    val archFunRev = if (has("archiveReverse")) archFunReplace.map(Shuffle(_, chapterReverse)) else archFunReplace
+    val archFunRev = if (has("archiveReverse")) archFunReplace.map(MapW(_, chapterReverse)) else archFunReplace
 
     (pageFunReplace, archFunRev) match {
       case (Some(pf), None) => Good(NarratorADT(Vid.from(cid), name, Link(startUrl) :: Nil, pf))

@@ -6,9 +6,9 @@ import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.narration.interpretation.NarrationInterpretation.{Append, WrapPart, Wrapper}
-import viscel.selection.ReportTools.{extract, _}
+import viscel.selection.ReportTools._
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
-import viscel.store.{Chapter, ImageRef, Link, Policy, Vurl, WebContent}
+import viscel.store.{Chapter, ImageRef, Link, Vurl, WebContent}
 
 import scala.util.matching.Regex
 
@@ -68,7 +68,7 @@ object Queries {
   }
 
   def extractChapter(elem: Element): Chapter Or Every[Report] = extract {
-    def firstNotEmpty(choices: String*) = choices.find(!_.isEmpty).getOrElse("")
+    def firstNotEmpty(choices: String*) = choices.find(!_.isBlank).getOrElse("")
 
     Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
   }
@@ -87,51 +87,36 @@ object Queries {
     Append(queryImage(imageQuery), queryNext(nextQuery))
   }
   def queryMixedArchive(query: String): Wrapper = {
-    Selection.many(query).wrapEach { intoMixedArchive }
-  }
-  def intoMixedArchive(elem: Element): WebContent Or Every[Report] = {
+    def intoMixedArchive(elem: Element): WebContent Or Every[Report] = {
       if (elem.tagName() === "a") extractMore(elem)
       else extractChapter(elem)
+    }
+
+    Selection.many(query).wrapEach {intoMixedArchive}
   }
+
   def queryChapterArchive(query: String): Wrapper = {
+    /** takes an element, extracts its uri and text and generates a description pointing to that chapter */
+    def elementIntoChapterPointer(chapter: Element): Contents =
+      combine(extractChapter(chapter), extractMore(chapter))
+
     Selection.many(query).wrapFlat(elementIntoChapterPointer)
   }
 
-  /** takes an element, extracts its uri and text and generates a description pointing to that chapter */
-  def elementIntoChapterPointer(chapter: Element): Contents =
-    combine(extractChapter(chapter), extractMore(chapter))
 
+  def chapterReverse(stories: List[WebContent]): List[WebContent] = {
+    def groupedOn[T](l: List[T])(p: T => Boolean): List[List[T]] = l.foldLeft(List[List[T]]()) {
+      case (acc, t) if p(t) => List(t) :: acc
+      case (Nil, t)         => List(t) :: Nil
+      case (a :: as, t)     => (t :: a) :: as
+    }.map(_.reverse).reverse
 
-  def moreData[B](or: List[WebContent] Or B, data: String): List[WebContent] Or B = or.map(_.map {
-    case Link(loc, policy, Nil) => Link(loc, policy, data :: Nil)
-    case m@Link(_, _, _) => throw new IllegalArgumentException(s"tried to add '$data' to $m")
-    case o => o
-  })
-
-  def morePolicy[B](policy: Policy)(wc: WebContent): WebContent= wc match {
-    case Link(loc, _, data) => Link(loc, policy, data)
-    case o => o
-  }
-
-
-  def placeChapters(archive: List[WebContent], chapters: List[(WebContent, WebContent)]): List[WebContent] = (archive, chapters) match {
-    case (Nil, chaps) => chaps.flatMap(c => c._1 :: c._2 :: Nil)
-    case (as, Nil) => as
-    case (a :: as, (c, m) :: cms) if a == m => c :: a :: placeChapters(as, cms)
-    case (a :: as, cms) => a :: placeChapters(as, cms)
-  }
-
-  def groupedOn[T](l: List[T])(p: T => Boolean): List[List[T]] = l.foldLeft(List[List[T]]()) {
-    case (acc, t) if p(t) => List(t) :: acc
-    case (Nil, t) => List(t) :: Nil
-    case (a :: as, t) => (t :: a) :: as
-  }.map(_.reverse).reverse
-
-  def chapterReverse(stories: List[WebContent]): List[WebContent] =
     groupedOn(stories) { case Chapter(_) => true; case _ => false }.reverse.flatMap {
-      case (h :: t) => h :: t.reverse
-      case Nil => Nil
+      case h :: t => h :: t.reverse
+      case Nil    => Nil
     }
+
+  }
 
   implicit class RegexContext(val sc: StringContext) {
     object rex {

@@ -1,5 +1,6 @@
 package viscel.shared
 
+import cats.kernel.Eq
 import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder}
 
 import scala.util.matching.Regex
@@ -9,6 +10,9 @@ final class Vid private(val str: String) extends AnyVal {
 }
 
 object Vid {
+
+  implicit val eqVid: Eq[Vid] = Eq.fromUniversalEquals
+
   val idregex: Regex = """^[\w-]+$""".r
   def from(str: String): Vid = {
     assert(idregex.unapplySeq(str).isDefined, s"Vid may only contain [\\w-], but was $str")

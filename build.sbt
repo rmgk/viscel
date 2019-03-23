@@ -4,16 +4,16 @@ import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 import Settings._
 import Dependencies._
 
-val commonSettings: sbt.Def.SettingsDefinition = Seq(
-    scalaVersion := version_212,
-    Compile / compile / scalacOptions ++= strictScalacOptions,
-)
+inThisBuild(scalaVersion_212)
+inThisBuild(strictCompile)
+ThisBuild / organization := "de.rmgk"
+
 
 val Libraries = new {
 
   val rescalaVersion = "0.24.0"
-  val rescalatags = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % rescalaVersion
-  val rescala = libraryDependencies += "de.tuda.stg" %%% "rescala" % rescalaVersion
+  val rescalatags    = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % rescalaVersion
+  val rescala        = libraryDependencies += "de.tuda.stg" %%% "rescala" % rescalaVersion
 
 
   val shared = Def.settings(
@@ -21,7 +21,7 @@ val Libraries = new {
   )
 
   val main = Def.settings(scalactic, jsoup, betterFiles, decline, akkaHttp,
-                                    scalatest, scalacheck)
+                          scalatest, scalacheck)
 
 
   val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, rescalatags,
@@ -30,11 +30,14 @@ val Libraries = new {
 
 val vbundle = TaskKey[File]("vbundle", "bundles all the viscel resources")
 val vbundleDef = vbundle := {
+  (web / Compile / fastOptJS).value
   val jsfile = (web / Compile / fastOptJS / artifactPath).value
   val styles = (web / Assets / SassKeys.sassify).value
-  val bundleTarget = (Universal / target).value.toPath.resolve("stage/static")
+  val bundleTarget = target.value.toPath.resolve("resources/static")
   Files.createDirectories(bundleTarget)
+
   def gzipToTarget(f: File): Unit = IO.gzip(f, bundleTarget.resolve(f.name + ".gz").toFile)
+
   gzipToTarget(jsfile)
   val vidPath = sourceDirectory.value.toPath.resolve("main/vid").toFile
   val vids = IO.listFiles(vidPath)
@@ -45,40 +48,37 @@ val vbundleDef = vbundle := {
 }
 
 lazy val viscel = project
-    .in(file("."))
-    .settings(
-      name := "viscel",
-      commonSettings,
-      fork := true,
-      Libraries.main,
-      vbundleDef,
-      (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
-      )
-    .enablePlugins(JavaServerAppPackaging)
-    .dependsOn(sharedJVM)
+                  .in(file("."))
+                  .settings(
+                    name := "viscel",
+                    fork := true,
+                    Libraries.main,
+                    vbundleDef,
+                    (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
+                    publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value
+                  )
+                  .enablePlugins(JavaServerAppPackaging)
+                  .dependsOn(sharedJVM)
 
 lazy val web = project.in(file("web"))
                .enablePlugins(ScalaJSPlugin)
                .settings(
-                 name := "web",
-                 commonSettings,
+                 name := "viscel-web",
                  Libraries.js,
-                 scalaJSUseMainModuleInitializer := true,
-                 )
+                 scalaJSUseMainModuleInitializer := true
+               )
                .dependsOn(sharedJS)
                .enablePlugins(SbtSassify)
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("shared"))
                   .settings(
-                    name := "shared",
-                    commonSettings,
+                    name := "viscel-shared",
                     Libraries.shared,
                     )
 lazy val sharedJVM = shared.jvm
 lazy val sharedJS = shared.js
 
 lazy val benchmarks = project.in(file("benchmarks"))
-                      .settings(name := "benchmarks",
-                                commonSettings)
+                      .settings(name := "benchmarks")
                       .enablePlugins(JmhPlugin)
                       .dependsOn(viscel)

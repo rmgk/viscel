@@ -2,10 +2,9 @@ package viscel.narration.narrators
 
 import io.circe.generic.semiauto
 import io.circe.{Decoder, Encoder}
-import org.scalactic.Good
 import viscel.narration.Queries.RegexContext
 import viscel.narration.interpretation.NarrationInterpretation
-import viscel.narration.interpretation.NarrationInterpretation.{ElementWrapper, WrapPart}
+import viscel.narration.interpretation.NarrationInterpretation.{ElementW, WrapPart}
 import viscel.narration.{Metarrator, Queries, Templates}
 import viscel.store.Vurl
 
@@ -13,9 +12,10 @@ case class Cfury(id: String, name: String)
 
 object Comicfury extends Metarrator[Cfury]("Comicfury") {
 
-  override def toNarrator(cf: Cfury): NarrationInterpretation.NarratorADT = Templates.SimpleForward(s"Comicfury_${cf.id}", cf.name,
-    s"http://${cf.id}.thecomicseries.com/comics/1",
-    Queries.queryImageNext("#comicimage", "a[rel=next]"))
+  override def toNarrator(cf: Cfury): NarrationInterpretation.NarratorADT =
+    Templates.SimpleForward(s"Comicfury_${cf.id}", cf.name,
+                            s"http://${cf.id}.thecomicseries.com/comics/1",
+                            Queries.queryImageNext("#comicimage", "a[rel=next]"))
 
   override def decoder: Decoder[Cfury] = semiauto.deriveDecoder
   override def encoder: Encoder[Cfury] = semiauto.deriveEncoder
@@ -25,9 +25,9 @@ object Comicfury extends Metarrator[Cfury]("Comicfury") {
     case _ => None
   }
 
-  override def wrap: WrapPart[List[Cfury]] = ElementWrapper { document =>
+  override def wrap: WrapPart[List[Cfury]] = ElementW.map { document =>
     val rex"http://($cid[^\.]+)\.thecomicseries.com/" = document.baseUri()
-    Good(Cfury(cid, s"[CF] $cid") :: Nil)
+    Cfury(cid, s"[CF] $cid") :: Nil
   }
 
 }

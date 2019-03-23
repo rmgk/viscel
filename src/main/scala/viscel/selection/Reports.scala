@@ -20,10 +20,6 @@ object ReportTools {
   def cons[T, E](a: T Or Every[E], b: List[T] Or Every[E]): Or[List[T], Every[E]] = withGood(a, b)(_ :: _)
   def combine[T, E](as: T Or Every[E]*): Or[List[T], Every[E]] = combinable(as).combined.map(_.toList)
   def extract[R](op: => R): R Or One[ExtractionFailed] = attempt(op).badMap(ExtractionFailed.apply).accumulating
-
-  implicit class EitherOps[E, V](val either: Either[E, V]) extends AnyVal {
-    def ors: Or[V, One[E]] = Or.from(either).accumulating
-  }
 }
 
 trait Stack {
