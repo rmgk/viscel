@@ -65,7 +65,7 @@ object Settings {
     //"-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
   )
 
-  val strictCompile = Compile / scalacOptions += "-Xfatal-warnings"
+  val strictCompile = Compile / compile / scalacOptions += "-Xfatal-warnings"
 }
 
 object Resolvers {
