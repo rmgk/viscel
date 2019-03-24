@@ -24,9 +24,13 @@ class AkkaHttpRequester(ioHttp: HttpExt)
 
   private def decompress(r: HttpResponse): Future[HttpResponse] =
     Deflate.decodeMessage(Gzip.decodeMessage(r)).toStrict(timeout)
-  private def requestDecompressed(request: HttpRequest): Future[HttpResponse] =
-    ioHttp.singleRequest(request.withHeaders(`Accept-Encoding`(HttpEncodings.deflate, HttpEncodings.gzip)))
-    .flatMap(decompress)
+  private def requestDecompressed(request: HttpRequest): Future[HttpResponse] = {
+    val finalRequest = request.addHeader(`Accept-Encoding`(HttpEncodings.deflate,
+                                                             HttpEncodings.gzip))
+    Log.Crawl.info(s"request ${finalRequest.uri}" + finalRequest.header[Referer].fold("")(r => s" ($r)"))
+
+    ioHttp.singleRequest(finalRequest).flatMap(decompress)
+  }
 
   def extractResponseLocation(base: Vurl, httpResponse: HttpResponse): Vurl =
     httpResponse.header[Location].fold(base)(l => Vurl.fromUri(l.uri.resolvedAgainst(base.uri)))
@@ -37,8 +41,6 @@ class AkkaHttpRequester(ioHttp: HttpExt)
 
 
   private def requestWithRedirects(request: HttpRequest, redirects: Int = 10): Future[HttpResponse] = {
-    Log.Crawl.info(s"request ${request.uri}" + request.header[Referer].fold("")(r => s" ($r)"))
-
     requestDecompressed(request).flatMap { response =>
       if (response.status.isRedirection() && response.header[Location].isDefined) {
         val loc = response.header[Location].get.uri.resolvedAgainst(request.uri)
