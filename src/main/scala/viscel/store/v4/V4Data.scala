@@ -28,10 +28,6 @@ object DataRow {
   }
   final case class Blob(sha1: String, mime: String) extends Content
   final case class Chapter(name: String) extends Content
-
-  def ImageRef(ref: Vurl, data: Map[String, String] = Map()): DataRow.Link = {
-    Link(ref, data.flatMap(f => List(f._1, f._2)).toList)
-  }
 }
 
 object V4Codecs {
@@ -43,15 +39,6 @@ object V4Codecs {
   implicit val instantDecoder: Decoder[Instant] = Decoder.decodeString.emap { str =>
     Either.catchNonFatal(Instant.parse(str)).leftMap(t => "Instant: " + t.getMessage)
   }
-
-  implicit val linkEncoder: Encoder[Link] = deriveEncoder
-  implicit val linkDecoder: Decoder[Link] = deriveDecoder
-
-  implicit val blobEncoder: Encoder[Blob] = deriveEncoder
-  implicit val blobDecoder: Decoder[Blob] = deriveDecoder
-
-  implicit val chapterEncoder: Encoder[Chapter] = deriveEncoder
-  implicit val chapterDecoder: Decoder[Chapter] = deriveDecoder
 
   implicit val dataRowEncoder: Encoder[DataRow] = deriveEncoder
   implicit val dataRowDecoder: Decoder[DataRow] = deriveDecoder

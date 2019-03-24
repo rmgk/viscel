@@ -53,23 +53,23 @@ object CrawlProcessing {
   val VolatileStr = Volatile.toString
 
   def initialTasks(book: Book): List[VRequest] =
-    book.allLinks.filter(l => !book.hasPage(l.link.ref) || l.link.data.contains(VolatileStr)).map(VRequest.from).toList
-  def rechecks(book: Book): List[VRequest] = computeRightmostLinks(book).map(VRequest.from)
+    book.allLinks.filter(l => !book.hasPage(l.link.ref) || l.link.data.contains(VolatileStr)).toList
+  def rechecks(book: Book): List[VRequest] = computeRightmostLinks(book)
 
 
   /** Starts from the entrypoint, traverses the last Link,
     * collect the path, returns the path from the rightmost child to the root. */
-  def computeRightmostLinks(book: Book): List[WithReferer] = {
+  def computeRightmostLinks(book: Book): List[VRequest] = {
 
     val seen = mutable.HashSet[Vurl]()
 
     @scala.annotation.tailrec
-    def rightmost(current: DataRow, acc: List[WithReferer]): List[WithReferer] = {
+    def rightmost(current: DataRow, acc: List[VRequest]): List[VRequest] = {
       /* Get the last Link for the current PageData  */
       val next = current.contents.reverseIterator.find {
         case DataRow.Link(loc, _) if seen.add(loc) => true
         case _                                     => false
-      } collect { case l: DataRow.Link => WithReferer(l, current.ref) }
+      } collect { case l: DataRow.Link => VRequest(l, Some(current.ref)) }
       next match {
         case None       => acc
         case Some(link) =>

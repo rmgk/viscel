@@ -1,9 +1,8 @@
 package viscel.store
 
+import viscel.crawl.VRequest
 import viscel.shared.Vid
 import viscel.store.v4.DataRow
-
-case class WithReferer(link: DataRow.Link, referer: Vurl)
 
 case class Book(id: Vid,
                 name: String,
@@ -11,13 +10,12 @@ case class Book(id: Vid,
                ) {
   def beginning: Option[DataRow] = pages.get(Vurl.entrypoint)
   def hasPage(ref: Vurl): Boolean = pages.contains(ref)
-  def hasBlob(ref: Vurl): Boolean = ???
 
   def allBlobs(): Iterator[DataRow.Blob] =
     allContents.collect{case (l : DataRow.Blob, c) => l}
 
-  def allLinks: Iterator[WithReferer] = {
-    allContents.collect{case (l : DataRow.Link, c) => WithReferer(l, c.loc.getOrElse(c.ref)) }
+  def allLinks: Iterator[VRequest] = {
+    allContents.collect{case (l : DataRow.Link, c) => VRequest(l, Some(c.loc.getOrElse(c.ref))) }
   }
 
   private def allContents: Iterator[(DataRow.Content, DataRow)] = {
@@ -31,6 +29,7 @@ case class Book(id: Vid,
     val oldPage = pages.get(entry.ref)
     if (oldPage.isEmpty || oldPage.get != entry) {
       val newBook = copy(pages = pages.updated(entry.ref, entry))
+      // TODO: compute size difference again
       (newBook, Some(0))
     }
     else (this, None)

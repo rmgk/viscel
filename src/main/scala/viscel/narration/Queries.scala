@@ -34,29 +34,29 @@ object Queries {
     extractURL(element).map(uri => DataRow.Link(uri))
 
   def intoArticle(img: Element): DataRow.Link Or Every[Report] = {
-    def getAttr(k: String): Option[(String, String)] = {
+    def getAttr(k: String): List[String] = {
       val res = img.attr(k)
-      if (res.isEmpty) None else Some(k -> res)
+      if (res.isEmpty) Nil else List(k, res)
     }
 
     img.tagName() match {
       case "img" =>
-        extract(DataRow.ImageRef(
+        extract(DataRow.Link(
           ref = Vurl.fromString(img.attr("abs:src")),
-          data = List("alt", "title", "width", "height").flatMap(getAttr).toMap))
+          data = List("alt", "title", "width", "height").flatMap(getAttr)))
       case "embed" =>
-        extract(DataRow.ImageRef(
+        extract(DataRow.Link(
           ref = Vurl.fromString(img.attr("abs:src")),
-          data = List("width", "height", "type").flatMap(getAttr).toMap))
+          data = List("width", "height", "type").flatMap(getAttr)))
       case "object" =>
-        extract(DataRow.ImageRef(
+        extract(DataRow.Link(
           ref = Vurl.fromString(img.attr("abs:data")),
-          data = List("width", "height", "type").flatMap(getAttr).toMap))
+          data = List("width", "height", "type").flatMap(getAttr)))
       case _ =>
         val extractBG = """.*background\-image\:url\(([^)]+)\).*""".r("url")
         img.attr("style") match {
           case extractBG(url) =>
-            extract(DataRow.ImageRef(
+            extract(DataRow.Link(
               ref = Vurl.fromString(StringUtil.resolve(img.ownerDocument().location(), url))))
           case _ => Bad(One(FailedElement(s"into article", UnhandledTag, img)))
         }
