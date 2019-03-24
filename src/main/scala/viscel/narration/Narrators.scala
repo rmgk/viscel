@@ -12,6 +12,6 @@ object Narrators {
       CloneManga.cores ++
       Set(Inverloch, Misfile, UnlikeMinerva)
 
-  val metas: List[Metarrator[_]] = Comicfury :: Mangadex :: Nil
+  val metas: List[Metarrator[_]] = List(Comicfury, Mangadex, WebToons)
 
 }
