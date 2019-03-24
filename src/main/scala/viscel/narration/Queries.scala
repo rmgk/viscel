@@ -93,7 +93,7 @@ object Queries {
   }
 
   def queryChapterArchive(query: String): Wrapper = {
-    /** takes an element, extracts its uri and text and generates a description pointing to that chapter */
+    /* takes an element, extracts its uri and text and generates a description pointing to that chapter */
     def elementIntoChapterPointer(chapter: Element): List[DataRow.Content] Or Every[Report] =
       combine(extractChapter(chapter), extractMore(chapter))
 
