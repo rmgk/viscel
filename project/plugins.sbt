@@ -14,3 +14,4 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.19") // https://g
 // tooling
 addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.10")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.3.4")
+

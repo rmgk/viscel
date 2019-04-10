@@ -83,7 +83,7 @@ object Dependencies {
   val fastparse   = ld += "com.lihaoyi" %%% "fastparse" % "2.1.0"
   val jsoup       = ld += "org.jsoup" % "jsoup" % "1.11.3"
   val pprint      = ld += "com.lihaoyi" %%% "pprint" % "0.5.3"
-  val scalactic   = ld += "org.scalactic" %% "scalactic" % "3.0.6"
+  val scalactic   = ld += "org.scalactic" %% "scalactic" % "3.0.7"
   val rmgkLogging = Def.settings(Resolvers.rmgk, ld += "de.rmgk" %%% "logging" % "0.2.1")
   val sourcecode  = ld += "com.lihaoyi" %%% "sourcecode" % "0.1.5"
 
@@ -107,7 +107,7 @@ object Dependencies {
 
   // tests
   val scalacheck = ld += "org.scalacheck" %% "scalacheck" % "1.14.0" % "test"
-  val scalatest  = ld += "org.scalatest" %% "scalatest" % "3.0.6" % "test"
+  val scalatest  = ld += "org.scalatest" %% "scalatest" % "3.0.7" % "test"
 
   // legacy
   val scalaXml   = ld += "org.scala-lang.modules" %% "scala-xml" % "1.1.1"
