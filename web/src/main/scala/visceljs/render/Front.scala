@@ -46,7 +46,7 @@ class Front(actions: Actions) {
         def makeChapField(chap: String, size: Int, gallery: Gallery[SharedImage]): Frag = {
           val (remaining, links) = Range(size, 0, -1).foldLeft((gallery, List[Frag]())) { case ((gal, acc), i) =>
             val next = gal.prev(1)
-            (next, link_asset(data.move(_ => next))(s"$i") :: stringFrag(" ") :: acc)
+            (next, link_asset(data.move(_ => next))(s"$i") :: acc)
           }
 
           article(if (chap.isEmpty) links else frag(h1(chap), links))
