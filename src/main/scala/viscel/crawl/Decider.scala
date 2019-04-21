@@ -1,5 +1,6 @@
 package viscel.crawl
 
+import viscel.selection.NarrationInterpretation.Volatile
 
 
 case class Decider(links: List[VRequest] = Nil,
@@ -27,7 +28,8 @@ case class Decider(links: List[VRequest] = Nil,
   def decide(): Decision = {
     links match {
       case link :: t =>
-        Some((link, copy(links = t, decisions = decisions + 1)))
+        val newDecision = if (link.link.data.contains(Volatile.toString)) 0 else 1
+        Some((link, copy(links = t, decisions = decisions + newDecision)))
       case Nil =>
         rightmostRecheck()
     }
