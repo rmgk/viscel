@@ -20,7 +20,9 @@ val Libraries = new {
     rmgkLogging, scalatags, loci.communication, circe, rescala, loci.circe, loci.wsAkka
   )
 
-  val main = Def.settings(scalactic, jsoup, betterFiles, decline, akkaHttp,
+  val netzi = Def.settings(scalactic, jsoup, akkaHttp)
+
+  val main = Def.settings(scalactic, betterFiles, decline, akkaHttp,
                           scalatest, scalacheck)
 
 
@@ -30,9 +32,9 @@ val Libraries = new {
 
 val vbundle = TaskKey[File]("vbundle", "bundles all the viscel resources")
 val vbundleDef = vbundle := {
-  (web / Compile / fastOptJS).value
-  val jsfile = (web / Compile / fastOptJS / artifactPath).value
-  val styles = (web / Assets / SassKeys.sassify).value
+  (app / Compile / fastOptJS).value
+  val jsfile = (app / Compile / fastOptJS / artifactPath).value
+  val styles = (app / Assets / SassKeys.sassify).value
   val bundleTarget = target.value.toPath.resolve("resources/static")
   Files.createDirectories(bundleTarget)
 
@@ -58,12 +60,18 @@ lazy val viscel = project
                     publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value
                   )
                   .enablePlugins(JavaServerAppPackaging)
-                  .dependsOn(sharedJVM)
+                  .dependsOn(sharedJVM, netzi)
 
-lazy val web = project.in(file("web"))
+lazy val netzi = project.in(file("netzi"))
+                 .settings(
+                   name := "netzi",
+                   Libraries.netzi
+                 )
+
+lazy val app = project.in(file("app"))
                .enablePlugins(ScalaJSPlugin)
                .settings(
-                 name := "viscel-web",
+                 name := "app",
                  Libraries.js,
                  scalaJSUseMainModuleInitializer := true
                )

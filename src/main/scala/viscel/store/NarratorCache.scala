@@ -3,9 +3,8 @@ package viscel.store
 import java.nio.file.Path
 
 import viscel.crawl.{VRequest, WebRequestInterface}
-import viscel.narration.interpretation.NarrationInterpretation
-import viscel.narration.interpretation.NarrationInterpretation.NarratorADT
-import viscel.narration.{Metarrator, Narrator, Narrators, ViscelDefinition}
+import viscel.narration.{Metarrator, Narrator, NarratorADT, Narrators, ViscelDefinition}
+import viscel.selection.NarrationInterpretation
 import viscel.shared.{Log, Vid}
 import viscel.store.v4.DataRow
 

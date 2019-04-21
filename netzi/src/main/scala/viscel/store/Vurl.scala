@@ -4,15 +4,13 @@ import java.net.URL
 
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Path
-import io.circe.{Decoder, Encoder}
-import viscel.shared.Blob
 
 import scala.language.implicitConversions
 
 /** Abstraction over possible representation for URLs.
   * Url handling is more complicated than it looks,
   * we currently represent them internally as [[akka.http.scaladsl.model.Uri]],
-  * mostly because [[viscel.crawl.WebRequestInterface]] can directly use them.
+  * mostly because [[WebRequestInterface]] can directly use them.
   * Note that we do use [[java.net.URL]] to parse strings and then convert them manually.
   * Yes, this is because [[akka.http.scaladsl.model.Uri]] string parsing did not always work as expected,
   * and [[java.net.URL]] is more stable. */
@@ -22,9 +20,6 @@ final class Vurl private(val uri: Uri) extends AnyVal {
 }
 
 object Vurl {
-
-  implicit val uriReader: Decoder[Vurl] = Decoder[String].map(fromString)
-  implicit val uriWriter: Encoder[Vurl] = Encoder[String].contramap[Vurl](_.uriString())
 
   def urlToUri(in: URL): Uri = {
     implicit class X(s: String) {def ? = Option(s).getOrElse("")}
@@ -58,6 +53,4 @@ object Vurl {
   }
 
   val entrypoint: Vurl = new Vurl(Uri(scheme = "viscel", path = Path("/initial")))
-  def blobPlaceholder(blob: Blob) = new Vurl(Uri(scheme = "viscel", path = Path(s"/sha1/${blob.sha1}")))
-
 }

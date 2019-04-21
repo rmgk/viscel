@@ -1,7 +1,7 @@
 package viscel.narration.narrators
 
-import viscel.narration.interpretation.NarrationInterpretation.{Combination, Constant, Decision, MapW, NarratorADT}
-import viscel.narration.{Narrator, Queries}
+import viscel.narration.{Narrator, NarratorADT, Queries}
+import viscel.selection.NarrationInterpretation.{Combination, Constant, Decision, MapW}
 import viscel.selection.{ReportTools, Selection}
 import viscel.shared.Vid
 import viscel.store.Vurl

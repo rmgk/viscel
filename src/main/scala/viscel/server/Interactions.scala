@@ -4,15 +4,15 @@ import loci.communicator.Listener
 import loci.communicator.ws.akka.{WS, WebSocketListener, WebSocketRoute}
 import loci.registry.Registry
 import rescala.default.{Evt, implicitScheduler}
-import viscel.crawl.WebRequestInterface
 import viscel.narration.Narrator
 import viscel.shared.Bindings.SetBookmark
 import viscel.shared.Log.{Server => Log}
 import viscel.shared.{Bindings, Bookmark, Description, Vid}
 import viscel.store.{NarratorCache, User, Users}
-
 import cats.syntax.eq._
 import cats.instances.string._
+import viscel.crawl.WebRequestInterface
+
 import scala.collection.immutable.Map
 import scala.collection.mutable
 import scala.concurrent.Future

@@ -2,9 +2,11 @@ package viscel.narration.narrators
 
 import org.scalactic.Accumulation._
 import org.scalactic.Good
+import viscel.narration.Narrator.Wrapper
+import viscel.narration.NarratorADT
 import viscel.narration.Queries._
 import viscel.narration.Templates.{SimpleForward, archivePage}
-import viscel.narration.interpretation.NarrationInterpretation._
+import viscel.selection.NarrationInterpretation._
 import viscel.selection.ReportTools._
 import viscel.selection.Selection
 import viscel.shared.Vid

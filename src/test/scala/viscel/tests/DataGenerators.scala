@@ -2,9 +2,9 @@ package viscel.tests
 
 import java.time.Instant
 
+import viscel.crawl.VRequest
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
-import viscel.crawl.VRequest
 import viscel.shared.Blob
 import viscel.store.Vurl
 import viscel.store.v3.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Volatile}
@@ -14,13 +14,13 @@ object DataGenerators {
   implicit val genBlob: Arbitrary[Blob] = Arbitrary(for {sha <- Gen.alphaNumStr
                                                          mime <- Gen.alphaNumStr}
                                                       yield Blob(sha, mime))
-  implicit val genVurl: Arbitrary[Vurl] = Arbitrary(for {blob <- genBlob.arbitrary} yield Vurl.blobPlaceholder(blob))
+  implicit val genVurl: Arbitrary[Vurl] = Arbitrary(for {str <- Gen.alphaNumStr} yield Vurl.fromString(s"viscel://$str"))
   implicit val genLink: Arbitrary[Link] = Arbitrary(for {
     policy <- Gen.oneOf(Normal, Volatile)
     url <- genVurl.arbitrary
     data <- Gen.listOf(arbitrary[String])
   } yield Link(url, policy, data))
-  implicit val genInstant: Arbitrary[Instant] = Arbitrary(arbitrary[Long].map((i: Long) => Instant.ofEpochSecond(i)))
+  implicit val genInstant: Arbitrary[Instant] = Arbitrary(arbitrary[Long].map((i: Long) => Instant.ofEpochMilli(i)))
   implicit val genImageRef: Arbitrary[ImageRef] = Arbitrary(for {
     ref <- genVurl.arbitrary
     origin <- genVurl.arbitrary

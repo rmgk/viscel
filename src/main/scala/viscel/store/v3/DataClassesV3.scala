@@ -93,6 +93,8 @@ object CustomPicklers {
     case other => other
   })
 
+  import viscel.store.v4.V4Codecs.{uriReader, uriWriter}
+
 
   /** allow "Article" as an [[ImageRef]] in the serialized format */
   implicit val webContentReader: Decoder[WebContent] = semiauto.deriveDecoder[WebContent].prepare { cursor =>

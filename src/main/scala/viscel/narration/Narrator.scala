@@ -1,9 +1,14 @@
 package viscel.narration
 
 import cats.syntax.eq.catsSyntaxEq
-import viscel.narration.interpretation.NarrationInterpretation.Wrapper
+import viscel.narration.Narrator.Wrapper
+import viscel.selection.NarrationInterpretation.WrapPart
 import viscel.shared.Vid
 import viscel.store.v4.DataRow
+
+object Narrator {
+  type Wrapper = WrapPart[List[DataRow.Content]]
+}
 
 /** Describes the structure of a web collection */
 trait Narrator {

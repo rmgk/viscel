@@ -1,6 +1,5 @@
 package viscel.selection
 
-import io.circe.DecodingFailure
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation.{withGood, convertGenTraversableOnceToCombinable => combinable}
 import org.scalactic.{Every, One, Or, attempt}
@@ -51,8 +50,4 @@ case class Fatal(msg: String) extends Report with Stack {
 
 case class ExtractionFailed(cause: Throwable) extends Report with Stack {
   override def describe: String = s"extraction failed '${cause.getMessage}' at $position"
-}
-
-case class JsonDecoding(decodingFailure: DecodingFailure) extends Report {
-  override def describe: String = decodingFailure.getMessage()
 }

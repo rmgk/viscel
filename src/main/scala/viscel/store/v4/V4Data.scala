@@ -20,18 +20,20 @@ final case class DataRow(ref: Vurl,
                         )
 
 object DataRow {
+  implicit def linkToLink(link: viscel.selection.Link): Link = Link(link.ref, link.data)
+  implicit def linkToLink2(link: Link): viscel.selection.Link = viscel.selection.Link(link.ref, link.data)
   sealed trait Content
-  final case class Link(ref: Vurl, data: List[String] = Nil) extends Content {
-    lazy val dataMap: Map[String, String] = data.sliding(2, 2).filter(_.size == 2).map {
-      case List(a, b) => a -> b
-    }.toMap
-  }
+  final case class Link(ref: Vurl, data: List[String] = Nil) extends Content
   final case class Blob(sha1: String, mime: String) extends Content
   final case class Chapter(name: String) extends Content
 }
 
 object V4Codecs {
   def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[DataRow]] = exportDecoder[DataRow]
+
+
+  implicit val uriReader: Decoder[Vurl] = Decoder[String].map(Vurl.fromString)
+  implicit val uriWriter: Encoder[Vurl] = Encoder[String].contramap[Vurl](_.uriString())
 
   implicit lazy val config: Configuration = Configuration.default.withDefaults
 

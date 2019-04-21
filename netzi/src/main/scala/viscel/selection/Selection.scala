@@ -3,7 +3,7 @@ package viscel.selection
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.scalactic.{Bad, Every, Good, Or}
-import viscel.narration.interpretation.NarrationInterpretation.{Focus, SelectionWrap, SelectionWrapEach, SelectionWrapFlat, MapW, WrapPart}
+import viscel.selection.NarrationInterpretation.{Focus, SelectionWrap, SelectionWrapEach, SelectionWrapFlat, MapW, WrapPart}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 

@@ -1,6 +1,7 @@
 package viscel.narration
 
-import viscel.narration.interpretation.NarrationInterpretation.{NarratorADT, PolicyDecision, Wrapper}
+import viscel.selection.NarrationInterpretation.PolicyDecision
+import viscel.narration.Narrator.Wrapper
 import viscel.shared.Vid
 import viscel.store.Vurl
 import viscel.store.v3.Volatile

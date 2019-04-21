@@ -4,7 +4,7 @@ import java.time.Instant
 
 import akka.http.scaladsl.HttpExt
 import akka.http.scaladsl.coding.{Deflate, Gzip}
-import akka.http.scaladsl.model.headers.{HttpEncodings, Location, Referer, `Accept-Encoding`, `Last-Modified`, ETag}
+import akka.http.scaladsl.model.headers.{ETag, HttpEncodings, Location, Referer, `Accept-Encoding`, `Last-Modified`}
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
@@ -64,7 +64,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
       uri = request.href.uri,
       headers = request.origin.map(x => Referer.apply(x.uri)).toList)
     requestWithRedirects(req).map{ resp =>
-      VResponse(resp,
+      viscel.crawl.VResponse(resp,
                 location = extractResponseLocation(request.href, resp),
                 mime = resp.entity.contentType.mediaType.toString(),
                 lastModified = extractLastModified(resp),

@@ -2,12 +2,12 @@ package viscel.crawl
 
 import java.time.Instant
 
+import viscel.selection.Link
 import viscel.store.Vurl
-import viscel.store.v4.DataRow
 
 import scala.concurrent.Future
 
-case class VRequest(link: DataRow.Link, origin: Option[Vurl] = None) {
+case class VRequest(link: Link, origin: Option[Vurl] = None) {
   def href = link.ref
 }
 case class VResponse[T](content: T,

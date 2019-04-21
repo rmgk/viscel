@@ -1,6 +1,7 @@
 package viscel.crawl
 
 
+
 case class Decider(links: List[VRequest] = Nil,
                    recheck: List[VRequest] = Nil,
                    requestAfterRecheck: Int = 0,

@@ -3,16 +3,15 @@ package viscel.narration.narrators
 import io.circe.generic.semiauto
 import io.circe.{Decoder, Encoder}
 import viscel.narration.Queries.RegexContext
-import viscel.narration.interpretation.NarrationInterpretation
-import viscel.narration.interpretation.NarrationInterpretation.{ElementW, WrapPart}
-import viscel.narration.{Metarrator, Queries, Templates}
+import viscel.narration.{Metarrator, NarratorADT, Queries, Templates}
+import viscel.selection.NarrationInterpretation.{ElementW, WrapPart}
 import viscel.store.Vurl
 
 case class Cfury(id: String, name: String)
 
 object Comicfury extends Metarrator[Cfury]("Comicfury") {
 
-  override def toNarrator(cf: Cfury): NarrationInterpretation.NarratorADT =
+  override def toNarrator(cf: Cfury): NarratorADT =
     Templates.SimpleForward(s"Comicfury_${cf.id}", cf.name,
                             s"http://${cf.id}.thecomicseries.com/comics/1",
                             Queries.queryImageNext("#comicimage", "a[rel=next]"))

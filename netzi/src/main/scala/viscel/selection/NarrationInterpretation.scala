@@ -1,38 +1,20 @@
-package viscel.narration.interpretation
+package viscel.selection
 
-import io.circe.Json
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.scalactic.Accumulation._
-import org.scalactic.{Bad, Every, Good, Or}
+import org.scalactic.Accumulation.{withGood, _}
+import org.scalactic.{Every, Good, Or}
 import viscel.crawl.VResponse
-import viscel.narration.Narrator
-import viscel.selection.{ExtractionFailed, Report, Selection}
-import viscel.shared.Vid
 import viscel.store.Vurl
-import viscel.store.v3.Volatile
-import viscel.store.v4.DataRow
 
 import scala.util.matching.Regex
+
+final case class Link(ref: Vurl, data: List[String] = Nil)
 
 
 object NarrationInterpretation {
 
-  val Log = viscel.shared.Log.Narrate
 
-
-  def transformUrls(replacements: List[(String, String)])(stories: List[DataRow.Content]): List[DataRow.Content] = {
-
-    def replaceVurl(url: Vurl): Vurl =
-      replacements.foldLeft(url.uriString) {
-        case (u, (matches, replace)) => u.replaceAll(matches, replace)
-      }
-
-    stories.map {
-      case DataRow.Link(url, data)     => DataRow.Link(replaceVurl(url), data)
-      case o                           => o
-    }
-  }
 
   def applySelection(doc: Element, sel: Selection): List[Element] Or Every[Report] = {
     sel.pipeline.reverse.foldLeft(Good(List(doc)).orBad[Every[Report]]) { (elems, sel) =>
@@ -43,7 +25,7 @@ object NarrationInterpretation {
     }
   }
 
-  case class NI(link: DataRow.Link, response: VResponse[String]) {
+  case class NI(link: Link, response: VResponse[String]) {
     def interpret[T](outerWrapper: WrapPart[T]): T Or Every[Report] = {
       val document = Jsoup.parse(response.content, response.location.uriString())
       recurse(outerWrapper)(document)
@@ -66,26 +48,21 @@ object NarrationInterpretation {
             listOfElements.validatedBy(recurse(continue)(_)).map(_.flatten)
           }
 
-        case JsonW                             =>
-          io.circe.parser.parse(response.content)
-          .fold[Json Or Report](b => Bad(ExtractionFailed(b)), Good(_))
-          .accumulating
+        case ContentW => Good(response.content)
+
       }
       res
     }
   }
 
 
-  case class NarratorADT(id: Vid, name: String, archive: List[DataRow.Content], wrap: Wrapper)
-    extends Narrator {
-    override def wrapper: Wrapper = wrap
-  }
-
-  type Wrapper = WrapPart[List[DataRow.Content]]
 
   sealed trait WrapPart[+T] {
     def map[U](fun: T => U): WrapPart[U] = MapW(this, fun)
   }
+
+
+  case object Volatile
 
   def PolicyDecision[T](volatile: WrapPart[T], normal: WrapPart[T]) =
     Condition(ContextW.map(_.link.data.headOption.contains(Volatile.toString)), volatile, normal)
@@ -130,10 +107,10 @@ object NarrationInterpretation {
 
   case class Constant[T](c: T) extends WrapPart[T]
 
-  case class ContextData(link: DataRow.Link, response: VResponse[String])
+  case class ContextData(link: Link, response: VResponse[String])
   // single data element extraction
   case object ContextW extends WrapPart[ContextData]
-  case object JsonW extends WrapPart[Json]
+  case object ContentW extends WrapPart[String]
 
 
   // used for vid
@@ -141,10 +118,8 @@ object NarrationInterpretation {
   def LocationMatch[T](regex: Regex, isTrue: WrapPart[T], isFalse: WrapPart[T]) =
     Condition(ContextW.map(c => regex.findFirstIn(c.response.location.uriString()).isDefined),
               isTrue, isFalse)
-  def TransformUrls(target: Wrapper, replacements: List[(String, String)]) =
-    MapW(target, transformUrls(replacements))
+
   case class AdditionalErrors[+E](target: WrapPart[E], augmentation: Every[Report] => Every[Report])
     extends WrapPart[E]
 
 }
-

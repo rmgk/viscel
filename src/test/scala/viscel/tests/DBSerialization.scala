@@ -3,7 +3,6 @@ package viscel.tests
 import java.time.Instant
 
 import io.circe.syntax._
-import org.scalacheck.Gen
 import org.scalatest.FreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import viscel.shared.Blob
@@ -32,17 +31,12 @@ class DBSerialization extends FreeSpec with ScalaCheckDrivenPropertyChecks {
     Instant.parse("2016-08-03T20:04:33.010Z"),
     Blob("9bf1c63b1a9250baa83effbf4d3826dfe6796e08", "image/jpeg"))
 
+  import viscel.store.v4.V4Codecs.uriWriter
 
   "Serialization" - {
     "Vurls" - {
       "entrypoint json" in assert(Vurl.entrypoint.asJson === "viscel:///initial".asJson)
       "entrypoint from string" in assert(Vurl.entrypoint === Vurl.fromString("viscel:///initial"))
-      "blob json" in forAll { blob: Blob =>
-        assert(Vurl.blobPlaceholder(blob).asJson === s"viscel:///sha1/${blob.sha1}".asJson)
-      }
-      "blob from string" in forAll(Gen.alphaNumStr) { sha =>
-        assert(Vurl.fromString(s"viscel:///sha1/$sha") === Vurl.blobPlaceholder(Blob(sha, "")))
-      }
     }
     "DataRows" - {
       "read page" in assert(io.circe.parser.decode[ScribeDataRow](pageJson) === Right(pageDataRow))

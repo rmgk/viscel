@@ -3,9 +3,10 @@ package viscel.narration.narrators
 import cats.implicits._
 import io.circe.Decoder.Result
 import io.circe.{Decoder, DecodingFailure, Encoder}
-import viscel.narration.interpretation.NarrationInterpretation.{Combination, ContextW, JsonW, NarratorADT, WrapPart, Wrapper}
-import viscel.narration.{Metarrator, Templates}
-import viscel.selection.JsonDecoding
+import viscel.narration.Narrator.Wrapper
+import viscel.narration.{Metarrator, NarratorADT, Templates}
+import viscel.selection.NarrationInterpretation.{Combination, ContentW, ContextW, WrapPart}
+import viscel.selection.Report
 import viscel.store.Vurl
 import viscel.store.v4.DataRow
 
@@ -23,8 +24,15 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
       Nil
   }
 
+
+  case class JsonDecoding(decodingFailure: DecodingFailure) extends Report {
+    override def describe: String = decodingFailure.getMessage()
+  }
+
+
   val archiveWrapper: Wrapper = {
-    JsonW.map { json =>
+    ContentW.map { jsonString =>
+      val json = io.circe.parser.parse(jsonString).right.get
       val chaptersMap = json.hcursor.downField("chapter")
       chaptersMap.keys.get
       .filter(cid => chaptersMap.downField(cid).get[String]("lang_code").getOrElse("") == "gb")
@@ -49,7 +57,8 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   }
 
   val pageWrapper: Wrapper = {
-    JsonW.map { json =>
+    ContentW.map { jsonString =>
+      val json = io.circe.parser.parse(jsonString).right.get
       val c = json.hcursor
       val hash = c.get[String]("hash")
       val server = c.get[String]("server")
@@ -77,6 +86,8 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   }
 
+  import viscel.store.v4.V4Codecs.{uriReader, uriWriter}
+
   val decoder: Decoder[MangadexNarrator] = Decoder.forProduct3("id", "name", "archiveUri")(
     (i, n, a) => MangadexNarrator(i, n, a))
   val encoder: Encoder[MangadexNarrator] = Encoder.forProduct3("id", "name", "archiveUri")(
@@ -93,10 +104,11 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   override val wrap: WrapPart[List[MangadexNarrator]] =
     Combination.of(
       ContextW.map(_.response.location),
-      JsonW.map { json =>
+      ContentW.map { jsonString =>
+        val json = io.circe.parser.parse(jsonString).right.get
         json.hcursor.downField("manga").downField("title").as[String].right.get
     }
-    ){(loc, title) =>
+      ){(loc, title) =>
       val id = title.toLowerCase.replaceAll("\\W", "-")
       MangadexNarrator(s"Mangadex_$id", s"[MD] $title", loc) :: Nil
     }

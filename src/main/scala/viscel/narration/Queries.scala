@@ -5,7 +5,8 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
-import viscel.narration.interpretation.NarrationInterpretation.{Append, WrapPart, Wrapper}
+import viscel.narration.Narrator.Wrapper
+import viscel.selection.NarrationInterpretation.{Append, WrapPart}
 import viscel.selection.ReportTools._
 import viscel.selection.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
 import viscel.store.Vurl

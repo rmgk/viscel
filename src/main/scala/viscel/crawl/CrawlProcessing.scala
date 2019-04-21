@@ -3,7 +3,7 @@ package viscel.crawl
 import cats.implicits.catsSyntaxOptionId
 import viscel.crawl.CrawlProcessing.{initialTasks, rechecks}
 import viscel.narration.Narrator
-import viscel.narration.interpretation.NarrationInterpretation
+import viscel.selection.NarrationInterpretation
 import viscel.shared.Log
 import viscel.store._
 import viscel.store.v3.Volatile

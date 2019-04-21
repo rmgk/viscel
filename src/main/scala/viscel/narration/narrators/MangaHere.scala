@@ -3,8 +3,8 @@ package viscel.narration.narrators
 import io.circe.{Decoder, Encoder}
 import org.scalactic._
 import viscel.narration.Queries._
-import viscel.narration.interpretation.NarrationInterpretation.{Constant, Decision, NarratorADT, MapW, WrapPart}
-import viscel.narration.{Metarrator, Templates}
+import viscel.narration.{Metarrator, NarratorADT, Templates}
+import viscel.selection.NarrationInterpretation.{Constant, Decision, MapW, WrapPart}
 import viscel.selection.Selection
 import viscel.store.Vurl
 
@@ -21,6 +21,8 @@ object MangaHere extends Metarrator[MangaHereNarrator]("MangaHere") {
 
   override def toNarrator(nar: MangaHereNarrator): NarratorADT =
     Templates.archivePage(nar.id, nar.name, nar.archiveUri, archiveWrapper, pageWrapper)
+
+  import viscel.store.v4.V4Codecs.{uriReader, uriWriter}
 
   val decoder = Decoder.forProduct3("id", "name", "archiveUri")((i, n, a) => MangaHereNarrator(i, n, a))
   val encoder: Encoder[MangaHereNarrator] = Encoder.forProduct3("id", "name", "archiveUri")(nar => (nar.id, nar.name, nar.archiveUri))

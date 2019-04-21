@@ -2,15 +2,16 @@ package viscel.narration.narrators
 
 import io.circe.{Decoder, Encoder}
 import viscel.narration.Queries._
-import viscel.narration.interpretation.NarrationInterpretation
-import viscel.narration.interpretation.NarrationInterpretation._
-import viscel.narration.{Metarrator, Templates}
+import viscel.narration.{Metarrator, NarratorADT, Templates}
 import viscel.selection.ReportTools.extract
-import viscel.selection.Selection
+import viscel.selection.{NarrationInterpretation, Selection}
 import viscel.store.Vurl
+import viscel.selection.NarrationInterpretation._
 
 case class WebToon(id: String, name: String, start: Vurl)
 object WebToons extends Metarrator[WebToon]("WebToons") {
+
+  import viscel.store.v4.V4Codecs.{uriReader, uriWriter}
 
   override def toNarrator(wt: WebToon): NarratorADT =
     Templates.SimpleForward("WebToons_" + wt.id, wt.name, wt.start,

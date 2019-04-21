@@ -5,8 +5,9 @@ import java.nio.file.Path
 
 import better.files._
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
+import viscel.narration.Narrator.Wrapper
 import viscel.narration.Queries._
-import viscel.narration.interpretation.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, MapW, NarratorADT, TransformUrls, Wrapper}
+import viscel.selection.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, MapW}
 import viscel.selection.Report
 import viscel.shared.{Log, Vid}
 import viscel.store.Vurl
@@ -73,6 +74,21 @@ object ViscelDefinition {
       if (id.nonEmpty) id
       else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
 
+  def transformUrls(replacements: List[(String, String)])(stories: List[DataRow.Content]): List[DataRow.Content] = {
+
+    def replaceVurl(url: Vurl): Vurl =
+      replacements.foldLeft(url.uriString) {
+        case (u, (matches, replace)) => u.replaceAll(matches, replace)
+      }
+
+    stories.map {
+      case DataRow.Link(url, data)     => DataRow.Link(replaceVurl(url), data)
+      case o                           => o
+    }
+  }
+
+  def TransformUrls(target: Wrapper, replacements: List[(String, String)]) =
+    MapW(target, transformUrls(replacements))
 
   def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): NarratorADT Or ErrorMessage = {
     val cid = generateID(id, name)
