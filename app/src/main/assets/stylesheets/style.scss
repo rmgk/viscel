@@ -181,6 +181,9 @@ section a:visited {
     }
     > * {
       margin-right: .5em;
+      &:before{
+        content: " ";
+      }
     }
   }
 }
