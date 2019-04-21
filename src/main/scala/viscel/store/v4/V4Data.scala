@@ -20,8 +20,6 @@ final case class DataRow(ref: Vurl,
                         )
 
 object DataRow {
-  implicit def linkToLink(link: viscel.netzi.Link): Link = Link(link.ref, link.data)
-  implicit def linkToLink2(link: Link): viscel.netzi.Link = viscel.netzi.Link(link.ref, link.data)
   sealed trait Content
   final case class Link(ref: Vurl, data: List[String] = Nil) extends Content
   final case class Blob(sha1: String, mime: String) extends Content

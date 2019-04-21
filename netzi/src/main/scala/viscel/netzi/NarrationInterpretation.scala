@@ -7,9 +7,6 @@ import org.scalactic.{Every, Good, Or}
 
 import scala.util.matching.Regex
 
-final case class Link(ref: Vurl, data: List[String] = Nil)
-
-
 object NarrationInterpretation {
 
 
@@ -23,7 +20,7 @@ object NarrationInterpretation {
     }
   }
 
-  case class NI(link: Link, response: VResponse[String]) {
+  case class NI(link: VRequest, response: VResponse[String]) {
     def interpret[T](outerWrapper: WrapPart[T]): T Or Every[Report] = {
       val document = Jsoup.parse(response.content, response.location.uriString)
       recurse(outerWrapper)(document)
@@ -63,7 +60,7 @@ object NarrationInterpretation {
   case object Volatile
 
   def PolicyDecision[T](volatile: WrapPart[T], normal: WrapPart[T]) =
-    Condition(ContextW.map(_.link.data.headOption.contains(Volatile.toString)), volatile, normal)
+    Condition(ContextW.map(_.request.context.contains(Volatile.toString)), volatile, normal)
 
   case class Condition[T](pred: WrapPart[Boolean], isTrue: WrapPart[T], isFalse: WrapPart[T])
     extends WrapPart[T]
@@ -105,7 +102,7 @@ object NarrationInterpretation {
 
   case class Constant[T](c: T) extends WrapPart[T]
 
-  case class ContextData(link: Link, response: VResponse[String])
+  case class ContextData(request: VRequest, response: VResponse[String])
   // single data element extraction
   case object ContextW extends WrapPart[ContextData]
   case object ContentW extends WrapPart[String]

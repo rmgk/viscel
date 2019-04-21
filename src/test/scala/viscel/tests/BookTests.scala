@@ -15,7 +15,7 @@ class BookTests extends FreeSpec with ScalaCheckDrivenPropertyChecks {
     "add page" in forAll { page: DataRow =>
       val (one, count) = empty.addPage(page)
       assert(one.hasPage(page.ref))
-      assert(one.allLinks.map(_.link).toList === page.contents)
+      assert(one.allLinks.map(_.href).toList === page.contents)
       assert(count.isDefined)
 
       assert(one.addPage(page) === (one -> None), "adding is idempotent")

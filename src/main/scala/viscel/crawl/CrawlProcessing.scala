@@ -24,12 +24,12 @@ class CrawlProcessing(narrator: Narrator) {
 
   def decider(book: Book): Decider = Decider(recheck = rechecks(book)).addTasks(initialTasks(book))
 
-  def processPageResponse(book: Book, link: DataRow.Link, response: VResponse[String]): DataRow = {
+  def processPageResponse(book: Book, link: VRequest, response: VResponse[String]): DataRow = {
     val contents = NarrationInterpretation.NI(link, response)
                    .interpret[List[DataRow.Content]](narrator.wrapper)
                    .fold(identity, r => throw WrappingException(link, r))
 
-    toDataRow(link.ref, response, contents)
+    toDataRow(link.href, response, contents)
   }
   def toDataRow(request: Vurl,
                 response: VResponse[_],
@@ -44,7 +44,7 @@ class CrawlProcessing(narrator: Narrator) {
 
   def computeTasks(pageData: DataRow, book: Book): List[VRequest] = {
     pageData.contents.collect {
-      case l: DataRow.Link if !book.hasPage(l.ref) => VRequest(l, Some(pageData.ref))
+      case l: DataRow.Link if !book.hasPage(l.ref) => VRequest(l.ref, l.data, Some(pageData.ref))
     }
   }
 }
@@ -53,7 +53,7 @@ object CrawlProcessing {
   val VolatileStr = Volatile.toString
 
   def initialTasks(book: Book): List[VRequest] =
-    book.allLinks.filter(l => !book.hasPage(l.link.ref) || l.link.data.contains(VolatileStr)).toList
+    book.allLinks.filter(l => !book.hasPage(l.href) || l.context.contains(VolatileStr)).toList
   def rechecks(book: Book): List[VRequest] = computeRightmostLinks(book)
 
 
@@ -69,11 +69,11 @@ object CrawlProcessing {
       val next = current.contents.reverseIterator.find {
         case DataRow.Link(loc, _) if seen.add(loc) && book.notJustBlob(loc) => true
         case _                                     => false
-      } collect { case l: DataRow.Link => VRequest(l, Some(current.ref)) }
+      } collect { case l: DataRow.Link => VRequest(l.ref, l.data, Some(current.ref)) }
       next match {
         case None       => acc
         case Some(link) =>
-          book.pages.get(link.link.ref) match {
+          book.pages.get(link.href) match {
             case None          => link :: acc
             case Some(dataRow) =>
               rightmost(dataRow, link :: acc)

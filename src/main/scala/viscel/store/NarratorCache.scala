@@ -2,11 +2,9 @@ package viscel.store
 
 import java.nio.file.Path
 
-import viscel.netzi.WebRequestInterface
 import viscel.narration.{Metarrator, Narrator, NarratorADT, Narrators, ViscelDefinition}
 import viscel.netzi.{NarrationInterpretation, VRequest, Vurl, WebRequestInterface}
 import viscel.shared.{Log, Vid}
-import viscel.store.v4.DataRow
 
 import scala.collection.immutable.{Map, Set}
 import scala.concurrent.Future
@@ -34,9 +32,9 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
   def add(start: String, requestUtil: WebRequestInterface): Future[List[Narrator]] = {
     def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
-      requestUtil.get(VRequest(DataRow.Link(url))).map { resp =>
+      requestUtil.get(VRequest(url)).map { resp =>
         val respc = resp.copy(content = resp.content.right.get)
-        val nars = NarrationInterpretation.NI(DataRow.Link(url), respc).interpret(metarrator.wrap).get
+        val nars = NarrationInterpretation.NI(VRequest(url), respc).interpret(metarrator.wrap).get
         synchronized {
           save(metarrator, nars ++ load(metarrator))
           updateCache()

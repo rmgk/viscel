@@ -24,7 +24,7 @@ object Individual {
     Range.inclusive(1, 5)
       .map(i => DataRow.Link(s"http://inverloch.seraph-inn.com/volume$i.html",
                      "archive" :: Nil)).toList,
-    Condition(ContextW.map(_.link.data.exists("archive" == _)), {
+    Condition(ContextW.map(_.request.context.exists("archive" == _)), {
       Selection.many("#main p:containsOwn(Chapter)").focus {
         Append(
           ElementW.map(chap => DataRow.Chapter(chap.ownText()) :: Nil),
@@ -44,7 +44,7 @@ object Individual {
 
     val wrapPage: Wrapper = {
       Condition(
-      ContextW.map(_.link.ref.uriString() ==
+      ContextW.map(_.request.ref.uriString() ==
                    "http://www.misfile.com/archives.php?arc=34&displaymode=wide"),
       Constant(Nil), {
         val elements_? = Selection

@@ -32,7 +32,7 @@ class Crawl(blobStore: BlobStore,
 
     def interpret(book: Book, decider: Decider): Future[Unit] = {
       decider.decide() match {
-        case Some((ct, nextDecider)) => handlePageResponse(book, ct, nextDecider)
+        case Some((request, nextDecider)) => handlePageResponse(book, request, nextDecider)
         case None                    => Future.successful(())
       }
     }
@@ -51,7 +51,7 @@ class Crawl(blobStore: BlobStore,
             blobStore.write(sha1, array)
             interpret(addPageTo(book, rowAppender, datarow), decider)
           case Right(str)  =>
-            val pageData = processing.processPageResponse(book, request.link, response.copy(content = str))
+            val pageData = processing.processPageResponse(book, request, response.copy(content = str))
             Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
             val newBook: Book = addPageTo(book, rowAppender, pageData)
             val tasks = processing.computeTasks(pageData, newBook)

@@ -17,14 +17,12 @@ case class Book(id: Vid,
   def hasPage(ref: Vurl): Boolean = pages.contains(ref)
 
   def allBlobs(): Iterator[DataRow.Blob] =
-    allContents.collect{case (l : DataRow.Blob, c) => l}
+    pages.valuesIterator.flatMap(dr => dr.contents.iterator).collect{case l : DataRow.Blob => l}
 
   def allLinks: Iterator[VRequest] = {
-    allContents.collect{case (l : DataRow.Link, c) => VRequest(l, Some(c.loc.getOrElse(c.ref))) }
-  }
-
-  private def allContents: Iterator[(DataRow.Content, DataRow)] = {
-    pages.valuesIterator.flatMap(dr => dr.contents.iterator.map(c => (c, dr)))
+    pages.valuesIterator.flatMap{ dr =>
+      dr.contents.iterator.collect{case l : DataRow.Link => VRequest(l.ref, l.data, dr.loc.orElse(Some(dr.ref)))}
+    }
   }
 
   /** Add a new page to this book.

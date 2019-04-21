@@ -41,7 +41,7 @@ object DataGenerators {
   implicit val genVRequest: Arbitrary[VRequest] = Arbitrary(for {
     href <- arbitrary[Vurl]
     origin <- arbitrary[Option[Vurl]]
-  } yield VRequest(DataRow.Link(href), origin))
+  } yield VRequest(href, Nil, origin))
 
   implicit val genDataRow: Arbitrary[DataRow] = Arbitrary(for {
     vurl <- arbitrary[Vurl]
