@@ -57,10 +57,10 @@ object NarrationInterpretation {
   }
 
 
-  case object Volatile
+  val Volatile = "Volatile"
 
   def PolicyDecision[T](volatile: WrapPart[T], normal: WrapPart[T]) =
-    Condition(ContextW.map(_.request.context.contains(Volatile.toString)), volatile, normal)
+    Condition(ContextW.map(_.request.context.contains(Volatile)), volatile, normal)
 
   case class Condition[T](pred: WrapPart[Boolean], isTrue: WrapPart[T], isFalse: WrapPart[T])
     extends WrapPart[T]

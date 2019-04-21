@@ -29,7 +29,7 @@ case class Decider(links: List[VRequest] = Nil,
   def decide(): Decision = {
     links match {
       case link :: t =>
-        val newDecision = if (link.context.contains(Volatile.toString)) 0 else 1
+        val newDecision = if (link.context.contains(Volatile)) 0 else 1
         Some((link, copy(links = t, decisions = decisions + newDecision)))
       case Nil =>
         rightmostRecheck()
