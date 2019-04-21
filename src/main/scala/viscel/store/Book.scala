@@ -8,6 +8,11 @@ case class Book(id: Vid,
                 name: String,
                 pages: Map[Vurl, DataRow] = Map()
                ) {
+
+  def notJustBlob(loc: Vurl): Boolean =
+    pages.get(loc).fold(true){dr =>
+      dr.contents.isEmpty ||  dr.contents.exists(c => !c.isInstanceOf[DataRow.Blob])}
+
   def beginning: Option[DataRow] = pages.get(Vurl.entrypoint)
   def hasPage(ref: Vurl): Boolean = pages.contains(ref)
 

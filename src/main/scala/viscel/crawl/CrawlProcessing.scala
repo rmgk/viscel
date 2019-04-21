@@ -67,7 +67,7 @@ object CrawlProcessing {
     def rightmost(current: DataRow, acc: List[VRequest]): List[VRequest] = {
       /* Get the last Link for the current PageData  */
       val next = current.contents.reverseIterator.find {
-        case DataRow.Link(loc, _) if seen.add(loc) => true
+        case DataRow.Link(loc, _) if seen.add(loc) && book.notJustBlob(loc) => true
         case _                                     => false
       } collect { case l: DataRow.Link => VRequest(l, Some(current.ref)) }
       next match {
@@ -83,7 +83,7 @@ object CrawlProcessing {
 
     book.beginning match {
       case None              =>
-        Log.Scribe.warn(s"Book ${book.id} was emtpy")
+        Log.Scribe.warn(s"Book ${book.id} was empty")
         Nil
       case Some(initialPage) =>
         rightmost(initialPage, Nil)
