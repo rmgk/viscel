@@ -6,7 +6,7 @@ import io.circe.{Decoder, DecodingFailure, Encoder}
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.{Metarrator, NarratorADT, Templates}
 import viscel.netzi.{Report, Vurl}
-import viscel.netzi.NarrationInterpretation.{Combination, ContentW, ContextW, WrapPart}
+import viscel.netzi.Narration.{Combination, ContentW, ContextW, WrapPart}
 import viscel.store.v4.DataRow
 
 import scala.util.Try

@@ -6,7 +6,7 @@ import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.narration.Narrator.Wrapper
-import viscel.netzi.NarrationInterpretation.{Append, WrapPart}
+import viscel.netzi.Narration.{Append, WrapPart}
 import viscel.netzi.ReportTools._
 import viscel.netzi.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag, Vurl}
 import viscel.store.v4.DataRow

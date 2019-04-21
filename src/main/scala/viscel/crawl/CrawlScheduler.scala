@@ -11,21 +11,21 @@ import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
 
 
-class Clockwork(path: Path,
-                crawl: Crawl,
-                ec: ExecutionContext,
-                userStore: Users,
-                narratorCache: NarratorCache,
-               ) {
+class CrawlScheduler(path: Path,
+                     crawlServices: CrawlServices,
+                     ec: ExecutionContext,
+                     userStore: Users,
+                     narratorCache: NarratorCache,
+                    ) {
 
   val log = viscel.shared.Log.Crawl
 
   val dayInMillis: Long = 24L * 60L * 60L * 1000L
 
 
-  val timer: Timer = new Timer(true)
-  val delay: Long = 0L
-  val period: Long = 60L * 60L * 1000L // every hour
+  val timer : Timer = new Timer(true)
+  val delay : Long  = 0L
+  val period: Long  = 60L * 60L * 1000L // every hour
 
   var running: Set[Vid] = Set.empty
 
@@ -46,7 +46,8 @@ class Clockwork(path: Path,
       running = running + narrator.id
       implicit val iec: ExecutionContext = ec
 
-      val fut = crawl.start(narrator).andThen { case _ => Clockwork.this.synchronized(running = running - narrator.id) }
+      val fut = crawlServices.startCrawling(narrator)
+                .andThen { case _ => CrawlScheduler.this.synchronized(running = running - narrator.id) }
       fut.failed.foreach(logError(narrator))
       fut.foreach { _ =>
         log.info(s"[${narrator.id}] update complete")
@@ -57,7 +58,7 @@ class Clockwork(path: Path,
   }
 
   private def logError(narrator: Narrator): Throwable => Unit = {
-    case RequestException(uri, status) =>
+    case RequestException(uri, status)    =>
       log.error(s"[${narrator.id}] error request: $uri failed: $status")
     case WrappingException(link, reports) =>
       log.error(
@@ -66,7 +67,7 @@ class Clockwork(path: Path,
            |  failed on ${link.ref.uriString} (${if (link.data.nonEmpty) s", ${link.data}" else ""}):
            |  ${reports.map {_.describe}.mkString("\n  ")}
            |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
-    case t =>
+    case t                                =>
       log.error(s"[${narrator.id}] recheck failed with $t")
       t.printStackTrace()
   }

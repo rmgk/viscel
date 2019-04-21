@@ -7,11 +7,9 @@ import org.scalactic.{Every, Good, Or}
 
 import scala.util.matching.Regex
 
-object NarrationInterpretation {
+object Narration {
 
-
-
-  def applySelection(doc: Element, sel: Selection): List[Element] Or Every[Report] = {
+  private def applySelection(doc: Element, sel: Selection): List[Element] Or Every[Report] = {
     sel.pipeline.reverse.foldLeft(Good(List(doc)).orBad[Every[Report]]) { (elems, sel) =>
       elems.flatMap { els: List[Element] =>
         val validated: Or[List[List[Element]], Every[Report]] = els.validatedBy(sel)
@@ -20,7 +18,7 @@ object NarrationInterpretation {
     }
   }
 
-  case class NI(link: VRequest, response: VResponse[String]) {
+  case class Interpreter(link: VRequest, response: VResponse[String]) {
     def interpret[T](outerWrapper: WrapPart[T]): T Or Every[Report] = {
       val document = Jsoup.parse(response.content, response.location.uriString)
       recurse(outerWrapper)(document)

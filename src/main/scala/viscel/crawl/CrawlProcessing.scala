@@ -1,41 +1,40 @@
 package viscel.crawl
 
 import cats.implicits.catsSyntaxOptionId
-import viscel.crawl.CrawlProcessing.{initialTasks, rechecks}
-import viscel.narration.Narrator
-import viscel.netzi.{NarrationInterpretation, VRequest, VResponse, Vurl}
+import viscel.narration.Narrator.Wrapper
+import viscel.netzi.{Narration, VRequest, VResponse, Vurl}
 import viscel.shared.Log
 import viscel.store._
-import viscel.store.v3.Volatile
 import viscel.store.v4.DataRow
 
 import scala.collection.mutable
 
-class CrawlProcessing(narrator: Narrator) {
+object CrawlProcessing {
 
-  def init(book: Book): Option[DataRow] = {
+  def init(initialArchive: List[DataRow.Content], book: Book): Option[DataRow] = {
     val entry = book.beginning
-    val transformed = narrator.archive
-    if (entry.isEmpty || entry.get.contents != transformed) {
-      Some(DataRow(Book.entrypoint, contents = transformed))
+    if (entry.isEmpty || entry.get.contents != initialArchive) {
+      Some(DataRow(Book.entrypoint, contents = initialArchive))
     } else None
   }
 
 
+  def processPageResponse(wrapper: Wrapper, request: VRequest, response: VResponse[String]): DataRow = {
+    val contents = Narration.Interpreter(request, response)
+                   .interpret[List[DataRow.Content]](wrapper)
+                   .fold(identity, r => throw WrappingException(request, r))
+
+    CrawlProcessing.toDataRow(request, response, contents)
+  }
+
   def decider(book: Book): Decider = Decider(recheck = rechecks(book)).addTasks(initialTasks(book))
 
-  def processPageResponse(book: Book, link: VRequest, response: VResponse[String]): DataRow = {
-    val contents = NarrationInterpretation.NI(link, response)
-                   .interpret[List[DataRow.Content]](narrator.wrapper)
-                   .fold(identity, r => throw WrappingException(link, r))
 
-    toDataRow(link.href, response, contents)
-  }
-  def toDataRow(request: Vurl,
+  def toDataRow(request: VRequest,
                 response: VResponse[_],
                 contents: List[DataRow.Content]): DataRow = {
-    DataRow(request,
-            response.location.some.filter(_ != request),
+    DataRow(request.href,
+            response.location.some.filter(_ != request.href),
             response.lastModified,
             response.etag,
             contents)
@@ -47,13 +46,9 @@ class CrawlProcessing(narrator: Narrator) {
       case l: DataRow.Link if !book.hasPage(l.ref) => VRequest(l.ref, l.data, Some(pageData.ref))
     }
   }
-}
-
-object CrawlProcessing {
-  val VolatileStr = Volatile.toString
 
   def initialTasks(book: Book): List[VRequest] =
-    book.allLinks.filter(l => !book.hasPage(l.href) || l.context.contains(VolatileStr)).toList
+    book.allLinks.filter(l => !book.hasPage(l.href) || l.context.contains(Narration.Volatile)).toList
   def rechecks(book: Book): List[VRequest] = computeRightmostLinks(book)
 
 
@@ -68,7 +63,7 @@ object CrawlProcessing {
       /* Get the last Link for the current PageData  */
       val next = current.contents.reverseIterator.find {
         case DataRow.Link(loc, _) if seen.add(loc) && book.notJustBlob(loc) => true
-        case _                                     => false
+        case _                                                              => false
       } collect { case l: DataRow.Link => VRequest(l.ref, l.data, Some(current.ref)) }
       next match {
         case None       => acc

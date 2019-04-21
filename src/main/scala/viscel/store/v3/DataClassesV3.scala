@@ -70,7 +70,7 @@ sealed trait WebContent
 /** [[Link.ref]] to another [[PageData]], with an update [[policy]], and narator specific [[data]]. */
 /*@key("Link")*/ case class Link(ref: Vurl, policy: Policy = Normal, data: List[String] = Nil) extends WebContent
 
-/** The update [[Policy]] decides if [[viscel.crawl.Crawl]] checks for updates [[Volatile]] or not [[Normal]] */
+/** The update [[Policy]] decides if [[viscel.crawl.CrawlServices]] checks for updates [[Volatile]] or not [[Normal]] */
 sealed trait Policy
 /*@key("Normal")*/ case object Normal extends Policy
 /*@key("Volatile")*/ case object Volatile extends Policy

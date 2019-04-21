@@ -8,7 +8,7 @@ import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.Queries._
 import viscel.netzi.{Report, Vurl}
-import viscel.netzi.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, MapW}
+import viscel.netzi.Narration.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, MapW}
 import viscel.shared.{Log, Vid}
 import viscel.store.v4.DataRow
 

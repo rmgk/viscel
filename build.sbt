@@ -17,10 +17,14 @@ val Libraries = new {
 
 
   val shared = Def.settings(
-    rmgkLogging, scalatags, loci.communication, circe, rescala, loci.circe, loci.wsAkka
+    rmgkLogging, scalatags, loci.communication, circe, rescala, loci.circe, loci.wsAkka,
+    scalaVersion_212,
+    strictCompile
   )
 
-  val netzi = Def.settings(scalactic, jsoup, akkaHttp)
+  val netzi = Def.settings(scalactic, jsoup, akkaHttp,
+                           scalaVersion_212,
+                           strictCompile)
 
   val main = Def.settings(scalactic, betterFiles, decline, akkaHttp,
                           scalatest, scalacheck)

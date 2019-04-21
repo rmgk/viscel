@@ -12,7 +12,7 @@ import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory.parseString
 import rescala.default.{Evt, implicitScheduler}
-import viscel.crawl.{AkkaHttpRequester, Clockwork, Crawl}
+import viscel.crawl.{AkkaHttpRequester, CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
 import viscel.server.{ContentLoader, Interactions, Server, ServerPages}
 import viscel.shared.Log
@@ -150,13 +150,14 @@ akka {
 
   /* ====== clockwork ====== */
 
-  lazy val crawl: Crawl = new Crawl(blobStore = blobStore,
-                                    requestUtil = requests,
-                                    rowStore = rowStore,
-                                    descriptionCache = descriptionCache)(executionContext)
+  lazy val crawl: CrawlServices = new CrawlServices(blobStore = blobStore,
+                                                    requestUtil = requests,
+                                                    rowStore = rowStore,
+                                                    descriptionCache = descriptionCache,
+                                                    executionContext)
 
-  lazy val clockwork: Clockwork = new Clockwork(path = cachedir.resolve("crawl-times.json"),
-                                                crawl = crawl,
+  lazy val clockwork: CrawlScheduler = new CrawlScheduler(path = cachedir.resolve("crawl-times.json"),
+                                                          crawlServices = crawl,
                                                 ec = executionContext,
                                                 userStore = userStore,
                                                 narratorCache = narratorCache)

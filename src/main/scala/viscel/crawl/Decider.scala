@@ -1,6 +1,6 @@
 package viscel.crawl
 
-import viscel.netzi.NarrationInterpretation.Volatile
+import viscel.netzi.Narration.Volatile
 import viscel.netzi.VRequest
 
 

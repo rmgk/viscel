@@ -6,7 +6,7 @@ import viscel.narration.Narrator.Wrapper
 import viscel.narration.NarratorADT
 import viscel.narration.Queries._
 import viscel.narration.Templates.{SimpleForward, archivePage}
-import viscel.netzi.NarrationInterpretation._
+import viscel.netzi.Narration._
 import viscel.netzi.ReportTools._
 import viscel.netzi.Selection
 import viscel.shared.Vid

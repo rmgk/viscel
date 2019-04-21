@@ -1,6 +1,6 @@
 package viscel.narration
 
-import viscel.netzi.NarrationInterpretation.PolicyDecision
+import viscel.netzi.Narration.PolicyDecision
 import viscel.narration.Narrator.Wrapper
 import viscel.netzi.Vurl
 import viscel.shared.Vid
