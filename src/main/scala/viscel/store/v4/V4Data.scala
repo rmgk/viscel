@@ -8,7 +8,7 @@ import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.auto._
 import io.circe.generic.extras.semiauto._
 import io.circe.{Decoder, Encoder}
-import viscel.store.Vurl
+import viscel.netzi.Vurl
 import viscel.store.v4.DataRow._
 
 
@@ -20,8 +20,8 @@ final case class DataRow(ref: Vurl,
                         )
 
 object DataRow {
-  implicit def linkToLink(link: viscel.selection.Link): Link = Link(link.ref, link.data)
-  implicit def linkToLink2(link: Link): viscel.selection.Link = viscel.selection.Link(link.ref, link.data)
+  implicit def linkToLink(link: viscel.netzi.Link): Link = Link(link.ref, link.data)
+  implicit def linkToLink2(link: Link): viscel.netzi.Link = viscel.netzi.Link(link.ref, link.data)
   sealed trait Content
   final case class Link(ref: Vurl, data: List[String] = Nil) extends Content
   final case class Blob(sha1: String, mime: String) extends Content

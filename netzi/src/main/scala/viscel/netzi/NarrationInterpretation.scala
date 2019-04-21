@@ -1,11 +1,9 @@
-package viscel.selection
+package viscel.netzi
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation.{withGood, _}
 import org.scalactic.{Every, Good, Or}
-import viscel.crawl.VResponse
-import viscel.store.Vurl
 
 import scala.util.matching.Regex
 
@@ -27,7 +25,7 @@ object NarrationInterpretation {
 
   case class NI(link: Link, response: VResponse[String]) {
     def interpret[T](outerWrapper: WrapPart[T]): T Or Every[Report] = {
-      val document = Jsoup.parse(response.content, response.location.uriString())
+      val document = Jsoup.parse(response.content, response.location.uriString)
       recurse(outerWrapper)(document)
     }
     def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T Or Every[Report] = {
@@ -116,7 +114,7 @@ object NarrationInterpretation {
   // used for vid
   case class Alternative[+T](left: WrapPart[T], right: WrapPart[T]) extends WrapPart[T]
   def LocationMatch[T](regex: Regex, isTrue: WrapPart[T], isFalse: WrapPart[T]) =
-    Condition(ContextW.map(c => regex.findFirstIn(c.response.location.uriString()).isDefined),
+    Condition(ContextW.map(c => regex.findFirstIn(c.response.location.uriString).isDefined),
               isTrue, isFalse)
 
   case class AdditionalErrors[+E](target: WrapPart[E], augmentation: Every[Report] => Every[Report])

@@ -2,9 +2,9 @@ package viscel.store
 
 import java.nio.file.Path
 
-import viscel.crawl.{VRequest, WebRequestInterface}
+import viscel.netzi.WebRequestInterface
 import viscel.narration.{Metarrator, Narrator, NarratorADT, Narrators, ViscelDefinition}
-import viscel.selection.NarrationInterpretation
+import viscel.netzi.{NarrationInterpretation, VRequest, Vurl, WebRequestInterface}
 import viscel.shared.{Log, Vid}
 import viscel.store.v4.DataRow
 

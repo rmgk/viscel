@@ -1,6 +1,6 @@
 package viscel.store
 
-import viscel.crawl.VRequest
+import viscel.netzi.{VRequest, Vurl}
 import viscel.shared.Vid
 import viscel.store.v4.DataRow
 

@@ -1,6 +1,7 @@
 package viscel.crawl
 
-import viscel.selection.NarrationInterpretation.Volatile
+import viscel.netzi.NarrationInterpretation.Volatile
+import viscel.netzi.VRequest
 
 
 case class Decider(links: List[VRequest] = Nil,

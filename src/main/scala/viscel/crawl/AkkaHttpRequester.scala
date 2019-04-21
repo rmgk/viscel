@@ -5,12 +5,13 @@ import java.time.Instant
 import akka.http.scaladsl.HttpExt
 import akka.http.scaladsl.coding.{Deflate, Gzip}
 import akka.http.scaladsl.model.headers.{ETag, HttpEncodings, Location, Referer, `Accept-Encoding`, `Last-Modified`}
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse}
+import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
-import viscel.shared.Log
-import viscel.store.Vurl
 import cats.implicits.catsSyntaxEitherId
+import viscel.netzi.Vurl.fromString
+import viscel.netzi.{VRequest, VResponse, Vurl, WebRequestInterface}
+import viscel.shared.Log
 
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,6 +22,15 @@ class AkkaHttpRequester(ioHttp: HttpExt)
   extends WebRequestInterface {
 
   val timeout = FiniteDuration(300, SECONDS)
+
+
+  def vurlToUri(vin: Vurl): Uri = Uri.parseAbsolute(vin.uriString())
+
+  def uriToVurl(uri: Uri): Vurl = {
+    if (!uri.isAbsolute) throw new IllegalArgumentException(s"$uri is not absolute")
+    fromString(uri.toString())
+  }
+
 
   private def decompress(r: HttpResponse): Future[HttpResponse] =
     Deflate.decodeMessage(Gzip.decodeMessage(r)).toStrict(timeout)
@@ -33,7 +43,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
   }
 
   def extractResponseLocation(base: Vurl, httpResponse: HttpResponse): Vurl =
-    httpResponse.header[Location].fold(base)(l => Vurl.fromUri(l.uri.resolvedAgainst(base.uri)))
+    httpResponse.header[Location].fold(base)(l => uriToVurl(l.uri.resolvedAgainst(vurlToUri(base))))
   def extractLastModified(httpResponse: HttpResponse): Option[Instant] =
     httpResponse.header[`Last-Modified`].map(h => Instant.ofEpochMilli(h.date.clicks))
   def extractEtag(httpResponse: HttpResponse): Option[String] =
@@ -50,8 +60,8 @@ class AkkaHttpRequester(ioHttp: HttpExt)
         // if the response has no location header, we insert the url from the request as a location,
         // this allows all other systems to use the most accurate location available
         Future.successful(
-          response.addHeader(Location.apply(
-            extractResponseLocation(Vurl.fromUri(request.uri), response).uri)))
+          response.addHeader(Location.apply(vurlToUri(
+            extractResponseLocation(uriToVurl(request.uri), response)))))
       }
       else Future.failed(RequestException(request.uri.toString(), response.status.toString()))
     }
@@ -61,10 +71,10 @@ class AkkaHttpRequester(ioHttp: HttpExt)
   private def requestInternal[R](request: VRequest): Future[VResponse[HttpResponse]] = {
     val req = HttpRequest(
       method = HttpMethods.GET,
-      uri = request.href.uri,
-      headers = request.origin.map(x => Referer.apply(x.uri)).toList)
+      uri = vurlToUri(request.href),
+      headers = request.origin.map(x => Referer.apply(vurlToUri(x))).toList)
     requestWithRedirects(req).map{ resp =>
-      viscel.crawl.VResponse(resp,
+      VResponse(resp,
                 location = extractResponseLocation(request.href, resp),
                 mime = resp.entity.contentType.mediaType.toString(),
                 lastModified = extractLastModified(resp),

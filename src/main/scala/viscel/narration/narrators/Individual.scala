@@ -6,11 +6,11 @@ import viscel.narration.Narrator.Wrapper
 import viscel.narration.NarratorADT
 import viscel.narration.Queries._
 import viscel.narration.Templates.{SimpleForward, archivePage}
-import viscel.selection.NarrationInterpretation._
-import viscel.selection.ReportTools._
-import viscel.selection.Selection
+import viscel.netzi.NarrationInterpretation._
+import viscel.netzi.ReportTools._
+import viscel.netzi.Selection
 import viscel.shared.Vid
-import viscel.store.Vurl.fromString
+import viscel.netzi.Vurl.fromString
 import viscel.store.v3.Volatile
 import viscel.store.v4.DataRow
 

@@ -1,8 +1,8 @@
 package viscel.narration
 
 import io.circe.{Decoder, Encoder}
-import viscel.selection.NarrationInterpretation.WrapPart
-import viscel.store.Vurl
+import viscel.netzi.Vurl
+import viscel.netzi.NarrationInterpretation.WrapPart
 
 abstract class Metarrator[T](val metarratorId: String) {
   def toNarrator(t : T): NarratorADT

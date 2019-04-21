@@ -1,9 +1,6 @@
-package viscel.crawl
+package viscel.netzi
 
 import java.time.Instant
-
-import viscel.selection.Link
-import viscel.store.Vurl
 
 import scala.concurrent.Future
 

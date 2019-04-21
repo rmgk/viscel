@@ -1,9 +1,9 @@
 package viscel.tests
 
-import viscel.crawl.VRequest
 import org.scalatest.FreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import viscel.crawl.Decider
+import viscel.netzi.VRequest
 import viscel.tests.DataGenerators._
 
 class DeciderTests extends FreeSpec with ScalaCheckDrivenPropertyChecks {

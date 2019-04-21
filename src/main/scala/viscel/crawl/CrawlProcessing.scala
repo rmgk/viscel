@@ -3,7 +3,7 @@ package viscel.crawl
 import cats.implicits.catsSyntaxOptionId
 import viscel.crawl.CrawlProcessing.{initialTasks, rechecks}
 import viscel.narration.Narrator
-import viscel.selection.NarrationInterpretation
+import viscel.netzi.{NarrationInterpretation, VRequest, VResponse, Vurl}
 import viscel.shared.Log
 import viscel.store._
 import viscel.store.v3.Volatile
@@ -32,8 +32,8 @@ class CrawlProcessing(narrator: Narrator) {
     toDataRow(link.ref, response, contents)
   }
   def toDataRow(request: Vurl,
-                        response: VResponse[_],
-                        contents: List[DataRow.Content]): DataRow = {
+                response: VResponse[_],
+                contents: List[DataRow.Content]): DataRow = {
     DataRow(request,
             response.location.some.filter(_ != request),
             response.lastModified,

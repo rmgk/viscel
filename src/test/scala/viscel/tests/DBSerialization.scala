@@ -5,8 +5,8 @@ import java.time.Instant
 import io.circe.syntax._
 import org.scalatest.FreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import viscel.netzi.Vurl
 import viscel.shared.Blob
-import viscel.store.Vurl
 import viscel.store.v3.CustomPicklers._
 import viscel.store.v3.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow}
 import viscel.tests.DataGenerators._

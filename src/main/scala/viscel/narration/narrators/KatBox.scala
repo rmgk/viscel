@@ -1,10 +1,10 @@
 package viscel.narration.narrators
 
 import viscel.narration.{Narrator, NarratorADT, Queries}
-import viscel.selection.NarrationInterpretation.{Combination, Constant, Decision, MapW}
-import viscel.selection.{ReportTools, Selection}
+import viscel.netzi.{ReportTools, Vurl}
+import viscel.netzi.NarrationInterpretation.{Combination, Constant, Decision, MapW}
+import viscel.netzi.Selection
 import viscel.shared.Vid
-import viscel.store.Vurl
 import viscel.store.v3.Volatile
 import viscel.store.v4.DataRow
 

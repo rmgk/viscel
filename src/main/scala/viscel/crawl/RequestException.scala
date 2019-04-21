@@ -1,7 +1,7 @@
 package viscel.crawl
 
 import org.scalactic.Every
-import viscel.selection.Report
+import viscel.netzi.Report
 import viscel.store.v4.DataRow
 
 case class RequestException(uri: String, status: String) extends Throwable

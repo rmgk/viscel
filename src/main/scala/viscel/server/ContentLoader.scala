@@ -5,6 +5,7 @@ import viscel.store._
 import viscel.store.v4.{DataRow, RowStoreV4}
 import cats.implicits.catsSyntaxOptionId
 import cats.implicits.catsSyntaxEitherId
+import viscel.netzi.Vurl
 
 import scala.collection.mutable
 

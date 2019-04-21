@@ -1,12 +1,12 @@
-package viscel.selection
+package viscel.netzi
 
 import org.jsoup.nodes.Element
 import org.scalactic.Accumulation.{withGood, convertGenTraversableOnceToCombinable => combinable}
 import org.scalactic.{Every, One, Or, attempt}
-import viscel.selection.ReportTools.show
+import viscel.netzi.ReportTools.show
 
-import scala.collection.immutable.Set
 import scala.collection.JavaConverters._
+import scala.collection.immutable.Set
 
 trait Report {
   def describe: String

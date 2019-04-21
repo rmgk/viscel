@@ -2,6 +2,7 @@ package viscel
 
 import better.files._
 import viscel.MimeUtil.mimeToExt
+import viscel.netzi.Vurl
 import viscel.shared.Vid
 import viscel.store._
 import viscel.store.v4.{DataRow, RowStoreV4}

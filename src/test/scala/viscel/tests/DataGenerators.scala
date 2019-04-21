@@ -2,11 +2,10 @@ package viscel.tests
 
 import java.time.Instant
 
-import viscel.crawl.VRequest
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
+import viscel.netzi.{VRequest, Vurl}
 import viscel.shared.Blob
-import viscel.store.Vurl
 import viscel.store.v3.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Volatile}
 import viscel.store.v4.DataRow
 

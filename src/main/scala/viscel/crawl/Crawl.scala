@@ -1,6 +1,7 @@
 package viscel.crawl
 
 import viscel.narration.Narrator
+import viscel.netzi.{VRequest, VResponse, WebRequestInterface}
 import viscel.shared.Log
 import viscel.store.v4.{DataRow, RowAppender, RowStoreV4}
 import viscel.store.{BlobStore, Book, DescriptionCache}

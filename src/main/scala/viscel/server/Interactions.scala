@@ -11,7 +11,7 @@ import viscel.shared.{Bindings, Bookmark, Description, Vid}
 import viscel.store.{NarratorCache, User, Users}
 import cats.syntax.eq._
 import cats.instances.string._
-import viscel.crawl.WebRequestInterface
+import viscel.netzi.WebRequestInterface
 
 import scala.collection.immutable.Map
 import scala.collection.mutable

@@ -4,8 +4,8 @@ import io.circe.generic.semiauto
 import io.circe.{Decoder, Encoder}
 import viscel.narration.Queries.RegexContext
 import viscel.narration.{Metarrator, NarratorADT, Queries, Templates}
-import viscel.selection.NarrationInterpretation.{ElementW, WrapPart}
-import viscel.store.Vurl
+import viscel.netzi.Vurl
+import viscel.netzi.NarrationInterpretation.{ElementW, WrapPart}
 
 case class Cfury(id: String, name: String)
 

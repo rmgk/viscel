@@ -1,9 +1,9 @@
-package viscel.selection
+package viscel.netzi
 
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.scalactic.{Bad, Every, Good, Or}
-import viscel.selection.NarrationInterpretation.{Focus, SelectionWrap, SelectionWrapEach, SelectionWrapFlat, MapW, WrapPart}
+import viscel.netzi.NarrationInterpretation.{Focus, MapW, SelectionWrap, SelectionWrapEach, SelectionWrapFlat, WrapPart}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 

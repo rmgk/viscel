@@ -2,7 +2,7 @@ package viscel.narration
 
 import cats.syntax.eq.catsSyntaxEq
 import viscel.narration.Narrator.Wrapper
-import viscel.selection.NarrationInterpretation.WrapPart
+import viscel.netzi.NarrationInterpretation.WrapPart
 import viscel.shared.Vid
 import viscel.store.v4.DataRow
 

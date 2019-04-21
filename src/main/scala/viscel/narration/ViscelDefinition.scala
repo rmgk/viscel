@@ -7,10 +7,9 @@ import better.files._
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.Queries._
-import viscel.selection.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, MapW}
-import viscel.selection.Report
+import viscel.netzi.{Report, Vurl}
+import viscel.netzi.NarrationInterpretation.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, MapW}
 import viscel.shared.{Log, Vid}
-import viscel.store.Vurl
 import viscel.store.v4.DataRow
 
 import scala.annotation.tailrec
