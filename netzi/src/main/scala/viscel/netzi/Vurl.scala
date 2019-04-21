@@ -29,6 +29,4 @@ object Vurl {
       new Vurl(new URL(uri).toString)
     }
   }
-
-  val entrypoint: Vurl = new Vurl("viscel:///initial")
 }

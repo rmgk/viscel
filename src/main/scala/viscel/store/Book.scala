@@ -13,7 +13,7 @@ case class Book(id: Vid,
     pages.get(loc).fold(true){dr =>
       dr.contents.isEmpty ||  dr.contents.exists(c => !c.isInstanceOf[DataRow.Blob])}
 
-  def beginning: Option[DataRow] = pages.get(Vurl.entrypoint)
+  def beginning: Option[DataRow] = pages.get(Book.entrypoint)
   def hasPage(ref: Vurl): Boolean = pages.contains(ref)
 
   def allBlobs(): Iterator[DataRow.Blob] =
@@ -41,6 +41,8 @@ case class Book(id: Vid,
 }
 
 object Book {
+  val entrypoint: Vurl = Vurl("viscel:///initial")
+
   def fromEntries(id: Vid,
                   name: String,
                   entryList: Iterable[DataRow])

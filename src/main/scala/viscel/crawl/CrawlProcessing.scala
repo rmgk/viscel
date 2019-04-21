@@ -17,7 +17,7 @@ class CrawlProcessing(narrator: Narrator) {
     val entry = book.beginning
     val transformed = narrator.archive
     if (entry.isEmpty || entry.get.contents != transformed) {
-      Some(DataRow(Vurl.entrypoint, contents = transformed))
+      Some(DataRow(Book.entrypoint, contents = transformed))
     } else None
   }
 

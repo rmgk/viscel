@@ -7,6 +7,7 @@ import org.scalatest.FreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import viscel.netzi.Vurl
 import viscel.shared.Blob
+import viscel.store.Book
 import viscel.store.v3.CustomPicklers._
 import viscel.store.v3.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow}
 import viscel.tests.DataGenerators._
@@ -35,8 +36,8 @@ class DBSerialization extends FreeSpec with ScalaCheckDrivenPropertyChecks {
 
   "Serialization" - {
     "Vurls" - {
-      "entrypoint json" in assert(Vurl.entrypoint.asJson === "viscel:///initial".asJson)
-      "entrypoint from string" in assert(Vurl.entrypoint === Vurl.fromString("viscel:///initial"))
+      "entrypoint json" in assert(Book.entrypoint.asJson === "viscel:///initial".asJson)
+      "entrypoint from string" in assert(Book.entrypoint === Vurl.fromString("viscel:///initial"))
     }
     "DataRows" - {
       "read page" in assert(io.circe.parser.decode[ScribeDataRow](pageJson) === Right(pageDataRow))

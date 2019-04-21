@@ -35,7 +35,7 @@ class FolderImporter(blobStore: BlobStore, rowStore: RowStoreV4, descriptionCach
 
 
     val appender = rowStore.open(vid, nname)
-    appender.append(DataRow(Vurl.entrypoint, contents = story))
+    appender.append(DataRow(Book.entrypoint, contents = story))
     descriptionCache.invalidate(vid)
   }
 }
