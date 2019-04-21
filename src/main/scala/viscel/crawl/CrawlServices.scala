@@ -28,12 +28,13 @@ class CrawlServices(blobStore: BlobStore,
   def addPageTo(book: Book,
                 rowAppender: RowAppender,
                 pageData: DataRow): Book = {
-    val (newBook, written) = book.addPage(pageData)
-    written.foreach { i =>
-      rowAppender.append(pageData)
-      descriptionCache.updateSize(newBook.id, i)
+    book.addPage(pageData) match {
+      case None          => book
+      case Some(newBook) =>
+        rowAppender.append(pageData)
+        descriptionCache.invalidate(newBook.id)
+        newBook
     }
-    newBook
   }
 
   case class CrawlState(book: Book, decider: Decider)

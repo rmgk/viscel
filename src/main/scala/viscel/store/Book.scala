@@ -27,15 +27,13 @@ case class Book(id: Vid,
 
   /** Add a new page to this book.
     *
-    * @return New book and an estimate of the increased size, or None if the book is unchanged. */
-  def addPage(entry: DataRow): (Book, Option[Int]) = {
+    * @return Book if updated */
+  def addPage(entry: DataRow): Option[Book]= {
     val oldPage = pages.get(entry.ref)
     if (oldPage.isEmpty || oldPage.get != entry) {
-      val newBook = copy(pages = pages.updated(entry.ref, entry))
-      // TODO: compute size difference again
-      (newBook, Some(0))
+      Some(copy(pages = pages.updated(entry.ref, entry)))
     }
-    else (this, None)
+    else None
   }
 
 }

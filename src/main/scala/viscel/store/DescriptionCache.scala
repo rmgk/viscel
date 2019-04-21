@@ -8,7 +8,8 @@ import viscel.shared.Description
 
 
 /** Caches the [[viscel.shared.Description.size]] so the
-  * [[viscel.server.ContentLoader.descriptions]] can be efficiently computed. */
+  * [[viscel.server.ContentLoader.descriptions]] can be efficiently computed.
+  * That is, we cache the size. */
 class DescriptionCache(cachedir: Path) {
   private val descriptionpath: Path = cachedir.resolve("descriptions.json")
   private var descriptionCache: Map[Vid, Description] =
@@ -16,13 +17,6 @@ class DescriptionCache(cachedir: Path) {
 
   def invalidate(id: Vid): Unit = synchronized {
     descriptionCache = descriptionCache - id
-  }
-
-  def updateSize(id: Vid, sizeDelta: Int): Unit = synchronized {
-    descriptionCache.get(id).foreach { desc =>
-      descriptionCache = descriptionCache.updated(id, desc.copy(size = desc.size + sizeDelta))
-    }
-    Json.store[Map[Vid, Description]](descriptionpath, descriptionCache)
   }
 
   def getOrElse(id: Vid)(orElse: => Description): Description = synchronized {
