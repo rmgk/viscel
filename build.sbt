@@ -61,7 +61,8 @@ lazy val viscel = project
                     Libraries.main,
                     vbundleDef,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
-                    publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value
+                    publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal, 
+                                                           netzi / publishLocal).value
                   )
                   .enablePlugins(JavaServerAppPackaging)
                   .dependsOn(sharedJVM, netzi)
