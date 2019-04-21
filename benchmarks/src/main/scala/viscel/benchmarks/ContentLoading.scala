@@ -1,4 +1,4 @@
-package de.rmgk
+package viscel.benchmarks
 
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
@@ -7,8 +7,10 @@ import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
 import viscel.Services
 import viscel.server.ContentLoader
+import viscel.server.ContentLoader.LinearResult
 import viscel.shared.Vid
-import viscel.store.{Book, ReadableContent, ScribeDataRow}
+import viscel.store.Book
+import viscel.store.v4.{DataRow, RowStoreV4}
 
 
 @State(Scope.Thread)
@@ -25,27 +27,27 @@ class ContentLoading {
   @Param(Array(""))
   var dbpath: String = _
 
-  var services: Services = _
-  var vid     : Vid      = _
+  var services: RowStoreV4 = _
+  var vid     : Vid        = _
 
-  var loadedContents: (String, Seq[ScribeDataRow]) = _
+  var loadedContents: (String, Seq[DataRow]) = _
 
   var book: Book = _
 
-  var pages: List[ReadableContent] = _
+  var pages: LinearResult = _
 
   @Setup
   def setup(): Unit = {
-    services = new Services(Paths.get(dbpath), Paths.get("./blobs/"), "localhost", 2358)
+    services = new RowStoreV4(Paths.get(dbpath))
     vid = Vid.from(bookId)
-    loadedContents = services.rowStore.loadOld(vid)
+    loadedContents = services.load(vid)
     book = Book.fromEntries(vid, loadedContents._1, loadedContents._2)
     pages = ContentLoader.linearizedPages(book)
   }
 
   @Benchmark
   def loadContents(bh: Blackhole) = {
-    services.rowStore.loadOld(vid)
+    services.load(vid)
   }
 
   @Benchmark
