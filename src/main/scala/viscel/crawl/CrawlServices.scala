@@ -22,7 +22,7 @@ class CrawlServices(blobStore: BlobStore,
     val pageData = CrawlProcessing.init(narrator.archive, book)
     val newBook = pageData.fold(book)(addPageTo(book, appender, _))
 
-    new Crawling(narrator, appender).interpret(newBook, CrawlProcessing.decider(newBook))
+    new Crawling(narrator, appender).crawlLoop(CrawlState(newBook, CrawlProcessing.decider(newBook)))
   }
 
   def addPageTo(book: Book,
@@ -36,45 +36,54 @@ class CrawlServices(blobStore: BlobStore,
     newBook
   }
 
+  case class CrawlState(book: Book, decider: Decider)
 
   class Crawling(narrator: Narrator, rowAppender: RowAppender) {
 
-    def interpret(book: Book, decider: Decider): Future[Unit] = {
-      decider.decide() match {
-        case Some((request, nextDecider)) => handlePageResponse(book, request, nextDecider)
+    def crawlLoop(cs: CrawlState): Future[Unit] = {
+      cs.decider.decide() match {
+        case Some((request, nextDecider)) =>
+          requestUtil.get(request).flatMap { response =>
+            crawlLoop(handleResponse(cs.book, response, request, nextDecider))
+          }(executionContext)
         case None                         => Future.successful(())
       }
     }
 
-    private def handlePageResponse(book: Book,
-                                   request: VRequest,
-                                   decider: Decider): Future[Unit] = {
+    def handleResponse(book: Book,
+                       response: VResponse[Either[Array[Byte], String]],
+                       request: VRequest,
+                       decider: Decider): CrawlState = {
+
+      def handleBlob(array: Array[Byte]): CrawlState = {
+        val sha1 = BlobStore.sha1hex(array)
+        val contents = List(DataRow.Blob(sha1 = sha1, mime = response.mime))
+        val datarow = CrawlProcessing.toDataRow(request, response, contents)
+        Log.Crawl.trace(s"Processing ${response.location}, storing $sha1")
+        blobStore.write(sha1, array)
+        CrawlState(addPageTo(book, rowAppender, datarow), decider)
+      }
+
+      def handlePage(str: String): CrawlState = {
+        val pageData = CrawlProcessing.processPageResponse(narrator.wrapper,
+                                                           request,
+                                                           response.copy(content = str))
+        Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
+        val newBook: Book = addPageTo(book, rowAppender, pageData)
+        val tasks = CrawlProcessing.computeTasks(pageData, newBook)
+        Log.Crawl.trace(s"Add tasks: $tasks")
+        CrawlState(newBook, decider.addTasks(tasks))
+      }
+
+
       Log.Crawl.trace(s"Handling page response for $request")
-      requestUtil.get(request).flatMap { response: VResponse[Either[Array[Byte], String]] =>
-        response.content match {
-          case Left(array) =>
-            val sha1 = BlobStore.sha1hex(array)
-            val contents = List(DataRow.Blob(sha1 = sha1, mime = response.mime))
-            val datarow = CrawlProcessing.toDataRow(request, response, contents)
-            Log.Crawl.trace(s"Processing ${response.location}, storing $sha1")
-            blobStore.write(sha1, array)
-            interpret(addPageTo(book, rowAppender, datarow), decider)
-          case Right(str)  =>
-            val pageData = CrawlProcessing.processPageResponse(narrator.wrapper,
-                                                               request,
-                                                               response.copy(content = str))
-            Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
-            val newBook: Book = addPageTo(book, rowAppender, pageData)
-            val tasks = CrawlProcessing.computeTasks(pageData, newBook)
-            Log.Crawl.trace(s"Add tasks: $tasks")
-            interpret(newBook, decider.addTasks(tasks))
-        }
-
-      }(executionContext)
+      response.content match {
+        case Left(array) => handleBlob(array)
+        case Right(str)  => handlePage(str)
+      }
     }
+
   }
-
-
 }
 
 
