@@ -2,7 +2,7 @@ package viscel.selektiv
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.scalactic.Accumulation.{withGood, _}
+import org.scalactic.Accumulation._
 import org.scalactic.{Every, Good, Or}
 
 object Narration {
@@ -23,8 +23,7 @@ object Narration {
     }
     def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T Or Every[Report] = {
       val res: Or[T, Every[Report]] = wrapper match {
-        case ElementW                               =>
-          org.scalactic.attempt(element).badMap(ExtractionFailed.apply).accumulating
+        case ElementW                               => Good(element)
         case ContextW                               => Good(cd)
         case Constant(t)                            => Good(t)
         case Condition(pred, isTrue, isFalse)       =>

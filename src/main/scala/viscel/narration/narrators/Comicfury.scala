@@ -4,7 +4,7 @@ import io.circe.generic.semiauto
 import io.circe.{Decoder, Encoder}
 import viscel.narration.Queries.RegexContext
 import viscel.narration.{Metarrator, NarratorADT, Queries, Templates}
-import viscel.selektiv.Narration.{ElementW, WrapPart}
+import viscel.selektiv.Narration.{ContextW, WrapPart}
 import viscel.store.v4.Vurl
 
 case class Cfury(id: String, name: String)
@@ -24,8 +24,8 @@ object Comicfury extends Metarrator[Cfury]("Comicfury") {
     case _ => None
   }
 
-  override def wrap: WrapPart[List[Cfury]] = ElementW.map { document =>
-    val rex"http://($cid[^\.]+)\.thecomicseries.com/" = document.baseUri()
+  override def wrap: WrapPart[List[Cfury]] = ContextW.map { context =>
+    val rex"http://($cid[^\.]+)\.thecomicseries.com/" = context.location
     Cfury(cid, s"[CF] $cid") :: Nil
   }
 
