@@ -4,8 +4,9 @@ import io.circe.{Decoder, Encoder}
 import org.scalactic._
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, NarratorADT, Templates}
-import viscel.netzi.{Selection, Vurl}
-import viscel.netzi.Narration.{Constant, Decision, MapW, WrapPart}
+import viscel.netzi.Vurl
+import viscel.selektiv.Narration.{Constant, Decision, MapW, WrapPart}
+import viscel.selektiv.Selection
 
 case class MangaHereNarrator(id: String, name: String, archiveUri: Vurl)
 

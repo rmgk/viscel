@@ -5,7 +5,7 @@ import io.circe.{Decoder, Encoder}
 import viscel.narration.Queries.RegexContext
 import viscel.narration.{Metarrator, NarratorADT, Queries, Templates}
 import viscel.netzi.Vurl
-import viscel.netzi.Narration.{ElementW, WrapPart}
+import viscel.selektiv.Narration.{ElementW, WrapPart}
 
 case class Cfury(id: String, name: String)
 

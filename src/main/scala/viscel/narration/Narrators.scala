@@ -2,7 +2,7 @@ package viscel.narration
 
 import viscel.narration.narrators.Individual._
 import viscel.narration.narrators._
-import viscel.netzi.Narration.WrapPart
+import viscel.selektiv.Narration.WrapPart
 import viscel.shared.Vid
 import viscel.store.v4.DataRow
 

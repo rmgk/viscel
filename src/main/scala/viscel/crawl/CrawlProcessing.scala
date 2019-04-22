@@ -2,8 +2,9 @@ package viscel.crawl
 
 import cats.implicits.catsSyntaxOptionId
 import viscel.narration.Narrator.Wrapper
-import viscel.netzi.Narration.ContextData
-import viscel.netzi.{Narration, VRequest, VResponse, Vurl}
+import viscel.selektiv.Narration.ContextData
+import viscel.netzi.{VRequest, VResponse, Vurl}
+import viscel.selektiv.Narration
 import viscel.shared.Log
 import viscel.store._
 import viscel.store.v4.DataRow

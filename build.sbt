@@ -22,7 +22,7 @@ val Libraries = new {
     strictCompile
   )
 
-  val netzi = Def.settings(scalactic, jsoup,
+  val selektiv = Def.settings(scalactic, jsoup,
                            scalaVersion_212,
                            strictCompile)
 
@@ -61,17 +61,17 @@ lazy val viscel = project
                     Libraries.main,
                     vbundleDef,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
-                    publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal, 
-                                                           netzi / publishLocal).value
+                    publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal,
+                                                           selektiv / publishLocal).value
                   )
                   .enablePlugins(JavaServerAppPackaging)
-                  .dependsOn(sharedJVM, netzi)
+                  .dependsOn(sharedJVM, selektiv)
 
-lazy val netzi = project.in(file("netzi"))
-                 .settings(
-                   name := "netzi",
-                   Libraries.netzi
-                 )
+lazy val selektiv = project.in(file("selektiv"))
+                    .settings(
+                      name := "selektiv",
+                      Libraries.selektiv
+                      )
 
 lazy val app = project.in(file("app"))
                .enablePlugins(ScalaJSPlugin)

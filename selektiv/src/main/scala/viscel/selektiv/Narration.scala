@@ -1,4 +1,4 @@
-package viscel.netzi
+package viscel.selektiv
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element

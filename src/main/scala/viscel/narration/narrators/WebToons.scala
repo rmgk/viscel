@@ -3,10 +3,10 @@ package viscel.narration.narrators
 import io.circe.{Decoder, Encoder}
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, NarratorADT, Templates}
-import viscel.netzi.{Narration, Vurl}
-import viscel.netzi.ReportTools.extract
-import viscel.netzi.Selection
-import viscel.netzi.Narration._
+import viscel.netzi.{Vurl}
+import viscel.selektiv.ReportTools.extract
+import viscel.selektiv.Narration._
+import viscel.selektiv.{Narration, Selection}
 
 case class WebToon(id: String, name: String, start: Vurl)
 object WebToons extends Metarrator[WebToon]("WebToons") {

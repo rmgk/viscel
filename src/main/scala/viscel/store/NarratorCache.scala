@@ -3,8 +3,9 @@ package viscel.store
 import java.nio.file.Path
 
 import viscel.narration.{Metarrator, Narrator, NarratorADT, Narrators, ViscelDefinition}
-import viscel.netzi.Narration.ContextData
-import viscel.netzi.{Narration, VRequest, Vurl, WebRequestInterface}
+import viscel.selektiv.Narration.ContextData
+import viscel.netzi.{VRequest, Vurl, WebRequestInterface}
+import viscel.selektiv.Narration
 import viscel.shared.{Log, Vid}
 
 import scala.collection.immutable.{Map, Set}
