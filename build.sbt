@@ -26,7 +26,7 @@ val Libraries = new {
                            scalaVersion_212,
                            strictCompile)
 
-  val main = Def.settings(scalactic, betterFiles, decline, akkaHttp,
+  val main = Def.settings(betterFiles, decline, akkaHttp,
                           scalatest, scalacheck)
 
 

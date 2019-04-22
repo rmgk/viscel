@@ -72,10 +72,10 @@ class CrawlScheduler(path: Path,
       t.printStackTrace()
   }
 
-  private var updateTimes: Map[Vid, Long] = Json.load[Map[Vid, Long]](path).fold(x => x, err => {
+  private var updateTimes: Map[Vid, Long] = Json.load[Map[Vid, Long]](path).fold(err => {
     log.error(s"could not load $path: $err")
     Map()
-  })
+  }, identity)
 
   def updateDates(id: Vid): Unit = synchronized {
     val time = System.currentTimeMillis()

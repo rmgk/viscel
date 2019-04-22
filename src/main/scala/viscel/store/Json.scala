@@ -1,12 +1,12 @@
 package viscel.store
 
+import java.io.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.StandardOpenOption._
 import java.nio.file.{Files, Path}
 
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
-import org.scalactic.{Bad, Or}
 
 import scala.collection.JavaConverters._
 
@@ -18,12 +18,12 @@ object Json {
     Files.write(p, jsonBytes.asJava, UTF_8, CREATE, WRITE, TRUNCATE_EXISTING)
   }
 
-  def load[T: Decoder](p: Path): T Or Exception = synchronized {
+  def load[T: Decoder](p: Path): Either[Exception, T] = synchronized {
     try {
       val jsonString = String.join("\n", Files.readAllLines(p, UTF_8))
-      Or.from(io.circe.parser.decode[T](jsonString))
+      io.circe.parser.decode[T](jsonString)
     }
-    catch {case e: Exception => Bad(e)}
+    catch {case e: IOException => Left(e)}
   }
 
 }

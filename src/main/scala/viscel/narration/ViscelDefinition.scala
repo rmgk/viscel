@@ -1,10 +1,10 @@
 package viscel.narration
 
+import java.net.MalformedURLException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import better.files._
-import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.Queries._
 import viscel.selektiv.Narration.{AdditionalErrors, Append, MapW}
@@ -20,13 +20,19 @@ object ViscelDefinition {
 
   case class Line(s: String, p: Int)
   type It = BufferedIterator[Line]
+  type ErrorMessage = String
+    type Or[T, V] = Either[V, T]
 
   val extractIDAndName: Regex = """^-(\w*):(.+)$""".r
   val extractAttribute: Regex = """^:(\S+)\s*(.*)$""".r
 
   def parseURL(it: It): Vurl Or ErrorMessage = {
     val Line(url, pos) = it.next()
-    attempt(Vurl.fromString(url)).badMap(_ => s"malformed URL at line $pos: $url")
+    try Right(Vurl.fromString(url))
+    catch {
+      case mue : MalformedURLException =>
+        Left(s"malformed URL at line $pos: $url")
+    }
   }
 
   val attributeReplacements = Map(
@@ -129,9 +135,9 @@ object ViscelDefinition {
     val archFunRev = if (has("archiveReverse")) archFunReplace.map(MapW(_, chapterReverse)) else archFunReplace
 
     (pageFunReplace, archFunRev) match {
-      case (Some(pf), None) => Good(NarratorADT(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, pf))
-      case (Some(pf), Some(af)) => Good(Templates.archivePage(cid, name, startUrl, af, pf))
-      case _ => Bad(s"invalid combinations of attributes for $cid at line $pos")
+      case (Some(pf), None) => Right(NarratorADT(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, pf))
+      case (Some(pf), Some(af)) => Right(Templates.archivePage(cid, name, startUrl, af, pf))
+      case _ => Left(s"invalid combinations of attributes for $cid at line $pos")
     }
 
   }
@@ -145,7 +151,7 @@ object ViscelDefinition {
           makeNarrator(id, name, pos, url, attrs, path)
         }
 
-      case Line(line, pos) => Bad(s"expected definition at line $pos, but found $line")
+      case Line(line, pos) => Left(s"expected definition at line $pos, but found $line")
     }
   }
 
@@ -157,12 +163,12 @@ object ViscelDefinition {
 
     def go(it: It, acc: List[Narrator]): List[Narrator] Or ErrorMessage =
       if (!it.hasNext) {
-        Good(acc)
+        Right(acc)
       }
       else {
         parseNarration(it, path) match {
-          case Good(n) => go(it, n :: acc)
-          case Bad(e) => Bad(e)
+          case Right(n) => go(it, n :: acc)
+          case Left(e) => Left(e)
         }
       }
 
@@ -172,8 +178,8 @@ object ViscelDefinition {
   def load(stream: Iterator[String], path: String): List[Narrator] = {
     Log.Store.info(s"parsing definitions from $path")
     parse(stream, path.toString) match {
-      case Good(res) => res
-      case Bad(err) =>
+      case Right(res) => res
+      case Left(err) =>
         Log.Store.warn(s"failed to parse $path errors: $err")
         Nil
     }
