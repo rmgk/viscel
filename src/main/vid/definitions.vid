@@ -133,8 +133,6 @@ http://cortland.comicgenesis.com/d/20040320.html
 http://archive.exiern.com/comic/so-far/
 :image #comic img
 :next #comic-nav-wrapper a.comic-nav-next
-:skip comic/(happy-halloween|typhan-knee-through-the-looking-glass-valentines-day-sex-drive-2017|merry-christmas|many-thanks-to-\w+|exiern-new-years-day-special-2018|the-day-after|dark_reflections_is_back_for_2018)/
-
 
 
 -NX_ElGoonishShive:El Goonish Shive
