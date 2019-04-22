@@ -7,8 +7,8 @@ import better.files._
 import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.Queries._
+import viscel.netzi.Narration.{AdditionalErrors, Append, MapW}
 import viscel.netzi.{Report, Vurl}
-import viscel.netzi.Narration.{AdditionalErrors, Alternative, Append, Constant, LocationMatch, MapW}
 import viscel.shared.{Log, Vid}
 import viscel.store.v4.DataRow
 
@@ -99,13 +99,6 @@ object ViscelDefinition {
 
     val pageFun: Option[Wrap] = attrs match {
       case extract"image+next $img" => annotate(queryImageInAnchor(img.s), img)
-
-      case extract"image $img next $next skip $skip" => annotate(
-        Append(Alternative(queryImage(img.s),
-                           LocationMatch(skip.s.r,
-                                         Constant(Nil),
-                                         queryImage(img.s))),
-               queryNext(next.s)), img, next)
 
       case extract"image $img next $next" => annotate(queryImageNext(img.s, next.s), img, next)
 

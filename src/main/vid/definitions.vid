@@ -8,8 +8,6 @@
 -- chapterArchive (ac): matches an archive of chapter references
 -- url_replace: does replacements on urls
 -- archiveReverse: reverses the chapters in the archive (not the order of images)
--- skip: allow to skip pages without content (regex)
-
 
 
 ---------------------------------------------- DEAD ---

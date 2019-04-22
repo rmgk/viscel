@@ -5,8 +5,6 @@ import org.jsoup.nodes.Element
 import org.scalactic.Accumulation.{withGood, _}
 import org.scalactic.{Every, Good, Or}
 
-import scala.util.matching.Regex
-
 object Narration {
 
   private def applySelection(doc: Element, sel: Selection): List[Element] Or Every[Report] = {
@@ -29,7 +27,6 @@ object Narration {
           org.scalactic.attempt(element).badMap(ExtractionFailed.apply).accumulating
         case ContextW                               => Good(ContextData(link, response))
         case Constant(t)                            => Good(t)
-        case Alternative(left, right)               => recurse(left).orElse(recurse(right))
         case Condition(pred, isTrue, isFalse)       =>
           recurse(pred).flatMap(c => if (c) recurse(isTrue) else recurse(isFalse))
         case AdditionalErrors(target, augmentation) => recurse(target).badMap(augmentation)
@@ -107,11 +104,6 @@ object Narration {
 
 
   // used for vid
-  case class Alternative[+T](left: WrapPart[T], right: WrapPart[T]) extends WrapPart[T]
-  def LocationMatch[T](regex: Regex, isTrue: WrapPart[T], isFalse: WrapPart[T]) =
-    Condition(ContextW.map(c => regex.findFirstIn(c.response.location.uriString).isDefined),
-              isTrue, isFalse)
-
   case class AdditionalErrors[+E](target: WrapPart[E], augmentation: Every[Report] => Every[Report])
     extends WrapPart[E]
 
