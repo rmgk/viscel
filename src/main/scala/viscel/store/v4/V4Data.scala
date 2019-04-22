@@ -28,11 +28,8 @@ object Vurl {
 
   /* Ensure urls are always parsed. */
   implicit def fromString(uri: String): Vurl = {
-    if (uri.startsWith("viscel:"))
-      new Vurl(uri)
-    else {
-      new Vurl(new URL(uri).toString)
-    }
+    if (uri.startsWith("viscel:")) new Vurl(uri)
+    else new Vurl(new URL(uri).toString)
   }
 }
 
