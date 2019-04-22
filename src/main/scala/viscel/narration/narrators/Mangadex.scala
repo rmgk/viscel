@@ -6,7 +6,7 @@ import io.circe.{Decoder, DecodingFailure, Encoder}
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.{Metarrator, NarratorADT, Templates}
 import viscel.netzi.{Report, Vurl}
-import viscel.netzi.Narration.{Combination, ContentW, ContextW, WrapPart}
+import viscel.netzi.Narration.{Combination, ContextW, WrapPart}
 import viscel.store.v4.DataRow
 
 import scala.util.Try
@@ -30,8 +30,8 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
 
   val archiveWrapper: Wrapper = {
-    ContentW.map { jsonString =>
-      val json = io.circe.parser.parse(jsonString).right.get
+    ContextW.map { context =>
+      val json = io.circe.parser.parse(context.content).right.get
       val chaptersMap = json.hcursor.downField("chapter")
       chaptersMap.keys.get
       .filter(cid => chaptersMap.downField(cid).get[String]("lang_code").getOrElse("") == "gb")
@@ -56,8 +56,8 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   }
 
   val pageWrapper: Wrapper = {
-    ContentW.map { jsonString =>
-      val json = io.circe.parser.parse(jsonString).right.get
+    ContextW.map { context =>
+      val json = io.circe.parser.parse(context.content).right.get
       val c = json.hcursor
       val hash = c.get[String]("hash")
       val server = c.get[String]("server")
@@ -102,9 +102,9 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   override val wrap: WrapPart[List[MangadexNarrator]] =
     Combination.of(
-      ContextW.map(_.response.location),
-      ContentW.map { jsonString =>
-        val json = io.circe.parser.parse(jsonString).right.get
+      ContextW.map(_.location),
+      ContextW.map { context =>
+        val json = io.circe.parser.parse(context.content).right.get
         json.hcursor.downField("manga").downField("title").as[String].right.get
     }
       ){(loc, title) =>

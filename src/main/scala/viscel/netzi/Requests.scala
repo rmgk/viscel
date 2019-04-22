@@ -4,7 +4,7 @@ import java.time.Instant
 
 import scala.concurrent.Future
 
-case class VRequest(href: Vurl, context: Seq[String] = Nil, referer: Option[Vurl] = None)
+case class VRequest(href: Vurl, context: List[String] = Nil, referer: Option[Vurl] = None)
 case class VResponse[T](content: T,
                         location: Vurl,
                         mime: String,

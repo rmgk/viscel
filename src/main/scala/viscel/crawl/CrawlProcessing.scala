@@ -2,6 +2,7 @@ package viscel.crawl
 
 import cats.implicits.catsSyntaxOptionId
 import viscel.narration.Narrator.Wrapper
+import viscel.netzi.Narration.ContextData
 import viscel.netzi.{Narration, VRequest, VResponse, Vurl}
 import viscel.shared.Log
 import viscel.store._
@@ -20,7 +21,8 @@ object CrawlProcessing {
 
 
   def processPageResponse(wrapper: Wrapper, request: VRequest, response: VResponse[String]): DataRow = {
-    val contents = Narration.Interpreter(request, response)
+    val context = ContextData(response.content, request.context, response.location.uriString())
+    val contents = Narration.Interpreter(context)
                    .interpret[List[DataRow.Content]](wrapper)
                    .fold(identity, r => throw WrappingException(request, r))
 

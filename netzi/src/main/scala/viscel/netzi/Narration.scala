@@ -16,16 +16,16 @@ object Narration {
     }
   }
 
-  case class Interpreter(link: VRequest, response: VResponse[String]) {
+  case class Interpreter(cd: ContextData) {
     def interpret[T](outerWrapper: WrapPart[T]): T Or Every[Report] = {
-      val document = Jsoup.parse(response.content, response.location.uriString)
+      val document = Jsoup.parse(cd.content, cd.location)
       recurse(outerWrapper)(document)
     }
     def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T Or Every[Report] = {
       val res: Or[T, Every[Report]] = wrapper match {
         case ElementW                               =>
           org.scalactic.attempt(element).badMap(ExtractionFailed.apply).accumulating
-        case ContextW                               => Good(ContextData(link, response))
+        case ContextW                               => Good(cd)
         case Constant(t)                            => Good(t)
         case Condition(pred, isTrue, isFalse)       =>
           recurse(pred).flatMap(c => if (c) recurse(isTrue) else recurse(isFalse))
@@ -37,9 +37,6 @@ object Narration {
           recurse(selection).flatMap { listOfElements =>
             listOfElements.validatedBy(recurse(continue)(_)).map(_.flatten)
           }
-
-        case ContentW => Good(response.content)
-
       }
       res
     }
@@ -55,7 +52,7 @@ object Narration {
   val Volatile = "Volatile"
 
   def PolicyDecision[T](volatile: WrapPart[T], normal: WrapPart[T]) =
-    Condition(ContextW.map(_.request.context.contains(Volatile)), volatile, normal)
+    Condition(ContextW.map(_.context.contains(Volatile)), volatile, normal)
 
   case class Condition[T](pred: WrapPart[Boolean], isTrue: WrapPart[T], isFalse: WrapPart[T])
     extends WrapPart[T]
@@ -97,11 +94,9 @@ object Narration {
 
   case class Constant[T](c: T) extends WrapPart[T]
 
-  case class ContextData(request: VRequest, response: VResponse[String])
+  case class ContextData(content: String, context: List[String], location: String)
   // single data element extraction
   case object ContextW extends WrapPart[ContextData]
-  case object ContentW extends WrapPart[String]
-
 
   // used for vid
   case class AdditionalErrors[+E](target: WrapPart[E], augmentation: Every[Report] => Every[Report])
