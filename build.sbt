@@ -22,7 +22,7 @@ val Libraries = new {
     strictCompile
   )
 
-  val selektiv = Def.settings(scalactic, jsoup,
+  val selektiv = Def.settings(jsoup,
                            scalaVersion_212,
                            strictCompile)
 

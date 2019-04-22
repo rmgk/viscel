@@ -65,7 +65,7 @@ class CrawlScheduler(path: Path,
         s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
            |$narrator
            |  failed on ${link.href.uriString} (${if (link.context.nonEmpty) s", ${link.context}" else ""}):
-           |  ${reports.map {_.describe}.mkString("\n  ")}
+           |  ${reports.describe}
            |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
     case t                                =>
       log.error(s"[${narrator.id}] recheck failed with $t")

@@ -38,7 +38,7 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
       requestUtil.get(VRequest(url)).map { resp =>
         val respc = resp.copy(content = resp.content.right.get)
         val contextData = ContextData(respc.content, Nil, respc.location.uriString())
-        val nars = Narration.Interpreter(contextData).interpret(metarrator.wrap).get
+        val nars = Narration.Interpreter(contextData).interpret(metarrator.wrap)
         synchronized {
           save(metarrator, nars ++ load(metarrator))
           updateCache()

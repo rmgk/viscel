@@ -1,21 +1,18 @@
 package viscel.selektiv
 
 import org.jsoup.nodes.Element
-import org.scalactic.Accumulation.{convertGenTraversableOnceToCombinable => combinable}
-import org.scalactic.{Every, One, Or, attempt}
-import viscel.selektiv.ReportTools.show
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.Set
+import scala.util.control.NonFatal
 
-trait Report {
+trait Report extends RuntimeException {
   def describe: String
 }
 
 object ReportTools {
   def show(element: Element) = s"${element.tag} ${element.attributes().asScala.map(_.html()).mkString(" ")}"
-  def combine[T, E](as: T Or Every[E]*): Or[List[T], Every[E]] = combinable(as).combined.map(_.toList)
-  def extract[R](op: => R): R Or One[ExtractionFailed] = attempt(op).badMap(ExtractionFailed.apply).accumulating
+  def extract[R](op: => R): R = try op catch {case NonFatal(e) => throw ExtractionFailed(e) }
 }
 
 trait Stack {
@@ -32,7 +29,8 @@ trait Stack {
 class FixedReport(override val describe: String) extends Report
 
 case class FailedElement(query: String, reason: Report, element: Element*) extends Report with Stack {
-  override def describe: String = s"${reason.describe}: '$query' on <${element map show mkString "; "}> at ($position)"
+  override def describe: String =
+    s"${reason.describe}: '$query' on <${element map ReportTools.show mkString "; "}> at ($position)"
 }
 
 case object QueryNotUnique extends FixedReport("query is not unique")

@@ -95,7 +95,8 @@ object ViscelDefinition {
 
     def has(keys: String*): Boolean = keys.forall(attrs.contains)
 
-    def annotate(f: Wrapper, lines: Line*): Option[Wrap] = Some(AdditionalErrors(f, _.map(AdditionalPosition(lines, path))))
+    def annotate(f: Wrapper, lines: Line*): Option[Wrap] =
+      Some(AdditionalErrors(f, AdditionalPosition(lines, path)))
 
     val pageFun: Option[Wrap] = attrs match {
       case extract"image+next $img" => annotate(queryImageInAnchor(img.s), img)

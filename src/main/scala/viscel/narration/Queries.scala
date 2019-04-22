@@ -2,42 +2,39 @@ package viscel.narration
 
 import org.jsoup.helper.StringUtil
 import org.jsoup.nodes.Element
-import org.scalactic.Accumulation._
-import org.scalactic.TypeCheckedTripleEquals._
-import org.scalactic._
 import viscel.narration.Narrator.Wrapper
 import viscel.selektiv.Narration.{Append, WrapPart}
 import viscel.selektiv.ReportTools._
-import viscel.selektiv.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
+import viscel.selektiv.{FailedElement, QueryNotUnique, Selection, UnhandledTag}
 import viscel.store.v4.{DataRow, Vurl}
 
+import scala.util.Try
 import scala.util.matching.Regex
 
 object Queries {
 
   /** tries to extract an absolute uri from an element, extraction depends on type of tag */
-  def extractURL(element: Element): Vurl Or One[Report] = element.tagName() match {
+  def extractURL(element: Element): Vurl = element.tagName() match {
     case "a" => extract {Vurl.fromString(element.attr("abs:href"))}
     case "link" => extract {Vurl.fromString(element.attr("abs:href"))}
     case "option" => extract {Vurl.fromString(element.attr("abs:value"))}
-    case _ => Bad(One(FailedElement(s"extract uri", UnhandledTag, element)))
+    case _ => throw FailedElement(s"extract uri", UnhandledTag, element)
   }
 
-  def selectMore(elements: List[Element]): List[DataRow.Link] Or Every[Report] =
-    if (elements.isEmpty) Good(Nil)
-    else elements.validatedBy(extractMore).flatMap {
-      case pointers if pointers.toSet.size == 1 => Good(pointers.headOption.toList)
-      case pointers => Bad(One(FailedElement("next not unique", QueryNotUnique, elements: _*)))
+  def selectMore(elements: List[Element]): List[DataRow.Link] =
+    if (elements.isEmpty) Nil
+    else elements.map(extractMore) match {
+      case pointers if pointers.toSet.size == 1 => pointers.headOption.toList
+      case pointers => throw FailedElement("next not unique", QueryNotUnique, elements: _*)
     }
 
-  def extractMore(element: Element): DataRow.Link Or Every[Report] =
-    extractURL(element).map(uri => DataRow.Link(uri))
+  def extractMore(element: Element): DataRow.Link = DataRow.Link(extractURL(element))
 
-  def intoArticle(img: Element): DataRow.Link Or Every[Report] = {
+  def intoArticle(img: Element): DataRow.Link = {
     imageFromAttribute(img, None)
   }
 
-  def imageFromAttribute(img: Element, customAttr: Option[String]): DataRow.Link Or Every[Report]  = {
+  def imageFromAttribute(img: Element, customAttr: Option[String]): DataRow.Link = {
     def getAttr(k: String): List[String] = {
       val res = img.attr(k)
       if (res.isEmpty) Nil else List(k, res)
@@ -62,11 +59,11 @@ object Queries {
           case extractBG(url) =>
             extract(DataRow.Link(
               ref = Vurl.fromString(StringUtil.resolve(img.ownerDocument().location(), url))))
-          case _              => Bad(One(FailedElement(s"into article", UnhandledTag, img)))
+          case _              => throw FailedElement(s"into article", UnhandledTag, img)
         }
     }
   }
-  def extractChapter(elem: Element): DataRow.Chapter Or Every[Report] = extract {
+  def extractChapter(elem: Element): DataRow.Chapter = extract {
     def firstNotEmpty(choices: String*) = choices.find(!_.isBlank).getOrElse("")
 
     DataRow.Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
@@ -76,18 +73,17 @@ object Queries {
   def queryImages(query: String): WrapPart[List[DataRow.Link]] = Selection.many(query).wrapEach(intoArticle)
   /** extracts article at query result
     * optionally extracts direct parent of query result as link */
-  def queryImageInAnchor(query: String): Wrapper = Selection.unique(query).wrapFlat[DataRow.Content] { image =>
-    intoArticle(image).map { art: DataRow.Link =>
-      val wc: List[DataRow.Content] = extractMore(image.parent()).toOption.toList
-      art ::  wc }
-  }
+  def queryImageInAnchor(query: String): Wrapper =
+    Selection.unique(query).wrapFlat[DataRow.Content] { image =>
+      intoArticle(image) :: Try {extractMore(image.parent())}.toOption.toList
+    }
   def queryNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).wrap(selectMore)
   def queryImageNext(imageQuery: String, nextQuery: String): Wrapper = {
     Append(queryImage(imageQuery), queryNext(nextQuery))
   }
   def queryMixedArchive(query: String): Wrapper = {
-    def intoMixedArchive(elem: Element): DataRow.Content Or Every[Report] = {
-      if (elem.tagName() === "a") extractMore(elem)
+    def intoMixedArchive(elem: Element): DataRow.Content = {
+      if (elem.tagName() == "a") extractMore(elem)
       else extractChapter(elem)
     }
 
@@ -95,11 +91,9 @@ object Queries {
   }
 
   def queryChapterArchive(query: String): Wrapper = {
-    /* takes an element, extracts its uri and text and generates a description pointing to that chapter */
-    def elementIntoChapterPointer(chapter: Element): List[DataRow.Content] Or Every[Report] =
-      combine(extractChapter(chapter), extractMore(chapter))
-
-    Selection.many(query).wrapFlat(elementIntoChapterPointer)
+    Selection.many(query).wrapFlat { chapter =>
+      List(extractChapter(chapter), extractMore(chapter))
+    }
   }
 
 

@@ -4,7 +4,7 @@ import cats.implicits.catsSyntaxOptionId
 import viscel.narration.Narrator.Wrapper
 import viscel.selektiv.Narration.ContextData
 import viscel.netzi.{VRequest, VResponse}
-import viscel.selektiv.Narration
+import viscel.selektiv.{Narration, Report}
 import viscel.shared.Log
 import viscel.store._
 import viscel.store.v4.{DataRow, Vurl}
@@ -23,9 +23,10 @@ object CrawlProcessing {
 
   def processPageResponse(wrapper: Wrapper, request: VRequest, response: VResponse[String]): DataRow = {
     val context = ContextData(response.content, request.context, response.location.uriString())
-    val contents = Narration.Interpreter(context)
-                   .interpret[List[DataRow.Content]](wrapper)
-                   .fold(identity, r => throw WrappingException(request, r))
+    val contents =
+      try Narration.Interpreter(context)
+          .interpret[List[DataRow.Content]](wrapper)
+      catch {case r: Report => throw WrappingException(request, r)}
 
     CrawlProcessing.toDataRow(request, response, contents)
   }

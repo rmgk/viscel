@@ -1,7 +1,6 @@
 package viscel.narration.narrators
 
 import io.circe.{Decoder, Encoder}
-import org.scalactic._
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, NarratorADT, Templates}
 import viscel.selektiv.Narration.{Constant, Decision, MapW, WrapPart}
@@ -33,7 +32,7 @@ object MangaHere extends Metarrator[MangaHereNarrator]("MangaHere") {
   override val wrap: WrapPart[List[MangaHereNarrator]] =
     Selection.unique("#main > article > div > div.box_w.clearfix > h1").wrapOne { anchor =>
       val extractID(id) = anchor.ownerDocument().baseUri()
-      Good(MangaHereNarrator(s"MangaHere_$id", s"[MH] ${anchor.text()}", anchor.ownerDocument().baseUri()) :: Nil)
+      MangaHereNarrator(s"MangaHere_$id", s"[MH] ${anchor.text()}", anchor.ownerDocument().baseUri()) :: Nil
     }
 
 }

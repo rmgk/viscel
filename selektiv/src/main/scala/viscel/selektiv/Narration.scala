@@ -2,45 +2,38 @@ package viscel.selektiv
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.scalactic.Accumulation._
-import org.scalactic.{Every, Good, Or}
 
 object Narration {
 
-  private def applySelection(doc: Element, sel: Selection): List[Element] Or Every[Report] = {
-    sel.pipeline.reverse.foldLeft(Good(List(doc)).orBad[Every[Report]]) { (elems, sel) =>
-      elems.flatMap { els: List[Element] =>
-        val validated: Or[List[List[Element]], Every[Report]] = els.validatedBy(sel)
-        validated.map(_.flatten)
-      }
-    }
+  private def applySelection(doc: Element, sel: Selection): List[Element] = {
+    sel.pipeline.reverse.foldLeft(List(doc)) { (elems, sel) => elems.flatMap(sel) }
   }
 
   case class Interpreter(cd: ContextData) {
-    def interpret[T](outerWrapper: WrapPart[T]): T Or Every[Report] = {
+    def interpret[T](outerWrapper: WrapPart[T]): T = {
       val document = Jsoup.parse(cd.content, cd.location)
       recurse(outerWrapper)(document)
     }
-    def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T Or Every[Report] = {
-      val res: Or[T, Every[Report]] = wrapper match {
-        case ElementW                               => Good(element)
-        case ContextW                               => Good(cd)
-        case Constant(t)                            => Good(t)
+    def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T = {
+      wrapper match {
+        case ElementW                               => element
+        case ContextW                               => cd
+        case Constant(t)                            => t
         case Condition(pred, isTrue, isFalse)       =>
-          recurse(pred).flatMap(c => if (c) recurse(isTrue) else recurse(isFalse))
-        case AdditionalErrors(target, augmentation) => recurse(target).badMap(augmentation)
-        case SelectionWrap(sel, fun)                => applySelection(element, sel).flatMap(fun)
-        case Combination(left, right, fun)          => withGood(recurse(left), recurse(right))(fun)
-        case MapW(target, fun)                      => recurse(target).map(fun)
+          val c = recurse(pred)
+          if (c) recurse(isTrue) else recurse(isFalse)
+        case AdditionalErrors(target, augmentation) =>
+          try {recurse(target)}
+          catch {case r: Report => throw augmentation(r)}
+        case SelectionWrap(sel, fun)                => fun(applySelection(element, sel))
+        case Combination(left, right, fun)          => fun(recurse(left), recurse(right))
+        case MapW(target, fun)                      => fun(recurse(target))
         case Focus(selection, continue)             =>
-          recurse(selection).flatMap { listOfElements =>
-            listOfElements.validatedBy(recurse(continue)(_)).map(_.flatten)
-          }
+          val loe = recurse(selection)
+          loe.flatMap(recurse(continue)(_))
       }
-      res
     }
   }
-
 
 
   sealed trait WrapPart[+T] {
@@ -57,14 +50,14 @@ object Narration {
     extends WrapPart[T]
 
 
-  case class SelectionWrap[+R](selection: Selection, fun: List[Element] => R Or Every[Report])
+  case class SelectionWrap[+R](selection: Selection, fun: List[Element] => R)
     extends WrapPart[R]
 
-  def SelectionWrapEach[R](selection: Selection, fun: Element => R Or Every[Report])
-  : WrapPart[List[R]] = SelectionWrap(selection, (l: List[Element]) => l.validatedBy(fun))
-  def SelectionWrapFlat[R](selection: Selection, fun: Element => List[R] Or Every[Report])
+  def SelectionWrapEach[R](selection: Selection, fun: Element => R)
+  : WrapPart[List[R]] = SelectionWrap(selection, (l: List[Element]) => l.map(fun))
+  def SelectionWrapFlat[R](selection: Selection, fun: Element => List[R])
   : WrapPart[List[R]] = SelectionWrap(selection,
-                                      (l: List[Element]) => l.validatedBy(fun).map(_.flatten))
+                                      (l: List[Element]) => l.flatMap(fun))
 
   case object ElementW extends WrapPart[Element]
 
@@ -98,7 +91,7 @@ object Narration {
   case object ContextW extends WrapPart[ContextData]
 
   // used for vid
-  case class AdditionalErrors[+E](target: WrapPart[E], augmentation: Every[Report] => Every[Report])
+  case class AdditionalErrors[+E](target: WrapPart[E], augmentation: Report => Report)
     extends WrapPart[E]
 
 }

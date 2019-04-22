@@ -1,15 +1,13 @@
 package viscel.narration.narrators
 
-import org.scalactic.Accumulation._
-import org.scalactic.Good
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.NarratorADT
 import viscel.narration.Queries._
 import viscel.narration.Templates.{SimpleForward, archivePage}
 import viscel.selektiv.Narration._
 import viscel.selektiv.ReportTools._
-import viscel.shared.Vid
 import viscel.selektiv.Selection
+import viscel.shared.Vid
 import viscel.store.v3.Volatile
 import viscel.store.v4.DataRow
 
@@ -48,23 +46,20 @@ object Individual {
         val elements_? = Selection
                          .unique(".comiclist table.wide_gallery")
                          .many("[id~=^comic_\\d+$] .picture a").focus {
-          val element_? = Selection.unique("img").wrapOne {intoArticle}
-          element_?.map(element =>
-                          DataRow.Link(
-                            ref = element.ref.uriString.replace("/t", "/"))
-                          :: Nil)
+          Selection.unique("img").wrapEach { elem =>
+            DataRow.Link(intoArticle(elem).ref.uriString.replace("/t", "/"))
+          }
         }
-        val next_? = queryNext("a.next")
 
+        val next_? = queryNext("a.next")
         Append(elements_?, next_?)
       })
     }
 
       val wrapArchive: Wrapper = {
         val chapters_? = Selection.many("#comicbody a:matchesOwn(^Book #\\d+$)").wrapFlat { anchor =>
-          extractMore(anchor).map { pointer =>
-            DataRow.Chapter(anchor.ownText()) :: pointer :: Nil
-          }
+          val pointer = extractMore(anchor)
+          DataRow.Chapter(anchor.ownText()) :: pointer :: Nil
         }
         // the list of chapters is also the first page, wrap this directly
         val firstPage_? = wrapPage
@@ -76,21 +71,23 @@ object Individual {
     })
 
 
-
-  val UnlikeMinerva = NarratorADT(Vid.from("NX_UnlikeMinerva"), "Unlike Minerva",
+  val UnlikeMinerva = NarratorADT(
+    Vid.from("NX_UnlikeMinerva"),
+    "Unlike Minerva",
     Range.inclusive(1, 25).map(i => DataRow.Link(s"http://www.unlikeminerva.com/archive/phase1.php?week=$i")).toList :::
-      Range.inclusive(26, 130).map(i => DataRow.Link(s"http://www.unlikeminerva.com/archive/index.php?week=$i")).toList,
-    Selection.many("center > img[src~=http://www.unlikeminerva.com/archive/]").wrapEach { img =>
-      withGood(intoArticle(img), extract(img.parent().nextElementSibling().text())) { (article, txt) =>
-        article.copy(data = article.data ::: List("longcomment", txt))
-      }
+    Range.inclusive(26, 130).map(i => DataRow.Link(s"http://www.unlikeminerva.com/archive/index.php?week=$i")).toList,
+    Selection.many("center > img[src~=http://www.unlikeminerva.com/archive/]")
+    .wrapEach { img =>
+      val article = intoArticle(img)
+      val txt = extract(img.parent().nextElementSibling().text())
+      article.copy(data = article.data ::: List("longcomment", txt))
     })
 
 
   val inlineCores = Set[NarratorADT](
     archivePage("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
       Focus(
-        Selection.many("div[id~=adv\\d+Div]").wrap{advs => Good(advs.reverse) },
+        Selection.many("div[id~=adv\\d+Div]").wrap{advs => advs.reverse },
         queryMixedArchive("div.archivediv h2, div.archivediv a"),
         ),
       queryImage("img.comicnormal")),
@@ -101,7 +98,7 @@ object Individual {
       Append(assets_?, next_?)
     }),
     archivePage("NX_TheDreamer", "The Dreamer", "http://thedreamercomic.com/read-pages/",
-      Focus(Selection.many("#archive_wrap > div").wrap{advs => Good(advs.reverse) },
+      Focus(Selection.many("#archive_wrap > div").wrap{advs => advs.reverse },
             queryMixedArchive(".dreamer_flip_box_inner .flip_box_front .issue_title , .dreamer_flip_box_inner .issue_pages a")),
                 queryImage("#comicnav div.imageWrap img")),
     SimpleForward("NX_CheerImgur", "Cheer by Forview", "http://imgur.com/a/GTprX/",
