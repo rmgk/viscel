@@ -64,7 +64,7 @@ class CrawlScheduler(path: Path,
       log.error(
         s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
            |$narrator
-           |  failed on ${link.ref.uriString} (${if (link.data.nonEmpty) s", ${link.data}" else ""}):
+           |  failed on ${link.href.uriString} (${if (link.context.nonEmpty) s", ${link.context}" else ""}):
            |  ${reports.map {_.describe}.mkString("\n  ")}
            |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
     case t                                =>

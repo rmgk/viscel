@@ -72,7 +72,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
     val req = HttpRequest(
       method = HttpMethods.GET,
       uri = vurlToUri(request.href),
-      headers = request.origin.map(x => Referer.apply(vurlToUri(x))).toList)
+      headers = request.referer.map(x => Referer.apply(vurlToUri(x))).toList)
     requestWithRedirects(req).map{ resp =>
       VResponse(resp,
                 location = extractResponseLocation(request.href, resp),

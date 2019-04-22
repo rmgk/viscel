@@ -44,7 +44,7 @@ object Individual {
 
     val wrapPage: Wrapper = {
       Condition(
-      ContextW.map(_.request.ref.uriString() ==
+      ContextW.map(_.request.href.uriString() ==
                    "http://www.misfile.com/archives.php?arc=34&displaymode=wide"),
       Constant(Nil), {
         val elements_? = Selection
