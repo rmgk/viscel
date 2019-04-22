@@ -22,7 +22,7 @@ val Libraries = new {
     strictCompile
   )
 
-  val netzi = Def.settings(scalactic, jsoup, akkaHttp,
+  val netzi = Def.settings(scalactic, jsoup,
                            scalaVersion_212,
                            strictCompile)
 
