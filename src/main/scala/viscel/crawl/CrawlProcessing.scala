@@ -3,11 +3,11 @@ package viscel.crawl
 import cats.implicits.catsSyntaxOptionId
 import viscel.narration.Narrator.Wrapper
 import viscel.selektiv.Narration.ContextData
-import viscel.netzi.{VRequest, VResponse, Vurl}
+import viscel.netzi.{VRequest, VResponse}
 import viscel.selektiv.Narration
 import viscel.shared.Log
 import viscel.store._
-import viscel.store.v4.DataRow
+import viscel.store.v4.{DataRow, Vurl}
 
 import scala.collection.mutable
 

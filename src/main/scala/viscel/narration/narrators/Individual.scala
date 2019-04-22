@@ -9,7 +9,6 @@ import viscel.narration.Templates.{SimpleForward, archivePage}
 import viscel.selektiv.Narration._
 import viscel.selektiv.ReportTools._
 import viscel.shared.Vid
-import viscel.netzi.Vurl.fromString
 import viscel.selektiv.Selection
 import viscel.store.v3.Volatile
 import viscel.store.v4.DataRow

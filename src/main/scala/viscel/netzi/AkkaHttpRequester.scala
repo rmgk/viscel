@@ -1,4 +1,4 @@
-package viscel.crawl
+package viscel.netzi
 
 import java.time.Instant
 
@@ -9,9 +9,9 @@ import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import cats.implicits.catsSyntaxEitherId
-import viscel.netzi.Vurl.fromString
-import viscel.netzi.{VRequest, VResponse, Vurl, WebRequestInterface}
+import viscel.crawl.RequestException
 import viscel.shared.Log
+import viscel.store.v4.Vurl
 
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,7 +28,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
 
   def uriToVurl(uri: Uri): Vurl = {
     if (!uri.isAbsolute) throw new IllegalArgumentException(s"$uri is not absolute")
-    fromString(uri.toString())
+    Vurl.fromString(uri.toString())
   }
 
 

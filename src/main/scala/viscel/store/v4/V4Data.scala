@@ -1,5 +1,6 @@
 package viscel.store.v4
 
+import java.net.URL
 import java.time.Instant
 
 import cats.syntax.either._
@@ -8,8 +9,32 @@ import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.auto._
 import io.circe.generic.extras.semiauto._
 import io.circe.{Decoder, Encoder}
-import viscel.netzi.Vurl
 import viscel.store.v4.DataRow._
+
+import scala.language.implicitConversions
+
+final class Vurl private(private val uri: String) extends AnyVal {
+  def uriString(): String = uri
+  override def toString: String = s"Vurl($uriString)"
+}
+
+object Vurl {
+
+
+  implicit val uriReader: Decoder[Vurl] = Decoder[String].map(Vurl.fromString)
+  implicit val uriWriter: Encoder[Vurl] = Encoder[String].contramap[Vurl](_.uriString())
+
+  def apply(s: String): Vurl = fromString(s)
+
+  /* Ensure urls are always parsed. */
+  implicit def fromString(uri: String): Vurl = {
+    if (uri.startsWith("viscel:"))
+      new Vurl(uri)
+    else {
+      new Vurl(new URL(uri).toString)
+    }
+  }
+}
 
 
 final case class DataRow(ref: Vurl,
@@ -28,10 +53,6 @@ object DataRow {
 
 object V4Codecs {
   def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[DataRow]] = exportDecoder[DataRow]
-
-
-  implicit val uriReader: Decoder[Vurl] = Decoder[String].map(Vurl.fromString)
-  implicit val uriWriter: Encoder[Vurl] = Encoder[String].contramap[Vurl](_.uriString())
 
   implicit lazy val config: Configuration = Configuration.default.withDefaults
 

@@ -7,8 +7,8 @@ import io.circe.export.Exported
 import io.circe.generic.extras._
 import io.circe.generic.extras.auto._
 import io.circe.{Decoder, Encoder}
-import viscel.netzi.Vurl
 import viscel.shared.Blob
+import viscel.store.v4.Vurl
 
 /** Single row in a [[StoreManager]]. Is either a [[PageData]] or a [[BlobData]]. */
 sealed trait ScribeDataRow {
@@ -92,9 +92,6 @@ object CustomPicklers {
     case `pageName` => "Page"
     case other => other
   })
-
-  import viscel.store.v4.V4Codecs.{uriReader, uriWriter}
-
 
   /** allow "Article" as an [[ImageRef]] in the serialized format */
   implicit val webContentReader: Decoder[WebContent] = semiauto.deriveDecoder[WebContent].prepare { cursor =>

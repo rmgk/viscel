@@ -1,12 +1,11 @@
 package viscel.narration.narrators
 
 import viscel.narration.{Narrator, NarratorADT, Queries}
-import viscel.netzi.{Vurl}
 import viscel.selektiv.Narration.{Combination, Constant, Decision, MapW}
 import viscel.selektiv.{ReportTools, Selection}
 import viscel.shared.Vid
 import viscel.store.v3.Volatile
-import viscel.store.v4.DataRow
+import viscel.store.v4.{DataRow, Vurl}
 
 import scala.collection.immutable.Set
 

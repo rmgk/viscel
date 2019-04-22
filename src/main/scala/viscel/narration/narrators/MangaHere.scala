@@ -4,9 +4,9 @@ import io.circe.{Decoder, Encoder}
 import org.scalactic._
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, NarratorADT, Templates}
-import viscel.netzi.Vurl
 import viscel.selektiv.Narration.{Constant, Decision, MapW, WrapPart}
 import viscel.selektiv.Selection
+import viscel.store.v4.Vurl
 
 case class MangaHereNarrator(id: String, name: String, archiveUri: Vurl)
 
@@ -21,8 +21,6 @@ object MangaHere extends Metarrator[MangaHereNarrator]("MangaHere") {
 
   override def toNarrator(nar: MangaHereNarrator): NarratorADT =
     Templates.archivePage(nar.id, nar.name, nar.archiveUri, archiveWrapper, pageWrapper)
-
-  import viscel.store.v4.V4Codecs.{uriReader, uriWriter}
 
   val decoder = Decoder.forProduct3("id", "name", "archiveUri")((i, n, a) => MangaHereNarrator(i, n, a))
   val encoder: Encoder[MangaHereNarrator] = Encoder.forProduct3("id", "name", "archiveUri")(nar => (nar.id, nar.name, nar.archiveUri))

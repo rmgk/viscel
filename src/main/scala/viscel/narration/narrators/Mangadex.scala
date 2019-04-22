@@ -5,10 +5,9 @@ import io.circe.Decoder.Result
 import io.circe.{Decoder, DecodingFailure, Encoder}
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.{Metarrator, NarratorADT, Templates}
-import viscel.netzi.Vurl
 import viscel.selektiv.Narration.{Combination, ContextW, WrapPart}
 import viscel.selektiv.Report
-import viscel.store.v4.DataRow
+import viscel.store.v4.{DataRow, Vurl}
 
 import scala.util.Try
 
@@ -85,8 +84,6 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
     Templates.archivePage(nar.id, nar.name, uri, archiveWrapper, pageWrapper)
 
   }
-
-  import viscel.store.v4.V4Codecs.{uriReader, uriWriter}
 
   val decoder: Decoder[MangadexNarrator] = Decoder.forProduct3("id", "name", "archiveUri")(
     (i, n, a) => MangadexNarrator(i, n, a))

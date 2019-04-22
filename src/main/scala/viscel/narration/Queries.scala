@@ -6,11 +6,10 @@ import org.scalactic.Accumulation._
 import org.scalactic.TypeCheckedTripleEquals._
 import org.scalactic._
 import viscel.narration.Narrator.Wrapper
-import viscel.netzi.Vurl
 import viscel.selektiv.Narration.{Append, WrapPart}
 import viscel.selektiv.ReportTools._
 import viscel.selektiv.{FailedElement, QueryNotUnique, Report, Selection, UnhandledTag}
-import viscel.store.v4.DataRow
+import viscel.store.v4.{DataRow, Vurl}
 
 import scala.util.matching.Regex
 

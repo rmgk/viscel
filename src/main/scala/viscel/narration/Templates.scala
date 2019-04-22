@@ -2,10 +2,9 @@ package viscel.narration
 
 import viscel.selektiv.Narration.PolicyDecision
 import viscel.narration.Narrator.Wrapper
-import viscel.netzi.Vurl
 import viscel.shared.Vid
 import viscel.store.v3.Volatile
-import viscel.store.v4.DataRow
+import viscel.store.v4.{DataRow, Vurl}
 
 object Templates {
   def archivePage(vid: String,

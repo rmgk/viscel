@@ -5,11 +5,11 @@ import java.time.Instant
 import io.circe.syntax._
 import org.scalatest.FreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import viscel.netzi.Vurl
 import viscel.shared.Blob
 import viscel.store.Book
 import viscel.store.v3.CustomPicklers._
 import viscel.store.v3.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow}
+import viscel.store.v4.Vurl
 import viscel.tests.DataGenerators._
 
 class DBSerialization extends FreeSpec with ScalaCheckDrivenPropertyChecks {
@@ -31,8 +31,6 @@ class DBSerialization extends FreeSpec with ScalaCheckDrivenPropertyChecks {
     Vurl("http://imgs.xkcd.com/comics/barrel_cropped_(1).jpg"),
     Instant.parse("2016-08-03T20:04:33.010Z"),
     Blob("9bf1c63b1a9250baa83effbf4d3826dfe6796e08", "image/jpeg"))
-
-  import viscel.store.v4.V4Codecs.uriWriter
 
   "Serialization" - {
     "Vurls" - {

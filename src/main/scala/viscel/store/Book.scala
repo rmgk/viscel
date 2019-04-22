@@ -1,8 +1,8 @@
 package viscel.store
 
-import viscel.netzi.{VRequest, Vurl}
+import viscel.netzi.VRequest
 import viscel.shared.Vid
-import viscel.store.v4.DataRow
+import viscel.store.v4.{DataRow, Vurl}
 
 case class Book(id: Vid,
                 name: String,

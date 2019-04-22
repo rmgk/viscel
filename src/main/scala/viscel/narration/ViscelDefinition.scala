@@ -8,10 +8,9 @@ import org.scalactic.{Bad, ErrorMessage, Good, Or, attempt}
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.Queries._
 import viscel.selektiv.Narration.{AdditionalErrors, Append, MapW}
-import viscel.netzi.Vurl
 import viscel.selektiv.Report
 import viscel.shared.{Log, Vid}
-import viscel.store.v4.DataRow
+import viscel.store.v4.{DataRow, Vurl}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Map
