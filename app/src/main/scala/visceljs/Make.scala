@@ -1,6 +1,8 @@
 package visceljs
 
+import org.scalajs.dom
 import scalatags.JsDom.all.{alt, stringFrag, _}
+import scalatags.JsDom.TypedTag
 import scalatags.JsDom.attrs.style
 import scalatags.JsDom.tags2.{nav, section}
 import viscel.shared.{Blob, SharedImage}
@@ -42,7 +44,7 @@ object Make {
   def fullscreenToggle(stuff: Modifier*): HtmlTag = lcButton(Definitions.toggleFullscreen())(stuff: _*)
 
 
-  def group(name: String, actions: Actions, entries: Seq[FrontPageEntry]): Tag = {
+  def group(name: String, actions: Actions, entries: Seq[FrontPageEntry]): TypedTag[dom.Element] = {
     var cUnread = 0
     var cTotal = 0
     var cPos = 0

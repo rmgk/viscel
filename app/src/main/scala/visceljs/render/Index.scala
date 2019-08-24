@@ -1,5 +1,6 @@
 package visceljs.render
 
+import org.scalajs.dom
 import org.scalajs.dom.html
 import org.scalajs.dom.Event
 import rescala.default._
@@ -10,7 +11,8 @@ import scalatags.JsDom.tags2.aside
 import viscel.shared.Bindings.Bookmarks
 import viscel.shared.{Bookmark, Description, Vid}
 import visceljs.Definitions.link_tools
-import visceljs.visceltags._
+import rescala.Tags._
+import scalatags.JsDom
 import visceljs.{Actions, Make, SearchUtil}
 
 import scala.collection.immutable.Map
@@ -57,7 +59,7 @@ class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal
         descriptions.values.toList.filter(d => !bookmarks.contains(d.id)).map(AvailableEntry)
 
       bookmarked.reverse_:::(available)
-    }
+    }.withDefault(Nil)
 
     val searchInput = Evt[Event]
     val searchString: Signal[String] = searchInput.map { ke =>
@@ -100,17 +102,24 @@ class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal
 
     val searchForm = form(inputField, onsubmit := callback)
 
-    val groupNames = Seq("Recent",
-                     "Updates",
-                     "Marked",
-                     "Bookmarks",
-                     "Available")
+    //println(s"groups: ${groups.now}")
+
+
+    val groupTags: Signal[Seq[JsDom.TypedTag[dom.Element]]] = groups.map{ g =>
+      val groupNames = Seq("Recent",
+                           "Updates",
+                           "Marked",
+                           "Bookmarks",
+                           "Available")
+      groupNames.map { gn =>
+        Make.group(gn, actions, g.toMap.apply(gn))
+      }
+    }
+
 
     body(id := "index",
          Make.navigation(Make.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
-          SeqFrag(groupNames.map{ gn =>
-            groups.map(g => Make.group(gn, actions, g.toMap.apply(gn))).asFrag
-          })
+         groupTags.asModifierL
          )
   }
 

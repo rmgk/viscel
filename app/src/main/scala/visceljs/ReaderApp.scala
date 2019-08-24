@@ -4,19 +4,15 @@ import io.circe.Decoder
 import org.scalajs.dom
 import org.scalajs.dom.experimental.URL
 import org.scalajs.dom.html
-import org.scalajs.dom.html.Body
 import org.scalajs.dom.raw.HashChangeEvent
 import rescala.default._
-import rescala.levelbased.LevelStructImpl
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import scalatags.JsDom.TypedTag
-import scalatags.JsDom.all.{body, stringFrag}
 import viscel.shared.{Bookmark, Contents, Description, Gallery, Log, SharedImage, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.Navigation.{Mode, Next, Prev, navigationEvents}
 import visceljs.render.{Front, Index, View}
-import visceljs.visceltags._
 
 import scala.collection.immutable.Map
 import scala.collection.mutable
@@ -40,7 +36,7 @@ class ReaderApp(requestContents: Vid => Future[Option[Contents]],
 
 
 
-  def makeBody(index: Index, front: Front, view: View, manualStates: Event[AppState]): Body = {
+  def makeBody(index: Index, front: Front, view: View, manualStates: Event[AppState]):  Signal[TypedTag[html.Body]] = {
 
 
     def pathToState(path: String): AppState = {
@@ -64,7 +60,7 @@ class ReaderApp(requestContents: Vid => Future[Option[Contents]],
     }
 
     val hashChange: Event[HashChangeEvent] =
-      visceltags.eventFromCallback[HashChangeEvent, LevelStructImpl](dom.window.onhashchange = _)
+      Events.fromCallback[HashChangeEvent](dom.window.onhashchange = _).event
     hashChange.observe(hc => Log.JS.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
 
     val hashBasedStates = hashChange.map(hc => pathToState(new URL(hc.newURL).hash): @unchecked)
@@ -150,25 +146,18 @@ class ReaderApp(requestContents: Vid => Future[Option[Contents]],
       }
     }
 
-    val indexBody = Signal{index.gen()}
+    val indexBody = index.gen()
     val frontBody = front.gen(currentData)
     val viewBody = view.gen(currentData, fitType, Navigation.navigate)
 
+    println(s"current app state: ${currentAppState.now}")
+    println(s"index body: ${indexBody.tag}")
 
-    val bodyElement: html.Body = {
-      // printing the html.Body actually causes it to no longer display the inner rendered signals
-      val bodySignal: Signal[TypedTag[html.Body]] = currentAppState.map {
-        case IndexState => indexBody
-        case FrontState(_) => frontBody
-        case ViewState(_, _) => viewBody
-      }.flatten
-      val bodyTag: Signal[TypedTag[html.Body]] = bodySignal
-        .withDefault(body("loading more data"))
-        .recover { case t => body(t.toString) }
-      bodyTag.asFrag.render
-    }
-
-    bodyElement
+    currentAppState.map {
+      case IndexState      => Signal(indexBody)
+      case FrontState(_)   => frontBody
+      case ViewState(_, _) => viewBody
+    }.flatten
   }
 
   def getDataSignal(id: Vid): Signal[Data] = {

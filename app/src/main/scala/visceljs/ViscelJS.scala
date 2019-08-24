@@ -1,17 +1,18 @@
 package visceljs
 
-import org.scalajs.dom
-import rescala.default._
 import loci.communicator.ws.akka.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
+import org.scalajs.dom
+import rescala.default._
+import scalatags.JsDom.implicits.stringFrag
+import scalatags.JsDom.tags.body
 import viscel.shared._
 import visceljs.render.{Front, Index, View}
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
-import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.body
+import scala.util.Success
 
 
 object ViscelJS {
@@ -35,12 +36,17 @@ object ViscelJS {
       val descriptions = Signals.fromFuture(descriptionFuture.map { desc => desc.map(n => n.id -> n).toMap })
       val bookmarks = Var.empty[Bindings.Bookmarks]
 
+      val bookmarkfun = registry.lookup(Bindings.bookmarks, remote)
+
       val postBookmarkF = { (set: Bindings.SetBookmark) =>
-        registry.lookup(Bindings.bookmarks, remote).apply(set).map { bms =>
-          bookmarks.set(bms)
-          bms
-        }
-      }.andThen(fut => {fut.onComplete(r => Log.JS.debug(s"retrieved bookmarks successful: ${r.isSuccess}")); fut})
+        bookmarkfun.apply(set)
+                   .andThen { case Success(bms) =>
+                     bookmarks.set(bms)
+                   }
+                   .andThen { case r =>
+                     Log.JS.debug(s"retrieved bookmarks successful: ${r.isSuccess}")
+                   }
+      }
 
 
       postBookmarkF(None)
@@ -57,7 +63,13 @@ object ViscelJS {
                               hint = hint
                               )
 
-      dom.document.body = app.makeBody(index, front, view, manualStates)
+      val bodySig = app.makeBody(index, front, view, manualStates)
+      val safeBodySignal = bodySig
+
+      val bodyParent = dom.document.body.parentElement
+      bodyParent.removeChild(dom.document.body)
+      import rescala.Tags._
+      safeBodySignal.asModifier.applyTo(bodyParent)
     }
   }
 
