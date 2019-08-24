@@ -35,7 +35,11 @@ $backplate-color: #212121;
 
 /* disable scrollbar according to some new spec */
 html {
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: $backplate-color $border-color;
+}
+
+html {
   background-color: $background-color;
   color: $font-color;
   font-family: sans-serif;
