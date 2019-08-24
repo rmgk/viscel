@@ -715,8 +715,10 @@ https://www.peppercarrot.com/
 :archiveReverse
 :images img.comicpage
 
-
-
+-:Android Blues
+https://www.androidblues.com/comic/cover-2/
+:image #content .attachment-large
+:next #comic-navigation .link-next a
 
 
 
