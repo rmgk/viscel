@@ -11,7 +11,7 @@ ThisBuild / organization := "de.rmgk"
 
 val Libraries = new {
 
-  val rescalaVersion = "0.24.0"
+  val rescalaVersion = "0.26.0"
   val rescalatags    = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % rescalaVersion
   val rescala        = libraryDependencies += "de.tuda.stg" %%% "rescala" % rescalaVersion
 
