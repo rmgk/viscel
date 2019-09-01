@@ -54,7 +54,7 @@ object Queries {
           ref = Vurl.fromString(img.attr(customAttr.getOrElse("abs:data"))),
           data = List("width", "height", "type").flatMap(getAttr)))
       case _        =>
-        val extractBG = """.*background\-image\:url\(([^)]+)\).*""".r("url")
+        val extractBG = """.*background-image:url\(([^)]+)\).*""".r("url")
         img.attr("style") match {
           case extractBG(url) =>
             extract(DataRow.Link(
@@ -64,7 +64,8 @@ object Queries {
     }
   }
   def extractChapter(elem: Element): DataRow.Chapter = extract {
-    def firstNotEmpty(choices: String*) = choices.find(!_.isBlank).getOrElse("")
+    def notBlank(s: String): Boolean = !s.matches("^\\s*$")
+    def firstNotEmpty(choices: String*) = choices.find(notBlank).getOrElse("")
 
     DataRow.Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
   }
