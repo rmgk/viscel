@@ -3,7 +3,7 @@ package visceljs.render
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import org.scalajs.dom.html.Body
-import rescala.Tags._
+import rescala.extra.Tags._
 import rescala.default._
 import scalatags.JsDom
 import scalatags.JsDom.all.{HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title}

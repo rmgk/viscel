@@ -11,8 +11,7 @@ ThisBuild / organization := "de.rmgk"
 
 val Libraries = new {
 
-  val rescalaVersion = "0.26.0"
-  val rescalatags    = libraryDependencies += "de.tuda.stg" %%% "rescalatags" % rescalaVersion
+  val rescalaVersion = "0.27.0"
   val rescala        = libraryDependencies += "de.tuda.stg" %%% "rescala" % rescalaVersion
 
 
@@ -30,7 +29,7 @@ val Libraries = new {
                           scalatest, scalacheck)
 
 
-  val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, rescalatags,
+  val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, scalatags,
                                        Resolvers.stg)
 }
 

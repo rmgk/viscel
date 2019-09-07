@@ -68,7 +68,7 @@ object ViscelJS {
 
       val bodyParent = dom.document.body.parentElement
       bodyParent.removeChild(dom.document.body)
-      import rescala.Tags._
+      import rescala.extra.Tags._
       safeBodySignal.asModifier.applyTo(bodyParent)
     }
   }

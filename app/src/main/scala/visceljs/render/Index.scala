@@ -11,7 +11,7 @@ import scalatags.JsDom.tags2.aside
 import viscel.shared.Bindings.Bookmarks
 import viscel.shared.{Bookmark, Description, Vid}
 import visceljs.Definitions.link_tools
-import rescala.Tags._
+import rescala.extra.Tags._
 import scalatags.JsDom
 import visceljs.{Actions, Make, SearchUtil}
 
