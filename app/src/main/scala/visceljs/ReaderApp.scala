@@ -8,30 +8,25 @@ import org.scalajs.dom.raw.HashChangeEvent
 import rescala.default._
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import scalatags.JsDom.TypedTag
-import viscel.shared.{Bookmark, Contents, Description, Gallery, Log, SharedImage, Vid}
+import viscel.shared.{Bookmark, Contents, Description, Log, SharedImage, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.Navigation.{Mode, Next, Prev, navigationEvents}
 import visceljs.render.{Front, Index, View}
 
 import scala.collection.immutable.Map
-import scala.collection.mutable
-import scala.concurrent.Future
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.URIUtils.decodeURIComponent
 import scala.util.Try
 
 
-class ReaderApp(requestContents: Vid => Future[Option[Contents]],
+class ReaderApp(content: Description => Signal[Contents],
                 val descriptions: Signal[Map[Vid, Description]],
-                val bookmarks: Signal[Map[Vid, Bookmark]],
-                hint: (Description, Boolean) => Unit
+                val bookmarks: Signal[Map[Vid, Bookmark]]
                ) {
 
 
   implicit val readAssets: Decoder[List[SharedImage]] = Predef.implicitly[Decoder[List[SharedImage]]]
 
-  private val contents: scala.collection.mutable.Map[Vid, Signal[Contents]] = mutable.Map()
 
 
 
@@ -169,12 +164,5 @@ class ReaderApp(requestContents: Vid => Future[Option[Contents]],
     }
   }
 
-  def content(nar: Description): Signal[Contents] = {
-    hint(nar, false)
-    contents.getOrElseUpdate(nar.id, {
-      val eventualContents = requestContents(nar.id).map(_.get)
-      eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${nar.id} (sucessful: ${t.isSuccess})"))
-      Signals.fromFuture(eventualContents).withDefault(Contents(Gallery.empty, Nil))
-    })
-  }
+
 }
