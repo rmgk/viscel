@@ -16,5 +16,7 @@ object Bindings {
   type Bookmarks = Map[Vid, Bookmark]
   val bookmarks = Binding[SetBookmark => Bookmarks]("bookmarks")
 
+  val bookmarksMapBindig = Binding[BookmarksMap => Unit]("bookmarksmap")
+
   val bookUpdate = Binding[Description => Unit]("bookUpdate")
 }
