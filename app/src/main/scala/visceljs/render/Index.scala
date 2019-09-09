@@ -68,7 +68,7 @@ class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal
       sv
     }.latest("")
     val inputField = input(value := searchString, `type` := "text", tabindex := "1",
-                           oninput := { k: Event => searchInput.fire(k) })
+                           oninput := searchInput)
 
     def searchable(l : List[FrontPageEntry]) = l.map(e => e.name -> e)
 
