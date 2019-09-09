@@ -4,11 +4,13 @@ import loci.communicator.ws.akka.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
+import org.scalajs.dom.raw.Storage
 import rescala.default._
 import rescala.extra.distributables.LociDist
 import rescala.extra.lattices.IdUtil
 import rescala.extra.lattices.IdUtil.Id
 import rescala.extra.lattices.Lattice
+import rescala.extra.restoration.ReCirce
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.body
 import viscel.shared.Bindings.SetBookmark
@@ -17,13 +19,25 @@ import visceljs.ViscelJS.replicaID
 import visceljs.render.{Front, Index, View}
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 
 class BookmarkManager(registry: Registry) {
-  val setBookmark = Evt[(Vid, Bookmark)]
-  val bookmarksCRDT = setBookmark.fold(BookmarksMap.empty){ case (map, (vid, bm)) =>
-    Lattice.merge(map, map.addΔ(vid, bm)(replicaID))
+  val setBookmark      = Evt[(Vid, Bookmark)]
+  val bookmarksCRDT    = {
+    val storage: Storage = dom.window.localStorage
+    val bmms = ReCirce.recirce[BookmarksMap]
+    val key = "bookmarksmapV1"
+    val bmm = Try(Option(storage.getItem(key)).get).flatMap{ str =>
+      bmms.deserialize(str)
+    }.getOrElse(BookmarksMap.empty)
+    val bmCRDT = setBookmark.fold(bmm){ case (map, (vid, bm)) =>
+      Lattice.merge(map, map.addΔ(vid, bm)(replicaID))
+    }
+    bmCRDT.observe{ v =>
+      storage.setItem(key, bmms.serialize(v))
+    }
+    bmCRDT
   }
 
   LociDist.distribute(bookmarksCRDT, registry)(Bindings.bookmarksMapBindig)

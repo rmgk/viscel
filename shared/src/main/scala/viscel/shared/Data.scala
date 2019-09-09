@@ -1,5 +1,6 @@
 package viscel.shared
 
+import io.circe.{Decoder, Encoder}
 import rescala.extra.deltacrdts.AddWinsSet
 import rescala.extra.lattices.IdUtil.Id
 import rescala.extra.lattices.Lattice
@@ -33,6 +34,10 @@ case class BookmarksMap(bindings: Map[Vid, Bookmark], contains: AddWinsSet[Vid])
 
 }
 object BookmarksMap {
+  import io.circe.generic.auto._
+
+  implicit val bookmarksMapEncoder: Encoder[BookmarksMap] = io.circe.generic.semiauto.deriveEncoder
+  implicit val bookmarksMapDecoder: Decoder[BookmarksMap] = io.circe.generic.semiauto.deriveDecoder
 
   def empty: BookmarksMap = BookmarksMap(Map.empty, AddWinsSet.empty)
 
