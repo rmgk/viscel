@@ -25,8 +25,8 @@ class Front(actions: Actions) {
       val top = h1(s"${narration.name} ($bookmark/${narration.size})")
 
       val navigation = Make.navigation(
-        button_index("index"),
-        button_asset(data.move(_.first))("first page"),
+        link_index("index"),
+        link_asset(data.move(_.first))("first page"),
         Make.fullscreenToggle("fullscreen"),
         postBookmark(0, data, _ => gotoFront(data.description), "remove bookmark"),
         postForceHint(narration, "force check"))

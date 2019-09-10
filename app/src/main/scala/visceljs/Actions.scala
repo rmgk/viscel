@@ -4,7 +4,7 @@ import rescala.default._
 import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, disabled, href}
 import viscel.shared.{Bindings, Bookmark, Description}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
-import visceljs.Definitions.{lcButton, onLeftClick, path_asset, path_front}
+import visceljs.Definitions.{lcButton, onLeftClick, path_asset, path_front, path_main}
 
 class Actions(hint: (Description, Boolean) => Unit,
               postBookmarkF: Bindings.SetBookmark => Unit,
@@ -22,7 +22,7 @@ class Actions(hint: (Description, Boolean) => Unit,
   }
 
 
-  def button_index(ts: Modifier*): Tag = lcButton(gotoIndex(), ts: _*)
+  def link_index(ts: Modifier*): Tag = a(onLeftClick(gotoIndex()), href := path_main)(ts: _*)
   def link_asset(data: Data): Tag = a.apply(onLeftClick(gotoView(data)), href := path_asset(data))
   def button_asset(data: Data): Tag = button_asset(data, gotoView(data))
   def button_asset(data: Data, onleft: => Unit): Tag = {

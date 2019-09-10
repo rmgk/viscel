@@ -40,7 +40,7 @@ class View(act: Actions) {
       val ft = fitType.value
         Make.navigation(
           act.button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
-          lcButton(act.gotoFront(data.description))(Icons.front, title := "back to front page"),
+          act.link_front(data.description, Icons.front, title := "back to front page"),
           Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
           lcButton(navigate.fire(Mode(ft + 1)), Icons.modus, s" $ft", title := "cycle image display mode"),
           act.postBookmark(data.pos + 1, data, _ => Unit, Icons.bookmark, title := "save bookmark"),
