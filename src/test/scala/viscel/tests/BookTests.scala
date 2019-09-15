@@ -20,7 +20,7 @@ class BookTests extends FreeSpec with ScalaCheckDrivenPropertyChecks {
       assert(one.hasPage(page.ref))
       assert(one.allLinks.map(_.href).toList === page.contents)
 
-      assert(one.addPage(page) === (one -> None), "adding is idempotent")
+      assert(one.addPage(page) === None, "adding is idempotent")
 
     }
   }
