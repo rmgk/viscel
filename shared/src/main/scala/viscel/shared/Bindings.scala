@@ -3,9 +3,18 @@ package viscel.shared
 import io.circe.generic.auto._
 import loci.registry.Binding
 import loci.serializer.circe._
+import loci.transmitter.IdenticallyTransmittable
 
 
 object Bindings {
+  type IT[V] = IdenticallyTransmittable[V]
+
+  implicit val _Td: IT[Description] = IdenticallyTransmittable()
+  implicit val _Tv: IT[Vid] = IdenticallyTransmittable()
+  implicit val _Tc: IT[Contents] = IdenticallyTransmittable()
+  implicit val _Tb: IT[Bookmark] = IdenticallyTransmittable()
+  implicit val _Tbm: IT[BookmarksMap] = IdenticallyTransmittable()
+
   val descriptions = Binding[() => Iterable[Description]]("descriptions")
 
   val contents = Binding[Vid => Option[Contents]]("contents")
