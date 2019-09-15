@@ -76,7 +76,8 @@ object Individual {
     "Unlike Minerva",
     Range.inclusive(1, 25).map(i => DataRow.Link(s"http://www.unlikeminerva.com/archive/phase1.php?week=$i")).toList :::
     Range.inclusive(26, 130).map(i => DataRow.Link(s"http://www.unlikeminerva.com/archive/index.php?week=$i")).toList,
-    Selection.many("center > img[src~=http://www.unlikeminerva.com/archive/]")
+
+    Selection.many("center > img[src~=/archive/]")
     .wrapEach { img =>
       val article = intoArticle(img)
       val txt = extract(img.parent().nextElementSibling().text())

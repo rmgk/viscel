@@ -91,6 +91,24 @@
 -- :am body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table strong , body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table a
 -- :i body > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(1) > td > table > tbody > tr:nth-child(1) > td > div  img
 
+-- -:Annyseed
+-- http://www.mirrorwoodcomics.com/AnnyseedArchive.htm
+-- :am td[rowspan=4][width=809] p:not(:has(a)) , td[rowspan=4][width=809] a
+-- :i img[src~=AnnyseedPage]
+-- :url_replace Annyseed/Finished\%20For\%20Print/ ::: /
+
+-- -NX_Fragile:Fragile
+-- http://www.fragilestory.com/archive
+-- :mixedArchive #content_post .c_arch .a_2 > p:first-child , #content_post .c_arch .a_2 a
+-- :image #comic_strip img
+
+---------------------------------------------- UNDEAD -----
+-- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
+
+-- -:Strawberry Death Cake
+-- https://www.theduckwebcomics.com/Strawberry_Death_Cake/5004702/
+-- :image #comic img
+-- :next #top_arrows a:has(.arrow_next)
 
 ---------------------------------------------- NOT DEAD ---
 
@@ -208,12 +226,6 @@ http://oglaf.com/archive/
 http://chirault.sevensmith.net/archives.php
 :am div.entryText h1 , div.entryText > a
 :i .entryText center img[src~=/comics/\d{8}][alt]
-
--:Annyseed
-http://www.mirrorwoodcomics.com/AnnyseedArchive.htm
-:am td[rowspan=4][width=809] p:not(:has(a)) , td[rowspan=4][width=809] a
-:i img[src~=AnnyseedPage]
-:url_replace Annyseed/Finished\%20For\%20Print/ ::: /
 
 -:Quiltbag
 http://quiltbag.keenspot.com/d/20111018.html
@@ -579,11 +591,6 @@ http://www.marycagle.com/letsspeakenglish/prologue-1-off-we-go
 :image #cc-comic
 :next a[rel=next]
 
--:Strawberry Death Cake
-https://www.theduckwebcomics.com/Strawberry_Death_Cake/5004702/
-:image #comic img
-:next #top_arrows a:has(.arrow_next)
-
 -NX_StickyDillyBuns:Sticky Dilly Buns
 http://www.stickydillybuns.com/strips-sdb/Awesome_leading_man
 :image #cc-comic
@@ -595,10 +602,10 @@ http://www.spindrift-comic.com/archive
 :image #comic-image
 
 -NX_DominicDeegan:Dominic Deegan
-http://www.dominic-deegan.com/contents.php
-:chapterArchive blockquote center b a[href~=dominic-deegan.com/view.php]
-:images body > div.comic > img
-:next #bottom a:has(img[alt=Next])
+http://www.dominic-deegan.com/comics-archive/
+:chapterArchive select#chapter > option.level-0
+:image #main article.comic img.wp-post-image
+:next #content-bottom-widgets a.navi-next
 
 -NX_ErrantStory:Errant Story
 http://www.errantstory.com/2002-11-04/15
@@ -625,11 +632,6 @@ http://www.pennyandaggie.com/index.php?p=1291
 http://twokinds.keenspot.com/archive/
 :mixedArchive #content .chapter h2 , #content .chapter-links a
 :image #content article.comic img[alt=Comic Page]
-
--NX_Fragile:Fragile
-http://www.fragilestory.com/archive
-:mixedArchive #content_post .c_arch .a_2 > p:first-child , #content_post .c_arch .a_2 a
-:image #comic_strip img
 
 -NX_CliqueRefresh:Clique Refresh
 http://cliquerefresh.com/comic/start-it-up/
@@ -695,13 +697,11 @@ http://www.yousayitfirst.com/
 :archiveReverse
 
 -NX_NamirDeiter:Namir Deiter
-http://www.namirdeiter.com/
-:chapterArchive #pulldown form[name=jump] > select[name=menu] > option[value]:gt(2)
+https://namirdeiter.com/comics/index.php?date=19991128
 :image td:has(#title) > center img[src~=/comics/]
 :next a[rel=next][href~=date=\d+$]
-:archiveReverse
--- at that url derek and nicole starts … so we kill it :-)
-:url_replace /comics/index.php\?date=20150413 ::: /
+-- at that url derek and nicole starts … so we loop it back to where it came from
+:url_replace /comics/index.php\?date=20150413 ::: /comics/index.php?date=20150323
 
 -NX_Dreamless:Dreamless
 http://dreamless.keenspot.com/d/20090105.html
@@ -895,7 +895,8 @@ http://helvetica.jnwiedle.com/2011/06/24/and-so-it-begins/
 -:Tove
 http://www.tovecomic.com/comic/archive
 :ac .cc-storyline-header a[href]
-:ia #cc-comic
+:image #cc-comic
+:next nav.cc-nav a.cc-next
 
 -:Blindsprings
 http://www.blindsprings.com/comic/blindsprings-cover-book-one
