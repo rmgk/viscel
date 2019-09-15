@@ -21,12 +21,9 @@ val Libraries = new {
     strictCompile
   )
 
-  val selektiv = Def.settings(jsoup,
-                           scalaVersion_212,
-                           strictCompile)
-
   val main = Def.settings(betterFiles, decline, akkaHttp,
-                          scalatest, scalacheck)
+                          scalatest, scalacheck,
+                          jsoup)
 
 
   val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, scalatags,
@@ -60,17 +57,10 @@ lazy val viscel = project
                     Libraries.main,
                     vbundleDef,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
-                    publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal,
-                                                           selektiv / publishLocal).value
+                    publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value
                   )
                   .enablePlugins(JavaServerAppPackaging)
-                  .dependsOn(sharedJVM, selektiv)
-
-lazy val selektiv = project.in(file("selektiv"))
-                    .settings(
-                      name := "selektiv",
-                      Libraries.selektiv
-                      )
+                  .dependsOn(sharedJVM)
 
 lazy val app = project.in(file("app"))
                .enablePlugins(ScalaJSPlugin)
