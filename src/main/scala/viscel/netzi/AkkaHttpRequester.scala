@@ -1,9 +1,11 @@
 package viscel.netzi
 
+import java.net.URL
 import java.time.Instant
 
 import akka.http.scaladsl.HttpExt
 import akka.http.scaladsl.coding.{Deflate, Gzip}
+import akka.http.scaladsl.model.Uri.Authority
 import akka.http.scaladsl.model.headers.{ETag, HttpEncodings, Location, Referer, `Accept-Encoding`, `Last-Modified`}
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -23,8 +25,28 @@ class AkkaHttpRequester(ioHttp: HttpExt)
 
   val timeout = FiniteDuration(300, SECONDS)
 
-
-  def vurlToUri(vin: Vurl): Uri = Uri.parseAbsolute(vin.uriString())
+  /* Why so complicated? Because some Urls are not correctly parsed by akka http. */
+  def vurlToUri(vin: Vurl): Uri = {
+    def urlToUri(in: URL): Uri = {
+      implicit class X(s: String) {def ? = Option(s).getOrElse("")}
+      Uri.from(
+        scheme = in.getProtocol.?,
+        userinfo = in.getUserInfo.?,
+        host = in.getHost.?,
+        port = if (in.getPort < 0) 0 else in.getPort,
+        path = in.getPath.?.replaceAll("\"", ""),
+        queryString = Option(in.getQuery).map(_.replaceAll("\"", "")),
+        fragment = Option(in.getRef)
+        )
+    }
+    try {
+      urlToUri(new URL(vin.uriString()))
+    } catch {
+      case throwable: Throwable =>
+        println(s"ERROR during conversion: $vin\n$throwable")
+        throw throwable
+    }
+  }
 
   def uriToVurl(uri: Uri): Vurl = {
     if (!uri.isAbsolute) throw new IllegalArgumentException(s"$uri is not absolute")
@@ -72,7 +94,12 @@ class AkkaHttpRequester(ioHttp: HttpExt)
     val req = HttpRequest(
       method = HttpMethods.GET,
       uri = vurlToUri(request.href),
-      headers = request.referer.map(x => Referer.apply(vurlToUri(x))).toList)
+      headers = request.referer.filterNot(_.uriString().startsWith("viscel:"))
+                       .map(x => {
+                         val ruri = vurlToUri(x).withoutFragment
+                         val fruri = ruri.withAuthority(ruri.authority.copy(userinfo = ""))
+                         Referer(ruri)
+                       }).toList)
     requestWithRedirects(req).map{ resp =>
       VResponse(resp,
                 location = extractResponseLocation(request.href, resp),
