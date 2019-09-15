@@ -10,6 +10,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: fetch sbt
-      run: curl -Ls https://git.io/sbt > sbt
-    - name: Run a multi-line script
+      run: |
+        curl -Ls https://git.io/sbt > sbt
+        chmod +x sbt
+    - name: run sbt test
       run: ./sbt test
