@@ -79,9 +79,10 @@ class ContentConnectionManager(registry: Registry) {
     contents.getOrElseUpdate(nar.id, {
       registry.remotes.find(_.connected).map { remote =>
         val requestContents  = registry.lookup(Bindings.contents, remote)
-        val eventualContents = requestContents(nar.id).map(_.get)
+        val emptyContents = Contents(Gallery.empty, Nil)
+        val eventualContents = requestContents(nar.id).map(_.getOrElse(emptyContents))
         eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${nar.id} (sucessful: ${t.isSuccess})"))
-        Signals.fromFuture(eventualContents).withDefault(Contents(Gallery.empty, Nil))
+        Signals.fromFuture(eventualContents).withDefault(emptyContents)
       }.getOrElse(Var.empty[Contents])
     })
   }
