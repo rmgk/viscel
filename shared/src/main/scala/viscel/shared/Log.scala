@@ -1,16 +1,23 @@
 package viscel.shared
 
-import de.rmgk.logging.{Level, Logger}
+import scribe.Logger
 
 object Log {
-  val common: Logger = de.rmgk.logging.Logger(tag = "", level = Level.Debug)
-  val Tool: Logger = common.copy(tag = "Tool")
-  val Main: Logger = common
-  val Devel: Logger = common.copy(tag = "Devel", Level.Trace, Logger.tracing)
-  val Narrate: Logger = common.copy(tag = "Narrate")
-  val JS: Logger = common.copy(tag = "JS")
-  val Crawl: Logger = common.copy(tag = "CW")
-  val Store: Logger = common.copy(tag = "IO")
-  val Scribe: Logger = common.copy(tag = "Scribe")
-  val Server: Logger = common.copy(tag = "Serv")
+
+  import scribe.format._
+  val develFormatter: Formatter = formatter"$message$mdc [$positionAbbreviated]"
+  val normalFormatter: Formatter = formatter"$message$mdc [${className.abbreviate(maxLength = 15, padded = false)}]"
+  Logger.root.clearHandlers().withHandler(formatter = normalFormatter,
+                                          minimumLevel = Some(scribe.Level.Info)).replace()
+
+  val Tool: Logger = Logger("Tool")
+  val Main: Logger = Logger.root
+  val Devel: Logger = Logger("Devel").withHandler(minimumLevel = Some(scribe.Level.Trace),
+                                                  formatter = develFormatter)
+  val Narrate: Logger = Logger("Narrate")
+  val JS: Logger = Logger("JS")
+  val Crawl: Logger = Logger("CW")
+  val Store: Logger = Logger("IO")
+  val Scribe: Logger = Logger("Scribe")
+  val Server: Logger = Logger("Serv")
 }

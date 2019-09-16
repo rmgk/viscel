@@ -1,6 +1,6 @@
 package viscel.narration
 
-import org.jsoup.helper.StringUtil
+import org.jsoup.internal.StringUtil
 import org.jsoup.nodes.Element
 import viscel.narration.Narrator.Wrapper
 import viscel.selektiv.Narration.{Append, WrapPart}

@@ -13,7 +13,7 @@ object Settings {
     scalacOptions ++= tpolecatsScalacOptionsCommon ++ scalaOptions12minus
   )
   val scalaVersion_212 = Def.settings(
-    scalaVersion := "2.12.9",
+    scalaVersion := "2.12.10",
     scalacOptions ++= tpolecatsScalacOptionsCommon ++ scalacOptions12plus ++ scalaOptions12minus
   )
   val scalaVersion_213 = Def.settings(
@@ -91,7 +91,7 @@ object Dependencies {
   val cats        = ld += "org.typelevel" %%% "cats-core" % "1.6.0"
   val decline     = ld += "com.monovore" %% "decline" % "0.6.2"
   val fastparse   = ld += "com.lihaoyi" %%% "fastparse" % "2.1.2"
-  val jsoup       = ld += "org.jsoup" % "jsoup" % "1.11.3"
+  val jsoup       = ld += "org.jsoup" % "jsoup" % "1.12.1"
   val kaleidoscope= ld += "com.propensive" %% "kaleidoscope" % "0.1.0"
   val pprint      = ld += "com.lihaoyi" %%% "pprint" % "0.5.4"
   val rmgkLogging = Def.settings(Resolvers.rmgk, ld += "de.rmgk" %%% "logging" % "0.2.1")

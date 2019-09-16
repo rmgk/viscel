@@ -604,8 +604,11 @@ http://www.spindrift-comic.com/archive
 -NX_DominicDeegan:Dominic Deegan
 http://www.dominic-deegan.com/comics-archive/
 :chapterArchive select#chapter > option.level-0
-:image #main article.comic img.wp-post-image
+:images #main article.comic img.wp-post-image
 :next #content-bottom-widgets a.navi-next
+-- skip broken images
+:url_replace comic/0297-20030523/ ::: comic/0298-20030524/
+
 
 -NX_ErrantStory:Errant Story
 http://www.errantstory.com/2002-11-04/15

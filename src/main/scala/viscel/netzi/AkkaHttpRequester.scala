@@ -5,7 +5,6 @@ import java.time.Instant
 
 import akka.http.scaladsl.HttpExt
 import akka.http.scaladsl.coding.{Deflate, Gzip}
-import akka.http.scaladsl.model.Uri.Authority
 import akka.http.scaladsl.model.headers.{ETag, HttpEncodings, Location, Referer, `Accept-Encoding`, `Last-Modified`}
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -98,7 +97,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
                        .map(x => {
                          val ruri = vurlToUri(x).withoutFragment
                          val fruri = ruri.withAuthority(ruri.authority.copy(userinfo = ""))
-                         Referer(ruri)
+                         Referer(fruri)
                        }).toList)
     requestWithRedirects(req).map{ resp =>
       VResponse(resp,

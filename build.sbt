@@ -16,7 +16,7 @@ val Libraries = new {
 
 
   val shared = Def.settings(
-    rmgkLogging, scalatags, loci.communication, circe, rescala, loci.circe, loci.wsAkka,
+    scribe, scalatags, loci.communication, circe, rescala, loci.circe, loci.wsAkka,
     scalaVersion_212,
     strictCompile
   )
