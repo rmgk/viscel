@@ -521,9 +521,10 @@ http://hopevirus.keenspot.com/d/20160104.html
 :image #comicspot img.ksc
 :next #cnavbot a[rel=next]
 
--:Advent Boner
+-AdventBoner:Legacy Control
 http://legacy-control.com/comic/advent-boner-3/
-:ia #comic-1 img
+:image #comic-1 img , #content img.size-full
+:next #comic-foot a.navi-next
 
 -:Slimy Thief
 http://slimythief.com/?p=32
@@ -559,7 +560,7 @@ http://www.goblinscomic.org/archive/
 -- :url_replace /(\d{8}(?:-\d+)?)/ ::: /comic/$1 ::: www.goblinscomic.org ::: goblinscomic.com
 
 -:Eerie Cuties
-http://www.eeriecuties.com/strips-ec/%28chapter_1%29_it_is_gonna_eat_me%21
+http://www.eeriecuties.com/strips-ec/(chapter_1)_it_is_gonna_eat_me!
 :image+next #cc-comic
 
 -:Dangerously Chloe
@@ -638,7 +639,7 @@ http://twokinds.keenspot.com/archive/
 :image #content article.comic img[alt=Comic Page]
 
 -NX_CliqueRefresh:Clique Refresh
-http://cliquerefresh.com/comic/start-it-up/
+https://cliquerefresh.com/comic/001-start-it-up
 :image+next #cc-comic
 
 -NX_MegaTokyo:MegaTokyo
@@ -722,6 +723,33 @@ https://www.androidblues.com/comic/cover-2/
 :image #content .attachment-large
 :next #comic-navigation .link-next a
 
+-:Guilded Age
+http://guildedage.net/comic/chapter-1-cover/
+:image+next #comic img
+-- skip some flash content
+:url_replace http://guildedage.net/comic/guilded-age-the-flashtravaganza/ ::: http://guildedage.net/comic/chapter-15-cover/
+
+-:Floraverse
+https://floraverse.com/comic/seeds-a-mini-story/seeds/prologue/1-cover/
+:image .comic-page-image
+:next .comic-page-controls .-next a
+
+-:A Redtail’s Dream
+http://www.minnasundberg.fi/comic/page00.php
+:image #page img
+:next #nav1 a:has(img[src~=next.jpg])
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 --------------------------------------------------------------------------------------
@@ -739,8 +767,8 @@ http://www.endcomic.com/archives/
 :i #comic img
 
 -:Short Packed!
-http://www.shortpacked.com/comics/archive
-:ac .cc-chapterrow a[href]
+https://shortpacked.com/comic/archive
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Johnny Wander
@@ -765,15 +793,19 @@ http://www.aliceandthenightmare.com/comic/archive
 
 -:Hijinks Ensue Classic
 http://hijinksensue.com/comic/a-soul-as-black-as-eyeliner/
-:ia #comic img
+:image #comic img
+:next #sidebar-under-comic a.navi-next-in
 
 -:Hijinks Ensue
 http://hijinksensue.com/comic/who-is-your-daddy-and-what-does-he-do/
-:ia #comic img
+:image #comic img
+:next #sidebar-under-comic a.navi-next-in
 
 -:Lo-Fijinks (Hijinks Ensue)
-http://hijinksensue.com/comic/learning-to-love-again/
-:ia #comic img
+http://hijinksensue.com/comic/lo-fijinks-everything-i-know-anout-james-camerons-avatar-movie/
+:image #comic img
+:next #sidebar-under-comic a.navi-next-in
+
 
 -:Headless Bliss
 http://www.headlessbliss.com/comic/archive
@@ -854,7 +886,7 @@ http://www.vibecomic.com/vibe/cover-2
 :ia #cc-comic
 
 -:Astral Aves
-http://www.astralaves.com/comics/archive
+https://www.astralaves.com/comics/archive
 :ac .cc-storyline-text .cc-storyline-header a
 :ia #cc-comic
 
@@ -876,8 +908,8 @@ http://www.tryinghuman.com/archive
 
 
 -:Zombie Roomie
-http://www.zombieroomie.com/2009/10/26/issues/
-:ia #comic img
+https://www.zombieroomie.com/comic/issues
+:ia #cc-comic
 
 -:Jailbird
 http://an.oddlookingbird.com/archives/
@@ -942,8 +974,8 @@ http://www.atomic-robo.com/comics.php
 :ia #comic
 
 -:Paranatural
-http://www.paranatural.net/comics/archive
-:ac .cc-chapterrow a[href]
+https://www.paranatural.net/comics/archive
+:ac .cc-storyline-header a[href]
 :ia #cc-comic
 
 -:Blaster Nation
@@ -974,11 +1006,9 @@ http://rosalarian.com/meatyyogurt/archive-2/
 :n #content > div.nav > div.nav-next > a
 
 -:Monster Pulse
-http://www.monster-pulse.com/comic/mppage1/
--- archive at http://www.monster-pulse.com/chapter-list/
--- but index is off and link http://www.monster-pulse.com/comic/page-1-chapter-7/
--- is broken
-:ia #comic img
+https://www.monster-pulse.com/comic/archive
+:chapterArchive .cc-storyline-header a
+:ia #cc-comic
 
 -:Manly Guys Doing Manly Things
 http://thepunchlineismachismo.com/archives/comic/02222010

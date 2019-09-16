@@ -19,7 +19,6 @@ object Snafu {
     ("zim", "Invader Zim", "http://snafu-comics.com/swmcomic/cover-art/"),
     ("titan", "Titan Sphere", "http://snafu-comics.com/swmcomic/it-begins-3/"),
     ("naruto", "Naruto: Heroes Path", "http://snafu-comics.com/swmcomic/onichan/"),
-    ("league", "The League", "http://snafu-comics.com/swmcomic/in-which-we-are-introduced/"),
     ("braindead", "Brain Dead", "http://snafu-comics.com/swmcomic/brain-dead-intro/"),
     ("snafu", "Snafu Comics", "http://snafu-comics.com/swmcomic/remix-v2-0/"),
     ("trunksandsoto", "Trunks & Soto", "http://snafu-comics.com/swmcomic/junk-in-the-trunk/"),
