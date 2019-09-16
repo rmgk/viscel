@@ -334,7 +334,7 @@ http://haikucomics.com/2009/01/14/haikuone/
 :n #featured-comic .nav-next a
 
 -:Nymph
-http://fern.junglestudio.com/comics/nymph/01.html
+http://fern.junglestudio.com/comics/nymph/00.html
 :ia img[src~=images/ny\d\d\.]
 
 -:The First Daughter
@@ -371,9 +371,10 @@ http://www.valkyriesquadron.com/valkyrie/prologue-page-0/
 :n #webcomic > nav.webcomics.above > a.next-webcomic-link
 
 -:Wilde Life
-http://wildelifecomic.com/index.php?id=1
+http://www.wildelifecomic.com/comic/archive
+:chapterArchive #pagecontent .cc-storyline-header a
 :i #cc-comic
-:n #nav1 > div > a.next
+:n #nav1 a.cc-next
 
 -:Zombies and Fairytales
 http://166612.webhosting66.1blu.de/zaf_de/wordpress/comic/erster-eindruck/
@@ -664,11 +665,9 @@ http://www.apartmentfor2.com/comics/
 :next a[rel=next]
 
 -:Nicole and Derek
-http://nicoleandderek.com/index.php#archive
-:chapterArchive #pulldown form[name=jump] > select[name=menu] > option[value]
-:image td:has(#title) > center img[src~=/comics/]
-:next a[rel=next][href~=date=\d+$]
-:archiveReverse
+https://nicoleandderek.com/comics/index.php?date=20150413&until=week
+:images td:has(#title) > center img[src~=/comics/]
+:next a[rel=next][href~=/comics/index]
 
 -NX_Candi:Candi
 http://candicomics.com/index.html
