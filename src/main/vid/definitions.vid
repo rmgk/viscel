@@ -518,8 +518,8 @@ http://solstoria.net/comic/54/
 
 -:The Hope Virus
 http://hopevirus.keenspot.com/d/20160104.html
-:i #comicspot img.ksc
-:a #nexty
+:image #comicspot img.ksc
+:next #cnavbot a[rel=next]
 
 -:Advent Boner
 http://legacy-control.com/comic/advent-boner-3/
@@ -850,17 +850,16 @@ http://namesakecomic.com/archives/
 :ia #comic img
 
 -:Vibe
-http://www.vibecomic.com/comics/archive
-:ac .cc-chapterrow a[href]
+http://www.vibecomic.com/vibe/cover-2
 :ia #cc-comic
 
 -:Astral Aves
 http://www.astralaves.com/comics/archive
-:ac .cc-chapterrow a[href]
+:ac .cc-storyline-text .cc-storyline-header a
 :ia #cc-comic
 
 -:Balderdash
-http://www.balderdashcomic.com/comics/archive
+http://www.balderdashcomic.com/comic/archive
 :ac .cc-chapterrow a[href]
 :ia #cc-comic
 
