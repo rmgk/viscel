@@ -37,8 +37,7 @@ class Users(usersDir: Path) {
   }
 
   def setBookmark(user: User, colid: Vid, bm: Bookmark): User = {
-    if (bm.position > 0) userUpdate(user.setBookmark(colid, bm))
-    else userUpdate(user.removeBookmark(colid))
+    userUpdate(user.setBookmark(colid, bm))
   }
 
 
@@ -50,8 +49,6 @@ class Users(usersDir: Path) {
     Json.load[User](p).toTry.orElse {
       Json.load[LegacyUser](p).map(_.toUser).toTry
     }.toEither.left.map(_.getMessage)
-
-  private def store(user: User): Unit = Json.store(path(user.id), user)
 
   var userCache = Map[String, User]()
 
@@ -73,7 +70,7 @@ class Users(usersDir: Path) {
 
   def userUpdate(user: User): User = synchronized {
     userCache += user.id -> user
-    store(user)
+    Json.store(path(user.id), user)
     user
   }
 }

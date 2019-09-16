@@ -58,14 +58,17 @@ class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
   }
 
   private def handleBookmarks(userid: User.Id): Signal[BookmarksMap] = {
-    val user = userStore.get(userid).get
+    var user = userStore.get(userid).get
     val bookmarkMap = user.bookmarks.foldLeft(BookmarksMap.empty){case (bmm, (vid, bm)) =>
       Lattice.merge(bmm, bmm.addΔ(vid, bm)(userid))
     }
     val userBookmarks = Var(bookmarkMap)
     userBookmarks.map(_.bindings).change.observe{ case Diff(prev, next) =>
       next.foreach{ case (vid, bm) =>
-        if (!prev.get(vid).contains(bm)) userStore.setBookmark(user, vid, bm)
+        if (!prev.get(vid).contains(bm)) {
+          viscel.shared.Log.Store.info(f"updating $vid to $bm for ${userid}")
+          user = userStore.setBookmark(user, vid, bm)
+        }
       }
     }
 
