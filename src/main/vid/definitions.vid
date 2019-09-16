@@ -746,7 +746,7 @@ http://www.shortpacked.com/comics/archive
 -:Johnny Wander
 http://www.johnnywander.com/comic/i
 :i #cc-comic , #cc-comicbody .cc-showbig img
-:n #leftcontainer > div.nav > a.next
+:n #leftcontainer nav a.cc-next
 
 -:Fanboys
 http://www.fanboys-online.com/index.php?id=483
