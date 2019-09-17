@@ -153,7 +153,7 @@ http://archive.exiern.com/comic/so-far/
 
 -NX_ElGoonishShive:El Goonish Shive
 http://egscomics.com/comic/archive
-:chapterArchive #leftarea .cc-storyline-header a
+:chapterArchive #leftarea .cc-storyline-contain[style=margin-left:50px] .cc-storyline-header a
 :image+next #cc-comic
 
 -:EGS Newspaper
