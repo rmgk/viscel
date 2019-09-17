@@ -737,7 +737,7 @@ https://floraverse.com/comic/seeds-a-mini-story/seeds/prologue/1-cover/
 -:A Redtail’s Dream
 http://www.minnasundberg.fi/comic/page00.php
 :image #page img
-:next #nav1 a:has(img[src~=next.jpg])
+:next #nav1 a[src~=.php]:has(img[src~=next.jpg])
 
 
 
