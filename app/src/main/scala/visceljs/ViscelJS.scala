@@ -15,7 +15,6 @@ import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.body
 import viscel.shared.Bindings.SetBookmark
 import viscel.shared._
-import visceljs.ViscelJS.replicaID
 import visceljs.render.{Front, Index, View}
 
 import scala.concurrent.Future
@@ -27,12 +26,12 @@ class BookmarkManager(registry: Registry) {
   val bookmarksCRDT    = {
     val storage: Storage = dom.window.localStorage
     val bmms = ReCirce.recirce[BookmarksMap]
-    val key = "bookmarksmapV1"
+    val key = "bookmarksmapV2"
     val bmm = Try(Option(storage.getItem(key)).get).flatMap{ str =>
       bmms.deserialize(str)
     }.getOrElse(BookmarksMap.empty)
     val bmCRDT = setBookmark.fold(bmm){ case (map, (vid, bm)) =>
-      Lattice.merge(map, map.addΔ(vid, bm)(replicaID))
+      Lattice.merge(map, map.addΔ(vid, bm))
     }
     bmCRDT.observe{ v =>
       storage.setItem(key, bmms.serialize(v))

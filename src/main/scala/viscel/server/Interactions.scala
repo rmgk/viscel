@@ -60,7 +60,7 @@ class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
   private def handleBookmarks(userid: User.Id): Signal[BookmarksMap] = {
     var user = userStore.get(userid).get
     val bookmarkMap = user.bookmarks.foldLeft(BookmarksMap.empty){case (bmm, (vid, bm)) =>
-      Lattice.merge(bmm, bmm.addΔ(vid, bm)(userid))
+      Lattice.merge(bmm, bmm.addΔ(vid, bm))
     }
     val userBookmarks = Var(bookmarkMap)
     userBookmarks.map(_.bindings).change.observe{ case Diff(prev, next) =>

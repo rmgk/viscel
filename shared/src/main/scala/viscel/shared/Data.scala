@@ -1,8 +1,6 @@
 package viscel.shared
 
 import io.circe.{Decoder, Encoder}
-import rescala.extra.deltacrdts.AddWinsSet
-import rescala.extra.lattices.IdUtil.Id
 import rescala.extra.lattices.Lattice
 
 import scala.collection.immutable.Map
@@ -28,10 +26,8 @@ object Bookmark {
   }
 }
 
-case class BookmarksMap(bindings: Map[Vid, Bookmark], contains: AddWinsSet[Vid]) {
-  def addΔ(vid: Vid, bookmark: Bookmark)(replicaId: Id): BookmarksMap =
-    BookmarksMap(Map(vid-> bookmark), contains.add(vid, replicaId))
-
+case class BookmarksMap(bindings: Map[Vid, Bookmark]) {
+  def addΔ(vid: Vid, bookmark: Bookmark): BookmarksMap = BookmarksMap(Map(vid-> bookmark))
 }
 object BookmarksMap {
   import io.circe.generic.auto._
@@ -39,20 +35,23 @@ object BookmarksMap {
   implicit val bookmarksMapEncoder: Encoder[BookmarksMap] = io.circe.generic.semiauto.deriveEncoder
   implicit val bookmarksMapDecoder: Decoder[BookmarksMap] = io.circe.generic.semiauto.deriveDecoder
 
-  def empty: BookmarksMap = BookmarksMap(Map.empty, AddWinsSet.empty)
+  def empty: BookmarksMap = BookmarksMap(Map.empty)
+
+  implicit def optionLattice[A: Lattice]: Lattice[Option[A]] = {
+    case (None, r)    => r
+    case (l, None)    => l
+    case (Some(l), Some(r)) => Some(Lattice.merge(l, r))
+  }
+
+  implicit def mapLattice[K, V: Lattice]: Lattice[Map[K, V]] = (left, right) =>
+    Lattice.merge(left.keySet, right.keySet).iterator
+           .flatMap { key =>
+             Lattice.merge(left.get(key), right.get(key)).map(key -> _)
+           }.toMap
 
   /** Merge contains. Then merge remaining bookmarks. */
-  implicit def bookmarkMapLattice: Lattice[BookmarksMap] = (left, right) => {
-    val contains = Lattice.merge(left.contains, right.contains)
-    val bindings = contains.toSet.flatMap {vid =>
-      (left.bindings.get(vid), right.bindings.get(vid)) match {
-        case (None, Some(r)) => Some(vid -> r)
-        case (Some(l), None) => Some(vid -> l)
-        case (Some(l), Some(r)) => Some(vid -> Lattice.merge(l, r))
-        case (None, None) => None
-      }
-    }.toMap
-    BookmarksMap(bindings, contains)
+  implicit val bookmarkMapLattice: Lattice[BookmarksMap] = (left, right) => {
+    BookmarksMap(Lattice.merge(left.bindings, right.bindings))
   }
 
 }
