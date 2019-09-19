@@ -4,6 +4,7 @@ import loci.communicator.ws.akka.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
+import org.scalajs.dom.experimental.URL
 import org.scalajs.dom.raw.Storage
 import rescala.default._
 import rescala.extra.distributables.LociDist
@@ -18,6 +19,7 @@ import viscel.shared._
 import visceljs.render.{Front, Index, View}
 
 import scala.concurrent.Future
+import scala.scalajs.js
 import scala.util.{Failure, Success, Try}
 
 
@@ -81,6 +83,27 @@ class ContentConnectionManager(registry: Registry) {
         val emptyContents = Contents(Gallery.empty, Nil)
         val eventualContents = requestContents(nar.id).map(_.getOrElse(emptyContents))
         eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${nar.id} (sucessful: ${t.isSuccess})"))
+        eventualContents.foreach{contents =>
+          Log.JS.info(s"prefetching ${nar.id} ")
+          contents.gallery.toSeq.foreach{image =>
+            Log.JS.info(image.blob.toString)
+            image.blob.foreach { blob =>
+              val url = new URL(Definitions.path_blob(blob), dom.document.location.href)
+              Log.JS.info(url.href)
+              val navigator  = dom.window.navigator
+              Log.JS.info(s"navigator : $navigator")
+              val controller = navigator.asInstanceOf[js.Dynamic].serviceWorker.controller
+              Log.JS.info(s"controller : $controller")
+              controller.postMessage(
+                js.Dynamic.literal(
+                  "command" -> "add",
+                  "vid" -> nar.id.str,
+                  "url" -> url.href
+                  )
+                )
+            }
+          }
+        }
         Signals.fromFuture(eventualContents).withDefault(emptyContents)
       }.getOrElse(Var.empty[Contents])
     })
