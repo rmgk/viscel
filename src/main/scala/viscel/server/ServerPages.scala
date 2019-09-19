@@ -4,7 +4,8 @@ import akka.http.scaladsl.model._
 import io.circe.Encoder
 import io.circe.generic.auto._
 import io.circe.syntax._
-import scalatags.Text.attrs.{`for`, `type`, action, content, href, id, rel, src, title, value, name => attrname}
+import scalatags.Text.all.raw
+import scalatags.Text.attrs.{`for`, `type`, action, attr, content, href, id, rel, src, title, value, name => attrname}
 import scalatags.Text.implicits.{Frag, Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{SeqFrag, body, div, form, h1, head, html, input, label, link, meta, script}
 import scalatags.Text.tags2.section
@@ -21,9 +22,17 @@ class ServerPages() {
       head(
         title := "Viscel",
         link(href := path_css, rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
+        link(rel := "manifest", href := "manifest.json"),
+        link(rel := "icon", href := "icon.png", attr("sizes") := "192x192"),
         meta(attrname := "viewport",
-             content := "width=device-width, initial-scale=1, user-scalable=yes, minimal-ui"))
-    )(stuff: _*)
+             content := "width=device-width, initial-scale=1, user-scalable=yes, minimal-ui"),
+        script(raw("""if('serviceWorker' in navigator) {
+        navigator.serviceWorker
+                 .register('serviceworker.js')
+                 .then(function(reg) { console.log('Service Worker Registered', reg); })
+                 .catch(function(err) { console.log('Service Worker Failed', err); }); }"""))
+        )
+      )(stuff: _*)
 
   def htmlResponse(tag: Tag): HttpResponse = HttpResponse(entity = HttpEntity(
     ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),

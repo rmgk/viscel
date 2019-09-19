@@ -38,10 +38,12 @@ class Server(userStore: Users,
     path(name){getFromFile(staticPath.resolve(file).toFile)}
 
   val staticRoute: Route =
-    stc("js", "app-fastopt.js.gz") ~
-    stc("css", "style.css.gz") ~
-    stc("app-fastopt.js.map", "app-fastopt.js.map.gz") ~
-    stc("style.css.map", "style.css.map.gz")
+    List("app-fastopt.js.map", "style.css.map", "serviceworker.js", "manifest.json", "icon.png")
+      .map(str => stc(str, str + ".gz"))
+      .foldLeft(
+        stc("js", "app-fastopt.js.gz") ~
+        stc("css", "style.css.gz")
+        )(_ ~ _)
 
 
   val basicAuth: AuthenticationDirective[User] = {

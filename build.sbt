@@ -41,11 +41,25 @@ val vbundleDef = vbundle := {
   def gzipToTarget(f: File): Unit = IO.gzip(f, bundleTarget.resolve(f.name + ".gz").toFile)
 
   gzipToTarget(jsfile)
-  val vidPath = sourceDirectory.value.toPath.resolve("main/vid").toFile
-  val vids = IO.listFiles(vidPath)
-  vids.foreach { f => IO.copyFile(f, bundleTarget.resolve(f.name).toFile) }
   gzipToTarget(jsfile.toPath.getParent.resolve(jsfile.name + ".map").toFile)
   styles.foreach(gzipToTarget)
+
+  def sourcepath(p: String) = sourceDirectory.value.toPath.resolve(p).toFile
+
+  val sources = IO.listFiles(sourcepath("main/vid"))
+  sources.foreach { f => IO.copyFile(f, bundleTarget.resolve(f.name).toFile) }
+
+  IO.listFiles(sourceDirectory.value.toPath.resolve("main/static").toFile)
+    .foreach(gzipToTarget)
+
+
+  val swupdated = IO.read(sourcepath("main/js/serviceworker.js"))
+                    .replaceAllLiterally("[inserted app cache name]", System.currentTimeMillis().toString)
+  IO.gzipFileOut(bundleTarget.resolve("serviceworker.js.gz").toFile){os =>
+    os.write(swupdated.getBytes(java.nio.charset.StandardCharsets.UTF_8))
+  }
+
+
   bundleTarget.toFile
 }
 
