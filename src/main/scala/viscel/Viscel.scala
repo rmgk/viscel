@@ -48,8 +48,8 @@ object Viscel {
         val staticDir =
           staticCandidates.find(_.isDirectory)
           .getOrElse {
-            println("Missing static resource directory.")
-            println(s"Searched in ${staticCandidates.mkString(" ")}")
+            println(s"Missing static resource directory, " +
+                    s"tried ${staticCandidates.map(c => s"»$c«").mkString(", ")}.")
             sys.exit(0)
           }
 
