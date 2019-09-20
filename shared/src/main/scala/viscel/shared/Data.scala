@@ -9,7 +9,7 @@ import scala.collection.immutable.Map
 final case class Description(id: Vid, name: String, size: Int, unknownNarrator: Boolean)
 final case class ChapterPos(name: String, pos: Int)
 final case class SharedImage(origin: String,
-                             blob: Option[Blob] = None,
+                             blob: Blob,
                              data: Map[String, String] = Map())
 final case class Contents(gallery: Gallery[SharedImage], chapters: List[ChapterPos])
 final case class Blob(sha1: String, mime: String)

@@ -85,7 +85,7 @@ class ContentConnectionManager(registry: Registry) {
         eventualContents.foreach{contents =>
           Log.JS.info(s"prefetching ${nar.id} ")
           def toUrl(blob: Blob) = new URL(Definitions.path_blob(blob), dom.document.location.href)
-          val urls = contents.gallery.toSeq.iterator.flatMap(_.blob).map(toUrl)
+          val urls = contents.gallery.toSeq.iterator.map(si => toUrl(si.blob))
           val caches = dom.window.asInstanceOf[js.Dynamic].caches.asInstanceOf[CacheStorage]
           caches.open(s"vid${nar.id}").`then`[Unit]{ cache =>
             cache.addAll(js.Array(urls.map[RequestInfo](_.href).toSeq : _*))

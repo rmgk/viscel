@@ -91,7 +91,7 @@ object ContentLoader {
             }.toMap
             flatten(lastLink, t,
                     SharedImage(seenOrigins(ll.ref).uriString(),
-                                Blob(sha1, mime).some,
+                                Blob(sha1, mime),
                                 dataMap).asLeft :: acc)
           case ch: DataRow.Chapter      => flatten(lastLink, t, ch.asRight :: acc)
         }

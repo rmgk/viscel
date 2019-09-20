@@ -63,7 +63,8 @@ class ReplUtil(services: Services) {
         Files.createDirectories(dir)
         articles.zipWithIndex.map {
           case (a, apos) =>
-            a.copy(blob = a.blob.map { blob =>
+            a.copy(blob = {
+              val blob = a.blob
               val name = f"${apos + 1}%05d.${mimeToExt(blob.mime, default = "bmp")}"
               Files.copy(services.blobStore.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
               blob.copy(sha1 = s"$cname/$name")
