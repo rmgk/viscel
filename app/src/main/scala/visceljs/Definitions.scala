@@ -10,18 +10,12 @@ import scala.scalajs.js.URIUtils.encodeURIComponent
 object Definitions {
 
   def path_main = "#"
-  def path_css = "css"
   def path_asset(data: Data) = s"#${encodeURIComponent(data.id.str)}/${data.pos + 1}"
-  def path_search = "s"
   def path_blob(blob: Blob) = s"blob/${blob.sha1}/${blob.mime}"
   def path_front(desc: Description) = s"#${encodeURIComponent(desc.id.str)}"
-  def path_stop = "stop"
   def path_tools = "tools"
 
-  val class_post = cls := "post"
-  val class_extern = cls := "extern"
   val class_placeholder = cls := "placeholder"
-  val class_dead = cls := "dead"
   val class_preview = cls := "preview"
   val class_chapters = cls := "chapters"
 
