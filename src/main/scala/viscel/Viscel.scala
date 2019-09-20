@@ -76,10 +76,12 @@ object Viscel {
     }
   }
 
+  val version: String = better.files.Resource.my.asString("/version").getOrElse("unknown")
 
   def main(args: Array[String]): Unit = run(args: _*)
 
   def run(args: String*): Services = {
+    Log.Main.info(s"Viscel version $version")
     command.parse(args) match {
       case Left(help)     =>
         println(help)

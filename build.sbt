@@ -63,6 +63,16 @@ val vbundleDef = vbundle := {
   bundleTarget.toFile
 }
 
+val selfversion = TaskKey[File]("selfversion", "add the current version ")
+val selfversionDef = selfversion := {
+  val versiondir = target.value.toPath.resolve("resources/bundled")
+  Files.createDirectories(versiondir)
+  val versiontarget = versiondir.resolve("version").toFile
+  IO.write(versiontarget, version.value)
+  versiontarget
+}
+
+
 lazy val viscel = project
                   .in(file("."))
                   .settings(
@@ -71,7 +81,9 @@ lazy val viscel = project
                     Libraries.main,
                     vbundleDef,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
-                    publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value
+                    publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value,
+                    selfversionDef,
+                    (Compile / managedResources) += selfversion.value
                   )
                   .enablePlugins(JavaServerAppPackaging)
                   .dependsOn(sharedJVM)

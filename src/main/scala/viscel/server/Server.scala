@@ -41,6 +41,7 @@ class Server(userStore: Users,
     List("app-fastopt.js.map", "style.css.map", "serviceworker.js", "manifest.json", "icon.png")
       .map(str => stc(str, str + ".gz"))
       .foldLeft(
+        path("version") {complete(viscel.Viscel.version)}~
         stc("js", "app-fastopt.js.gz") ~
         stc("css", "style.css.gz")
         )(_ ~ _)
