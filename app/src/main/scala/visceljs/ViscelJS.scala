@@ -15,6 +15,7 @@ import rescala.extra.restoration.ReCirce
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.body
 import viscel.shared.Bindings.SetBookmark
+import viscel.shared.BookmarksMap._
 import viscel.shared._
 import visceljs.render.{Front, Index, View}
 
@@ -25,15 +26,15 @@ import scala.util.{Failure, Success, Try}
 
 class BookmarkManager(registry: Registry) {
   val setBookmark      = Evt[(Vid, Bookmark)]
-  val bookmarksCRDT    = {
+  val bookmarks    = {
     val storage: Storage = dom.window.localStorage
     val bmms = ReCirce.recirce[BookmarksMap]
-    val key = "bookmarksmapV2"
+    val key = "bookmarksmap"
     val bmm = Try(Option(storage.getItem(key)).get).flatMap{ str =>
       bmms.deserialize(str)
-    }.getOrElse(BookmarksMap.empty)
+    }.getOrElse(Map.empty)
     val bmCRDT = setBookmark.fold(bmm){ case (map, (vid, bm)) =>
-      Lattice.merge(map, map.addΔ(vid, bm))
+      Lattice.merge(map, BookmarksMap.addΔ(vid, bm))
     }
     bmCRDT.observe{ v =>
       storage.setItem(key, bmms.serialize(v))
@@ -41,10 +42,7 @@ class BookmarkManager(registry: Registry) {
     bmCRDT
   }
 
-  LociDist.distribute(bookmarksCRDT, registry)(Bindings.bookmarksMapBindig)
-
-  val bookmarks = bookmarksCRDT.map(_.bindings)
-
+  LociDist.distribute(bookmarks, registry)(Bindings.bookmarksMapBindig)
 
   val postBookmarkF: SetBookmark => Unit = { set: Bindings.SetBookmark =>
     set.foreach{ bm =>

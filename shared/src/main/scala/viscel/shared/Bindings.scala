@@ -4,6 +4,7 @@ import io.circe.generic.auto._
 import loci.registry.Binding
 import loci.serializer.circe._
 import loci.transmitter.IdenticallyTransmittable
+import viscel.shared.BookmarksMap.BookmarksMap
 
 
 object Bindings {

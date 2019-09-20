@@ -15,6 +15,7 @@ import rescala.reactives.Signals.Diff
 import viscel.netzi.WebRequestInterface
 import rescala.default._
 import rescala.extra.distributables.LociDist
+import viscel.shared.BookmarksMap._
 
 import scala.collection.immutable.Map
 import scala.collection.mutable
@@ -59,11 +60,11 @@ class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
 
   private def handleBookmarks(userid: User.Id): Signal[BookmarksMap] = {
     var user = userStore.get(userid).get
-    val bookmarkMap = user.bookmarks.foldLeft(BookmarksMap.empty){case (bmm, (vid, bm)) =>
-      Lattice.merge(bmm, bmm.addΔ(vid, bm))
+    val bookmarkMap = user.bookmarks.foldLeft[BookmarksMap](Map.empty){case (bmm, (vid, bm)) =>
+      Lattice.merge(bmm, BookmarksMap.addΔ(vid, bm))
     }
     val userBookmarks = Var(bookmarkMap)
-    userBookmarks.map(_.bindings).change.observe{ case Diff(prev, next) =>
+    userBookmarks.change.observe{ case Diff(prev, next) =>
       next.foreach{ case (vid, bm) =>
         if (!prev.get(vid).contains(bm)) {
           viscel.shared.Log.Store.info(f"updating $vid to $bm for ${userid}")

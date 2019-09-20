@@ -26,16 +26,17 @@ object Bookmark {
   }
 }
 
-case class BookmarksMap(bindings: Map[Vid, Bookmark]) {
-  def addΔ(vid: Vid, bookmark: Bookmark): BookmarksMap = BookmarksMap(Map(vid-> bookmark))
-}
 object BookmarksMap {
   import io.circe.generic.auto._
 
-  implicit val bookmarksMapEncoder: Encoder[BookmarksMap] = io.circe.generic.semiauto.deriveEncoder
-  implicit val bookmarksMapDecoder: Decoder[BookmarksMap] = io.circe.generic.semiauto.deriveDecoder
+  type BookmarksMap = Map[Vid, Bookmark]
 
-  def empty: BookmarksMap = BookmarksMap(Map.empty)
+  def addΔ(vid: Vid, bookmark: Bookmark): BookmarksMap = Map(vid-> bookmark)
+
+
+  implicit val bookmarksMapEncoder: Encoder[BookmarksMap] = io.circe.Encoder.encodeMap
+  implicit val bookmarksMapDecoder: Decoder[BookmarksMap] = io.circe.Decoder.decodeMap
+
 
   implicit def optionLattice[A: Lattice]: Lattice[Option[A]] = {
     case (None, r)    => r
@@ -48,10 +49,5 @@ object BookmarksMap {
            .flatMap { key =>
              Lattice.merge(left.get(key), right.get(key)).map(key -> _)
            }.toMap
-
-  /** Merge contains. Then merge remaining bookmarks. */
-  implicit val bookmarkMapLattice: Lattice[BookmarksMap] = (left, right) => {
-    BookmarksMap(Lattice.merge(left.bindings, right.bindings))
-  }
 
 }
