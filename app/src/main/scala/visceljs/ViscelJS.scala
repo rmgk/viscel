@@ -4,7 +4,8 @@ import loci.communicator.ws.akka.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
-import org.scalajs.dom.experimental.URL
+import org.scalajs.dom.experimental.{RequestInfo, URL}
+import org.scalajs.dom.experimental.serviceworkers.CacheStorage
 import org.scalajs.dom.raw.Storage
 import rescala.default._
 import rescala.extra.distributables.LociDist
@@ -83,24 +84,30 @@ class ContentConnectionManager(registry: Registry) {
         eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${nar.id} (sucessful: ${t.isSuccess})"))
         eventualContents.foreach{contents =>
           Log.JS.info(s"prefetching ${nar.id} ")
-          contents.gallery.toSeq.foreach{image =>
-            Log.JS.info(image.blob.toString)
-            image.blob.foreach { blob =>
-              val url = new URL(Definitions.path_blob(blob), dom.document.location.href)
-              Log.JS.info(url.href)
-              val navigator  = dom.window.navigator
-              Log.JS.info(s"navigator : $navigator")
-              val controller = navigator.asInstanceOf[js.Dynamic].serviceWorker.controller
-              Log.JS.info(s"controller : $controller")
-              controller.postMessage(
-                js.Dynamic.literal(
-                  "command" -> "add",
-                  "vid" -> nar.id.str,
-                  "url" -> url.href
-                  )
-                )
-            }
+          def toUrl(blob: Blob) = new URL(Definitions.path_blob(blob), dom.document.location.href)
+          val urls = contents.gallery.toSeq.iterator.flatMap(_.blob).map(toUrl)
+          val caches = dom.window.asInstanceOf[js.Dynamic].caches.asInstanceOf[CacheStorage]
+          caches.open(s"vid${nar.id}").`then`[Unit]{ cache =>
+            cache.addAll(js.Array(urls.map[RequestInfo](_.href).toSeq : _*))
           }
+          //contents.gallery.toSeq.foreach{image =>
+          //  Log.JS.info(image.blob.toString)
+          //  image.blob.foreach { blob =>
+          //    val url = new URL(Definitions.path_blob(blob), dom.document.location.href)
+          //    Log.JS.info(url.href)
+          //    val navigator  = dom.window.navigator
+          //    Log.JS.info(s"navigator : $navigator")
+          //    val controller = navigator.asInstanceOf[js.Dynamic].serviceWorker.controller
+          //    Log.JS.info(s"controller : $controller")
+          //    controller.postMessage(
+          //      js.Dynamic.literal(
+          //        "command" -> "add",
+          //        "vid" -> nar.id.str,
+          //        "url" -> url.href
+          //        )
+          //      )
+          //  }
+          //}
         }
         Signals.fromFuture(eventualContents).withDefault(emptyContents)
       }.getOrElse(Var.empty[Contents])
