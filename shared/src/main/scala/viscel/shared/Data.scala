@@ -5,8 +5,8 @@ import rescala.extra.lattices.Lattice
 
 import scala.collection.immutable.Map
 
-/** The [[name]] and [[size]] of a collection. [[unknownNarrator]] is false if it can still be downloaded. */
-final case class Description(id: Vid, name: String, size: Int, unknownNarrator: Boolean)
+/** The [[name]] and [[size]] of a Book. [[linked]] is true if it can still be downloaded. */
+final case class Description(name: String, size: Int, linked: Boolean, timestamp: Long)
 final case class ChapterPos(name: String, pos: Int)
 final case class SharedImage(origin: String,
                              blob: Blob,

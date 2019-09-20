@@ -1,16 +1,7 @@
 package viscel
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, StandardCopyOption}
+import java.nio.file.Files
 
-import io.circe.generic.auto._
-import io.circe.syntax._
-import scalatags.Text.RawFrag
-import scalatags.Text.attrs.src
-import scalatags.Text.implicits.stringAttr
-import scalatags.Text.tags.script
-import viscel.MimeUtil.mimeToExt
-import viscel.shared.{ChapterPos, Description, Gallery, SharedImage, Vid}
 import viscel.store.BlobStore
 
 import scala.collection.JavaConverters.asScalaIteratorConverter
@@ -30,66 +21,6 @@ object MimeUtil {
 class ReplUtil(services: Services) {
 
   val Log = viscel.shared.Log.Tool
-
-
-
-  def export(id: Vid): Unit = {
-
-    val narrationOption = services.contentLoader.contents(id)
-
-    if (narrationOption.isEmpty) {
-      Log.warn(s"$id not found")
-      return
-    }
-
-
-    val p = services.exportdir.resolve(id.str)
-    Files.createDirectories(p)
-
-
-    val content = narrationOption.get
-    val description: Description = Description(Vid.from(""), "", 0, unknownNarrator = true)
-
-    val chapters: List[(ChapterPos, Seq[SharedImage])] =
-      content.chapters.foldLeft((content.gallery.size, List[(ChapterPos, Seq[SharedImage])]())) {
-        case ((nextPosition, chapters), chapter@ChapterPos(name, position)) =>
-          (position, (chapter, Range(position, nextPosition).map(p => content.gallery.next(p).get.get)) :: chapters)
-      }._2
-
-    val assetList = chapters.zipWithIndex.flatMap {
-      case ((chap, articles), cpos) =>
-        val cname = f"${cpos + 1}%04d"
-        val dir = p.resolve(cname)
-        Files.createDirectories(dir)
-        articles.zipWithIndex.map {
-          case (a, apos) =>
-            a.copy(blob = {
-              val blob = a.blob
-              val name = f"${apos + 1}%05d.${mimeToExt(blob.mime, default = "bmp")}"
-              Files.copy(services.blobStore.hashToPath(blob.sha1), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING)
-              blob.copy(sha1 = s"$cname/$name")
-            })
-        }
-    }
-
-
-    val assembled = (description, content.copy(Gallery.fromSeq(assetList)))
-
-    val narJson = "var narration = " + assembled.asJson.noSpaces
-    val html = "<!DOCTYPE html>" + services.serverPages.makeHtml(script(src := "narration"), script(RawFrag(s"""Viscel().spore("$id", JSON.stringify(narration))""")))
-
-
-    Files.write(p.resolve(s"${description.id}.html"), html.getBytes(StandardCharsets.UTF_8))
-    Files.write(p.resolve("narration"), narJson.getBytes(StandardCharsets.UTF_8))
-
-    val js = getClass.getClassLoader.getResourceAsStream("viscel-js-opt.js")
-    val css = getClass.getClassLoader.getResourceAsStream("style.css")
-
-    Files.copy(js, p.resolve("js"), StandardCopyOption.REPLACE_EXISTING)
-    Files.copy(css, p.resolve("css"), StandardCopyOption.REPLACE_EXISTING)
-
-  }
-
 
   def cleanBlobDirectory(): Unit = {
     Log.info(s"scanning all blobs …")

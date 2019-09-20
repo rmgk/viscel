@@ -20,23 +20,21 @@ class ContentLoader(narratorCache: NarratorCache,
     else Some(ContentLoader.pagesToContents(pages))
   }
 
-  def descriptions(): Set[Description] = {
-    val books = rowStore.allVids().map {description}
-    var known = books.map(d => d.id -> d).toMap
-    val nars = narratorCache.all.map { n =>
-      known.get(n.id) match {
-        case None       => Description(n.id, n.name, 0, unknownNarrator = false)
-        case Some(desc) =>
-          known = known - n.id
-          desc.copy(unknownNarrator = false)
+  def descriptions(): Map[Vid, Description] = {
+    val stored   : Map[Vid, Description] = rowStore.allVids().map { id => id -> description(id) }.toMap
+    val narrators: Map[Vid, Description] = narratorCache.all.map { n =>
+      stored.get(n.id) match {
+        case None       => n.id -> Description(n.name, 0, linked = true,
+                                               timestamp = System.currentTimeMillis())
+        case Some(desc) => n.id -> desc.copy(linked = true)
       }
-    }
-    nars ++ known.values
+    }.toMap
+    stored ++ narrators
   }
 
   private def description(id: Vid): Description = descriptionCache.getOrElse(id) {
     val book = rowStore.loadBook(id)
-    Description(id, book.name, ContentLoader.size(book), unknownNarrator = true)
+    Description(book.name, ContentLoader.size(book), linked = false, timestamp = System.currentTimeMillis())
   }
 
 

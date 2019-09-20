@@ -4,18 +4,16 @@ import loci.communicator.ws.akka.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
-import org.scalajs.dom.experimental.{RequestInfo, URL}
 import org.scalajs.dom.experimental.serviceworkers.CacheStorage
+import org.scalajs.dom.experimental.{RequestInfo, URL}
 import org.scalajs.dom.raw.Storage
 import rescala.default._
 import rescala.extra.distributables.LociDist
-import rescala.extra.lattices.IdUtil
 import rescala.extra.lattices.IdUtil.Id
-import rescala.extra.lattices.Lattice
+import rescala.extra.lattices.{IdUtil, Lattice}
 import rescala.extra.restoration.ReCirce
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.body
-import viscel.shared.Bindings.SetBookmark
 import viscel.shared.BookmarksMap._
 import viscel.shared._
 import visceljs.render.{Front, Index, View}
@@ -45,11 +43,7 @@ class BookmarkManager(registry: Registry) {
 
   LociDist.distribute(bookmarks, registry)(Bindings.bookmarksMapBindig)
 
-  val postBookmarkF: SetBookmark => Unit = { set: Bindings.SetBookmark =>
-    set.foreach{ bm =>
-      setBookmark.fire(bm._1.id -> bm._2)
-    }
-  }
+  def postBookmarkF(vid: Vid, bookmark: Bookmark): Unit = setBookmark.fire(vid -> bookmark)
 }
 
 
@@ -74,20 +68,20 @@ class ContentConnectionManager(registry: Registry) {
   registry.remoteLeft.foreach(_ => connect())
   connect()
 
-  def content(nar: Description): Signal[Contents] = {
-    hint(nar, force = false)
-    contents.getOrElseUpdate(nar.id, {
+  def content(vid: Vid): Signal[Contents] = {
+    hint(vid, force = false)
+    contents.getOrElseUpdate(vid, {
       registry.remotes.find(_.connected).map { remote =>
         val requestContents  = registry.lookup(Bindings.contents, remote)
         val emptyContents = Contents(Gallery.empty, Nil)
-        val eventualContents = requestContents(nar.id).map(_.getOrElse(emptyContents))
-        eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${nar.id} (sucessful: ${t.isSuccess})"))
+        val eventualContents = requestContents(vid).map(_.getOrElse(emptyContents))
+        eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${vid} (sucessful: ${t.isSuccess})"))
         eventualContents.foreach{contents =>
-          Log.JS.info(s"prefetching ${nar.id} ")
+          Log.JS.info(s"prefetching ${vid} ")
           def toUrl(blob: Blob) = new URL(Definitions.path_blob(blob), dom.document.location.href)
           val urls = contents.gallery.toSeq.iterator.map(si => toUrl(si.blob))
           val caches = dom.window.asInstanceOf[js.Dynamic].caches.asInstanceOf[CacheStorage]
-          caches.open(s"vid${nar.id}").`then`[Unit]{ cache =>
+          caches.open(s"vid${vid}").`then`[Unit]{ cache =>
             cache.addAll(js.Array(urls.map[RequestInfo](_.href).toSeq : _*))
           }
           //contents.gallery.toSeq.foreach{image =>
@@ -114,9 +108,9 @@ class ContentConnectionManager(registry: Registry) {
     })
   }
 
-  def hint(descr: Description, force: Boolean): Unit = {
+  def hint(vid: Vid, force: Boolean): Unit = {
     registry.remotes.filter(_.connected).foreach { connection =>
-      registry.lookup(Bindings.hint, connection).apply(descr, force).failed
+      registry.lookup(Bindings.hint, connection).apply(vid, force).failed
               .foreach(e => Log.JS.error(s"sending hint failed: $e"))
     }
   }
@@ -129,8 +123,7 @@ class ContentConnectionManager(registry: Registry) {
   private def updateDescriptions(remote: RemoteRef): Future[_] = {
     val lookup = registry.lookup(Bindings.descriptions, remote).apply()
     lookup.onComplete {
-      case Success(value)     =>
-        val descriptionMap = value.map(n => n.id -> n).toMap
+      case Success(descriptionMap)     =>
         descriptions.set(descriptionMap)
       case Failure(exception) =>
         Log.JS.error("failed to fetch descriptions")
@@ -151,9 +144,11 @@ object ViscelJS {
     val bookmarkManager = new BookmarkManager(registry)
     val ccm = new ContentConnectionManager(registry)
 
-    val manualStates = Evt[AppState]()
+    val actionsEv = Events.fromCallback[AppState] { cb =>
+      new Actions(hint = ccm.hint, postBookmarkF = bookmarkManager.postBookmarkF, manualStates = cb)
+    }
 
-    val actions = new Actions(hint = ccm.hint, postBookmarkF = bookmarkManager.postBookmarkF, manualStates = manualStates)
+    val actions = actionsEv.value
     val index = new Index(actions, bookmarkManager.bookmarks, ccm.descriptions)
     val front = new Front(actions)
     val view = new View(actions)
@@ -162,7 +157,7 @@ object ViscelJS {
                             bookmarks = bookmarkManager.bookmarks
                             )
 
-    val bodySig = app.makeBody(index, front, view, manualStates)
+    val bodySig = app.makeBody(index, front, view, actionsEv.event)
     val safeBodySignal = bodySig
 
     val bodyParent = dom.document.body.parentElement

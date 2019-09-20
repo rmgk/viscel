@@ -2,7 +2,7 @@ package visceljs
 
 import org.scalajs.dom.MouseEvent
 import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, button, cls, href, onclick, raw, stringAttr}
-import viscel.shared.{Blob, Description}
+import viscel.shared.{Blob, Vid}
 
 import scala.scalajs.js.URIUtils.encodeURIComponent
 
@@ -12,7 +12,7 @@ object Definitions {
   def path_main = "#"
   def path_asset(data: Data) = s"#${encodeURIComponent(data.id.str)}/${data.pos + 1}"
   def path_blob(blob: Blob) = s"blob/${blob.sha1}/${blob.mime}"
-  def path_front(desc: Description) = s"#${encodeURIComponent(desc.id.str)}"
+  def path_front(vid: Vid) = s"#${encodeURIComponent(vid.str)}"
   def path_tools = "tools"
 
   val class_placeholder = cls := "placeholder"

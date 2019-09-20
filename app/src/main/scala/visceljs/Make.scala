@@ -50,13 +50,13 @@ object Make {
     val elements = entries.map { fpe =>
       val desc = fpe.description
       val unread = fpe.newPages
-      val e = actions.link_front(desc,
+      val e = actions.link_front(fpe.id,
                                  s"${desc.name}${if (unread == 0) "" else s" ($unread)"}",
         {
-          if (desc.unknownNarrator) span(" ",
-                                         Icons.archive,
-                                         cls := "unlinked",
-                                         title := "not linked to live sources")
+          if (!desc.linked) span(" ",
+                                 Icons.archive,
+                                 cls := "unlinked",
+                                 title := "not linked to live sources")
           else frag()
         })
       if (unread > 0) cUnread += unread

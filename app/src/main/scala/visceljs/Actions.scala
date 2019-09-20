@@ -1,24 +1,23 @@
 package visceljs
 
-import rescala.default._
 import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, button, disabled, href}
-import viscel.shared.{Bindings, Bookmark, Description}
+import viscel.shared.{Bookmark, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Definitions.{lcButton, onLeftClick, path_asset, path_front, path_main}
 
-class Actions(hint: (Description, Boolean) => Unit,
-              postBookmarkF: Bindings.SetBookmark => Unit,
-              manualStates: Evt[AppState]) {
+class Actions(hint: (Vid, Boolean) => Unit,
+              postBookmarkF: (Vid, Bookmark) => Unit,
+              manualStates: AppState => Unit) {
 
 
 
-  private def gotoIndex(): Unit = manualStates.fire(IndexState)
-  def gotoFront(description: Description): Unit = manualStates.fire(FrontState(description.id))
-  private def gotoView(data: Data): Unit = manualStates.fire(ViewState(data.description.id, data.pos))
+  private def gotoIndex(): Unit = manualStates(IndexState)
+  def gotoFront(vid: Vid): Unit = manualStates(FrontState(vid))
+  private def gotoView(data: Data): Unit = manualStates(ViewState(data.id, data.pos))
 
 
-  private def postBookmark(nar: Description, pos: Int): Unit = {
-    postBookmarkF(Some((nar, Bookmark(pos, System.currentTimeMillis()))))
+  private def postBookmark(vid: Vid, pos: Int): Unit = {
+    postBookmarkF(vid, Bookmark(pos, System.currentTimeMillis()))
   }
 
 
@@ -30,12 +29,13 @@ class Actions(hint: (Description, Boolean) => Unit,
     else lcButton(onleft)
   }
 
-  def link_front(nar: Description, ts: Modifier*): Tag = a(onLeftClick(gotoFront(nar)), href := path_front(nar))(ts: _*)
+  def link_front(vid: Vid, ts: Modifier*): Tag =
+    a(onLeftClick(gotoFront(vid)), href := path_front(vid))(ts: _*)
 
   def postBookmark(bm: Int, data: Data, handler: Data => Unit, ts: Modifier*): HtmlTag = {
     if (data.bookmark != bm) {
       lcButton {
-        postBookmark(data.description, bm)
+        postBookmark(data.id, bm)
         handler(data.copy(bookmark = bm))
       }(ts: _*)
     }
@@ -44,6 +44,6 @@ class Actions(hint: (Description, Boolean) => Unit,
     }
   }
 
-  def postForceHint(nar: Description, ts: Modifier*): HtmlTag = lcButton(hint(nar, true))(ts: _*)
+  def postForceHint(vid: Vid, ts: Modifier*): HtmlTag = lcButton(hint(vid, true))(ts: _*)
 
 }

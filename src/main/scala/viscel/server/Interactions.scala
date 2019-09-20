@@ -6,7 +6,7 @@ import loci.registry.Registry
 import rescala.default.{Evt, implicitScheduler}
 import viscel.narration.Narrator
 import viscel.shared.Log.{Server => Log}
-import viscel.shared.{Bindings, BookmarksMap, Description}
+import viscel.shared.{Bindings, BookmarksMap, Vid}
 import viscel.store.{NarratorCache, User, Users}
 import cats.syntax.eq._
 import cats.instances.string._
@@ -76,9 +76,9 @@ class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
     userBookmarks
   }
 
-  private def handleHint(description: Description, force: Boolean): Unit = {
-    val nar = narratorCache.get(description.id)
+  private def handleHint(vid: Vid, force: Boolean): Unit = {
+    val nar = narratorCache.get(vid)
     if (nar.isDefined) narrationHint.fire(nar.get -> force)
-    else Log.warn(s"got hint for unknown $description")
+    else Log.warn(s"got hint for unknown $vid")
   }
 }

@@ -19,7 +19,7 @@ import scala.scalajs.js.URIUtils.decodeURIComponent
 import scala.util.Try
 
 
-class ReaderApp(content: Description => Signal[Contents],
+class ReaderApp(content: Vid => Signal[Contents],
                 val descriptions: Signal[Map[Vid, Description]],
                 val bookmarks: Signal[Map[Vid, Bookmark]]
                ) {
@@ -125,8 +125,8 @@ class ReaderApp(content: Description => Signal[Contents],
       currentAppState.value match {
         case IndexState => (path_main, "Viscel")
         case FrontState(_) =>
-          val desc = currentData.value.description
-          (path_front(desc), desc.name)
+          val cd = currentData.value
+          (path_front(cd.id), cd.description.name)
         case ViewState(_, _) =>
           val data = currentData.value
           (path_asset(data), s"${data.pos + 1} – ${data.description.name}")
@@ -158,9 +158,9 @@ class ReaderApp(content: Description => Signal[Contents],
   def getDataSignal(id: Vid): Signal[Data] = {
     Signal.dynamic {
       val description = descriptions.value(id)
-      val bm = bookmarks().get(description.id)
-      val cont = content(description)
-      Data(description, cont.value, bm.fold(0)(_.position))
+      val bm = bookmarks().get(id)
+      val cont = content(id)
+      Data(id, description, cont.value, bm.fold(0)(_.position))
     }
   }
 

@@ -20,7 +20,7 @@ class Front(actions: Actions) {
 
   def gen(dataS: Signal[Data]): Signal[JsDom.TypedTag[html.Body]] = {
     dataS.map { data =>
-      val Data(narration, Contents(gallery, chapters), bookmark) = data
+      val Data(vid, narration, Contents(gallery, chapters), bookmark) = data
 
       val top = h1(s"${narration.name} ($bookmark/${narration.size})")
 
@@ -28,8 +28,8 @@ class Front(actions: Actions) {
         link_index("index"),
         link_asset(data.move(_.first))("first page"),
         Make.fullscreenToggle("fullscreen"),
-        postBookmark(0, data, _ => gotoFront(data.description), "remove bookmark"),
-        postForceHint(narration, "force check"))
+        postBookmark(0, data, _ => gotoFront(vid), "remove bookmark"),
+        postForceHint(vid, "force check"))
 
       val preview = {
         val preview1 = data.atPos(bookmark-3)

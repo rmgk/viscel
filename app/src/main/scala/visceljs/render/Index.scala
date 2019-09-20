@@ -7,8 +7,6 @@ import rescala.default._
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags2.aside
-import viscel.shared.Bindings.Bookmarks
 import viscel.shared.{Bookmark, Description, Vid}
 import visceljs.Definitions.link_tools
 import rescala.extra.Tags._
@@ -27,36 +25,39 @@ trait FrontPageEntry {
   def noBookmark: Boolean = bookmarkPosition == 0
   def bookmarksFirst: Boolean = bookmarkPosition == 1 && newPages > 0
   def recentOrder: Long
+  def id: Vid
 }
 
-case class BookmarkedEntry(description: Description, bookmark: Bookmark) extends FrontPageEntry {
+case class BookmarkedEntry(id: Vid, description: Description, bookmark: Bookmark) extends FrontPageEntry {
   def sortOrder: Int = bookmark.position - description.size
   def newPages: Int = description.size - bookmark.position
   override def bookmarkPosition: Int = bookmark.position
   override def recentOrder: Long = -bookmark.timestamp
 }
 
-case class AvailableEntry(description: Description) extends FrontPageEntry {
+case class AvailableEntry(id: Vid, description: Description) extends FrontPageEntry {
   override def sortOrder: Int = -description.size
   def newPages = 0
   override def bookmarkPosition: Int = 0
   override def recentOrder: Long = 0
 }
 
-class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal[Map[Vid, Description]]) {
+class Index(actions: Actions, bookmarks: Signal[Map[Vid, Bookmark]], descriptions: Signal[Map[Vid, Description]]) {
 
   def gen(): TypedTag[html.Body] = {
 
     val entries = Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
 
       val bookmarked: List[FrontPageEntry] =
-        bookmarks.toList.flatMap { case (ids, bookmark) =>
-          descriptions.get(ids).map { desc =>
-            BookmarkedEntry(desc, bookmark)
+        bookmarks.toList.flatMap { case (id, bookmark) =>
+          descriptions.get(id).map { desc =>
+            BookmarkedEntry(id, desc, bookmark)
           }
         }
       val available: List[FrontPageEntry] =
-        descriptions.values.toList.filter(d => !bookmarks.contains(d.id)).map(AvailableEntry)
+        descriptions.iterator.collect{
+          case (id, desc) if !bookmarks.contains(id) => AvailableEntry(id, desc)
+        }.toList
 
       bookmarked.reverse_:::(available)
     }.withDefault(Nil)
@@ -96,7 +97,7 @@ class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal
 
     val callback: Signal[() => Boolean] = groups.map { gs =>
       val displayOrder = gs.map(_._2)
-      val first: Option[Description] = displayOrder.find(_.nonEmpty).map{ _.head.description}
+      val first: Option[Vid] = displayOrder.find(_.nonEmpty).map{ _.head.id}
       () => {first.foreach(actions.gotoFront); false}
     }
 
@@ -121,19 +122,6 @@ class Index(actions: Actions, bookmarks: Signal[Bookmarks], descriptions: Signal
          Make.navigation(Make.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
          groupTags.asModifierL
          )
-  }
-
-
-  def searchArea(narrations: List[Description], inputQuery: Signal[String]): HtmlTag = aside {
-
-    val results = ol.render
-    val filteredS: Signal[List[Description]] = inputQuery.map(query => SearchUtil.search(query, narrations.map(n => n.name -> n)))
-    filteredS.observe { desc =>
-      results.innerHTML = ""
-      desc.foreach(nar => results.appendChild(li(actions.link_front(nar, nar.name)).render))
-    }
-
-    fieldset(legend("Search"), results)
   }
 
 }
