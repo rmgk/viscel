@@ -156,10 +156,10 @@ class ReaderApp(content: Vid => Signal[Contents],
   }
 
   def getDataSignal(id: Vid): Signal[Data] = {
+    val cont = content(id)
     Signal.dynamic {
       val description = descriptions.value(id)
-      val bm = bookmarks().get(id)
-      val cont = content(id)
+      val bm = bookmarks.value.get(id)
       Data(id, description, cont.value, bm.fold(0)(_.position))
     }
   }

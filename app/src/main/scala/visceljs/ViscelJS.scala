@@ -4,7 +4,7 @@ import loci.communicator.ws.akka.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
-import org.scalajs.dom.raw.{ErrorEvent, Storage}
+import org.scalajs.dom.raw.Storage
 import rescala.default._
 import rescala.extra.distributables.LociDist
 import rescala.extra.lattices.IdUtil.Id
@@ -18,8 +18,24 @@ import visceljs.render.{Front, Index, View}
 
 import scala.concurrent.Future
 import scala.scalajs.js
+import scala.scalajs.js.annotation.JSGlobal
 import scala.util.{Failure, Success, Try}
+import io.circe._
+import io.circe.parser._
+import io.circe.syntax._
 
+//@JSImport("localforage", JSImport.Namespace)
+@JSGlobal
+@js.native
+object localforage extends js.Object with LocalForageInstance {
+  def createInstance(config: js.Any): LocalForageInstance = js.native
+}
+
+@js.native
+trait LocalForageInstance extends js.Object {
+def setItem(key: String, value: js.Any): js.Promise[Unit] = js.native
+def getItem[T](key: String): js.Promise[T] = js.native
+}
 
 class BookmarkManager(registry: Registry) {
   val setBookmark      = Evt[(Vid, Bookmark)]
@@ -46,10 +62,7 @@ class BookmarkManager(registry: Registry) {
 
 
 class ContentConnectionManager(registry: Registry) {
-  import scala.collection.mutable
   import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
-
-  private val contents: scala.collection.mutable.Map[Vid, Signal[Contents]] = mutable.Map()
 
   val descriptions = Var.empty[Map[Vid, Description]]
   val wsUri: String = {
@@ -66,38 +79,46 @@ class ContentConnectionManager(registry: Registry) {
   registry.remoteLeft.foreach(_ => connect())
   connect()
 
-  import io.circe.Encoder
+
+
+  val lfi: LocalForageInstance = localforage.createInstance(js.Dynamic.literal("name" -> "contents"))
+
   import io.circe.generic.auto._
-
-  val contentsEncoder: Encoder[Contents] = implicitly
-
-  def indexdbtest = {
-    val request = dom.window.indexedDB.open("Viscel", 1)
-
-    val logError: js.Function1[ErrorEvent, _] = _ => Log.JS.error(s"error with indexeddb: ${request.error.name}")
-
-    request.onerror = logError
-    request.onupgradeneeded = _ => {
-      val db = request.result.asInstanceOf[dom.idb.Database]
-      val objectStore = db.createObjectStore("contents"); // js.Dynamic.literal("keyPath" -> "vid" )
-    }
-    request.onsuccess = _ => {
-      val db = request.result.asInstanceOf[dom.idb.Database]
-      db.onerror = logError
-    }
-  }
+  implicit val contentsDecoder: Decoder[Contents] = io.circe.generic.semiauto.deriveDecoder
+  implicit val contentsEncoder: Encoder[Contents] = io.circe.generic.semiauto.deriveEncoder
 
   def content(vid: Vid): Signal[Contents] = {
     hint(vid, force = false)
-    contents.getOrElseUpdate(vid, {
+
+    Log.JS.info(s"looking up content for $vid")
+
+    val emptyContents = Contents(Gallery.empty, Nil)
+    val locallookup = lfi.getItem[String](vid.str).toFuture.map((str: String) => decode[Contents](str).right.get)
+    locallookup.failed.foreach{f =>
+      Log.JS.warn(s"local lookup of $vid failed with $f")
+    }
+    val remoteLookup: Future[Contents] = {
       registry.remotes.find(_.connected).map { remote =>
         val requestContents  = registry.lookup(Bindings.contents, remote)
-        val emptyContents = Contents(Gallery.empty, Nil)
-        val eventualContents = requestContents(vid).map(_.getOrElse(emptyContents))
-        eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${vid} (sucessful: ${t.isSuccess})"))
-        Signals.fromFuture(eventualContents).withDefault(emptyContents)
-      }.getOrElse(Var.empty[Contents])
-    })
+        requestContents(vid).map(_.getOrElse(emptyContents))
+        //eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${vid} (sucessful: ${t.isSuccess})"))
+      }.getOrElse(Future.failed(new IllegalStateException("not connected")))
+    }
+
+    val result = Var(emptyContents)
+    var remoteMerged = false
+    locallookup.filter(_ => !remoteMerged).foreach{lc =>
+      Log.JS.info(s"found local content for $vid")
+      result.set(lc)
+    }
+    remoteLookup.foreach {rc =>
+      remoteMerged = true
+      Log.JS.info(s"found remote content for $vid")
+      result.set(rc)
+      lfi.setItem(vid.str, rc.asJson.noSpaces)
+    }
+
+    result
   }
 
   def hint(vid: Vid, force: Boolean): Unit = {
