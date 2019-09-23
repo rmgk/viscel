@@ -4,8 +4,7 @@ import loci.communicator.ws.akka.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
-
-import org.scalajs.dom.raw.Storage
+import org.scalajs.dom.raw.{ErrorEvent, Storage}
 import rescala.default._
 import rescala.extra.distributables.LociDist
 import rescala.extra.lattices.IdUtil.Id
@@ -18,6 +17,7 @@ import viscel.shared._
 import visceljs.render.{Front, Index, View}
 
 import scala.concurrent.Future
+import scala.scalajs.js
 import scala.util.{Failure, Success, Try}
 
 
@@ -66,6 +66,27 @@ class ContentConnectionManager(registry: Registry) {
   registry.remoteLeft.foreach(_ => connect())
   connect()
 
+  import io.circe.Encoder
+  import io.circe.generic.auto._
+
+  val contentsEncoder: Encoder[Contents] = implicitly
+
+  def indexdbtest = {
+    val request = dom.window.indexedDB.open("Viscel", 1)
+
+    val logError: js.Function1[ErrorEvent, _] = _ => Log.JS.error(s"error with indexeddb: ${request.error.name}")
+
+    request.onerror = logError
+    request.onupgradeneeded = _ => {
+      val db = request.result.asInstanceOf[dom.idb.Database]
+      val objectStore = db.createObjectStore("contents"); // js.Dynamic.literal("keyPath" -> "vid" )
+    }
+    request.onsuccess = _ => {
+      val db = request.result.asInstanceOf[dom.idb.Database]
+      db.onerror = logError
+    }
+  }
+
   def content(vid: Vid): Signal[Contents] = {
     hint(vid, force = false)
     contents.getOrElseUpdate(vid, {
@@ -74,36 +95,6 @@ class ContentConnectionManager(registry: Registry) {
         val emptyContents = Contents(Gallery.empty, Nil)
         val eventualContents = requestContents(vid).map(_.getOrElse(emptyContents))
         eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${vid} (sucessful: ${t.isSuccess})"))
-        //eventualContents.foreach{contents =>
-        //import org.scalajs.dom.experimental.serviceworkers.CacheStorage
-        //import org.scalajs.dom.experimental.{RequestInfo, URL}
-        //import scala.scalajs.js
-        //  Log.JS.info(s"prefetching ${vid} ")
-        //  def toUrl(blob: Blob) = new URL(Definitions.path_blob(blob), dom.document.location.href)
-        //  val urls = contents.gallery.toSeq.iterator.map(si => toUrl(si.blob))
-        //  val caches = dom.window.asInstanceOf[js.Dynamic].caches.asInstanceOf[CacheStorage]
-        //  caches.open(s"vid${vid}").`then`[Unit]{ cache =>
-        //    cache.addAll(js.Array(urls.map[RequestInfo](_.href).toSeq : _*))
-        //  }
-        //  //contents.gallery.toSeq.foreach{image =>
-        //  //  Log.JS.info(image.blob.toString)
-        //  //  image.blob.foreach { blob =>
-        //  //    val url = new URL(Definitions.path_blob(blob), dom.document.location.href)
-        //  //    Log.JS.info(url.href)
-        //  //    val navigator  = dom.window.navigator
-        //  //    Log.JS.info(s"navigator : $navigator")
-        //  //    val controller = navigator.asInstanceOf[js.Dynamic].serviceWorker.controller
-        //  //    Log.JS.info(s"controller : $controller")
-        //  //    controller.postMessage(
-        //  //      js.Dynamic.literal(
-        //  //        "command" -> "add",
-        //  //        "vid" -> nar.id.str,
-        //  //        "url" -> url.href
-        //  //        )
-        //  //      )
-        //  //  }
-        //  //}
-        //}
         Signals.fromFuture(eventualContents).withDefault(emptyContents)
       }.getOrElse(Var.empty[Contents])
     })
@@ -117,6 +108,36 @@ class ContentConnectionManager(registry: Registry) {
   }
 
 
+  //eventualContents.foreach{contents =>
+  //import org.scalajs.dom.experimental.serviceworkers.CacheStorage
+  //import org.scalajs.dom.experimental.{RequestInfo, URL}
+  //import scala.scalajs.js
+  //  Log.JS.info(s"prefetching ${vid} ")
+  //  def toUrl(blob: Blob) = new URL(Definitions.path_blob(blob), dom.document.location.href)
+  //  val urls = contents.gallery.toSeq.iterator.map(si => toUrl(si.blob))
+  //  val caches = dom.window.asInstanceOf[js.Dynamic].caches.asInstanceOf[CacheStorage]
+  //  caches.open(s"vid${vid}").`then`[Unit]{ cache =>
+  //    cache.addAll(js.Array(urls.map[RequestInfo](_.href).toSeq : _*))
+  //  }
+  //  //contents.gallery.toSeq.foreach{image =>
+  //  //  Log.JS.info(image.blob.toString)
+  //  //  image.blob.foreach { blob =>
+  //  //    val url = new URL(Definitions.path_blob(blob), dom.document.location.href)
+  //  //    Log.JS.info(url.href)
+  //  //    val navigator  = dom.window.navigator
+  //  //    Log.JS.info(s"navigator : $navigator")
+  //  //    val controller = navigator.asInstanceOf[js.Dynamic].serviceWorker.controller
+  //  //    Log.JS.info(s"controller : $controller")
+  //  //    controller.postMessage(
+  //  //      js.Dynamic.literal(
+  //  //        "command" -> "add",
+  //  //        "vid" -> nar.id.str,
+  //  //        "url" -> url.href
+  //  //        )
+  //  //      )
+  //  //  }
+  //  //}
+  //}
 
 
 

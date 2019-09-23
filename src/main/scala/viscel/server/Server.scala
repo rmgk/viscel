@@ -38,7 +38,8 @@ class Server(userStore: Users,
     path(name){getFromFile(staticPath.resolve(file).toFile)}
 
   val staticRoute: Route =
-    List("app-fastopt.js.map", "style.css.map", "serviceworker.js", "manifest.json", "icon.png")
+    List("app-fastopt.js.map", "style.css.map", "serviceworker.js", "manifest.json", "icon.png",
+         "localforage.min.js")
       .map(str => stc(str, str + ".gz"))
       .foldLeft(
         path("version") {complete(viscel.Viscel.version)}~

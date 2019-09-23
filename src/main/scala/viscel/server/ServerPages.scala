@@ -13,15 +13,11 @@ import viscel.store.User
 
 class ServerPages() {
 
-  val path_css: String = "css"
-  val path_js : String = "js"
-
-
   def makeHtml(stuff: Frag*): Tag =
     html(
       head(
         title := "Viscel",
-        link(href := path_css, rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
+        link(href := "css", rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
         link(rel := "manifest", href := "manifest.json"),
         link(rel := "icon", href := "icon.png", attr("sizes") := "192x192"),
         meta(attrname := "viewport",
@@ -39,7 +35,8 @@ class ServerPages() {
     "<!DOCTYPE html>" + tag.render))
 
   val fullHtml: Tag = makeHtml(body("if nothing happens, your javascript does not work"),
-                               script(src := path_js))
+                               script(src := "localforage.min.js"),
+                               script(src := "js"))
 
   val landing: HttpResponse = htmlResponse(fullHtml)
 

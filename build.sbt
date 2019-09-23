@@ -1,4 +1,6 @@
 import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+import java.security.MessageDigest
 
 import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 import Settings._
@@ -30,6 +32,37 @@ val Libraries = new {
                                        Resolvers.stg)
 }
 
+val fetchJSDependencies = TaskKey[File]("fetchJSDependencies",
+                                        "manually fetches JS dependencies")
+val fetchJSDependenciesDef = fetchJSDependencies := {
+  val dependencies = List(
+    ("localforage.min.js",
+      "https://cdn.jsdelivr.net/npm/localforage@1.7.3/dist/localforage.min.js",
+      "c071378e565cc4e2c6c34fca6f3a74f32c3d96cb")
+    )
+
+  val sha1digester: MessageDigest = MessageDigest.getInstance("SHA-1")
+  def sha1hex(b: Array[Byte]): String =
+    sha1digester.clone().asInstanceOf[MessageDigest].digest(b)
+                .map { h => f"$h%02x" }.mkString
+  val dependenciesTarget = target.value.toPath.resolve("resources/jsdependencies")
+  Files.createDirectories(dependenciesTarget)
+  dependencies.map { case (name, urlStr, sha1) =>
+    val url = new URL(urlStr)
+    val filepath = dependenciesTarget.resolve(name)
+    val fos = Files.newOutputStream(filepath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+    try IO.transferAndClose(url.openStream(), fos) finally fos.close()
+    val csha1 = sha1hex(Files.readAllBytes(filepath))
+    if (sha1 != csha1) {
+      Files.delete(filepath)
+      throw new AssertionError(s"sha1 of »$urlStr« did not match »$sha1«")
+    }
+    filepath
+  }
+
+  dependenciesTarget.toFile
+}
+
 val vbundle = TaskKey[File]("vbundle", "bundles all the viscel resources")
 val vbundleDef = vbundle := {
   (app / Compile / fastOptJS).value
@@ -59,6 +92,7 @@ val vbundleDef = vbundle := {
     os.write(swupdated.getBytes(java.nio.charset.StandardCharsets.UTF_8))
   }
 
+  IO.listFiles(fetchJSDependencies.value).foreach(gzipToTarget)
 
   bundleTarget.toFile
 }
@@ -79,6 +113,7 @@ lazy val viscel = project
                     name := "viscel",
                     fork := true,
                     Libraries.main,
+                    fetchJSDependenciesDef,
                     vbundleDef,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
                     publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value,
