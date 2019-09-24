@@ -8,7 +8,8 @@ self.addEventListener('install', function (e) {
             return cache.addAll([
                 '',
                 'js',
-                'css'
+                'css',
+                'localforage.min.js'
             ].map(url => new Request(url, {credentials: 'same-origin'})));
         })
     );
