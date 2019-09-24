@@ -5,12 +5,15 @@ self.addEventListener('install', function (e) {
     self.skipWaiting();
     e.waitUntil(
         caches.open(cacheName).then(function (cache) {
-            return cache.addAll([
+            const cachedRequests = [
                 '',
+                './',
                 'js',
                 'css',
                 'localforage.min.js'
-            ].map(url => new Request(url, {credentials: 'same-origin'})));
+            ].map(url => new Request(url, {credentials: 'same-origin'}));
+            cachedRequests.forEach(request => console.log("caching " + request.url));
+            return cache.addAll(cachedRequests);
         })
     );
 });
