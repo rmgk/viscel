@@ -83,12 +83,13 @@ object ContentLoader {
                                         acc)
             }
           case DataRow.Blob(sha1, mime) =>
-            val ll = lastLink.get
-            val dataMap = ll.data.sliding(2, 2).filter(_.size == 2).map {
-              case List(a, b) => a -> b
-            }.toMap
+            val (dataMap, origin) = lastLink.map { ll =>
+              ll.data.sliding(2, 2).filter(_.size == 2).map {
+                case List(a, b) => a -> b
+              }.toMap -> seenOrigins(ll.ref).uriString()
+            }.getOrElse(Map.empty -> "")
             flatten(lastLink, t,
-                    SharedImage(seenOrigins(ll.ref).uriString(),
+                    SharedImage(origin,
                                 Blob(sha1, mime),
                                 dataMap).asLeft :: acc)
           case ch: DataRow.Chapter      => flatten(lastLink, t, ch.asRight :: acc)
