@@ -64,7 +64,28 @@ class BookmarkManager(registry: Registry) {
 class ContentConnectionManager(registry: Registry) {
   import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  val descriptions = Var.empty[Map[Vid, Description]]
+
+
+
+  val descriptions = {
+    import io.circe.generic.auto._
+
+
+    val descmapc = ReCirce.recirce[Map[Vid, Description]]
+    val descriptionskey = "descriptionsmap"
+
+
+    val storage: Storage = dom.window.localStorage
+
+    val descriptionmap = Try(Option(storage.getItem(descriptionskey)).get).flatMap{ str =>
+      descmapc.deserialize(str)
+    }.getOrElse(Map.empty)
+
+    val res = Var(descriptionmap)
+    res.observe(v => storage.setItem(descriptionskey, descmapc.serialize(v)))
+    res
+  }
+
   val wsUri: String = {
     val wsProtocol = if (dom.document.location.protocol == "https:") "wss" else "ws"
     s"$wsProtocol://${dom.document.location.host}${dom.document.location.pathname}ws"
