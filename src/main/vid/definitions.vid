@@ -725,14 +725,15 @@ https://www.androidblues.com/comic/cover-2/
 
 -:Guilded Age
 http://guildedage.net/comic/chapter-1-cover/
-:image+next #comic img
+:images #comic img
+:next .comic_navi a.comic-nav-next
 -- skip some flash content
-:url_replace http://guildedage.net/comic/guilded-age-the-flashtravaganza/ ::: http://guildedage.net/comic/chapter-15-cover/
+:url_replace http://guildedage.net/comic/guilded-age-the-flashtravaganza/ ::: http://guildedage.net/comic/chapter-15-cover/ ::: http://guildedage.net/comic/guest-week-2013-team-slackjaw/ ::: http://guildedage.net/comic/guest-week-2013-the-final-fanarts/
 
 -:Floraverse
 https://floraverse.com/comic/seeds-a-mini-story/seeds/prologue/1-cover/
 :image .comic-page-image
-:next .comic-page-controls .-next a
+:next .comic-page-controls .-next a:first-child
 
 -:A Redtail’s Dream
 http://www.minnasundberg.fi/comic/page00.php
@@ -748,7 +749,30 @@ http://www.minnasundberg.fi/comic/page00.php
 
 
 
+--------------------------------------------------------------------------------------
+----------- buttsmithy ----------
+--------------------------------------------------------------------------------------
 
+-:Alfie
+https://buttsmithy.com/archives/comic/p1
+:image #comic img
+:next .comic-nav a.comic-nav-next
+
+-:The Invitation
+https://incase.buttsmithy.com/comic/the-invitation-p1/
+:image+next #comic img
+
+-:Good Old Times
+https://incase.buttsmithy.com/comic/good-old-times-pg-1/
+:image+next #comic > a > img , #comic > img
+
+-:My Debut
+https://incase.buttsmithy.com/comic/my-debut-pg-01/
+:image+next #comic img
+
+--------------------------------------------------------------------------------------
+-- end of buttsmithy
+--------------------------------------------------------------------------------------
 
 
 
