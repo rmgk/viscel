@@ -123,11 +123,6 @@ http://www.thedreamlandchronicles.com/comic/the-dreamland-chronicles-chapter-one
 :image #comic img
 :next a.comic-nav-next
 
--:Maliki
-http://maliki.com/en/strips/begin-a-webcomic/
-:image .container img.center-block
-:next a.linkNextContent
-
 -:The Catena Café
 https://catenamanor.com/comic/reboot-book1cover-small/
 :image #comic img
@@ -200,7 +195,7 @@ http://www.theprincessplanet.com/2004/11/13/welcome-to-the-princess-planet/
 
 -:Undead Friend
 http://undeadfriend.com/comic/undead-friend-prelude-page-01/
-:image #comic img
+:image #comic > img , #comic > a > img
 :next a.comic-nav-next
 
 -:Kukubiri
