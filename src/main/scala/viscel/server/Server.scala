@@ -65,12 +65,11 @@ class Server(userStore: Users,
   val blobRoute: Route =
     pathPrefix("blob" / Segment) { sha1 =>
       val filename = blobStore.hashToPath(sha1).toFile
-      pathEnd {getFromFile(filename)} ~
       path(Segment / Segment) { (part1, part2) =>
         getFromFile(filename,
                     ContentType(MediaTypes.getForKey(part1 -> part2).getOrElse(MediaTypes.`image/jpeg`),
                                 () => HttpCharsets.`UTF-8`))
-      }
+      } ~ getFromFile(filename)
     }
 
   def authedRoute(user: User): Route = blobRoute ~ encodeResponse {
