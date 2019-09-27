@@ -60,7 +60,7 @@ class Users(usersDir: Path) {
         case Right(g) => Some(g)
         case Left(e)  =>
           Log.warn(s"could not open user $name: $e")
-          val firstUser = all().fold(_.isEmpty, _ => false)
+          val firstUser = all().fold(_ => false, _.isEmpty)
           if (firstUser) {
             Log.info(s"create initial user: $name")
             Some(orElse)
