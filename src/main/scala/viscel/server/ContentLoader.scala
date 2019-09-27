@@ -21,6 +21,7 @@ class ContentLoader(narratorCache: NarratorCache,
   }
 
   def descriptions(): Map[Vid, Description] = {
+    Log.Server.debug(s"requesting descriptions")
     val stored   : Map[Vid, Description] = rowStore.allVids().map { id => id -> description(id) }.toMap
     val narrators: Map[Vid, Description] = narratorCache.all.map { n =>
       stored.get(n.id) match {
@@ -29,12 +30,18 @@ class ContentLoader(narratorCache: NarratorCache,
         case Some(desc) => n.id -> desc.copy(linked = true)
       }
     }.toMap
-    stored ++ narrators
+    val res = stored ++ narrators
+    Log.Server.debug(s"found ${res.size} descriptions")
+    res
   }
 
-  private def description(id: Vid): Description = descriptionCache.getOrElse(id) {
-    val book = rowStore.loadBook(id)
-    Description(book.name, ContentLoader.size(book), linked = false, timestamp = System.currentTimeMillis())
+  private def description(id: Vid): Description = {
+    Log.Server.trace(s"requesting description for $id")
+    descriptionCache.getOrElse(id) {
+      Log.Server.trace(s"computing description for $id")
+      val book = rowStore.loadBook(id)
+      Description(book.name, ContentLoader.size(book), linked = false, timestamp = System.currentTimeMillis())
+    }
   }
 
 

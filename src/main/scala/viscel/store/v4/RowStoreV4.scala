@@ -55,7 +55,11 @@ class RowStoreV4 (db4dir: Path) {
     }
 
   def loadBook(id: Vid): Book = {
-    val (name, rows) = load(id)
+    val (name, rows) = try {load(id)} catch {
+      case e: Throwable =>
+        Log.error(s"loading book $id failed: ${e.getMessage}")
+        throw e
+    }
     Book.fromEntries(id, name, rows)
   }
 
