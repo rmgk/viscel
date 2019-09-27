@@ -110,17 +110,31 @@
 -- :image #comic img
 -- :next #top_arrows a:has(.arrow_next)
 
+
+
 ---------------------------------------------- NOT DEAD ---
 
+-:The Savage Sword of Sharona
+http://savageswordofsharona.com/archive/
+:mixedArchive .comic-archive-chapter-wrap h3 , .comic-archive-chapter-wrap .comic-archive-list-wrap a
+:archiveReverse
+:image #comic img
 
+-:Spying with Lana
+http://spyingwithlana.com/archive/
+:mixedArchive .comic-archive-chapter-wrap h3 , .comic-archive-chapter-wrap .comic-archive-list-wrap a
+:archiveReverse
+:image #comic img
 
-
+-:Peter is the Wolf
+http://www.peteristhewolf.com/adult/archive.html
+:mixedArchive b:matches(Chapter|BOOK|Epilogue) , a[href~=^\d+\.html$]
+:images img[src~=adult/images/comics/]
 
 -:Rave Kitty
 http://ravekitty.comicgenesis.com/d/20040116.html
 :i img[src~=/comics/\d{8}]
 :n a:containsOwn(Next comic)
-
 
 -:Bardsworth
 http://www.bardsworth.com/?comic=brain
@@ -349,7 +363,6 @@ http://www.snowbynight.com/story.php
 :i div.content_group.comic_group img
 :url_replace http://www.snowbynight.com/pages/ch12/vault.php ::: http://www.snowbynight.com/pages/ch12/pg18.php
 
-
 -:Valkyrie Squadron
 http://www.valkyriesquadron.com/valkyrie/prologue-page-0/
 :i #webcomic > div.webcomic-image > img
@@ -364,8 +377,6 @@ http://www.amyachronicles.com/archives/comic/09292009
 -- has an archive at http://www.amyachronicles.com/archives/
 -- but thats misses content
 :ia #comic img
-
-
 
 -:The Awakened
 http://www.theawakenedcomic.com/comic/chapter-one-page-one/
@@ -1008,10 +1019,7 @@ http://www.kiwiblitz.com/comic/archive/
 :ac .cc-storyline-header a[href]
 :ia #cc-comic
 
--:Knights Errant
-https://sparklermonthly.com/ke/knights-errant-chapter-01-page-001/
-:image #webcomic img.size-full:first-child
-:next a.next-webcomic-link
+
 
 -:Killjoys
 http://killjoyscomic.com/comic/archive
@@ -1095,11 +1103,6 @@ http://monsterkind.enenkay.com/comic/archive
 :image #cc-comic
 :next a[rel=next]
 
--:Magical How?
-https://sparklermonthly.com/mh/magical-how-chapter-01-page-001/
-:image #webcomic img.size-full:first-child
-:next a.next-webcomic-link
-
 -:Monster’s Garden
 http://www.monstersgarden.com/comic/archive
 :ac .cc-storyline-header a[href]:contains(Chapter)
@@ -1147,11 +1150,6 @@ http://noendcomic.com/comic/archive
 :ac .cc-storyline-header a[href]
 :image #cc-comic
 :next .cc-nav a.cc-next
-
--:Never Heroes
-https://sparklermonthly.com/nh/never-heroes-prologue-page-001/
-:image #webcomic img.size-full:first-child
-:next a.next-webcomic-link
 
 -:Nocturne
 http://www.nocturnecomic.com/comic/archive
@@ -1292,11 +1290,6 @@ http://www.shaderunners.com/comic/archive
 :ac .cc-storyline-header a[href]:contains(Chapter)
 :image #cc-comic
 :next .cc-nav .cc-next
-
--:Sunshine Boy
-https://sparklermonthly.com/sb/sunshine-boy-by-moosopp-chapter-1/
-:image #webcomic img.size-full:first-child
-:next a.next-webcomic-link
 
 -:Sanity Circus
 http://www.sanitycircus.com/comic/archive
@@ -1726,14 +1719,132 @@ http://rockcocks.slipshine.net/comic/archive
 
 
 
+--------------------------------------------------------------------------------------
+-- https://sparklermonthly.com/comics/
+--------------------------------------------------------------------------------------
+
+-:A Call away from Home
+https://sparklermonthly.com/acafh/a-call-away-from-home-coming-soon/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Never Heroes
+https://sparklermonthly.com/nh/never-heroes-prologue-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Null Point
+https://sparklermonthly.com/np/null-point-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Firebird
+https://sparklermonthly.com/fb/firebird-part-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Sunshine Boy
+https://sparklermonthly.com/sb/sunshine-boy-by-moosopp-chapter-1/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Heart of Gold
+https://sparklermonthly.com/hog/heart-of-gold-prologue-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Magical How?
+https://sparklermonthly.com/mh/magical-how-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Knights Errant
+https://sparklermonthly.com/ke/knights-errant-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Windrose
+https://sparklermonthly.com/wr/windrose-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Before You Go
+https://sparklermonthly.com/byg/before-you-go-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Orange Junk
+https://sparklermonthly.com/oj/orange-junk-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Lettera
+https://sparklermonthly.com/lt/lettera-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Nine Circles
+https://sparklermonthly.com/nc/nine-circles-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Off*Beat
+https://sparklermonthly.com/ob/offbeat-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Mahou Josei Chimaka
+https://sparklermonthly.com/mjc/mahou-josei-chimaka-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Witch’s Quarry
+https://sparklermonthly.com/wq/witchs-quarry-chapter-01-page-000/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Shut In Shut Out
+https://sparklermonthly.com/siso/shut-in-shut-out-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:For Peace
+https://sparklermonthly.com/fp/for-peace-chapter-01-page-000/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Dinner Ditz
+https://sparklermonthly.com/dd/dinner-ditz-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Inhabitant of Another Planet
+https://sparklermonthly.com/ihoap/inhabitant-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:The Ring of Saturn
+https://sparklermonthly.com/rs/the-ring-of-saturn-chapter-01-page-000/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Gatesmith
+https://sparklermonthly.com/gs/comic/gatesmith-chapter-01-page-001/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
+
+-:Dire Hearts
+https://sparklermonthly.com/dh/dire-hearts-chapter-01-page-000/
+:image #webcomic img.size-full:first-child
+:next a.next-webcomic-link
 
 
 
 
 
-
-
-
+--------------------------------------------------------------------------------------
+-- end of sparklermonthly
+--------------------------------------------------------------------------------------
 
 
 
