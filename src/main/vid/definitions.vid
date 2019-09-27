@@ -732,7 +732,8 @@ https://incase.buttsmithy.com/comic/my-debut-pg-01/
 -:A Ghost Stroy
 http://www.aghoststorycomic.com/comic/archive
 :chapterArchive #contentleft .cc-storyline-contain[style=margin-left:50px] .cc-storyline-header a
-:image+next #cc-comic , #cc-comic embed
+:image img#cc-comic , #cc-comic embed
+:next .cc-nav a.cc-next
 
 -:Alice and the Nightmare
 http://www.aliceandthenightmare.com/comic/archive
@@ -1009,7 +1010,7 @@ http://www.kiwiblitz.com/comic/archive/
 
 -:Knights Errant
 https://sparklermonthly.com/ke/knights-errant-chapter-01-page-001/
-:image #webcomic img.size-full
+:image #webcomic img.size-full:first-child
 :next a.next-webcomic-link
 
 -:Killjoys
@@ -1096,7 +1097,7 @@ http://monsterkind.enenkay.com/comic/archive
 
 -:Magical How?
 https://sparklermonthly.com/mh/magical-how-chapter-01-page-001/
-:image #webcomic img.size-full
+:image #webcomic img.size-full:first-child
 :next a.next-webcomic-link
 
 -:Monster’s Garden
@@ -1149,7 +1150,7 @@ http://noendcomic.com/comic/archive
 
 -:Never Heroes
 https://sparklermonthly.com/nh/never-heroes-prologue-page-001/
-:image #webcomic img.size-full
+:image #webcomic img.size-full:first-child
 :next a.next-webcomic-link
 
 -:Nocturne
@@ -1294,7 +1295,7 @@ http://www.shaderunners.com/comic/archive
 
 -:Sunshine Boy
 https://sparklermonthly.com/sb/sunshine-boy-by-moosopp-chapter-1/
-:image #webcomic img.size-full
+:image #webcomic img.size-full:first-child
 :next a.next-webcomic-link
 
 -:Sanity Circus
