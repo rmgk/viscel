@@ -150,16 +150,6 @@ http://archive.exiern.com/comic/so-far/
 :image #comic img
 :next #comic-nav-wrapper a.comic-nav-next
 
-
--NX_ElGoonishShive:El Goonish Shive
-http://egscomics.com/comic/archive
-:chapterArchive #leftarea .cc-storyline-contain[style=margin-left:50px] .cc-storyline-header a
-:image+next #cc-comic
-
--:EGS Newspaper
-http://www.egscomics.com/egsnp.php?id=12
-:ia #cc-comic
-
 -:Ever Night
 http://evernightcomic.com/comic/chapter-0-page-1/
 :ia #comic img
@@ -204,11 +194,6 @@ http://makeshiftmiracle.keenspot.com/archive.html
 http://marryme.keenspot.com/d/20120730.html
 :i #comicspot > img , #comicspot > a > img
 :n a:has(#nexty)
-
--:The Meek
-http://www.meekcomic.com/archives/
-:am #content .comic-archive-chapter-description , #content .comic-archive-thumb > a
-:i #comic img
 
 -:No Pink Ponies
 http://nopinkponies.keenspot.com/d/20060207.html
@@ -370,12 +355,6 @@ http://www.valkyriesquadron.com/valkyrie/prologue-page-0/
 :i #webcomic > div.webcomic-image > img
 :n #webcomic > nav.webcomics.above > a.next-webcomic-link
 
--:Wilde Life
-http://www.wildelifecomic.com/comic/archive
-:chapterArchive #pagecontent .cc-storyline-header a
-:i #cc-comic
-:n #nav1 a.cc-next
-
 -:Zombies and Fairytales
 http://166612.webhosting66.1blu.de/zaf_de/wordpress/comic/erster-eindruck/
 :ia #comic img
@@ -477,7 +456,6 @@ http://www.konradokonski.com/SITM/comic/title-0001/
 :ia #comic img
 :url_replace http://www.konradokonski.com/SITM/comic/sitm-filler-reading-time/ ::: http://www.konradokonski.com/SITM/comic/sitm-316/
 
-
 -:A Quartz Bead
 http://www.konradokonski.com/aquartzbead/?page_id=2
 :am #post-2 > div > div.entry > div.comic-archive-chapter-wrap > h3, #post-2 > div > div.entry > div.comic-archive-chapter-wrap > div.comic-archive-list-wrap  a
@@ -512,10 +490,6 @@ http://seed.thecomicseries.com/archive/
 http://everblue-comic.com/comic?sort=1
 :ia #comic a.next img[itemprop=image][src~=assets/images/comics/\d{8}]
 
--:Solstoria
-http://solstoria.net/comic/54/
-:ia #content .webcomic-image img.size-full
-
 -:The Hope Virus
 http://hopevirus.keenspot.com/d/20160104.html
 :image #comicspot img.ksc
@@ -549,54 +523,10 @@ http://nmg.thecomicseries.com/archive/
 http://yousuck.sexy/1
 :ia img[src~=/comics/]
 
--:Sandra on the Rocks
-http://www.sandraontherocks.com/strips-sotr/start_by_running
-:image+next #cc-comic
-
--:Goblins
-http://www.goblinscomic.org/archive/
-:chapterArchive #textarea a
-:image+next #cc-comic
--- :url_replace /(\d{8}(?:-\d+)?)/ ::: /comic/$1 ::: www.goblinscomic.org ::: goblinscomic.com
-
--:Eerie Cuties
-http://www.eeriecuties.com/strips-ec/(chapter_1)_it_is_gonna_eat_me!
-:image+next #cc-comic
-
--:Dangerously Chloe
-http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl
-:image+next #cc-comic
-
--MenageA3:Ménage à 3
-http://www.ma3comic.com/strips-ma3/For_New_Readers
-:image+next #cc-comic
-
--:Magic Chicks
-http://www.magickchicks.com/strips-mc/tis_but_a_trifle
-:image+next #cc-comic
--- skip some broken pages
-:url_replace http://www.magickchicks.com/strips-mc/Illustration_special_by_Shouri ::: http://www.magickchicks.com/strips-mc/You_backstabbing_coward ::: http://www.magickchicks.com/strips-mc/Holiday_Special_Guest_Strip_by_Maritza_and_Bachan ::: http://www.magickchicks.com/strips-mc/Regain_your_energy ::: http://www.magickchicks.com/strips-mc/mc20120413a ::: http://www.magickchicks.com/strips-mc/Watch_your_buns ::: http://www.magickchicks.com/strips-mc/My_tum_tum ::: http://www.magickchicks.com/strips-mc/Holy_moley ::: http://www.magickchicks.com/strips-mc/dc20121220 ::: http://www.magickchicks.com/strips-mc/Wildly_out_of_character
-
--NX_Skullkickers:Skull☠kickers
-http://comic.skullkickers.com/comic/archive
-:chapterArchive .cc-storyline-header a[href~=/comic/]
-:image #cc-comic , #cc-comicbody .cc-showbig img
-:next #comicleft nav a[rel=next]
-
 -:Rubi Whipple
 http://rubiwhipple.com/comic/issue-1-cover/
 :image #comic img
 :next #comic-foot a.comic-nav-next
-
--NX_LetsSpeakEnglish:Let’s Speak English
-http://www.marycagle.com/letsspeakenglish/prologue-1-off-we-go
-:image #cc-comic
-:next a[rel=next]
-
--NX_StickyDillyBuns:Sticky Dilly Buns
-http://www.stickydillybuns.com/strips-sdb/Awesome_leading_man
-:image #cc-comic
-:next #cnav a.next
 
 -NX_Spindrift:Spindrift
 http://www.spindrift-comic.com/archive
@@ -610,7 +540,6 @@ http://www.dominic-deegan.com/comics-archive/
 :next #content-bottom-widgets a.navi-next
 -- skip broken images
 :url_replace comic/0297-20030523/ ::: comic/0298-20030524/
-
 
 -NX_ErrantStory:Errant Story
 http://www.errantstory.com/2002-11-04/15
@@ -637,10 +566,6 @@ http://www.pennyandaggie.com/index.php?p=1291
 http://twokinds.keenspot.com/archive/
 :mixedArchive #content .chapter h2 , #content .chapter-links a
 :image #content article.comic img[alt=Comic Page]
-
--NX_CliqueRefresh:Clique Refresh
-https://cliquerefresh.com/comic/001-start-it-up
-:image+next #cc-comic
 
 -NX_MegaTokyo:MegaTokyo
 http://megatokyo.com/archive.php
@@ -711,7 +636,6 @@ http://dreamless.keenspot.com/d/20090105.html
 :image img.ksc
 :next a:has(#next_day1)
 
-
 -:Pepper & Carrot
 https://www.peppercarrot.com/
 :chapterArchive figure > a
@@ -722,13 +646,6 @@ https://www.peppercarrot.com/
 https://www.androidblues.com/comic/cover-2/
 :image #content .attachment-large
 :next #comic-navigation .link-next a
-
--:Guilded Age
-http://guildedage.net/comic/chapter-1-cover/
-:images #comic img
-:next .comic_navi a.comic-nav-next
--- skip some flash content
-:url_replace http://guildedage.net/comic/guilded-age-the-flashtravaganza/ ::: http://guildedage.net/comic/chapter-15-cover/ ::: http://guildedage.net/comic/guest-week-2013-team-slackjaw/ ::: http://guildedage.net/comic/guest-week-2013-the-final-fanarts/
 
 -:Floraverse
 https://floraverse.com/comic/seeds-a-mini-story/seeds/prologue/1-cover/
@@ -743,8 +660,40 @@ http://www.minnasundberg.fi/comic/page00.php
 
 
 
+--------------------------------------------------------------------------------------
+----------- pixietrix ----------
+--------------------------------------------------------------------------------------
 
+-:Dangerously Chloe
+http://www.dangerouslychloe.com/strips-dc/chapter_1_-_that_damned_girl
+:image+next #cc-comic
 
+-MenageA3:Ménage à 3
+http://www.ma3comic.com/strips-ma3/For_New_Readers
+:image+next #cc-comic
+
+-:Eerie Cuties
+http://www.eeriecuties.com/strips-ec/(chapter_1)_it_is_gonna_eat_me!
+:image+next #cc-comic
+
+-:Sandra on the Rocks
+http://www.sandraontherocks.com/strips-sotr/start_by_running
+:image+next #cc-comic
+
+-NX_StickyDillyBuns:Sticky Dilly Buns
+http://www.stickydillybuns.com/strips-sdb/Awesome_leading_man
+:image #cc-comic
+:next #cnav a.next
+
+-:Magic Chicks
+http://www.magickchicks.com/strips-mc/tis_but_a_trifle
+:image+next #cc-comic
+-- skip some broken pages
+:url_replace http://www.magickchicks.com/strips-mc/Illustration_special_by_Shouri ::: http://www.magickchicks.com/strips-mc/You_backstabbing_coward ::: http://www.magickchicks.com/strips-mc/Holiday_Special_Guest_Strip_by_Maritza_and_Bachan ::: http://www.magickchicks.com/strips-mc/Regain_your_energy ::: http://www.magickchicks.com/strips-mc/mc20120413a ::: http://www.magickchicks.com/strips-mc/Watch_your_buns ::: http://www.magickchicks.com/strips-mc/My_tum_tum ::: http://www.magickchicks.com/strips-mc/Holy_moley ::: http://www.magickchicks.com/strips-mc/dc20121220 ::: http://www.magickchicks.com/strips-mc/Wildly_out_of_character
+
+--------------------------------------------------------------------------------------
+----------- end of pixietrix ----------
+--------------------------------------------------------------------------------------
 
 
 
@@ -780,40 +729,762 @@ https://incase.buttsmithy.com/comic/my-debut-pg-01/
 --most of hiveworks http://www.thehiveworks.com/index.php is below
 --------------------------------------------------------------------------------------
 
--:Lost Nightmare
-http://www.lostnightmare.com/comic/archive
+-:A Ghost Stroy
+http://www.aghoststorycomic.com/comic/archive
+:chapterArchive #contentleft .cc-storyline-contain[style=margin-left:50px] .cc-storyline-header a
+:image+next #cc-comic , #cc-comic embed
+
+-:Alice and the Nightmare
+http://www.aliceandthenightmare.com/comic/archive
 :ac .cc-storyline-header a[href]
 :ia #cc-comic
 
--:The End
-http://www.endcomic.com/archives/
-:am #castcontainer:not(:contains(BONUS CONTENT)) #cast h3 , #castcontainer:not(:contains(BONUS CONTENT)) #cast a
-:i #comic img
-
--:Short Packed!
-https://shortpacked.com/comic/archive
+-:Aquapunk
+http://www.aquapunk.co/comic/archive
 :ac .cc-storyline-header a[href]
 :ia #cc-comic
 
--:Johnny Wander
-http://www.johnnywander.com/comic/i
+-:Astral Aves
+https://www.astralaves.com/comics/archive
+:ac .cc-storyline-text .cc-storyline-header a
+:ia #cc-comic
+
+-:Atomic Robo
+http://www.atomic-robo.com/comics.php
+:ac #pagearea > h3 > a
+:ia #comic
+
+-:Awaken
+http://www.awakencomic.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(CHAPTER)
 :i #cc-comic , #cc-comicbody .cc-showbig img
-:n #leftcontainer nav a.cc-next
+:n nav a[rel=next]
 
--:Fanboys
-http://www.fanboys-online.com/index.php?id=483
-:i #comic
-:n #comicwrap a.next
+-:Anarchy Dreamers
+http://www.anarchydreamers.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(Issue)
+:ia #cc-comic
+
+-:Anacrine Complex
+http://www.pigeoncomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:Alchemilla
+http://alchemillacomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next #bottomnav a.cc-next
+
+
+-:Barbarous
+http://www.johnnywander.com/barbarous/barbarous-chapter-1
+:image #cc-comic
+:next #leftcontainer a.cc-next
+
+-:Beeserker
+http://www.beeserker.com/archives/
+:ac #storyline li[id~=storyline-chapter] > a
+:i #comic > img
+:n #comic_navi a.navi.navi-next
+
+-:Blindsprings
+http://www.blindsprings.com/comic/archive
+:ac .cc-storyline-header a[href]:matches(Chapter|Prologue)
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Boumeries
+http://comics.boumerie.com/harry-potter-6/
+:images #comic img
+:next .comic_navi a.navi-next
+
+-:Bybloemen
+http://bybloemen.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Bicycle Boy
+http://bicycleboy.net/archive
+:mixedArchive #textarea span[style=font-size: 18px;] , a[href~=bicycle-boy]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Cassiopeia Quinn
+http://www.cassiopeiaquinn.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:Cindersong
+http://cindersong.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Clockwork
+http://www.clockwork-comic.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(Chapter)
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Cut Time
+http://www.cuttimecomic.com/comic/archive
+:ac .cc-storyline-header a[href]:matches(Book|Chapter)
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-- js only :(
+-- -:Check, Please!
+-- http://checkpleasecomic.com/comic/archive
+
+
+-:Daughter of the Lilies
+http://www.daughterofthelilies.com/dotl/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Demon Street
+http://www.demonstreet.co/comic/1
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Devil’s Candy
+http://devilscandycomic.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(CHAPTER)
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Dumbing of Age
+http://www.dumbingofage.com/archive-2/
+:am li[id~=storyline-] , li[id~=storyline-] > div.storyline-description > a
+:ia #comic img
+
+-:Demon Studies
+http://demonstudies.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+
+-:Edison Rex
+http://edisonrex.net/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-NX_ElGoonishShive:El Goonish Shive
+http://egscomics.com/comic/archive
+:chapterArchive #leftarea .cc-storyline-contain[style=margin-left:50px] .cc-storyline-header a
+:image+next #cc-comic
+
+-:EGS Newspaper
+http://www.egscomics.com/egsnp.php?id=12
+:ia #cc-comic
+
+-:Empowered
+http://www.empoweredcomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+
+-:Far to the North
+http://www.farnorthcomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Freakshow
+http://www.freakshow-comic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Fantome Stein
+http://fantomestein.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+
+-:Ghost Junk Sickness
+http://www.ghostjunksickness.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Girl Genius
+http://www.girlgeniusonline.com/comic.php?date=20021104
+:is #comicbody img[src~=^http://www.girlgeniusonline.com/ggmain/strips/|/ggmain/doublespreads/extrabits/spy_ads/spy]
+:n #bottomnext
+
+-GoGetARoomie:Go Get a Roomie!
+http://www.gogetaroomie.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:Goblins
+http://www.goblinscomic.org/archive/
+:chapterArchive #textarea a
+:image+next #cc-comic
+-- :url_replace /(\d{8}(?:-\d+)?)/ ::: /comic/$1 ::: www.goblinscomic.org ::: goblinscomic.com
+
+-:God Slave
+http://www.godslavecomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Guilded Age
+http://guildedage.net/comic/chapter-1-cover/
+:images #comic img , #comic embed
+:next .comic_navi a.comic-nav-next
+
+-:Goodbye to Halos
+http://www.goodbyetohalos.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+
+-:Harpy Gee
+http://www.harpygee.com/comic/archive
+:ac .cc-storyline-header:contains(Chapter) a[href]
+:ia #cc-comic
+
+-:Hazy London
+https://hazylondon.com/comic/archive
+:ac .cc-storyline-header a[href]:matches(^Vol\s+\d+)
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Headless Bliss
+http://www.headlessbliss.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:Helvetica
+http://helvetica.jnwiedle.com/2011/06/24/and-so-it-begins/
+:ia #comic img
+
+-:Heroes of the Antopolis
+http://www.heroesofthantopolis.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(Chapter)
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:How to be a Werewolf
+http://howtobeawerewolf.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+
+-:Iron Crown
+http://ironcrowncomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Inside Phobia
+http://www.insidephobia.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+
+-:Jailbird
+http://an.oddlookingbird.com/archives/
+-- archive seems to miss the last couple pages
+:am #post-44 > div > h3 > span:matchesOwn(^\d+:) , #post-44 a:matchesOwn(^\d+$)
+:i #webcomic > div.webcomic-image img
+
+
+-:Kiwi Blitz
+http://www.kiwiblitz.com/comic/archive/
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:Knights Errant
+https://sparklermonthly.com/ke/knights-errant-chapter-01-page-001/
+:image #webcomic img.size-full
+:next a.next-webcomic-link
+
+-:Killjoys
+http://killjoyscomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Kochab
+http://kochab-comic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+
+-:Lighter than Heir
+http://www.lighterthanheir.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Lilith’s Word
+http://www.lilithword.com/comic/archive
+:ac .cc-storyline-header a[href]:matches(Prologue|Chapter)
+:image #cc-comic
+:next .cc-nav a.cc-next
 
 -:Love Not Found
 http://www.lovenotfound.com/
 :chapterArchive #chapter option
 :image+next #comic img
 
--:Alice and the Nightmare
-http://www.aliceandthenightmare.com/comic/archive
+-:Love Circuits
+http://lovecircuits.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Laws & Sausages
+http://lawsandsausagescomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Larkspur
+http://larkspurcomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+
+-:Manly Guys Doing Manly Things
+http://thepunchlineismachismo.com/archives/comic/02222010
+-- has archive but that misses pages and contains no chapters
+:ia #comic img
+
+-:Mare Internvm
+http://www.marecomic.com/archive/
+:am #post-9 > div > section.entry-content h3 , #post-9 > div > section.entry-content a
+:i #comic img
+
+-:Metacarpolis
+http://www.metacarpolis.com/metacarpolis/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next #navtop .cc-next
+
+-:Missing Monday
+http://www.missingmondaycomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Monster Pulse
+https://www.monster-pulse.com/comic/archive
+:chapterArchive .cc-storyline-header a
+:ia #cc-comic
+
+-:Monsterkind
+http://monsterkind.enenkay.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next a[rel=next]
+
+-:Magical How?
+https://sparklermonthly.com/mh/magical-how-chapter-01-page-001/
+:image #webcomic img.size-full
+:next a.next-webcomic-link
+
+-:Monster’s Garden
+http://www.monstersgarden.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(Chapter)
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+
+-:Namesake
+http://namesakecomic.com/archives/
+:am #castcontainer:not(:nth-last-child(2)) #chara h3 , #castcontainer:not(:nth-last-child(2)) #chara a
+:ia #comic img
+
+-:Nerf Now
+http://www.nerfnow.com/archives
+:am #archives > div.archives_month , #archives a
+:i #comic img
+:archiveReverse
+
+-:Never Satisfied
+http://www.neversatisfiedcomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Nigh Heaven & Hell
+http://www.nighheavenandhell.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:No Need For Bushido
+http://nn4b.com/story
+:ac a.webcomic-term-link
+:image #comic-image img.attachment-full
+:next a.next-webcomic-link
+
+-:Not Drunk Enough
+http://www.ndecomic.com/comic/archive
+:ac .cc-storyline-header a[href]:matches(Cover|Ch\.|BOOK)
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:No End
+http://noendcomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Never Heroes
+https://sparklermonthly.com/nh/never-heroes-prologue-page-001/
+:image #webcomic img.size-full
+:next a.next-webcomic-link
+
+-:Nocturne
+http://www.nocturnecomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+
+-:Parisa
+http://parisacomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Parallax
+http://www.parallaxcomic.com/comic/archive
+:chapterArchive #archiveboxes a[href~=comic/page]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Paranatural
+https://www.paranatural.net/comics/archive
 :ac .cc-storyline-header a[href]
 :ia #cc-comic
+
+-:Peritale
+http://www.peritale.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav a.cc-next
+
+-:Prague Race
+http://www.praguerace.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:Patrik the Vampire
+http://patrikthevampire.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(Book)
+:image #cc-comic
+:next .cc-nav .cc-next
+
+
+-:Quick$ilver
+http://www.quicksilvercomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+
+-:Real Science Adventure
+http://www.atomic-robo.com/rsa/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Raruurien
+http://raruurien.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Ryan Made Mistakes
+http://mistakes.ryanestrada.com/comic/0001
+:image #cc-comic
+:next .cc-nav .cc-next
+
+
+-:Saint for Rent
+http://www.saintforrent.com/comics/archive
+:ac .cc-chapterrow a[href]
+:ia #cc-comic
+
+-:Sakana
+http://www.sakana-comic.com/comic/archive
+:ac .cc-storyline-header a[href]:matches(Volume|Chapter)
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-- the archives are very not sorted
+-- -:Sam & Fuzzy
+-- http://www.samandfuzzy.com/archive
+
+-:Saturday Morning Breakfast Cereal
+http://www.smbc-comics.com/comic/2002-09-05
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Sister Claire
+http://www.sisterclaire.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:Sleepless Domain
+http://www.sleeplessdomain.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Slightly Damned
+http://www.sdamned.com/archives
+:ac #comicarea table a
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Solstoria
+http://solstoria.net/comic/54/
+:ia #content .webcomic-image img.size-full
+
+-:Spinnerette
+http://www.spinnyverse.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image+next #cc-comic
+
+--Stand still stay silent is an individual comic
+
+-:Star Trip
+http://www.startripcomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Star Hammer
+http://www.starhammercomic.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(Chapter)
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Sufficiently Remarkable
+-- chapter at, but has mulitple layers
+-- http://sufficientlyremarkable.com/comic/chapters
+http://sufficientlyremarkable.com/S=0/comic/the-beach
+:image img.comic
+:next a.nav-next
+
+-:Shaderunners
+http://www.shaderunners.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(Chapter)
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Sunshine Boy
+https://sparklermonthly.com/sb/sunshine-boy-by-moosopp-chapter-1/
+:image #webcomic img.size-full
+:next a.next-webcomic-link
+
+-:Sanity Circus
+http://www.sanitycircus.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Speak of the Devil
+http://speakdevil.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Scape
+http://scapecomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Star Impact
+http://starimpactcomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+
+-:The Weave 
+https://weavecomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:The Boy Who Fell
+http://www.boywhofell.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:The Din
+http://www.dincomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:The End
+http://www.endcomic.com/archives/
+:am #castcontainer:not(:contains(BONUS CONTENT)) #cast h3 , #castcontainer:not(:contains(BONUS CONTENT)) #cast a
+:i #comic img
+
+-:The Forgotten Order
+http://www.forgottenordercomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:The Glass Scientists
+http://www.theglassscientists.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:The Last Diplomat
+http://www.thelastdiplomat.com/comic/page-001
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:The Lonely Vincent Bellingham
+http://www.lonelyvincent.com/lonelyvincent/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:The Meek
+http://www.meekcomic.com/archives/
+:am #content .comic-archive-chapter-description , #content .comic-archive-thumb > a
+:i #comic img
+
+-:This is not Fiction
+https://thisisnotfiction.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Tigress Queen
+http://www.tigressqueen.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Tove
+http://www.tovecomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next nav.cc-nav a.cc-next
+
+-:Trying Human
+http://www.tryinghuman.com/archive
+:am #middle table td b , #middle table td center a
+:i #cc-comic
+:url_replace --(\d)$ ::: --0$1 ::: chapter-(3|4)-([^-]) ::: chapter-$1--$2 ::: chapter-(12|13|14|15|16|17|18)--cover ::: chapter-$1-cover ::: chapter-22-868 ::: chapter-21-868
+
+-:The Mash
+http://www.mashcomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:The Automan’s Daughter
+http://automansdaughter.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:The Witch Doctor
+http://thewitchdoor.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Tiger, Tiger
+http://tigertigercomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:The Substitutes
+http://www.thesubstitutescomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Tripping Over You
+http://www.trippingoveryou.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+
+-:Verse
+http://www.versecomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Vainglorious
+http://vaingloriouscomic.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(Chapter)
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:White Noise
+http://www.white-noise-comic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Whomp
+http://www.whompcomic.com/2010/06/14/06142010/
+:ia #comic img
+
+-:Wilde Life
+http://www.wildelifecomic.com/comic/archive
+:chapterArchive #pagecontent .cc-storyline-header a
+:i #cc-comic
+:n #nav1 a.cc-next
+
+-:Widdershins
+https://widdershinscomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Witchy
+http://www.witchycomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+
+-:Zombie Roomie
+https://www.zombieroomie.com/comic/issues
+:ia #cc-comic
+
+
+-:2 Slices
+http://2slicescomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+
+-- “completed”
 
 -:Hijinks Ensue Classic
 http://hijinksensue.com/comic/a-soul-as-black-as-eyeliner/
@@ -830,11 +1501,157 @@ http://hijinksensue.com/comic/lo-fijinks-everything-i-know-anout-james-camerons-
 :image #comic img
 :next #sidebar-under-comic a.navi-next-in
 
-
--:Headless Bliss
-http://www.headlessbliss.com/comic/archive
+-:Supernormal Step
+http://www.supernormalstep.com/archives/archive
 :ac .cc-storyline-header a[href]
 :ia #cc-comic
+
+-NX_Skullkickers:Skull☠kickers
+http://comic.skullkickers.com/comic/archive
+:chapterArchive .cc-storyline-header a[href~=/comic/]
+:image #cc-comic , #cc-comicbody .cc-showbig img
+:next #comicleft nav a[rel=next]
+
+-NX_CliqueRefresh:Clique Refresh
+https://cliquerefresh.com/comic/001-start-it-up
+:image+next #cc-comic
+
+-:Lost Nightmare
+http://www.lostnightmare.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:Flight of the Binturong
+http://www.flightofthebinturong.com/archives
+:am #innerwrap div[id~=Chapter] , #innerwrap div[id~=Chapter] div.pagethumb > a
+:i #comic > img
+
+-:Short Packed!
+https://shortpacked.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-NX_LetsSpeakEnglish:Let’s Speak English
+http://www.marycagle.com/letsspeakenglish/prologue-1-off-we-go
+:image #cc-comic
+:next a[rel=next]
+
+-:Blaster Nation
+http://www.blasternation.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+-:I am ARG!
+http://iamarg.com/2011/05/08/05082011/
+:i #comic-1 img
+:n #sidebar-undercomic a.navi.navi-next
+
+-:Wonderlust
+http://www.wonderlustcomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:ia #cc-comic
+
+
+-:A Small Revolution
+http://revolution.boumerie.com/en/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Snarlbear
+http://www.snarlbear.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Street Fighter
+http://www.streetfightercomics.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Dollhouse
+http://www.dollhousecomic.com/comic/archive
+:ac .cc-chapterrow a[href]
+:image #cc-comic
+:next .nav a.next
+
+-:Kids These Days
+https://kidsthesedayscomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Run Freak Run
+http://runfreakrun.com/archive/
+:ac .post-content a[title~=Run Freak Run Chapter]
+:image #webcomic img.size-full
+:next a.next-webcomic-link
+
+-:Far Flüng
+http://www.farflung-comic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Black Grass
+http://www.blackgrasscomic.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Goth Western
+http://gothwestern.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Sulfur and Salt
+http://sulfurandsalt.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Broken Telephone
+http://www.broken-telephone.com/comic/cover
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:The Well on the Hill
+http://www.maricomics.com/twbthoth/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Super Mahou
+http://www.maricomics.com/supermahou/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Girls With Slingshots
+http://girlswithslingshots.com/comic/gws1
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-:Oddity Woods
+https://www.odditywoods.com/comic/archive
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
+
+-- the following are for some strange reason not included
+-- in the individual by-first-letter entries
+
+-:Johnny Wander
+http://www.johnnywander.com/comic/i
+:i #cc-comic , #cc-comicbody .cc-showbig img
+:n #leftcontainer nav a.cc-next
+
+-:Fanboys
+http://www.fanboys-online.com/index.php?id=483
+:i #comic
+:n #comicwrap a.next
 
 -:Platinum Black
 http://platinumblackcomic.com/archives/comic/chapter-1-cover
@@ -844,74 +1661,17 @@ http://platinumblackcomic.com/archives/comic/chapter-1-cover
 http://amultiverse.com/comic/2010/06/14/parenthood/
 :ia #comic img
 
--:Nerf Now
-http://www.nerfnow.com/archives
-:am #archives > div.archives_month , #archives a
-:i #comic img
-:archiveReverse
-
 -:Heart Shaped Skull
 http://www.heartshapedskull.com/2002/10/31/working-through-the-negativity-cover/
 :ia #comic img
-
--:Whomp
-http://www.whompcomic.com/2010/06/14/06142010/
-:ia #comic img
-
--:Parallax
-http://www.parallaxcomic.com/comic/archive
-:chapterArchive #archiveboxes a[href~=comic/page]
-:image #cc-comic
-:next .cc-nav .cc-next
-
--:The Lonely Vincent Bellingham
-http://www.lonelyvincent.com/lonelyvincent/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
 
 -:Oh Joy Sex Toy
 http://www.ohjoysextoy.com/introduction/
 :i #comic img
 :n #sidebar-overcomic a.navi.navi-next
 
--:Mare Internvm
-http://www.marecomic.com/archive/
-:am #post-9 > div > section.entry-content h3 , #post-9 > div > section.entry-content a
-:i #comic img
-
--:The Mash
-http://www.mashcomic.com/comic/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
--:Metacarpolis
-http://www.metacarpolis.com/metacarpolis/archive
-:ac .cc-storyline-header a[href]
-:image #cc-comic
-:next #navtop .cc-next
-
--:Cassiopeia Quinn
-http://www.cassiopeiaquinn.com/comic/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
--:Harpy Gee
-http://www.harpygee.com/comic/archive
-:ac .cc-storyline-header:contains(Chapter) a[href]
-:ia #cc-comic
-
--:Namesake
-http://namesakecomic.com/archives/
-:am #castcontainer:not(:nth-last-child(2)) #chara h3 , #castcontainer:not(:nth-last-child(2)) #chara a
-:ia #comic img
-
 -:Vibe
 http://www.vibecomic.com/vibe/cover-2
-:ia #cc-comic
-
--:Astral Aves
-https://www.astralaves.com/comics/archive
-:ac .cc-storyline-text .cc-storyline-header a
 :ia #cc-comic
 
 -:Balderdash
@@ -919,109 +1679,24 @@ http://www.balderdashcomic.com/comic/archive
 :ac .cc-chapterrow a[href]
 :ia #cc-comic
 
--:Flight of the Binturong
-http://www.flightofthebinturong.com/archives
-:am #innerwrap div[id~=Chapter] , #innerwrap div[id~=Chapter] div.pagethumb > a
-:i #comic > img
-
--:Trying Human
-http://www.tryinghuman.com/archive
-:am #middle table td b , #middle table td center a
-:i #cc-comic
-:url_replace --(\d)$ ::: --0$1 ::: chapter-(3|4)-([^-]) ::: chapter-$1--$2 ::: chapter-(12|13|14|15|16|17|18)--cover ::: chapter-$1-cover ::: chapter-22-868 ::: chapter-21-868
-
-
--:Zombie Roomie
-https://www.zombieroomie.com/comic/issues
-:ia #cc-comic
-
--:Jailbird
-http://an.oddlookingbird.com/archives/
--- archive seems to miss the last couple pages
-:am #post-44 > div > h3 > span:matchesOwn(^\d+:) , #post-44 a:matchesOwn(^\d+$)
-:i #webcomic > div.webcomic-image img
-
 -:Basin Vale
 http://www.basinvale.com/index.php?id=1
 :ia #comic
-
--:Helvetica
-http://helvetica.jnwiedle.com/2011/06/24/and-so-it-begins/
-:ia #comic img
-
--:Tove
-http://www.tovecomic.com/comic/archive
-:ac .cc-storyline-header a[href]
-:image #cc-comic
-:next nav.cc-nav a.cc-next
-
--:Blindsprings
-http://www.blindsprings.com/comic/blindsprings-cover-book-one
--- has an archive page here http://blindsprings.com/archive
--- but that is in a weird order
-:image #cc-comic
-:next .cc-nav .cc-next
 
 -:Last Halloween
 http://www.last-halloween.com/posts
 :ac #categories-container .archive_category:not(:has(img[alt=8cff78e6f15bc04c379aa8d4e7a2698744af05eb]))  .archive_entry a
 :is #comics-container > div.comic-container > img
 
--:Kiwi Blitz
-http://www.kiwiblitz.com/comic/archive/
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
 -: Agents of the Realms
-http://www.agentsoftherealm.com/comics/archive
-:ac .cc-chapterrow a[href]
-:ia #cc-comic
-
--:Beeserker
-http://www.beeserker.com/archives/
-:ac #storyline li[id~=storyline-chapter] > a
-:i #comic > img
-:n #comic_navi a.navi.navi-next
-
--:Dumbing of Age
-http://www.dumbingofage.com/archive-2/
-:am li[id~=storyline-] , li[id~=storyline-] > div.storyline-description > a
-:ia #comic img
-
--:God Slave
-http://www.megacarter.com/godslave/?comic=godslave-page-one
-:ia #comic img
-
--:Atomic Robo
-http://www.atomic-robo.com/comics.php
-:ac #pagearea > h3 > a
-:ia #comic
-
--:Paranatural
-https://www.paranatural.net/comics/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
--:Blaster Nation
-http://www.blasternation.com/comic/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
+https://agentsoftherealm.com/comic/semester1-vol1/
+:image #comic img
+:next a.comic-nav-next
 
 -:The Black Brick Road of OZ
 http://www.blackbrickroadofoz.com/comics/archive
 :ac .cc-chapterrow a[href]
 :ia #cc-comic
-
--:Girl Genius
-http://www.girlgeniusonline.com/comic.php?date=20021104
-:is #comicbody img[src~=^http://www.girlgeniusonline.com/ggmain/strips/|/ggmain/doublespreads/extrabits/spy_ads/spy]
-:n #bottomnext
-
--:I am ARG!
-http://iamarg.com/2011/05/08/05082011/
-:i #comic-1 img
-:n #sidebar-undercomic a.navi.navi-next
 
 -:Meaty Yogurt
 http://rosalarian.com/meatyyogurt/archive-2/
@@ -1029,76 +1704,14 @@ http://rosalarian.com/meatyyogurt/archive-2/
 :is #comic img
 :n #content > div.nav > div.nav-next > a
 
--:Monster Pulse
-https://www.monster-pulse.com/comic/archive
-:chapterArchive .cc-storyline-header a
-:ia #cc-comic
-
--:Manly Guys Doing Manly Things
-http://thepunchlineismachismo.com/archives/comic/02222010
--- has archive but that misses pages and contains no chapters
-:ia #comic img
-
--:Saint for Rent
-http://www.saintforrent.com/comics/archive
-:ac .cc-chapterrow a[href]
-:ia #cc-comic
-
 -:Crazy Sunshine
 http://www.crazysunshine.com/comic/apocalypse-now/
 :ia #comic img
-
--:Wonderlust
-http://www.wonderlustcomic.com/comic/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
--:Prague Race
-http://www.praguerace.com/comic/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
--:Sister Claire
-http://www.sisterclaire.com/comic/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
--:Spinnerette
-http://www.spinnyverse.com/comic/archive
-:ac .cc-storyline-header a[href]
-:image+next #cc-comic
 
 -:6 Gun Mage
 http://www.6gunmage.com/comic/archive
 :ac .cc-storyline-header a[href]
 :ia #cc-comic
-
--:The Boy Who Fell
-http://www.boywhofell.com/comic/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
--:Monsterkind
-http://monsterkind.enenkay.com/comic/archive
-:ac .cc-storyline-header a[href]
-:image #cc-comic
-:next a[rel=next]
-
--GoGetARoomie:Go Get a Roomie!
-http://www.gogetaroomie.com/comic/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
--:Supernormal Step
-http://www.supernormalstep.com/archives/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
--:Awaken
-http://www.awakencomic.com/comic/archive
-:ac .cc-storyline-header a[href]:contains(CHAPTER)
-:i #cc-comic , #cc-comicbody .cc-showbig img
-:n nav a[rel=next]
 
 -:The Rock Cocks
 http://rockcocks.slipshine.net/comic/archive
