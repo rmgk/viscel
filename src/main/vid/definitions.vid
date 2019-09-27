@@ -113,6 +113,114 @@
 
 
 ---------------------------------------------- NOT DEAD ---
+-:Cat Legend
+http://cat-legend.com/?comic_id=0-1.-chapter-one
+:image img[src~=/comics/]
+:next a:has(img[alt=next comic])
+
+-:The Dreamland Chronicles (rerun)
+http://www.thedreamlandchronicles.com/comic/the-dreamland-chronicles-chapter-one/
+:image #comic img
+:next a.comic-nav-next
+
+-:Maliki
+http://maliki.com/en/strips/begin-a-webcomic/
+:image .container img.center-block
+:next a.linkNextContent
+
+-:The Catena Café
+https://catenamanor.com/comic/reboot-book1cover-small/
+:image #comic img
+:next a.comic-nav-next
+
+-:Inherit the Earth
+http://inherittheearth.net/comic.shtml?0001A
+:image img[src~=/strips/]
+:next a:has(img[alt=Next Webcomic])
+
+-:Heroes Of Lesser Earth
+https://www.heroesoflesserearth.com/2005/12/pilot/
+:image img.size-full
+:next a:contains(Toward The Future)
+
+-:Bear Nuts
+https://bearnutscomic.com/2008/08/17/01-bear-nuts/
+:image #comic img
+:next a[rel=next]
+
+-:Lackadaisy
+https://www.lackadaisy.com/archive.php
+:mixedArchive #archives dt , #archives dd a
+:image #content > img
+
+-:Dragon Heroes
+http://dragonheroes.fanyart.com/comix-en.php?page=1
+:image #pages img
+:next a:has(img[alt=Next])
+
+-:Ice
+http://www.faitherinhicks.com/ice/page1.html
+:image img
+:next a:contains(NEXT)
+
+-:Yosh!
+https://www.yoshsaga.com/comic/introduction/
+:image .webcomic-image img.size-full
+:next a.next-webcomic-link
+
+-:Devil Bear
+http://www.thedevilbear.com/b/comic/its-for-you/
+:image #comic img
+:next a.comic-nav-next
+
+-:The Wotch: CHEER!
+http://cheer.sailorsun.org/?comic=cheer
+:image #comic img
+:next a.comic-nav-next
+
+-:Order of the Stick
+http://www.giantitp.com/comics/oots0001.html
+:image img[src~=/comics/images/]
+:next a:has(img[alt=Next Comic])
+
+-:Banished
+http://www.banishedonline.com/index.php?date=2010-08-30
+:image img[src~=strips/\d{4}]
+:next .nextlink a
+
+-:Accursed Dragon
+http://www.accurseddragon.com/index.php?date=2008-10-06
+:image #comic-image img
+:next .nextlink a
+
+-:Pron Quest
+https://www.pronquest.com/ehentai/gehentai/welcome-to-pronquest/
+:image #comic img
+:next a.comic-nav-next
+
+-:Princess Planet
+http://www.theprincessplanet.com/2004/11/13/welcome-to-the-princess-planet/
+:image #comic img
+:next a[rel=next]
+
+-:Undead Friend
+http://undeadfriend.com/comic/undead-friend-prelude-page-01/
+:image #comic img
+:next a.comic-nav-next
+
+-:Kukubiri
+http://www.kukuburi.com/v2/2007/08/09/one/
+:image #comic img
+:next a[rel=next]
+
+-PlushandBlood:The Unstuffed
+http://www.plushandblood.com/Comic.php?strip_id=1
+:image #ComicLayer img[src~=comics/]
+:next a:has(img[src=/Images/Nav/Next.png])
+
+-:The Challenges of Zona
+https://barbarianprincess.com/comic/dont-know-much/page-01/
+:image+next #comic img
 
 -:The Savage Sword of Sharona
 http://savageswordofsharona.com/archive/
