@@ -163,11 +163,6 @@ http://www.faitherinhicks.com/ice/page1.html
 :image img
 :next a:contains(NEXT)
 
--:Yosh!
-https://www.yoshsaga.com/comic/introduction/
-:image .webcomic-image img.size-full
-:next a.next-webcomic-link
-
 -:Devil Bear
 http://www.thedevilbear.com/b/comic/its-for-you/
 :image #comic img
@@ -1946,10 +1941,6 @@ https://sparklermonthly.com/dh/dire-hearts-chapter-01-page-000/
 :image #webcomic img.size-full:first-child
 :next a.next-webcomic-link
 
-
-
-
-
 --------------------------------------------------------------------------------------
 -- end of sparklermonthly
 --------------------------------------------------------------------------------------
@@ -2003,5 +1994,68 @@ http://anathema.smackjeeves.com/archive/
 
 
 
+--------------------------------------------------------------------------------------
+-- katbox rescues and kemono cafe
+--------------------------------------------------------------------------------------
+
+-KatBox_imew:iMew
+https://imew.kemono.cafe/comic/imew00/
+:image #comic img
+:next a.comic-nav-next
+
+-KatBox_cblue:Caribbean Blue
+https://cb.kemono.cafe/comic/page000/
+:image #comic img
+:next a.comic-nav-next
+
+-KatBox_rascals:Rascals
+https://rascals.kemono.cafe/comic/rascals-pg-0/
+:image #comic img
+:next a.comic-nav-next
+
+-KatBox_theeye:The Eye of Ramalach
+https://theeye.kemono.cafe/comic/theeye-page01/
+:image #comic img
+:next a.comic-nav-next
+
+-KatBox_laslindas:Las Lindas!
+https://laslindas.kemono.cafe/comic/ll0001/
+:image #comic img
+:next a.comic-nav-next
+
+-KatBox_tinaofthesouth:Tina of the South
+https://tots.kemono.cafe/comic/tos-01-01/
+:image #comic img
+:next a.comic-nav-next
+
+-KatBox_paprika:Paprika
+https://paprika.kemono.cafe/comic/page000/
+:image #comic img
+:next a.comic-nav-next
+
+-:Knighthood
+https://knighthood.kemono.cafe/comic/kh0001/
+:image #comic img
+:next a.comic-nav-next
+
+-KatBox_addictivescience:Addictive Science
+https://addictivescience.kemono.cafe/comic/page0001/
+:image #comic img
+:next a.comic-nav-next
+
+-KatBox_ai:Artificial Incident
+https://www.artificialincident.com/comic/issue-one-life-changing/
+:image .webcomic-image img.size-full
+:next a.next-webcomic-link
+
+-KatBox_yosh:Yosh!
+https://www.yoshsaga.com/comic/introduction/
+:image .webcomic-image img.size-full
+:next a.next-webcomic-link
+
+-- also see https://studiokhimera.com/ which has some more rescues, but does use some data urls to lazy load images 🤔
 
 
+--------------------------------------------------------------------------------------
+-- end of katbox rescues
+--------------------------------------------------------------------------------------
