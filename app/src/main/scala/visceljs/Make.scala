@@ -1,5 +1,7 @@
 package visceljs
 
+import io.circe.{Decoder, Encoder}
+import io.circe.generic.semiauto._
 import org.scalajs.dom
 import scalatags.JsDom.all.{alt, stringFrag, _}
 import scalatags.JsDom.TypedTag
@@ -9,21 +11,28 @@ import viscel.shared.{Blob, SharedImage}
 import visceljs.Definitions._
 import visceljs.render.FrontPageEntry
 
+sealed trait FitType {
+  def next: FitType = this match {
+    case FitType.W  => FitType.WH
+    case FitType.WH => FitType.O
+    case FitType.O  => FitType.W
+  }
+}
+object FitType {
+  implicit val encoder: Encoder[FitType] = deriveEncoder
+  implicit val decoder: Decoder[FitType] = deriveDecoder
+  case object W extends FitType
+  case object WH extends FitType
+  case object O extends FitType
+}
+
 object Make {
 
-  def imageStyle(fitType: Int): Modifier = {
-    def s(mw: Boolean = false, mh: Boolean = false, w: Boolean = false, h: Boolean = false) =
-      s"max-height: ${if (mh) "100vh" else "none"}; max-width: ${if (mw) "100vw" else "none"}; height: ${if (h) "100vh" else "auto"}; width: ${if (w) "100vw" else "auto"}"
-
-    style := (fitType % 8 match {
-      case 0 => ""
-      case 1 => s()
-      case 2 => s(mw = true)
-      case 3 => s(mh = true)
-      case 4 => s(mw = true, mh = true)
-      case 5 => s(w = true)
-      case 6 => s(h = true)
-      case 7 => s(w = true, h = true)
+  def imageStyle(fitType: FitType): Modifier = {
+    style := (fitType match {
+      case FitType.O  => ""
+      case FitType.W  => "max-width: 100%"
+      case FitType.WH => "max-height: 100vh; max-width: 100%; width: auto"
     })
   }
 

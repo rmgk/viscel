@@ -5,7 +5,6 @@
 $font-color: snow;
 $theme-color: limegreen;
 $background-color: black;
-// material design colors … abused ;-P
 $border-color: #424242;
 $backplate-color: #212121;
 
@@ -66,7 +65,7 @@ img {
   margin: 0 auto;
   display: block;
   background-color: white;
-  max-width: 100%;
+  //max-width: 100%;
 }
 
 h1 {
@@ -230,9 +229,9 @@ body#view {
 
 //smallish screens
 @media only screen and (max-width: 1024px) {
-  #view img {
-    width: 100%;
-  }
+  //#view img {
+  //  width: 100%;
+  //}
 
   // put prev & next into its own first row
   #view nav {
@@ -248,9 +247,9 @@ body#view {
   }
 }
 
-//bigish screens
-@media only screen and (min-height: 1024px) and (min-width: 1024px) {
-  #view img {
-    max-height: 100vh;
-  }
-}
+////bigish screens
+//@media only screen and (min-height: 1024px) and (min-width: 1024px) {
+//  #view img {
+//    max-height: 100vh;
+//  }
+//}

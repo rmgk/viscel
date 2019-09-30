@@ -101,9 +101,12 @@ class ReaderApp(content: Vid => Signal[Contents],
     }
     currentPosition.observe(p => Log.JS.debug(s"current position is $p"))
 
-    val fitType = navigationEvents.fold(0){
-      case (_, Mode(i)) => i % 8
-      case (i, _) => i
+    val ftinit: FitType = io.circe.parser.decode[FitType](dom.window.localStorage.getItem("fitType"))
+                            .getOrElse(FitType.W)
+    val fitType         = navigationEvents.collect{case Mode(t) => t}.latest[FitType](ftinit)
+    fitType.observe{ft: FitType =>
+      import io.circe.syntax._
+      dom.window.localStorage.setItem("fitType", ft.asJson.noSpaces)
     }
 
     targetStates.observe(s => Log.JS.debug(s"state: $s"))
