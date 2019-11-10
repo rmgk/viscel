@@ -113,6 +113,11 @@
 
 
 ---------------------------------------------- NOT DEAD ---
+-:Swords
+https://swordscomic.com/swords/cover/
+:image #comic-image
+:next #navigation-next
+
 -:Cat Legend
 http://cat-legend.com/?comic_id=0-1.-chapter-one
 :image img[src~=/comics/]
