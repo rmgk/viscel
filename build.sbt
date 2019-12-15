@@ -123,6 +123,15 @@ lazy val viscel = project
                   .enablePlugins(JavaServerAppPackaging)
                   .dependsOn(sharedJVM)
 
+//  experimental graalvm options, do not work :(
+                    // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
+                    // graalVMNativeImageOptions ++= List(
+                    //   "--initialize-at-build-time",
+                    //   "--report-unsupported-elements-at-runtime",
+                    // ),
+                  // .enablePlugins(GraalVMNativeImagePlugin)
+
+
 lazy val app = project.in(file("app"))
                .enablePlugins(ScalaJSPlugin)
                .settings(
