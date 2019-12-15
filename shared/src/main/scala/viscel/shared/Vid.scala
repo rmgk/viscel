@@ -15,7 +15,7 @@ object Vid {
 
   val idregex: Regex = """^[\w-]+$""".r
   def from(str: String): Vid = {
-    assert(idregex.unapplySeq(str).isDefined, s"Vid may only contain [\\w-], but was $str")
+    assert(idregex.unapplySeq(str).isDefined, s"Vid may only contain [\\w-], but was »$str«")
     new Vid(str)}
   implicit def vidR: Decoder[Vid] = Decoder.decodeString.map(new Vid(_))
   implicit def vidKR: KeyDecoder[Vid] = KeyDecoder.decodeKeyString.map(new Vid(_))
