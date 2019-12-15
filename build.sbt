@@ -23,9 +23,10 @@ val Libraries = new {
     strictCompile
   )
 
-  val main = Def.settings(betterFiles, decline, akkaHttp,
-                          scalatest, scalacheck,
-                          jsoup)
+  val main =
+    Def.settings(betterFiles, decline, akkaHttp,
+                 scalatest, scalacheck, scalatestpluscheck,
+                 jsoup)
 
 
   val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, scalatags,
