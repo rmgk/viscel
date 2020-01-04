@@ -4,3 +4,5 @@
 target/
 Uclist.pm
 log.txt
+.bloop/
+out/

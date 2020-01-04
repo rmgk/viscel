@@ -10,6 +10,7 @@ inThisBuild(scalaVersion_212)
 inThisBuild(strictCompile)
 ThisBuild / organization := "de.rmgk"
 
+bloopSources
 
 val Libraries = new {
 

@@ -1,6 +1,7 @@
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import sbt.Keys._
 import sbt._
+import bloop.integrations.sbt.BloopKeys.bloopExportJarClassifiers
 
 /* This file is shared between multiple projects
  * and may contain unused dependencies */
@@ -76,6 +77,8 @@ object Settings {
   )
 
   val strictCompile = Compile / compile / scalacOptions += "-Xfatal-warnings"
+
+  val bloopSources = bloopExportJarClassifiers in Global := Some(Set("sources"))
 }
 
 object Resolvers {
@@ -87,18 +90,19 @@ object Dependencies {
 
   def ld = libraryDependencies
 
-  val betterFiles = ld += "com.github.pathikrit" %% "better-files" % "3.8.0"
-  val cats        = ld += "org.typelevel" %%% "cats-core" % "2.0.0"
-  val decline     = ld += "com.monovore" %%% "decline" % "1.0.0"
-  val fastparse   = ld += "com.lihaoyi" %%% "fastparse" % "2.1.3"
-  val jsoup       = ld += "org.jsoup" % "jsoup" % "1.12.1"
-  val kaleidoscope= ld += "com.propensive" %%% "kaleidoscope" % "0.1.0"
-  val pprint      = ld += "com.lihaoyi" %%% "pprint" % "0.5.6"
-  val rmgkLogging = Def.settings(Resolvers.rmgk, ld += "de.rmgk" %%% "logging" % "0.2.1")
-  val scalactic   = ld += "org.scalactic" %% "scalactic" % "3.0.7"
-  val scribe      = ld += "com.outr" %%% "scribe" % "2.7.10"
-  val sourcecode  = ld += "com.lihaoyi" %%% "sourcecode" % "0.1.7"
-  val upickle     = ld += "com.lihaoyi" %% "upickle" % "0.8.0"
+  val betterFiles  = ld += "com.github.pathikrit" %% "better-files" % "3.8.0"
+  val cats         = ld += "org.typelevel" %%% "cats-core" % "2.0.0"
+  val decline      = ld += "com.monovore" %%% "decline" % "1.0.0"
+  val fastparse    = ld += "com.lihaoyi" %%% "fastparse" % "2.1.3"
+  val jsoup        = ld += "org.jsoup" % "jsoup" % "1.12.1"
+  val kaleidoscope = ld += "com.propensive" %%% "kaleidoscope" % "0.1.0"
+  val pprint       = ld += "com.lihaoyi" %%% "pprint" % "0.5.6"
+  val rmgkLogging  = Def.settings(Resolvers.rmgk, ld += "de.rmgk" %%% "logging" % "0.2.1")
+  val scalactic    = ld += "org.scalactic" %% "scalactic" % "3.0.7"
+  val scribe       = ld += "com.outr" %%% "scribe" % "2.7.10"
+  val sourcecode   = ld += "com.lihaoyi" %%% "sourcecode" % "0.1.7"
+  val upickle      = ld += "com.lihaoyi" %% "upickle" % "0.8.0"
+  val toml         = ld += "tech.sparse" %%% "toml-scala" % "0.2.2"
 
   val akkaHttp = ld ++= (Seq("akka-http-core",
                              "akka-http")
