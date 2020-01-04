@@ -106,8 +106,8 @@ object Dependencies {
 
   val akkaHttp = ld ++= (Seq("akka-http-core",
                              "akka-http")
-                         .map(n => "com.typesafe.akka" %% n % "10.1.9") ++
-                         Seq("com.typesafe.akka" %% "akka-stream" % "2.5.25"))
+                         .map(n => "com.typesafe.akka" %% n % "10.1.11") ++
+                         Seq("com.typesafe.akka" %% "akka-stream" % "2.6.1"))
 
   val circe = ld ++= Seq("core",
                          "generic",
@@ -123,7 +123,7 @@ object Dependencies {
   val fontawesome  = ld += "org.webjars" % "font-awesome" % "5.10.1"
 
   // tests
-  val scalacheck = ld += "org.scalacheck" %%% "scalacheck" % "1.14.2" % "test"
+  val scalacheck = ld += "org.scalacheck" %%% "scalacheck" % "1.14.3" % "test"
   val scalatestpluscheck = ld += "org.scalatestplus" %%% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % "test"
   val scalatest  = ld += "org.scalatest" %%% "scalatest" % "3.1.0" % "test"
 
