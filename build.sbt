@@ -10,8 +10,6 @@ inThisBuild(scalaVersion_212)
 inThisBuild(strictCompile)
 ThisBuild / organization := "de.rmgk"
 
-bloopSources
-
 val Libraries = new {
 
   val rescalaVersion = "0.29.0"

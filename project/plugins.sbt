@@ -22,5 +22,3 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.7.0") // https://gi
 addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.13")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.3.7")
 
-// bloop for metals and intellij bsp
-addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "1.3.5")
