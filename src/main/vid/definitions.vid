@@ -2,6 +2,7 @@
 -- available matches
 -- image (i): matches a single image
 -- images (is): matches multiple images
+-- images? : matches any number of images, even none.
 -- next (n): matches a single next reference
 -- image+next (ia): matches an image and extracts the containing next reference
 -- mixedArchive (am): matches an archive containing both chapter references and page references depending on matched tags
@@ -696,9 +697,8 @@ http://nmg.thecomicseries.com/archive/
 
 -:You Suck
 https://yousuckthecomic.tumblr.com/tagged/webcomics/chrono
-:images .post.content .photo img
+:images? .post.content .photo img
 :next #navigation td[align=right] a
-:url_replace /page/82$ ::: /page/83 ::: /page/86$ ::: /page/87
 
 -:Rubi Whipple
 http://rubiwhipple.com/comic/issue-1-cover/

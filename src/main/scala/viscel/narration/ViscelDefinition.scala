@@ -21,7 +21,7 @@ object ViscelDefinition {
   case class Line(s: String, p: Int)
   type It = BufferedIterator[Line]
   type ErrorMessage = String
-    type Or[T, V] = Either[V, T]
+  type Or[T, V] = Either[V, T]
 
   val extractIDAndName: Regex = """^-(\w*):(.+)$""".r
   val extractAttribute: Regex = """^:(\S+)\s*(.*)$""".r
@@ -30,7 +30,7 @@ object ViscelDefinition {
     val Line(url, pos) = it.next()
     try Right(Vurl.fromString(url))
     catch {
-      case mue : MalformedURLException =>
+      case mue: MalformedURLException =>
         Left(s"malformed URL at line $pos: $url")
     }
   }
@@ -54,7 +54,7 @@ object ViscelDefinition {
       case Line(extractAttribute(name, value), pos) =>
         it.next()
         parseAttributes(it, acc.updated(normalizeAttributeName(name), Line(value, pos)))
-      case _ => acc
+      case _                                        => acc
     }
 
 
@@ -62,7 +62,7 @@ object ViscelDefinition {
     object extract {
       def unapplySeq[T](m: Map[String, T]): Option[Seq[T]] = {
         val keys = sc.parts.map(_.trim).filter(_.nonEmpty)
-        val res = keys.flatMap(m.get)
+        val res  = keys.flatMap(m.get)
         if (res.lengthCompare(keys.size) == 0) Some(res)
         else None
       }
@@ -87,8 +87,8 @@ object ViscelDefinition {
       }
 
     stories.map {
-      case DataRow.Link(url, data)     => DataRow.Link(replaceVurl(url), data)
-      case o                           => o
+      case DataRow.Link(url, data) => DataRow.Link(replaceVurl(url), data)
+      case o                       => o
     }
   }
 
@@ -105,15 +105,14 @@ object ViscelDefinition {
       Some(AdditionalErrors(f, AdditionalPosition(lines, path)))
 
     val pageFun: Option[Wrap] = attrs match {
-      case extract"image+next $img" => annotate(queryImageInAnchor(img.s), img)
-
-      case extract"image $img next $next" => annotate(queryImageNext(img.s, next.s), img, next)
-
-      case extract"images $img next $next" => annotate(Append(queryImages(img.s), queryNext(next.s)), img, next)
-
-      case extract"image $img" => annotate(queryImage(img.s), img)
-      case extract"images $img" => annotate(queryImages(img.s), img)
-      case _ => None
+      case extract"image+next $img"         => annotate(queryImageInAnchor(img.s), img)
+      case extract"image $img next $next"   => annotate(queryImageNext(img.s, next.s), img, next)
+      case extract"images $img next $next"  => annotate(Append(queryImages(img.s), queryNext(next.s)), img, next)
+      case extract"images? $img next $next" => annotate(Append(queryImages_?(img.s), queryNext(next.s)), img, next)
+      case extract"image $img"              => annotate(queryImage(img.s), img)
+      case extract"images $img"             => annotate(queryImages(img.s), img)
+      case extract"images? $img"            => annotate(queryImages_?(img.s), img)
+      case _                                => None
     }
 
     val archFun: Option[Wrap] = attrs match {
@@ -129,15 +128,15 @@ object ViscelDefinition {
         val replacements: List[(String, String)] =
           replacer.s.split("\\s+:::\\s+").sliding(2, 2).map { case Array(a, b) => (a, b) }.toList
         (pageFun.map(TransformUrls(_, replacements)), archFun.map(TransformUrls(_, replacements)))
-      case _ => (pageFun, archFun)
+      case _                              => (pageFun, archFun)
     }
 
     val archFunRev = if (has("archiveReverse")) archFunReplace.map(MapW(_, chapterReverse)) else archFunReplace
 
     (pageFunReplace, archFunRev) match {
-      case (Some(pf), None) => Right(NarratorADT(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, pf))
+      case (Some(pf), None)     => Right(NarratorADT(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, pf))
       case (Some(pf), Some(af)) => Right(Templates.archivePage(cid, name, startUrl, af, pf))
-      case _ => Left(s"invalid combinations of attributes for $cid at line $pos")
+      case _                    => Left(s"invalid combinations of attributes for $cid at line $pos")
     }
 
   }
@@ -157,9 +156,9 @@ object ViscelDefinition {
 
   def parse(lines: Iterator[String], path: String): List[Narrator] Or ErrorMessage = {
     val preprocessed = lines.map(_.trim)
-                       .zipWithIndex.map(p => Line(p._1, p._2 + 1))
-                       .filter(l => l.s.nonEmpty && !l.s.startsWith("--"))
-                       .buffered
+                            .zipWithIndex.map(p => Line(p._1, p._2 + 1))
+                            .filter(l => l.s.nonEmpty && !l.s.startsWith("--"))
+                            .buffered
 
     def go(it: It, acc: List[Narrator]): List[Narrator] Or ErrorMessage =
       if (!it.hasNext) {
@@ -168,7 +167,7 @@ object ViscelDefinition {
       else {
         parseNarration(it, path) match {
           case Right(n) => go(it, n :: acc)
-          case Left(e) => Left(e)
+          case Left(e)  => Left(e)
         }
       }
 
@@ -179,7 +178,7 @@ object ViscelDefinition {
     Log.Store.info(s"parsing definitions from $path")
     parse(stream, path.toString) match {
       case Right(res) => res
-      case Left(err) =>
+      case Left(err)  =>
         Log.Store.warn(s"failed to parse $path errors: $err")
         Nil
     }
@@ -189,12 +188,12 @@ object ViscelDefinition {
     val defdir = File(dir)
 
     val res = if (!defdir.exists) Nil
-    else {
-      val paths = defdir.glob("*.vid").toList
-      paths.flatMap { path =>
-        load(path.lines(StandardCharsets.UTF_8).toArray.iterator, path.pathAsString)
-      }
-    }
+              else {
+                val paths = defdir.glob("*.vid").toList
+                paths.flatMap { path =>
+                  load(path.lines(StandardCharsets.UTF_8).toArray.iterator, path.pathAsString)
+                }
+              }
     Log.Narrate.info(s"Found ${res.size} definitions in $defdir.")
     res
   }

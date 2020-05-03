@@ -72,6 +72,7 @@ object Queries {
 
   def queryImage(query: String): WrapPart[List[DataRow.Link]] = Selection.unique(query).wrapEach(extractArticle)
   def queryImages(query: String): WrapPart[List[DataRow.Link]] = Selection.many(query).wrapEach(extractArticle)
+  def queryImages_?(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).wrapEach(extractArticle)
   /** extracts article at query result
     * optionally extracts direct parent of query result as link */
   def queryImageInAnchor(query: String): Wrapper =
