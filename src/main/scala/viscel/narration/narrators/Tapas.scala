@@ -15,10 +15,8 @@ object Tapas extends Metarrator[Tapas]("Tapas") {
     Templates.SimpleForward("Tapas" + wt.id, wt.name, wt.start,
                             Append(Selection.many("img.content__img")
                                             .wrapEach(imageFromAttribute(_, Some("data-src"))),
-                                   Selection.unique("a.js-next-ep-btn")
-                                            .wrapOne(e => extract {
-                                              List(DataRow.Link(Vurl.fromString(e.attr("abs:data-id"))))
-                                            })))
+                                   Selection.all("a.tab__button--small.js-next-ep-btn")
+                                            .wrapEach(extractMore)))
 
   override def decoder: Decoder[Tapas] = io.circe.generic.semiauto.deriveDecoder
   override def encoder: Encoder[Tapas] = io.circe.generic.semiauto.deriveEncoder
@@ -39,7 +37,6 @@ object Tapas extends Metarrator[Tapas]("Tapas") {
     }
 
     Combination.of(cn_?, url_?) { (cidname, url) =>
-      val rex"https://www.webtoons.com/[^/]+/[^/]+/($cid[^/]+)/.*" = url.uriString()
       List(Tapas(cidname._1, cidname._2, url))
     }
   }

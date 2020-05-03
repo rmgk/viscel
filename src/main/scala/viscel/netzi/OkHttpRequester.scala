@@ -15,6 +15,8 @@ import scala.concurrent.{Future, Promise}
 
 class OkHttpRequester(maxRequests: Int, executorService: ExecutorService) extends WebRequestInterface {
 
+  val referrer = "Referer"
+
   val client = {
     val connectionPool = new ConnectionPool(maxRequests * 2, 30, TimeUnit.SECONDS)
     val dispatcher     = new Dispatcher(executorService)
@@ -29,22 +31,23 @@ class OkHttpRequester(maxRequests: Int, executorService: ExecutorService) extend
 
   def vreqToOkReq(vrequest: VRequest): Request = {
     val req = new Request.Builder().url(vrequest.href.uriString())
-    vrequest.referer.fold(req)(ref => req.addHeader("referrer", ref.uriString()))
+    vrequest.referer.fold(req)(ref => req.addHeader(referrer, ref.uriString()))
             .build()
   }
+
 
 
   override def get(request: VRequest): Future[VResponse[Either[Array[Byte], String]]] = {
     val promise   = Promise[VResponse[Either[Array[Byte], String]]]()
     val okrequest = vreqToOkReq(request)
-    Log.Crawl.info(s"request ${okrequest.url()}" + Option(okrequest.header("referrer")).fold("")(r => s" ($r)"))
+    Log.Crawl.info(s"request ${okrequest.url()}" + Option(okrequest.header(referrer)).fold("")(r => s" ($r)"))
     client.newCall(okrequest).enqueue(new Callback {
       override def onFailure(call: Call, e: IOException): Unit = promise.failure(e)
       override def onResponse(call: Call, response: Response): Unit = try {
         if (response.isSuccessful) {
           val body         = response.body()
           val ct           = body.contentType()
-          val location     = Option(response.header("location")).getOrElse(call.request().url().toString)
+          val location     = Option(response.header("Location")).getOrElse(call.request().url().toString)
           val etag         = Option(response.header("ETag"))
           val lastModified = Option(response.header("Last-Modified")).map { lm =>
             // this may be to specific for actually parsing dates

@@ -85,7 +85,7 @@ object Queries {
   def queryMixedArchive(query: String): Wrapper = {
     def intoMixedArchive(elem: Element): DataRow.Content = {
       if (elem.tagName() == "a") extractMore(elem)
-        if (elem.tagName() == "img") extractArticle(elem)
+      else if (elem.tagName() == "img") extractArticle(elem)
       else extractChapter(elem)
     }
 
