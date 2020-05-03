@@ -1567,10 +1567,10 @@ http://www.tovecomic.com/comic/archive
 :next nav.cc-nav a.cc-next
 
 -:Trying Human
-https://www.tryinghuman.com/archive
-:am #middle table td b , #middle table td center a
-:i #cc-comic
-:url_replace --(\d)$ ::: --0$1 ::: chapter-(3|4)-([^-]) ::: chapter-$1--$2 ::: chapter-(12|13|14|15|16|17|18)--cover ::: chapter-$1-cover ::: chapter-22-868 ::: chapter-21-868
+https://www.tryinghuman.com/comic/prologue--01
+:image #cc-comic
+:next .cc-nav .cc-next
+
 
 -:The Mash
 http://www.mashcomic.com/comic/archive
