@@ -13,9 +13,9 @@ object Narrators {
       PetiteSymphony.cores ++
       Snafu.cores ++
       CloneManga.cores ++
-      Set(Inverloch, Misfile, UnlikeMinerva)
+      Set(Inverloch, UnlikeMinerva)
 
-  val metas: List[Metarrator[_]] = List(Comicfury, Mangadex, WebToons)
+  val metas: List[Metarrator[_]] = List(Comicfury, Mangadex, WebToons, Tapas)
 
 }
 

@@ -1,6 +1,5 @@
 package viscel.narration.narrators
 
-import viscel.narration.Narrator.Wrapper
 import viscel.narration.NarratorADT
 import viscel.narration.Queries._
 import viscel.narration.Templates.{SimpleForward, archivePage}
@@ -8,7 +7,6 @@ import viscel.selektiv.Narration._
 import viscel.selektiv.ReportTools._
 import viscel.selektiv.Selection
 import viscel.shared.Vid
-import viscel.store.v3.Volatile
 import viscel.store.v4.DataRow
 
 import scala.collection.immutable.Set
@@ -34,43 +32,6 @@ object Individual {
                               "#main a:containsOwn(Next)"))
     }))
 
-
-  val Misfile = NarratorADT(Vid.from("NX_Misfile"), "Misfile",
-    DataRow.Link("http://www.misfile.com/archives.php?arc=1&displaymode=wide&",
-                 List(Volatile.toString)) :: Nil, {
-
-    val wrapPage: Wrapper = {
-      Condition(
-      ContextW.map(_.location == "http://www.misfile.com/archives.php?arc=34&displaymode=wide"),
-      Constant(Nil), {
-        val elements_? = Selection
-                         .unique(".comiclist table.wide_gallery")
-                         .many("[id~=^comic_\\d+$] .picture a").focus {
-          Selection.unique("img").wrapEach { elem =>
-            DataRow.Link(intoArticle(elem).ref.uriString.replace("/t", "/"))
-          }
-        }
-
-        val next_? = queryNext("a.next")
-        Append(elements_?, next_?)
-      })
-    }
-
-      val wrapArchive: Wrapper = {
-        val chapters_? = Selection.many("#comicbody a:matchesOwn(^Book #\\d+$)").wrapFlat { anchor =>
-          val pointer = extractMore(anchor)
-          DataRow.Chapter(anchor.ownText()) :: pointer :: Nil
-        }
-        // the list of chapters is also the first page, wrap this directly
-        val firstPage_? = wrapPage
-
-        Append(Constant(DataRow.Chapter("Book #1") :: Nil), Append(firstPage_?, chapters_?))
-      }
-
-      PolicyDecision(wrapArchive, wrapPage)
-    })
-
-
   val UnlikeMinerva = NarratorADT(
     Vid.from("NX_UnlikeMinerva"),
     "Unlike Minerva",
@@ -79,7 +40,7 @@ object Individual {
 
     Selection.many("center > img[src~=/archive/]")
     .wrapEach { img =>
-      val article = intoArticle(img)
+      val article = extractArticle(img)
       val txt = extract(img.parent().nextElementSibling().text())
       article.copy(data = article.data ::: List("longcomment", txt))
     })
@@ -93,21 +54,15 @@ object Individual {
         ),
       queryImage("img.comicnormal")),
     SimpleForward("NX_xkcd", "xkcd", "http://xkcd.com/1/", {
-      // xkcd requires to sometimes ignore images, whics is why all is used here
-      val assets_? = Selection.all("#comic img").wrapEach {intoArticle}
+      // xkcd requires to sometimes ignore images, which is why all is used here
+      val assets_? = Selection.all("#comic img").wrapEach {extractArticle}
       val next_? = queryNext("a[rel=next]:not([href=#])")
       Append(assets_?, next_?)
     }),
     archivePage("NX_TheDreamer", "The Dreamer", "http://thedreamercomic.com/read-pages/",
       Focus(Selection.many("#archive_wrap > div").wrap{advs => advs.reverse },
             queryMixedArchive(".dreamer_flip_box_inner .flip_box_front .issue_title , .dreamer_flip_box_inner .issue_pages a")),
-                queryImage("#comicnav div.imageWrap img")),
-    SimpleForward("NX_CheerImgur", "Cheer by Forview", "http://imgur.com/a/GTprX/",
-      {
-        Selection.unique("div.post-images").many("div.post-image-container").wrapEach { div =>
-          extract(DataRow.Link(ref = s"http://i.imgur.com/${div.attr("id")}.png"))
-        }
-      })
+                queryImage("#comicnav div.imageWrap img"))
   )
 
   //    SimpleForward("NX_AvasDemon", "Ava’s Demon", "http://www.avasdemon.com/chapters.php",

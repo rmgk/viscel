@@ -14,7 +14,7 @@ import com.typesafe.config.ConfigFactory.parseString
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
-import viscel.netzi.{AkkaHttpRequester, OkHttpRequester}
+import viscel.netzi.OkHttpRequester
 import viscel.server.{ContentLoader, Interactions, Server, ServerPages}
 import viscel.shared.Log
 import viscel.store.{BlobStore, DescriptionCache, NarratorCache, StoreManager, Users}

@@ -8,6 +8,7 @@ import scala.util.control.NonFatal
 
 trait Report extends RuntimeException {
   def describe: String
+  override def getMessage: String = describe
 }
 
 object ReportTools {

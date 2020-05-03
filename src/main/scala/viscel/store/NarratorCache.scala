@@ -3,9 +3,9 @@ package viscel.store
 import java.nio.file.Path
 
 import viscel.narration.{Metarrator, Narrator, NarratorADT, Narrators, ViscelDefinition}
-import viscel.selektiv.Narration.ContextData
 import viscel.netzi.{VRequest, WebRequestInterface}
 import viscel.selektiv.Narration
+import viscel.selektiv.Narration.ContextData
 import viscel.shared.{Log, Vid}
 import viscel.store.v4.Vurl
 

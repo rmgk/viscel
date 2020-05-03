@@ -30,7 +30,7 @@ object Queries {
 
   def extractMore(element: Element): DataRow.Link = DataRow.Link(extractURL(element))
 
-  def intoArticle(img: Element): DataRow.Link = {
+  def extractArticle(img: Element): DataRow.Link = {
     imageFromAttribute(img, None)
   }
 
@@ -70,13 +70,13 @@ object Queries {
     DataRow.Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
   }
 
-  def queryImage(query: String): WrapPart[List[DataRow.Link]] = Selection.unique(query).wrapEach(intoArticle)
-  def queryImages(query: String): WrapPart[List[DataRow.Link]] = Selection.many(query).wrapEach(intoArticle)
+  def queryImage(query: String): WrapPart[List[DataRow.Link]] = Selection.unique(query).wrapEach(extractArticle)
+  def queryImages(query: String): WrapPart[List[DataRow.Link]] = Selection.many(query).wrapEach(extractArticle)
   /** extracts article at query result
     * optionally extracts direct parent of query result as link */
   def queryImageInAnchor(query: String): Wrapper =
     Selection.unique(query).wrapFlat[DataRow.Content] { image =>
-      intoArticle(image) :: Try {extractMore(image.parent())}.toOption.toList
+      extractArticle(image) :: Try {extractMore(image.parent())}.toOption.toList
     }
   def queryNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).wrap(selectMore)
   def queryImageNext(imageQuery: String, nextQuery: String): Wrapper = {
@@ -85,6 +85,7 @@ object Queries {
   def queryMixedArchive(query: String): Wrapper = {
     def intoMixedArchive(elem: Element): DataRow.Content = {
       if (elem.tagName() == "a") extractMore(elem)
+        if (elem.tagName() == "img") extractArticle(elem)
       else extractChapter(elem)
     }
 

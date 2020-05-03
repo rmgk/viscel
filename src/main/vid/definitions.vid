@@ -102,6 +102,23 @@
 -- :mixedArchive #content_post .c_arch .a_2 > p:first-child , #content_post .c_arch .a_2 a
 -- :image #comic_strip img
 
+-- -:Ein Stück Wahnsinn
+-- http://wahnsinn.viviane.ch/wahnmanga/wahnmanga01.htm
+-- :i img[src~=manga/wahn]
+-- :n a:has(img[name=pfeil3])
+
+-- -:Two Rooks
+-- http://two-rooks.com/archive/volume-i/
+-- :is #webcomic > div span.webcomic-object > img
+-- :n #webcomic > div > nav.webcomic-below  a[rel=next]
+
+-- -:Seed
+-- http://seed.thecomicseries.com/archive/
+-- :am #noncomiccontent h3 , #noncomiccontent a[href~=comics/\d]
+-- :i #comicimage
+
+
+
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
 
@@ -109,6 +126,64 @@
 -- https://www.theduckwebcomics.com/Strawberry_Death_Cake/5004702/
 -- :image #comic img
 -- :next #top_arrows a:has(.arrow_next)
+
+
+-- maybe temporary, has alternative at Tapas
+-- -:Strays
+-- http://www.straysonline.com/archives/
+-- :ac #storyline > li:nth-child(2) > ul a.storyline-title
+-- :ia #comic-1 img
+
+
+
+
+
+--------------------------------------------------------------------------------------
+-- http://www.smackjeeves.com/
+--------------------------------------------------------------------------------------
+
+-- smackjeeves had a heart attack and redesigned its page
+-- some stuff seems to be still there, but some does not
+
+-- -:Carciphona
+-- http://carciphona.smackjeeves.com/archive/
+-- :am #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
+-- :i #comic_image
+-- 
+-- -:Winters in Lavelle
+-- http://wintersinlavelle.smackjeeves.com/archive/
+-- :mixedArchive #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
+-- :image #comic_image
+-- 
+-- -:Rain LGBT
+-- http://rainlgbt.smackjeeves.com/archive/
+-- :mixedArchive #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
+-- :image #comic_image
+-- 
+-- -:Bear vs Zombie
+-- http://bearversuszombies.smackjeeves.com/comics/507662/chapter-1/
+-- :i #comic_image
+-- :n #content a[title=Next Page]
+-- 
+-- -:Memoriam
+-- http://memoriam.smackjeeves.com/comics/1080096/pg-1/
+-- :ia #comic_image
+-- 
+-- -:Reila
+-- http://reila.smackjeeves.com/comics/1001394/cover/
+-- :ia #comic_image
+-- 
+-- -NX_Anathema:Anathema
+-- http://anathema.smackjeeves.com/archive/
+-- :mixedArchive #chapter_table .chapter_title h2, #chapter_table a[onmouseout=hideddrivetip()]
+-- :image #comic_image
+
+
+
+--------------------------------------------------------------------------------------
+-- end of http://www.smackjeeves.com/
+--------------------------------------------------------------------------------------
+
 
 
 
@@ -359,11 +434,6 @@ http://www.starpowercomic.com/archives/
 :n link[rel=next]
 :url_replace /\?nav=next ::: /
 
--:Strays
-http://www.straysonline.com/archives/
-:ac #storyline > li:nth-child(2) > ul a.storyline-title
-:ia #comic-1 img
-
 -:Taiki
 http://www.taikiwebcomic.com/archive.html
 :am body > div img[usemap~=#map[1234]] , body > div a:matchesOwn(^\d\d?$)
@@ -413,13 +483,8 @@ http://chrisschrossed.xepher.net/manga/v2pages/ch0/p1.html
 
 -:Omake Theater
 http://omaketheater.com/comic/1/
-:i #left > article > figure > img
-:n a[rel=next]
-
--:Ein Stück Wahnsinn
-http://wahnsinn.viviane.ch/wahnmanga/wahnmanga01.htm
-:i img[src~=manga/wahn]
-:n a:has(img[name=pfeil3])
+:i #main figure img
+:n a#next
 
 -:Geek Hero
 http://www.geekherocomic.com/2008/03/03/03032008/index.html
@@ -443,11 +508,6 @@ http://fern.junglestudio.com/comics/nymph/00.html
 http://thefirstdaughter.keenspot.com/d/20100704.html
 :i img.ksc
 :n a:has(#next_day1)
-
--:Two Rooks
-http://two-rooks.com/archive/volume-i/
-:is #webcomic > div span.webcomic-object > img
-:n #webcomic > div > nav.webcomic-below  a[rel=next]
 
 -:Strange Candy
 http://www.strangecandy.net/d/20010116.html
@@ -478,7 +538,7 @@ http://166612.webhosting66.1blu.de/zaf_de/wordpress/comic/erster-eindruck/
 -:Amya
 http://www.amyachronicles.com/archives/comic/09292009
 -- has an archive at http://www.amyachronicles.com/archives/
--- but thats misses content
+-- but that misses content
 :ia #comic img
 
 -:The Awakened
@@ -495,7 +555,7 @@ http://www.lesserkeystudios.com/ianua/page-1/
 -:Gaia
 http://www.sandraandwoo.com/gaia/archive/
 :am #column > div.post-page h3 , #column > div.post-page .archive-title a[rel=bookmark]
-:i #comic img
+:is #comic img
 :archiveReverse
 
 -:Replay
@@ -595,11 +655,6 @@ http://weirdingwillows.keenspot.com/d/20140915.html
 :i #comicpage img
 :n a:has(#anext)
 
--:Seed
-http://seed.thecomicseries.com/archive/
-:am #noncomiccontent h3 , #noncomiccontent a[href~=comics/\d]
-:i #comicimage
-
 -:Everblue
 http://everblue-comic.com/comic?sort=1
 :ia #comic a.next img[itemprop=image][src~=assets/images/comics/\d{8}]
@@ -634,8 +689,9 @@ http://nmg.thecomicseries.com/archive/
 :i #comicimage, #comicimagewrap embed
 
 -:You Suck
-http://yousuck.sexy/1
-:ia img[src~=/comics/]
+https://yousuckthecomic.tumblr.com/tagged/webcomics/chrono
+:image .post.content .photo img
+:next #navigation td[align=right] a
 
 -:Rubi Whipple
 http://rubiwhipple.com/comic/issue-1-cover/
@@ -684,7 +740,7 @@ http://twokinds.keenspot.com/archive/
 -NX_MegaTokyo:MegaTokyo
 http://megatokyo.com/archive.php
 :mixedArchive div.content h2:has(a[id~=^C-\d+$]) , div.content:has(a[id~=^C-\d+$]) li a
-:image #strip img 
+:image #strip img[align=middle]
 :next #comic .next a
 -- skip the kinetic novel bit
 :url_replace megatokyo.com/strip/1428$ ::: megatokyo.com/strip/1429
@@ -770,6 +826,24 @@ https://floraverse.com/comic/seeds-a-mini-story/seeds/prologue/1-cover/
 http://www.minnasundberg.fi/comic/page00.php
 :image #page img
 :next #nav1 a[src~=.php]:has(img[src~=next.jpg])
+
+
+-NX_Misfile:Misfile
+https://www.misfile.com/misfile/archive
+:mixedArchive #textarea .cc-storyline-header , #textarea .cc-storyline-pagethumb img
+:image unused-query
+:url_replace /comicsthumbs/ ::: /comics/
+
+-:HellHigh
+http://www.misfile.com/hell-high/archive
+:mixedArchive #textarea .cc-storyline-header , #textarea .cc-storyline-pagethumb img
+:image unused-query
+:url_replace /comicsthumbs/ ::: /comics/
+
+
+
+
+
 
 
 
@@ -1150,8 +1224,7 @@ http://www.lilithword.com/comic/archive
 :next .cc-nav a.cc-next
 
 -:Love Not Found
-http://www.lovenotfound.com/
-:chapterArchive #chapter option
+https://lovenotfound.com/comic/ch01-p00a/
 :image+next #comic img
 
 -:Love Circuits
@@ -1946,51 +2019,6 @@ https://sparklermonthly.com/dh/dire-hearts-chapter-01-page-000/
 --------------------------------------------------------------------------------------
 
 
-
-
---------------------------------------------------------------------------------------
--- http://www.smackjeeves.com/
---------------------------------------------------------------------------------------
-
-
--:Carciphona
-http://carciphona.smackjeeves.com/archive/
-:am #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
-:i #comic_image
-
--:Winters in Lavelle
-http://wintersinlavelle.smackjeeves.com/archive/
-:mixedArchive #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
-:image #comic_image
-
--:Rain LGBT
-http://rainlgbt.smackjeeves.com/archive/
-:mixedArchive #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
-:image #comic_image
-
--:Bear vs Zombie
-http://bearversuszombies.smackjeeves.com/comics/507662/chapter-1/
-:i #comic_image
-:n #content a[title=Next Page]
-
--:Memoriam
-http://memoriam.smackjeeves.com/comics/1080096/pg-1/
-:ia #comic_image
-
--:Reila
-http://reila.smackjeeves.com/comics/1001394/cover/
-:ia #comic_image
-
--NX_Anathema:Anathema
-http://anathema.smackjeeves.com/archive/
-:mixedArchive #chapter_table .chapter_title h2, #chapter_table a[onmouseout=hideddrivetip()]
-:image #comic_image
-
-
-
---------------------------------------------------------------------------------------
--- end of http://www.smackjeeves.com/
---------------------------------------------------------------------------------------
 
 
 
