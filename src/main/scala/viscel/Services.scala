@@ -14,7 +14,7 @@ import com.typesafe.config.ConfigFactory.parseString
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
-import viscel.netzi.AkkaHttpRequester
+import viscel.netzi.{AkkaHttpRequester, OkHttpRequester}
 import viscel.server.{ContentLoader, Interactions, Server, ServerPages}
 import viscel.shared.Log
 import viscel.store.{BlobStore, DescriptionCache, NarratorCache, StoreManager, Users}
@@ -98,7 +98,7 @@ akka {
 
   /* ====== http requests ====== */
 
-  lazy val requests = new AkkaHttpRequester(http)(executionContext, materializer)
+  lazy val requests = new OkHttpRequester
 
   /* ====== repl util extra tasks ====== */
 

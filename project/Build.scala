@@ -130,12 +130,13 @@ object Dependencies {
   val jsoup        = ld += "org.jsoup" % "jsoup" % "1.13.1"
   val kaleidoscope = ld += "com.propensive" %%% "kaleidoscope" % "0.1.0"
   val magnolia     = ld += "com.propensive" %%% "magnolia" % "0.15.0"
+  val okHttp       = ld += "com.squareup.okhttp3" % "okhttp" % "4.6.0"
   val pprint       = ld += "com.lihaoyi" %%% "pprint" % "0.5.9"
   val scalactic    = ld += "org.scalactic" %% "scalactic" % "3.0.7"
   val scribe       = ld += "com.outr" %%% "scribe" % "[2.7.0,2.8.0)"
   val sourcecode   = ld += "com.lihaoyi" %%% "sourcecode" % "0.2.1"
-  val upickle      = ld += "com.lihaoyi" %% "upickle" % "1.1.0"
   val toml         = ld += "tech.sparse" %%% "toml-scala" % "0.2.2"
+  val upickle      = ld += "com.lihaoyi" %% "upickle" % "1.1.0"
 
   val akkaVersion = "2.6.5"
   val akkaHttp = ld ++= (Seq("akka-http-core",

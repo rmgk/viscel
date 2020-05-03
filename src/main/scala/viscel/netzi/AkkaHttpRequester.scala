@@ -38,6 +38,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
         fragment = Option(in.getRef)
         )
     }
+
     try {
       urlToUri(new URL(vin.uriString()))
     } catch {
@@ -57,7 +58,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
     Deflate.decodeMessage(Gzip.decodeMessage(r)).toStrict(timeout)
   private def requestDecompressed(request: HttpRequest): Future[HttpResponse] = {
     val finalRequest = request.addHeader(`Accept-Encoding`(HttpEncodings.deflate,
-                                                             HttpEncodings.gzip))
+                                                           HttpEncodings.gzip))
     Log.Crawl.info(s"request ${finalRequest.uri}" + finalRequest.header[Referer].fold("")(r => s" ($r)"))
 
     ioHttp.singleRequest(finalRequest).flatMap(decompress)
@@ -83,8 +84,7 @@ class AkkaHttpRequester(ioHttp: HttpExt)
         Future.successful(
           response.addHeader(Location.apply(vurlToUri(
             extractResponseLocation(uriToVurl(request.uri), response)))))
-      }
-      else Future.failed(RequestException(request.uri.toString(), response.status.toString()))
+      } else Future.failed(RequestException(request.uri.toString(), response.status.toString()))
     }
   }
 
@@ -95,11 +95,11 @@ class AkkaHttpRequester(ioHttp: HttpExt)
       uri = vurlToUri(request.href),
       headers = request.referer.filterNot(_.uriString().startsWith("viscel:"))
                        .map(x => {
-                         val ruri = vurlToUri(x).withoutFragment
+                         val ruri  = vurlToUri(x).withoutFragment
                          val fruri = ruri.withAuthority(ruri.authority.copy(userinfo = ""))
                          Referer(fruri)
                        }).toList)
-    requestWithRedirects(req).map{ resp =>
+    requestWithRedirects(req).map { resp =>
       VResponse(resp,
                 location = extractResponseLocation(request.href, resp),
                 mime = resp.entity.contentType.mediaType.toString(),
@@ -112,9 +112,10 @@ class AkkaHttpRequester(ioHttp: HttpExt)
   override def get(request: VRequest): Future[VResponse[Either[Array[Byte], String]]] = {
     for {
       resp <- requestInternal(request)
-      content <- if (!resp.content.entity.contentType.binary)
+      content <- if (resp.content.entity.contentType.binary)
+                   resp.content.entity.toStrict(timeout).map(_.data.toArray[Byte].asLeft)
+                 else
                    Unmarshal(resp.content).to[String].map(_.asRight)
-                 else resp.content.entity.toStrict(timeout).map(_.data.toArray[Byte].asLeft)
     } yield resp.copy(content = content)
   }
 
