@@ -134,6 +134,12 @@
 -- :ac #storyline > li:nth-child(2) > ul a.storyline-title
 -- :ia #comic-1 img
 
+-- seems to be only available in book form now. boo.
+-- -:Cindersong
+-- http://cindersong.com/comic/archive
+-- :ac .cc-storyline-header a[href]
+-- :image #cc-comic
+-- :next .cc-nav a.cc-next
 
 
 
@@ -236,7 +242,7 @@ http://dragonheroes.fanyart.com/comix-en.php?page=1
 -:Ice
 http://www.faitherinhicks.com/ice/page1.html
 :image img
-:next a:contains(NEXT)
+:next a[href~=\.html$]:contains(NEXT)
 
 -:Devil Bear
 http://www.thedevilbear.com/b/comic/its-for-you/
@@ -692,7 +698,7 @@ http://nmg.thecomicseries.com/archive/
 https://yousuckthecomic.tumblr.com/tagged/webcomics/chrono
 :images .post.content .photo img
 :next #navigation td[align=right] a
-:url_replace /page/82$ ::: /page/83
+:url_replace /page/82$ ::: /page/83 ::: /page/86$ ::: /page/87
 
 -:Rubi Whipple
 http://rubiwhipple.com/comic/issue-1-cover/
@@ -881,6 +887,10 @@ https://pixietrixcomix.com/cool-cat-studio/2000-03-13
 https://pixietrixcomix.com/penny-and-aggie/2004-09-06
 :image+next #cc-comic
 
+-:Pixie Trix Comix
+https://pixietrixcomix.com/pixie-trix-comix/the-job-listing
+:image+next #cc-comic
+
 --------------------------------------------------------------------------------------
 ----------- end of pixietrix ----------
 --------------------------------------------------------------------------------------
@@ -959,7 +969,8 @@ http://www.anarchydreamers.com/comic/archive
 -:Anacrine Complex
 http://www.pigeoncomic.com/comic/archive
 :ac .cc-storyline-header a[href]
-:ia #cc-comic
+:image #cc-comic
+:next .cc-nav .cc-next
 
 -:Alchemilla
 http://alchemillacomic.com/comic/archive
@@ -1006,12 +1017,6 @@ http://bicycleboy.net/archive
 http://www.cassiopeiaquinn.com/comic/archive
 :ac .cc-storyline-header a[href]
 :ia #cc-comic
-
--:Cindersong
-http://cindersong.com/comic/archive
-:ac .cc-storyline-header a[href]
-:image #cc-comic
-:next .cc-nav a.cc-next
 
 -:Clockwork
 http://www.clockwork-comic.com/comic/archive
