@@ -697,7 +697,7 @@ http://nmg.thecomicseries.com/archive/
 
 -:You Suck
 https://yousuckthecomic.tumblr.com/tagged/webcomics/chrono
-:images? .post.content .photo img
+:images? .post.content .photo img[src~=tumblr.com]
 :next #navigation td[align=right] a
 
 -:Rubi Whipple
@@ -1567,7 +1567,7 @@ http://www.tovecomic.com/comic/archive
 :next nav.cc-nav a.cc-next
 
 -:Trying Human
-http://www.tryinghuman.com/archive
+https://www.tryinghuman.com/archive
 :am #middle table td b , #middle table td center a
 :i #cc-comic
 :url_replace --(\d)$ ::: --0$1 ::: chapter-(3|4)-([^-]) ::: chapter-$1--$2 ::: chapter-(12|13|14|15|16|17|18)--cover ::: chapter-$1-cover ::: chapter-22-868 ::: chapter-21-868
