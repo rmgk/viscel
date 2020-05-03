@@ -137,7 +137,7 @@ object Dependencies {
   val upickle      = ld += "com.lihaoyi" %% "upickle" % "1.1.0"
   val toml         = ld += "tech.sparse" %%% "toml-scala" % "0.2.2"
 
-  val akkaVersion = "2.6.4"
+  val akkaVersion = "2.6.5"
   val akkaHttp = ld ++= (Seq("akka-http-core",
                              "akka-http")
                          .map(n => "com.typesafe.akka" %% n % "10.1.11") ++
