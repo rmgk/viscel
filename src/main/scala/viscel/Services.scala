@@ -55,7 +55,7 @@ class Services(relativeBasedir: Path,
   lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
 
 
-  /* ====== execution ====== */
+  /* ====== akka ====== */
 
   val actorConfig = """
 akka.http {
@@ -83,14 +83,20 @@ akka {
 }
 """
 
-  lazy val executionContext: ExecutionContextExecutor =
-    ExecutionContext.fromExecutor(new ThreadPoolExecutor(0, 1, 1L,
-                                                         TimeUnit.SECONDS,
-                                                         new LinkedBlockingQueue[Runnable]()))
+  def executorMinMax(min: Int = 0, max: Int = 1, keepAliveSeconds: Long = 1L) = {
+    new ThreadPoolExecutor(min, max, keepAliveSeconds,
+                           TimeUnit.SECONDS,
+                           new LinkedBlockingQueue[Runnable]())
+  }
+
+
+  lazy val akkaExecutionContext: ExecutionContextExecutor =
+    ExecutionContext.fromExecutor(executorMinMax(max = 1))
+
 
   lazy val system: ActorSystem = ActorSystem(name = "viscel",
                                              config = Some(parseString(actorConfig)),
-                                             defaultExecutionContext = Some(executionContext))
+                                             defaultExecutionContext = Some(akkaExecutionContext))
 
   lazy val materializer: ActorMaterializer = ActorMaterializer()(system)
   lazy val http        : HttpExt           = Http(system)
@@ -98,7 +104,12 @@ akka {
 
   /* ====== http requests ====== */
 
-  lazy val requests = new OkHttpRequester
+
+  lazy val requests = {
+    val maxRequests             = 5
+    val requestExecutionContext = executorMinMax(max = maxRequests)
+    new OkHttpRequester(maxRequests, requestExecutionContext)
+  }
 
   /* ====== repl util extra tasks ====== */
 
@@ -121,7 +132,7 @@ akka {
                                       folderImporter = folderImporter,
                                       interactions = interactions,
                                       staticPath = staticDir
-  )
+                                      )
 
   lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
     RouteResult.route2HandlerFlow(server.route)(
@@ -134,16 +145,16 @@ akka {
   def startServer(): Future[ServerBinding] = serverBinding
 
   /** Termination works by firs stopping the server nicely
-    * and then killing the actor system, which in turn stops
-    * crawler from downloading, shutting down the whole application */
+   * and then killing the actor system, which in turn stops
+   * crawler from downloading, shutting down the whole application */
   def terminateServer(): Unit = {
     new java.util.Timer(true).schedule(new TimerTask {
       override def run(): Unit = serverBinding
-                                 .flatMap(_.unbind())(executionContext)
-                                 .onComplete { _ =>
-                                   system.terminate()
-                                   Log.Main.info("shutdown")
-                                 }(executionContext)
+        .flatMap(_.unbind())(akkaExecutionContext)
+        .onComplete { _ =>
+          system.terminate()
+          Log.Main.info("shutdown")
+        }(akkaExecutionContext)
     }, 1000)
 
   }
@@ -151,17 +162,20 @@ akka {
 
   /* ====== clockwork ====== */
 
+  lazy val computeExecutionContext: ExecutionContextExecutor =
+    ExecutionContext.fromExecutor(executorMinMax(max = 1))
+
   lazy val crawl: CrawlServices = new CrawlServices(blobStore = blobStore,
                                                     requestUtil = requests,
                                                     rowStore = rowStore,
                                                     descriptionCache = descriptionCache,
-                                                    executionContext)
+                                                    executionContext = computeExecutionContext)
 
   lazy val clockwork: CrawlScheduler = new CrawlScheduler(path = cachedir.resolve("crawl-times.json"),
                                                           crawlServices = crawl,
-                                                ec = executionContext,
-                                                userStore = userStore,
-                                                narratorCache = narratorCache)
+                                                          ec = computeExecutionContext,
+                                                          userStore = userStore,
+                                                          narratorCache = narratorCache)
 
   def activateNarrationHint() = {
     narrationHint.observe { case (narrator, force) =>
