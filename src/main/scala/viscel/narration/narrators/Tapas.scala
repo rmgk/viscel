@@ -3,16 +3,16 @@ package viscel.narration.narrators
 import io.circe.{Decoder, Encoder}
 import viscel.narration.Queries._
 import viscel.narration.{Metarrator, NarratorADT, Templates}
-import viscel.selektiv.ReportTools.extract
 import viscel.selektiv.Narration._
+import viscel.selektiv.ReportTools.extract
 import viscel.selektiv.{Narration, Selection}
-import viscel.store.v4.{DataRow, Vurl}
+import viscel.store.v4.Vurl
 
 case class Tapas(id: String, name: String, start: Vurl)
 object Tapas extends Metarrator[Tapas]("Tapas") {
 
   override def toNarrator(wt: Tapas): NarratorADT =
-    Templates.SimpleForward("Tapas" + wt.id, wt.name, wt.start,
+    Templates.SimpleForward("Tapas_" + wt.id, wt.name, wt.start,
                             Append(Selection.many("img.content__img")
                                             .wrapEach(imageFromAttribute(_, Some("data-src"))),
                                    Selection.all("a.tab__button--small.js-next-ep-btn")
