@@ -142,7 +142,7 @@ lazy val app = project.in(file("app"))
                .dependsOn(sharedJS)
                .enablePlugins(SbtSassify)
 
-lazy val shared = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("shared"))
+lazy val shared = crossProject(JSPlatform, JVMPlatform).in(file("shared"))
                   .settings(
                     name := "viscel-shared",
                     Libraries.shared,
