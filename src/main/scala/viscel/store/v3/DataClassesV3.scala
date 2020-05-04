@@ -94,7 +94,7 @@ object CustomPicklers {
   })
 
   /** allow "Article" as an [[ImageRef]] in the serialized format */
-  implicit val webContentReader: Decoder[WebContent] = semiauto.deriveDecoder[WebContent].prepare { cursor =>
+  implicit val webContentReader: Decoder[WebContent] = semiauto.deriveConfiguredDecoder[WebContent].prepare { cursor =>
     val t = cursor.downField("$type")
     t.as[String] match {
       case Right("Article") => t.set(io.circe.Json.fromString("ImageRef")).up
@@ -102,12 +102,12 @@ object CustomPicklers {
     }
   }
   /** note: new [[ImageRef]] are written as [[ImageRef]] **/
-  implicit val webContentWriter: Encoder[WebContent] = semiauto.deriveEncoder[WebContent]
+  implicit val webContentWriter: Encoder[WebContent] = semiauto.deriveConfiguredEncoder[WebContent]
 
 
   /** rename [[BlobData]] and [[PageData]] to just "Page" and "Blob" in the serialized format */
-  implicit val appendlogReader: Decoder[ScribeDataRow] = semiauto.deriveDecoder[ScribeDataRow]
-  implicit val appendLogWriter: Encoder[ScribeDataRow] = semiauto.deriveEncoder[ScribeDataRow]
+  implicit val appendlogReader: Decoder[ScribeDataRow] = semiauto.deriveConfiguredDecoder[ScribeDataRow]
+  implicit val appendLogWriter: Encoder[ScribeDataRow] = semiauto.deriveConfiguredEncoder[ScribeDataRow]
 
 
   /** coding for instants saved to the database */
