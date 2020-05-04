@@ -1,10 +1,33 @@
 package visceljs
 
+import scala.scalajs.js.URIUtils.encodeURIComponent
+import scala.scalajs.js.URIUtils.decodeURIComponent
 import viscel.shared.Vid
+import visceljs.AppState.ViewState
 
-sealed trait AppState
+sealed abstract class AppState(val urlhash: String) {
+  def transformPos(f: Int => Int) = this match {
+    case ViewState(id, pos) => ViewState(id, f(pos))
+    case other => other
+  }
+}
 object AppState {
-  case object IndexState extends AppState
-  case class FrontState(id: Vid) extends AppState
-  case class ViewState(id: Vid, pos: Int) extends AppState
+  def parse(path: String): AppState = {
+    val paths = List(path.substring(1).split("/"): _*)
+    paths match {
+      case Nil | "" :: Nil          => IndexState
+      case encodedId :: Nil         =>
+        val id = Vid.from(decodeURIComponent(encodedId))
+        FrontState(id)
+      case encodedId :: posS :: Nil =>
+        val id  = Vid.from(decodeURIComponent(encodedId))
+        val pos = Integer.parseInt(posS)
+        ViewState(id, pos - 1)
+      case _                        => IndexState
+    }
+  }
+
+  case object IndexState extends AppState("")
+  case class FrontState(id: Vid) extends AppState(encodeURIComponent(id.str))
+  case class ViewState(id: Vid, pos: Int) extends AppState(s"${encodeURIComponent(id.str)}/${pos + 1}")
 }

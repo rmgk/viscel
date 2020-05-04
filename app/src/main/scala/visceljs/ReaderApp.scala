@@ -1,6 +1,6 @@
 package visceljs
 
-import io.circe.Decoder
+import io.circe.{Decoder, Encoder}
 import org.scalajs.dom
 import org.scalajs.dom.experimental.URL
 import org.scalajs.dom.html
@@ -10,13 +10,10 @@ import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import scalatags.JsDom.TypedTag
 import viscel.shared.{Bookmark, Contents, Description, Log, SharedImage, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
-import visceljs.Definitions.{path_asset, path_front, path_main}
 import visceljs.Navigation.{Mode, Next, Prev, navigationEvents}
 import visceljs.render.{Front, Index, View}
 
 import scala.collection.immutable.Map
-import scala.scalajs.js.URIUtils.decodeURIComponent
-import scala.util.Try
 
 
 class ReaderApp(content: Vid => Signal[Contents],
@@ -28,93 +25,66 @@ class ReaderApp(content: Vid => Signal[Contents],
   implicit val readAssets: Decoder[List[SharedImage]] = Predef.implicitly[Decoder[List[SharedImage]]]
 
 
+  def getHash(): String = {
+    dom.window.location.hash
+  }
 
 
+  def makeBody(index: Index, front: Front, view: View, manualStates: Event[AppState]): Signal[TypedTag[html.Body]] = {
 
-  def makeBody(index: Index, front: Front, view: View, manualStates: Event[AppState]):  Signal[TypedTag[html.Body]] = {
-
-
-    def pathToState(path: String): AppState = {
-      val paths = List(path.substring(1).split("/"): _*)
-      Log.JS.debug(s"get state for $paths")
-      paths match {
-        case Nil | "" :: Nil => IndexState
-        case encodedId :: Nil =>
-          val id = Vid.from(decodeURIComponent(encodedId))
-          FrontState(id)
-        case encodedId :: posS :: Nil =>
-          val id = Vid.from(decodeURIComponent(encodedId))
-          val pos = Integer.parseInt(posS)
-          ViewState(id, pos - 1)
-        case _ => IndexState
-      }
-    }
-
-    def getHash: String = {
-      dom.window.location.hash
-    }
 
     val hashChange: Event[HashChangeEvent] =
       Events.fromCallback[HashChangeEvent](dom.window.onhashchange = _).event
     hashChange.observe(hc => Log.JS.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
 
-    val hashBasedStates = hashChange.map(hc => pathToState(new URL(hc.newURL).hash): @unchecked)
+    val hashBasedStates = hashChange.map(hc => AppState.parse(new URL(hc.newURL).hash): @unchecked)
 
 
     val targetStates: Event[AppState] = hashBasedStates || manualStates
 
-    val initialState = pathToState(getHash)
-    val initialPos = initialState match {
-      case IndexState => 1
-      case FrontState(id) => 1
+
+    val currentAppState: Signal[AppState] = Events.foldAll(AppState.parse(getHash)) { current =>
+      Seq(
+        targetStates >> { p => p },
+        navigationEvents >> {
+          case Prev    => current.transformPos(pos => math.max(pos - 1, 0))
+          case Next    => current.transformPos(_ + 1)
+          case Mode(_) => current
+        }
+        )
+    }
+
+    val currentPosition: Signal[Int] = currentAppState.map {
+      case IndexState         => 1
+      case FrontState(id)     => 1
       case ViewState(id, pos) => pos
     }
 
-    Log.JS.debug(s"initial state: $initialState")
-
-    navigationEvents.observe(n => Log.JS.debug(s"navigating $n"))
-
-
-
-    val currentAppState: Signal[AppState] = targetStates.latest(initialState)
-
-    val unnormalizedData: Signal[Data] = currentAppState.map {
-      case FrontState(nar) => getDataSignal(nar)
-      case ViewState(id, _) => getDataSignal(id)
-      case _ => throw EmptySignalControlThrowable
-    }.flatten
-
-    val currentPosition: Signal[Int] = Events.foldAll(initialPos) { pos =>
-      Events.Match(
-        navigationEvents >> {
-          case Prev => math.max(pos - 1, 0)
-          case Next =>
-            val last = Try(unnormalizedData.readValueOnce.gallery.size - 1).getOrElse(Int.MaxValue)
-            math.min(pos + 1, last)
-          case Mode(_) => pos
-        },
-        targetStates >> {
-          case ViewState(_, p) => p
-          case _ => pos
-        }
-      )
-    }
-    currentPosition.observe(p => Log.JS.debug(s"current position is $p"))
-
-    val ftinit: FitType = io.circe.parser.decode[FitType](dom.window.localStorage.getItem("fitType"))
-                            .getOrElse(FitType.W)
-    val fitType         = navigationEvents.collect{case Mode(t) => t}.latest[FitType](ftinit)
-    fitType.observe{ft: FitType =>
-      import io.circe.syntax._
-      dom.window.localStorage.setItem("fitType", ft.asJson.noSpaces)
+    val currentData: Signal[Data] = {
+      currentAppState.map {
+        case FrontState(id)   => id
+        case ViewState(id, _) => id
+        case _                => throw EmptySignalControlThrowable
+      }.map(getDataSignal).flatten.map {
+        _.atPos(currentPosition.value)
+      }
     }
 
-    targetStates.observe(s => Log.JS.debug(s"state: $s"))
+    val normalizedAppState: Signal[AppState] =
+      currentData.map { data =>
+        if (data.gallery.size > 0) currentAppState.value.transformPos(_ => data.pos)
+        else currentAppState.value
+      }.withDefault(IndexState)
 
+    normalizedAppState.observe(fireImmediately = false, onValue = { as =>
+      val nextHash    = as.urlhash
+      val currentHash = getHash().drop(1)
+      if (nextHash != currentHash) {
+        Log.JS.debug(s"pushing ${nextHash} was $currentHash")
+        dom.window.history.pushState(null, null, "#" + as.urlhash)
+      }
+    })
 
-    val currentData: Signal[Data] = Signal {
-      unnormalizedData.value.atPos(currentPosition.value)
-    }
 
     navigationEvents.map(e => e -> currentData()).observe { case (ev, data) =>
       if (ev == Prev || ev == Next) {
@@ -124,29 +94,26 @@ class ReaderApp(content: Vid => Signal[Contents],
 
     }
 
-    Signal.dynamic {
+    Signal.static {
       currentAppState.value match {
-        case IndexState => (path_main, "Viscel")
-        case FrontState(_) =>
-          val cd = currentData.value
-          (path_front(cd.id), cd.description.name)
+        case IndexState      => "Viscel"
+        case FrontState(_)   => currentData.value.description.name
         case ViewState(_, _) =>
           val data = currentData.value
-          (path_asset(data), s"${data.pos + 1} – ${data.description.name}")
+          s"${data.pos + 1} – ${data.description.name}"
       }
-    }.observe { case (u, t) =>
-      dom.window.document.title = t
-      val h = getHash
-      // for some reason, the leading # is not returned by getHash, when nothing follows
-      if (h != u && !(u == "#" && h == "")) {
-        dom.window.history.pushState(null, null, u)
-        Log.JS.debug(s"pushing history '$u' was '$h' length ${dom.window.history.length}")
-      }
+    }.observe { case (newTitle) =>
+      dom.window.document.title = newTitle
+    }
+
+
+    val fitType: Signal[FitType] = storedAs[FitType]("fitType", default = FitType.W) { init =>
+      navigationEvents.collect { case Mode(t) => t }.latest[FitType](init)
     }
 
     val indexBody = index.gen()
     val frontBody = front.gen(currentData)
-    val viewBody = view.gen(currentData, fitType, Navigation.navigate)
+    val viewBody  = view.gen(currentData, fitType, Navigation.navigate)
 
     println(s"current app state: ${currentAppState.now}")
     println(s"index body: ${indexBody.tag}")
@@ -158,11 +125,22 @@ class ReaderApp(content: Vid => Signal[Contents],
     }.flatten
   }
 
+  def storedAs[A: Encoder : Decoder](key: String, default: => A)(create: A => Signal[A]): Signal[A] = {
+    val init: A = io.circe.parser.decode[A](dom.window.localStorage.getItem(key)).getOrElse(default)
+    val sig     = create(init)
+    sig.observe { ft: A =>
+      import io.circe.syntax._
+      dom.window.localStorage.setItem(key, ft.asJson.noSpaces)
+    }
+    sig
+  }
+
+
   def getDataSignal(id: Vid): Signal[Data] = {
     val cont = content(id)
     Signal.dynamic {
       val description = descriptions.value(id)
-      val bm = bookmarks.value.get(id)
+      val bm          = bookmarks.value.get(id)
       Data(id, description, cont.value, bm.fold(0)(_.position))
     }
   }
