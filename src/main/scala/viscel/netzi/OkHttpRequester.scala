@@ -36,7 +36,6 @@ class OkHttpRequester(maxRequests: Int, executorService: ExecutorService) extend
   }
 
 
-
   override def get(request: VRequest): Future[VResponse[Either[Array[Byte], String]]] = {
     val promise   = Promise[VResponse[Either[Array[Byte], String]]]()
     val okrequest = vreqToOkReq(request)
@@ -45,9 +44,9 @@ class OkHttpRequester(maxRequests: Int, executorService: ExecutorService) extend
       override def onFailure(call: Call, e: IOException): Unit = promise.failure(e)
       override def onResponse(call: Call, response: Response): Unit = try {
         if (response.isSuccessful) {
-          val body         = response.body()
-          val ct           = body.contentType()
-          val location     = Option(response.header("Location")).getOrElse(call.request().url().toString)
+          val body = response.body()
+          val ct   = body.contentType()
+          val location = response.request().url().toString
           val etag         = Option(response.header("ETag"))
           val lastModified = Option(response.header("Last-Modified")).map { lm =>
             // this may be to specific for actually parsing dates

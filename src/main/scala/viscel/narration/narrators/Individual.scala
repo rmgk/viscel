@@ -26,10 +26,10 @@ object Individual {
           Selection.many("a").wrapEach(extractMore))
       }
     }, {
-      Decision(_.baseUri().endsWith("summaries.html"),
-               Constant(Nil),
-               queryImageNext("#main > p:nth-child(1) > img",
-                              "#main a:containsOwn(Next)"))
+      Condition(ContextW.map {_.location.endsWith("summaries.html")},
+                Constant(Nil),
+                queryImageNext("#main > p:nth-child(1) > img",
+                               "#main a:containsOwn(Next)"))
     }))
 
   val UnlikeMinerva = NarratorADT(

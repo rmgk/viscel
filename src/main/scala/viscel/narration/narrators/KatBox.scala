@@ -1,7 +1,7 @@
 package viscel.narration.narrators
 
 import viscel.narration.{Narrator, NarratorADT, Queries}
-import viscel.selektiv.Narration.{Combination, Constant, Decision, MapW}
+import viscel.selektiv.Narration.{Combination, Condition, Constant, ElementW, MapW}
 import viscel.selektiv.{ReportTools, Selection}
 import viscel.shared.Vid
 import viscel.store.v3.Volatile
@@ -30,7 +30,7 @@ object KatBox {
                 List(DataRow.Link(_url.getOrElse(s"http://${_id}.katbox.net/archive/"), List(Volatile.toString))),
                 MapW.reverse(Selection.many("span.archive-link a.webcomic-link").focus {
         // laslindas at least seems to miss some pages, just skip them
-        Decision(_.childNodeSize() == 0, Constant(Nil), {
+                  Condition(ElementW.map{_.childNodeSize() == 0}, Constant(Nil), {
 
           val vurl_? = Selection.wrapOne(Queries.extractURL)
           // not awabanner2015 is a workaround for the rascals archives

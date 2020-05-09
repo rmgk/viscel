@@ -81,8 +81,6 @@ object Narration {
 
   case class Focus[T](selection: WrapPart[List[Element]], continue: WrapPart[List[T]])
     extends WrapPart[List[T]]
-  def Decision[T](pred: Element => Boolean, isTrue: WrapPart[T], isFalse: WrapPart[T]): WrapPart[T]
-  = Condition(ElementW.map(pred), isTrue, isFalse)
 
   case class Constant[T](c: T) extends WrapPart[T]
 
