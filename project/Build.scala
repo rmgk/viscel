@@ -90,7 +90,7 @@ object Settings {
     "-Xfuture",                          // Turn on future language features.
   )
 
-  val strictCompile = scalacOptions += "-Xfatal-warnings"
+  val strictCompile = Compile / compile / scalacOptions += "-Xfatal-warnings"
 }
 
 object Resolvers {

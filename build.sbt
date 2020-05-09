@@ -7,7 +7,6 @@ import Settings._
 import Dependencies._
 
 inThisBuild(scalaVersion_213)
-inThisBuild(strictCompile)
 ThisBuild / organization := "de.rmgk"
 
 val Libraries = new {
@@ -17,17 +16,17 @@ val Libraries = new {
 
 
   val shared = Def.settings(
-    scribe, scalatags, loci.communication, circe, rescala, loci.circe, loci.wsAkka, akkaHttp
+    strictCompile, scribe, scalatags, loci.communication, circe, rescala, loci.circe, loci.wsAkka, akkaHttp
   )
 
   val main =
-    Def.settings(betterFiles, decline,
+    Def.settings(strictCompile, betterFiles, decline,
                  scalatest, scalacheck, scalatestpluscheck,
                  jsoup, okHttp)
 
 
   val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, scalatags,
-                                       Resolvers.stg)
+                                       Resolvers.stg, strictCompile)
 }
 
 val fetchJSDependencies = TaskKey[File]("fetchJSDependencies",
