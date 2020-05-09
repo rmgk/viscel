@@ -45,7 +45,7 @@ object Book {
                   name: String,
                   entryList: Iterable[DataRow])
   : Book = {
-    val pages: Map[Vurl, DataRow] = entryList.map(pd  => (pd.ref, pd))(scala.collection.breakOut)
+    val pages: Map[Vurl, DataRow] = entryList.map(pd  => (pd.ref, pd)).toMap
     Book(id, name, pages)
   }
 }

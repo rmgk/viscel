@@ -47,7 +47,7 @@ class CrawlScheduler(path: Path,
       implicit val iec: ExecutionContext = ec
 
       val fut = crawlServices.startCrawling(narrator)
-                .andThen { case _ => CrawlScheduler.this.synchronized(running = running - narrator.id) }
+                .andThen { case _ => CrawlScheduler.this.synchronized {running = running - narrator.id} }
       fut.failed.foreach(logError(narrator))
       fut.foreach { _ =>
         log.info(s"[${narrator.id}] update complete")

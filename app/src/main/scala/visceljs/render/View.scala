@@ -43,7 +43,7 @@ class View(act: Actions) {
           act.link_front(data.id, Icons.front, title := "back to front page"),
           Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
           lcButton(navigate.fire(Mode(ft.next)), Icons.modus, s" $ft", title := "cycle image display mode"),
-          act.postBookmark(data.pos + 1, data, _ => Unit, Icons.bookmark, title := "save bookmark"),
+          act.postBookmark(data.pos + 1, data, _ => (), Icons.bookmark, title := "save bookmark"),
           a(href := data.gallery.get.fold("")(_.origin), rel := "noreferrer")(Icons.externalLink, title := "visit original page"),
           act.button_asset(data.next, navigate.fire(Next))(Icons.next, rel := "next", title := "next"))
       }

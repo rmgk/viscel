@@ -1,12 +1,14 @@
 package viscel.shared
 
 import scala.reflect.ClassTag
-import io.circe.{Encoder, Decoder}
+import io.circe.{Decoder, Encoder}
+
+import scala.collection.immutable.ArraySeq
 
 
 final class Gallery[+A] private(val pos: Int, entries: Array[A]) {
   private def copy(position: Int) = new Gallery(position, entries)
-  def toSeq: IndexedSeq[A] = genericWrapArray(entries)
+  def toSeq: IndexedSeq[A] = ArraySeq.unsafeWrapArray(entries)
   def first: Gallery[A] = copy(0)
   def end: Gallery[A] = copy(entries.length)
   def get: Option[A] = if (pos < size) Some(entries(pos)) else None

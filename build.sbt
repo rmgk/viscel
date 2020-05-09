@@ -6,7 +6,7 @@ import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 import Settings._
 import Dependencies._
 
-inThisBuild(scalaVersion_212)
+inThisBuild(scalaVersion_213)
 inThisBuild(strictCompile)
 ThisBuild / organization := "de.rmgk"
 
@@ -17,13 +17,11 @@ val Libraries = new {
 
 
   val shared = Def.settings(
-    scribe, scalatags, loci.communication, circe, rescala, loci.circe, loci.wsAkka,
-    scalaVersion_212,
-    strictCompile
+    scribe, scalatags, loci.communication, circe, rescala, loci.circe, loci.wsAkka, akkaHttp
   )
 
   val main =
-    Def.settings(betterFiles, decline, akkaHttp,
+    Def.settings(betterFiles, decline,
                  scalatest, scalacheck, scalatestpluscheck,
                  jsoup, okHttp)
 

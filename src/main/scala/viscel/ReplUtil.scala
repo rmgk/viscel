@@ -28,7 +28,7 @@ class ReplUtil(services: Services) {
       services.rowStore.allVids().flatMap { id =>
         val book = services.rowStore.loadBook(id)
         book.allBlobs().map(_.sha1)
-      }.to[HashSet]
+      }.toSet
     }
     Log.info(s"scanning files …")
     val bsn = new BlobStore(services.basepath.resolve("blobbackup"))
