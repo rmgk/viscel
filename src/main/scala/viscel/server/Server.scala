@@ -51,7 +51,7 @@ class Server(userStore: Users,
   val basicAuth: AuthenticationDirective[User] = {
     val realm = "Username is used to store configuration; Passwords are saved in plain text; User is created on first login"
 
-    authenticateOrRejectWithChallenge[BasicHttpCredentials, User] { credentials ⇒
+    authenticateOrRejectWithChallenge[BasicHttpCredentials, User] { credentials =>
       val userOption = credentials.flatMap { bc =>
         interactions.authenticate(bc.username, bc.password)
       }
@@ -88,7 +88,7 @@ class Server(userStore: Users,
     } ~
     path("import") {
       if (!user.admin) reject
-      else parameters(('id.as[String], 'name.as[String], 'path.as[String])) { (id, name, path) =>
+      else parameters(("id".as[String], "name".as[String], "path".as[String])) { (id, name, path) =>
         extractExecutionContext { ec =>
           onComplete(Future(folderImporter.importFolder(path, Vid.from(s"Import_$id"), name))(ec)) {
             case Success(v) => complete("success")
@@ -99,7 +99,7 @@ class Server(userStore: Users,
     } ~
     path("add") {
       if (!user.admin) reject
-      else parameter('url.as[String]) { url =>
+      else parameter("url".as[String]) { url =>
         onComplete(interactions.addNarratorsFrom(url)) {
           case Success(v) => complete(s"found $v")
           case Failure(e) => complete(e.toString)

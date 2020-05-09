@@ -13,7 +13,7 @@ sealed abstract class AppState(val urlhash: String) {
 }
 object AppState {
   def parse(path: String): AppState = {
-    val paths = List(path.substring(1).split("/"): _*)
+    val paths = path.substring(1).split("/").toList
     paths match {
       case Nil | "" :: Nil          => IndexState
       case encodedId :: Nil         =>

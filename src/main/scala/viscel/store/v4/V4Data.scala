@@ -11,7 +11,6 @@ import io.circe.generic.extras.semiauto._
 import io.circe.{Decoder, Encoder}
 import viscel.store.v4.DataRow._
 
-import scala.language.implicitConversions
 
 final class Vurl private(private val uri: String) extends AnyVal {
   def uriString(): String = uri
@@ -58,7 +57,7 @@ object V4Codecs {
     Either.catchNonFatal(Instant.parse(str)).leftMap(t => "Instant: " + t.getMessage)
   }
 
-  implicit val dataRowEncoder: Encoder[DataRow] = deriveEncoder
-  implicit val dataRowDecoder: Decoder[DataRow] = deriveDecoder
+  implicit val dataRowEncoder: Encoder[DataRow] = deriveConfiguredEncoder
+  implicit val dataRowDecoder: Decoder[DataRow] = deriveConfiguredDecoder
 
 }

@@ -31,7 +31,7 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   val archiveWrapper: Wrapper = {
     ContextW.map { context =>
-      val json = io.circe.parser.parse(context.content).right.get
+      val json = io.circe.parser.parse(context.content).fold(throw _, identity)
       val chaptersMap = json.hcursor.downField("chapter")
       chaptersMap.keys.get
       .filter(cid => chaptersMap.downField(cid).get[String]("lang_code").getOrElse("") == "gb")
@@ -51,13 +51,13 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
       }.toList.sequence
         .map(_.sortBy(_.sorting).flatMap {_.contents})
         .leftMap(JsonDecoding)
-        .right.get
+        .fold(throw _, identity)
     }
   }
 
   val pageWrapper: Wrapper = {
     ContextW.map { context =>
-      val json = io.circe.parser.parse(context.content).right.get
+      val json = io.circe.parser.parse(context.content).fold(throw _, identity)
       val c = json.hcursor
       val hash = c.get[String]("hash")
       val server = c.get[String]("server")
@@ -65,10 +65,10 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
       (hash, server, cid).mapN { (hash, server, cid) =>
         val absServer = if (server.startsWith("/")) s"https://mangadex.org$server" else server
         c.downField("page_array").values.get.zipWithIndex.map { case (fname, i) =>
-          val url = Vurl.fromString(s"$absServer$hash/${fname.as[String].right.get}")
+          val url = Vurl.fromString(s"$absServer$hash/${fname.as[String].fold(throw _, identity)}")
           DataRow.Link(url)
         }.toList
-      }.leftMap(JsonDecoding).right.get
+      }.leftMap(JsonDecoding).fold(throw _, identity)
     }
   }
 
@@ -102,8 +102,8 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
     Combination.of(
       ContextW.map(_.location),
       ContextW.map { context =>
-        val json = io.circe.parser.parse(context.content).right.get
-        json.hcursor.downField("manga").downField("title").as[String].right.get
+        val json = io.circe.parser.parse(context.content).fold(throw _, identity)
+        json.hcursor.downField("manga").downField("title").as[String].fold(throw _, identity)
     }
       ){(loc, title) =>
       val id = title.toLowerCase.replaceAll("\\W", "-")

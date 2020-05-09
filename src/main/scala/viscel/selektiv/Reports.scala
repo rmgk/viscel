@@ -2,7 +2,7 @@ package viscel.selektiv
 
 import org.jsoup.nodes.Element
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.immutable.Set
 import scala.util.control.NonFatal
 

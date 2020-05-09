@@ -7,6 +7,8 @@ import cats.implicits._
 import com.monovore.decline.{Command, Opts}
 import viscel.shared.Log
 
+import scala.collection.immutable.ArraySeq
+
 object Viscel {
 
   val args =
@@ -65,7 +67,7 @@ object Viscel {
 
   val version: String = better.files.Resource.my.asString("/version").getOrElse("unknown")
 
-  def main(args: Array[String]): Unit = run(args: _*)
+  def main(args: Array[String]): Unit = run(ArraySeq.unsafeWrapArray(args):_*)
 
   def run(args: String*): Services = {
     Log.Main.info(s"Viscel version $version")

@@ -7,8 +7,8 @@ import io.circe.generic.auto._
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.{Bookmark, Vid}
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.immutable.Map
+import scala.jdk.CollectionConverters._
 
 class Users(usersDir: Path) {
 

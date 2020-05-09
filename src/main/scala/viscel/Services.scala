@@ -9,7 +9,7 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.{RouteResult, RoutingLog}
 import akka.http.scaladsl.settings.{ParserSettings, RoutingSettings}
 import akka.http.scaladsl.{Http, HttpExt}
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import com.typesafe.config.ConfigFactory.parseString
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
@@ -98,7 +98,7 @@ akka {
                                              config = Some(parseString(actorConfig)),
                                              defaultExecutionContext = Some(akkaExecutionContext))
 
-  lazy val materializer: ActorMaterializer = ActorMaterializer()(system)
+  lazy val materializer: Materializer = Materializer(system)
   lazy val http        : HttpExt           = Http(system)
 
 

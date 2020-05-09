@@ -4,8 +4,7 @@ import java.nio.file.Files
 
 import viscel.store.BlobStore
 
-import scala.collection.JavaConverters.asScalaIteratorConverter
-import scala.collection.immutable.HashSet
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 object MimeUtil {

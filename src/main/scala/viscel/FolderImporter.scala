@@ -15,7 +15,7 @@ class FolderImporter(blobStore: BlobStore, rowStore: RowStoreV4, descriptionCach
 
     Log.info(s"try to import $vid($nname) form $path")
 
-    val sortedFiles: IndexedSeq[File] = File(path).walk().toArray.sortBy(_.pathAsString)
+    val sortedFiles: IndexedSeq[File] = File(path).walk().toIndexedSeq.sortBy(_.pathAsString)
 
     val story: List[DataRow.Content] = sortedFiles.iterator.flatMap { p =>
       if (p.isDirectory) Some(DataRow.Chapter(name = p.name))

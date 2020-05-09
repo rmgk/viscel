@@ -8,7 +8,7 @@ import java.nio.file.{Files, Path}
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object Json {
 

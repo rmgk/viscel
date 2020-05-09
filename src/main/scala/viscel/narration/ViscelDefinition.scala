@@ -19,7 +19,7 @@ import scala.util.matching.Regex
 object ViscelDefinition {
 
   case class Line(s: String, p: Int)
-  type It = BufferedIterator[Line]
+  type It = scala.collection.BufferedIterator[Line]
   type ErrorMessage = String
   type Or[T, V] = Either[V, T]
 

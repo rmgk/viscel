@@ -4,7 +4,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import viscel.selektiv.Narration.{Focus, MapW, SelectionWrap, SelectionWrapEach, SelectionWrapFlat, WrapPart}
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 
 object Selection extends Selection(Nil)
 

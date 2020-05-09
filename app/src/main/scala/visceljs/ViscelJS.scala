@@ -1,5 +1,7 @@
 package visceljs
 
+import java.util.NoSuchElementException
+
 import loci.communicator.ws.akka.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
@@ -114,7 +116,7 @@ class ContentConnectionManager(registry: Registry) {
     Log.JS.info(s"looking up content for $vid")
 
     val emptyContents = Contents(Gallery.empty, Nil)
-    val locallookup = lfi.getItem[String](vid.str).toFuture.map((str: String) => decode[Contents](str).right.get)
+    val locallookup = lfi.getItem[String](vid.str).toFuture.map((str: String) => decode[Contents](str).getOrElse(throw new NoSuchElementException(s"could not load local data for ${vid.str}")))
     locallookup.failed.foreach{f =>
       Log.JS.warn(s"local lookup of $vid failed with $f")
     }
