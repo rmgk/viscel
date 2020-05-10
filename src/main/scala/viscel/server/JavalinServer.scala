@@ -66,25 +66,6 @@ class JavalinServer(blobStore: BlobStore,
   }
 
 
-  //def serveStatic(name: String, fsName: String) = {
-  //  val file        = staticPath./(fsName)
-  //  val contentType = fsName match {
-  //    case _ if fsName.endsWith(".js.gz")  => "text/javascript; charset=UTF-8"
-  //    case _ if fsName.endsWith(".css.gz") => "text/css; charset=UTF-8"
-  //    case _ if fsName.endsWith(".png.gz") => "image/png"
-  //    case _ if fsName.endsWith(".json.gz") ||
-  //              fsName.endsWith(".map.gz") => "application/json"
-  //  }
-  //  val isGz        = fsName.endsWith(".gz")
-  //  jl.get(s"$urlPrefix/$name", ctx => {
-  //    if (isGz) ctx.header(Header.CONTENT_ENCODING, "gzip")
-  //    ctx.contentType(contentType)
-  //    ctx.status(200)
-  //    ctx.result(file.newInputStream.buffered)
-  //  })
-  //}
-
-
   val landingString = pages.fullrender(pages.landingTag)
   val toolsString   = pages.fullrender(pages.toolsPage)
 
@@ -136,7 +117,8 @@ class JavalinServer(blobStore: BlobStore,
       val filename  = File(blobStore.hashToPath(sha1))
       val mediatype = Option(ctx.queryParamMap.get("mime")).flatMap(_.asScala.headOption).getOrElse("image")
       ctx.contentType(mediatype)
-      ctx.result(filename.newInputStream.buffered)
+      ctx.header(Header.CACHE_CONTROL, "max-age=31557600")
+      ctx.result(filename.newInputStream)
     })
     jl.get("stop", { ctx =>
       if (ctx.attribute[User]("user").admin) {
