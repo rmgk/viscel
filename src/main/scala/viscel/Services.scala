@@ -15,6 +15,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 class Services(relativeBasedir: Path,
                relativeBlobdir: Path,
                val staticDir: Path,
+               val urlPrefix: String,
                val interface: String,
                val port: Int) {
 
@@ -84,7 +85,7 @@ class Services(relativeBasedir: Path,
                       folderImporter = folderImporter,
                       interactions = interactions,
                       staticPath = staticDir,
-                      urlPrefix = ""
+                      urlPrefix = urlPrefix
                       )
 
   def startServer() = server.start(interface, port)

@@ -1,5 +1,6 @@
 package viscel
 
+import java.lang.management.ManagementFactory
 import java.nio.file.{Path, Paths}
 
 import better.files.File
@@ -25,11 +26,12 @@ object Viscel {
           .withDefault(Paths.get("./blobs/")),
       Opts.flag(long = "shutdown", help = "Shutdown directly.").orFalse,
       Opts.option[Path](long = "static", metavar = "directory", help = "Directory of static resources.")
-          .withDefault(Paths.get("./static/")))
+          .withDefault(Paths.get("./static/")),
+      Opts.option[String](long = "urlprefix", metavar = "string", help = "Prefix for server URLs.").withDefault(""))
 
   val command: Command[Services] = Command(name = "viscel", header = "Start viscel!") {
     args.mapN {
-      (optBasedir, port, interface, server, core, cleanblobs, optBlobdir, shutdown, optStatic) =>
+      (optBasedir, port, interface, server, core, cleanblobs, optBlobdir, shutdown, optStatic, urlPrefix) =>
 
         val staticCandidates = List(File(optBasedir.resolve(optStatic)),
                                     File(optStatic))
@@ -42,7 +44,7 @@ object Viscel {
                             sys.exit(0)
                           }
 
-        val services = new Services(optBasedir, optBlobdir, staticDir.path, interface, port)
+        val services = new Services(optBasedir, optBlobdir, staticDir.path, urlPrefix, interface, port)
 
         if (cleanblobs) {
           services.replUtil.cleanBlobDirectory()
@@ -60,7 +62,7 @@ object Viscel {
         if (shutdown) {
           services.terminateApplication()
         }
-        Log.Main.info("initialization done")
+        Log.Main.info(s"initialization done in ${ManagementFactory.getRuntimeMXBean.getUptime}ms")
         services
     }
   }
