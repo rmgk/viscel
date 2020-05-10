@@ -70,18 +70,6 @@
   "name":"java.nio.file.OpenOption[]"
 },
 {
-  "name":"org.eclipse.jetty.servlet.FilterHolder[]"
-},
-{
-  "name":"org.eclipse.jetty.servlet.FilterMapping[]"
-},
-{
-  "name":"org.eclipse.jetty.servlet.ListenerHolder[]"
-},
-{
-  "name":"org.eclipse.jetty.servlet.ServletHolder[]"
-},
-{
   "name":"org.eclipse.jetty.servlet.ServletMapping[]"
 },
 {
@@ -101,8 +89,5 @@
 },
 {
   "name":"scala.Symbol"
-},
-{
-  "name":"viscel.shared.SharedImage[]"
 }
 ]
