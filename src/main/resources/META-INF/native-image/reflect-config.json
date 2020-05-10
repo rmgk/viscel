@@ -1,0 +1,108 @@
+[
+{
+  "name":"com.nixxcode.jvmbrotli.common.BrotliLoader"
+},
+{
+  "name":"io.javalin.websocket.WsHandlerController",
+  "allDeclaredMethods":true
+},
+{
+  "name":"java.lang.Boolean",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Byte",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Double",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Float",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Integer",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Long",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Object",
+  "allDeclaredMethods":true
+},
+{
+  "name":"java.lang.Short",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.String[]"
+},
+{
+  "name":"java.lang.invoke.VarHandle"
+},
+{
+  "name":"java.lang.management.ManagementFactory",
+  "methods":[{"name":"getRuntimeMXBean","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.management.RuntimeMXBean",
+  "methods":[{"name":"getUptime","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.module.Configuration",
+  "methods":[{"name":"findModule","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.module.ModuleReference",
+  "methods":[{"name":"location","parameterTypes":[] }]
+},
+{
+  "name":"java.nio.file.FileVisitOption[]"
+},
+{
+  "name":"java.nio.file.LinkOption[]"
+},
+{
+  "name":"java.nio.file.OpenOption[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.FilterHolder[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.FilterMapping[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.ListenerHolder[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.ServletHolder[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.ServletMapping[]"
+},
+{
+  "name":"org.eclipse.jetty.util.log.Slf4jLog",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.jetty.websocket.common.extensions.compress.PerMessageDeflateExtension",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.jetty.websocket.server.WebSocketServerFactory",
+  "methods":[{"name":"<init>","parameterTypes":["javax.servlet.ServletContext","org.eclipse.jetty.websocket.api.WebSocketPolicy"] }]
+},
+{
+  "name":"org.slf4j.impl.StaticLoggerBinder"
+},
+{
+  "name":"scala.Symbol"
+},
+{
+  "name":"viscel.shared.SharedImage[]"
+}
+]

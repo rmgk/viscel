@@ -39,6 +39,10 @@ val vbundleDef = vbundle := {
   bundleStuff(jsfile, styles, target.value.toPath.resolve("resources/static"), fetchJSDependencies.value, sourceDirectory.value)
 }
 
+lazy val nativeImage = taskKey[File]("calls graalvm native image")
+
+nativeImage := (viscel / GraalVMNativeImage / packageBin).value
+
 lazy val viscel = project
                   .in(file("."))
                   .settings(
@@ -51,18 +55,25 @@ lazy val viscel = project
                     publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value,
                     selfversionDef,
                     (Compile / managedResources) += selfversion.value,
-                    libraryDependencies += "com.nixxcode.jvmbrotli" % "jvmbrotli" % "0.2.0"
+                    libraryDependencies += "com.nixxcode.jvmbrotli" % "jvmbrotli" % "0.2.0",
+                    //  experimental graalvm options
+                    // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
+                    graalVMNativeImageOptions ++= List(
+                      "--allow-incomplete-classpath",
+                      "--no-fallback",
+                      //"--report-unsupported-elements-at-runtime",
+                      "--initialize-at-build-time",
+                      // "-H:+ReportExceptionStackTraces",
+                      "-H:EnableURLProtocols=http,https",
+                      // "--enable-all-security-services",
+                      "-H:+JNI"
+                    )
                   )
+                  .enablePlugins(GraalVMNativeImagePlugin)
                   .enablePlugins(JavaServerAppPackaging)
                   .dependsOn(sharedJVM)
 
-//  experimental graalvm options, do not work :(
-                    // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
-                    // graalVMNativeImageOptions ++= List(
-                    //   "--initialize-at-build-time",
-                    //   "--report-unsupported-elements-at-runtime",
-                    // ),
-                  // .enablePlugins(GraalVMNativeImagePlugin)
+
 
 
 lazy val app = project.in(file("app"))
