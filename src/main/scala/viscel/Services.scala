@@ -1,6 +1,7 @@
 package viscel
 
 import java.nio.file.{Files, Path}
+import java.util.TimerTask
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import rescala.default.{Evt, implicitScheduler}
@@ -123,8 +124,15 @@ class Services(relativeBasedir: Path,
   lazy val narrationHint: Evt[(Narrator, Boolean)] = Evt[(Narrator, Boolean)]()
 
   def terminateEverything() = {
-    crawl.shutdown()
-    server.stop()
+    new java.util.Timer().schedule(new TimerTask {
+      override def run(): Unit = {
+        crawl.shutdown()
+        computeExecutor.shutdown()
+        requests.executorService.shutdown()
+        server.stop()
+      }
+    }, 100)
+
   }
 
 
