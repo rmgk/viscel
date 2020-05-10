@@ -66,9 +66,7 @@ object AdvancedBuild {
 
     val swupdated = IO.read(sourcepath("main/js/serviceworker.js"))
                       .replaceAllLiterally("[inserted app cache name]", System.currentTimeMillis().toString)
-    IO.gzipFileOut(bundleTarget.resolve("serviceworker.js.gz").toFile) { os =>
-      os.write(swupdated.getBytes(java.nio.charset.StandardCharsets.UTF_8))
-    }
+    IO.write(bundleTarget.resolve("serviceworker.js").toFile, swupdated)
 
     IO.listFiles(jsDpendencies).foreach(gzipToTarget)
 

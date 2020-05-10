@@ -8,8 +8,8 @@ self.addEventListener('install', function (e) {
             const cachedRequests = [
                 '',
                 './',
-                'js',
-                'css',
+                'app-fastopt.js',
+                'style.css',
                 'localforage.min.js'
             ].map(url => new Request(url, {credentials: 'same-origin'}));
             cachedRequests.forEach(request => console.log("caching " + request.url));
