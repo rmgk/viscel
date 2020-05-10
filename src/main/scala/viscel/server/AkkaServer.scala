@@ -7,6 +7,8 @@ import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenges}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.AuthenticationDirective
+import io.circe.Encoder
+import scalatags.Text.implicits.Tag
 import viscel.FolderImporter
 import viscel.shared.Vid
 import viscel.store.{BlobStore, User, Users}
@@ -14,15 +16,48 @@ import viscel.store.{BlobStore, User, Users}
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class Server(userStore: Users,
-             blobStore: BlobStore,
-             terminate: () => Unit,
-             pages: ServerPages,
-             folderImporter: FolderImporter,
-             interactions: Interactions,
-             staticPath: Path
-            ) {
+import loci.communicator.Listener
+import loci.communicator.ws.akka.{WS, WebSocketListener, WebSocketRoute}
+import scala.collection.mutable
 
+class AkkaServer(userStore: Users,
+                 blobStore: BlobStore,
+                 terminate: () => Unit,
+                 pages: ServerPages,
+                 folderImporter: FolderImporter,
+                 interactions: Interactions,
+                 staticPath: Path
+                ) {
+
+
+  type WsRoute = Listener[WS] with WebSocketRoute
+
+  private val userSocketCache: mutable.Map[User.Id, WsRoute] = mutable.Map.empty
+
+  def userSocket(userid: User.Id): WsRoute = synchronized {
+    val reg = interactions.bindUserRegistry(userid)
+    val ws  = {
+      val webSocket: WsRoute = WebSocketListener()
+      reg.listen(webSocket)
+      webSocket
+    }
+    userSocketCache.getOrElseUpdate(userid, ws)
+  }
+
+
+  def htmlResponse(tag: Tag): HttpResponse = HttpResponse(entity = HttpEntity(
+    ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
+    pages.fullrender(tag)))
+
+  def jsonResponse[T: Encoder](value: T): HttpResponse = {
+    import io.circe.syntax._
+    HttpResponse(entity = HttpEntity(
+      ContentType(MediaTypes.`application/json`),
+      value.asJson.noSpaces))
+  }
+
+  private val toolsResponse  : HttpResponse = htmlResponse(pages.toolsPage)
+  private val landingResponse: HttpResponse = htmlResponse(pages.landingTag)
 
   def route: Route = decodeRequest(subPathRoute(staticRoute ~ dynamicRoute))
 
@@ -35,14 +70,14 @@ class Server(userStore: Users,
     }
 
   def stc(name: String, file: String): Route =
-    path(name){getFromFile(staticPath.resolve(file).toFile)}
+    path(name) {getFromFile(staticPath.resolve(file).toFile)}
 
   val staticRoute: Route =
     List("app-fastopt.js.map", "style.css.map", "serviceworker.js", "manifest.json", "icon.png",
          "localforage.min.js")
       .map(str => stc(str, str + ".gz"))
       .foldLeft(
-        path("version") {complete(viscel.Viscel.version)}~
+        path("version") {complete(viscel.Viscel.version)} ~
         stc("js", "app-fastopt.js.gz") ~
         stc("css", "style.css.gz")
         )(_ ~ _)
@@ -74,7 +109,7 @@ class Server(userStore: Users,
 
   def authedRoute(user: User): Route = blobRoute ~ encodeResponse {
     path("") {
-      complete(pages.landing)
+      complete(landingResponse)
     } ~
     path("stop") {
       if (!user.admin) reject
@@ -84,7 +119,7 @@ class Server(userStore: Users,
       }
     } ~
     path("ws") {
-      interactions.userSocket(user.id)
+      userSocket(user.id)
     } ~
     path("import") {
       if (!user.admin) reject
@@ -107,7 +142,7 @@ class Server(userStore: Users,
       }
     } ~
     path("tools") {
-      complete(pages.toolsResponse)
+      complete(toolsResponse)
     }
   }
 }

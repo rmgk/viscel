@@ -1,7 +1,6 @@
 package viscel.server
 
-import loci.communicator.Listener
-import loci.communicator.ws.akka.{WS, WebSocketListener, WebSocketRoute}
+
 import loci.registry.Registry
 import rescala.default.{Evt, implicitScheduler}
 import viscel.narration.Narrator
@@ -18,7 +17,6 @@ import rescala.extra.distributables.LociDist
 import viscel.shared.BookmarksMap._
 
 import scala.collection.immutable.Map
-import scala.collection.mutable
 import scala.concurrent.Future
 
 class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
@@ -38,27 +36,18 @@ class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
     else None
   }
 
-  type WsRoute = Listener[WS] with WebSocketRoute
 
-  private val userSocketCache: mutable.Map[User.Id, WsRoute] = mutable.Map.empty
-
-  def userSocket(userid: User.Id): WsRoute = synchronized {
-    userSocketCache.getOrElseUpdate(userid, bindUserSocketRegistry(userid))
-  }
-
-  private def bindUserSocketRegistry(userid: User.Id): WsRoute = {
+  def bindUserRegistry(userid: User.Id): Registry = {
     Log.debug(s"create new websocket for $userid")
-    val webSocket = WebSocketListener()
     val registry = new Registry
-    registry.listen(webSocket)
     registry.bind(Bindings.contents) {contentLoader.contents}
     registry.bind(Bindings.descriptions) { () => contentLoader.descriptions() }
     registry.bind(Bindings.hint) {handleHint}
     LociDist.distribute(handleBookmarks(userid), registry)(Bindings.bookmarksMapBindig)
-    webSocket
+    registry
   }
 
-  private def handleBookmarks(userid: User.Id): Signal[BookmarksMap] = {
+  def handleBookmarks(userid: User.Id): Signal[BookmarksMap] = {
     var user = userStore.get(userid).get
     val bookmarkMap = user.bookmarks.foldLeft[BookmarksMap](Map.empty){case (bmm, (vid, bm)) =>
       Lattice.merge(bmm, BookmarksMap.addΔ(vid, bm))

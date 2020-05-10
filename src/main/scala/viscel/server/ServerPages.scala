@@ -1,15 +1,10 @@
 package viscel.server
 
-import akka.http.scaladsl.model._
-import io.circe.Encoder
-import io.circe.generic.auto._
-import io.circe.syntax._
 import scalatags.Text.all.raw
 import scalatags.Text.attrs.{`for`, `type`, action, attr, content, href, id, rel, src, title, value, name => attrname}
 import scalatags.Text.implicits.{Frag, Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{SeqFrag, body, div, form, h1, head, html, input, label, link, meta, script}
 import scalatags.Text.tags2.section
-import viscel.store.User
 
 class ServerPages() {
 
@@ -17,7 +12,7 @@ class ServerPages() {
     html(
       head(
         title := "Viscel",
-        link(href := "css", rel := "stylesheet", `type` := MediaTypes.`text/css`.toString()),
+        link(rel := "stylesheet", href := "style.css", `type` := "text/css"),
         link(rel := "manifest", href := "manifest.json"),
         link(rel := "icon", href := "icon.png", attr("sizes") := "192x192"),
         meta(attrname := "viewport",
@@ -30,34 +25,25 @@ class ServerPages() {
         )
       )(stuff: _*)
 
-  def htmlResponse(tag: Tag): HttpResponse = HttpResponse(entity = HttpEntity(
-    ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
-    "<!DOCTYPE html>" + tag.render))
 
-  val fullHtml: Tag = makeHtml(body("if nothing happens, your javascript does not work"),
-                               script(src := "localforage.min.js"),
-                               script(src := "js"))
+  def landingTag: Tag = makeHtml(body("if nothing happens, your javascript does not work"),
+                                 script(src := "localforage.min.js"),
+                                 script(src := "app-fastopt.js"))
 
-  val landing: HttpResponse = htmlResponse(fullHtml)
-
-  def jsonResponse[T: Encoder](value: T): HttpResponse = HttpResponse(entity = HttpEntity(
-    ContentType(MediaTypes.`application/json`),
-    value.asJson.noSpaces))
-
-  def bookmarks(user: User): HttpResponse = jsonResponse(user.bookmarks)
+  def fullrender(tag: Tag): String = "<!DOCTYPE html>" + tag.render
 
   def labelledInput(name: String, inputType: String = "text"): Frag =
     div(label(name, `for` := name),
         input(id := name, `type` := inputType, attrname := name))
 
 
-  val toolsPage: Tag = makeHtml(
+  def toolsPage: Tag = makeHtml(
     body(id := "tools",
          makeToolForm("stop", Nil),
          makeToolForm("import", Seq("id", "name", "path")),
          makeToolForm("add", Seq("url"))
+         )
     )
-  )
 
   private def makeToolForm(formAction: String, inputs: Seq[String]): Tag = {
     section(
@@ -66,6 +52,5 @@ class ServerPages() {
            SeqFrag(inputs.map(labelledInput(_))),
            input(`type` := "submit", value := formAction)))
   }
-  val toolsResponse: HttpResponse = htmlResponse(toolsPage)
 
 }

@@ -1,13 +1,9 @@
 package viscel
 
 import java.nio.file.{Files, Path}
-import java.util.TimerTask
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http.ServerBinding
-import akka.http.scaladsl.server.{RouteResult, RoutingLog}
-import akka.http.scaladsl.settings.{ParserSettings, RoutingSettings}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.Materializer
 import com.typesafe.config.ConfigFactory.parseString
@@ -15,11 +11,10 @@ import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
 import viscel.netzi.OkHttpRequester
-import viscel.server.{ContentLoader, Interactions, Server, ServerPages}
-import viscel.shared.Log
+import viscel.server.{ContentLoader, Interactions, JavalinServer, ServerPages}
 import viscel.store.{BlobStore, DescriptionCache, NarratorCache, StoreManager, Users}
 
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 class Services(relativeBasedir: Path,
                relativeBlobdir: Path,
@@ -99,7 +94,7 @@ akka {
                                              defaultExecutionContext = Some(akkaExecutionContext))
 
   lazy val materializer: Materializer = Materializer(system)
-  lazy val http        : HttpExt           = Http(system)
+  lazy val http        : HttpExt      = Http(system)
 
 
   /* ====== http requests ====== */
@@ -125,39 +120,52 @@ akka {
                                             narrationHint = narrationHint,
                                             userStore = userStore,
                                             requestUtil = requests)
-  lazy val server        = new Server(userStore = userStore,
-                                      blobStore = blobStore,
+
+  lazy val server: JavalinServer = new JavalinServer(blobStore = blobStore,
                                       terminate = () => terminateServer(),
                                       pages = serverPages,
                                       folderImporter = folderImporter,
                                       interactions = interactions,
-                                      staticPath = staticDir
-                                      )
+                                      staticPath = staticDir,
+                                      urlPrefix = ""
+                                                     )
 
-  lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
-    RouteResult.route2HandlerFlow(server.route)(
-      RoutingSettings.default(system),
-      ParserSettings.default(system),
-      materializer,
-      RoutingLog.fromActorSystem(system)),
-    interface, port)(materializer)
+  def startServer() = server.start(interface, port)
+  def terminateServer() = server.stop()
 
-  def startServer(): Future[ServerBinding] = serverBinding
-
-  /** Termination works by firs stopping the server nicely
-   * and then killing the actor system, which in turn stops
-   * crawler from downloading, shutting down the whole application */
-  def terminateServer(): Unit = {
-    new java.util.Timer(true).schedule(new TimerTask {
-      override def run(): Unit = serverBinding
-        .flatMap(_.unbind())(akkaExecutionContext)
-        .onComplete { _ =>
-          system.terminate()
-          Log.Main.info("shutdown")
-        }(akkaExecutionContext)
-    }, 1000)
-
-  }
+  //lazy val server        = new AkkaServer(userStore = userStore,
+  //                                    blobStore = blobStore,
+  //                                    terminate = () => terminateServer(),
+  //                                    pages = serverPages,
+  //                                    folderImporter = folderImporter,
+  //                                    interactions = interactions,
+  //                                    staticPath = staticDir
+  //                                        )
+  //
+  //lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
+  //  RouteResult.route2HandlerFlow(server.route)(
+  //    RoutingSettings.default(system),
+  //    ParserSettings.default(system),
+  //    materializer,
+  //    RoutingLog.fromActorSystem(system)),
+  //  interface, port)(materializer)
+  //
+  //def startServer(): Future[ServerBinding] = serverBinding
+  //
+  ///** Termination works by firs stopping the server nicely
+  // * and then killing the actor system, which in turn stops
+  // * crawler from downloading, shutting down the whole application */
+  //def terminateServer(): Unit = {
+  //  new java.util.Timer(true).schedule(new TimerTask {
+  //    override def run(): Unit = serverBinding
+  //      .flatMap(_.unbind())(akkaExecutionContext)
+  //      .onComplete { _ =>
+  //        system.terminate()
+  //        Log.Main.info("shutdown")
+  //      }(akkaExecutionContext)
+  //  }, 1000)
+  //
+  //}
 
 
   /* ====== clockwork ====== */
