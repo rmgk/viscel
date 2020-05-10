@@ -58,7 +58,7 @@ object Viscel {
         }
 
         if (shutdown) {
-          services.terminateServer()
+          services.terminateApplication()
         }
         Log.Main.info("initialization done")
         services

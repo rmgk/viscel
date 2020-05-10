@@ -46,7 +46,6 @@ class Services(relativeBasedir: Path,
   lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
 
 
-
   /* ====== executors ====== */
 
   def executorMinMax(min: Int = 0, max: Int = 1, keepAliveSeconds: Long = 1L) = {
@@ -78,23 +77,24 @@ class Services(relativeBasedir: Path,
                                             userStore = userStore,
                                             requestUtil = requests)
 
-  lazy val server: JavalinServer = new JavalinServer(blobStore = blobStore,
-                                      terminate = () => terminateServer(),
-                                      pages = serverPages,
-                                      folderImporter = folderImporter,
-                                      interactions = interactions,
-                                      staticPath = staticDir,
-                                      urlPrefix = ""
-                                                     )
+  lazy val server: JavalinServer =
+    new JavalinServer(blobStore = blobStore,
+                      terminate = () => terminateApplication(),
+                      pages = serverPages,
+                      folderImporter = folderImporter,
+                      interactions = interactions,
+                      staticPath = staticDir,
+                      urlPrefix = ""
+                      )
 
   def startServer() = server.start(interface, port)
-  def terminateServer() = server.stop()
 
 
   /* ====== clockwork ====== */
 
+  lazy val computeExecutor                                   = executorMinMax(max = 1)
   lazy val computeExecutionContext: ExecutionContextExecutor =
-    ExecutionContext.fromExecutor(executorMinMax(max = 1))
+    ExecutionContext.fromExecutor(computeExecutor)
 
   lazy val crawl: CrawlServices = new CrawlServices(blobStore = blobStore,
                                                     requestUtil = requests,
@@ -120,6 +120,11 @@ class Services(relativeBasedir: Path,
   /* ====== notifications ====== */
 
   lazy val narrationHint: Evt[(Narrator, Boolean)] = Evt[(Narrator, Boolean)]()
+
+  def terminateApplication() = {
+    computeExecutor.shutdown()
+    server.stop()
+  }
 
 
 }
