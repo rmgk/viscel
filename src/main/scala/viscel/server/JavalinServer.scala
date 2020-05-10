@@ -12,11 +12,15 @@ import io.javalin.websocket.WsHandler
 import loci.communicator.ws.javalin.WS.Properties
 import loci.communicator.{Listener, Listening}
 import loci.registry.Registry
-import viscel.shared.{Bindings, Log, Vid}
+import rescala.default.Signal
+import rescala.extra.distributables.LociDist
+import viscel.shared.BookmarksMap.BookmarksMap
+import viscel.shared.{Bindings, Vid}
 import viscel.store.{BlobStore, User}
 import viscel.{FolderImporter, Viscel}
 
 import scala.annotation.nowarn
+import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
@@ -103,20 +107,17 @@ class JavalinServer(blobStore: BlobStore,
       }
     }
 
-    //jl.ws(wspath, {wsctx =>
-    //  wsctx.
-    //})
-
     val registry = new Registry
-    //registry.bind(Bindings.contents) {contentLoader.contents}
-    //registry.bind(Bindings.descriptions) { () => contentLoader.descriptions() }
-    //registry.bind(Bindings.hint) {handleHint}
-    registry.bindPerRemote(Bindings.bookmarksMapBindig) { rr =>
-      Log.Server.info("===========================")
+    interactions.bindGlobalData(registry)
+
+    val userSocketCache: mutable.Map[User.Id, Signal[BookmarksMap]] = mutable.Map.empty
+
+    import rescala.default.implicitScheduler
+
+    LociDist.distributePerRemote({rr =>
       val user = rr.protocol.asInstanceOf[JavalinWS].javalinContext.attribute[User]("user")
-      Log.Server.info(user.toString)
-      _ => ()
-    }
+      userSocketCache.getOrElseUpdate(user.id, interactions.handleBookmarks(user.id))
+    }, registry)(Bindings.bookmarksMapBindig)
     //LociDist.distribute(handleBookmarks(userid), registry)(Bindings.bookmarksMapBindig)
 
     registry.listen(listener)
@@ -161,7 +162,7 @@ class JavalinServer(blobStore: BlobStore,
         ctx.result("")
       }
     })
-    jl.get("import", { ctx =>
+    jl.get("add", { ctx =>
       if (ctx.attribute[User]("user").admin) {
         val params = ctx.queryParamMap().asScala
         List("url").flatMap(key => params.get(key).flatMap(_.asScala.headOption)) match {

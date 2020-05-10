@@ -11,7 +11,7 @@ object Definitions {
 
   def path_main = "#"
   def path_asset(data: Data) = s"#${encodeURIComponent(data.id.str)}/${data.pos + 1}"
-  def path_blob(blob: Blob) = s"blob/${blob.sha1}/${blob.mime}"
+  def path_blob(blob: Blob) = s"blob/${blob.sha1}?mime=${blob.mime}"
   def path_front(vid: Vid) = s"#${encodeURIComponent(vid.str)}"
   def path_tools = "tools"
 

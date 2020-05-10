@@ -1,20 +1,19 @@
 package viscel.server
 
 
+import cats.instances.string._
+import cats.syntax.eq._
 import loci.registry.Registry
 import rescala.default.{Evt, implicitScheduler}
+import rescala.extra.lattices.Lattice
+import rescala.reactives.Signals.Diff
 import viscel.narration.Narrator
+import viscel.netzi.WebRequestInterface
+import viscel.shared.BookmarksMap._
 import viscel.shared.Log.{Server => Log}
 import viscel.shared.{Bindings, BookmarksMap, Vid}
 import viscel.store.{NarratorCache, User, Users}
-import cats.syntax.eq._
-import cats.instances.string._
-import rescala.extra.lattices.Lattice
-import rescala.reactives.Signals.Diff
-import viscel.netzi.WebRequestInterface
 import rescala.default._
-import rescala.extra.distributables.LociDist
-import viscel.shared.BookmarksMap._
 
 import scala.collection.immutable.Map
 import scala.concurrent.Future
@@ -37,14 +36,10 @@ class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
   }
 
 
-  def bindUserRegistry(userid: User.Id): Registry = {
-    Log.debug(s"create new websocket for $userid")
-    val registry = new Registry
+  def bindGlobalData(registry: Registry): Unit = {
     registry.bind(Bindings.contents) {contentLoader.contents}
     registry.bind(Bindings.descriptions) { () => contentLoader.descriptions() }
     registry.bind(Bindings.hint) {handleHint}
-    LociDist.distribute(handleBookmarks(userid), registry)(Bindings.bookmarksMapBindig)
-    registry
   }
 
   def handleBookmarks(userid: User.Id): Signal[BookmarksMap] = {

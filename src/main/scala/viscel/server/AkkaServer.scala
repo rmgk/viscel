@@ -10,14 +10,16 @@ import akka.http.scaladsl.server.directives.AuthenticationDirective
 import io.circe.Encoder
 import scalatags.Text.implicits.Tag
 import viscel.FolderImporter
-import viscel.shared.Vid
+import viscel.shared.{Bindings, Vid}
 import viscel.store.{BlobStore, User, Users}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-
 import loci.communicator.Listener
 import loci.communicator.ws.akka.{WS, WebSocketListener, WebSocketRoute}
+import loci.registry.Registry
+import rescala.extra.distributables.LociDist
+
 import scala.collection.mutable
 
 class AkkaServer(userStore: Users,
@@ -35,12 +37,20 @@ class AkkaServer(userStore: Users,
   private val userSocketCache: mutable.Map[User.Id, WsRoute] = mutable.Map.empty
 
   def userSocket(userid: User.Id): WsRoute = synchronized {
-    val reg = interactions.bindUserRegistry(userid)
+
+    val reg = new Registry
+
+    interactions.bindGlobalData(reg)
     val ws  = {
       val webSocket: WsRoute = WebSocketListener()
       reg.listen(webSocket)
       webSocket
     }
+
+    import rescala.default.implicitScheduler
+    LociDist.distribute(interactions.handleBookmarks(userid), reg)(Bindings.bookmarksMapBindig)
+
+
     userSocketCache.getOrElseUpdate(userid, ws)
   }
 
