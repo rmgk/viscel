@@ -1,5 +1,7 @@
 package viscel.crawl
 
+import java.util.concurrent.CancellationException
+
 import viscel.narration.Narrator
 import viscel.netzi.{VRequest, VResponse, WebRequestInterface}
 import viscel.shared.Log
@@ -14,6 +16,10 @@ class CrawlServices(blobStore: BlobStore,
                     rowStore: RowStoreV4,
                     descriptionCache: DescriptionCache,
                     executionContext: ExecutionContext) {
+
+  @volatile private var cancel: Boolean = false
+
+  def shutdown() = cancel = true
 
   def startCrawling(narrator: Narrator): Future[Unit] = {
     val appender = rowStore.open(narrator)
@@ -42,6 +48,7 @@ class CrawlServices(blobStore: BlobStore,
   class Crawling(narrator: Narrator, rowAppender: RowAppender) {
 
     def crawlLoop(cs: CrawlState): Future[Unit] = {
+      if (cancel) return Future.failed(new CancellationException("orderly shutdown"))
       cs.decider.decide() match {
         case Some((request, nextDecider)) =>
           requestUtil.get(request).flatMap { response =>

@@ -80,7 +80,7 @@ class Services(relativeBasedir: Path,
 
   lazy val server: JavalinServer =
     new JavalinServer(blobStore = blobStore,
-                      terminate = () => terminateApplication(),
+                      terminate = () => terminateEverything(),
                       pages = serverPages,
                       folderImporter = folderImporter,
                       interactions = interactions,
@@ -93,7 +93,7 @@ class Services(relativeBasedir: Path,
 
   /* ====== clockwork ====== */
 
-  lazy val computeExecutor                                   = executorMinMax(max = 1)
+  lazy val computeExecutor        : ThreadPoolExecutor       = executorMinMax(max = 1)
   lazy val computeExecutionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(computeExecutor)
 
@@ -122,8 +122,8 @@ class Services(relativeBasedir: Path,
 
   lazy val narrationHint: Evt[(Narrator, Boolean)] = Evt[(Narrator, Boolean)]()
 
-  def terminateApplication() = {
-    computeExecutor.shutdown()
+  def terminateEverything() = {
+    crawl.shutdown()
     server.stop()
   }
 

@@ -60,7 +60,7 @@ object Viscel {
         }
 
         if (shutdown) {
-          services.terminateApplication()
+          services.terminateEverything()
         }
         Log.Main.info(s"initialization done in ${ManagementFactory.getRuntimeMXBean.getUptime}ms")
         services

@@ -1,6 +1,7 @@
 package viscel.crawl
 
 import java.nio.file.Path
+import java.util.concurrent.CancellationException
 import java.util.{Timer, TimerTask}
 
 import viscel.narration.Narrator
@@ -15,7 +16,7 @@ class CrawlScheduler(path: Path,
                      crawlServices: CrawlServices,
                      ec: ExecutionContext,
                      userStore: Users,
-                     narratorCache: NarratorCache,
+                     narratorCache: NarratorCache
                     ) {
 
   val log = viscel.shared.Log.Crawl
@@ -67,6 +68,8 @@ class CrawlScheduler(path: Path,
            |  failed on ${link.href.uriString} (${if (link.context.nonEmpty) s", ${link.context}" else ""}):
            |  ${reports.describe}
            |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
+    case ce : CancellationException =>
+      log.info(s"[${narrator.id}] update cancelled ${ce.getMessage}")
     case t                                =>
       log.error(s"[${narrator.id}] recheck failed with $t")
       t.printStackTrace()

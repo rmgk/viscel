@@ -13,7 +13,7 @@ import viscel.store.v4.Vurl
 import scala.concurrent.{Future, Promise}
 
 
-class OkHttpRequester(maxRequests: Int, executorService: ExecutorService) extends WebRequestInterface {
+class OkHttpRequester(maxRequests: Int, val executorService: ExecutorService) extends WebRequestInterface {
 
   val referrer = "Referer"
 
