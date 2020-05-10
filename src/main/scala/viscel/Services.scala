@@ -3,10 +3,6 @@ package viscel
 import java.nio.file.{Files, Path}
 import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.{Http, HttpExt}
-import akka.stream.Materializer
-import com.typesafe.config.ConfigFactory.parseString
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
@@ -50,33 +46,8 @@ class Services(relativeBasedir: Path,
   lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
 
 
-  /* ====== akka ====== */
 
-  val actorConfig = """
-akka.http {
-	client {
-		user-agent-header = viscel/7
-		connecting-timeout = 30s
-		response-chunk-aggregation-limit = 32m
-		chunkless-streaming = off
-	}
-	host-connection-pool {
-		max-connections = 1
-		pipelining-limit = 1
-		max-retries = 3
-	}
-	parsing {
-		max-content-length = 32m
-		max-chunk-size = 32m
-		max-to-strict-bytes = 32m
-	}
-}
-akka {
-	log-dead-letters = 0
-	log-dead-letters-during-shutdown = off
-	log-config-on-start = off
-}
-"""
+  /* ====== executors ====== */
 
   def executorMinMax(min: Int = 0, max: Int = 1, keepAliveSeconds: Long = 1L) = {
     new ThreadPoolExecutor(min, max, keepAliveSeconds,
@@ -84,21 +55,7 @@ akka {
                            new LinkedBlockingQueue[Runnable]())
   }
 
-
-  lazy val akkaExecutionContext: ExecutionContextExecutor =
-    ExecutionContext.fromExecutor(executorMinMax(max = 1))
-
-
-  lazy val system: ActorSystem = ActorSystem(name = "viscel",
-                                             config = Some(parseString(actorConfig)),
-                                             defaultExecutionContext = Some(akkaExecutionContext))
-
-  lazy val materializer: Materializer = Materializer(system)
-  lazy val http        : HttpExt      = Http(system)
-
-
   /* ====== http requests ====== */
-
 
   lazy val requests = {
     val maxRequests             = 5
@@ -132,40 +89,6 @@ akka {
 
   def startServer() = server.start(interface, port)
   def terminateServer() = server.stop()
-
-  //lazy val server        = new AkkaServer(userStore = userStore,
-  //                                    blobStore = blobStore,
-  //                                    terminate = () => terminateServer(),
-  //                                    pages = serverPages,
-  //                                    folderImporter = folderImporter,
-  //                                    interactions = interactions,
-  //                                    staticPath = staticDir
-  //                                        )
-  //
-  //lazy val serverBinding: Future[ServerBinding] = http.bindAndHandle(
-  //  RouteResult.route2HandlerFlow(server.route)(
-  //    RoutingSettings.default(system),
-  //    ParserSettings.default(system),
-  //    materializer,
-  //    RoutingLog.fromActorSystem(system)),
-  //  interface, port)(materializer)
-  //
-  //def startServer(): Future[ServerBinding] = serverBinding
-  //
-  ///** Termination works by firs stopping the server nicely
-  // * and then killing the actor system, which in turn stops
-  // * crawler from downloading, shutting down the whole application */
-  //def terminateServer(): Unit = {
-  //  new java.util.Timer(true).schedule(new TimerTask {
-  //    override def run(): Unit = serverBinding
-  //      .flatMap(_.unbind())(akkaExecutionContext)
-  //      .onComplete { _ =>
-  //        system.terminate()
-  //        Log.Main.info("shutdown")
-  //      }(akkaExecutionContext)
-  //  }, 1000)
-  //
-  //}
 
 
   /* ====== clockwork ====== */

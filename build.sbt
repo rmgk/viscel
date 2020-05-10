@@ -19,7 +19,7 @@ val Libraries = new {
 
   val shared = Def.settings(
     strictCompile, scribe, scalatags, loci.communication, circe, rescala, loci.circe,
-    loci.wsAkka, akkaHttp, loci.wsJavalin, scribeSlf4j
+    loci.wsJavalin, scribeSlf4j
   )
 
   val main =

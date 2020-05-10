@@ -2,7 +2,7 @@ package visceljs
 
 import java.util.NoSuchElementException
 
-import loci.communicator.ws.akka.WS
+import loci.communicator.ws.javalin.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
