@@ -5,6 +5,7 @@ import java.nio.file.Path
 import io.circe.generic.auto._
 import viscel.shared.Vid
 import viscel.shared.Description
+import CirceStorage._
 
 
 /** Caches the [[viscel.shared.Description.size]] so the
@@ -13,7 +14,7 @@ import viscel.shared.Description
 class DescriptionCache(cachedir: Path) {
   private val descriptionpath: Path = cachedir.resolve("descriptions.json")
   private var descriptionCache: Map[Vid, Description] =
-    Json.load[Map[Vid, Description]](descriptionpath).getOrElse(Map())
+    CirceStorage.load[Map[Vid, Description]](descriptionpath).getOrElse(Map())
 
   def invalidate(id: Vid): Unit = synchronized {
     descriptionCache = descriptionCache - id
@@ -23,7 +24,7 @@ class DescriptionCache(cachedir: Path) {
     descriptionCache.getOrElse(id, {
       val desc = orElse
       descriptionCache = descriptionCache.updated(id, desc)
-      Json.store[Map[Vid, Description]](descriptionpath, descriptionCache)
+      CirceStorage.store[Map[Vid, Description]](descriptionpath, descriptionCache)
       desc
     })
   }

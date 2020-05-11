@@ -18,14 +18,14 @@ val Libraries = new {
 
 
   val shared = Def.settings(
-    strictCompile, scribe, scalatags, loci.communication, circe, rescala, loci.circe,
+    strictCompile, scribe, scalatags, loci.communication, upickle, rescala, loci.upickle,
     loci.wsJavalin, scribeSlf4j
   )
 
   val main =
     Def.settings(strictCompile, betterFiles, decline,
                  scalatest, scalacheck, scalatestpluscheck,
-                 jsoup, okHttp, javalin)
+                 jsoup, okHttp, javalin, circe)
 
 
   val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, scalatags,

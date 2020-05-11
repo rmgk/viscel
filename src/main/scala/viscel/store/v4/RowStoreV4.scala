@@ -8,7 +8,7 @@ import io.circe.syntax._
 import viscel.narration.Narrator
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.Vid
-import viscel.store.{Book, Json}
+import viscel.store.{Book, CirceStorage}
 import viscel.store.v4.V4Codecs._
 
 class RowStoreV4 (db4dir: Path) {
@@ -26,7 +26,7 @@ class RowStoreV4 (db4dir: Path) {
 
     def open(id: Vid, name: String): RowAppender = synchronized{
       val f = base / id.str
-      if (!f.exists || f.size <= 0) Json.store(f.path, name)
+      if (!f.exists || f.size <= 0) CirceStorage.store(f.path, name)
       new RowAppender(f)
     }
 

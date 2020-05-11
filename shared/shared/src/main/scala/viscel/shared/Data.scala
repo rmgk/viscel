@@ -1,6 +1,5 @@
 package viscel.shared
 
-import io.circe.{Decoder, Encoder}
 import rescala.extra.lattices.Lattice
 
 import scala.collection.immutable.Map
@@ -27,15 +26,10 @@ object Bookmark {
 }
 
 object BookmarksMap {
-  import io.circe.generic.auto._
 
   type BookmarksMap = Map[Vid, Bookmark]
 
   def addΔ(vid: Vid, bookmark: Bookmark): BookmarksMap = Map(vid-> bookmark)
-
-
-  implicit val bookmarksMapEncoder: Encoder[BookmarksMap] = io.circe.Encoder.encodeMap
-  implicit val bookmarksMapDecoder: Decoder[BookmarksMap] = io.circe.Decoder.decodeMap
 
 
   implicit def optionLattice[A: Lattice]: Lattice[Option[A]] = {

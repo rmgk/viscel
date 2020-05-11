@@ -6,11 +6,12 @@ import java.nio.file.StandardOpenOption._
 import java.nio.file.{Files, Path}
 
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder}
+import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder}
+import viscel.shared.Vid
 
 import scala.jdk.CollectionConverters._
 
-object Json {
+object CirceStorage {
 
   def store[T: Encoder](p: Path, data: T): Unit = synchronized {
     val jsonBytes = data.asJson.spaces2 :: Nil
@@ -25,5 +26,11 @@ object Json {
     }
     catch {case e: IOException => Left(e)}
   }
+
+
+  implicit def vidR: Decoder[Vid] = Decoder.decodeString.map(Vid.from)
+  implicit def vidKR: KeyDecoder[Vid] = KeyDecoder.decodeKeyString.map(Vid.from)
+  implicit def vidW: Encoder[Vid] = Encoder.encodeString.contramap[Vid](_.str)
+  implicit def vidKW: KeyEncoder[Vid] = KeyEncoder.encodeKeyString.contramap[Vid](_.str)
 
 }

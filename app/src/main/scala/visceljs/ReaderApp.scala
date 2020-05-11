@@ -1,6 +1,5 @@
 package visceljs
 
-import io.circe.{Decoder, Encoder}
 import org.scalajs.dom
 import org.scalajs.dom.experimental.URL
 import org.scalajs.dom.html
@@ -8,21 +7,17 @@ import org.scalajs.dom.raw.HashChangeEvent
 import rescala.default._
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import scalatags.JsDom.TypedTag
-import viscel.shared.{Bookmark, Contents, Description, Log, SharedImage, Vid}
+import viscel.shared.{Bookmark, Contents, Description, Log, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Navigation.{Mode, Next, Prev, navigationEvents}
 import visceljs.render.{Front, Index, View}
 
 import scala.collection.immutable.Map
 
-
 class ReaderApp(content: Vid => Signal[Contents],
                 val descriptions: Signal[Map[Vid, Description]],
                 val bookmarks: Signal[Map[Vid, Bookmark]]
                ) {
-
-
-  implicit val readAssets: Decoder[List[SharedImage]] = Predef.implicitly[Decoder[List[SharedImage]]]
 
 
   def getHash(): String = {
@@ -107,7 +102,7 @@ class ReaderApp(content: Vid => Signal[Contents],
     }
 
 
-    val fitType: Signal[FitType] = storedAs[FitType]("fitType", default = FitType.W) { init =>
+    val fitType: Signal[FitType] = Storing.storedAs[FitType]("fitType", default = FitType.W) { init =>
       navigationEvents.collect { case Mode(t) => t }.latest[FitType](init)
     }
 
@@ -125,15 +120,8 @@ class ReaderApp(content: Vid => Signal[Contents],
     }.flatten
   }
 
-  def storedAs[A: Encoder : Decoder](key: String, default: => A)(create: A => Signal[A]): Signal[A] = {
-    val init: A = io.circe.parser.decode[A](dom.window.localStorage.getItem(key)).getOrElse(default)
-    val sig     = create(init)
-    sig.observe { ft: A =>
-      import io.circe.syntax._
-      dom.window.localStorage.setItem(key, ft.asJson.noSpaces)
-    }
-    sig
-  }
+
+
 
 
   def getDataSignal(id: Vid): Signal[Data] = {

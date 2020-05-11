@@ -1,7 +1,6 @@
 package visceljs
 
-import io.circe.{Decoder, Encoder}
-import io.circe.generic.semiauto._
+
 import org.scalajs.dom
 import scalatags.JsDom.all.{alt, stringFrag, _}
 import scalatags.JsDom.TypedTag
@@ -19,8 +18,8 @@ sealed trait FitType {
   }
 }
 object FitType {
-  implicit val encoder: Encoder[FitType] = deriveEncoder
-  implicit val decoder: Decoder[FitType] = deriveDecoder
+  import upickle.default._
+  implicit val codec: ReadWriter[FitType] = macroRW
   case object W extends FitType
   case object WH extends FitType
   case object O extends FitType

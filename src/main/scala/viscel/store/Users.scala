@@ -10,6 +10,8 @@ import viscel.shared.{Bookmark, Vid}
 import scala.collection.immutable.Map
 import scala.jdk.CollectionConverters._
 
+import CirceStorage._
+
 class Users(usersDir: Path) {
 
   type Error[T] = Either[String, T]
@@ -46,8 +48,8 @@ class Users(usersDir: Path) {
   def load(id: String): Either[String, User] = load(path(id))
 
   private def load(p: Path): Either[String, User] =
-    Json.load[User](p).toTry.orElse {
-      Json.load[LegacyUser](p).map(_.toUser).toTry
+    CirceStorage.load[User](p).toTry.orElse {
+      CirceStorage.load[LegacyUser](p).map(_.toUser).toTry
     }.toEither.left.map(_.getMessage)
 
   var userCache = Map[String, User]()
@@ -70,7 +72,7 @@ class Users(usersDir: Path) {
 
   def userUpdate(user: User): User = synchronized {
     userCache += user.id -> user
-    Json.store(path(user.id), user)
+    CirceStorage.store(path(user.id), user)
     user
   }
 }

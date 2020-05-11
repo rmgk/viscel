@@ -6,25 +6,22 @@ import loci.communicator.ws.javalin.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
-import org.scalajs.dom.raw.Storage
 import rescala.default._
 import rescala.extra.distributables.LociDist
 import rescala.extra.lattices.IdUtil.Id
 import rescala.extra.lattices.{IdUtil, Lattice}
-import rescala.extra.restoration.ReCirce
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.body
 import viscel.shared.BookmarksMap._
+import viscel.shared.UpickleCodecs._
 import viscel.shared._
 import visceljs.render.{Front, Index, View}
 
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
-import scala.util.{Failure, Success, Try}
-import io.circe._
-import io.circe.parser._
-import io.circe.syntax._
+import scala.util.{Failure, Success}
+
 
 //@JSImport("localforage", JSImport.Namespace)
 @JSGlobal
@@ -40,22 +37,13 @@ def getItem[T](key: String): js.Promise[T] = js.native
 }
 
 class BookmarkManager(registry: Registry) {
-  val setBookmark      = Evt[(Vid, Bookmark)]
-  val bookmarks    = {
-    val storage: Storage = dom.window.localStorage
-    val bmms = ReCirce.recirce[BookmarksMap]
-    val key = "bookmarksmap"
-    val bmm = Try(Option(storage.getItem(key)).get).flatMap{ str =>
-      bmms.deserialize(str)
-    }.getOrElse(Map.empty)
-    val bmCRDT = setBookmark.fold(bmm){ case (map, (vid, bm)) =>
-      Lattice.merge(map, BookmarksMap.addΔ(vid, bm))
+  val setBookmark = Evt[(Vid, Bookmark)]
+  val bookmarks   =
+    Storing.storedAs("bookmarksmap", Map.empty[Vid, Bookmark]) { initial =>
+      setBookmark.fold(initial) { case (map, (vid, bm)) =>
+        Lattice.merge(map, BookmarksMap.addΔ(vid, bm))
+      }
     }
-    bmCRDT.observe{ v =>
-      storage.setItem(key, bmms.serialize(v))
-    }
-    bmCRDT
-  }
 
   LociDist.distribute(bookmarks, registry)(Bindings.bookmarksMapBindig)
 
@@ -66,27 +54,7 @@ class BookmarkManager(registry: Registry) {
 class ContentConnectionManager(registry: Registry) {
   import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-
-
-
-  val descriptions = {
-    import io.circe.generic.auto._
-
-
-    val descmapc = ReCirce.recirce[Map[Vid, Description]]
-    val descriptionskey = "descriptionsmap"
-
-
-    val storage: Storage = dom.window.localStorage
-
-    val descriptionmap = Try(Option(storage.getItem(descriptionskey)).get).flatMap{ str =>
-      descmapc.deserialize(str)
-    }.getOrElse(Map.empty)
-
-    val res = Var(descriptionmap)
-    res.observe(v => storage.setItem(descriptionskey, descmapc.serialize(v)))
-    res
-  }
+  val descriptions = Storing.storedAs("descriptionsmap", Map.empty[Vid, Description])(Var(_)).asInstanceOf[Var[Map[Vid, Description]]]
 
   val wsUri: String = {
     val wsProtocol = if (dom.document.location.protocol == "https:") "wss" else "ws"
@@ -106,18 +74,20 @@ class ContentConnectionManager(registry: Registry) {
 
   val lfi: LocalForageInstance = localforage.createInstance(js.Dynamic.literal("name" -> "contents"))
 
-  import io.circe.generic.auto._
-  implicit val contentsDecoder: Decoder[Contents] = io.circe.generic.semiauto.deriveDecoder
-  implicit val contentsEncoder: Encoder[Contents] = io.circe.generic.semiauto.deriveEncoder
-
   def content(vid: Vid): Signal[Contents] = {
     hint(vid, force = false)
 
     Log.JS.info(s"looking up content for $vid")
 
     val emptyContents = Contents(Gallery.empty, Nil)
-    val locallookup = lfi.getItem[String](vid.str).toFuture.map((str: String) => decode[Contents](str).getOrElse(throw new NoSuchElementException(s"could not load local data for ${vid.str}")))
-    locallookup.failed.foreach{f =>
+    val locallookup   =
+      lfi.getItem[String](vid.str).toFuture
+         .map((str: String) =>
+                try upickle.default.read[Contents](str)
+                catch {
+                  case _: Throwable => throw new NoSuchElementException(s"could not load local data for ${vid.str}")
+                })
+    locallookup.failed.foreach { f =>
       Log.JS.warn(s"local lookup of $vid failed with $f")
     }
     val remoteLookup: Future[Contents] = {
@@ -138,7 +108,7 @@ class ContentConnectionManager(registry: Registry) {
       remoteMerged = true
       Log.JS.info(s"found remote content for $vid")
       result.set(rc)
-      lfi.setItem(vid.str, rc.asJson.noSpaces)
+      lfi.setItem(vid.str, upickle.default.write(rc))
     }
 
     result

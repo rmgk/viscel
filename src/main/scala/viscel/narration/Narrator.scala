@@ -1,6 +1,5 @@
 package viscel.narration
 
-import cats.syntax.eq.catsSyntaxEq
 import viscel.narration.Narrator.Wrapper
 import viscel.selektiv.Narration.WrapPart
 import viscel.shared.Vid
@@ -29,7 +28,7 @@ trait Narrator {
   /** Override equals to store in Sets.
     * There never should be two equal Narrators, but things break if there were. */
   final override def equals(other: Any): Boolean = other match {
-    case o: Narrator => id === o.id
+    case o: Narrator => id == o.id
     case _ => false
   }
   final override def hashCode: Int = id.hashCode

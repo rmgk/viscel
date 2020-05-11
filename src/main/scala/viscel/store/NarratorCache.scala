@@ -60,12 +60,12 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
   private def path[T](metarrator: Metarrator[T]): Path = metaPath.resolve(s"${metarrator.metarratorId}.json")
   def load[T](metarrator: Metarrator[T]): Set[T] = {
-    val json = Json.load[Set[T]](path(metarrator))(io.circe.Decoder.decodeSet(metarrator.decoder))
+    val json = CirceStorage.load[Set[T]](path(metarrator))(io.circe.Decoder.decodeSet(metarrator.decoder))
     json.fold(err => {
       Log.Store.trace(s"could not load ${path(metarrator)}: $err")
       Set()
     }, identity)
   }
-  def save[T](metarrator: Metarrator[T], nars: List[T]): Unit = Json.store(path(metarrator), nars)(io.circe.Encoder.encodeList(metarrator.encoder))
+  def save[T](metarrator: Metarrator[T], nars: List[T]): Unit = CirceStorage.store(path(metarrator), nars)(io.circe.Encoder.encodeList(metarrator.encoder))
 
 }
