@@ -5,7 +5,7 @@ import java.util.function.Consumer
 
 import better.files._
 import io.javalin.Javalin
-import io.javalin.core.compression.{Brotli, Gzip}
+import io.javalin.core.compression.Gzip
 import io.javalin.core.util.Header
 import io.javalin.http.staticfiles.Location
 import io.javalin.websocket.WsHandler
@@ -19,7 +19,6 @@ import viscel.shared.{Bindings, Vid}
 import viscel.store.{BlobStore, User}
 import viscel.{FolderImporter, Viscel}
 
-import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -61,7 +60,7 @@ class JavalinServer(blobStore: BlobStore,
       }
     }
     config.addStaticFiles(staticPath.pathAsString, Location.EXTERNAL)
-    config.compressionStrategy(new Brotli(): @nowarn, new Gzip())
+    config.compressionStrategy(null, new Gzip())
     config.showJavalinBanner = false
   }
 

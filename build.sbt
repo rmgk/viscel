@@ -55,7 +55,6 @@ lazy val viscel = project
                     publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value,
                     selfversionDef,
                     (Compile / managedResources) += selfversion.value,
-                    libraryDependencies += "com.nixxcode.jvmbrotli" % "jvmbrotli" % "0.2.0",
                     //  experimental graalvm options
                     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
                     graalVMNativeImageOptions ++= List(
