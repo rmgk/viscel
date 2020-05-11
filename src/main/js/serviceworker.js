@@ -6,11 +6,11 @@ self.addEventListener('install', function (e) {
     e.waitUntil(
         caches.open(cacheName).then(function (cache) {
             const cachedRequests = [
-                '',
                 './',
                 'app-fastopt.js',
                 'style.css',
-                'localforage.min.js'
+                'localforage.min.js',
+                'icon.png'
             ].map(url => new Request(url, {credentials: 'same-origin'}));
             cachedRequests.forEach(request => console.log("caching " + request.url));
             return cache.addAll(cachedRequests);
@@ -36,28 +36,8 @@ self.addEventListener('activate', function (event) {
 self.addEventListener('fetch', function (e) {
     e.respondWith(
         caches.match(e.request).then(function (response) {
-            console.log("responding to " + e.request.url + " from cache " + response);
+            if (response) console.log("responding to " + e.request.url + " from cache " + cacheName + response);
             return response || fetch(e.request);
         })
     );
-});
-
-// c.f. https://github.com/vaneenige/offline-gallery/blob/master/sw.js
-self.addEventListener('message', (event) => {
-    const vid = event.data.vid;
-    caches.open('vid' + vid).then((cache) => {
-        switch (event.data.command) {
-            case 'add':
-                const request = new Request(event.data.url, {mode: 'no-cors'});
-                return cache.match(request)
-                    .then(function (response) {
-                        if (!response) fetch(request)
-                            .then(response => cache.put(event.data.url, response));
-                    });
-            case 'delete':
-                return cache.delete(event.data.url);
-            default:
-                throw Error(`Unknown command: ${event.data.command}`);
-        }
-    });
 });
