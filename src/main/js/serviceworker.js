@@ -7,7 +7,7 @@ self.addEventListener('install', function (e) {
         caches.open(cacheName).then(function (cache) {
             const cachedRequests = [
                 './',
-                'app-fastopt.js',
+                'app-opt.js',
                 'style.css',
                 'localforage.min.js',
                 'icon.png'

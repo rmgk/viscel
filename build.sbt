@@ -33,8 +33,8 @@ val Libraries = new {
 }
 
 val vbundleDef = vbundle := {
-  (app / Compile / fastOptJS).value
-  val jsfile       = (app / Compile / fastOptJS / artifactPath).value
+  (app / Compile / fullOptJS).value
+  val jsfile       = (app / Compile / fullOptJS / artifactPath).value
   val styles       = (app / Assets / SassKeys.sassify).value
   bundleStuff(jsfile, styles, target.value.toPath.resolve("resources/static"), fetchJSDependencies.value, sourceDirectory.value)
 }
