@@ -19,5 +19,4 @@ class BookmarkManager(registry: Registry) {
 
   LociDist.distribute(bookmarks, registry)(Bindings.bookmarksMapBindig)
 
-  def postBookmarkF(vid: Vid, bookmark: Bookmark): Unit = setBookmark.fire(vid -> bookmark)
 }

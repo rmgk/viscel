@@ -3,9 +3,11 @@ package visceljs
 import scalatags.JsDom.all.{HtmlTag, Modifier, button, disabled}
 import viscel.shared.{Bookmark, Vid}
 import visceljs.Definitions.lcButton
+import visceljs.connection.{BookmarkManager, ContentConnectionManager}
+import rescala.default._
 
-class Actions(hint: (Vid, Boolean) => Unit,
-              postBookmarkF: (Vid, Bookmark) => Unit) {
+class Actions(ccm: ContentConnectionManager,
+              bookmarkManager: BookmarkManager) {
 
 
   def postBookmark(bm: Int, data: Data, ts: Modifier*): HtmlTag = {
@@ -13,7 +15,7 @@ class Actions(hint: (Vid, Boolean) => Unit,
       lcButton {
         val cdat     = data.content.gallery.atPos(bm).get
         val bookmark = Bookmark(bm, System.currentTimeMillis(), cdat.map(_.blob.sha1), cdat.map(_.origin))
-        postBookmarkF(data.id, bookmark)
+        bookmarkManager.setBookmark.fire(data.id -> bookmark)
       }(ts: _*)
     }
     else {
@@ -21,6 +23,6 @@ class Actions(hint: (Vid, Boolean) => Unit,
     }
   }
 
-  def postForceHint(vid: Vid, ts: Modifier*): HtmlTag = lcButton(hint(vid, true))(ts: _*)
+  def postForceHint(vid: Vid, ts: Modifier*): HtmlTag = lcButton(ccm.hint(vid, force = true))(ts: _*)
 
 }

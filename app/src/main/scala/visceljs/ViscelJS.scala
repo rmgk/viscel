@@ -33,7 +33,7 @@ object ViscelJS {
     val ccm             = new ContentConnectionManager(registry)
     ccm.autoreconnect()
 
-    val actions = new Actions(hint = ccm.hint, postBookmarkF = bookmarkManager.postBookmarkF)
+    val actions = new Actions(ccm, bookmarkManager)
 
     val meta = MetaInfo(version, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
 
@@ -46,7 +46,7 @@ object ViscelJS {
                                 bookmarks = bookmarkManager.bookmarks
                                 )
 
-    val bodySig        = app.makeBody(index, front, view, Evt())
+    val bodySig        = app.makeBody(index, front, view)
     val safeBodySignal = bodySig
 
     val bodyParent = dom.document.body.parentElement

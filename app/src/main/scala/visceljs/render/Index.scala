@@ -11,7 +11,7 @@ import viscel.shared.{Bookmark, Description, Vid}
 import visceljs.Definitions.link_tools
 import rescala.extra.Tags._
 import scalatags.JsDom
-import visceljs.{Actions, MetaInfo, SearchUtil}
+import visceljs.{Actions, Definitions, MetaInfo, SearchUtil}
 
 import scala.collection.immutable.Map
 
@@ -98,7 +98,7 @@ class Index(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, Bookmar
     val callback: Signal[() => Boolean] = groups.map { gs =>
       val displayOrder = gs.map(_._2)
       val first: Option[Vid] = displayOrder.find(_.nonEmpty).map{ _.head.id}
-      () => {first.foreach(_ => ()); false}
+      () => {first.foreach(f => dom.window.location.hash = Definitions.path_front(f)); false}
     }
 
     val searchForm = form(inputField, onsubmit := callback)

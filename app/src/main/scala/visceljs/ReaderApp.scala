@@ -26,18 +26,14 @@ class ReaderApp(content: Vid => Signal[Contents],
   }
 
 
-  def makeBody(index: Index, front: Front, view: View, manualStates: Event[AppState]): Signal[TypedTag[html.Body]] = {
+  def makeBody(index: Index, front: Front, view: View): Signal[TypedTag[html.Body]] = {
 
 
     val hashChange: Event[HashChangeEvent] =
       Events.fromCallback[HashChangeEvent](dom.window.onhashchange = _).event
     hashChange.observe(hc => Log.JS.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
 
-    val hashBasedStates = hashChange.map(hc => AppState.parse(new URL(hc.newURL).hash): @unchecked)
-
-
-    val targetStates: Event[AppState] = hashBasedStates || manualStates
-
+    val targetStates = hashChange.map(hc => AppState.parse(new URL(hc.newURL).hash))
 
     val currentAppState: Signal[AppState] = Events.foldAll(AppState.parse(getHash)) { current =>
       Seq(

@@ -42,7 +42,7 @@ object Individual {
     .wrapEach { img =>
       val article = extractArticle(img)
       val txt = extract(img.parent().nextElementSibling().text())
-      article.copy(data = article.data ::: List("longcomment", txt))
+      article.copy(data = article.data ::: List("title", txt))
     })
 
 
