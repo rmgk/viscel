@@ -56,7 +56,7 @@ class Users(usersDir: Path, contentLoader: ContentLoader) {
     }.toEither.left.map(_.getMessage).map { user =>
       if (!user.bookmarks.valuesIterator.exists(_.sha1.isEmpty)) user
       else {
-        user.copy(bookmarks = user.bookmarks.view.flatMap { case (vid, bm) =>
+        val updated = user.copy(bookmarks = user.bookmarks.view.flatMap { case (vid, bm) =>
           if (bm.sha1.isEmpty) {
             Log.info(s"enhancing bookmark of $vid")
             for {
@@ -68,6 +68,8 @@ class Users(usersDir: Path, contentLoader: ContentLoader) {
           }
           else Some(vid -> bm)
         }.toMap)
+        CirceStorage.store(p, updated)
+        updated
       }
     }
 

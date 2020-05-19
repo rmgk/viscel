@@ -6,7 +6,6 @@ import loci.communicator.ws.javalin.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
-import rescala.default
 import rescala.default._
 import viscel.shared.UpickleCodecs._
 import viscel.shared._
@@ -14,50 +13,53 @@ import visceljs.storage.{LocalForageInstance, Storing, localforage}
 
 import scala.concurrent.Future
 import scala.scalajs.js
-import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try}
 
 
 class ContentConnectionManager(registry: Registry) {
   import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  val descriptions = Storing.storedAs("descriptionsmap", Map.empty[Vid, Description])(Var(_)).asInstanceOf[Var[Map[Vid, Description]]]
 
   val wsUri: String = {
     val wsProtocol = if (dom.document.location.protocol == "https:") "wss" else "ws"
     s"$wsProtocol://${dom.document.location.host}${dom.document.location.pathname}ws"
   }
 
-  private val _connectionStatus: default.Var[Option[Try[RemoteRef]]] = Var(Option.empty[Try[RemoteRef]])
 
-  val connectionStatus: Signal[Option[Try[RemoteRef]]] = _connectionStatus
 
-  def connect(): Unit = {
-    if (connectionStatus.now.isEmpty) {
-      Log.JS.info(s"trying to connect to $wsUri")
+  val joined = Events.fromCallback[RemoteRef]{cb =>
+    registry.remoteJoined.foreach(cb)
+  }.event
+  val left = Events.fromCallback[RemoteRef]{cb =>
+    registry.remoteLeft.foreach(cb)
+  }.event
 
-      (try registry.connect(WS(wsUri))
-      catch {case NonFatal(e) => Future.failed(e)}).onComplete {
-        case s @ Success(remoteRef) =>
-          _connectionStatus.set(Some(s))
-          updateDescriptions(remoteRef)
-          registry.lookup(Bindings.version, remoteRef).foreach(v => remoteVersion.set(v))
-        case f @ Failure(msg)       =>
-          _connectionStatus.set(Some(f))
-          connect()
-      }
+  val connectionStatus: Signal[Int] =  (joined || left).fold(0){(_, _) =>
+    registry.remotes.count(_.connected)
+  }
+
+  val remoteVersion: Signal[String] = Events.fromCallback[String]{cb =>
+    registry.remoteJoined.foreach { rr =>
+      registry.lookup(Bindings.version, rr).foreach(cb)
+    }
+  }.event.latest("unknown")
+
+
+  val descriptions = Storing.storedAs("descriptionsmap", Map.empty[Vid, Description]) { init =>
+    joined.map(rr => Signals.fromFuture(registry.lookup(Bindings.descriptions, rr).apply()))
+          .latest(Signal {init}).flatten.recover {
+      error =>
+        Log.JS.error(s"failed to access descriptions: $error")
+        init
     }
   }
 
-  val remoteVersion: Var[String] = Var("unknown")
-
+  def connect(): Unit = {
+    Log.JS.info(s"trying to connect to $wsUri")
+    registry.connect(WS(wsUri))
+  }
 
   def autoreconnect(): Unit = {
-    registry.remoteLeft.foreach{r =>
-      _connectionStatus.set(None)
-      connect()
-    }
-    connect()
+    left.filter(_ => connectionStatus.value == 0).observe(_ => connect())
   }
 
 
@@ -146,14 +148,5 @@ class ContentConnectionManager(registry: Registry) {
 
 
 
-  private def updateDescriptions(remote: RemoteRef): Future[_] = {
-    val lookup = registry.lookup(Bindings.descriptions, remote).apply()
-    lookup.onComplete {
-      case Success(descriptionMap)     =>
-        descriptions.set(descriptionMap)
-      case Failure(exception) =>
-        Log.JS.error("failed to fetch descriptions")
-    }
-    lookup
-  }
+
 }

@@ -53,7 +53,7 @@ object LociDist {
       val signalName           = signal.name.str
       println(s"registering new remote $remoteRef for $signalName")
       val remoteUpdate: A => Future[Unit] = {
-        Log.Server.info(s"calling lookup on $binding")
+        Log.Server.info(s"calling lookup on »${binding.name}«")
         registry.lookup(binding, remoteRef)
       }
       observers += (remoteRef -> signal.observe { s =>

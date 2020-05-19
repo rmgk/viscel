@@ -1,7 +1,6 @@
 package visceljs
 
 import loci.registry.Registry
-import loci.transmitter.RemoteRef
 import org.scalajs.dom
 import rescala.default._
 import rescala.extra.lattices.IdUtil
@@ -12,9 +11,8 @@ import visceljs.connection.{BookmarkManager, ContentConnectionManager, ServiceWo
 import visceljs.render.{Front, Index, View}
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
-import scala.util.Try
 
-case class MetaInfo(version: String, remoteVersion: Signal[String], serviceState: Signal[String], connection: Signal[Option[Try[RemoteRef]]])
+case class MetaInfo(version: String, remoteVersion: Signal[String], serviceState: Signal[String], connection: Signal[Int])
 
 @JSExportTopLevel("ViscelJS")
 object ViscelJS {
@@ -33,7 +31,7 @@ object ViscelJS {
 
     val bookmarkManager = new BookmarkManager(registry)
     val ccm             = new ContentConnectionManager(registry)
-    ccm.autoreconnect()
+    ccm.connect()
 
     val actionsEv = Events.fromCallback[AppState] { cb =>
       new Actions(hint = ccm.hint, postBookmarkF = bookmarkManager.postBookmarkF, manualStates = cb)
