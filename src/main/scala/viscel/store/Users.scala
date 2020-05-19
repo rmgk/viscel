@@ -10,7 +10,7 @@ import viscel.shared.{Bookmark, Vid}
 import scala.collection.immutable.Map
 import scala.jdk.CollectionConverters._
 
-import CirceStorage._
+import viscel.store.CirceStorage._
 
 class Users(usersDir: Path) {
 
