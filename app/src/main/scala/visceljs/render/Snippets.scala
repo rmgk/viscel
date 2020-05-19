@@ -92,9 +92,6 @@ object Snippets {
             s"server version: ", meta.remoteVersion.map(stringFrag).asModifier, br(),
             s"service worker: ", meta.serviceState.map(stringFrag).asModifier, br(),
             s"connection status: ", connectionStatus.asModifier, br()
-      //meta.registry.remotes.map(_.toList.map{ case (rr, state) =>
-      //  li(s"$rr: ", state.connected.map(s => stringFrag(if (s) "connected" else "disconnected")).asModifier)
-      //}).asModifierL
     )
   }
 
