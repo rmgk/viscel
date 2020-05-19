@@ -26,7 +26,7 @@ object LociDist {
     registry.bindPerRemote(binding) { remoteRef =>
       val signal: Signal[A, S] = signalFun(remoteRef)
       val signalName           = signal.name.str
-      //println(s"binding »$signalName«(${signal.hashCode()}) for »$remoteRef«")
+      println(s"binding »$signalName«(${signal.hashCode()}) for »$remoteRef«")
       newValue => {
         //println(s"received value for $signalName: ${newValue.hashCode()}")
         Scheduler[S].forceNewTransaction(signal) { admissionTicket =>
