@@ -12,7 +12,7 @@ import visceljs.render.{Front, Index, View}
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
-case class MetaInfo(version: String, remoteVersion: Signal[String], serviceState: Signal[String], connection: Signal[Int])
+case class MetaInfo(version: String, remoteVersion: Signal[String], serviceState: Signal[String], connection: Signal[Int], reconnecting: Signal[Int])
 
 @JSExportTopLevel("ViscelJS")
 object ViscelJS {
@@ -31,13 +31,13 @@ object ViscelJS {
 
     val bookmarkManager = new BookmarkManager(registry)
     val ccm             = new ContentConnectionManager(registry)
-    ccm.connect()
+    ccm.autoreconnect()
 
     val actionsEv = Events.fromCallback[AppState] { cb =>
       new Actions(hint = ccm.hint, postBookmarkF = bookmarkManager.postBookmarkF, manualStates = cb)
     }
 
-    val meta = MetaInfo(version, ccm.remoteVersion, swstate, ccm.connectionStatus)
+    val meta = MetaInfo(version, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
 
 
     val actions = actionsEv.value

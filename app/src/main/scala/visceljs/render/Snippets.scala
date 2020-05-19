@@ -83,17 +83,19 @@ object Snippets {
   def navigation(links: Modifier*): HtmlTag =
     nav(links :_*)
 
-  def meta(meta: MetaInfo): JsDom.Modifier =
+  def meta(meta: MetaInfo): JsDom.Modifier = {
+    val connectionStatus = meta.connection.map{
+      case 0 => stringFrag(s"disconnected (tries ${meta.reconnecting.value})")
+      case other => stringFrag(s"$other active")
+    }
     section(s"app version: ${meta.version}", br(),
             s"server version: ", meta.remoteVersion.map(stringFrag).asModifier, br(),
             s"service worker: ", meta.serviceState.map(stringFrag).asModifier, br(),
-            s"server: ", meta.connection.map{
-                 case 0 => stringFrag("disconnected")
-                 case other => stringFrag(s"$other connection")
-               }.asModifier, br()
+            s"connection status: ", connectionStatus.asModifier, br()
       //meta.registry.remotes.map(_.toList.map{ case (rr, state) =>
       //  li(s"$rr: ", state.connected.map(s => stringFrag(if (s) "connected" else "disconnected")).asModifier)
       //}).asModifierL
     )
+  }
 
 }

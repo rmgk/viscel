@@ -37,29 +37,45 @@ class ContentConnectionManager(registry: Registry) {
     registry.remotes.count(_.connected)
   }
 
-  val remoteVersion: Signal[String] = Events.fromCallback[String]{cb =>
-    registry.remoteJoined.foreach { rr =>
-      registry.lookup(Bindings.version, rr).foreach(cb)
-    }
-  }.event.latest("unknown")
+  val remoteVersion: Signal[String] =
+    joined.map(rr => Signals.fromFuture(registry.lookup(Bindings.version, rr)))
+          .latest(Signal {"unknown"}).flatten
 
 
   val descriptions = Storing.storedAs("descriptionsmap", Map.empty[Vid, Description]) { init =>
-    joined.map(rr => Signals.fromFuture(registry.lookup(Bindings.descriptions, rr).apply()))
-          .latest(Signal {init}).flatten.recover {
-      error =>
+    (joined.map { rr =>
+      Signals.fromFuture(registry.lookup(Bindings.descriptions, rr).apply())
+    }: Event[Signal[Map[Vid, Description]]])
+      .latest(Signal {init}).flatten
+      .recover { error =>
         Log.JS.error(s"failed to access descriptions: $error")
         init
-    }
+      }
   }
 
-  def connect(): Unit = {
+  val connectionAttempt: Evt[Unit] = Evt[Unit]()
+
+  val reconnecting: Signal[Int] = Events.foldAll(0)(acc => Seq(
+    connectionAttempt >> { _ => acc + 1 },
+    joined >> { _ => 0 }
+    ))
+
+  def connect(): Future[RemoteRef] = {
     Log.JS.info(s"trying to connect to $wsUri")
+    connectionAttempt.fire()
     registry.connect(WS(wsUri))
   }
 
+  def connectLoop(): Unit = {
+      connect().failed.foreach{ err =>
+        Log.JS.error(s"connection failed »$err«")
+        dom.window.setTimeout(() => connectLoop(), 1000)
+      }
+  }
+
   def autoreconnect(): Unit = {
-    left.filter(_ => connectionStatus.value == 0).observe(_ => connect())
+    left.filter(_ => connectionStatus.value == 0).observe(_ => connectLoop())
+    connectLoop()
   }
 
 
