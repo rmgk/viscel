@@ -17,15 +17,19 @@ final case class Bookmark(position: Int, timestamp: Long, sha1: Option[String] =
 object Bookmark {
   /** Newer bookmark wins. Then largest bookmark wins. */
   implicit def bookmarkLattice: Lattice[Bookmark] = (left, right) => {
-      java.lang.Long.compare(left.timestamp, right.timestamp) match {
-        case 0 =>  left.toString.compareTo(right.toString) match {
-          case 0 => left
+    java.lang.Long.compare(left.timestamp, right.timestamp) match {
+      case 0                => (left.sha1, right.sha1) match {
+        case (None, Some(_)) => right
+        case (Some(_), None) => left
+        case other           => left.toString.compareTo(right.toString) match {
+          case 0                => left
           case less if less < 0 => right
-          case _ => left
+          case _                => left
         }
-        case less if less < 0 => right
-        case _ => left
       }
+      case less if less < 0 => right
+      case _                => left
+    }
   }
 }
 
