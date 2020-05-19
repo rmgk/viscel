@@ -86,16 +86,17 @@ object Snippets {
     nav(links :_*)
 
   def meta(meta: MetaInfo): JsDom.Modifier =
-    section(ul(li(s"version: ${meta.version}"),
-               li(s"worker: ", meta.serviceState.map(stringFrag).asModifier),
-               li(s"server: ", meta.connection.map{
+    section(s"app version: ${meta.version}", br(),
+            s"server version: ", meta.remoteVersion.map(stringFrag).asModifier, br(),
+            s"worker: ", meta.serviceState.map(stringFrag).asModifier, br(),
+            s"server: ", meta.connection.map{
                  case None => stringFrag("disconnected")
                  case Some(Success(_)) => stringFrag("connected")
                  case Some(Failure(_)) => stringFrag("connection failed")
-               }.asModifier)
+               }.asModifier, br()
       //meta.registry.remotes.map(_.toList.map{ case (rr, state) =>
       //  li(s"$rr: ", state.connected.map(s => stringFrag(if (s) "connected" else "disconnected")).asModifier)
       //}).asModifierL
-    ))
+    )
 
 }

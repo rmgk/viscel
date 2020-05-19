@@ -14,6 +14,7 @@ import viscel.shared.Log.{Server => Log}
 import viscel.shared.{Bindings, BookmarksMap, Vid}
 import viscel.store.{NarratorCache, User, Users}
 import rescala.default._
+import viscel.Viscel
 
 import scala.collection.immutable.Map
 import scala.concurrent.Future
@@ -40,6 +41,7 @@ class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
     registry.bind(Bindings.contents) {contentLoader.contents}
     registry.bind(Bindings.descriptions) { () => contentLoader.descriptions() }
     registry.bind(Bindings.hint) {handleHint}
+    registry.bind(Bindings.version)(Viscel.version)
   }
 
   def handleBookmarks(userid: User.Id): Signal[BookmarksMap] = {

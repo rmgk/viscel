@@ -14,8 +14,7 @@ import visceljs.render.{Front, Index, View}
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import scala.util.Try
 
-
-case class MetaInfo(version: String, serviceState: Signal[String], connection: Signal[Option[Try[RemoteRef]]])
+case class MetaInfo(version: String, remoteVersion: Signal[String], serviceState: Signal[String], connection: Signal[Option[Try[RemoteRef]]])
 
 @JSExportTopLevel("ViscelJS")
 object ViscelJS {
@@ -40,7 +39,7 @@ object ViscelJS {
       new Actions(hint = ccm.hint, postBookmarkF = bookmarkManager.postBookmarkF, manualStates = cb)
     }
 
-    val meta = MetaInfo(version, swstate, ccm.connectionStatus)
+    val meta = MetaInfo(version, ccm.remoteVersion, swstate, ccm.connectionStatus)
 
 
     val actions = actionsEv.value
@@ -61,5 +60,4 @@ object ViscelJS {
     safeBodySignal.asModifier.applyTo(bodyParent)
 
   }
-
 }

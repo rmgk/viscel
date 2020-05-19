@@ -18,7 +18,11 @@ object Bookmark {
   /** Newer bookmark wins. Then largest bookmark wins. */
   implicit def bookmarkLattice: Lattice[Bookmark] = (left, right) => {
       java.lang.Long.compare(left.timestamp, right.timestamp) match {
-        case 0 => Bookmark(math.max(left.position, right.position), left.timestamp)
+        case 0 =>  left.toString.compareTo(right.toString) match {
+          case 0 => left
+          case less if less < 0 => right
+          case _ => left
+        }
         case less if less < 0 => right
         case _ => left
       }

@@ -39,6 +39,7 @@ class Users(usersDir: Path) {
   }
 
   def setBookmark(user: User, colid: Vid, bm: Bookmark): User = {
+    Log.info(s"setBookmark $colid to $bm")
     userUpdate(user.setBookmark(colid, bm))
   }
 

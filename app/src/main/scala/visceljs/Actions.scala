@@ -16,8 +16,10 @@ class Actions(hint: (Vid, Boolean) => Unit,
   private def gotoView(data: Data): Unit = manualStates(ViewState(data.id, data.pos))
 
 
-  private def postBookmark(vid: Vid, pos: Int): Unit = {
-    postBookmarkF(vid, Bookmark(pos, System.currentTimeMillis()))
+  private def postBookmark(vid: Vid, pos: Int, data: Data): Unit = {
+    val cdat = data.content.gallery.atPos(pos).get
+    val bm = Bookmark(pos, System.currentTimeMillis(), cdat.map(_.blob.sha1), cdat.map(_.origin))
+    postBookmarkF(vid, bm)
   }
 
 
@@ -35,7 +37,7 @@ class Actions(hint: (Vid, Boolean) => Unit,
   def postBookmark(bm: Int, data: Data, handler: Data => Unit, ts: Modifier*): HtmlTag = {
     if (data.bookmark != bm) {
       lcButton {
-        postBookmark(data.id, bm)
+        postBookmark(data.id, bm, data)
         handler(data.copy(bookmark = bm))
       }(ts: _*)
     }

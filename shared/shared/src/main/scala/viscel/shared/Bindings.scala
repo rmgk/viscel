@@ -23,5 +23,5 @@ object Bindings {
 
   val bookmarksMapBindig = Binding[Map[Vid, Bookmark] => Unit]("bookmarksmap")
 
-  val bookUpdate = Binding[Description => Unit]("bookUpdate")
+  val version = Binding[String]("version")
 }

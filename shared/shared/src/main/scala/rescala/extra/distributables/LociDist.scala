@@ -5,6 +5,7 @@ import loci.transmitter.RemoteRef
 import rescala.core.{InitialChange, Scheduler, Struct}
 import rescala.extra.lattices.Lattice
 import rescala.reactives.{Observe, Signal}
+import viscel.shared.Log
 
 import scala.concurrent.Future
 
@@ -21,11 +22,11 @@ object LociDist {
    registry: Registry)
   (binding: Binding[A => Unit] {type RemoteCall = A => Future[Unit]})
   : Unit = {
-
+    Log.Server.info(s"starting new distribution for »${binding.name}«")
     registry.bindPerRemote(binding) { remoteRef =>
       val signal: Signal[A, S] = signalFun(remoteRef)
       val signalName           = signal.name.str
-      println(s"binding $signalName")
+      //println(s"binding »$signalName«(${signal.hashCode()}) for »$remoteRef«")
       newValue => {
         //println(s"received value for $signalName: ${newValue.hashCode()}")
         Scheduler[S].forceNewTransaction(signal) { admissionTicket =>
@@ -41,7 +42,7 @@ object LociDist {
             }
           })
         }
-        //println(s"update for $signalName complete")
+        Log.Server.info(s"update for $signalName complete")
       }
     }
 
@@ -51,7 +52,10 @@ object LociDist {
       val signal: Signal[A, S] = signalFun(remoteRef)
       val signalName           = signal.name.str
       println(s"registering new remote $remoteRef for $signalName")
-      val remoteUpdate: A => Future[Unit] = registry.lookup(binding, remoteRef)
+      val remoteUpdate: A => Future[Unit] = {
+        Log.Server.info(s"calling lookup on $binding")
+        registry.lookup(binding, remoteRef)
+      }
       observers += (remoteRef -> signal.observe { s =>
         //println(s"calling remote observer on $remoteRef for $signalName")
         if (remoteRef.connected) remoteUpdate(s)

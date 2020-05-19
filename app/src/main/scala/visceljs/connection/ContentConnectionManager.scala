@@ -41,12 +41,15 @@ class ContentConnectionManager(registry: Registry) {
         case s @ Success(remoteRef) =>
           _connectionStatus.set(Some(s))
           updateDescriptions(remoteRef)
+          registry.lookup(Bindings.version, remoteRef).foreach(v => remoteVersion.set(v))
         case f @ Failure(msg)       =>
           _connectionStatus.set(Some(f))
           connect()
       }
     }
   }
+
+  val remoteVersion: Var[String] = Var("unknown")
 
 
   def autoreconnect(): Unit = {
