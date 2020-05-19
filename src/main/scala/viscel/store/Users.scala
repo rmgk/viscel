@@ -4,15 +4,17 @@ import java.io.IOException
 import java.nio.file.{Files, Path}
 
 import io.circe.generic.auto._
+import viscel.server.ContentLoader
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.{Bookmark, Vid}
 
 import scala.collection.immutable.Map
 import scala.jdk.CollectionConverters._
-
 import viscel.store.CirceStorage._
 
-class Users(usersDir: Path) {
+import scala.util.Try
+
+class Users(usersDir: Path, contentLoader: ContentLoader) {
 
   type Error[T] = Either[String, T]
 
@@ -51,7 +53,23 @@ class Users(usersDir: Path) {
   private def load(p: Path): Either[String, User] =
     CirceStorage.load[User](p).toTry.orElse {
       CirceStorage.load[LegacyUser](p).map(_.toUser).toTry
-    }.toEither.left.map(_.getMessage)
+    }.toEither.left.map(_.getMessage).map { user =>
+      if (!user.bookmarks.valuesIterator.exists(_.sha1.isEmpty)) user
+      else {
+        user.copy(bookmarks = user.bookmarks.view.flatMap { case (vid, bm) =>
+          if (bm.sha1.isEmpty) {
+            Log.info(s"enhancing bookmark of $vid")
+            for {
+              contents <- Try {contentLoader.contents(vid)}.getOrElse(None)
+              entry <- contents.gallery.atPos(bm.position).get
+            } yield {
+              vid -> bm.copy(sha1 = Some(entry.blob.sha1), origin = Some(entry.origin))
+            }
+          }
+          else Some(vid -> bm)
+        }.toMap)
+      }
+    }
 
   var userCache = Map[String, User]()
 

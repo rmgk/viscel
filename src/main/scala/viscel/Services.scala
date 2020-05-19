@@ -42,7 +42,7 @@ class Services(relativeBasedir: Path,
 
   lazy val descriptionCache = new DescriptionCache(cachedir)
   lazy val blobStore        = new BlobStore(blobdir)
-  lazy val userStore        = new Users(usersdir)
+  lazy val userStore        = new Users(usersdir, contentLoader)
   lazy val rowStore         = new StoreManager(db3dir, db4dir).transition()
   lazy val narratorCache    = new NarratorCache(metarratorconfigdir, definitionsdir)
   lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
