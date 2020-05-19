@@ -1,6 +1,4 @@
 @import 'lib/normalize.css/normalize';
-@import "lib/font-awesome/css/svg-with-js";
-@import "underline-animation";
 
 $font-color: snow;
 $theme-color: limegreen;
@@ -247,9 +245,76 @@ body#view {
   }
 }
 
-////bigish screens
-//@media only screen and (min-height: 1024px) and (min-width: 1024px) {
-//  #view img {
-//    max-height: 100vh;
-//  }
-//}
+
+
+
+/*!
+ * Font Awesome Free 5.10.1 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+ */
+svg:not(:root).svg-inline--fa {
+    overflow: visible
+}
+
+.svg-inline--fa {
+    display: inline-block;
+    font-size: inherit;
+    height: 1em;
+    overflow: visible;
+    vertical-align: -.125em
+}
+
+
+.svg-inline--fa.fa-w-14 {
+    width: 0.875em
+}
+
+
+.svg-inline--fa.fa-w-16 {
+    width: 1em
+}
+
+.svg-inline--fa.fa-w-18 {
+    width: 1.125em
+}
+
+
+/*
+This snippet was part of https://themes.gohugo.io/hugo-theme-even/
+Copyright (c) 2017 olOwOlo
+Licensed under the MIT License
+*/
+
+@mixin underline-from-center() {
+  display: inline-block;
+  vertical-align: middle;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  box-shadow: 0 0 1px transparent;
+  position: relative;
+  overflow: hidden;
+
+  &:after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    height: 2px;
+    bottom: 0;
+    left: 51%;
+    right: 51%;
+    background: $theme-color;
+    transition-duration: 0.2s;
+    transition-property: right, left;
+    transition-timing-function: ease-out;
+  }
+
+  &.active,
+  &:active,
+  &:focus,
+  &:hover {
+    &:after {
+      right: 0;
+      left: 0;
+    }
+  }
+}
