@@ -10,7 +10,7 @@ import scalatags.JsDom.all.{HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, b
 import scalatags.JsDom.tags2.{article, section}
 import visceljs.Definitions.lcButton
 import visceljs.Navigation._
-import visceljs.{Actions, Data, FitType, Icons, Make}
+import visceljs.{Actions, Data, Icons}
 
 
 class View(act: Actions) {
@@ -31,17 +31,17 @@ class View(act: Actions) {
     val mainPart: Signal[HtmlTag] = Signal {
       val data = dataSignal.value
       data.gallery.get.fold[HtmlTag](p(s"loading image data …")) { asst =>
-        article(Make.asset(asst, data, Make.imageStyle(fitType.value)))(asst.data.get("longcomment").fold(List[Tag]())(p(_) :: Nil))
+        article(Snippets.asset(asst, data, Snippets.imageStyle(fitType.value)))(asst.data.get("longcomment").fold(List[Tag]())(p(_) :: Nil))
       }
     }
 
     val navigation: Signal[HtmlTag] = Signal {
       val data = dataSignal.value
       val ft = fitType.value
-        Make.navigation(
+      Snippets.navigation(
           act.button_asset(data.prev, navigate.fire(Prev))(Icons.prev, rel := "prev", title := "previous page"),
           act.link_front(data.id, Icons.front, title := "back to front page"),
-          Make.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
+          Snippets.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
           lcButton(navigate.fire(Mode(ft.next)), Icons.modus, s" $ft", title := "cycle image display mode"),
           act.postBookmark(data.pos + 1, data, _ => (), Icons.bookmark, title := "save bookmark"),
           a(href := data.gallery.get.fold("")(_.origin), rel := "noreferrer")(Icons.externalLink, title := "visit original page"),

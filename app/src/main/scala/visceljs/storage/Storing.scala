@@ -1,9 +1,8 @@
-package visceljs
+package visceljs.storage
 
 import org.scalajs.dom
-import rescala.default.Signal
+import rescala.default.{Signal, implicitScheduler}
 import upickle.default._
-import rescala.default.implicitScheduler
 
 object Storing {
 

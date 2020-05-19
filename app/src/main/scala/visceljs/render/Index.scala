@@ -11,7 +11,7 @@ import viscel.shared.{Bookmark, Description, Vid}
 import visceljs.Definitions.link_tools
 import rescala.extra.Tags._
 import scalatags.JsDom
-import visceljs.{Actions, Make, MetaInfo, SearchUtil}
+import visceljs.{Actions, MetaInfo, SearchUtil}
 
 import scala.collection.immutable.Map
 
@@ -113,14 +113,14 @@ class Index(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, Bookmar
                            "Bookmarks",
                            "Available")
       groupNames.map { gn =>
-        Make.group(gn, actions, g.toMap.apply(gn))
+        Snippets.group(gn, actions, g.toMap.apply(gn))
       }
     }
 
 
     body(id := "index",
-         Make.navigation(Make.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
-         Make.meta(meta),
+         Snippets.meta(meta),
+         Snippets.navigation(Snippets.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
          groupTags.asModifierL
          )
   }

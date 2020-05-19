@@ -10,7 +10,7 @@ import scalatags.JsDom.tags.{SeqFrag, body, h1}
 import scalatags.JsDom.tags2.{article, section}
 import viscel.shared.{ChapterPos, Contents, Gallery, SharedImage}
 import visceljs.Definitions.{class_chapters, class_preview}
-import visceljs.{Actions, Data, Make}
+import visceljs.{Actions, Data}
 
 import scala.annotation.tailrec
 
@@ -24,10 +24,10 @@ class Front(actions: Actions) {
 
       val top = h1(s"${narration.name} ($bookmark/${narration.size})")
 
-      val navigation = Make.navigation(
+      val navigation = Snippets.navigation(
         link_index("index"),
         link_asset(data.move(_.first))("first page"),
-        Make.fullscreenToggle("fullscreen"),
+        Snippets.fullscreenToggle("fullscreen"),
         postBookmark(0, data, _ => gotoFront(vid), "remove bookmark"),
         postForceHint(vid, "force check"))
 
@@ -37,7 +37,7 @@ class Front(actions: Actions) {
         val preview3 = preview2.next
         section(class_preview)(
           List(preview1, preview2, preview3).map(p => p -> p.gallery.get)
-            .collect { case (p, Some(a)) => link_asset(p)(Make.asset(a, data)) })
+            .collect { case (p, Some(a)) => link_asset(p)(Snippets.asset(a, data)) })
       }
 
       def chapterlist: Tag = {

@@ -10,7 +10,8 @@ import scalatags.JsDom.TypedTag
 import viscel.shared.{Bookmark, Contents, Description, Log, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Navigation.{Mode, Next, Prev, navigationEvents}
-import visceljs.render.{Front, Index, View}
+import visceljs.render.{FitType, Front, Index, Snippets, View}
+import visceljs.storage.Storing
 
 import scala.collection.immutable.Map
 
@@ -85,7 +86,7 @@ class ReaderApp(content: Vid => Signal[Contents],
       if (ev == Prev || ev == Next) {
         dom.window.scrollTo(0, 0)
       }
-      /*val pregen =*/ data.gallery.next(1).get.map(asst => Make.asset(asst, data).render)
+      /*val pregen =*/ data.gallery.next(1).get.map(asst => Snippets.asset(asst, data).render)
 
     }
 

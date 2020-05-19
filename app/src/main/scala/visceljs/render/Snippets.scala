@@ -1,17 +1,18 @@
-package visceljs
-
+package visceljs.render
 
 import org.scalajs.dom
 import scalatags.JsDom
-import scalatags.JsDom.all.{alt, stringFrag, _}
 import scalatags.JsDom.TypedTag
+import scalatags.JsDom.all.{alt, stringFrag, _}
 import scalatags.JsDom.attrs.style
 import scalatags.JsDom.tags2.{nav, section}
 import viscel.shared.{Blob, SharedImage}
 import visceljs.Definitions._
-import visceljs.render.FrontPageEntry
-import rescala.extra.Tags._
+import visceljs.{Actions, Data, Definitions, Icons, MetaInfo}
 import rescala.default._
+import rescala.extra.Tags._
+
+import scala.util.{Failure, Success}
 
 sealed trait FitType {
   def next: FitType = this match {
@@ -28,7 +29,7 @@ object FitType {
   case object O extends FitType
 }
 
-object Make {
+object Snippets {
 
 
   def imageStyle(fitType: FitType): Modifier = {
@@ -86,6 +87,15 @@ object Make {
 
   def meta(meta: MetaInfo): JsDom.Modifier =
     section(ul(li(s"version: ${meta.version}"),
-               li(s"worker: ", meta.serviceState.map(stringFrag).asModifier)))
+               li(s"worker: ", meta.serviceState.map(stringFrag).asModifier),
+               li(s"server: ", meta.connection.map{
+                 case None => stringFrag("disconnected")
+                 case Some(Success(_)) => stringFrag("connected")
+                 case Some(Failure(_)) => stringFrag("connection failed")
+               }.asModifier)
+      //meta.registry.remotes.map(_.toList.map{ case (rr, state) =>
+      //  li(s"$rr: ", state.connected.map(s => stringFrag(if (s) "connected" else "disconnected")).asModifier)
+      //}).asModifierL
+    ))
 
 }

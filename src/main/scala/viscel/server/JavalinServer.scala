@@ -1,16 +1,13 @@
 package viscel.server
 
 
-import java.util.function.Consumer
-
 import better.files._
 import io.javalin.Javalin
 import io.javalin.core.compression.Gzip
 import io.javalin.core.util.Header
 import io.javalin.http.staticfiles.Location
-import io.javalin.websocket.WsHandler
+import loci.communicator.ws.javalin.WS
 import loci.communicator.ws.javalin.WS.Properties
-import loci.communicator.{Listener, Listening}
 import loci.registry.Registry
 import rescala.default.Signal
 import rescala.extra.distributables.LociDist
@@ -24,7 +21,6 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters._
-import scala.util.{Success, Try}
 
 
 class JavalinServer(blobStore: BlobStore,
@@ -74,19 +70,6 @@ class JavalinServer(blobStore: BlobStore,
     val wspath     = "ws"
     val properties = Properties(heartbeatDelay = 3.seconds, heartbeatTimeout = 10.seconds)
 
-    val listener = new Listener[JavalinWS] {
-      self =>
-      protected def startListening(connectionEstablished: Connected[JavalinWS]): Try[Listening] = {
-        jl.ws(wspath, new Consumer[WsHandler] {
-          override def accept(ws: WsHandler): Unit =
-            LociJavalinWSHandler.handleConnection(ws, wspath, properties, self, connectionEstablished.fire)
-        })
-        Success(new Listening {
-          def stopListening(): Unit = ()
-        })
-      }
-    }
-
     val registry = new Registry
     interactions.bindGlobalData(registry)
 
@@ -95,12 +78,12 @@ class JavalinServer(blobStore: BlobStore,
     import rescala.default.implicitScheduler
 
     LociDist.distributePerRemote({rr =>
-      val user = rr.protocol.asInstanceOf[JavalinWS].javalinContext.attribute[User]("user")
+      val user = rr.protocol.asInstanceOf[loci.communicator.ws.javalin.WS].context.attribute[User]("user")
       userSocketCache.getOrElseUpdate(user.id, interactions.handleBookmarks(user.id))
     }, registry)(Bindings.bookmarksMapBindig)
     //LociDist.distribute(handleBookmarks(userid), registry)(Bindings.bookmarksMapBindig)
 
-    registry.listen(listener)
+    registry.listen(WS(jl, wspath, properties))
   }
 
   def setup(): Javalin = {
