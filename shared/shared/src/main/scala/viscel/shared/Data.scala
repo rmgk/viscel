@@ -13,7 +13,7 @@ final case class SharedImage(origin: String,
 final case class Contents(gallery: Gallery[SharedImage], chapters: List[ChapterPos])
 final case class Blob(sha1: String, mime: String)
 
-final case class Bookmark(position: Int, timestamp: Long)
+final case class Bookmark(position: Int, timestamp: Long, sha1: Option[String] = None, origin: Option[String] = None)
 object Bookmark {
   /** Newer bookmark wins. Then largest bookmark wins. */
   implicit def bookmarkLattice: Lattice[Bookmark] = (left, right) => {
