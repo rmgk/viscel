@@ -8,6 +8,14 @@ import Settings._
 import Dependencies._
 import AdvancedBuild._
 
+def  lociRef(name: String) = ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#02ad8351e3248d4c9b054eb8ff159daf1a6ca773"), name)
+
+lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
+lazy val lociJavalinJS = lociRef("lociCommunicatorWsJavalinJS")
+lazy val lociSerializerUpickleJS = lociRef("lociSerializerUpickleJS")
+lazy val lociSerializerUpickleJVM = lociRef("lociSerializerUpickleJVM")
+
+
 inThisBuild(scalaVersion_213)
 ThisBuild / organization := "de.rmgk"
 
@@ -60,24 +68,31 @@ lazy val app = project.in(file("app"))
                .enablePlugins(ScalaJSPlugin)
                .settings(
                  name := "app",
-                 scalajsdom, normalizecss, fontawesome, scalatags,
+                 scalajsdom, normalizecss, scalatags,
                  Resolvers.stg, strictCompile
                  //scalaJSUseMainModuleInitializer := true
                )
-               .dependsOn(sharedJS)
+                      .dependsOn(sharedJS)
+
                .enablePlugins(SbtSassify)
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform).in(file("shared"))
                   .settings(
                     name := "viscel-shared",
-                    strictCompile, scribe, scalatags, loci.communication, upickle, loci.upickle,
-                    libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",
-                    loci.wsJavalin, scribeSlf4j
+                    strictCompile, scribe, scalatags, upickle,
+                    scribeSlf4j, Resolvers.stg,
+                    libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0"
                     )
 lazy val sharedJVM = shared.jvm
+                           .dependsOn(lociJavalinJVM)
+                           .dependsOn(lociSerializerUpickleJVM)
 lazy val sharedJS = shared.js
+                          .dependsOn(lociSerializerUpickleJS)
+                          .dependsOn(lociJavalinJS)
 
 lazy val benchmarks = project.in(file("benchmarks"))
                       .settings(name := "benchmarks")
                       .enablePlugins(JmhPlugin)
                       .dependsOn(viscel)
+
+
