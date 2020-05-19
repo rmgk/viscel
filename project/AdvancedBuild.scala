@@ -45,7 +45,7 @@ object AdvancedBuild {
 
   val vbundle    = TaskKey[File]("vbundle", "bundles all the viscel resources")
 
-  def bundleStuff(jsfile: File, styles: Seq[File], bundleTarget: Path, jsDpendencies: File, sourceDirectory: File): File = {
+  def bundleStuff(jsfile: File, styles: Seq[File], bundleTarget: Path, jsDpendencies: File, sourceDirectory: File, version: String): File = {
     Files.createDirectories(bundleTarget)
 
     def gzipToTarget(f: File): Unit = //IO.gzip(f, bundleTarget.resolve(f.name + ".gz").toFile)
@@ -65,7 +65,7 @@ object AdvancedBuild {
 
 
     val swupdated = IO.read(sourcepath("main/js/serviceworker.js"))
-                      .replaceAllLiterally("[inserted app cache name]", System.currentTimeMillis().toString)
+                      .replaceAllLiterally("[inserted app cache name]", s"$version-${System.currentTimeMillis()}")
     IO.write(bundleTarget.resolve("serviceworker.js").toFile, swupdated)
 
     IO.listFiles(jsDpendencies).foreach(gzipToTarget)

@@ -11,32 +11,11 @@ import AdvancedBuild._
 inThisBuild(scalaVersion_213)
 ThisBuild / organization := "de.rmgk"
 
-val Libraries = new {
-
-  val rescalaVersion = "0.30.0"
-  val rescala        = libraryDependencies += "de.tuda.stg" %%% "rescala" % rescalaVersion
-
-
-  val shared = Def.settings(
-    strictCompile, scribe, scalatags, loci.communication, upickle, rescala, loci.upickle,
-    loci.wsJavalin, scribeSlf4j
-  )
-
-  val main =
-    Def.settings(strictCompile, betterFiles, decline,
-                 scalatest, scalacheck, scalatestpluscheck,
-                 jsoup, okHttp, javalin, circe)
-
-
-  val js: Def.SettingsDefinition = Seq(scalajsdom, normalizecss, fontawesome, scalatags,
-                                       Resolvers.stg, strictCompile)
-}
-
 val vbundleDef = vbundle := {
   (app / Compile / fullOptJS).value
   val jsfile       = (app / Compile / fullOptJS / artifactPath).value
   val styles       = (app / Assets / SassKeys.sassify).value
-  bundleStuff(jsfile, styles, target.value.toPath.resolve("resources/static"), fetchJSDependencies.value, sourceDirectory.value)
+  bundleStuff(jsfile, styles, target.value.toPath.resolve("resources/static"), fetchJSDependencies.value, sourceDirectory.value, version.value)
 }
 
 lazy val nativeImage = taskKey[File]("calls graalvm native image")
@@ -48,7 +27,9 @@ lazy val viscel = project
                   .settings(
                     name := "viscel",
                     fork := true,
-                    Libraries.main,
+                    strictCompile, betterFiles, decline,
+                    scalatest, scalacheck, scalatestpluscheck,
+                    jsoup, okHttp, javalin, circe,
                     fetchJSDependenciesDef,
                     vbundleDef,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
@@ -79,8 +60,9 @@ lazy val app = project.in(file("app"))
                .enablePlugins(ScalaJSPlugin)
                .settings(
                  name := "app",
-                 Libraries.js,
-                 scalaJSUseMainModuleInitializer := true
+                 scalajsdom, normalizecss, fontawesome, scalatags,
+                 Resolvers.stg, strictCompile
+                 //scalaJSUseMainModuleInitializer := true
                )
                .dependsOn(sharedJS)
                .enablePlugins(SbtSassify)
@@ -88,7 +70,9 @@ lazy val app = project.in(file("app"))
 lazy val shared = crossProject(JSPlatform, JVMPlatform).in(file("shared"))
                   .settings(
                     name := "viscel-shared",
-                    Libraries.shared,
+                    strictCompile, scribe, scalatags, loci.communication, upickle, loci.upickle,
+                    libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",
+                    loci.wsJavalin, scribeSlf4j
                     )
 lazy val sharedJVM = shared.jvm
 lazy val sharedJS = shared.js

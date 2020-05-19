@@ -5,6 +5,7 @@ import scalatags.Text.attrs.{`for`, `type`, action, attr, content, href, id, rel
 import scalatags.Text.implicits.{Frag, Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{SeqFrag, body, div, form, h1, head, html, input, label, link, meta, script}
 import scalatags.Text.tags2.section
+import viscel.Viscel
 
 class ServerPages() {
 
@@ -16,19 +17,14 @@ class ServerPages() {
         link(rel := "manifest", href := "manifest.json"),
         link(rel := "icon", href := "icon.png", attr("sizes") := "192x192"),
         meta(attrname := "viewport",
-             content := "width=device-width, initial-scale=1, user-scalable=yes, minimal-ui"),
-        script(raw("""if('serviceWorker' in navigator) {
-        navigator.serviceWorker
-                 .register('serviceworker.js')
-                 .then(function(reg) { console.log('Service Worker Registered', reg); })
-                 .catch(function(err) { console.log('Service Worker Failed', err); }); }"""))
-        )
-      )(stuff: _*)
+             content := "width=device-width, initial-scale=1, user-scalable=yes, minimal-ui")
+      ))(stuff: _*)
 
 
   def landingTag: Tag = makeHtml(body("if nothing happens, your javascript does not work"),
                                  script(src := "localforage.min.js"),
-                                 script(src := "app-opt.js"))
+                                 script(src := "app-opt.js"),
+                                 script(raw(s"ViscelJS.run('${Viscel.version}')")))
 
   def fullrender(tag: Tag): String = "<!DOCTYPE html>" + tag.render
 

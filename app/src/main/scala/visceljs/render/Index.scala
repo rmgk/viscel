@@ -11,7 +11,7 @@ import viscel.shared.{Bookmark, Description, Vid}
 import visceljs.Definitions.link_tools
 import rescala.extra.Tags._
 import scalatags.JsDom
-import visceljs.{Actions, Make, SearchUtil}
+import visceljs.{Actions, Make, MetaInfo, SearchUtil}
 
 import scala.collection.immutable.Map
 
@@ -42,7 +42,7 @@ case class AvailableEntry(id: Vid, description: Description) extends FrontPageEn
   override def recentOrder: Long = 0
 }
 
-class Index(actions: Actions, bookmarks: Signal[Map[Vid, Bookmark]], descriptions: Signal[Map[Vid, Description]]) {
+class Index(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, Bookmark]], descriptions: Signal[Map[Vid, Description]]) {
 
   def gen(): TypedTag[html.Body] = {
 
@@ -120,6 +120,7 @@ class Index(actions: Actions, bookmarks: Signal[Map[Vid, Bookmark]], description
 
     body(id := "index",
          Make.navigation(Make.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
+         Make.meta(meta),
          groupTags.asModifierL
          )
   }

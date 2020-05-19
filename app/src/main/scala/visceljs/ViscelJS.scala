@@ -18,8 +18,9 @@ import viscel.shared._
 import visceljs.render.{Front, Index, View}
 
 import scala.concurrent.Future
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSGlobal
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel, JSGlobal}
 import scala.util.{Failure, Success}
 
 
@@ -169,12 +170,47 @@ class ContentConnectionManager(registry: Registry) {
 }
 
 
+object ServiceWorker {
+  def register(): Signal[String] = {
+    Events.fromCallback[String] { cb =>
+      Option(dom.experimental.serviceworkers.toServiceWorkerNavigator(dom.window.navigator).serviceWorker) match {
+        case None                => cb("none")
+        case Some(serviceworker) =>
+          serviceworker.register("serviceworker.js").toFuture.onComplete {
+            case Success(registration) =>
+              cb("registered")
+              registration.addEventListener("updatefound", (event: js.Any) => {
+                val newWorker = registration.installing
+                newWorker.addEventListener("statechange", (event: js.Any) => {
+                  cb(newWorker.state)
+                })
+              })
+            case Failure(error)        =>
+              Log.JS.error(s"serviceworker failed", error)
+              cb("failed")
+          }
+      }
+    }.event.latest("init")
+  }
+}
+
+
+case class MetaInfo(version: String, serviceState: Signal[String])
+
+@JSExportTopLevel("ViscelJS")
 object ViscelJS {
 
   val replicaID: Id = IdUtil.genId()
 
-  def main(args: Array[String]): Unit = {
+  @JSExport
+  def run(version: String): Unit = {
     dom.document.body = body("loading data …").render
+
+    val swstate = ServiceWorker.register()
+
+
+    val meta = MetaInfo(version, swstate)
+
     val registry = new Registry
 
     val bookmarkManager = new BookmarkManager(registry)
@@ -185,7 +221,7 @@ object ViscelJS {
     }
 
     val actions = actionsEv.value
-    val index = new Index(actions, bookmarkManager.bookmarks, ccm.descriptions)
+    val index = new Index(meta, actions, bookmarkManager.bookmarks, ccm.descriptions)
     val front = new Front(actions)
     val view = new View(actions)
     val app = new ReaderApp(content = ccm.content,

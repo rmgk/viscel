@@ -1,4 +1,4 @@
-const cacheName = 'AppCache[inserted app cache name]';
+const cacheName = '[inserted app cache name]';
 
 self.addEventListener('install', function (e) {
     console.log("installing serviceworker in cache " + cacheName);
@@ -12,7 +12,6 @@ self.addEventListener('install', function (e) {
                 'localforage.min.js',
                 'icon.png'
             ].map(url => new Request(url, {credentials: 'same-origin'}));
-            cachedRequests.forEach(request => console.log("caching " + request.url));
             return cache.addAll(cachedRequests);
         })
     );
@@ -26,9 +25,7 @@ self.addEventListener('activate', function (event) {
                     return caches.delete(key);
                 }
             })
-        )).then(() => {
-            console.log('SW ' + cacheName + ' now ready to handle fetches');
-        })
+        ))
     );
 });
 
@@ -36,7 +33,6 @@ self.addEventListener('activate', function (event) {
 self.addEventListener('fetch', function (e) {
     e.respondWith(
         caches.match(e.request).then(function (response) {
-            if (response) console.log("responding to " + e.request.url + " from cache " + cacheName + response);
             return response || fetch(e.request);
         })
     );

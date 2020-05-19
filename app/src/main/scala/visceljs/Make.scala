@@ -2,6 +2,7 @@ package visceljs
 
 
 import org.scalajs.dom
+import scalatags.JsDom
 import scalatags.JsDom.all.{alt, stringFrag, _}
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.attrs.style
@@ -9,6 +10,8 @@ import scalatags.JsDom.tags2.{nav, section}
 import viscel.shared.{Blob, SharedImage}
 import visceljs.Definitions._
 import visceljs.render.FrontPageEntry
+import rescala.extra.Tags._
+import rescala.default._
 
 sealed trait FitType {
   def next: FitType = this match {
@@ -26,6 +29,7 @@ object FitType {
 }
 
 object Make {
+
 
   def imageStyle(fitType: FitType): Modifier = {
     style := (fitType match {
@@ -79,4 +83,9 @@ object Make {
 
   def navigation(links: Modifier*): HtmlTag =
     nav(links :_*)
+
+  def meta(meta: MetaInfo): JsDom.Modifier =
+    section(ul(li(s"version: ${meta.version}"),
+               li(s"worker: ", meta.serviceState.map(stringFrag).asModifier)))
+
 }

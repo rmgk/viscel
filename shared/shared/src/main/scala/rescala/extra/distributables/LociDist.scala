@@ -27,13 +27,12 @@ object LociDist {
       val signalName           = signal.name.str
       println(s"binding $signalName")
       newValue => {
-        println(s"received value for $signalName: ${newValue.hashCode()}")
+        //println(s"received value for $signalName: ${newValue.hashCode()}")
         Scheduler[S].forceNewTransaction(signal) { admissionTicket =>
           admissionTicket.recordChange(new InitialChange[S] {
             override val source = signal
             override def writeValue(b: source.Value, v: source.Value => Unit): Boolean = {
               val merged = b.map(Lattice[A].merge(_, newValue)).asInstanceOf[source.Value]
-              println(s"writing ${newValue.hashCode()} onto ${b.hashCode()}, result is ${merged.hashCode()}")
               if (merged != b) {
                 v(merged)
                 true
@@ -42,7 +41,7 @@ object LociDist {
             }
           })
         }
-        println(s"update for $signalName complete")
+        //println(s"update for $signalName complete")
       }
     }
 
@@ -54,7 +53,7 @@ object LociDist {
       println(s"registering new remote $remoteRef for $signalName")
       val remoteUpdate: A => Future[Unit] = registry.lookup(binding, remoteRef)
       observers += (remoteRef -> signal.observe { s =>
-        println(s"calling remote observer on $remoteRef for $signalName")
+        //println(s"calling remote observer on $remoteRef for $signalName")
         if (remoteRef.connected) remoteUpdate(s)
       })
     }
