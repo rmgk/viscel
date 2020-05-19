@@ -33,14 +33,11 @@ object ViscelJS {
     val ccm             = new ContentConnectionManager(registry)
     ccm.autoreconnect()
 
-    val actionsEv = Events.fromCallback[AppState] { cb =>
-      new Actions(hint = ccm.hint, postBookmarkF = bookmarkManager.postBookmarkF, manualStates = cb)
-    }
+    val actions = new Actions(hint = ccm.hint, postBookmarkF = bookmarkManager.postBookmarkF)
 
     val meta = MetaInfo(version, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
 
 
-    val actions = actionsEv.value
     val index   = new Index(meta, actions, bookmarkManager.bookmarks, ccm.descriptions)
     val front   = new Front(actions)
     val view    = new View(actions)
@@ -49,7 +46,7 @@ object ViscelJS {
                                 bookmarks = bookmarkManager.bookmarks
                                 )
 
-    val bodySig        = app.makeBody(index, front, view, actionsEv.event)
+    val bodySig        = app.makeBody(index, front, view, Evt())
     val safeBodySignal = bodySig
 
     val bodyParent = dom.document.body.parentElement

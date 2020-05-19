@@ -98,12 +98,10 @@ class Index(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, Bookmar
     val callback: Signal[() => Boolean] = groups.map { gs =>
       val displayOrder = gs.map(_._2)
       val first: Option[Vid] = displayOrder.find(_.nonEmpty).map{ _.head.id}
-      () => {first.foreach(actions.gotoFront); false}
+      () => {first.foreach(_ => ()); false}
     }
 
     val searchForm = form(inputField, onsubmit := callback)
-
-    //println(s"groups: ${groups.now}")
 
 
     val groupTags: Signal[Seq[JsDom.TypedTag[dom.Element]]] = groups.map{ g =>

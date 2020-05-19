@@ -4,13 +4,13 @@ import org.scalajs.dom.html
 import rescala.default._
 import scalatags.JsDom
 import scalatags.JsDom.Frag
-import scalatags.JsDom.all.{Tag, id, stringAttr, frag}
+import scalatags.JsDom.all.{Tag, a, frag, href, id, stringAttr}
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{SeqFrag, body, h1}
 import scalatags.JsDom.tags2.{article, section}
 import viscel.shared.{ChapterPos, Contents, Gallery, SharedImage}
 import visceljs.Definitions.{class_chapters, class_preview}
-import visceljs.{Actions, Data}
+import visceljs.{Actions, Data, Definitions}
 
 import scala.annotation.tailrec
 
@@ -25,10 +25,10 @@ class Front(actions: Actions) {
       val top = h1(s"${narration.name} ($bookmark/${narration.size})")
 
       val navigation = Snippets.navigation(
-        link_index("index"),
-        link_asset(data.move(_.first))("first page"),
+        a(href := Definitions.path_main, "index"),
+        a(href := Definitions.path_asset(data.move(_.first)), "first page"),
         Snippets.fullscreenToggle("fullscreen"),
-        postBookmark(0, data, _ => gotoFront(vid), "remove bookmark"),
+        postBookmark(0, data, "remove bookmark"),
         postForceHint(vid, "force check"))
 
       val preview = {
@@ -37,7 +37,7 @@ class Front(actions: Actions) {
         val preview3 = preview2.next
         section(class_preview)(
           List(preview1, preview2, preview3).map(p => p -> p.gallery.get)
-            .collect { case (p, Some(a)) => link_asset(p)(Snippets.asset(a, data)) })
+            .collect { case (p, Some(anchor)) => a(href := Definitions.path_asset(p), Snippets.asset(anchor, data)) })
       }
 
       def chapterlist: Tag = {
@@ -46,7 +46,7 @@ class Front(actions: Actions) {
         def makeChapField(chap: String, size: Int, gallery: Gallery[SharedImage]): Frag = {
           val (remaining, links) = Range(size, 0, -1).foldLeft((gallery, List[Frag]())) { case ((gal, acc), i) =>
             val next = gal.prev(1)
-            (next, link_asset(data.move(_ => next))(s"$i") :: acc)
+            (next, a(href := Definitions.path_asset(data.move(_ => next)), s"$i") :: acc)
           }
 
           article(if (chap.isEmpty) links else frag(h1(chap), links))

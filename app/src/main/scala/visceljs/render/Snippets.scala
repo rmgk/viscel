@@ -61,7 +61,7 @@ object Snippets {
     val elements = entries.map { fpe =>
       val desc = fpe.description
       val unread = fpe.newPages
-      val e = actions.link_front(fpe.id,
+      val e = a(href := path_front(fpe.id),
                                  s"${desc.name}${if (unread == 0) "" else s" ($unread)"}",
         {
           if (!desc.linked) span(" ",

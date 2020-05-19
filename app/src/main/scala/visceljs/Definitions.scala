@@ -51,13 +51,12 @@ object Definitions {
     if (isFullscreen()) exitFullscreen.foreach(_.call(dDocument)) else requestFullscreen.foreach(_.call(de))
   }
 
-  def lcButton(action: => Unit, m: Modifier*): HtmlTag = button(onLeftClick(action))(m: _*)
-  def onLeftClick(a: => Unit): Modifier = onclick := { (e: MouseEvent) =>
+  def lcButton(action: => Unit, m: Modifier*): HtmlTag = button(onclick := { (e: MouseEvent) =>
     if (e.button == 0) {
       e.preventDefault()
-      a
+      action
     }
-  }
+  })(m: _*)
 
 }
 
