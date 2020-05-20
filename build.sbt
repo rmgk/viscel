@@ -19,6 +19,9 @@ lazy val lociSerializerUpickleJVM = lociRef("lociSerializerUpickleJVM")
 inThisBuild(scalaVersion_213)
 ThisBuild / organization := "de.rmgk"
 
+ThisBuild / Compile / doc / sources:= Seq.empty
+ThisBuild / Compile / packageDoc / publishArtifact := false
+
 val vbundleDef = vbundle := {
   (app / Compile / fullOptJS).value
   val jsfile       = (app / Compile / fullOptJS / artifactPath).value
