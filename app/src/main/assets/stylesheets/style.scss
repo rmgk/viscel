@@ -95,7 +95,7 @@ a {
 }
 
 
-#front section.chapters a:hover {
+#front section a:hover {
   text-decoration: underline;
 }
 
@@ -116,23 +116,6 @@ h1 {
   text-align: center;
 }
 
-@mixin buttonish {
-  display: inline-block;
-  cursor: pointer;
-  padding: 0.5em;
-  color: $font-color;
-  background-color: $backplate-color;
-  border: none;
-  &:hover, &:active {
-    background-image: linear-gradient(transparent, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.1));
-  }
-
-  &[disabled] {
-    opacity: 0.40;
-    cursor: initial;
-  }
-}
-
 nav {
   text-align: center;
 
@@ -141,7 +124,20 @@ nav {
   }
 
   & > a, & > button {
-    @include buttonish;
+    display: inline-block;
+    cursor: pointer;
+    padding: 0.5em;
+    color: $font-color;
+    background-color: $backplate-color;
+    border: none;
+    &:hover, &:active {
+      background-image: linear-gradient(transparent, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.1));
+    }
+
+    &[disabled] {
+      opacity: 0.40;
+      cursor: initial;
+    }
   }
 }
 
@@ -158,7 +154,7 @@ section a:visited {
 }
 
 
-@mixin titled-box {
+section {
   background-color: $backplate-color;
   border: 1px solid $border-color;
   border-radius: 5px;
@@ -177,9 +173,7 @@ section a:visited {
   section a {
     @include underline-from-center;
   }
-  section {
-    @include titled-box;
-  }
+
   section.empty {
     display: none;
   }
@@ -220,8 +214,7 @@ section a:visited {
     max-width: 100%;
   }
 
-  article {
-    @include titled-box;
+  section {
     h1 {
       font-size: 1em;
       color: $theme-color;
@@ -238,15 +231,14 @@ section a:visited {
 
 /* view specific */
 
-body#view {
+#view {
+
   display: flex;
   flex-direction: column;
   /*align-items: center;*/
   min-height: 100vh;
-}
 
-#view {
-  section {
+  main {
     text-align: center;
     flex-grow: 1;
     cursor: pointer;

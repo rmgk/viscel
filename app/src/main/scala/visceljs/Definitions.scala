@@ -17,7 +17,6 @@ object Definitions {
 
   val class_placeholder = cls := "placeholder"
   val class_preview = cls := "preview"
-  val class_chapters = cls := "chapters"
 
 
   def link_tools(ts: Frag*): Tag = a(href := path_tools)(ts)

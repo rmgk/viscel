@@ -7,7 +7,7 @@ import rescala.default._
 import scalatags.JsDom
 import scalatags.JsDom.all.{HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title}
 import scalatags.JsDom.attrs.disabled
-import scalatags.JsDom.tags2.{article, section}
+import scalatags.JsDom.tags2.{article, main}
 import viscel.shared.Log
 import visceljs.Definitions.lcButton
 import visceljs.Navigation._
@@ -53,7 +53,7 @@ class View(act: Actions) {
         a(Icons.next, rel := "next", title := "next")(if (next.pos == data.pos) disabled else href := Definitions.path_asset(next)))
     }
 
-    val mainSection = section(mainPart)(onLeftClickPrevNext(navigate.fire))
+    val mainSection = main(mainPart, onLeftClickPrevNext(navigate.fire))
     body(id := "view", mainSection, navigation)
 
 

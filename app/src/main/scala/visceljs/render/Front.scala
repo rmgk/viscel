@@ -4,19 +4,17 @@ import org.scalajs.dom.html
 import rescala.default._
 import scalatags.JsDom
 import scalatags.JsDom.Frag
-import scalatags.JsDom.all.{Tag, a, frag, href, id, stringAttr}
+import scalatags.JsDom.all.{a, frag, href, id, stringAttr}
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.{SeqFrag, body, h1}
-import scalatags.JsDom.tags2.{article, section}
+import scalatags.JsDom.tags.{SeqFrag, body, div, h1}
+import scalatags.JsDom.tags2.section
 import viscel.shared.{ChapterPos, Contents, Gallery, SharedImage}
-import visceljs.Definitions.{class_chapters, class_preview}
+import visceljs.Definitions.class_preview
 import visceljs.{Actions, Data, Definitions}
 
 import scala.annotation.tailrec
 
 class Front(actions: Actions) {
-
-  import actions._
 
   def gen(dataS: Signal[Data]): Signal[JsDom.TypedTag[html.Body]] = {
     dataS.map { data =>
@@ -28,19 +26,19 @@ class Front(actions: Actions) {
         a(href := Definitions.path_main, "index"),
         a(href := Definitions.path_asset(data.move(_.first)), "first page"),
         Snippets.fullscreenToggle("fullscreen"),
-        postBookmark(0, data, "remove bookmark"),
-        postForceHint(vid, "force check"))
+        actions.postBookmark(0, data, "remove bookmark"),
+        actions.postForceHint(vid, "force check"))
 
       val preview = {
         val preview1 = data.atPos(bookmark-3)
         val preview2 = preview1.next
         val preview3 = preview2.next
-        section(class_preview)(
+        div(class_preview)(
           List(preview1, preview2, preview3).map(p => p -> p.gallery.get)
             .collect { case (p, Some(anchor)) => a(href := Definitions.path_asset(p), Snippets.asset(anchor, data)) })
       }
 
-      def chapterlist: Tag = {
+      def chapterlist: Frag = {
         val assets = gallery.end
 
         def makeChapField(chap: String, size: Int, gallery: Gallery[SharedImage]): Frag = {
@@ -49,7 +47,7 @@ class Front(actions: Actions) {
             (next, a(href := Definitions.path_asset(data.move(_ => next)), s"$i") :: acc)
           }
 
-          article(if (chap.isEmpty) links else frag(h1(chap), links))
+          section(if (chap.isEmpty) links else frag(h1(chap), links))
         }
 
 
@@ -60,7 +58,7 @@ class Front(actions: Actions) {
           case Nil => acc
         }
 
-        section(class_chapters)(build(assets.pos, assets, chapters, Nil))
+        SeqFrag(build(assets.pos, assets, chapters, Nil))
 
       }
 
