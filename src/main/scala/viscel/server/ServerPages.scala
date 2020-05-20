@@ -1,11 +1,9 @@
 package viscel.server
 
-import scalatags.Text.all.raw
 import scalatags.Text.attrs.{`for`, `type`, action, attr, content, href, id, rel, src, title, value, name => attrname}
 import scalatags.Text.implicits.{Frag, Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{SeqFrag, body, div, form, h1, head, html, input, label, link, meta, script}
 import scalatags.Text.tags2.section
-import viscel.Viscel
 
 class ServerPages() {
 
@@ -23,8 +21,7 @@ class ServerPages() {
 
   def landingTag: Tag = makeHtml(body("if nothing happens, your javascript does not work"),
                                  script(src := "localforage.min.js"),
-                                 script(src := "app-opt.js"),
-                                 script(raw(s"ViscelJS.run('${Viscel.version}')")))
+                                 script(src := "app-opt.js"))
 
   def fullrender(tag: Tag): String = "<!DOCTYPE html>" + tag.render
 

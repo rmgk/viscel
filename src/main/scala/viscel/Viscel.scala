@@ -67,7 +67,7 @@ object Viscel {
     }
   }
 
-  val version: String = better.files.Resource.my.asString("/version").getOrElse("unknown")
+  val version: String = viscel.shared.Version.str
 
   def main(args: Array[String]): Unit = run(ArraySeq.unsafeWrapArray(args):_*)
 

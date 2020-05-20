@@ -10,17 +10,13 @@ import scalatags.JsDom.tags.body
 import visceljs.connection.{BookmarkManager, ContentConnectionManager, ServiceWorker}
 import visceljs.render.{Front, Index, View}
 
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
-
 case class MetaInfo(version: String, remoteVersion: Signal[String], serviceState: Signal[String], connection: Signal[Int], reconnecting: Signal[Int])
 
-@JSExportTopLevel("ViscelJS")
 object ViscelJS {
 
   val replicaID: Id = IdUtil.genId()
 
-  @JSExport
-  def run(version: String): Unit = {
+  def main(args: Array[String]): Unit = {
     dom.document.body = body("loading data …").render
 
     val swstate = ServiceWorker.register()
@@ -35,7 +31,7 @@ object ViscelJS {
 
     val actions = new Actions(ccm, bookmarkManager)
 
-    val meta = MetaInfo(version, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
+    val meta = MetaInfo(viscel.shared.Version.str, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
 
 
     val index   = new Index(meta, actions, bookmarkManager.bookmarks, ccm.descriptions)

@@ -80,6 +80,7 @@ $backplate-color: #212121;
 html {
   scrollbar-width: thin;
   scrollbar-color: $backplate-color $border-color;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
 html {
@@ -108,8 +109,7 @@ article p {
 img {
   margin: 0 auto;
   display: block;
-  background-color: white;
-  //max-width: 100%;
+  //background-color: white;
 }
 
 h1 {

@@ -72,13 +72,4 @@ object AdvancedBuild {
 
     bundleTarget.toFile
   }
-  val selfversion    = TaskKey[File]("selfversion", "add the current version ")
-  val selfversionDef = selfversion := {
-    val versiondir = target.value.toPath.resolve("resources/bundled")
-    Files.createDirectories(versiondir)
-    val versiontarget = versiondir.resolve("version").toFile
-    IO.write(versiontarget, version.value)
-    versiontarget
-  }
-
 }

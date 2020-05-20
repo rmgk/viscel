@@ -16,7 +16,9 @@ sealed trait FitType {
   def next: FitType = this match {
     case FitType.W  => FitType.WH
     case FitType.WH => FitType.O
-    case FitType.O  => FitType.W
+    case FitType.O => FitType.SWH
+    case FitType.SWH => FitType.SW
+    case FitType.SW => FitType.W
   }
 }
 object FitType {
@@ -25,6 +27,8 @@ object FitType {
   case object W extends FitType
   case object WH extends FitType
   case object O extends FitType
+  case object SWH extends FitType
+  case object SW extends FitType
 }
 
 object Snippets {
@@ -32,9 +36,11 @@ object Snippets {
 
   def imageStyle(fitType: FitType): Modifier = {
     style := (fitType match {
-      case FitType.O  => ""
-      case FitType.W  => "max-width: 100%"
-      case FitType.WH => "max-height: 100vh; max-width: 100%; width: auto"
+      case FitType.O   => ""
+      case FitType.W   => "max-width: 100%"
+      case FitType.WH  => "max-height: 100vh; max-width: 100%; width: auto"
+      case FitType.SWH => "height: 100vh; width: 100%; object-fit: contain"
+      case FitType.SW  => "width: 100;"
     })
   }
 

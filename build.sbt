@@ -45,8 +45,6 @@ lazy val viscel = project
                     vbundleDef,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
                     publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value,
-                    selfversionDef,
-                    (Compile / managedResources) += selfversion.value,
                     //  experimental graalvm options
                     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
                     graalVMNativeImageOptions ++= List(
@@ -85,7 +83,12 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform).in(file("shared"))
                     name := "viscel-shared",
                     strictCompile, scribe, scalatags, upickle,
                     scribeSlf4j, Resolvers.stg,
-                    libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0"
+                    libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",
+                    Compile / sourceGenerators += Def.task {
+                      val file = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
+                      IO.write(file, s"""package viscel.shared; object Version { val str = "${version.value}"}""")
+                      Seq(file)
+                    }.taskValue
                     )
 lazy val sharedJVM = shared.jvm
                            .dependsOn(lociJavalinJVM)
