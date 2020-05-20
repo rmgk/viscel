@@ -274,11 +274,11 @@ section {
     flex-wrap: wrap;
     :first-child {
       order: -2;
-      flex-basis: 50%;
+      flex-basis: calc(50% - 1em);
     }
     :last-child {
       order: -1;
-      flex-basis: 50%;
+      flex-basis: calc(50% - 1em);
     }
   }
 }
