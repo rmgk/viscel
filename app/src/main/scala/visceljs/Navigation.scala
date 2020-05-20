@@ -21,8 +21,8 @@ object Navigation {
     case "1"          => Mode(FitType.W)
     case "2"          => Mode(FitType.WH)
     case "3"          => Mode(FitType.O)
-    case "4"          => Mode(FitType.SWH)
-    case "5"          => Mode(FitType.SW)
+    case "4"          => Mode(FitType.SW)
+    case "5"          => Mode(FitType.SWH)
     case "0"          => Mode(FitType.O)
   }
 

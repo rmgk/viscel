@@ -71,11 +71,10 @@ lazy val app = project.in(file("app"))
                .settings(
                  name := "app",
                  scalajsdom, normalizecss, scalatags,
-                 Resolvers.stg, strictCompile
-                 //scalaJSUseMainModuleInitializer := true
+                 Resolvers.stg, strictCompile,
+                 scalaJSUseMainModuleInitializer := true
                )
-                      .dependsOn(sharedJS)
-
+               .dependsOn(sharedJS)
                .enablePlugins(SbtSassify)
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform).in(file("shared"))

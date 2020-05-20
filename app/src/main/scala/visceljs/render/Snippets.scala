@@ -16,9 +16,9 @@ sealed trait FitType {
   def next: FitType = this match {
     case FitType.W  => FitType.WH
     case FitType.WH => FitType.O
-    case FitType.O => FitType.SWH
-    case FitType.SWH => FitType.SW
-    case FitType.SW => FitType.W
+    case FitType.O => FitType.SW
+    case FitType.SW => FitType.SWH
+    case FitType.SWH => FitType.W
   }
 }
 object FitType {
@@ -27,8 +27,8 @@ object FitType {
   case object W extends FitType
   case object WH extends FitType
   case object O extends FitType
-  case object SWH extends FitType
   case object SW extends FitType
+  case object SWH extends FitType
 }
 
 object Snippets {
@@ -40,7 +40,7 @@ object Snippets {
       case FitType.W   => "max-width: 100%"
       case FitType.WH  => "max-height: 100vh; max-width: 100%; width: auto"
       case FitType.SWH => "height: 100vh; width: 100%; object-fit: contain"
-      case FitType.SW  => "width: 100;"
+      case FitType.SW  => "width: 100%"
     })
   }
 
