@@ -54,7 +54,8 @@ lazy val viscel = project
                       // "-H:+ReportExceptionStackTraces",
                       "-H:EnableURLProtocols=http,https",
                       // "--enable-all-security-services",
-                      "-H:+JNI"
+                      "-H:+JNI",
+                      "-H:+RemoveSaturatedTypeFlows"
                     )
                   )
                   .enablePlugins(GraalVMNativeImagePlugin)
