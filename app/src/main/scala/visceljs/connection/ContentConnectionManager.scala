@@ -40,13 +40,14 @@ class ContentConnectionManager(registry: Registry) {
   val remoteVersion: Signal[String] =
     joined.map(rr => Signals.fromFuture(registry.lookup(Bindings.version, rr)))
           .latest(Signal {"unknown"}).flatten
+          .recover(e => s"error »$e«")
 
 
   val descriptions = Storing.storedAs("descriptionsmap", Map.empty[Vid, Description]) { init =>
     (joined.map { rr =>
       Signals.fromFuture(registry.lookup(Bindings.descriptions, rr).apply())
     }: Event[Signal[Map[Vid, Description]]])
-      .latest(Signal {init}).flatten
+      .latest(Var.empty[Map[Vid, Description]]).flatten.changed.latest(init)
       .recover { error =>
         Log.JS.error(s"failed to access descriptions: $error")
         init
