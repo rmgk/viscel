@@ -42,7 +42,6 @@ class View(act: Actions) {
       val ft   = fitType.value
       val prev = data.prev
       val next = data.next
-      if (prev.pos != data.pos) Log.JS.info(s"${prev.pos} was not ${data.pos}")
       Snippets.navigation(
         a(Icons.prev, rel := "prev", title := "previous page")(if (prev.pos == data.pos) disabled else href := Definitions.path_asset(prev)),
         a(href := Definitions.path_front(data.id), Icons.front, title := "back to front page"),
