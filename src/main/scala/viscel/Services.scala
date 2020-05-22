@@ -60,7 +60,7 @@ class Services(relativeBasedir: Path,
 
   lazy val requests = {
     val maxRequests             = 5
-    val requestExecutionContext = executorMinMax(max = maxRequests)
+    val requestExecutionContext = executorMinMax(max = maxRequests*2)
     new OkHttpRequester(maxRequests, requestExecutionContext)
   }
 
