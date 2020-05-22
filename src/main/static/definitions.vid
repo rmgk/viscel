@@ -118,6 +118,11 @@
 -- :am #noncomiccontent h3 , #noncomiccontent a[href~=comics/\d]
 -- :i #comicimage
 
+-- database connection failed
+-- -:The Wotch: CHEER!
+-- http://cheer.sailorsun.org/?comic=cheer
+-- :image #comic img
+-- :next a.comic-nav-next
 
 
 ---------------------------------------------- UNDEAD -----
@@ -247,11 +252,6 @@ http://www.faitherinhicks.com/ice/page1.html
 
 -:Devil Bear
 http://www.thedevilbear.com/b/comic/its-for-you/
-:image #comic img
-:next a.comic-nav-next
-
--:The Wotch: CHEER!
-http://cheer.sailorsun.org/?comic=cheer
 :image #comic img
 :next a.comic-nav-next
 
