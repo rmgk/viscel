@@ -122,12 +122,13 @@ class ContentConnectionManager(registry: Registry) {
       case None     => ()
     }
 
+    val locallookupSignal = Signals.fromFuture(locallookup)
+
 
     Signal {
       flatRemote.withDefault(None).recover(_ => None)
-                .value.orElse(locallookup.value.map(_.getOrElse(emptyContents)))
-                .getOrElse(emptyContents)
-    }
+                .value.getOrElse(locallookupSignal.value)
+    }.withDefault(emptyContents).recover(_ => emptyContents)
 
 
   }
