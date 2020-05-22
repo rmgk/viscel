@@ -1,19 +1,11 @@
 package viscel.narration
 
-import viscel.narration.narrators.Individual._
 import viscel.narration.narrators._
 import viscel.selektiv.Narration.WrapPart
 import viscel.shared.Vid
 import viscel.store.v4.DataRow
 
 object Narrators {
-
-  val staticV2: Set[Narrator] =
-    Individual.inlineCores ++
-      PetiteSymphony.cores ++
-      Snafu.cores ++
-      CloneManga.cores ++
-      Set(UnlikeMinerva)
 
   val metas: List[Metarrator[_]] = List(Mangadex, WebToons, Tapas)
 

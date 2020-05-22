@@ -846,6 +846,25 @@ http://inverloch.seraph-inn.com/viewcomic.php?page=1
 :images? #main > p:nth-child(1) > img
 :next #main a[href!=viewcomic.php?page=765]:containsOwn(Next)
 
+-NX_xkcd:xkcd
+http://xkcd.com/1/
+:images? #comic img
+:next a[rel=next]:not([href=#])
+
+-NX_TheDreamer:The Dreamer
+https://thedreamercomic.com/comic/?id=1
+:image #comicnav div.imageWrap img
+:next #comicnav .comic_nav:first-child a:containsOwn(Next)
+
+-NX_StandStillStaySilent:Stand Still Stay Silent
+https://www.sssscomic.com/comic.php?page=1
+:image img.comicnormal
+:next .comicnav a:has(img[src~=nav_next.png])
+
+-NX_UnlikeMinerva:Unlike Minerva
+https://www.unlikeminerva.com/archive/phase1.php
+:images center > img[src~=/archive/]
+:next a:has(img[src~=/sitemap/next.jpg]) , center > a:contains(Onward to the next beginning)
 
 
 
@@ -2102,3 +2121,358 @@ https://www.desertfoxcomics.net/desertfox/comic/origins-1/
 --------------------------------------------------------------------------------------
 -- end of katbox rescues
 --------------------------------------------------------------------------------------
+
+
+
+--------------------------------------------------------------------------------------
+-- clone manga
+--------------------------------------------------------------------------------------
+
+-CloneManga_graveyard_snax:[CM] Vampire Bride
+http://manga.clone-army.org/viewer.php?lang=english&series=graveyard_snax&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_momoka:[CM] Momoka Corner
+http://manga.clone-army.org/viewer.php?series=momoka&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_witches_castle:[CM] §II - The Castle
+http://manga.clone-army.org/viewer.php?series=witches_castle&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_maria_karen:[CM] Karen
+http://manga.clone-army.org/viewer.php?series=maria_karen&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_anm:[CM] April & May
+http://manga.clone-army.org/viewer.php?series=anm&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_witches_fragments:[CM] §IIII - Recovery Fragments
+http://manga.clone-army.org/viewer.php?series=witches_fragments&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_gwupo:[CM] Gwupo & Company
+http://manga.clone-army.org/viewer.php?series=gwupo&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_archived_cindy:[CM] Cotton Candy Cindy (2001)
+http://manga.clone-army.org/viewer.php?series=archived_cindy&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_graveyard_metalfist_9:[CM] Abandoned/Cut Material
+http://manga.clone-army.org/viewer.php?lang=english&series=graveyard_metalfist_9&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_pantsuit:[CM] Puella Pantsuit Magica
+http://manga.clone-army.org/viewer.php?series=pantsuit&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_maria_doll:[CM] Doll & Maker
+http://manga.clone-army.org/viewer.php?series=maria_doll&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_t42r:[CM] Tomoyo42's Room
+http://manga.clone-army.org/viewer.php?series=t42r&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_archived_pakman:[CM] Pakman Saga (1996)
+http://manga.clone-army.org/viewer.php?series=archived_pakman&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_witches:[CM] §I - Subjkt Kine Pnny-Biengg
+http://manga.clone-army.org/viewer.php?series=witches&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_metalfist:[CM] Metal Fist
+http://manga.clone-army.org/viewer.php?series=metalfist&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_maria_star:[CM] Parallel Star
+http://manga.clone-army.org/viewer.php?series=maria_star&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_kanami:[CM] Kanami
+http://manga.clone-army.org/viewer.php?series=kanami&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_pxi:[CM] Paper Eleven (PXI)
+http://manga.clone-army.org/viewer.php?series=pxi&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_cupcake:[CM] Cupcake Universe
+http://manga.clone-army.org/viewer.php?series=cupcake&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_archived_phantasmagory:[CM] Phantasmagory (2005)
+http://manga.clone-army.org/viewer.php?series=archived_phantasmagory&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_nnn:[CM] NNN
+http://manga.clone-army.org/viewer.php?series=nnn&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_jis:[CM] June in Summer
+http://manga.clone-army.org/viewer.php?series=jis&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_nana:[CM] Nana's Everyday Life
+http://manga.clone-army.org/viewer.php?series=nana&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_penny:[CM] Penny Tribute
+http://manga.clone-army.org/viewer.php?series=penny&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_cupcake_shorts:[CM] Magical Girl Cupcake
+http://manga.clone-army.org/viewer.php?series=cupcake_shorts&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_graveyard_cupcake:[CM] Cupcake
+http://manga.clone-army.org/viewer.php?lang=english&series=graveyard_cupcake&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_hh:[CM] H.H.
+http://manga.clone-army.org/viewer.php?series=hh&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_misc:[CM] Misc. Comics
+http://manga.clone-army.org/viewer.php?series=misc&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_witches_loops:[CM] §III - Closed Circles
+http://manga.clone-army.org/viewer.php?series=witches_loops&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+-CloneManga_snax:[CM] My Shut-In Vampire Princess
+http://manga.clone-army.org/viewer.php?series=snax&page=1
+:image .subsectionContainer img
+:next .subsectionContainer > a:first-child
+
+--------------------------------------------------------------------------------------
+-- end of clone manga
+--------------------------------------------------------------------------------------
+
+
+
+--------------------------------------------------------------------------------------
+-- snafu
+--------------------------------------------------------------------------------------
+
+-Snafu_grim:[snafu] Grim Tales
+http://snafu-comics.com/swmcomic/chapter-1/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_sugar:[snafu] Sugar Bits
+http://snafu-comics.com/swmcomic/prolouge/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_ppg:[snafu] PowerPuff Girl Doujinshi
+http://snafu-comics.com/swmcomic/ppg-chapter-1/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_mypanda:[snafu] MyPanda
+http://snafu-comics.com/swmcomic/mypanda/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_zim:[snafu] Invader Zim
+http://snafu-comics.com/swmcomic/cover-art/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_titan:[snafu] Titan Sphere
+http://snafu-comics.com/swmcomic/it-begins-3/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_naruto:[snafu] Naruto: Heroes Path
+http://snafu-comics.com/swmcomic/onichan/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_braindead:[snafu] Brain Dead
+http://snafu-comics.com/swmcomic/brain-dead-intro/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_snafu:[snafu] Snafu Comics
+http://snafu-comics.com/swmcomic/remix-v2-0/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_trunksandsoto:[snafu] Trunks & Soto
+http://snafu-comics.com/swmcomic/junk-in-the-trunk/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_skullboy:[snafu] Fluffy Doom
+http://snafu-comics.com/swmcomic/skull-boy-ch-1-cover/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_ea:[snafu] Ever After
+http://snafu-comics.com/swmcomic/page-1/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_tw:[snafu] Training Wheels
+http://snafu-comics.com/swmcomic/conker-and-cloud-in-a-bar/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_sf:[snafu] Sticky Floors
+http://snafu-comics.com/swmcomic/im-with-that-guy/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_soul:[snafu] Soul Frontier
+http://snafu-comics.com/swmcomic/prolouge-2/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_tin:[snafu] Tin The Incompetent Ninja
+http://snafu-comics.com/swmcomic/it-begins/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_bunnywith:[snafu] Bunnywith
+http://snafu-comics.com/swmcomic/intro/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_satans:[snafu] Satan's Excrement
+http://snafu-comics.com/swmcomic/satans-excrement/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_ft:[snafu] Forgotten Tower
+http://snafu-comics.com/swmcomic/prolouge-3/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_kof:[snafu] King of Fighters Doujinshi
+http://snafu-comics.com/swmcomic/king-of-fighters/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_dp:[snafu] Digital Purgatory
+http://snafu-comics.com/swmcomic/0001/
+:image .comicpage img
+:next .comicnav a.previous
+
+-Snafu_stbb:[snafu] Sure to be Ban'd
+http://snafu-comics.com/swmcomic/not-funny/
+:image .comicpage img
+:next .comicnav a.previous
+
+--------------------------------------------------------------------------------------
+-- end of snafu
+--------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------
+-- petite symphony
+--------------------------------------------------------------------------------------
+
+-PetiteSymphony_goyoku:[PS] Rascals Goyoku
+http://goyoku.petitesymphony.com/comic/goyoku-prologue1/
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_generation17:[PS] Generation 17
+http://generation17.petitesymphony.com/comic/cover
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_seed:[PS] Seed
+http://seed.petitesymphony.com/comic/seedchapter1
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_djandora:[PS] Djandora
+http://djandora.petitesymphony.com/comic/intro
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_heid:[PS] Heid
+http://heid.petitesymphony.com/c1p0-4/
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_knuckleup:[PS] Knuckle Up
+http://knuckleup.petitesymphony.com/comic/knuckleup-prologue1
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_kickinrad:[PS] Kickin Rad
+http://kickinrad.petitesymphony.com/comic/hell-no/
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_projectzero:[PS] Project Zero
+http://projectzero.petitesymphony.com/comic/project-zero-cover/
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_retake:[PS] Retake
+http://retake.petitesymphony.com/comic/retake-cover/
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_petsymph:[PS] Petsymph
+http://petsymph.petitesymphony.com/comic/petsymph-wakey-wakey/
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_remnantsonata:[PS] Remnant Sonata
+http://remnantsonata.petitesymphony.com/comic/rs-pg1/
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_ladycrimson:[PS] Lady Crimson
+http://ladycrimson.petitesymphony.com/comic/ladycrimson_cover/
+:image #comic-1 img
+:next a.navi.navi-next
+
+-PetiteSymphony_yearofthecow:[PS] Year of the Cow
+http://yearofthecow.petitesymphony.com/comic/yotc-cover/
+:image #comic-1 img
+:next a.navi.navi-next
+
+--------------------------------------------------------------------------------------
+-- end of petite symphony
+--------------------------------------------------------------------------------------
+
