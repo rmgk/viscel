@@ -7,6 +7,7 @@ import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
 import rescala.default._
+import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import viscel.shared.UpickleCodecs._
 import viscel.shared._
 import visceljs.storage.{LocalForageInstance, Storing, localforage}
@@ -16,6 +17,7 @@ import scala.scalajs.js
 
 
 class ContentConnectionManager(registry: Registry) {
+
   import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
 
@@ -25,17 +27,22 @@ class ContentConnectionManager(registry: Registry) {
   }
 
 
-
-  val joined = Events.fromCallback[RemoteRef]{cb =>
+  val joined = Events.fromCallback[RemoteRef] { cb =>
     registry.remoteJoined.foreach(cb)
   }.event
-  val left = Events.fromCallback[RemoteRef]{cb =>
+  val left   = Events.fromCallback[RemoteRef] { cb =>
     registry.remoteLeft.foreach(cb)
   }.event
 
-  val connectionStatus: Signal[Int] =  (joined || left).fold(0){(_, _) =>
-    registry.remotes.count(_.connected)
+  val connectionStatusChanged = joined || left
+
+  val connectedRemotes = connectionStatusChanged.fold[List[RemoteRef]](Nil) { (_, _) =>
+    registry.remotes.filter(_.connected)
   }
+
+  val connectionStatus: Signal[Int] = connectedRemotes.map(_.size)
+
+  val mainRemote = connectedRemotes.map(_.headOption.getOrElse(throw EmptySignalControlThrowable))
 
   val remoteVersion: Signal[String] =
     joined.map(rr => Signals.fromFuture(registry.lookup(Bindings.version, rr)))
@@ -44,14 +51,13 @@ class ContentConnectionManager(registry: Registry) {
 
 
   val descriptions = Storing.storedAs("descriptionsmap", Map.empty[Vid, Description]) { init =>
-    (joined.map { rr =>
+    mainRemote.map { rr =>
       Signals.fromFuture(registry.lookup(Bindings.descriptions, rr).apply())
-    }: Event[Signal[Map[Vid, Description]]])
-      .latest(Var.empty[Map[Vid, Description]]).flatten.changed.latest(init)
-      .recover { error =>
-        Log.JS.error(s"failed to access descriptions: $error")
-        init
-      }
+    }.flatten.withDefault(init)
+              .recover { error =>
+                Log.JS.error(s"failed to access descriptions: $error")
+                init
+              }
   }
 
   val connectionAttempt: Evt[Unit] = Evt[Unit]()
@@ -68,10 +74,10 @@ class ContentConnectionManager(registry: Registry) {
   }
 
   def connectLoop(): Unit = {
-      connect().failed.foreach{ err =>
-        Log.JS.error(s"connection failed »$err«")
-        dom.window.setTimeout(() => connectLoop(), 1000)
-      }
+    connect().failed.foreach { err =>
+      Log.JS.error(s"connection failed »$err«")
+      dom.window.setTimeout(() => connectLoop(), 1000)
+    }
   }
 
   def autoreconnect(): Unit = {
@@ -80,9 +86,10 @@ class ContentConnectionManager(registry: Registry) {
   }
 
 
-
   val lfi: LocalForageInstance = localforage.createInstance(js.Dynamic.literal("name" -> "contents"))
 
+
+  private var priorContentSignal: Option[Signal[Any]] = None
   def content(vid: Vid): Signal[Contents] = {
     hint(vid, force = false)
 
@@ -99,28 +106,30 @@ class ContentConnectionManager(registry: Registry) {
     locallookup.failed.foreach { f =>
       Log.JS.warn(s"local lookup of $vid failed with $f")
     }
-    val remoteLookup: Future[Contents] = {
-      registry.remotes.find(_.connected).map { remote =>
-        val requestContents  = registry.lookup(Bindings.contents, remote)
-        requestContents(vid).map(_.getOrElse(emptyContents))
-        //eventualContents.onComplete(t => Log.JS.debug(s"received contents for ${vid} (sucessful: ${t.isSuccess})"))
-      }.getOrElse(Future.failed(new IllegalStateException("not connected")))
+
+
+    val remoteLookupSignal: Signal[Signal[Option[Contents]]] = mainRemote.map { remote =>
+      Signals.fromFuture(registry.lookup(Bindings.contents, remote).apply(vid))
     }
 
-    val result = Var(emptyContents)
-    var remoteMerged = false
-    locallookup.filter(_ => !remoteMerged).foreach{lc =>
-      Log.JS.info(s"found local content for $vid")
-      result.set(lc)
-    }
-    remoteLookup.foreach {rc =>
-      remoteMerged = true
-      Log.JS.info(s"found remote content for $vid")
-      result.set(rc)
-      lfi.setItem(vid.str, upickle.default.write(rc))
+    priorContentSignal.foreach(_.disconnect())
+    priorContentSignal = Some(remoteLookupSignal)
+
+    val flatRemote = remoteLookupSignal.flatten
+
+    flatRemote.observe {
+      case Some(rc) => lfi.setItem(vid.str, upickle.default.write(rc))
+      case None     => ()
     }
 
-    result
+
+    Signal {
+      flatRemote.withDefault(None).recover(_ => None)
+                .value.orElse(locallookup.value.map(_.getOrElse(emptyContents)))
+                .getOrElse(emptyContents)
+    }
+
+
   }
 
   def hint(vid: Vid, force: Boolean): Unit = {
@@ -161,9 +170,6 @@ class ContentConnectionManager(registry: Registry) {
   //  //  }
   //  //}
   //}
-
-
-
 
 
 }
