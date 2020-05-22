@@ -80,6 +80,7 @@ object Queries {
       extractArticle(image) :: Try {extractMore(image.parent())}.toOption.toList
     }
   def queryNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).wrap(selectMore)
+  def queryAllNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).wrapEach(extractMore)
   def queryImageNext(imageQuery: String, nextQuery: String): Wrapper = {
     Append(queryImage(imageQuery), queryNext(nextQuery))
   }

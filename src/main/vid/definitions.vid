@@ -841,6 +841,10 @@ http://www.misfile.com/hell-high/archive
 :image unused-query
 :url_replace /comicsthumbs/ ::: /comics/
 
+-NX_Inverloch:Inverloch
+http://inverloch.seraph-inn.com/viewcomic.php?page=1
+:images? #main > p:nth-child(1) > img
+:next #main a[href!=viewcomic.php?page=765]:containsOwn(Next)
 
 
 
@@ -876,8 +880,6 @@ https://pixietrixcomix.com/sticky-dilly-buns/awesome-leading-man
 -:Magic Chicks
 https://pixietrixcomix.com/magick-chicks/tis-but-a-trifle-2
 :image+next #cc-comic
--- skip some broken pages
--- :url_replace http://www.magickchicks.com/strips-mc/Illustration_special_by_Shouri ::: http://www.magickchicks.com/strips-mc/You_backstabbing_coward ::: http://www.magickchicks.com/strips-mc/Holiday_Special_Guest_Strip_by_Maritza_and_Bachan ::: http://www.magickchicks.com/strips-mc/Regain_your_energy ::: http://www.magickchicks.com/strips-mc/mc20120413a ::: http://www.magickchicks.com/strips-mc/Watch_your_buns ::: http://www.magickchicks.com/strips-mc/My_tum_tum ::: http://www.magickchicks.com/strips-mc/Holy_moley ::: http://www.magickchicks.com/strips-mc/dc20121220 ::: http://www.magickchicks.com/strips-mc/Wildly_out_of_character
 
 -:Cool Cat Studio
 https://pixietrixcomix.com/cool-cat-studio/2000-03-13
@@ -2090,7 +2092,7 @@ https://www.yoshsaga.com/comic/introduction/
 
 -:Desert Fox
 https://www.desertfoxcomics.net/desertfox/comic/origins-1/
-:image .webcomic-image img.size-full
+:images? .webcomic-image img.size-full
 :next a.next-webcomic-link
 
 -- also see https://studiokhimera.com/ which has some more rescues, but does use some data urls to lazy load images 🤔

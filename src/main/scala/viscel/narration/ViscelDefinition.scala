@@ -104,16 +104,21 @@ object ViscelDefinition {
     def annotate(f: Wrapper, lines: Line*): Option[Wrap] =
       Some(AdditionalErrors(f, AdditionalPosition(lines, path)))
 
-    val pageFun: Option[Wrap] = attrs match {
+    val pageFunNoNext: Option[Wrap] = attrs match {
       case extract"image+next $img"         => annotate(queryImageInAnchor(img.s), img)
-      case extract"image $img next $next"   => annotate(queryImageNext(img.s, next.s), img, next)
-      case extract"images $img next $next"  => annotate(Append(queryImages(img.s), queryNext(next.s)), img, next)
-      case extract"images? $img next $next" => annotate(Append(queryImages_?(img.s), queryNext(next.s)), img, next)
       case extract"image $img"              => annotate(queryImage(img.s), img)
       case extract"images $img"             => annotate(queryImages(img.s), img)
       case extract"images? $img"            => annotate(queryImages_?(img.s), img)
       case _                                => None
     }
+
+    val pageFun: Option[Wrap] = pageFunNoNext.flatMap { pf =>
+      attrs match {
+        case extract"next $next"   => annotate(Append(pf, queryNext(next.s)), next)
+        case _ => Some(pf)
+      }
+    }
+
 
     val archFun: Option[Wrap] = attrs match {
       case extract"mixedArchive $arch" => annotate(queryMixedArchive(arch.s), arch)

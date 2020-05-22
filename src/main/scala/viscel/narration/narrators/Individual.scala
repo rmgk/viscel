@@ -64,34 +64,4 @@ object Individual {
             queryMixedArchive(".dreamer_flip_box_inner .flip_box_front .issue_title , .dreamer_flip_box_inner .issue_pages a")),
                 queryImage("#comicnav div.imageWrap img"))
   )
-
-  //    SimpleForward("NX_AvasDemon", "Ava’s Demon", "http://www.avasdemon.com/chapters.php",
-//      Selection.many("table[id~=chapter\\d+_table]").wrap {
-//        _.zipWithIndex.map { case (elem, idx) =>
-//          Selection(elem).many("a").wrap { as =>
-//            Good(Chapter(s"Chapter ${idx + 1}") ::
-//              as.sortBy(_.text()).map { a =>
-//                val origin = a.attr("abs:href")
-//                val number = a.text()
-//                val filename = number match {
-//                  case "0222" => s"0243.gif"
-//                  case "0367" => s"titanglow.gif"
-//                  case "0368" => s"365.gif"
-//                  case "0369" => s"366.gif"
-//                  case "0370" => s"367.gif"
-//                  case "0371" => s"368.gif"
-//                  case "1799" => s"1790.png"
-//                  case "0655" | "0762" | "1035" | "1130" | "1131" | "1132" | "1133" | "1134" |
-//                       "1135" | "1136" | "1271" | "1272" | "1273" | "1274" | "1293" | "1294" |
-//                       "1295" | "1384" | "1466" | "1788" => s"$number.png"
-//                  case "0061" | "0353" | "0893" | "1546" | "1748" | "1749" | "1750" | "1918" => s"$number.gif"
-//                  case _ => s"pages/$number.png"
-//                }
-//                val source = s"http://www.avasdemon.com/$filename"
-//                ImageRef(source, origin)
-//              })
-//          }
-//        }.combined.map(_.flatten)
-//      }),
-
 }
