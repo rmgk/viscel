@@ -8,7 +8,6 @@ import scalatags.JsDom
 import scalatags.JsDom.all.{HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title}
 import scalatags.JsDom.attrs.disabled
 import scalatags.JsDom.tags2.{article, main}
-import viscel.shared.Log
 import visceljs.Definitions.lcButton
 import visceljs.Navigation._
 import visceljs.{Actions, Data, Definitions, Icons}
