@@ -1,6 +1,6 @@
 package viscel.crawl
 
-import viscel.selektiv.Narration.Volatile
+import viscel.narration.Templates
 import viscel.netzi.VRequest
 
 
@@ -29,7 +29,7 @@ case class Decider(links: List[VRequest] = Nil,
   def decide(): Decision = {
     links match {
       case link :: t =>
-        val newDecision = if (link.context.contains(Volatile)) 0 else 1
+        val newDecision = if (link.context.contains(Templates.Volatile)) 0 else 1
         Some((link, copy(links = t, decisions = decisions + newDecision)))
       case Nil =>
         rightmostRecheck()
