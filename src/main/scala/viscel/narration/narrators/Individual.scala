@@ -50,7 +50,7 @@ object Individual {
     archivePage("NX_StandStillStaySilent", "Stand Still Stay Silent", "http://www.sssscomic.com/?id=archive",
       Focus(
         Selection.many("div[id~=adv\\d+Div]").wrap{advs => advs.reverse },
-        queryMixedArchive("div.archivediv h2, div.archivediv a"),
+        queryMixedArchive("div.archivediv h2, div.archivediv a")
         ),
       queryImage("img.comicnormal")),
     SimpleForward("NX_xkcd", "xkcd", "http://xkcd.com/1/", {

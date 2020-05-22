@@ -2088,7 +2088,13 @@ https://www.yoshsaga.com/comic/introduction/
 :image .webcomic-image img.size-full
 :next a.next-webcomic-link
 
+-:Desert Fox
+https://www.desertfoxcomics.net/desertfox/comic/origins-1/
+:image .webcomic-image img.size-full
+:next a.next-webcomic-link
+
 -- also see https://studiokhimera.com/ which has some more rescues, but does use some data urls to lazy load images 🤔
+
 
 
 --------------------------------------------------------------------------------------

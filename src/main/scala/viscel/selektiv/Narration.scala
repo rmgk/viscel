@@ -5,9 +5,6 @@ import org.jsoup.nodes.Element
 
 object Narration {
 
-  private def applySelection(doc: Element, sel: Selection): List[Element] = {
-    sel.pipeline.reverse.foldLeft(List(doc)) { (elems, sel) => elems.flatMap(sel) }
-  }
 
   case class Interpreter(cd: ContextData) {
     def interpret[T](outerWrapper: WrapPart[T]): T = {
@@ -25,9 +22,7 @@ object Narration {
         case AdditionalErrors(target, augmentation) =>
           try {recurse(target)}
           catch {case r: Report => throw augmentation(r)}
-        case SelectionWrap(sel, fun)                => fun(applySelection(element, sel))
         case Combination(left, right, fun)          => fun(recurse(left), recurse(right))
-        case MapW(target, fun)                      => fun(recurse(target))
         case Focus(selection, continue)             =>
           val loe = recurse(selection)
           loe.flatMap(recurse(continue)(_))
@@ -37,7 +32,7 @@ object Narration {
 
 
   sealed trait WrapPart[+T] {
-    def map[U](fun: T => U): WrapPart[U] = MapW(this, fun)
+    def map[U](fun: T => U): WrapPart[U] = Combination.of(this, Constant(()))((a, _) => fun(a))
   }
 
 
@@ -50,33 +45,20 @@ object Narration {
     extends WrapPart[T]
 
 
-  case class SelectionWrap[+R](selection: Selection, fun: List[Element] => R)
-    extends WrapPart[R]
-
-  def SelectionWrapEach[R](selection: Selection, fun: Element => R)
-  : WrapPart[List[R]] = SelectionWrap(selection, (l: List[Element]) => l.map(fun))
-  def SelectionWrapFlat[R](selection: Selection, fun: Element => List[R])
-  : WrapPart[List[R]] = SelectionWrap(selection,
-                                      (l: List[Element]) => l.flatMap(fun))
-
   case object ElementW extends WrapPart[Element]
 
   def Append[T](left: WrapPart[List[T]], right: WrapPart[List[T]]): WrapPart[List[T]] =
     Combination.of(left, right) { (l, r) => l ::: r }
+
   case class Combination[A, B, +T] private(left: WrapPart[A],
                                            right: WrapPart[B],
                                            fun: (A, B) => T)
     extends WrapPart[T]
+
   object Combination {
     def of[A, B, T](left: WrapPart[A], right: WrapPart[B])
                    (fun: (A, B) => T)
     : Combination[A, B, T] = Combination(left, right, fun)
-  }
-
-  case class MapW[T, +U](target: WrapPart[T], fun: T => U) extends WrapPart[U]
-  object MapW {
-    def of[T, U](target: WrapPart[T])(fun: T => U): MapW[T, U] = MapW(target, fun)
-    def reverse[T](target: WrapPart[List[T]]): MapW[List[T], List[T]] = MapW(target, _.reverse)
   }
 
   case class Focus[T](selection: WrapPart[List[Element]], continue: WrapPart[List[T]])

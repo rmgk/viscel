@@ -2,14 +2,11 @@ package viscel.selektiv
 
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import viscel.selektiv.Narration.{Focus, MapW, SelectionWrap, SelectionWrapEach, SelectionWrapFlat, WrapPart}
+import viscel.selektiv.Narration.{ElementW, Focus, WrapPart}
 
 import scala.jdk.CollectionConverters._
 
-object Selection extends Selection(Nil)
-
-
-case class Selection(pipeline: List[Element => List[Element]])  {
+object Selection {
 
   /** select exactly one element */
   def unique(query: String): Selection = {
@@ -31,24 +28,37 @@ case class Selection(pipeline: List[Element => List[Element]])  {
     queryAndValidate(query) { rs => rs.asScala.toList }
   }
 
-  /** wrap the list of elements into a result */
-  def wrap[R](fun: List[Element] => R): WrapPart[R] = SelectionWrap(this, fun)
-  /** wrap the single selected element into a result */
-  def wrapOne[R](fun: Element => R): WrapPart[R] =
-    MapW[List[R], R](SelectionWrapEach(this, fun), _.head)
-  /** wrap each element into a result and return a list of these results */
-  def wrapEach[R](fun: Element => R): WrapPart[List[R]] = SelectionWrapEach(this, fun)
-  /** wrap each element into a list of results, return the concatenation of these lists */
-  def wrapFlat[R](fun: Element => List[R]): WrapPart[List[R]] = SelectionWrapFlat(this, fun)
-  def focus[R](cont: WrapPart[List[R]]): WrapPart[List[R]] = Focus(SelectionWrapEach(this, identity), cont)
-
-
-
   def queryAndValidate[R](query: String)(validate: Elements => List[Element]): Selection =
     Selection(
-    { element: Element =>
-      try validate(element.select(query.trim))
-      catch {case r: Report => throw FailedElement(query, r, element)}
-    } :: pipeline
-  )
+      { element: Element =>
+        try validate(element.select(query.trim))
+        catch {case r: Report => throw FailedElement(query, r, element)}
+      } :: Nil
+      )
+}
+
+
+case class Selection(pipeline: List[Element => List[Element]])  {
+
+
+
+
+  /** wrap the list of elements into a result */
+  def wrap[R](fun: List[Element] => R): WrapPart[R] = ElementW.map(e => fun(applyTo(e)))
+  /** wrap the single selected element into a result */
+  def wrapOne[R](fun: Element => R): WrapPart[R] =
+    ElementW.map(e => fun(applyTo(e).head))
+  /** wrap each element into a result and return a list of these results */
+  def wrapEach[R](fun: Element => R): WrapPart[List[R]] = ElementW.map(e => applyTo(e).map(fun))
+  /** wrap each element into a list of results, return the concatenation of these lists */
+  def wrapFlat[R](fun: Element => List[R]): WrapPart[List[R]] = ElementW.map(e => applyTo(e).flatMap(fun))
+  def focus[R](cont: WrapPart[List[R]]): WrapPart[List[R]] = Focus(ElementW.map(e => applyTo(e)), cont)
+
+
+
+  def applyTo(element: Element): List[Element] = {
+    pipeline.reverse.foldLeft(List(element)) { (elems, sel) => elems.flatMap(sel) }
+  }
+
+
 }

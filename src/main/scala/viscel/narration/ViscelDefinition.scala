@@ -7,7 +7,7 @@ import java.nio.file.Path
 import better.files._
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.Queries._
-import viscel.selektiv.Narration.{AdditionalErrors, Append, MapW}
+import viscel.selektiv.Narration.{AdditionalErrors, Append}
 import viscel.selektiv.Report
 import viscel.shared.{Log, Vid}
 import viscel.store.v4.{DataRow, Vurl}
@@ -93,7 +93,7 @@ object ViscelDefinition {
   }
 
   def TransformUrls(target: Wrapper, replacements: List[(String, String)]) =
-    MapW(target, transformUrls(replacements))
+    target.map(transformUrls(replacements))
 
   def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): NarratorADT Or ErrorMessage = {
     val cid = generateID(id, name)
@@ -131,7 +131,7 @@ object ViscelDefinition {
       case _                              => (pageFun, archFun)
     }
 
-    val archFunRev = if (has("archiveReverse")) archFunReplace.map(MapW(_, chapterReverse)) else archFunReplace
+    val archFunRev = if (has("archiveReverse")) archFunReplace.map(_.map(chapterReverse)) else archFunReplace
 
     (pageFunReplace, archFunRev) match {
       case (Some(pf), None)     => Right(NarratorADT(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, pf))
