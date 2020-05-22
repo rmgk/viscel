@@ -80,10 +80,6 @@ object Queries {
       extractArticle(image) :: Try {extractMore(image.parent())}.toOption.toList
     }
   def queryNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).wrap(selectMore)
-  def queryAllNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).wrapEach(extractMore)
-  def queryImageNext(imageQuery: String, nextQuery: String): Wrapper = {
-    Append(queryImage(imageQuery), queryNext(nextQuery))
-  }
   def queryMixedArchive(query: String): Wrapper = {
     def intoMixedArchive(elem: Element): DataRow.Content = {
       if (elem.tagName() == "a") extractMore(elem)
