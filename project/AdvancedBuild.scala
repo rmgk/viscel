@@ -48,27 +48,24 @@ object AdvancedBuild {
   def bundleStuff(jsfile: File, styles: Seq[File], bundleTarget: Path, jsDpendencies: File, sourceDirectory: File, version: String): File = {
     Files.createDirectories(bundleTarget)
 
-    def gzipToTarget(f: File): Unit = //IO.gzip(f, bundleTarget.resolve(f.name + ".gz").toFile)
+    def copyToTarget(f: File): Unit = //IO.gzip(f, bundleTarget.resolve(f.name + ".gz").toFile)
       Files.copy(f.toPath, bundleTarget.resolve(f.name), StandardCopyOption.REPLACE_EXISTING)
 
-    gzipToTarget(jsfile)
-    gzipToTarget(jsfile.toPath.getParent.resolve(jsfile.name + ".map").toFile)
-    styles.foreach(gzipToTarget)
+    copyToTarget(jsfile)
+    copyToTarget(jsfile.toPath.getParent.resolve(jsfile.name + ".map").toFile)
+    styles.foreach(copyToTarget)
 
     def sourcepath(p: String) = sourceDirectory.toPath.resolve(p).toFile
 
-    val sources = IO.listFiles(sourcepath("main/vid"))
-    sources.foreach { f => IO.copyFile(f, bundleTarget.resolve(f.name).toFile) }
-
     IO.listFiles(sourceDirectory.toPath.resolve("main/static").toFile)
-      .foreach(gzipToTarget)
+      .foreach(copyToTarget)
 
 
     val swupdated = IO.read(sourcepath("main/js/serviceworker.js"))
                       .replaceAllLiterally("[inserted app cache name]", s"$version-${System.currentTimeMillis()}")
     IO.write(bundleTarget.resolve("serviceworker.js").toFile, swupdated)
 
-    IO.listFiles(jsDpendencies).foreach(gzipToTarget)
+    IO.listFiles(jsDpendencies).foreach(copyToTarget)
 
     bundleTarget.toFile
   }
