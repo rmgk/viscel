@@ -19,7 +19,7 @@ object ReportTools {
 trait Stack {
   val stack: List[StackTraceElement] = Predef.wrapRefArray(Thread.currentThread().getStackTrace()).toList
   def position: String = {
-    val ignoredClasses = Set("viscel.selection", "java", "org.scalactic", "scala")
+    val ignoredClasses = Set("viscel.selektiv", "java", "org.scalactic", "scala")
     stack.find { ste =>
       val cname = ste.getClassName
       !ignoredClasses.exists(cname.startsWith)

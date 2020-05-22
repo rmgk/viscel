@@ -33,6 +33,7 @@ object Narration {
 
   sealed trait WrapPart[+T] {
     def map[U](fun: T => U): WrapPart[U] = Combination.of(this, Constant(()))((a, _) => fun(a))
+    def mapAll[T2, U](fun: T2 => U)(implicit ev: T <:< List[T2]) = map(e => ev(e).map(fun))
   }
 
 

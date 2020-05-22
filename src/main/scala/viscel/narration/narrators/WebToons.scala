@@ -1,7 +1,7 @@
 package viscel.narration.narrators
 
 import io.circe.{Decoder, Encoder}
-import viscel.narration.Queries._
+import viscel.selektiv.Queries._
 import viscel.narration.{Metarrator, NarratorADT, Templates}
 import viscel.selektiv.ReportTools.extract
 import viscel.selektiv.Narration._
@@ -14,7 +14,7 @@ object WebToons extends Metarrator[WebToon]("WebToons") {
   override def toNarrator(wt: WebToon): NarratorADT =
     Templates.SimpleForward("WebToons_" + wt.id, wt.name, wt.start,
                             Append(Selection.many("#_imageList img")
-                                   .wrapEach(imageFromAttribute(_, Some("data-url"))),
+                                   .map(_.map(imageFromAttribute(_, Some("data-url")))),
                                    queryNext("a.pg_next[title=Next Episode]")))
   override def decoder: Decoder[WebToon] = io.circe.generic.semiauto.deriveDecoder
   override def encoder: Encoder[WebToon] = io.circe.generic.semiauto.deriveEncoder
@@ -24,8 +24,8 @@ object WebToons extends Metarrator[WebToon]("WebToons") {
     case _ => None
   }
   override def wrap: Narration.WrapPart[List[WebToon]] = {
-    val url_? = Selection.unique("#_btnEpisode").wrapOne(extractURL)
-    val name_? = Selection.unique("#content .detail_header .info .subj").wrapOne(e => extract(e.ownText()))
+    val url_? = Selection.unique("#_btnEpisode").map(extractURL)
+    val name_? = Selection.unique("#content .detail_header .info .subj").map(e => extract(e.ownText()))
     Combination.of(url_?, name_?){(url, name) =>
       val rex"https://www.webtoons.com/[^/]+/[^/]+/($cid[^/]+)/.*" = url.uriString()
       List(WebToon(cid, name, url))

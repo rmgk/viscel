@@ -1,11 +1,10 @@
-package viscel.narration
+package viscel.selektiv
 
 import org.jsoup.internal.StringUtil
 import org.jsoup.nodes.Element
 import viscel.narration.Narrator.Wrapper
-import viscel.selektiv.Narration.{Append, WrapPart}
+import viscel.selektiv.Narration.WrapPart
 import viscel.selektiv.ReportTools._
-import viscel.selektiv.{FailedElement, QueryNotUnique, Selection, UnhandledTag}
 import viscel.store.v4.{DataRow, Vurl}
 
 import scala.util.Try
@@ -70,16 +69,16 @@ object Queries {
     DataRow.Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
   }
 
-  def queryImage(query: String): WrapPart[List[DataRow.Link]] = Selection.unique(query).wrapEach(extractArticle)
-  def queryImages(query: String): WrapPart[List[DataRow.Link]] = Selection.many(query).wrapEach(extractArticle)
-  def queryImages_?(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).wrapEach(extractArticle)
+  def queryImage(query: String): WrapPart[DataRow.Link] = Selection.unique(query).map(extractArticle)
+  def queryImages(query: String): WrapPart[List[DataRow.Link]] = Selection.many(query).map(_.map(extractArticle))
+  def queryImages_?(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).map(_.map(extractArticle))
   /** extracts article at query result
     * optionally extracts direct parent of query result as link */
   def queryImageInAnchor(query: String): Wrapper =
-    Selection.unique(query).wrapFlat[DataRow.Content] { image =>
+    Selection.unique(query).map { image =>
       extractArticle(image) :: Try {extractMore(image.parent())}.toOption.toList
     }
-  def queryNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).wrap(selectMore)
+  def queryNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).map(selectMore)
   def queryMixedArchive(query: String): Wrapper = {
     def intoMixedArchive(elem: Element): DataRow.Content = {
       if (elem.tagName() == "a") extractMore(elem)
@@ -87,13 +86,13 @@ object Queries {
       else extractChapter(elem)
     }
 
-    Selection.many(query).wrapEach {intoMixedArchive}
+    Selection.many(query).map(_.map(intoMixedArchive).toList)
   }
 
   def queryChapterArchive(query: String): Wrapper = {
-    Selection.many(query).wrapFlat { chapter =>
+    Selection.many(query).map(_.toList.flatMap { chapter =>
       List(extractChapter(chapter), extractMore(chapter))
-    }
+    })
   }
 
   def chapterReverse(stories: List[DataRow.Content], reverseInner: Boolean = false): List[DataRow.Content] = {
