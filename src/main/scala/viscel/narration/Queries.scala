@@ -100,8 +100,7 @@ object Queries {
     }
   }
 
-
-  def chapterReverse(stories: List[DataRow.Content]): List[DataRow.Content] = {
+  def chapterReverse(stories: List[DataRow.Content], reverseInner: Boolean = false): List[DataRow.Content] = {
     def groupedOn[T](l: List[T])(p: T => Boolean): List[List[T]] = l.foldLeft(List[List[T]]()) {
       case (acc, t) if p(t) => List(t) :: acc
       case (Nil, t)         => List(t) :: Nil
@@ -109,7 +108,7 @@ object Queries {
     }.map(_.reverse).reverse
 
     groupedOn(stories) { case DataRow.Chapter(_) => true; case _ => false }.reverse.flatMap {
-      case h :: t => h :: t.reverse
+      case h :: t => h :: (if (reverseInner) t.reverse else t)
       case Nil    => Nil
     }
 

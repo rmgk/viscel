@@ -136,7 +136,10 @@ object ViscelDefinition {
       case _                              => (pageFun, archFun)
     }
 
-    val archFunRev = if (has("archiveReverse")) archFunReplace.map(_.map(chapterReverse)) else archFunReplace
+    val archFunRev =
+      if (has("archiveReverse")) archFunReplace.map(_.map(chapterReverse(_, reverseInner = false)))
+      else if (has("archiveReverseFull")) archFunReplace.map(_.map(chapterReverse(_, reverseInner = true)))
+           else archFunReplace
 
     (pageFunReplace, archFunRev) match {
       case (Some(pf), None)     => Right(NarratorADT(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, pf))

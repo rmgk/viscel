@@ -9,7 +9,7 @@
 -- chapterArchive (ac): matches an archive of chapter references
 -- url_replace: does replacements on urls
 -- archiveReverse: reverses the chapters in the archive (not the order of images)
-
+-- archiveReverseFull: reverse each chapter, and all images in each chapter
 
 ---------------------------------------------- DEAD ---
 
@@ -416,9 +416,9 @@ http://quiltbag.keenspot.com/d/20111018.html
 :ia #comicarea img
 
 -:Sequential Art
-http://www.collectedcurios.com/sequentialart.php?s=1
-:i #strip
-:n #nav > a:has(img[title=Forward One])
+https://www.collectedcurios.com/sequentialart.php?s=1
+:i .w3-image
+:n #forwardOne
 
 -:Sexy Losers
 http://www.sexylosers.com/archives-by-volume/
@@ -563,7 +563,7 @@ http://www.lesserkeystudios.com/ianua/page-1/
 http://www.sandraandwoo.com/gaia/archive/
 :am #column > div.post-page h3 , #column > div.post-page .archive-title a[rel=bookmark]
 :is #comic img
-:archiveReverse
+:archiveReverseFull
 
 -:Replay
 http://replaycomic.com/comic/red-desert/
@@ -645,7 +645,7 @@ http://www.konradokonski.com/aquartzbead/?page_id=2
 -:Sawdust
 http://www.konradokonski.com/sawdust/archives/
 :am #content .entry h3 , #content .entry .archive-title > a
-:archiveReverse
+:archiveReverseFull
 :i #comic img
 
 -:Questionable Content
@@ -774,9 +774,11 @@ http://candicomics.com/index.html
 :url_replace d/20150122.html ::: d/20150123.html
 
 -NX_Flipside:Flipside
-http://flipside.keenspot.com/chapters.php
-:mixedArchive td:matches(Chapter) > div:first-child , td:matches(Intermission) > p > b , td:matches(Chapter|Intermission) [style~=smaller] a
+http://flipside.keenspot.com/archive.php
+:mixedArchive .arc_data a > b:contains(\") , .arc_intdata b:Contains(Intermission) , .arc_data table td > a , .arc_intdata > a
 :image img.ksc
+:archiveReverse
+
 
 -NX_BetterDays:Better Days
 http://jaynaylor.com/betterdays/
@@ -1323,7 +1325,7 @@ http://namesakecomic.com/archives/
 http://www.nerfnow.com/archives
 :am #archives > div.archives_month , #archives a
 :i #comic img
-:archiveReverse
+:archiveReverseFull
 
 -:Never Satisfied
 http://www.neversatisfiedcomic.com/comic/archive
@@ -2397,6 +2399,12 @@ http://snafu-comics.com/swmcomic/0001/
 http://snafu-comics.com/swmcomic/not-funny/
 :image .comicpage img
 :next .comicnav a.previous
+
+-Snafu_crawlingcity:[snafu] The Crawling City
+https://snafu-comics.com/swmcomic/cereal/
+:images? .comicpage img:not([src=https://snafu-comics.com/wp-content/uploads/2017/07/snafu.png])
+:next .comicnav a.previous
+
 
 --------------------------------------------------------------------------------------
 -- end of snafu
