@@ -13,25 +13,6 @@ import scala.collection.immutable.Set
 
 object Individual {
 
-
-  val Inverloch = NarratorADT(
-    Vid.from("NX_Inverloch"), "Inverloch",
-    Range.inclusive(1, 5)
-      .map(i => DataRow.Link(s"http://inverloch.seraph-inn.com/volume$i.html",
-                     "archive" :: Nil)).toList,
-    Condition(ContextW.map(_.context.exists("archive" == _)), {
-      Selection.many("#main p:containsOwn(Chapter)").focus {
-        Append(
-          ElementW.map(chap => DataRow.Chapter(chap.ownText()) :: Nil),
-          Selection.many("a").wrapEach(extractMore))
-      }
-    }, {
-      Condition(ContextW.map {_.location.endsWith("summaries.html")},
-                Constant(Nil),
-                queryImageNext("#main > p:nth-child(1) > img",
-                               "#main a:containsOwn(Next)"))
-    }))
-
   val UnlikeMinerva = NarratorADT(
     Vid.from("NX_UnlikeMinerva"),
     "Unlike Minerva",
