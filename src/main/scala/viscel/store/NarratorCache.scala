@@ -2,7 +2,7 @@ package viscel.store
 
 import java.nio.file.Path
 
-import viscel.narration.{Metarrator, Narrator, NarratorADT, Narrators, ViscelDefinition}
+import viscel.narration.{Metarrator, Narrator, ViscelDefinition}
 import viscel.netzi.{VRequest, WebRequestInterface}
 import viscel.selektiv.Narration
 import viscel.selektiv.Narration.ContextData
@@ -29,9 +29,9 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
   def get(id: Vid): Option[Narrator] = narratorMap.get(id)
 
 
-  def loadAll(): Set[Narrator] = synchronized(Narrators.metas.iterator.flatMap[NarratorADT](loadNarrators(_).iterator).toSet)
+  def loadAll(): Set[Narrator] = synchronized(Narrator.metas.iterator.flatMap[Narrator](loadNarrators(_).iterator).toSet)
 
-  def loadNarrators[T](metarrator: Metarrator[T]): Set[NarratorADT] = load(metarrator).map(metarrator.toNarrator)
+  def loadNarrators[T](metarrator: Metarrator[T]): Set[Narrator] = load(metarrator).map(metarrator.toNarrator)
 
   def add(start: String, requestUtil: WebRequestInterface): Future[List[Narrator]] = {
     def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
@@ -47,7 +47,7 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
       }(scala.concurrent.ExecutionContext.global)
 
     try {
-      Narrators.metas.map(m => (m, m.unapply(start)))
+      Narrator.metas.map(m => (m, m.unapply(start)))
         .collectFirst { case (m, Some(uri)) => go(m, uri) }
         .getOrElse(Future.failed(new IllegalArgumentException(s"$start is not handled")))
 

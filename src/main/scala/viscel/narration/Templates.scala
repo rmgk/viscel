@@ -14,14 +14,14 @@ object Templates {
                   start: Vurl,
                   wrapArchive: Wrapper,
                   wrapPage: Wrapper,
-                 ): NarratorADT =
-    NarratorADT(Vid.from(vid), pname, DataRow.Link(start, List(Volatile)) :: Nil,
+                 ): Narrator =
+    Narrator(Vid.from(vid), pname, DataRow.Link(start, List(Volatile)) :: Nil,
                 Condition(ContextW.map(_.context.contains(Volatile)), wrapArchive, wrapPage))
 
   def SimpleForward(vid: String,
                     pname: String,
                     start: Vurl,
                     wrapPage: Wrapper
-                   ): NarratorADT =
-    NarratorADT(Vid.from(vid), pname, DataRow.Link(start) :: Nil, wrapPage)
+                   ): Narrator =
+    Narrator(Vid.from(vid), pname, DataRow.Link(start) :: Nil, wrapPage)
 }

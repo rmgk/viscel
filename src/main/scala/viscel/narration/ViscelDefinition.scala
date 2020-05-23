@@ -95,7 +95,7 @@ object ViscelDefinition {
   def TransformUrls(target: Wrapper, replacements: List[(String, String)]) =
     target.map(transformUrls(replacements))
 
-  def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): NarratorADT Or ErrorMessage = {
+  def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): Narrator Or ErrorMessage = {
     val cid = generateID(id, name)
     type Wrap = Wrapper
 
@@ -142,7 +142,7 @@ object ViscelDefinition {
            else archFunReplace
 
     (pageFunReplace, archFunRev) match {
-      case (Some(pf), None)     => Right(NarratorADT(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, pf))
+      case (Some(pf), None)     => Right(Narrator(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, pf))
       case (Some(pf), Some(af)) => Right(Templates.archivePage(cid, name, startUrl, af, pf))
       case _                    => Left(s"invalid combinations of attributes for $cid at line $pos")
     }

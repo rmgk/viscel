@@ -4,7 +4,7 @@ import cats.implicits._
 import io.circe.Decoder.Result
 import io.circe.{Decoder, DecodingFailure, Encoder}
 import viscel.narration.Narrator.Wrapper
-import viscel.narration.{Metarrator, NarratorADT, Templates}
+import viscel.narration.{Metarrator, Narrator, Templates}
 import viscel.selektiv.Narration.{Combination, ContextW, WrapPart}
 import viscel.selektiv.Report
 import viscel.store.v4.{DataRow, Vurl}
@@ -76,7 +76,7 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
   val extractData = """https://mangadex.(?:org|com)/(?:manga|title)/(\d+)/([^/]+)""".r
   val apiLink = """https://mangadex.(?:org|com)/api/\?id=(\d+)&type=manga""".r
 
-  override def toNarrator(nar: MangadexNarrator): NarratorADT = {
+  override def toNarrator(nar: MangadexNarrator): Narrator = {
     val uri = nar.archiveUri.uriString() match {
       case extractData(num, cid) => apiFromNum(num)
       case apiLink(num) => nar.archiveUri

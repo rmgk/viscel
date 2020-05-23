@@ -5,7 +5,7 @@ import viscel.selektiv.Narration.WrapPart
 import viscel.store.v4.Vurl
 
 abstract class Metarrator[T](val metarratorId: String) {
-  def toNarrator(t : T): NarratorADT
+  def toNarrator(t : T): Narrator
   def decoder: Decoder[T]
   def encoder: Encoder[T]
   def unapply(description: String): Option[Vurl]

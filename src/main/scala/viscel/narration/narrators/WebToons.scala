@@ -2,7 +2,7 @@ package viscel.narration.narrators
 
 import io.circe.{Decoder, Encoder}
 import viscel.selektiv.Queries._
-import viscel.narration.{Metarrator, NarratorADT, Templates}
+import viscel.narration.{Metarrator, Narrator, Templates}
 import viscel.selektiv.ReportTools.extract
 import viscel.selektiv.Narration._
 import viscel.selektiv.{Narration, Selection}
@@ -11,7 +11,7 @@ import viscel.store.v4.Vurl
 case class WebToon(id: String, name: String, start: Vurl)
 object WebToons extends Metarrator[WebToon]("WebToons") {
 
-  override def toNarrator(wt: WebToon): NarratorADT =
+  override def toNarrator(wt: WebToon): Narrator =
     Templates.SimpleForward("WebToons_" + wt.id, wt.name, wt.start,
                             Append(Selection.many("#_imageList img")
                                    .map(_.map(imageFromAttribute(_, Some("data-url")))),
