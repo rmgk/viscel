@@ -8,7 +8,7 @@ import better.files._
 import viscel.narration.Narrator.Wrapper
 import viscel.selektiv.Queries._
 import viscel.selektiv.Narration.{AdditionalErrors, Append}
-import viscel.selektiv.Report
+import viscel.selektiv.{FlowWrapper, Report}
 import viscel.shared.{Log, Vid}
 import viscel.store.v4.{DataRow, Vurl}
 
@@ -106,7 +106,7 @@ object ViscelDefinition {
 
     val pageFunNoNext: Option[Wrap] = attrs match {
       case extract"image+next $img"         => annotate(queryImageInAnchor(img.s), img)
-      case extract"image $img"              => annotate(queryImage(img.s).map(List(_)), img)
+      case extract"image $img"              => annotate(FlowWrapper.Pipe(img.s, FlowWrapper.Unique, List(FlowWrapper.Extractor.Image)).toWrapper, img)
       case extract"images $img"             => annotate(queryImages(img.s).map(_.toList), img)
       case extract"images? $img"            => annotate(queryImages_?(img.s), img)
       case _                                => None

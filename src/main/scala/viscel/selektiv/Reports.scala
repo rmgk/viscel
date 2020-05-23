@@ -36,8 +36,6 @@ case class FailedElement(query: String, reason: Report, element: Element*) exten
 
 case object QueryNotUnique extends FixedReport("query is not unique")
 
-case object QueryNotMatch extends FixedReport("query did not match")
-
 case object UnhandledTag extends FixedReport("unhandled tag")
 
 case class ExtractionFailed(cause: Throwable) extends Report with Stack {
