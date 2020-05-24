@@ -1,10 +1,9 @@
 package viscel.server
 
+import cats.implicits.{catsSyntaxEitherId, catsSyntaxOptionId}
 import viscel.shared.{Blob, ChapterPos, Contents, Description, Gallery, Log, SharedImage, Vid}
 import viscel.store._
 import viscel.store.v4.{DataRow, RowStoreV4, Vurl}
-import cats.implicits.catsSyntaxOptionId
-import cats.implicits.catsSyntaxEitherId
 
 import scala.collection.mutable
 
@@ -15,9 +14,17 @@ class ContentLoader(narratorCache: NarratorCache,
 
   def contents(id: Vid): Option[Contents] = {
     // load the book in an order suitable for viewing
-    val pages = ContentLoader.linearizedPages(rowStore.loadBook(id))
-    if (pages.isEmpty) None
-    else Some(ContentLoader.pagesToContents(pages))
+    try {
+      val book  = rowStore.loadBook(id)
+      val pages = ContentLoader.linearizedPages(book)
+      if (pages.isEmpty) None
+      else Some(ContentLoader.pagesToContents(pages))
+    } catch {
+      case e: IllegalStateException => None
+      case other: Throwable         =>
+        Log.Server.warn(s"exception while loading book: ${other.getMessage}")
+        None
+    }
   }
 
   def descriptions(): Map[Vid, Description] = {
@@ -30,6 +37,7 @@ class ContentLoader(narratorCache: NarratorCache,
         case Some(desc) => n.id -> desc.copy(linked = true)
       }
     }.toMap
+
     val res = stored ++ narrators
     Log.Server.debug(s"found ${res.size} descriptions")
     res
@@ -125,9 +133,9 @@ object ContentLoader {
         case Nil    => (images, chapters)
         case h :: t =>
           h match {
-            case Left(article)        =>
+            case Left(article) =>
               recurse(t, article :: images, if (chapters.isEmpty) List(ChapterPos("", 0)) else chapters, counter + 1)
-            case Right(chap) =>
+            case Right(chap)   =>
               recurse(t, images, ChapterPos(chap.name, counter) :: chapters, counter)
           }
       }
