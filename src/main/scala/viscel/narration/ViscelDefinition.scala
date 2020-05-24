@@ -159,8 +159,8 @@ object ViscelDefinition {
       val conditions = pipe.conditions
       val wrapper    = pipe.toWrapper
       Condition(ContextW.map(cd =>
-                               conditions.exists(cd.response.location.uriString().contains) ||
-                               conditions.exists(cd.request.href.uriString().contains)),
+                               conditions.exists(cd.response.location.uriString().equals) ||
+                               conditions.exists(cd.request.href.uriString().equals)),
                 wrapper,
                 rest)
     }
