@@ -91,7 +91,7 @@ object Snippets {
 
   def meta(meta: MetaInfo): JsDom.Modifier = {
     val connectionStatus = meta.connection.map{
-      case 0 => stringFrag(s"disconnected (tries ${meta.reconnecting.value})")
+      case 0 => stringFrag(s"disconnected (attempt № ${meta.reconnecting.value})")
       case other => stringFrag(s"$other active")
     }
     section(s"app version: ${meta.version}", br(),
