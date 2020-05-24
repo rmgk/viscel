@@ -2,7 +2,7 @@ package viscel
 
 import java.nio.file.{Files, Path}
 import java.util.TimerTask
-import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
+import java.util.concurrent.{LinkedBlockingQueue, SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
@@ -48,20 +48,13 @@ class Services(relativeBasedir: Path,
   lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
 
 
-  /* ====== executors ====== */
-
-  def executorMinMax(min: Int = 0, max: Int = 1, keepAliveSeconds: Long = 1L) = {
-    new ThreadPoolExecutor(min, max, keepAliveSeconds,
-                           TimeUnit.SECONDS,
-                           new LinkedBlockingQueue[Runnable]())
-  }
-
   /* ====== http requests ====== */
 
   lazy val requests = {
-    val maxRequests             = 5
-    val requestExecutionContext = executorMinMax(max = maxRequests*2)
-    new OkHttpRequester(maxRequests, requestExecutionContext)
+    val executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                          1, TimeUnit.SECONDS,
+                                          new SynchronousQueue())
+    new OkHttpRequester(5, 1, executor)
   }
 
   /* ====== repl util extra tasks ====== */
@@ -94,7 +87,14 @@ class Services(relativeBasedir: Path,
 
   /* ====== clockwork ====== */
 
-  lazy val computeExecutor        : ThreadPoolExecutor       = executorMinMax(max = 1)
+  lazy val computeExecutor: ThreadPoolExecutor = {
+    val res = new ThreadPoolExecutor(1, 1, 1,
+                                     TimeUnit.SECONDS,
+                                     new LinkedBlockingQueue[Runnable]())
+    res.allowCoreThreadTimeOut(true)
+    res
+  }
+
   lazy val computeExecutionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(computeExecutor)
 
