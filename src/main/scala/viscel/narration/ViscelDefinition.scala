@@ -9,6 +9,7 @@ import viscel.crawl.Decider
 import viscel.selektiv.FlowWrapper._
 import viscel.selektiv.{FlowWrapper, Report}
 import viscel.shared.{Log, Vid}
+import viscel.store.CirceStorage
 import viscel.store.v4.{DataRow, Vurl}
 
 import scala.annotation.tailrec
@@ -205,7 +206,8 @@ object ViscelDefinition {
                 }
               }
     Log.Narrate.info(s"Found ${res.size} definitions in $defdir.")
-    //CirceStorage.store(defdir./("flowdefs.json").path, res)
+    import CirceStorage.CFlowNarrator
+    CirceStorage.store(defdir./("flowdefs.json").path, res)
     res
   }
 

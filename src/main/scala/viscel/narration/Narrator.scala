@@ -11,12 +11,15 @@ object Narrator {
   val metas: List[Metarrator[_]] = List(Mangadex, WebToons, Tapas)
 }
 
-case class FlowNarrator(override val id: Vid,
-                        override val name: String,
-                        override val archive: List[DataRow.Content],
-                        plumbing: Plumbing) extends Narrator(id, name, archive) {
-  override val wrapper: WrapPart[List[DataRow.Content]] = plumbing.toWrapper
+case class FlowNarrator(id: Vid,
+                        name: String,
+                        archive: List[DataRow.Link],
+                        plumbing: Plumbing) {
+  def toNarrator = new Narrator(id, name, archive) {
+    override val wrapper: WrapPart[List[DataRow.Content]] = plumbing.toWrapper
+  }
 }
+
 
 /** Describes the structure of a web collection */
 abstract class Narrator(

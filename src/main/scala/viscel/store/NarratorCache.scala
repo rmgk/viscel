@@ -15,7 +15,7 @@ import scala.concurrent.Future
 class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
 
-  private def calculateAll(): Set[Narrator] = loadAll() ++ ViscelDefinition.loadAll(definitionsdir)
+  private def calculateAll(): Set[Narrator] = loadAll() ++ ViscelDefinition.loadAll(definitionsdir).map(_.toNarrator)
 
   def updateCache(): Unit = {
     cached = calculateAll()

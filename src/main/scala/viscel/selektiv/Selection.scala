@@ -55,6 +55,7 @@ object FlowWrapper {
     object Chapter extends Extractor
   }
 
+
   sealed trait Filter {
     val filter: List[DataRow.Content] => List[DataRow.Content] = this match {
       case Filter.ChapterReverse(reverseInner) => chapterReverse(_, reverseInner)

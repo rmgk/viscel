@@ -8,8 +8,8 @@ import io.circe.syntax._
 import viscel.narration.Narrator
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.Vid
+import viscel.store.CirceStorage._
 import viscel.store.{Book, CirceStorage}
-import viscel.store.v4.V4Codecs._
 
 class RowStoreV4 (db4dir: Path) {
 

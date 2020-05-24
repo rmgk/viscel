@@ -7,9 +7,6 @@ final class Vid private(val str: String) extends AnyVal {
 }
 
 object Vid {
-
-
-
   val idregex: Regex = """^[\w-]+$""".r
   def from(str: String): Vid = {
     assert(idregex.unapplySeq(str).isDefined, s"Vid may only contain [\\w-], but was »$str«")

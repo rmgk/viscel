@@ -3,11 +3,6 @@ package viscel.store.v4
 import java.net.URL
 import java.time.Instant
 
-import cats.syntax.either._
-import io.circe.export.Exported
-import io.circe.generic.extras.Configuration
-import io.circe.generic.extras.auto._
-import io.circe.generic.extras.semiauto._
 import io.circe.{Decoder, Encoder}
 import viscel.store.v4.DataRow._
 
@@ -45,19 +40,4 @@ object DataRow {
   final case class Link(ref: Vurl, data: List[String] = Nil) extends Content
   final case class Blob(sha1: String, mime: String) extends Content
   final case class Chapter(name: String) extends Content
-}
-
-object V4Codecs {
-  def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[DataRow]] = exportDecoder[DataRow]
-
-  implicit lazy val config: Configuration = Configuration.default.withDefaults
-
-  implicit val instantEncoder: Encoder[Instant] = Encoder.encodeString.contramap[Instant](_.toString)
-  implicit val instantDecoder: Decoder[Instant] = Decoder.decodeString.emap { str =>
-    Either.catchNonFatal(Instant.parse(str)).leftMap(t => "Instant: " + t.getMessage)
-  }
-
-  implicit val dataRowEncoder: Encoder[DataRow] = deriveConfiguredEncoder
-  implicit val dataRowDecoder: Decoder[DataRow] = deriveConfiguredDecoder
-
 }
