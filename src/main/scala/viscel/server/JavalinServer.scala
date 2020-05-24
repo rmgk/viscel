@@ -98,9 +98,14 @@ class JavalinServer(blobStore: BlobStore,
       val sha1      = ctx.pathParamMap.get("hash")
       val filename  = File(blobStore.hashToPath(sha1))
       val mediatype = Option(ctx.queryParamMap.get("mime")).flatMap(_.asScala.headOption).getOrElse("image")
-      ctx.contentType(mediatype)
-      ctx.header(Header.CACHE_CONTROL, "max-age=31557600, public, immutable")
-      ctx.result(filename.newInputStream)
+        ctx.contentType(mediatype)
+      if (filename.exists) {
+        ctx.header(Header.CACHE_CONTROL, "max-age=31557600, public, immutable")
+        ctx.result(filename.newInputStream)
+      } else {
+        ctx.status(404)
+        ctx.result("")
+      }
     })
     jl.get("stop", { ctx =>
       if (ctx.attribute[User]("user").admin) {
