@@ -129,6 +129,10 @@
 -- :ac .cc-chapterrow a[href]
 -- :ia #cc-comic
 
+-- -:Valkyrie Squadron
+-- http://www.valkyriesquadron.com/valkyrie/prologue-page-0/
+-- :i #webcomic > div.webcomic-image > img
+-- :n #webcomic > nav.webcomics.above > a.next-webcomic-link
 
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
@@ -535,11 +539,6 @@ http://earthsongsaga.com/archives.php
 http://www.snowbynight.com/story.php
 :am .content_main h2 , .content_main .archive_pages a
 :images? div.content_group.comic_group img
-
--:Valkyrie Squadron
-http://www.valkyriesquadron.com/valkyrie/prologue-page-0/
-:i #webcomic > div.webcomic-image > img
-:n #webcomic > nav.webcomics.above > a.next-webcomic-link
 
 -:Zombies and Fairytales
 http://166612.webhosting66.1blu.de/zaf_de/wordpress/comic/erster-eindruck/
