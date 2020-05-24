@@ -11,44 +11,67 @@ import viscel.store.v4.DataRow
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-
 object FlowWrapper {
 
 
-  sealed class Restriction(val min: Int, val max: Int) {
+  sealed trait Restriction {
+
+    val (min, max) = this match {
+      case Restriction.Unique    => (1, 1)
+      case Restriction.NonEmpty  => (1, Int.MaxValue)
+      case Restriction.None      => (0, Int.MaxValue)
+      case Restriction.AtMostOne => (0, 1)
+    }
+
     def unapply(arg: Int): Option[RestrictionReport] = {
       if (min <= arg && arg <= max) None
       else Some(RestrictionReport(arg, this))
     }
   }
   object Restriction {
-    object Unique extends Restriction(1, 1)
-    object NonEmpty extends Restriction(1, Int.MaxValue)
-    object None extends Restriction(0, Int.MaxValue)
-    object AtMostOne extends Restriction(0, 1)
+    object Unique extends Restriction
+    object NonEmpty extends Restriction
+    object None extends Restriction
+    object AtMostOne extends Restriction
   }
 
-  sealed class Extractor(val extract: Element => List[DataRow.Content])
+
+  sealed trait Extractor {
+    val extract: Element => List[DataRow.Content] = this match {
+      case Extractor.Image           => e => List(extractArticle(e))
+      case Extractor.More            => e => List(extractMore(e))
+      case Extractor.Parent(next)    => e => next.extract(e.parent())
+      case Extractor.Optional(inner) => e => Try(inner.extract(e)).toOption.getOrElse(Nil)
+      case Extractor.MixedArchive    => e => List(extractMixedArchive(e))
+      case Extractor.Chapter         => e => List(extractChapter(e))
+    }
+  }
   object Extractor {
-    object Image extends Extractor(e => List(extractArticle(e)))
-    object More extends Extractor(e => List(extractMore(e)))
-    case class Parent(next: Extractor) extends Extractor(e => next.extract(e.parent()))
-    case class Optional(inner: Extractor) extends Extractor(e => Try(inner.extract(e)).toOption.getOrElse(Nil))
-    object MixedArchive extends Extractor(e => List(extractMixedArchive(e)))
-    object Chapter extends Extractor(e => List(extractChapter(e)))
+    object Image extends Extractor
+    object More extends Extractor
+    case class Parent(next: Extractor) extends Extractor
+    case class Optional(inner: Extractor) extends Extractor
+    object MixedArchive extends Extractor
+    object Chapter extends Extractor
   }
 
-  sealed class Filter(val filter: List[DataRow.Content] => List[DataRow.Content])
-  object Filter {
-    case class ChapterReverse(reverseInner: Boolean) extends Filter(chapterReverse(_, reverseInner))
-    case class TransformUrls(replacements: List[(String, String)]) extends Filter(ViscelDefinition.transformUrls(replacements))
-    case object SelectSingleNext extends Filter(contents => {
-      if (contents.isEmpty) Nil
-      else contents match {
-        case pointers if pointers.toSet.size == 1 => pointers.headOption.toList
-        case pointers => throw QueryNotUnique
+  sealed trait Filter {
+    val filter: List[DataRow.Content] => List[DataRow.Content] = this match {
+      case Filter.ChapterReverse(reverseInner) => chapterReverse(_, reverseInner)
+      case Filter.TransformUrls(replacements)  => ViscelDefinition.transformUrls(replacements)
+      case Filter.SelectSingleNext             => contents => {
+        if (contents.isEmpty) Nil
+        else contents match {
+          case pointers if pointers.toSet.size == 1 => pointers.headOption.toList
+          case pointers                             => throw QueryNotUnique
+        }
       }
-    })
+    }
+  }
+  object Filter {
+    case class ChapterReverse(reverseInner: Boolean) extends Filter
+    case class TransformUrls(replacements: List[(String, String)]) extends Filter
+    case object SelectSingleNext extends Filter
 
   }
 
@@ -63,40 +86,38 @@ object FlowWrapper {
           extractors.flatMap(_.extract(elem))
         }
       }
-      filter.foldLeft(extracted){(sel, fil) => sel.map(fil.filter)}
+      filter.foldLeft(extracted) { (sel, fil) => sel.map(fil.filter) }
     }
   }
 
-case class Plumbing(pipes: List[Pipe]) {
-  def toWrapper: Narrator.Wrapper = {
+  case class Plumbing(pipes: List[Pipe]) {
+    def toWrapper: Narrator.Wrapper = {
 
-    val condGroupd     = pipes.groupBy(_.conditions.nonEmpty)
-    val conditioned    = condGroupd.getOrElse(true, Nil)
-    val unconditioned  = condGroupd.getOrElse(false, Nil)
-    val appendedUncond = unconditioned.map(_.toWrapper) match {
-      case Nil         => Constant(Nil)
-      case wrap :: Nil => wrap
-      case multiple    => multiple.reduce(Append[DataRow.Content])
+      val condGroupd     = pipes.groupBy(_.conditions.nonEmpty)
+      val conditioned    = condGroupd.getOrElse(true, Nil)
+      val unconditioned  = condGroupd.getOrElse(false, Nil)
+      val appendedUncond = unconditioned.map(_.toWrapper) match {
+        case Nil         => Constant(Nil)
+        case wrap :: Nil => wrap
+        case multiple    => multiple.reduce(Append[DataRow.Content])
+      }
+      val appended       = conditioned.foldRight(appendedUncond) { (pipe, rest) =>
+        val conditions = pipe.conditions
+        val wrapper    = pipe.toWrapper
+        Condition(ContextW.map(cd =>
+                                 conditions.exists(cd.response.location.uriString().equals) ||
+                                 conditions.exists(cd.request.href.uriString().equals)),
+                  wrapper,
+                  rest)
+      }
+
+      appended
+
     }
-    val appended       = conditioned.foldRight(appendedUncond) { (pipe, rest) =>
-      val conditions = pipe.conditions
-      val wrapper    = pipe.toWrapper
-      Condition(ContextW.map(cd =>
-                               conditions.exists(cd.response.location.uriString().equals) ||
-                               conditions.exists(cd.request.href.uriString().equals)),
-                wrapper,
-                rest)
-    }
-
-    appended
-
   }
-}
-
 
 
 }
-
 
 
 object Selection {
