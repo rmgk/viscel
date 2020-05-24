@@ -7,7 +7,6 @@ import java.nio.file.Path
 import better.files._
 import viscel.crawl.Decider
 import viscel.selektiv.FlowWrapper._
-import viscel.selektiv.Narration.{AdditionalErrors, Append, Condition, Constant, ContextW}
 import viscel.selektiv.{FlowWrapper, Report}
 import viscel.shared.{Log, Vid}
 import viscel.store.v4.{DataRow, Vurl}
@@ -146,29 +145,9 @@ object ViscelDefinition {
         }
     }
 
+    val plumbing = Plumbing(transformedPipes)
 
-    val condGroupd     = transformedPipes.groupBy(_.conditions.nonEmpty)
-    val conditioned    = condGroupd.getOrElse(true, Nil)
-    val unconditioned  = condGroupd.getOrElse(false, Nil)
-    val appendedUncond = unconditioned.map(_.toWrapper) match {
-      case Nil         => Constant(Nil)
-      case wrap :: Nil => wrap
-      case multiple    => multiple.reduce(Append[DataRow.Content])
-    }
-    val appended       = conditioned.foldRight(appendedUncond) { (pipe, rest) =>
-      val conditions = pipe.conditions
-      val wrapper    = pipe.toWrapper
-      Condition(ContextW.map(cd =>
-                               conditions.exists(cd.response.location.uriString().equals) ||
-                               conditions.exists(cd.request.href.uriString().equals)),
-                wrapper,
-                rest)
-    }
-
-
-    val errorerd = AdditionalErrors(appended, AdditionalPosition(pos, path))
-
-    Narrator(Vid.from(cid), name, DataRow.Link(startUrl, if (chapterArchivePipe.isDefined || mixedArchivePipe.isDefined) List(Decider.Volatile) else Nil) :: Nil, errorerd)
+    FlowNarrator(Vid.from(cid), name, DataRow.Link(startUrl, if (chapterArchivePipe.isDefined || mixedArchivePipe.isDefined) List(Decider.Volatile) else Nil) :: Nil, plumbing)
 
   }
 

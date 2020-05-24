@@ -4,7 +4,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import viscel.narration.{Narrator, ViscelDefinition}
 import viscel.selektiv.FlowWrapper.Restriction
-import viscel.selektiv.Narration.{ElementW, WrapPart}
+import viscel.selektiv.Narration.{Append, Condition, Constant, ContextW, ElementW, WrapPart}
 import viscel.selektiv.Queries._
 import viscel.store.v4.DataRow
 
@@ -66,6 +66,33 @@ object FlowWrapper {
       filter.foldLeft(extracted){(sel, fil) => sel.map(fil.filter)}
     }
   }
+
+case class Plumbing(pipes: List[Pipe]) {
+  def toWrapper: Narrator.Wrapper = {
+
+    val condGroupd     = pipes.groupBy(_.conditions.nonEmpty)
+    val conditioned    = condGroupd.getOrElse(true, Nil)
+    val unconditioned  = condGroupd.getOrElse(false, Nil)
+    val appendedUncond = unconditioned.map(_.toWrapper) match {
+      case Nil         => Constant(Nil)
+      case wrap :: Nil => wrap
+      case multiple    => multiple.reduce(Append[DataRow.Content])
+    }
+    val appended       = conditioned.foldRight(appendedUncond) { (pipe, rest) =>
+      val conditions = pipe.conditions
+      val wrapper    = pipe.toWrapper
+      Condition(ContextW.map(cd =>
+                               conditions.exists(cd.response.location.uriString().equals) ||
+                               conditions.exists(cd.request.href.uriString().equals)),
+                wrapper,
+                rest)
+    }
+
+    appended
+
+  }
+}
+
 
 
 }
