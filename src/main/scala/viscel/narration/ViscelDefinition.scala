@@ -91,7 +91,7 @@ object ViscelDefinition {
     }
   }
 
-  def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): Narrator = {
+  def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): FlowNarrator = {
     val cid = generateID(id, name)
 
     val imageNextPipe = attrs.get("image+next").map { img =>
@@ -152,7 +152,7 @@ object ViscelDefinition {
   }
 
 
-  def parseNarration(it: It, path: String): Narrator Or ErrorMessage = {
+  def parseNarration(it: It, path: String): FlowNarrator Or ErrorMessage = {
     it.next() match {
       case Line(extractIDAndName(id, name), pos) =>
         parseURL(it).map { url =>
@@ -164,13 +164,13 @@ object ViscelDefinition {
     }
   }
 
-  def parse(lines: Iterator[String], path: String): List[Narrator] Or ErrorMessage = {
+  def parse(lines: Iterator[String], path: String): List[FlowNarrator] Or ErrorMessage = {
     val preprocessed = lines.map(_.trim)
                             .zipWithIndex.map(p => Line(p._1, p._2 + 1))
                             .filter(l => l.s.nonEmpty && !l.s.startsWith("--"))
                             .buffered
 
-    def go(it: It, acc: List[Narrator]): List[Narrator] Or ErrorMessage =
+    def go(it: It, acc: List[FlowNarrator]): List[FlowNarrator] Or ErrorMessage =
       if (!it.hasNext) {
         Right(acc)
       }
@@ -184,7 +184,7 @@ object ViscelDefinition {
     go(preprocessed, Nil)
   }
 
-  def load(stream: Iterator[String], path: String): List[Narrator] = {
+  def load(stream: Iterator[String], path: String): List[FlowNarrator] = {
     Log.Store.info(s"parsing definitions from $path")
     parse(stream, path.toString) match {
       case Right(res) => res
@@ -194,7 +194,7 @@ object ViscelDefinition {
     }
   }
 
-  def loadAll(dir: Path): List[Narrator] = {
+  def loadAll(dir: Path): List[FlowNarrator] = {
     val defdir = File(dir)
 
     val res = if (!defdir.exists) Nil
@@ -205,6 +205,7 @@ object ViscelDefinition {
                 }
               }
     Log.Narrate.info(s"Found ${res.size} definitions in $defdir.")
+    //CirceStorage.store(defdir./("flowdefs.json").path, res)
     res
   }
 
