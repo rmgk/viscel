@@ -2,9 +2,8 @@ package viscel.crawl
 
 import cats.implicits.catsSyntaxOptionId
 import viscel.narration.Narrator.Wrapper
-import viscel.narration.Templates
-import viscel.selektiv.Narration.ContextData
 import viscel.netzi.{VRequest, VResponse}
+import viscel.selektiv.Narration.ContextData
 import viscel.selektiv.{Narration, Report}
 import viscel.shared.Log
 import viscel.store._
@@ -53,7 +52,7 @@ object CrawlProcessing {
   }
 
   def initialTasks(book: Book): List[VRequest] =
-    book.allLinks.filter(l => !book.hasPage(l.href) || l.context.contains(Templates.Volatile)).toList
+    book.allLinks.filter(l => !book.hasPage(l.href) || l.context.contains(Decider.Volatile)).toList
   def rechecks(book: Book): List[VRequest] = computeRightmostLinks(book)
 
 

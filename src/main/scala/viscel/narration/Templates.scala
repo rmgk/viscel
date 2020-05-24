@@ -1,22 +1,20 @@
 package viscel.narration
 
+import viscel.crawl.Decider
 import viscel.narration.Narrator.Wrapper
 import viscel.selektiv.Narration.{Condition, ContextW}
 import viscel.shared.Vid
 import viscel.store.v4.{DataRow, Vurl}
 
 object Templates {
-
-  val Volatile = "Volatile"
-
   def archivePage(vid: String,
                   pname: String,
                   start: Vurl,
                   wrapArchive: Wrapper,
                   wrapPage: Wrapper,
                  ): Narrator =
-    Narrator(Vid.from(vid), pname, DataRow.Link(start, List(Volatile)) :: Nil,
-                Condition(ContextW.map(_.context.contains(Volatile)), wrapArchive, wrapPage))
+    Narrator(Vid.from(vid), pname, DataRow.Link(start, List(Decider.Volatile)) :: Nil,
+                Condition(ContextW.map(_.context.contains(Decider.Volatile)), wrapArchive, wrapPage))
 
   def SimpleForward(vid: String,
                     pname: String,

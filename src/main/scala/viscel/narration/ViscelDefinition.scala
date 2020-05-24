@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import better.files._
+import viscel.crawl.Decider
 import viscel.selektiv.FlowWrapper._
 import viscel.selektiv.Narration.{AdditionalErrors, Append, Condition, Constant, ContextW}
 import viscel.selektiv.{FlowWrapper, Report}
@@ -165,7 +166,7 @@ object ViscelDefinition {
 
     val errorerd = AdditionalErrors(appended, AdditionalPosition(pos, path))
 
-    Narrator(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, errorerd)
+    Narrator(Vid.from(cid), name, DataRow.Link(startUrl, if (chapterArchivePipe.isDefined || mixedArchivePipe.isDefined) List(Decider.Volatile) else Nil) :: Nil, errorerd)
 
   }
 
