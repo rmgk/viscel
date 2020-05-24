@@ -5,9 +5,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import better.files._
-import viscel.narration.Narrator.Wrapper
-import viscel.selektiv.Queries._
-import viscel.selektiv.Narration.{AdditionalErrors, Append}
+import viscel.selektiv.FlowWrapper._
+import viscel.selektiv.Narration.{AdditionalErrors, Append, Condition, Constant, ContextW}
 import viscel.selektiv.{FlowWrapper, Report}
 import viscel.shared.{Log, Vid}
 import viscel.store.v4.{DataRow, Vurl}
@@ -69,8 +68,8 @@ object ViscelDefinition {
     }
   }
 
-  case class AdditionalPosition(lines: Seq[Line], path: String)(annotated: Report) extends Report {
-    override def describe: String = s"${annotated.describe} in $path lines [${lines.map(_.p).mkString(", ")}]"
+  case class AdditionalPosition(pos: Int, path: String)(annotated: Report) extends Report {
+    override def describe: String = s"${annotated.describe} in $path lines [${pos}]"
   }
 
   private def generateID(id: String, name: String) =
@@ -92,60 +91,81 @@ object ViscelDefinition {
     }
   }
 
-  def TransformUrls(target: Wrapper, replacements: List[(String, String)]) =
-    target.map(transformUrls(replacements))
-
-  def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): Narrator Or ErrorMessage = {
+  def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): Narrator = {
     val cid = generateID(id, name)
-    type Wrap = Wrapper
 
-    def has(keys: String*): Boolean = keys.forall(attrs.contains)
-
-    def annotate(f: Wrapper, lines: Line*): Option[Wrap] =
-      Some(AdditionalErrors(f, AdditionalPosition(lines, path)))
-
-    val pageFunNoNext: Option[Wrap] = attrs match {
-      case extract"image+next $img"         => annotate(queryImageInAnchor(img.s), img)
-      case extract"image $img"              => annotate(FlowWrapper.Pipe(img.s, FlowWrapper.Unique, List(FlowWrapper.Extractor.Image)).toWrapper, img)
-      case extract"images $img"             => annotate(queryImages(img.s).map(_.toList), img)
-      case extract"images? $img"            => annotate(queryImages_?(img.s), img)
-      case _                                => None
+    val imageNextPipe = attrs.get("image+next").map { img =>
+      FlowWrapper.Pipe(img.s, Restriction.Unique,
+                       List(FlowWrapper.Extractor.Image, Extractor.Parent(Extractor.More)))
     }
 
-    val pageFun: Option[Wrap] = pageFunNoNext.flatMap { pf =>
-      attrs match {
-        case extract"next $next"   => annotate(Append(pf, queryNext(next.s)), next)
-        case _ => Some(pf)
-      }
-    }
+    val imagePipe = None.orElse(attrs.get("image").map(_ -> Restriction.Unique))
+                        .orElse(attrs.get("images").map(_ -> Restriction.NonEmpty))
+                        .orElse(attrs.get("images?").map(_ -> Restriction.None))
+                        .map { case (img, res) =>
+                          FlowWrapper.Pipe(img.s, res, List(FlowWrapper.Extractor.Image))
+                        }
 
-
-    val archFun: Option[Wrap] = attrs match {
-      case extract"mixedArchive $arch" => annotate(queryMixedArchive(arch.s), arch)
-
-      case extract"chapterArchive $arch" => annotate(queryChapterArchive(arch.s), arch)
-
-      case _ => None
-    }
-
-    val (pageFunReplace, archFunReplace) = attrs match {
-      case extract"url_replace $replacer" =>
-        val replacements: List[(String, String)] =
-          replacer.s.split("\\s+:::\\s+").sliding(2, 2).map { case Array(a, b) => (a, b) }.toList
-        (pageFun.map(TransformUrls(_, replacements)), archFun.map(TransformUrls(_, replacements)))
-      case _                              => (pageFun, archFun)
+    val nextPipe = attrs.get("next").map { next =>
+      Pipe(next.s, Restriction.None, List(FlowWrapper.Extractor.More), filter = List(Filter.SelectSingleNext))
     }
 
     val archFunRev =
-      if (has("archiveReverse")) archFunReplace.map(_.map(chapterReverse(_, reverseInner = false)))
-      else if (has("archiveReverseFull")) archFunReplace.map(_.map(chapterReverse(_, reverseInner = true)))
-           else archFunReplace
+      (if (attrs.contains("archiveReverse")) Some(false)
+       else if (attrs.contains("archiveReverseFull")) Some(true) else None).map { reverseInner =>
+        Filter.ChapterReverse(reverseInner)
+      }.toList
 
-    (pageFunReplace, archFunRev) match {
-      case (Some(pf), None)     => Right(Narrator(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, pf))
-      case (Some(pf), Some(af)) => Right(Templates.archivePage(cid, name, startUrl, af, pf))
-      case _                    => Left(s"invalid combinations of attributes for $cid at line $pos")
+    val mixedArchivePipe = attrs.get("mixedArchive").map { arch =>
+      Pipe(arch.s, Restriction.NonEmpty, List(FlowWrapper.Extractor.MixedArchive),
+           filter = archFunRev,
+           conditions = List(startUrl.uriString()))
     }
+
+    val chapterArchivePipe = attrs.get("chapterArchive").map { arch =>
+      Pipe(arch.s, Restriction.NonEmpty, List(FlowWrapper.Extractor.Chapter, Extractor.More),
+           filter = archFunRev,
+           conditions = List(startUrl.toString))
+    }
+
+
+    val transformFun = attrs.get("url_replace") map { replacer =>
+      val replacements: List[(String, String)] =
+        replacer.s.split("\\s+:::\\s+").sliding(2, 2).map { case Array(a, b) => (a, b) }.toList
+      Filter.TransformUrls(replacements)
+    }
+
+    val pipes = List(imageNextPipe, imagePipe, nextPipe, mixedArchivePipe, chapterArchivePipe).flatten
+
+    val transformedPipes = transformFun match {
+      case None            => pipes
+      case Some(transform) =>
+        pipes.map { pipe =>
+          pipe.copy(filter = transform :: pipe.filter)
+        }
+    }
+
+
+    val condGroupd     = transformedPipes.groupBy(_.conditions.nonEmpty)
+    val conditioned    = condGroupd.getOrElse(true, Nil)
+    val unconditioned  = condGroupd.getOrElse(false, Nil)
+    val appendedUncond = unconditioned.map(_.toWrapper) match {
+      case Nil         => Constant(Nil)
+      case wrap :: Nil => wrap
+      case multiple    => multiple.reduce(Append[DataRow.Content])
+    }
+    val appended       = conditioned.foldRight(appendedUncond) { (pipe, rest) =>
+      val conditions = pipe.conditions
+      val wrapper    = pipe.toWrapper
+      Condition(ContextW.map(cd => conditions.exists(cd.location.contains)),
+                wrapper,
+                rest)
+    }
+
+
+    val errorerd = AdditionalErrors(appended, AdditionalPosition(pos, path))
+
+    Narrator(Vid.from(cid), name, DataRow.Link(startUrl) :: Nil, errorerd)
 
   }
 
@@ -153,7 +173,7 @@ object ViscelDefinition {
   def parseNarration(it: It, path: String): Narrator Or ErrorMessage = {
     it.next() match {
       case Line(extractIDAndName(id, name), pos) =>
-        parseURL(it).flatMap { url =>
+        parseURL(it).map { url =>
           val attrs = parseAttributes(it, Map())
           makeNarrator(id, name, pos, url, attrs, path)
         }

@@ -2,13 +2,14 @@ package viscel.selektiv
 
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import viscel.narration.Narrator
+import viscel.narration.{Narrator, ViscelDefinition}
 import viscel.selektiv.FlowWrapper.Restriction
 import viscel.selektiv.Narration.{ElementW, WrapPart}
-import viscel.selektiv.Queries.extractArticle
+import viscel.selektiv.Queries._
 import viscel.store.v4.DataRow
 
 import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 
 object FlowWrapper {
@@ -16,28 +17,55 @@ object FlowWrapper {
   sealed class Restriction(min: Int, max: Int, val report: Report) {
     def unapply(arg: Int): Boolean = min <= arg && arg <= max
   }
-  object Unique extends Restriction(1, 1, QueryNotUnique)
-  object NonEmpty extends Restriction(1, Int.MaxValue, new FixedReport("query is empty"))
-  object None extends Restriction(0, Int.MaxValue, new FixedReport("oh, this is strange"))
-  object AtMostOne extends Restriction(0, 1, new FixedReport("query has multiple results"))
-
-  sealed class Extractor(val extract : Element => List[DataRow.Content])
-  object Extractor {
-    object Image extends Extractor(e => List(extractArticle(e)))
+  object Restriction {
+    object Unique extends Restriction(1, 1, QueryNotUnique)
+    object NonEmpty extends Restriction(1, Int.MaxValue, new FixedReport("query is empty"))
+    object None extends Restriction(0, Int.MaxValue, new FixedReport("oh, this is strange"))
+    object AtMostOne extends Restriction(0, 1, new FixedReport("query has multiple results"))
   }
 
-  case class Pipe(query: String, restriction: Restriction, extractors: List[Extractor]) {
+  sealed class Extractor(val extract: Element => List[DataRow.Content])
+  object Extractor {
+    object Image extends Extractor(e => List(extractArticle(e)))
+    object More extends Extractor(e => List(extractMore(e)))
+    case class Parent(next: Extractor) extends Extractor(e => next.extract(e.parent()))
+    case class Optional(inner: Extractor) extends Extractor(e => Try(inner.extract(e)).toOption.getOrElse(Nil))
+    object MixedArchive extends Extractor(e => List(extractMixedArchive(e)))
+    object Chapter extends Extractor(e => List(extractChapter(e)))
+  }
+
+  sealed class Filter(val filter: List[DataRow.Content] => List[DataRow.Content])
+  object Filter {
+    case class ChapterReverse(reverseInner: Boolean) extends Filter(chapterReverse(_, reverseInner))
+    case class TransformUrls(replacements: List[(String, String)]) extends Filter(ViscelDefinition.transformUrls(replacements))
+    case object SelectSingleNext extends Filter(contents => {
+      if (contents.isEmpty) Nil
+      else contents match {
+        case pointers if pointers.toSet.size == 1 => pointers.headOption.toList
+        case pointers => throw QueryNotUnique
+      }
+    })
+
+  }
+
+  case class Pipe(query: String,
+                  restriction: Restriction,
+                  extractors: List[Extractor],
+                  filter: List[Filter] = Nil,
+                  conditions: List[String] = Nil) {
     def toWrapper: Narrator.Wrapper = {
-      Selection.select(query, restriction).map { elements =>
+      val extracted = Selection.select(query, restriction).map { elements =>
         elements.flatMap { elem: Element =>
           extractors.flatMap(_.extract(elem))
         }
       }
+      filter.foldLeft(extracted){(sel, fil) => sel.map(fil.filter)}
     }
   }
 
 
 }
+
 
 
 object Selection {
@@ -51,9 +79,9 @@ object Selection {
     }
   }
 
-  def unique(query: String): WrapPart[Element] = select(query, FlowWrapper.Unique).map(_.head)
-  def many(query: String): WrapPart[List[Element]] = select(query, FlowWrapper.NonEmpty)
-  def all(query: String): WrapPart[List[Element]] = select(query, FlowWrapper.None)
+  def unique(query: String): WrapPart[Element] = select(query, Restriction.Unique).map(_.head)
+  def many(query: String): WrapPart[List[Element]] = select(query, Restriction.NonEmpty)
+  def all(query: String): WrapPart[List[Element]] = select(query, Restriction.None)
 
   def queryAndValidate[R](query: String)(validate: Elements => Either[Report, R]): WrapPart[R] = {
     val trimmed = query.trim

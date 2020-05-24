@@ -15,6 +15,7 @@ object Narration {
       wrapper match {
         case ElementW                               => element
         case ContextW                               => cd
+        case Constant(value)                        => value
         case Condition(pred, isTrue, isFalse)       =>
           val c = recurse(pred)
           if (c) recurse(isTrue) else recurse(isFalse)
@@ -28,8 +29,10 @@ object Narration {
 
 
   sealed trait WrapPart[+T] {
-    def map[U](fun: T => U): WrapPart[U] = Combination.of(this, ElementW)((a, _) => fun(a))
+    def map[U](fun: T => U): WrapPart[U] = Combination.of(this, Constant(()))((a, _) => fun(a))
   }
+
+  case class Constant[T](value: T) extends WrapPart[T]
 
   case class Condition[T](pred: WrapPart[Boolean], isTrue: WrapPart[T], isFalse: WrapPart[T])
     extends WrapPart[T]

@@ -525,13 +525,11 @@ http://www.strangecandy.net/d/20010116.html
 http://earthsongsaga.com/archives.php
 :am #text strong , #text a
 :i img[src~=images/vol]
-:url_replace http://earthsongsaga.com/vol4/ch14cover.php ::: http://earthsongsaga.com/vol5/ch14cover.php
 
 -:Snow by Night
 http://www.snowbynight.com/story.php
 :am .content_main h2 , .content_main .archive_pages a
-:i div.content_group.comic_group img
-:url_replace http://www.snowbynight.com/pages/ch12/vault.php ::: http://www.snowbynight.com/pages/ch12/pg18.php
+:images? div.content_group.comic_group img
 
 -:Valkyrie Squadron
 http://www.valkyriesquadron.com/valkyrie/prologue-page-0/
@@ -834,7 +832,6 @@ http://www.minnasundberg.fi/comic/page00.php
 -NX_Misfile:Misfile
 https://www.misfile.com/misfile/archive
 :mixedArchive #textarea .cc-storyline-header , #textarea .cc-storyline-pagethumb img
-:image unused-query
 :url_replace /comicsthumbs/ ::: /comics/
 
 -:HellHigh

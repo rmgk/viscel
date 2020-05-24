@@ -69,9 +69,6 @@ object Queries {
     DataRow.Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
   }
 
-  def queryImage(query: String): WrapPart[DataRow.Link] = Selection.unique(query).map(extractArticle)
-  def queryImages(query: String): WrapPart[List[DataRow.Link]] = Selection.many(query).map(_.map(extractArticle))
-  def queryImages_?(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).map(_.map(extractArticle))
   /** extracts article at query result
     * optionally extracts direct parent of query result as link */
   def queryImageInAnchor(query: String): Wrapper =
@@ -79,14 +76,15 @@ object Queries {
       extractArticle(image) :: Try {extractMore(image.parent())}.toOption.toList
     }
   def queryNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).map(selectMore)
-  def queryMixedArchive(query: String): Wrapper = {
-    def intoMixedArchive(elem: Element): DataRow.Content = {
-      if (elem.tagName() == "a") extractMore(elem)
-      else if (elem.tagName() == "img") extractArticle(elem)
-      else extractChapter(elem)
-    }
 
-    Selection.many(query).map(_.map(intoMixedArchive).toList)
+  def extractMixedArchive(elem: Element): DataRow.Content = {
+    if (elem.tagName() == "a") extractMore(elem)
+    else if (elem.tagName() == "img") extractArticle(elem)
+         else extractChapter(elem)
+  }
+
+  def queryMixedArchive(query: String): Wrapper = {
+    Selection.many(query).map(_.map(extractMixedArchive).toList)
   }
 
   def queryChapterArchive(query: String): Wrapper = {

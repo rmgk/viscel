@@ -49,7 +49,7 @@ class OkHttpRequester(maxRequests: Int, val executorService: ExecutorService) ex
           val location = response.request().url().toString
           val etag         = Option(response.header("ETag"))
           val lastModified = Option(response.header("Last-Modified")).map { lm =>
-            // this may be to specific for actually parsing dates
+            // this may be too specific for actually parsing dates
             // https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3
             // http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/org/apache/http/client/utils/DateUtils.html
             Instant.from(DateTimeFormatter.RFC_1123_DATE_TIME.parse(lm))
