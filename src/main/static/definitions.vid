@@ -124,6 +124,11 @@
 -- :image #comic img
 -- :next a.comic-nav-next
 
+-- -:The Black Brick Road of OZ
+-- http://www.blackbrickroadofoz.com/comics/archive
+-- :ac .cc-chapterrow a[href]
+-- :ia #cc-comic
+
 
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
@@ -1889,11 +1894,6 @@ http://www.last-halloween.com/posts
 https://agentsoftherealm.com/comic/semester1-vol1/
 :image #comic img
 :next a.comic-nav-next
-
--:The Black Brick Road of OZ
-http://www.blackbrickroadofoz.com/comics/archive
-:ac .cc-chapterrow a[href]
-:ia #cc-comic
 
 -:Meaty Yogurt
 http://rosalarian.com/meatyyogurt/archive-2/
