@@ -97,7 +97,7 @@ object ViscelDefinition {
 
     val imageNextPipe = attrs.get("image+next").map { img =>
       FlowWrapper.Pipe(img.s, Restriction.Unique,
-                       List(FlowWrapper.Extractor.Image, Extractor.Parent(Extractor.More)))
+                       List(FlowWrapper.Extractor.Image, Extractor.OptionalParentMore))
     }
 
     val imagePipe = None.orElse(attrs.get("image").map(_ -> Restriction.Unique))

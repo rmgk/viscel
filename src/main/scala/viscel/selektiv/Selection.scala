@@ -3,13 +3,13 @@ package viscel.selektiv
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import viscel.narration.{Narrator, ViscelDefinition}
+import viscel.selektiv.FlowWrapper.Extractor.OptionalParentMore
 import viscel.selektiv.FlowWrapper.Restriction
 import viscel.selektiv.Narration.{Append, Condition, Constant, ContextW, ElementW, WrapPart}
 import viscel.selektiv.Queries._
 import viscel.store.v4.DataRow
 
 import scala.jdk.CollectionConverters._
-import scala.util.Try
 
 object FlowWrapper {
 
@@ -40,17 +40,17 @@ object FlowWrapper {
     val extract: Element => List[DataRow.Content] = this match {
       case Extractor.Image           => e => List(extractArticle(e))
       case Extractor.More            => e => List(extractMore(e))
-      case Extractor.Parent(next)    => e => next.extract(e.parent())
-      case Extractor.Optional(inner) => e => Try(inner.extract(e)).toOption.getOrElse(Nil)
-      case Extractor.MixedArchive    => e => List(extractMixedArchive(e))
-      case Extractor.Chapter         => e => List(extractChapter(e))
+      //case Extractor.Parent(next)    => e => next.extract(e.parent())
+      //case Extractor.Optional(inner) => e => Try(inner.extract(e)).toOption.getOrElse(Nil)
+      case OptionalParentMore     => extractParentMore
+      case Extractor.MixedArchive => e => List(extractMixedArchive(e))
+      case Extractor.Chapter      => e => List(extractChapter(e))
     }
   }
   object Extractor {
     object Image extends Extractor
     object More extends Extractor
-    case class Parent(next: Extractor) extends Extractor
-    case class Optional(inner: Extractor) extends Extractor
+    object OptionalParentMore extends Extractor
     object MixedArchive extends Extractor
     object Chapter extends Extractor
   }
@@ -73,7 +73,6 @@ object FlowWrapper {
     case class ChapterReverse(reverseInner: Boolean) extends Filter
     case class TransformUrls(replacements: List[(String, String)]) extends Filter
     case object SelectSingleNext extends Filter
-
   }
 
   case class Pipe(query: String,

@@ -69,12 +69,16 @@ object Queries {
     DataRow.Chapter(firstNotEmpty(elem.text(), elem.attr("title"), elem.attr("alt")))
   }
 
+  def extractParentMore(image: Element): List[DataRow.Link] = {
+    Try {extractMore(image.parent())}.toOption.toList
+  }
   /** extracts article at query result
     * optionally extracts direct parent of query result as link */
   def queryImageInAnchor(query: String): Wrapper =
     Selection.unique(query).map { image =>
-      extractArticle(image) :: Try {extractMore(image.parent())}.toOption.toList
+      extractArticle(image) :: extractParentMore(image)
     }
+
   def queryNext(query: String): WrapPart[List[DataRow.Link]] = Selection.all(query).map(selectMore)
 
   def extractMixedArchive(elem: Element): DataRow.Content = {

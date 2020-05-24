@@ -10,7 +10,7 @@ import cats.syntax.either._
 import io.circe.export.Exported
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.auto.exportDecoder
-import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredDecoder, deriveConfiguredEncoder}
+import io.circe.generic.extras.semiauto.{deriveConfiguredCodec, deriveConfiguredDecoder, deriveConfiguredEncoder, deriveEnumerationCodec}
 import io.circe.syntax._
 import io.circe.{Codec, Decoder, Encoder, KeyDecoder, KeyEncoder}
 import viscel.narration.FlowNarrator
@@ -63,11 +63,11 @@ object CirceStorage {
   implicit val vidKW   : KeyEncoder[Vid] = KeyEncoder.encodeKeyString.contramap[Vid](_.str)
   implicit val vidcodec: Codec[Vid]      = Codec.from(vidR, vidW)
 
-  implicit val CRestriction : Codec[Restriction]  = io.circe.generic.extras.semiauto.deriveEnumerationCodec
-  implicit val CExtractor   : Codec[Extractor]    = io.circe.generic.semiauto.deriveCodec
-  implicit val CFilter      : Codec[Filter]       = io.circe.generic.semiauto.deriveCodec
-  implicit val CPipe        : Codec[Pipe]         = io.circe.generic.semiauto.deriveCodec
-  implicit val CPlumbing    : Codec[Plumbing]     = io.circe.generic.semiauto.deriveCodec
+  implicit val CRestriction : Codec[Restriction]  = deriveEnumerationCodec
+  implicit val CExtractor   : Codec[Extractor]    = deriveEnumerationCodec
+  implicit val CFilter      : Codec[Filter]       = deriveConfiguredCodec
+  implicit val CPipe        : Codec[Pipe]         = deriveConfiguredCodec
+  implicit val CPlumbing    : Codec[Plumbing]     = deriveConfiguredCodec
 
-  implicit val CFlowNarrator: Codec[FlowNarrator] = io.circe.generic.semiauto.deriveCodec
+  implicit val CFlowNarrator: Codec[FlowNarrator] = deriveConfiguredCodec
 }
