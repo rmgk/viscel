@@ -85,7 +85,8 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform).in(file("shared"))
                     libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",
                     Compile / sourceGenerators += Def.task {
                       val file = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
-                      IO.write(file, s"""package viscel.shared; object Version { val str = "${version.value}"}""")
+                      val outstring = s"""package viscel.shared; object Version { val str = "${version.value}"}"""
+                      if (IO.read(file) != outstring) IO.write(file, outstring)
                       Seq(file)
                     }.taskValue
                     )
