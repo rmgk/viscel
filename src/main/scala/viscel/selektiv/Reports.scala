@@ -1,6 +1,7 @@
 package viscel.selektiv
 
 import org.jsoup.nodes.Element
+import viscel.selektiv.FlowWrapper.Restriction
 
 import scala.jdk.CollectionConverters._
 import scala.collection.immutable.Set
@@ -32,6 +33,10 @@ class FixedReport(override val describe: String) extends Report
 case class FailedElement(query: String, reason: Report, element: Element*) extends Report with Stack {
   override def describe: String =
     s"${reason.describe}: '$query' on <${element map ReportTools.show mkString "; "}> at ($position)"
+}
+
+case class RestrictionReport(actual: Int, restriction: Restriction) extends Report {
+  override def describe: String = s"restriction failed ${restriction.min} <= $actual <= ${restriction.max}"
 }
 
 case object QueryNotUnique extends FixedReport("query is not unique")

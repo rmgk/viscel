@@ -1610,7 +1610,7 @@ http://thewitchdoor.com/comic/archive
 :next .cc-nav .cc-next
 
 -:Tiger, Tiger
-http://www.tigertigercomic.com/comic/archive
+https://www.tigertigercomic.com/comic/archive
 :ac .cc-storyline-header a[href]
 :image #cc-comic
 :next .cc-nav .cc-next

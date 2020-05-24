@@ -126,7 +126,7 @@ object ViscelDefinition {
     val chapterArchivePipe = attrs.get("chapterArchive").map { arch =>
       Pipe(arch.s, Restriction.NonEmpty, List(FlowWrapper.Extractor.Chapter, Extractor.More),
            filter = archFunRev,
-           conditions = List(startUrl.toString))
+           conditions = List(startUrl.uriString()))
     }
 
 
@@ -158,7 +158,9 @@ object ViscelDefinition {
     val appended       = conditioned.foldRight(appendedUncond) { (pipe, rest) =>
       val conditions = pipe.conditions
       val wrapper    = pipe.toWrapper
-      Condition(ContextW.map(cd => conditions.exists(cd.location.contains)),
+      Condition(ContextW.map(cd =>
+                               conditions.exists(cd.response.location.uriString().contains) ||
+                               conditions.exists(cd.request.href.uriString().contains)),
                 wrapper,
                 rest)
     }

@@ -59,18 +59,19 @@ class CrawlScheduler(path: Path,
   }
 
   private def logError(narrator: Narrator): Throwable => Unit = {
-    case RequestException(uri, status)    =>
+    case RequestException(uri, status)                 =>
       log.error(s"[${narrator.id}] error request: $uri failed: $status")
-    case WrappingException(link, reports) =>
+    case WrappingException(request, response, reports) =>
       log.error(
         s"""↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
            |$narrator
-           |  failed on ${link.href.uriString} (${if (link.context.nonEmpty) s", ${link.context}" else ""}):
+           |  ${request.href.uriString()} ${request.context.mkString("(", ",", ")")}
+           |  ${response.location.uriString()} (${response.mime})
            |  ${reports.describe}
            |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
-    case ce : CancellationException =>
+    case ce: CancellationException                     =>
       log.info(s"[${narrator.id}] update cancelled ${ce.getMessage}")
-    case t                                =>
+    case t                                             =>
       log.error(s"[${narrator.id}] recheck failed with $t")
       t.printStackTrace()
   }

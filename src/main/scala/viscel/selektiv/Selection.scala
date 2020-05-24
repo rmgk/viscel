@@ -14,14 +14,18 @@ import scala.util.Try
 
 object FlowWrapper {
 
-  sealed class Restriction(min: Int, max: Int, val report: Report) {
-    def unapply(arg: Int): Boolean = min <= arg && arg <= max
+
+  sealed class Restriction(val min: Int, val max: Int) {
+    def unapply(arg: Int): Option[RestrictionReport] = {
+      if (min <= arg && arg <= max) None
+      else Some(RestrictionReport(arg, this))
+    }
   }
   object Restriction {
-    object Unique extends Restriction(1, 1, QueryNotUnique)
-    object NonEmpty extends Restriction(1, Int.MaxValue, new FixedReport("query is empty"))
-    object None extends Restriction(0, Int.MaxValue, new FixedReport("oh, this is strange"))
-    object AtMostOne extends Restriction(0, 1, new FixedReport("query has multiple results"))
+    object Unique extends Restriction(1, 1)
+    object NonEmpty extends Restriction(1, Int.MaxValue)
+    object None extends Restriction(0, Int.MaxValue)
+    object AtMostOne extends Restriction(0, 1)
   }
 
   sealed class Extractor(val extract: Element => List[DataRow.Content])
@@ -73,8 +77,8 @@ object Selection {
   def select(query: String, Restriction: Restriction): WrapPart[List[Element]] = {
     queryAndValidate(query) { rs =>
       rs.size() match {
-        case Restriction() => Right(rs.asScala.toList)
-        case other         => Left(Restriction.report)
+        case Restriction(report) => Left(report)
+        case other               => Right(rs.asScala.toList)
       }
     }
   }

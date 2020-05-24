@@ -2,13 +2,14 @@ package viscel.selektiv
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
+import viscel.netzi.{VRequest, VResponse}
 
 object Narration {
 
 
   case class Interpreter(cd: ContextData) {
     def interpret[T](outerWrapper: WrapPart[T]): T = {
-      val document = Jsoup.parse(cd.content, cd.location)
+      val document = Jsoup.parse(cd.response.content, cd.response.location.uriString())
       recurse(outerWrapper)(document)
     }
     def recurse[T](wrapper: WrapPart[T])(implicit element: Element): T = {
@@ -54,7 +55,10 @@ object Narration {
     : Combination[A, B, T] = Combination(left, right, fun)
   }
 
-  case class ContextData(content: String, context: List[String], location: String)
+  case class ContextData(request: VRequest, response: VResponse[String]) {
+    def content = response.content
+    def location = response.location.uriString()
+  }
   // single data element extraction
   case object ContextW extends WrapPart[ContextData]
 

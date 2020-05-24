@@ -22,11 +22,11 @@ object CrawlProcessing {
 
 
   def processPageResponse(wrapper: Wrapper, request: VRequest, response: VResponse[String]): DataRow = {
-    val context = ContextData(response.content, request.context, response.location.uriString())
+    val context = ContextData(request, response)
     val contents =
       try Narration.Interpreter(context)
           .interpret[List[DataRow.Content]](wrapper)
-      catch {case r: Report => throw WrappingException(request, r)}
+      catch {case r: Report => throw WrappingException(request, response, r)}
 
     CrawlProcessing.toDataRow(request, response, contents)
   }

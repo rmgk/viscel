@@ -34,10 +34,11 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
   def loadNarrators[T](metarrator: Metarrator[T]): Set[Narrator] = load(metarrator).map(metarrator.toNarrator)
 
   def add(start: String, requestUtil: WebRequestInterface): Future[List[Narrator]] = {
-    def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] =
-      requestUtil.get(VRequest(url)).map { resp =>
+    def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] = {
+      val request = VRequest(url)
+      requestUtil.get(request).map { resp =>
         val respc = resp.copy(content = resp.content.fold(_ => throw new IllegalStateException(s"response for »$url« contains binary data"), identity))
-        val contextData = ContextData(respc.content, Nil, respc.location.uriString())
+        val contextData = ContextData(request, respc)
         val nars = Narration.Interpreter(contextData).interpret(metarrator.wrap)
         synchronized {
           save(metarrator, nars ++ load(metarrator))
@@ -45,6 +46,7 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
           nars.map(metarrator.toNarrator)
         }
       }(scala.concurrent.ExecutionContext.global)
+    }
 
     try {
       Narrator.metas.map(m => (m, m.unapply(start)))

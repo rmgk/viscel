@@ -14,7 +14,7 @@ object Templates {
                   wrapPage: Wrapper,
                  ): Narrator =
     Narrator(Vid.from(vid), pname, DataRow.Link(start, List(Decider.Volatile)) :: Nil,
-                Condition(ContextW.map(_.context.contains(Decider.Volatile)), wrapArchive, wrapPage))
+                Condition(ContextW.map(_.request.context.contains(Decider.Volatile)), wrapArchive, wrapPage))
 
   def SimpleForward(vid: String,
                     pname: String,
