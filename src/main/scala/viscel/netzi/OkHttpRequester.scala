@@ -13,7 +13,7 @@ import viscel.store.v4.Vurl
 import scala.concurrent.{Future, Promise}
 
 
-class OkHttpRequester(maxRequests: Int, val executorService: ExecutorService) extends WebRequestInterface {
+class OkHttpRequester(maxRequests: Int, requestsPerHost: Int, val executorService: ExecutorService) extends WebRequestInterface {
 
   val referrer = "Referer"
 
@@ -21,6 +21,7 @@ class OkHttpRequester(maxRequests: Int, val executorService: ExecutorService) ex
     val connectionPool = new ConnectionPool(maxRequests * 2, 30, TimeUnit.SECONDS)
     val dispatcher     = new Dispatcher(executorService)
     dispatcher.setMaxRequests(maxRequests)
+    dispatcher.setMaxRequestsPerHost(requestsPerHost)
 
     new OkHttpClient.Builder()
       .connectTimeout(Duration.ofSeconds(30))
@@ -65,6 +66,7 @@ class OkHttpRequester(maxRequests: Int, val executorService: ExecutorService) ex
         else promise.failure(RequestException(call.request().url().toString, s"${response.code}: ${response.message()}"))
       } finally response.close()
     })
+    Log.Crawl.debug(s"returning ${okrequest.url()} in flight: ${client.dispatcher().queuedCallsCount()}/${client.dispatcher().runningCallsCount()}/${client.dispatcher().getMaxRequests()}/${client.dispatcher().getMaxRequestsPerHost()}")
     promise.future
   }
 }
