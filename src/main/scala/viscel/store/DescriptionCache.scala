@@ -5,7 +5,8 @@ import java.nio.file.Path
 import io.circe.generic.auto._
 import viscel.shared.Vid
 import viscel.shared.Description
-import viscel.store.CirceStorage._
+import viscel.shared.CirceCodecs._
+
 
 
 /** Caches the [[viscel.shared.Description.size]] so the

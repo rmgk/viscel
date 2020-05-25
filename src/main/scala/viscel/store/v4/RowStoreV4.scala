@@ -6,10 +6,11 @@ import java.nio.file.Path
 import better.files.File
 import io.circe.syntax._
 import viscel.narration.Narrator
+import viscel.shared.CirceCodecs._
 import viscel.shared.Log.{Store => Log}
-import viscel.shared.Vid
-import viscel.store.CirceStorage._
+import viscel.shared.{DataRow, Vid}
 import viscel.store.{Book, CirceStorage}
+
 
 class RowStoreV4(db4dir: Path) {
 

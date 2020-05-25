@@ -3,7 +3,7 @@ package viscel.tests
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import viscel.selektiv.Queries
-import viscel.store.v4.DataRow.{Blob, Chapter, Content}
+import viscel.shared.DataRow.{Blob, Chapter, Content}
 
 class ReverseTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
 

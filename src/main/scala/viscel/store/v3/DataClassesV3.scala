@@ -7,9 +7,8 @@ import io.circe.export.Exported
 import io.circe.generic.extras._
 import io.circe.generic.extras.auto._
 import io.circe.{Decoder, Encoder}
-import viscel.shared.Blob
-import viscel.store.v4.Vurl
-import viscel.store.CirceStorage.{vurlReader, vurlWriter}
+import viscel.shared.{Blob, Vurl}
+import viscel.shared.CirceCodecs.{vurlReader, vurlWriter}
 
 
 /** Single row in a [[StoreManager]]. Is either a [[PageData]] or a [[BlobData]]. */

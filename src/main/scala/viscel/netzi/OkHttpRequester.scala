@@ -7,8 +7,7 @@ import java.util.concurrent.{ExecutorService, TimeUnit}
 
 import okhttp3._
 import viscel.crawl.RequestException
-import viscel.shared.Log
-import viscel.store.v4.Vurl
+import viscel.shared.{Log, Vurl}
 
 import scala.concurrent.{Future, Promise}
 

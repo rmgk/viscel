@@ -3,8 +3,7 @@ package viscel.narration
 import viscel.crawl.Decider
 import viscel.narration.Narrator.Wrapper
 import viscel.selektiv.Narration.{Condition, ContextW, WrapPart}
-import viscel.shared.Vid
-import viscel.store.v4.{DataRow, Vurl}
+import viscel.shared.{DataRow, Vid, Vurl}
 
 object Templates {
   def archivePage(vid: String,

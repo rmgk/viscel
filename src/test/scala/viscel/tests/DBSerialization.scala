@@ -5,13 +5,12 @@ import java.time.Instant
 import io.circe.syntax._
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import viscel.shared.Blob
+import viscel.shared.{Blob, Vurl}
 import viscel.store.Book
 import viscel.store.v3.CustomPicklers._
 import viscel.store.v3.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow}
-import viscel.store.v4.Vurl
 import viscel.tests.DataGenerators._
-import viscel.store.CirceStorage.{vurlWriter}
+import viscel.shared.CirceCodecs.vurlWriter
 
 
 class DBSerialization extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {

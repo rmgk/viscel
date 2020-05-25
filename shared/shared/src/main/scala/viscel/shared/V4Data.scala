@@ -1,9 +1,9 @@
-package viscel.store.v4
+package viscel.shared
 
-import java.net.URL
 import java.time.Instant
+//import io.lemonlabs.uri.AbsoluteUrl
 
-import viscel.store.v4.DataRow._
+import viscel.shared.DataRow._
 
 
 final class Vurl private(private val uri: String) extends AnyVal {
@@ -20,7 +20,7 @@ object Vurl {
   /* Ensure urls are always parsed. */
   implicit def fromString(uri: String): Vurl = {
     if (uri.startsWith("viscel:")) new Vurl(uri)
-    else new Vurl(new URL(uri).toString)
+    else new Vurl(uri)
   }
 }
 

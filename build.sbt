@@ -40,7 +40,7 @@ lazy val viscel = project
                     fork := true,
                     strictCompile, betterFiles, decline,
                     scalatest, scalacheck, scalatestpluscheck,
-                    jsoup, okHttp, javalin, circe,
+                    jsoup, okHttp, javalin,
                     fetchJSDependenciesDef,
                     vbundleDef,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
@@ -72,7 +72,8 @@ lazy val app = project.in(file("app"))
                  name := "app",
                  scalajsdom, normalizecss, scalatags,
                  Resolvers.stg, strictCompile,
-                 scalaJSUseMainModuleInitializer := true
+                 scalaJSUseMainModuleInitializer := true,
+                 scalaJavaTime
                )
                .dependsOn(sharedJS)
                .enablePlugins(SbtSassify)
@@ -83,6 +84,8 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform).in(file("shared"))
                     strictCompile, scribe, scalatags, upickle,
                     scribeSlf4j, Resolvers.stg,
                     libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",
+                    libraryDependencies += "io.lemonlabs" %%% "scala-uri" % "2.2.2",
+                    circe,
                     Compile / sourceGenerators += Def.task {
                       val file = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
                       val outstring = s"""package viscel.shared; object Version { val str = "${version.value}"}"""

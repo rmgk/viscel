@@ -7,7 +7,7 @@ import viscel.selektiv.FlowWrapper.Extractor.OptionalParentMore
 import viscel.selektiv.FlowWrapper.Restriction
 import viscel.selektiv.Narration.{Append, Condition, Constant, ContextW, ElementW, WrapPart}
 import viscel.selektiv.Queries._
-import viscel.store.v4.DataRow
+import viscel.shared.DataRow
 
 import scala.jdk.CollectionConverters._
 

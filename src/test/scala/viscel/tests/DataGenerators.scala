@@ -5,9 +5,8 @@ import java.time.Instant
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 import viscel.netzi.VRequest
-import viscel.shared.Blob
+import viscel.shared.{Blob, DataRow, Vurl}
 import viscel.store.v3.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow, Volatile}
-import viscel.store.v4.{DataRow, Vurl}
 
 object DataGenerators {
   implicit val genBlob: Arbitrary[Blob] = Arbitrary(for {sha <- Gen.alphaNumStr

@@ -2,7 +2,7 @@ package viscel.netzi
 
 import java.time.Instant
 
-import viscel.store.v4.Vurl
+import viscel.shared.Vurl
 
 import scala.concurrent.Future
 

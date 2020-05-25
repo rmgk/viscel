@@ -10,9 +10,9 @@ import viscel.shared.{Bookmark, Vid}
 
 import scala.collection.immutable.Map
 import scala.jdk.CollectionConverters._
-import viscel.store.CirceStorage._
-
 import scala.util.Try
+import viscel.shared.CirceCodecs._
+
 
 class Users(usersDir: Path, contentLoader: ContentLoader) {
 

@@ -5,7 +5,7 @@ import org.jsoup.nodes.Element
 import viscel.narration.Narrator.Wrapper
 import viscel.selektiv.Narration.WrapPart
 import viscel.selektiv.ReportTools._
-import viscel.store.v4.{DataRow, Vurl}
+import viscel.shared.{DataRow, Vurl}
 
 import scala.util.Try
 import scala.util.matching.Regex

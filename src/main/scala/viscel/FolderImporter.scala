@@ -2,9 +2,9 @@ package viscel
 
 import better.files._
 import viscel.MimeUtil.mimeToExt
-import viscel.shared.Vid
+import viscel.shared.{DataRow, Vid}
 import viscel.store._
-import viscel.store.v4.{DataRow, RowStoreV4}
+import viscel.store.v4.RowStoreV4
 
 class FolderImporter(blobStore: BlobStore, rowStore: RowStoreV4, descriptionCache: DescriptionCache) {
 

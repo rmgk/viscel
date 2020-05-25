@@ -7,9 +7,8 @@ import java.time.temporal.ChronoUnit
 
 import better.files.File
 import viscel.shared.Log.{Store => Log}
-import viscel.shared.{Blob, Vid}
+import viscel.shared.{Blob, DataRow, Vid}
 import viscel.store.v3.CustomPicklers._
-import viscel.store.v4.DataRow
 
 class OldRowStore(oldBase: Path) {
 

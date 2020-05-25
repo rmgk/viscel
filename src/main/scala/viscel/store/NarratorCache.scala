@@ -6,8 +6,7 @@ import viscel.narration.{Metarrator, Narrator, ViscelDefinition}
 import viscel.netzi.{VRequest, WebRequestInterface}
 import viscel.selektiv.Narration
 import viscel.selektiv.Narration.ContextData
-import viscel.shared.{Log, Vid}
-import viscel.store.v4.Vurl
+import viscel.shared.{Log, Vid, Vurl}
 
 import scala.collection.immutable.{Map, Set}
 import scala.concurrent.Future

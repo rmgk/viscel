@@ -3,8 +3,7 @@ package viscel.narration
 import viscel.narration.narrators.{Mangadex, Tapas, WebToons}
 import viscel.selektiv.FlowWrapper.Plumbing
 import viscel.selektiv.Narration.WrapPart
-import viscel.shared.Vid
-import viscel.store.v4.DataRow
+import viscel.shared.{DataRow, Vid}
 
 object Narrator {
   type Wrapper = WrapPart[List[DataRow.Content]]

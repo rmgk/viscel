@@ -76,7 +76,7 @@ class ContentConnectionManager(registry: Registry) {
   def connectLoop(): Unit = {
     connect().failed.foreach { err =>
       Log.JS.error(s"connection failed »$err«")
-      dom.window.setTimeout(() => connectLoop(), 1000)
+      dom.window.setTimeout(() => connectLoop(), 10000)
     }
   }
 

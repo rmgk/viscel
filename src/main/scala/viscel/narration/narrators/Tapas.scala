@@ -6,8 +6,8 @@ import viscel.narration.{Metarrator, Narrator, Templates}
 import viscel.selektiv.Narration._
 import viscel.selektiv.ReportTools.extract
 import viscel.selektiv.{Narration, Selection}
-import viscel.store.v4.Vurl
-import viscel.store.CirceStorage.{vurlReader, vurlWriter}
+import viscel.shared.Vurl
+import viscel.shared.CirceCodecs.{vurlReader, vurlWriter}
 
 
 case class Tapas(id: String, name: String, start: Vurl)

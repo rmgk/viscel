@@ -7,7 +7,8 @@ import viscel.narration.Narrator.Wrapper
 import viscel.narration.{Metarrator, Narrator, Templates}
 import viscel.selektiv.Narration.{Combination, ContextW, WrapPart}
 import viscel.selektiv.Report
-import viscel.store.v4.{DataRow, Vurl}
+import viscel.shared.{DataRow, Vurl}
+
 
 import scala.util.Try
 
@@ -85,7 +86,7 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   }
 
-  import viscel.store.CirceStorage.{vurlReader, vurlWriter}
+  import viscel.shared.CirceCodecs.{vurlReader, vurlWriter}
 
   val decoder: Decoder[MangadexNarrator] = Decoder.forProduct3("id", "name", "archiveUri")(
     (i, n, a) => MangadexNarrator(i, n, a))

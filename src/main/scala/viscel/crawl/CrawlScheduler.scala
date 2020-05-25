@@ -11,6 +11,8 @@ import viscel.store.{NarratorCache, Users}
 import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
 
+import viscel.shared.CirceCodecs._
+
 
 class CrawlScheduler(path: Path,
                      crawlServices: CrawlServices,

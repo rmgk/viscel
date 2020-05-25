@@ -8,8 +8,7 @@ import better.files._
 import viscel.crawl.Decider
 import viscel.selektiv.FlowWrapper._
 import viscel.selektiv.{FlowWrapper, Report}
-import viscel.shared.{Log, Vid}
-import viscel.store.v4.{DataRow, Vurl}
+import viscel.shared.{DataRow, Log, Vid, Vurl}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Map

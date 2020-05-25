@@ -5,9 +5,8 @@ import viscel.narration.Narrator.Wrapper
 import viscel.netzi.{VRequest, VResponse}
 import viscel.selektiv.Narration.ContextData
 import viscel.selektiv.{Narration, Report}
-import viscel.shared.Log
+import viscel.shared.{DataRow, Log, Vurl}
 import viscel.store._
-import viscel.store.v4.{DataRow, Vurl}
 
 import scala.collection.mutable
 

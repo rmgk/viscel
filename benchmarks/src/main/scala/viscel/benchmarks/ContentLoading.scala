@@ -7,9 +7,9 @@ import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
 import viscel.server.ContentLoader
 import viscel.server.ContentLoader.LinearResult
-import viscel.shared.Vid
+import viscel.shared.{DataRow, Vid}
 import viscel.store.Book
-import viscel.store.v4.{DataRow, RowStoreV4}
+import viscel.store.v4.RowStoreV4
 
 
 @State(Scope.Thread)

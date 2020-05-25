@@ -2,9 +2,8 @@ package viscel.tests
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import viscel.shared.Vid
+import viscel.shared.{DataRow, Vid}
 import viscel.store.Book
-import viscel.store.v4.DataRow
 import viscel.tests.DataGenerators._
 
 class BookTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
