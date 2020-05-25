@@ -12,9 +12,7 @@ import io.circe.{Codec, Decoder, Encoder, KeyDecoder, KeyEncoder}
 
 object CirceCodecs {
 
-
-
-  implicit val vurlReader: Decoder[Vurl] = Decoder[String].map(Vurl.fromString)
+  implicit val vurlReader: Decoder[Vurl] = Decoder[String].map(Vurl.unsafeFromString)
   implicit val vurlWriter: Encoder[Vurl] = Encoder[String].contramap[Vurl](_.uriString())
 
   def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[DataRow]] = exportDecoder[DataRow]

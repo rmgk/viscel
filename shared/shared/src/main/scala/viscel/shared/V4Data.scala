@@ -1,5 +1,6 @@
 package viscel.shared
 
+import java.net.URL
 import java.time.Instant
 //import io.lemonlabs.uri.AbsoluteUrl
 
@@ -20,7 +21,12 @@ object Vurl {
   /* Ensure urls are always parsed. */
   implicit def fromString(uri: String): Vurl = {
     if (uri.startsWith("viscel:")) new Vurl(uri)
-    else new Vurl(uri)
+    else new Vurl(new URL(uri).toString)
+  }
+
+  /* Ensure urls are always parsed. */
+  def unsafeFromString(uri: String): Vurl = {
+    new Vurl(uri)
   }
 }
 
