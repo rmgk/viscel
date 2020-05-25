@@ -8,6 +8,9 @@ import viscel.selektiv.Narration._
 import viscel.selektiv.{Narration, Selection}
 import viscel.store.v4.Vurl
 
+import viscel.store.CirceStorage.{vurlReader, vurlWriter}
+
+
 case class WebToon(id: String, name: String, start: Vurl)
 object WebToons extends Metarrator[WebToon]("WebToons") {
 

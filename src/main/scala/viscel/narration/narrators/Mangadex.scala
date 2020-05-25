@@ -85,6 +85,8 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   }
 
+  import viscel.store.CirceStorage.{vurlReader, vurlWriter}
+
   val decoder: Decoder[MangadexNarrator] = Decoder.forProduct3("id", "name", "archiveUri")(
     (i, n, a) => MangadexNarrator(i, n, a))
   val encoder: Encoder[MangadexNarrator] = Encoder.forProduct3("id", "name", "archiveUri")(

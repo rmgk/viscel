@@ -79,7 +79,8 @@ class Services(relativeBasedir: Path,
                       folderImporter = folderImporter,
                       interactions = interactions,
                       staticPath = staticDir,
-                      urlPrefix = urlPrefix
+                      urlPrefix = urlPrefix,
+                      rowStore = rowStore
                       )
 
   def startServer() = server.start(interface, port)

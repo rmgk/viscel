@@ -3,7 +3,6 @@ package viscel.store.v4
 import java.net.URL
 import java.time.Instant
 
-import io.circe.{Decoder, Encoder}
 import viscel.store.v4.DataRow._
 
 
@@ -15,8 +14,6 @@ final class Vurl private(private val uri: String) extends AnyVal {
 object Vurl {
 
 
-  implicit val uriReader: Decoder[Vurl] = Decoder[String].map(Vurl.fromString)
-  implicit val uriWriter: Encoder[Vurl] = Encoder[String].contramap[Vurl](_.uriString())
 
   def apply(s: String): Vurl = fromString(s)
 

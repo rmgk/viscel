@@ -11,6 +11,8 @@ import viscel.store.v3.CustomPicklers._
 import viscel.store.v3.{BlobData, ImageRef, Link, Normal, PageData, ScribeDataRow}
 import viscel.store.v4.Vurl
 import viscel.tests.DataGenerators._
+import viscel.store.CirceStorage.{vurlWriter}
+
 
 class DBSerialization extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
 

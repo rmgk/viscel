@@ -16,7 +16,7 @@ import io.circe.{Codec, Decoder, Encoder, KeyDecoder, KeyEncoder}
 import viscel.narration.FlowNarrator
 import viscel.selektiv.FlowWrapper.{Extractor, Filter, Pipe, Plumbing, Restriction}
 import viscel.shared.Vid
-import viscel.store.v4.DataRow
+import viscel.store.v4.{DataRow, Vurl}
 
 import scala.jdk.CollectionConverters._
 
@@ -37,6 +37,9 @@ object CirceStorage {
   }
 
 
+
+  implicit val vurlReader: Decoder[Vurl] = Decoder[String].map(Vurl.fromString)
+  implicit val vurlWriter: Encoder[Vurl] = Encoder[String].contramap[Vurl](_.uriString())
 
   def makeIntellijBelieveTheImportIsUsed: Exported[Decoder[DataRow]] = exportDecoder[DataRow]
 

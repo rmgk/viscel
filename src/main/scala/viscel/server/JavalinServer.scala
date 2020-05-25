@@ -13,6 +13,7 @@ import rescala.default.Signal
 import rescala.extra.distributables.LociDist
 import viscel.shared.BookmarksMap.BookmarksMap
 import viscel.shared.{Bindings, Vid}
+import viscel.store.v4.RowStoreV4
 import viscel.store.{BlobStore, User}
 import viscel.{FolderImporter, Viscel}
 
@@ -29,7 +30,8 @@ class JavalinServer(blobStore: BlobStore,
                     folderImporter: FolderImporter,
                     interactions: Interactions,
                     staticPath: File,
-                    urlPrefix: String
+                    urlPrefix: String,
+                    rowStore: RowStoreV4
                    ) {
 
   def stop() = jl.stop()
@@ -146,6 +148,13 @@ class JavalinServer(blobStore: BlobStore,
         ctx.status(403)
         ctx.result("")
       }
+    })
+    jl.get("db4/:vid", {ctx =>
+      val vid = Vid.from(ctx.pathParam("vid"))
+      val filename = rowStore.file(vid)
+      ctx.status(200)
+      ctx.result(filename.newInputStream)
+      ctx.contentType("text/plain; charset=UTF-8")
     })
   }
 }

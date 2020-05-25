@@ -9,6 +9,8 @@ import io.circe.generic.extras.auto._
 import io.circe.{Decoder, Encoder}
 import viscel.shared.Blob
 import viscel.store.v4.Vurl
+import viscel.store.CirceStorage.{vurlReader, vurlWriter}
+
 
 /** Single row in a [[StoreManager]]. Is either a [[PageData]] or a [[BlobData]]. */
 sealed trait ScribeDataRow {
