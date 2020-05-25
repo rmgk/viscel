@@ -15,6 +15,9 @@ class RowStoreV4(db4dir: Path) {
 
   val base = File(db4dir)
 
+  def file(vid: Vid): File = {
+    base / vid.str
+  }
 
   def allVids(): List[Vid] = synchronized {
     base.list(_.isRegularFile, 1).map(f => Vid.from(f.name)).toList
@@ -25,7 +28,7 @@ class RowStoreV4(db4dir: Path) {
   }
 
   def open(id: Vid, name: String): RowAppender = synchronized {
-    val f = base / id.str
+    val f = file(id)
     if (!f.exists || f.size <= 0) CirceStorage.store(f.path, name)
     new RowAppender(f)
   }
@@ -34,7 +37,7 @@ class RowStoreV4(db4dir: Path) {
   def load(id: Vid): (String, List[DataRow]) = synchronized {
     Log.info(s"loading $id")
 
-    val f = base / id.str
+    val f = file(id)
 
     if (!f.isRegularFile || f.size == 0)
       throw new IllegalStateException(s"$f does not contain data")

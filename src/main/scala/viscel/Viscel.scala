@@ -27,11 +27,13 @@ object Viscel {
       Opts.flag(long = "shutdown", help = "Shutdown directly.").orFalse,
       Opts.option[Path](long = "static", metavar = "directory", help = "Directory of static resources.")
           .withDefault(Paths.get("./static/")),
-      Opts.option[String](long = "urlprefix", metavar = "string", help = "Prefix for server URLs.").withDefault(""))
+      Opts.option[String](long = "urlprefix", metavar = "string", help = "Prefix for server URLs.").withDefault(""),
+      Opts.flag(long = "collectgarbage", help = "Finds unused parts in the database.").orFalse,
+      )
 
   val command: Command[Services] = Command(name = "viscel", header = "Start viscel!") {
     args.mapN {
-      (optBasedir, port, interface, server, core, cleanblobs, optBlobdir, shutdown, optStatic, urlPrefix) =>
+      (optBasedir, port, interface, server, core, cleanblobs, optBlobdir, shutdown, optStatic, urlPrefix, collectDbGarbage) =>
 
         val staticCandidates = List(File(optBasedir.resolve(optStatic)),
                                     File(optStatic))
@@ -50,7 +52,12 @@ object Viscel {
           services.replUtil.cleanBlobDirectory()
         }
 
+        if (collectDbGarbage) {
+          services.replUtil.computeGarbage()
+        }
+
         if (server) {
+          Log.Main.info(s"starting server")
           services.startServer()
         }
 
@@ -60,7 +67,7 @@ object Viscel {
         }
 
         if (shutdown) {
-          services.terminateEverything()
+          services.terminateEverything(server)
         }
         Log.Main.info(s"initialization done in ${ManagementFactory.getRuntimeMXBean.getUptime}ms")
         services

@@ -2,7 +2,7 @@ package viscel
 
 import java.nio.file.Files
 
-import viscel.store.BlobStore
+import viscel.store.{BlobStore, Book}
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
@@ -10,10 +10,10 @@ import scala.collection.mutable
 object MimeUtil {
   def mimeToExt(mime: String, default: String = ""): String = mime match {
     case "image/jpeg" => "jpg"
-    case "image/gif" => "gif"
-    case "image/png" => "png"
-    case "image/bmp" => "bmp"
-    case _ => default
+    case "image/gif"  => "gif"
+    case "image/png"  => "png"
+    case "image/bmp"  => "bmp"
+    case _            => default
   }
 }
 
@@ -47,6 +47,18 @@ class ReplUtil(services: Services) {
       }
     }
     blobsHashesInDB.diff(seen).foreach(sha1 => Log.info(s"$sha1 is missing"))
+  }
+
+  def computeGarbage(): Unit = {
+    val rs = services.rowStore
+    rs.allVids().foreach { vid =>
+      val (name, entries) = rs.load(vid)
+      val book            = Book.fromEntries(vid, name, entries)
+      val filtered        = entries.filter(dr => book.pages(dr.ref) == dr)
+      rs.file(vid).delete()
+      val appender = rs.open(vid, name)
+      filtered.foreach(appender.append)
+    }
   }
 
 

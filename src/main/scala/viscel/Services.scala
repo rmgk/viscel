@@ -74,7 +74,7 @@ class Services(relativeBasedir: Path,
 
   lazy val server: JavalinServer =
     new JavalinServer(blobStore = blobStore,
-                      terminate = () => terminateEverything(),
+                      terminate = () => terminateEverything(true),
                       pages = serverPages,
                       folderImporter = folderImporter,
                       interactions = interactions,
@@ -123,13 +123,13 @@ class Services(relativeBasedir: Path,
 
   lazy val narrationHint: Evt[(Narrator, Boolean)] = Evt[(Narrator, Boolean)]()
 
-  def terminateEverything() = {
+  def terminateEverything(startedServer: Boolean) = {
     new java.util.Timer().schedule(new TimerTask {
       override def run(): Unit = {
         crawl.shutdown()
         computeExecutor.shutdown()
         requests.executorService.shutdown()
-        server.stop()
+        if (startedServer) server.stop()
       }
     }, 100)
 
