@@ -49,12 +49,12 @@ object ViscelJS {
 
     //val start = System.currentTimeMillis()
     //
-    //fetchtext("db4/VD_Gaia").map{text =>
+    //fetchtext("db4/NX_ElGoonishShive").map{text =>
     //  val it = text.linesIterator
     //  val name = it.next()
     //  println(name)
     //  it.map { data =>
-    //    io.circe.parser.decode[DataRow](data)(CirceCodecs.dataRowCodec)
+    //    upickle.default.read[DataRow](data)(UpickleCodecs.DataRowRw)
     //  }.toList
     //}.onComplete{
     //  case Success(value) =>

@@ -12,7 +12,7 @@ import loci.registry.Registry
 import rescala.default.Signal
 import rescala.extra.distributables.LociDist
 import viscel.shared.BookmarksMap.BookmarksMap
-import viscel.shared.{Bindings, Vid}
+import viscel.shared.{Bindings, UpickleCodecs, Vid}
 import viscel.store.v4.RowStoreV4
 import viscel.store.{BlobStore, User}
 import viscel.{FolderImporter, Viscel}
@@ -151,9 +151,11 @@ class JavalinServer(blobStore: BlobStore,
     })
     jl.get("db4/:vid", {ctx =>
       val vid = Vid.from(ctx.pathParam("vid"))
-      val filename = rowStore.file(vid)
+      val (name, rows) = rowStore.load(vid)
       ctx.status(200)
-      ctx.result(filename.newInputStream)
+      val namestr = upickle.default.write(name)
+      val rowsstr = rows.map(upickle.default.write(_)(UpickleCodecs.DataRowRw))
+      ctx.result(namestr + rowsstr.mkString("\n", "\n", "\n"))
       ctx.contentType("text/plain; charset=UTF-8")
     })
   }
