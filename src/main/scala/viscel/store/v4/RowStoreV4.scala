@@ -36,7 +36,7 @@ class RowStoreV4(db4dir: Path) {
 
 
   def load(id: Vid): (String, List[DataRow]) = synchronized {
-    Log.info(s"loading $id")
+    val start = System.currentTimeMillis()
 
     val f = file(id)
 
@@ -54,6 +54,7 @@ class RowStoreV4(db4dir: Path) {
             throw t
         }
       }.toList
+      Log.info(s"loading $id (${System.currentTimeMillis() - start}ms)")
       (name, dataRows)
     }
   }
