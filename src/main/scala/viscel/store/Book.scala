@@ -28,12 +28,12 @@ case class Book(id: Vid,
   /** Add a new page to this book.
     *
     * @return Book if updated */
-  def addPage(entry: DataRow): Option[Book]= {
-    val oldPage = pages.get(entry.ref)
-    if (oldPage.isEmpty || oldPage.get != entry) {
-      Some(copy(pages = pages.updated(entry.ref, entry)))
+  def addPage(newEntry: DataRow): Option[Book]= {
+    pages.get(newEntry.ref) match {
+      case Some(oldPage) if (newEntry.updates(oldPage)) =>
+        Some(copy(pages = pages.updated(newEntry.ref, newEntry)))
+      case _                           => None
     }
-    else None
   }
 
 }

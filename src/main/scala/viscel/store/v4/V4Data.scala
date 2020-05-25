@@ -33,7 +33,12 @@ final case class DataRow(ref: Vurl,
                          lastModified: Option[Instant] = None,
                          etag: Option[String] = None,
                          contents: List[Content]
-                        )
+                        ) {
+  def updates(other: DataRow): Boolean = {
+    contents != other.contents
+  }
+
+}
 
 object DataRow {
   sealed trait Content
