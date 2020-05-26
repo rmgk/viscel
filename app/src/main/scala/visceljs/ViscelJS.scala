@@ -11,6 +11,7 @@ import scalatags.JsDom.tags.{body, h1, p}
 import viscel.shared.Log
 import visceljs.connection.{BookmarkManager, ContentConnectionManager, ServiceWorker}
 import visceljs.render.{Front, Index, Snippets, View}
+import rescala.extra.Tags._
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -77,7 +78,7 @@ object ViscelJS {
 
     def loading = body(h1("This is basically a loading screen"),
                        p("However, this does not necessarily refresh by itself, try reloading at some point. If that does not help, there may just be nothing here."),
-                       metaLoading
+                       metaLoading.asModifier
                        )
 
     val bodyParent = dom.document.body.parentElement
@@ -91,7 +92,7 @@ object ViscelJS {
       error.printStackTrace(System.err)
       body(h1("An error occurred"),
            p(error.toString),
-           metaLoading)
+           metaLoading.asModifier)
     }.asModifier.applyTo(bodyParent)
 
   }

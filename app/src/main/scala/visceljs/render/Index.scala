@@ -117,7 +117,7 @@ class Index(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, Bookmar
 
 
     body(id := "index",
-         Snippets.meta(meta),
+         Snippets.meta(meta).asModifier,
          Snippets.navigation(Snippets.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
          groupTags.asModifierL
          )

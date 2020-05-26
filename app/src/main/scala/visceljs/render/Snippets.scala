@@ -1,9 +1,8 @@
 package visceljs.render
 
 import org.scalajs.dom
+import org.scalajs.dom.html.Element
 import rescala.default._
-import rescala.extra.Tags._
-import scalatags.JsDom
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all.{alt, stringFrag, _}
 import scalatags.JsDom.tags2.{nav, section}
@@ -88,16 +87,17 @@ object Snippets {
   def navigation(links: Modifier*): HtmlTag =
     nav(links :_*)
 
-  def meta(meta: MetaInfo): JsDom.Modifier = {
+  def meta(meta: MetaInfo): Signal[TypedTag[Element]] = {
     val connectionStatus = meta.connection.map{
       case 0 => stringFrag(s"disconnected (attempt № ${meta.reconnecting.value})")
       case other => stringFrag(s"$other active")
     }
-    section(s"app version: ${meta.version}", br(),
-            s"server version: ", meta.remoteVersion.map(stringFrag).asModifier, br(),
-            s"service worker: ", meta.serviceState.map(stringFrag).asModifier, br(),
-            s"connection status: ", connectionStatus.asModifier, br()
-    )
+    Signal {section( List[Frag](
+      s"app version: ${meta.version}", br(),
+            s"server version: ", meta.remoteVersion.value, br(),
+            s"service worker: ", meta.serviceState.value, br(),
+            s"connection status: ", connectionStatus.value, br())
+    )}
   }
 
 }
