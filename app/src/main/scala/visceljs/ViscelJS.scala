@@ -7,9 +7,10 @@ import rescala.default._
 import rescala.extra.lattices.IdUtil
 import rescala.extra.lattices.IdUtil.Id
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.body
+import scalatags.JsDom.tags.{body, h1, p}
+import viscel.shared.Log
 import visceljs.connection.{BookmarkManager, ContentConnectionManager, ServiceWorker}
-import visceljs.render.{Front, Index, View}
+import visceljs.render.{Front, Index, Snippets, View}
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -70,13 +71,28 @@ object ViscelJS {
                               bookmarks = bookmarkManager.bookmarks
                               )
 
-    val bodySig        = app.makeBody(index, front, view)
-    val safeBodySignal = bodySig
+    val bodySig = app.makeBody(index, front, view)
+
+    val metaLoading = Snippets.meta(meta)
+
+    def loading = body(h1("This is basically a loading screen"),
+                       p("However, this does not necessarily refresh by itself, try reloading at some point. If that does not help, there may just be nothing here."),
+                       metaLoading
+                       )
 
     val bodyParent = dom.document.body.parentElement
     bodyParent.removeChild(dom.document.body)
     import rescala.extra.Tags._
-    safeBodySignal.asModifier.applyTo(bodyParent)
+    bodySig.map{
+      case Some(body) => body
+      case None => loading
+    }.recover{error =>
+      Log.JS.error(error.toString)
+      error.printStackTrace(System.err)
+      body(h1("An error occurred"),
+           p(error.toString),
+           metaLoading)
+    }.asModifier.applyTo(bodyParent)
 
   }
 }

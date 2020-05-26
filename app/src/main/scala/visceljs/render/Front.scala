@@ -7,7 +7,7 @@ import scalatags.JsDom.all.{a, frag, href, id, stringAttr}
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{SeqFrag, body, div, h1}
 import scalatags.JsDom.tags2.section
-import viscel.shared.{Blob, Bookmark, ChapterPos, Contents, Description, Log, SharedImage, Vid}
+import viscel.shared.{Blob, Bookmark, ChapterPos, Contents, Description, SharedImage, Vid}
 import visceljs.Definitions.class_preview
 import visceljs.{Actions, Definitions}
 

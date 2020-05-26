@@ -5,7 +5,6 @@ import org.scalajs.dom.experimental.URL
 import org.scalajs.dom.html
 import org.scalajs.dom.raw.HashChangeEvent
 import rescala.default._
-import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import scalatags.JsDom.TypedTag
 import viscel.shared.{Bookmark, Contents, Description, Log, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
@@ -26,7 +25,7 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
   }
 
 
-  def makeBody(index: Index, front: Front, view: View): Signal[TypedTag[html.Body]] = {
+  def makeBody(index: Index, front: Front, view: View): Signal[Option[TypedTag[html.Body]]] = {
 
 
     val hashChange: Event[HashChangeEvent] =
@@ -103,33 +102,30 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
 
     val indexBody = index.gen()
     val frontBody = Signal {
-      (for {
+      for {
         vid <- currentID.value
         desc <- description.value
         cont <- contents.value} yield {
         front.gen(vid, desc, cont, bookmark.value)
-      }).getOrElse(throw EmptySignalControlThrowable)
+      }
     }
     val viewBody  =
       Signal {
-        (for {
+        for {
           vid <- currentID.value
           cont <- contents.value} yield {
           view.gen(vid, currentPosition.value, bookmark.value, cont, fitType, Navigation.navigate)
-        }).getOrElse(throw EmptySignalControlThrowable)
+        }
       }
 
     println(s"current app state: ${currentTargetAppState.now}")
     println(s"index body: ${indexBody.tag}")
 
     currentTargetAppState.map {
-      case IndexState      => Signal(indexBody)
+      case IndexState      => Signal(Some(indexBody))
       case FrontState(_)   => frontBody
       case ViewState(_, _) => viewBody
-    }.flatten.recover{ error =>
-      Log.JS.error(error.getMessage)
-      throw error
-    }
+    }.flatten
   }
 
 
