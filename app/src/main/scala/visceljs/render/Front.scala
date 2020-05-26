@@ -5,7 +5,7 @@ import scalatags.JsDom
 import scalatags.JsDom.Frag
 import scalatags.JsDom.all.{a, frag, href, id, stringAttr}
 import scalatags.JsDom.implicits.stringFrag
-import scalatags.JsDom.tags.{SeqFrag, body, div, h1}
+import scalatags.JsDom.tags.{SeqFrag, body, div, h1,p }
 import scalatags.JsDom.tags2.section
 import viscel.shared.{Blob, Bookmark, ChapterPos, Contents, Description, SharedImage, Vid}
 import visceljs.Definitions.class_preview
@@ -26,21 +26,24 @@ class Front(actions: Actions) {
       actions.postForceHint(vid, "force check"))
 
     val preview = {
-      val bmed = contents.gallery.lift(bookmark.position)
-      if (!bookmark.sha1.contains(bmed.map(_.blob.sha1).getOrElse(""))) {
+      val bmed = contents.gallery.lift(bookmark.position - 1)
+      val warnings = if (!bookmark.sha1.contains(bmed.map(_.blob.sha1).getOrElse(""))) {
         frag(h1("Warning: bookmark mismatch. Left: bookmarked position. Right: bookmarked image"),
              div(class_preview)(
-               a(href := Definitions.path_asset(vid, bookmark.position), Snippets.asset(bmed.get)),
+               bmed.map(asst => a(href := Definitions.path_asset(vid, bookmark.position), Snippets.asset(asst))).toSeq)(
                a(Snippets.asset(SharedImage(bookmark.origin.getOrElse(""), Blob(bookmark.sha1.get, "image"), Map.empty)))
-             ))
-      }
-      else {
+             ),
+             p(s"gallery max: ${contents.gallery.size}"),
+
+             p(s"position: $bmed"),
+             p(s"image: $bookmark)")
+             )
+      } else frag()
         val start = math.max(0, bookmark.position - 3)
-        div(class_preview)(
+        frag(warnings, div(class_preview)(
           Range(start, start + 3)
             .map(p => p -> contents.gallery.lift(p))
-            .collect { case (p, Some(anchor)) => a(href := Definitions.path_asset(vid, p), Snippets.asset(anchor)) })
-      }
+            .collect { case (p, Some(anchor)) => a(href := Definitions.path_asset(vid, p), Snippets.asset(anchor)) }))
     }
 
 

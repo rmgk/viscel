@@ -38,8 +38,8 @@ class View(act: Actions) {
 
 
     val navigation: HtmlTag = {
-      val prev = position.mov(1)
-      val next = position.mov(-1)
+      val prev = position.mov(-1)
+      val next = position.mov(1)
       Snippets.navigation(
         a(Icons.prev, rel := "prev", title := "previous page")(if (prev == position) disabled else href := Definitions.path_asset(vid, prev.cur)),
         a(href := Definitions.path_front(vid), Icons.front, title := "back to front page"),
