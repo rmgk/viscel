@@ -51,7 +51,7 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
 
     val contents = Signal { currentID.value.map(content) }.flatten.map(_.flatten)
 
-    val bookmark = Signal[Int] { currentID.value.flatMap(bookmarks.value.get).fold(0)(_.position)}
+    val bookmark = Signal[Bookmark] { currentID.value.flatMap(bookmarks.value.get).getOrElse(Bookmark(0, 0, None, None))}
 
     val maxPosition = contents.map(_.map(_.gallery.size).getOrElse(0)).changed
 

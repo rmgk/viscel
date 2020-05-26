@@ -8,7 +8,7 @@ import scalatags.JsDom
 import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title}
 import scalatags.JsDom.attrs.{disabled, style}
 import scalatags.JsDom.tags2.{article, main}
-import viscel.shared.{Contents, Vid}
+import viscel.shared.{Bookmark, Contents, Vid}
 import visceljs.Definitions.lcButton
 import visceljs.Navigation._
 import visceljs.{Actions, Definitions, Icons}
@@ -27,7 +27,7 @@ class View(act: Actions) {
     }
   }
 
-  def gen(vid: Vid, position: Position, bookmark: Int, contents: Contents, fitType: Signal[FitType], navigate: Evt[Navigate]): JsDom.TypedTag[Body] = {
+  def gen(vid: Vid, position: Position, bookmark: Bookmark, contents: Contents, fitType: Signal[FitType], navigate: Evt[Navigate]): JsDom.TypedTag[Body] = {
 
 
     val mainPart: HtmlTag = {
@@ -45,7 +45,7 @@ class View(act: Actions) {
         a(href := Definitions.path_front(vid), Icons.front, title := "back to front page"),
         Snippets.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
         lcButton(navigate.fire(Mode(fitType.now.next)), Icons.modus, fitType.map(ft => stringFrag(s" $ft")).asModifier, title := "cycle image display mode"),
-        act.postBookmark(vid, position.cur + 1, bookmark, contents.gallery.lift(position.cur), Icons.bookmark, title := "save bookmark"),
+        act.postBookmark(vid, position.cur + 1, bookmark.position, contents.gallery.lift(position.cur), Icons.bookmark, title := "save bookmark"),
         a(href := contents.gallery.lift(position.cur).fold("")(_.origin), rel := "noreferrer")(Icons.externalLink, title := "visit original page"),
         a(Icons.next, rel := "next", title := "next")(if (next == position) disabled else href := Definitions.path_asset(vid, next.cur)))
     }
