@@ -61,7 +61,7 @@ class Users(usersDir: Path, contentLoader: ContentLoader) {
             Log.info(s"enhancing bookmark of $vid")
             for {
               contents <- Try {contentLoader.contents(vid)}.getOrElse(None)
-              entry <- contents.gallery.lift(bm.position)
+              entry <- contents.gallery.lift(bm.position - 1)
             } yield {
               vid -> bm.copy(sha1 = Some(entry.blob.sha1), origin = Some(entry.origin))
             }
