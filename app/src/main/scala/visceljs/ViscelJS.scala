@@ -4,14 +4,13 @@ import loci.registry.Registry
 import org.scalajs.dom
 import org.scalajs.dom.experimental.{Fetch, HttpMethod, RequestInit}
 import rescala.default._
+import rescala.extra.Tags._
 import rescala.extra.lattices.IdUtil
 import rescala.extra.lattices.IdUtil.Id
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{body, h1, p}
-import viscel.shared.Log
 import visceljs.connection.{BookmarkManager, ContentConnectionManager, ServiceWorker}
 import visceljs.render.{Front, Index, Snippets, View}
-import rescala.extra.Tags._
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -88,7 +87,6 @@ object ViscelJS {
       case Some(body) => body
       case None => loading
     }.recover{error =>
-      Log.JS.error(error.toString)
       error.printStackTrace(System.err)
       body(h1("An error occurred"),
            p(error.toString),

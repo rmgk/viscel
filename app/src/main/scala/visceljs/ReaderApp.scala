@@ -34,10 +34,9 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
 
     val targetStates = hashChange.map(hc => AppState.parse(new URL(hc.newURL).hash))
 
-    val currentTargetAppState: Signal[AppState] = targetStates.fold(AppState.parse(getHash)) { case (_, next) => next}
+    val currentTargetAppState: Signal[AppState] = targetStates.fold(AppState.parse(getHash)) { case (_, next) => next }
 
-    val setCurrentPostition: Event[Int] = currentTargetAppState.changed.collect{case ViewState(_, pos) => pos}
-
+    val setCurrentPostition: Event[Int] = currentTargetAppState.changed.collect { case ViewState(_, pos) => pos }
 
 
     val currentID: Signal[Option[Vid]] = currentTargetAppState.map {
@@ -46,11 +45,11 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
       case _                => None
     }
 
-    val description = Signal { currentID.value.flatMap(descriptions.value.get) }
+    val description = Signal {currentID.value.flatMap(descriptions.value.get)}
 
-    val contents = Signal { currentID.value.map(content) }.flatten.map(_.flatten)
+    val contents = Signal {currentID.value.map(content)}.flatten.map(_.flatten)
 
-    val bookmark = Signal[Bookmark] { currentID.value.flatMap(bookmarks.value.get).getOrElse(Bookmark(0, 0, None, None))}
+    val bookmark = Signal[Bookmark] {currentID.value.flatMap(bookmarks.value.get).getOrElse(Bookmark(0, 0, None, None))}
 
     val maxPosition = contents.map(_.map(_.gallery.size).getOrElse(0)).changed
 
@@ -77,7 +76,7 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
       if (ev == Prev || ev == Next) {
         dom.window.scrollTo(0, 0)
       }
-      /*val pregen =*/ con.flatMap(_.gallery.lift(pos + 1)).foreach{asst => Snippets.asset(asst).render}
+      /*val pregen =*/ con.flatMap(_.gallery.lift(pos + 1)).foreach { asst => Snippets.asset(asst).render }
 
     }
 
@@ -86,13 +85,13 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
         case IndexState      => Some("Viscel")
         case FrontState(_)   => description.value.map(_.name)
         case ViewState(_, _) =>
-          description.value.map(_.name).map{name =>
+          description.value.map(_.name).map { name =>
             s"${currentPosition.value.cur + 1} - $name"
           }
       }
     }.observe {
       case Some(newTitle) => dom.window.document.title = newTitle
-      case None =>
+      case None           =>
     }
 
 
@@ -118,17 +117,12 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
         }
       }
 
-    println(s"current app state: ${currentTargetAppState.now}")
-    println(s"index body: ${indexBody.tag}")
-
     currentTargetAppState.map {
       case IndexState      => Signal(Some(indexBody))
       case FrontState(_)   => frontBody
       case ViewState(_, _) => viewBody
     }.flatten
   }
-
-
 
 
 }
