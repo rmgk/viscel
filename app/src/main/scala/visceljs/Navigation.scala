@@ -14,8 +14,8 @@ object Navigation {
 
   case class Position(cur: Int, max: Int) {
     def mov(nav: Navigate): Position = nav match {
-      case Navigation.Next => Position(math.min(cur, max), max)
-      case Navigation.Prev => Position(math.max(cur, 0), max)
+      case Navigation.Next => Position(math.min(cur + 1, max), max)
+      case Navigation.Prev => Position(math.max(cur - 1, 0), max)
       case _         => this
     }
     def mov(i: Int): Position = set(cur + i)

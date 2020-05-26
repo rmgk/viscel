@@ -30,7 +30,7 @@ class Front(actions: Actions) {
       val warnings = if (!bookmark.sha1.contains(bmed.map(_.blob.sha1).getOrElse(""))) {
         frag(h1("Warning: bookmark mismatch. Left: bookmarked position. Right: bookmarked image"),
              div(class_preview)(
-               bmed.map(asst => a(href := Definitions.path_asset(vid, bookmark.position), Snippets.asset(asst))).toSeq)(
+               bmed.map(asst => a(href := Definitions.path_asset(vid, bookmark.position - 1), Snippets.asset(asst))).toSeq)(
                a(Snippets.asset(SharedImage(bookmark.origin.getOrElse(""), Blob(bookmark.sha1.get, "image"), Map.empty)))
              ),
              p(s"gallery max: ${contents.gallery.size}"),
