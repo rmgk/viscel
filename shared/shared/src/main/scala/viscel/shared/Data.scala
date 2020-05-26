@@ -10,7 +10,7 @@ final case class ChapterPos(name: String, pos: Int)
 final case class SharedImage(origin: String,
                              blob: Blob,
                              data: Map[String, String] = Map())
-final case class Contents(gallery: Gallery[SharedImage], chapters: List[ChapterPos])
+final case class Contents(gallery: Seq[SharedImage], chapters: List[ChapterPos])
 final case class Blob(sha1: String, mime: String)
 
 final case class Bookmark(position: Int, timestamp: Long, sha1: Option[String] = None, origin: Option[String] = None)

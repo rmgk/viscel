@@ -6,11 +6,10 @@ import rescala.extra.Tags._
 import scalatags.JsDom
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all.{alt, stringFrag, _}
-import scalatags.JsDom.attrs.style
 import scalatags.JsDom.tags2.{nav, section}
 import viscel.shared.{Blob, SharedImage}
 import visceljs.Definitions._
-import visceljs.{Actions, Data, Definitions, Icons, MetaInfo}
+import visceljs.{Actions, Definitions, Icons, MetaInfo}
 
 sealed trait FitType {
   def next: FitType = this match {
@@ -34,8 +33,8 @@ object FitType {
 object Snippets {
 
 
-  def imageStyle(fitType: FitType): Modifier = {
-    style := (fitType match {
+  def imageStyle(fitType: FitType): String = {
+    (fitType match {
       case FitType.O   => ""
       case FitType.W   => "max-width: 100%"
       case FitType.WH  => "max-height: 100vh; max-width: 100%; width: auto"
@@ -44,7 +43,7 @@ object Snippets {
     })
   }
 
-  def asset(asset: SharedImage, assetData: Data, addImageStyle: Modifier = ""): Tag = {
+  def asset(asset: SharedImage, addImageStyle: Modifier = ""): Tag = {
     asset.blob match {
       case blob@Blob(_, "application/x-shockwave-flash") =>
         `object`(

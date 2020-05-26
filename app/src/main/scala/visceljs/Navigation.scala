@@ -12,6 +12,16 @@ object Navigation {
   case object Prev extends Navigate
   case class Mode(i: FitType) extends Navigate
 
+  case class Position(cur: Int, max: Int) {
+    def mov(nav: Navigate): Position = nav match {
+      case Navigation.Next => Position(math.min(cur, max), max)
+      case Navigation.Prev => Position(math.max(cur, 0), max)
+      case _         => this
+    }
+    def mov(i: Int): Position = set(cur + i)
+    def set(i: Int): Position = Position(math.max(0, math.min(i, max)), max)
+    def limit(m: Int): Position = copy(max = m)
+  }
 
   val navigate            = Evt[Navigate]
   val handleKeypress      = Events.fromCallback[KeyboardEvent](dom.document.onkeydown = _)

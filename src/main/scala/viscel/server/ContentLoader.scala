@@ -1,7 +1,7 @@
 package viscel.server
 
 import cats.implicits.{catsSyntaxEitherId, catsSyntaxOptionId}
-import viscel.shared.{Blob, ChapterPos, Contents, DataRow, Description, Gallery, Log, SharedImage, Vid, Vurl}
+import viscel.shared.{Blob, ChapterPos, Contents, DataRow, Description, Log, SharedImage, Vid, Vurl}
 import viscel.store._
 import viscel.store.v4.RowStoreV4
 
@@ -142,7 +142,7 @@ object ContentLoader {
     }
 
     val (articles, chapters) = recurse(pages, Nil, Nil, 0)
-    Contents(Gallery.fromSeq(articles.reverse), chapters)
+    Contents(articles.reverse, chapters)
   }
 
 }

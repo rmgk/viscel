@@ -9,13 +9,13 @@ import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import scalatags.JsDom.TypedTag
 import viscel.shared.{Bookmark, Contents, Description, Log, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
-import visceljs.Navigation.{Mode, Next, Prev, navigationEvents}
+import visceljs.Navigation.{Mode, Next, Position, Prev, navigationEvents}
 import visceljs.render.{FitType, Front, Index, Snippets, View}
 import visceljs.storage.Storing
 
 import scala.collection.immutable.Map
 
-class ReaderApp(content: Vid => Signal[Contents],
+class ReaderApp(content: Vid => Signal[Option[Contents]],
                 val descriptions: Signal[Map[Vid, Description]],
                 val bookmarks: Signal[Map[Vid, Bookmark]]
                ) {
@@ -35,38 +35,34 @@ class ReaderApp(content: Vid => Signal[Contents],
 
     val targetStates = hashChange.map(hc => AppState.parse(new URL(hc.newURL).hash))
 
-    val currentAppState: Signal[AppState] = Events.foldAll(AppState.parse(getHash)) { current =>
-      Seq(
-        targetStates >> { p => p },
-        navigationEvents >> {
-          case Prev    => current.transformPos(pos => math.max(pos - 1, 0))
-          case Next    => current.transformPos(_ + 1)
-          case Mode(_) => current
-        }
-        )
+    val currentTargetAppState: Signal[AppState] = targetStates.fold(AppState.parse(getHash)) { case (_, next) => next}
+
+    val setCurrentPostition: Event[Int] = currentTargetAppState.changed.collect{case ViewState(_, pos) => pos}
+
+
+
+    val currentID: Signal[Option[Vid]] = currentTargetAppState.map {
+      case FrontState(id)   => Some(id)
+      case ViewState(id, _) => Some(id)
+      case _                => None
     }
 
-    val currentPosition: Signal[Int] = currentAppState.map {
-      case IndexState         => 1
-      case FrontState(id)     => 1
-      case ViewState(id, pos) => pos
-    }
+    val description = Signal { currentID.value.flatMap(descriptions.value.get) }
 
-    val currentData: Signal[Data] = {
-      currentAppState.map {
-        case FrontState(id)   => id
-        case ViewState(id, _) => id
-        case _                => throw EmptySignalControlThrowable
-      }.map(getDataSignal).flatten.map {
-        _.atPos(currentPosition.value)
-      }
-    }
+    val contents = Signal { currentID.value.map(content) }.flatten.map(_.flatten)
 
-    val normalizedAppState: Signal[AppState] =
-      currentData.map { data =>
-        if (data.gallery.size > 0) currentAppState.value.transformPos(_ => data.pos)
-        else currentAppState.value
-      }.withDefault(IndexState)
+    val bookmark = Signal[Int] { currentID.value.flatMap(bookmarks.value.get).fold(0)(_.position)}
+
+    val maxPosition = contents.map(_.map(_.gallery.size).getOrElse(0)).changed
+
+    val currentPosition = Events.foldAll(Position(0, 0))(acc => Seq(
+      setCurrentPostition >> acc.set,
+      navigationEvents >> acc.mov,
+      maxPosition >> acc.limit
+      ))
+
+
+    val normalizedAppState: Signal[AppState] = currentTargetAppState.map {_.transformPos(_ => currentPosition.value.cur)}
 
     normalizedAppState.observe(fireImmediately = false, onValue = { as =>
       val nextHash    = as.urlhash
@@ -78,24 +74,26 @@ class ReaderApp(content: Vid => Signal[Contents],
     })
 
 
-    navigationEvents.map(e => e -> currentData()).observe { case (ev, data) =>
+    navigationEvents.map(e => (e, contents.value, currentPosition.value.cur)).observe { case (ev, con, pos) =>
       if (ev == Prev || ev == Next) {
         dom.window.scrollTo(0, 0)
       }
-      /*val pregen =*/ data.gallery.next(1).get.map(asst => Snippets.asset(asst, data).render)
+      /*val pregen =*/ con.flatMap(_.gallery.lift(pos + 1)).foreach{asst => Snippets.asset(asst).render}
 
     }
 
     Signal.static {
-      currentAppState.value match {
-        case IndexState      => "Viscel"
-        case FrontState(_)   => currentData.value.description.name
+      currentTargetAppState.value match {
+        case IndexState      => Some("Viscel")
+        case FrontState(_)   => description.value.map(_.name)
         case ViewState(_, _) =>
-          val data = currentData.value
-          s"${data.pos + 1} – ${data.description.name}"
+          description.value.map(_.name).map{name =>
+            s"${currentPosition.value.cur + 1} - $name"
+          }
       }
-    }.observe { case (newTitle) =>
-      dom.window.document.title = newTitle
+    }.observe {
+      case Some(newTitle) => dom.window.document.title = newTitle
+      case None =>
     }
 
 
@@ -104,31 +102,37 @@ class ReaderApp(content: Vid => Signal[Contents],
     }
 
     val indexBody = index.gen()
-    val frontBody = front.gen(currentData)
-    val viewBody  = view.gen(currentData, fitType, Navigation.navigate)
+    val frontBody = Signal {
+      (for {
+        vid <- currentID.value
+        desc <- description.value
+        cont <- contents.value} yield {
+        front.gen(vid, desc, cont, bookmark.value)
+      }).getOrElse(throw EmptySignalControlThrowable)
+    }
+    val viewBody  =
+      Signal {
+        (for {
+          vid <- currentID.value
+          cont <- contents.value} yield {
+          view.gen(vid, currentPosition.value, bookmark.value, cont, fitType, Navigation.navigate)
+        }).getOrElse(throw EmptySignalControlThrowable)
+      }
 
-    println(s"current app state: ${currentAppState.now}")
+    println(s"current app state: ${currentTargetAppState.now}")
     println(s"index body: ${indexBody.tag}")
 
-    currentAppState.map {
+    currentTargetAppState.map {
       case IndexState      => Signal(indexBody)
       case FrontState(_)   => frontBody
       case ViewState(_, _) => viewBody
-    }.flatten
-  }
-
-
-
-
-
-  def getDataSignal(id: Vid): Signal[Data] = {
-    val cont = content(id)
-    Signal.static {
-      val description = descriptions.value(id)
-      val bm          = bookmarks.value.get(id)
-      Data(id, description, cont.value, bm.fold(0)(_.position))
+    }.flatten.recover{ error =>
+      Log.JS.error(error.getMessage)
+      throw error
     }
   }
+
+
 
 
 }

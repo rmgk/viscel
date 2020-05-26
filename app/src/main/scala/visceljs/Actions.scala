@@ -1,21 +1,20 @@
 package visceljs
 
+import rescala.default._
 import scalatags.JsDom.all.{HtmlTag, Modifier, button, disabled}
-import viscel.shared.{Bookmark, Vid}
+import viscel.shared.{Bookmark, SharedImage, Vid}
 import visceljs.Definitions.lcButton
 import visceljs.connection.{BookmarkManager, ContentConnectionManager}
-import rescala.default._
 
 class Actions(ccm: ContentConnectionManager,
               bookmarkManager: BookmarkManager) {
 
 
-  def postBookmark(bm: Int, data: Data, ts: Modifier*): HtmlTag = {
-    if (data.bookmark != bm) {
+  def postBookmark(vid: Vid, bm: Int, current: Int, cdat: Option[SharedImage], ts: Modifier*): HtmlTag = {
+    if (current != bm) {
       lcButton {
-        val cdat     = data.content.gallery.atPos(bm).get
         val bookmark = Bookmark(bm, System.currentTimeMillis(), cdat.map(_.blob.sha1), cdat.map(_.origin))
-        bookmarkManager.setBookmark.fire(data.id -> bookmark)
+        bookmarkManager.setBookmark.fire(vid -> bookmark)
       }(ts: _*)
     }
     else {

@@ -90,18 +90,19 @@ class ContentConnectionManager(registry: Registry) {
 
 
   private var priorContentSignal: Option[Signal[Any]] = None
-  def content(vid: Vid): Signal[Contents] = {
+  def content(vid: Vid): Signal[Option[Contents]] = {
     hint(vid, force = false)
 
     Log.JS.info(s"looking up content for $vid")
 
-    val emptyContents = Contents(Gallery.empty, Nil)
     val locallookup   =
       lfi.getItem[String](vid.str).toFuture
          .map((str: String) =>
                 try upickle.default.read[Contents](str)
                 catch {
-                  case _: Throwable => throw new NoSuchElementException(s"could not load local data for ${vid.str}")
+                  case e: Throwable =>
+                    Log.JS.warn(s"error loading ${vid.str}: $e")
+                    throw new NoSuchElementException(s"could not load local data for ${vid.str}")
                 })
     locallookup.failed.foreach { f =>
       Log.JS.warn(s"local lookup of $vid failed with $f")
@@ -127,8 +128,8 @@ class ContentConnectionManager(registry: Registry) {
 
     Signal {
       flatRemote.withDefault(None).recover(_ => None)
-                .value.getOrElse(locallookupSignal.value)
-    }.withDefault(emptyContents).recover(_ => emptyContents)
+                .value.orElse(Some(locallookupSignal.value))
+    }.withDefault(None).recover(_ => None)
 
 
   }

@@ -5,13 +5,14 @@ import org.scalajs.dom.MouseEvent
 import org.scalajs.dom.html.Body
 import rescala.default._
 import scalatags.JsDom
-import scalatags.JsDom.all.{HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title}
-import scalatags.JsDom.attrs.disabled
+import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title}
+import scalatags.JsDom.attrs.{disabled, style}
 import scalatags.JsDom.tags2.{article, main}
+import viscel.shared.{Contents, Vid}
 import visceljs.Definitions.lcButton
 import visceljs.Navigation._
-import visceljs.{Actions, Data, Definitions, Icons}
-
+import visceljs.{Actions, Definitions, Icons}
+import rescala.extra.Tags._
 
 class View(act: Actions) {
 
@@ -26,29 +27,27 @@ class View(act: Actions) {
     }
   }
 
-  def gen(dataSignal: Signal[Data], fitType: Signal[FitType], navigate: Evt[Navigate]): Signal[JsDom.TypedTag[Body]] = Signal {
+  def gen(vid: Vid, position: Position, bookmark: Int, contents: Contents, fitType: Signal[FitType], navigate: Evt[Navigate]): JsDom.TypedTag[Body] = {
+
 
     val mainPart: HtmlTag = {
-      val data = dataSignal.value
-      data.gallery.get.fold[HtmlTag](p(s"loading image data …")) { asst =>
-        article(Snippets.asset(asst, data, Snippets.imageStyle(fitType.value)))(asst.data.get("title").fold(List[Tag]())(p(_) :: Nil))
+        contents.gallery.lift(position.cur).fold[HtmlTag](p(s"invalid position")) { asst =>
+        article(Snippets.asset(asst, style := fitType.map(Snippets.imageStyle))(asst.data.get("title").fold[Option[Tag]](None)(t => Some(p(t))).toSeq: _*))
       }
     }
 
 
     val navigation: HtmlTag = {
-      val data = dataSignal.value
-      val ft   = fitType.value
-      val prev = data.prev
-      val next = data.next
+      val prev = position.mov(1)
+      val next = position.mov(-1)
       Snippets.navigation(
-        a(Icons.prev, rel := "prev", title := "previous page")(if (prev.pos == data.pos) disabled else href := Definitions.path_asset(prev)),
-        a(href := Definitions.path_front(data.id), Icons.front, title := "back to front page"),
+        a(Icons.prev, rel := "prev", title := "previous page")(if (prev == position) disabled else href := Definitions.path_asset(vid, prev.cur)),
+        a(href := Definitions.path_front(vid), Icons.front, title := "back to front page"),
         Snippets.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
-        lcButton(navigate.fire(Mode(ft.next)), Icons.modus, s" $ft", title := "cycle image display mode"),
-        act.postBookmark(data.pos + 1, data, Icons.bookmark, title := "save bookmark"),
-        a(href := data.gallery.get.fold("")(_.origin), rel := "noreferrer")(Icons.externalLink, title := "visit original page"),
-        a(Icons.next, rel := "next", title := "next")(if (next.pos == data.pos) disabled else href := Definitions.path_asset(next)))
+        lcButton(navigate.fire(Mode(fitType.now.next)), Icons.modus, fitType.map(ft => stringFrag(s" $ft")).asModifier, title := "cycle image display mode"),
+        act.postBookmark(vid, position.cur + 1, bookmark, contents.gallery.lift(position.cur), Icons.bookmark, title := "save bookmark"),
+        a(href := contents.gallery.lift(position.cur).fold("")(_.origin), rel := "noreferrer")(Icons.externalLink, title := "visit original page"),
+        a(Icons.next, rel := "next", title := "next")(if (next == position) disabled else href := Definitions.path_asset(vid, next.cur)))
     }
 
     val mainSection = main(mainPart, onLeftClickPrevNext(navigate.fire))
