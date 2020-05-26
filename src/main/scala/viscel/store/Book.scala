@@ -1,7 +1,8 @@
 package viscel.store
 
 import viscel.netzi.VRequest
-import viscel.shared.{DataRow, Vid, Vurl}
+import viscel.shared.DataRow.Link
+import viscel.shared.{DataRow, Log, Vid, Vurl}
 
 case class Book(id: Vid,
                 name: String,
@@ -23,6 +24,26 @@ case class Book(id: Vid,
       dr.contents.iterator.collect{case l : DataRow.Link => VRequest(l.ref, l.data, dr.loc.orElse(Some(dr.ref)))}
     }
   }
+
+  def reachable(): Set[Vurl] = {
+    def rec(check: List[Vurl], acc: Set[Vurl]): Set[Vurl] = {
+      check match {
+        case Nil => acc
+        case head :: tail =>
+          pages.get(head) match {
+            case Some(page) =>
+              val inner = page.contents.collect{ case l : Link if !acc.contains(l.ref) => l.ref }
+              rec(inner reverse_:::  tail, acc + head)
+            case None =>
+              Log.Tool.warn(s"$id has no $head")
+              rec(tail, acc + head)
+
+          }
+      }
+    }
+    rec(List(Book.entrypoint), Set.empty)
+  }
+
 
   /** Add a new page to this book.
     *

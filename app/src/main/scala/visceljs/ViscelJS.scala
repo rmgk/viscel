@@ -37,7 +37,8 @@ object ViscelJS {
     //  ri.headers.asInstanceOf[js.Dictionary[String]]("Authorization") = s"Token ${user.token}"
     //}
 
-    Fetch.fetch(baseurl + endpoint, ri).toFuture.flatMap(_.text().toFuture)
+    Fetch.fetch(baseurl + endpoint, ri).toFuture
+         .flatMap(_.text().toFuture)
   }
 
 
@@ -47,27 +48,7 @@ object ViscelJS {
     dom.document.body = body("loading data …").render
 
 
-    //val start = System.currentTimeMillis()
-    //
-    //fetchtext("db4/NX_ElGoonishShive").map{text =>
-    //  val it = text.linesIterator
-    //  val name = it.next()
-    //  println(name)
-    //  it.map { data =>
-    //    upickle.default.read[DataRow](data)(UpickleCodecs.DataRowRw)
-    //  }.toList
-    //}.onComplete{
-    //  case Success(value) =>
-    //    println(s"took ${System.currentTimeMillis - start}ms")
-    //    println(s"yay $value")
-    //  case Failure(exception) =>
-    //    println(s"took ${System.currentTimeMillis - start}ms")
-    //    println(exception)
-    //}
-
-
     val swstate = ServiceWorker.register()
-
 
 
     val registry = new Registry
@@ -81,13 +62,13 @@ object ViscelJS {
     val meta = MetaInfo(viscel.shared.Version.str, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
 
 
-    val index   = new Index(meta, actions, bookmarkManager.bookmarks, ccm.descriptions)
-    val front   = new Front(actions)
-    val view    = new View(actions)
-    val app     = new ReaderApp(content = ccm.content,
-                                descriptions = ccm.descriptions,
-                                bookmarks = bookmarkManager.bookmarks
-                                )
+    val index = new Index(meta, actions, bookmarkManager.bookmarks, ccm.descriptions)
+    val front = new Front(actions)
+    val view  = new View(actions)
+    val app   = new ReaderApp(content = ccm.content,
+                              descriptions = ccm.descriptions,
+                              bookmarks = bookmarkManager.bookmarks
+                              )
 
     val bodySig        = app.makeBody(index, front, view)
     val safeBodySignal = bodySig

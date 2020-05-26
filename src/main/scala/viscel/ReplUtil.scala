@@ -54,7 +54,8 @@ class ReplUtil(services: Services) {
     rs.allVids().foreach { vid =>
       val (name, entries) = rs.load(vid)
       val book            = Book.fromEntries(vid, name, entries)
-      val filtered        = entries.filter(dr => book.pages(dr.ref) == dr)
+      val reachable       = book.reachable()
+      val filtered        = entries.filter(dr => reachable.contains(dr.ref) && book.pages(dr.ref) == dr)
       rs.file(vid).delete()
       val appender = rs.open(vid, name)
       filtered.foreach(appender.append)
