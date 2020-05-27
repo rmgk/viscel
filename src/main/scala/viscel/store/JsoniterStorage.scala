@@ -8,7 +8,6 @@ import cats.syntax.either._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import viscel.shared.JsoniterCodecs._
-import viscel.shared.{Bookmark, Vid}
 
 object JsoniterStorage {
 
@@ -24,7 +23,6 @@ object JsoniterStorage {
     Either.catchNonFatal(readFromArray[T](Files.readAllBytes(p)))
   }
 
-  implicit val MapVidBookmarkCodec: JsonValueCodec[Map[Vid, Bookmark]] = JsonCodecMaker.make
   implicit val UserCodec: JsonValueCodec[User] = JsonCodecMaker.make
   implicit val LegacyUserCodec: JsonValueCodec[LegacyUser] = JsonCodecMaker.make
 

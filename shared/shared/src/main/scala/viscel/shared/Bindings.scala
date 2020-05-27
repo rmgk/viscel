@@ -1,10 +1,10 @@
 package viscel.shared
 
 import loci.registry.Binding
-import loci.serializer.upickle._
 import loci.transmitter.IdenticallyTransmittable
-import viscel.shared.UpickleCodecs._
 
+import viscel.shared.JsoniterLociSerializable._
+import viscel.shared.JsoniterCodecs._
 
 object Bindings {
   type IT[V] = IdenticallyTransmittable[V]
