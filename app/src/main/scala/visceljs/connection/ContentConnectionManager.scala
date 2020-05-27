@@ -2,6 +2,7 @@ package visceljs.connection
 
 import java.util.NoSuchElementException
 
+import com.github.plokhotnyuk.jsoniter_scala.core._
 import loci.communicator.ws.javalin.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
@@ -13,7 +14,7 @@ import visceljs.storage.{LocalForageInstance, Storing, localforage}
 
 import scala.concurrent.Future
 import scala.scalajs.js
-
+import scala.scalajs.js.typedarray.{Int8Array, TypedArrayBuffer}
 
 class ContentConnectionManager(registry: Registry) {
 
@@ -95,9 +96,9 @@ class ContentConnectionManager(registry: Registry) {
     Log.JS.info(s"looking up content for $vid")
 
     val locallookup   = {
-      lfi.getItem[String](vid.str).toFuture
-         .map((str: String) =>
-                try JsoniterCodecs.readString[Contents](str)(JsoniterCodecs.ContentsRW)
+      lfi.getItem[Int8Array](vid.str).toFuture
+         .map((bytes: Int8Array) =>
+                try readFromByteBuffer[Contents](TypedArrayBuffer.wrap(bytes))(JsoniterCodecs.ContentsRW)
                 catch {
                   case e: Throwable =>
                     Log.JS.warn(s"error loading ${vid.str}: $e")
@@ -119,7 +120,9 @@ class ContentConnectionManager(registry: Registry) {
     val flatRemote = remoteLookupSignal.flatten
 
     flatRemote.observe {
-      case Some(rc) => lfi.setItem(vid.str, JsoniterCodecs.writeString(rc)(JsoniterCodecs.ContentsRW))
+      case Some(rc) =>
+        val bbuf = scala.scalajs.js.typedarray.byteArray2Int8Array(writeToArray(rc)(JsoniterCodecs.ContentsRW))
+        lfi.setItem(vid.str, bbuf)
       case None     => ()
     }
 
