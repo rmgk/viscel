@@ -49,11 +49,9 @@ case class Book(id: Vid,
     *
     * @return Book if updated */
   def addPage(newEntry: DataRow): Option[Book]= {
-    pages.get(newEntry.ref) match {
-      case Some(oldPage) if (newEntry.updates(oldPage)) =>
-        Some(copy(pages = pages.updated(newEntry.ref, newEntry)))
-      case _                           => None
-    }
+    if (pages.get(newEntry.ref).forall(oldPage => newEntry.updates(oldPage)))
+      Some(copy(pages = pages.updated(newEntry.ref, newEntry)))
+    else None
   }
 
 }
