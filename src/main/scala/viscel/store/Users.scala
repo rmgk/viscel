@@ -9,12 +9,11 @@ import viscel.shared.{Bookmark, Vid}
 
 import scala.collection.immutable.Map
 import scala.jdk.CollectionConverters._
-import scala.util.Try
 
 
 class Users(usersDir: Path, contentLoader: ContentLoader) {
 
-  type Error[T] = Either[String, T]
+  type Error[T] = Either[Throwable, T]
 
   def allBookmarks(): Seq[Vid] = {
     all() match {
@@ -30,12 +29,12 @@ class Users(usersDir: Path, contentLoader: ContentLoader) {
   def all(): Error[List[User]] = try {
     if (!Files.isDirectory(usersDir)) Right(Nil)
     else Files.newDirectoryStream(usersDir, "*.json")
-         .asScala.foldLeft(Right(Nil): Either[String, List[User]]) { (el, f) =>
+         .asScala.foldLeft(Right(Nil): Either[Throwable, List[User]]) { (el, f) =>
       el.flatMap(l => load(f).map(_ :: l))
     }.map(_.reverse)
   }
   catch {
-    case e: IOException => Left(e.getMessage)
+    case e: IOException => Left(e)
   }
 
   def setBookmark(user: User, colid: Vid, bm: Bookmark): User = {
@@ -46,30 +45,10 @@ class Users(usersDir: Path, contentLoader: ContentLoader) {
 
   private def path(id: String): Path = usersDir.resolve(s"$id.json")
 
-  def load(id: String): Either[String, User] = load(path(id))
+  def load(id: String):Error[User] = load(path(id))
 
-  private def load(p: Path): Either[String, User] =
-    JsoniterStorage.load[User](p)(JsoniterStorage.UserCodec).toTry.orElse {
-      JsoniterStorage.load[LegacyUser](p)(JsoniterStorage.LegacyUserCodec).map(_.toUser).toTry
-    }.toEither.left.map(_.getMessage).map { user =>
-      if (!user.bookmarks.valuesIterator.exists(_.sha1.isEmpty)) user
-      else {
-        val updated = user.copy(bookmarks = user.bookmarks.view.flatMap { case (vid, bm) =>
-          if (bm.sha1.isEmpty) {
-            Log.info(s"enhancing bookmark of $vid")
-            for {
-              contents <- Try {contentLoader.contents(vid)}.getOrElse(None)
-              entry <- contents.gallery.lift(bm.position - 1)
-            } yield {
-              vid -> bm.copy(timestamp = bm.timestamp + 1,  sha1 = Some(entry.blob.sha1), origin = Some(entry.origin))
-            }
-          }
-          else Some(vid -> bm)
-        }.toMap)
-        JsoniterStorage.store(p, updated)(JsoniterStorage.UserCodec)
-        updated
-      }
-    }
+  private def load(p: Path): Error[User] =
+    JsoniterStorage.load[User](p)(JsoniterStorage.UserCodec)
 
   var userCache = Map[String, User]()
 

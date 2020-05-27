@@ -24,7 +24,6 @@ object JsoniterStorage {
   }
 
   implicit val UserCodec: JsonValueCodec[User] = JsonCodecMaker.make
-  implicit val LegacyUserCodec: JsonValueCodec[LegacyUser] = JsonCodecMaker.make
 
 
 

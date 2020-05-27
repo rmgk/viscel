@@ -16,12 +16,3 @@ final case class User(id: String,
 object User {
   type Id = String
 }
-
-final case class LegacyUser(id: String,
-                            password: String,
-                            admin: Boolean,
-                            bookmarks: Map[Vid, Int]) {
-  def toUser: User = User(id, password, admin, bookmarks.view.mapValues(Bookmark(_, 0)).toMap)
-}
-
-
