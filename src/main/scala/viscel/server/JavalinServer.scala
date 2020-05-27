@@ -1,6 +1,8 @@
 package viscel.server
 
 
+import java.io.ByteArrayInputStream
+
 import better.files._
 import io.javalin.Javalin
 import io.javalin.core.compression.Gzip
@@ -12,7 +14,7 @@ import loci.registry.Registry
 import rescala.default.Signal
 import rescala.extra.distributables.LociDist
 import viscel.shared.BookmarksMap.BookmarksMap
-import viscel.shared.{Bindings, UpickleCodecs, Vid}
+import viscel.shared.{Bindings, JsoniterCodecs, Vid}
 import viscel.store.v4.RowStoreV4
 import viscel.store.{BlobStore, User}
 import viscel.{FolderImporter, Viscel}
@@ -153,9 +155,11 @@ class JavalinServer(blobStore: BlobStore,
       val vid = Vid.from(ctx.pathParam("vid"))
       val (name, rows) = rowStore.load(vid)
       ctx.status(200)
-      val namestr = upickle.default.write(name)
-      val rowsstr = rows.map(upickle.default.write(_)(UpickleCodecs.DataRowRw))
-      ctx.result(namestr + rowsstr.mkString("\n", "\n", "\n"))
+      import com.github.plokhotnyuk.jsoniter_scala.core._
+
+      val bytes = writeToArray(rows)(JsoniterCodecs.DataRowListRw)
+
+      ctx.result(new ByteArrayInputStream(bytes))
       ctx.contentType("text/plain; charset=UTF-8")
     })
   }

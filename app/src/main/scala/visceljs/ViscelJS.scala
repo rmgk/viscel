@@ -83,10 +83,10 @@ object ViscelJS {
     val bodyParent = dom.document.body.parentElement
     bodyParent.removeChild(dom.document.body)
     import rescala.extra.Tags._
-    bodySig.map{
+    bodySig.map {
       case Some(body) => body
-      case None => loading
-    }.recover{error =>
+      case None       => loading
+    }.recover { error =>
       error.printStackTrace(System.err)
       body(h1("An error occurred"),
            p(error.toString),

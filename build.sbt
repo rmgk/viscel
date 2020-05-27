@@ -43,6 +43,7 @@ lazy val viscel = project
                     jsoup, okHttp, javalin,
                     fetchJSDependenciesDef,
                     vbundleDef,
+                    jsoniter,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
                     publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value,
                     //  experimental graalvm options
@@ -73,7 +74,8 @@ lazy val app = project.in(file("app"))
                  scalajsdom, normalizecss, scalatags,
                  Resolvers.stg, strictCompile,
                  scalaJSUseMainModuleInitializer := true,
-                 scalaJavaTime
+                 scalaJavaTime,
+                 jsoniter
                )
                .dependsOn(sharedJS)
                .enablePlugins(SbtSassify)

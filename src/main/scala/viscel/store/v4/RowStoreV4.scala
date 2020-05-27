@@ -8,8 +8,9 @@ import io.circe.syntax._
 import viscel.narration.Narrator
 import viscel.shared.CirceCodecs._
 import viscel.shared.Log.{Store => Log}
-import viscel.shared.{DataRow, Vid}
+import viscel.shared.{DataRow, JsoniterCodecs, Vid}
 import viscel.store.{Book, CirceStorage}
+import com.github.plokhotnyuk.jsoniter_scala.core._
 
 
 class RowStoreV4(db4dir: Path) {
@@ -44,12 +45,11 @@ class RowStoreV4(db4dir: Path) {
       throw new IllegalStateException(s"$f does not contain data")
     else {
       val lines = f.lineIterator(StandardCharsets.UTF_8)
-      val name  = io.circe.parser.decode[String](lines.next()).toTry.get
+      val name  = readFromString[String](lines.next())(JsoniterCodecs.StringRw)
 
       val dataRows = lines.zipWithIndex.map { case (line, nr) =>
-        io.circe.parser.decode[DataRow](line) match {
-          case Right(s) => s
-          case Left(t)  =>
+        try readFromString[DataRow](line)(JsoniterCodecs.DataRowRw) catch {
+          case t : Throwable  =>
             Log.error(s"Failed to decode $id:${nr + 2}: $line")
             throw t
         }
