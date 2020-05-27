@@ -8,7 +8,6 @@ import loci.transmitter.RemoteRef
 import org.scalajs.dom
 import rescala.default._
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
-import viscel.shared.UpickleCodecs._
 import viscel.shared._
 import visceljs.storage.{LocalForageInstance, Storing, localforage}
 
@@ -58,7 +57,7 @@ class ContentConnectionManager(registry: Registry) {
                 Log.JS.error(s"failed to access descriptions: $error")
                 init
               }
-  }
+  }(JsoniterCodecs.MapVidDescriptionCodec)
 
   val connectionAttempt: Evt[Unit] = Evt[Unit]()
 
@@ -95,15 +94,16 @@ class ContentConnectionManager(registry: Registry) {
 
     Log.JS.info(s"looking up content for $vid")
 
-    val locallookup   =
+    val locallookup   = {
       lfi.getItem[String](vid.str).toFuture
          .map((str: String) =>
-                try upickle.default.read[Contents](str)
+                try JsoniterCodecs.readString[Contents](str)(JsoniterCodecs.ContentsRW)
                 catch {
                   case e: Throwable =>
                     Log.JS.warn(s"error loading ${vid.str}: $e")
                     throw new NoSuchElementException(s"could not load local data for ${vid.str}")
                 })
+    }
     locallookup.failed.foreach { f =>
       Log.JS.warn(s"local lookup of $vid failed with $f")
     }
@@ -119,7 +119,7 @@ class ContentConnectionManager(registry: Registry) {
     val flatRemote = remoteLookupSignal.flatten
 
     flatRemote.observe {
-      case Some(rc) => lfi.setItem(vid.str, upickle.default.write(rc))
+      case Some(rc) => lfi.setItem(vid.str, JsoniterCodecs.writeString(rc)(JsoniterCodecs.ContentsRW))
       case None     => ()
     }
 

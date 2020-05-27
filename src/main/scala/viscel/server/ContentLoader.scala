@@ -2,8 +2,7 @@ package viscel.server
 
 import cats.implicits.{catsSyntaxEitherId, catsSyntaxOptionId}
 import viscel.shared.{Blob, ChapterPos, Contents, DataRow, Description, Log, SharedImage, Vid, Vurl}
-import viscel.store._
-import viscel.store.v4.RowStoreV4
+import viscel.store.{RowStoreV4, _}
 
 import scala.collection.mutable
 

@@ -1,16 +1,13 @@
-package viscel.store.v4
+package viscel.store
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import better.files.File
 import com.github.plokhotnyuk.jsoniter_scala.core._
-import io.circe.syntax._
 import viscel.narration.Narrator
-import viscel.shared.CirceCodecs._
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.{DataRow, JsoniterCodecs, Vid}
-import viscel.store.{Book, JsoniterStorage}
 
 
 class RowStoreV4(db4dir: Path) {
@@ -74,6 +71,8 @@ class RowStoreV4(db4dir: Path) {
 class RowAppender(file: File) {
   def append(row: DataRow): Unit = {
     Log.trace(s"Store $row into $file")
-    file.appendLine(row.asJson.noSpaces)(charset = StandardCharsets.UTF_8)
+    val bytes = JsoniterCodecs.writeArray(row)(JsoniterCodecs.DataRowRw)
+    file.appendByteArray(bytes)
+    file.appendByteArray(Array('\n'.toByte))
   }
 }

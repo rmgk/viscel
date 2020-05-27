@@ -2,14 +2,12 @@ package viscel.narration.narrators
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
-import io.circe.{Decoder, Encoder}
-import viscel.selektiv.Queries._
 import viscel.narration.{Metarrator, Narrator, Templates}
-import viscel.selektiv.ReportTools.extract
 import viscel.selektiv.Narration._
+import viscel.selektiv.Queries._
+import viscel.selektiv.ReportTools.extract
 import viscel.selektiv.{Narration, Selection}
 import viscel.shared.Vurl
-import viscel.shared.CirceCodecs.{vurlReader, vurlWriter}
 
 
 case class WebToon(id: String, name: String, start: Vurl)
@@ -20,8 +18,6 @@ object WebToons extends Metarrator[WebToon]("WebToons") {
                             Append(Selection.many("#_imageList img")
                                    .map(_.map(imageFromAttribute(_, Some("data-url")))),
                                    queryNext("a.pg_next[title=Next Episode]")))
-  override def decoder: Decoder[WebToon] = io.circe.generic.semiauto.deriveDecoder
-  override def encoder: Encoder[WebToon] = io.circe.generic.semiauto.deriveEncoder
   override val codec: JsonValueCodec[WebToon] = {
     import viscel.shared.JsoniterCodecs._
     JsonCodecMaker.make

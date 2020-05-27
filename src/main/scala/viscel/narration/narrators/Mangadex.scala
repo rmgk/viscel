@@ -4,13 +4,12 @@ import cats.implicits._
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import io.circe.Decoder.Result
-import io.circe.{Decoder, DecodingFailure, Encoder}
+import io.circe.DecodingFailure
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.{Metarrator, Narrator, Templates}
 import viscel.selektiv.Narration.{Combination, ContextW, WrapPart}
 import viscel.selektiv.Report
-import viscel.shared.{DataRow, Vurl}
-import viscel.shared.JsoniterCodecs._
+import viscel.shared.{DataRow, JsoniterCodecs, Vurl}
 
 import scala.util.Try
 
@@ -88,15 +87,11 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   }
 
-  import viscel.shared.CirceCodecs.{vurlReader, vurlWriter}
 
-  val decoder: Decoder[MangadexNarrator] = Decoder.forProduct3("id", "name", "archiveUri")(
-    (i, n, a) => MangadexNarrator(i, n, a))
-  val encoder: Encoder[MangadexNarrator] = Encoder.forProduct3("id", "name", "archiveUri")(
-    nar => (nar.id, nar.name, nar.archiveUri))
-
-
-  override def codec: JsonValueCodec[MangadexNarrator] = JsonCodecMaker.make
+  override val codec: JsonValueCodec[MangadexNarrator] = {
+    import JsoniterCodecs._
+    JsonCodecMaker.make
+  }
 
   def apiFromNum(num: String): Vurl = Vurl.fromString(s"https://mangadex.org/api/?id=$num&type=manga")
 

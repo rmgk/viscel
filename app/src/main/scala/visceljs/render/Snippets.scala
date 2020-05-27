@@ -20,8 +20,6 @@ sealed trait FitType {
   }
 }
 object FitType {
-  import upickle.default._
-  implicit val codec: ReadWriter[FitType] = macroRW
   case object W extends FitType
   case object WH extends FitType
   case object O extends FitType

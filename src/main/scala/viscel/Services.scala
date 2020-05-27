@@ -9,7 +9,7 @@ import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
 import viscel.netzi.OkHttpRequester
 import viscel.server.{ContentLoader, Interactions, JavalinServer, ServerPages}
-import viscel.store.{BlobStore, DescriptionCache, NarratorCache, StoreManager, Users}
+import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users, RowStoreV4}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
@@ -33,7 +33,6 @@ class Services(relativeBasedir: Path,
   val definitionsdir     : Path = staticDir
   val exportdir          : Path = basepath.resolve("export")
   val usersdir           : Path = basepath.resolve("users")
-  val db3dir             : Path = basepath.resolve("db3")
   lazy val db4dir  : Path = create(basepath.resolve("db4"))
   lazy val cachedir: Path = create(basepath.resolve("cache"))
 
@@ -43,7 +42,7 @@ class Services(relativeBasedir: Path,
   lazy val descriptionCache = new DescriptionCache(cachedir)
   lazy val blobStore        = new BlobStore(blobdir)
   lazy val userStore        = new Users(usersdir, contentLoader)
-  lazy val rowStore         = new StoreManager(db3dir, db4dir).transition()
+  lazy val rowStore         = new RowStoreV4(db4dir)
   lazy val narratorCache    = new NarratorCache(metarratorconfigdir, definitionsdir)
   lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
 

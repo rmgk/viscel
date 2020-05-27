@@ -15,8 +15,7 @@ import rescala.default.Signal
 import rescala.extra.distributables.LociDist
 import viscel.shared.BookmarksMap.BookmarksMap
 import viscel.shared.{Bindings, JsoniterCodecs, Vid}
-import viscel.store.v4.RowStoreV4
-import viscel.store.{BlobStore, User}
+import viscel.store.{BlobStore, RowStoreV4, User}
 import viscel.{FolderImporter, Viscel}
 
 import scala.collection.mutable

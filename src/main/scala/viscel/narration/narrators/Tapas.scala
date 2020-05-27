@@ -2,14 +2,12 @@ package viscel.narration.narrators
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
-import io.circe.{Decoder, Encoder}
-import viscel.selektiv.Queries._
 import viscel.narration.{Metarrator, Narrator, Templates}
 import viscel.selektiv.Narration._
+import viscel.selektiv.Queries._
 import viscel.selektiv.ReportTools.extract
 import viscel.selektiv.{Narration, Selection}
 import viscel.shared.Vurl
-import viscel.shared.CirceCodecs.{vurlReader, vurlWriter}
 
 
 case class Tapas(id: String, name: String, start: Vurl)
@@ -21,10 +19,6 @@ object Tapas extends Metarrator[Tapas]("Tapas") {
                                             .map(_.map(imageFromAttribute(_, Some("data-src")))),
                                    Selection.all("a.tab__button--small.js-next-ep-btn")
                                             .map(_.map(extractMore))))
-
-  override def decoder: Decoder[Tapas] = io.circe.generic.semiauto.deriveDecoder
-  override def encoder: Encoder[Tapas] = io.circe.generic.semiauto.deriveEncoder
-
 
   override def codec: JsonValueCodec[Tapas] = {
     import viscel.shared.JsoniterCodecs._

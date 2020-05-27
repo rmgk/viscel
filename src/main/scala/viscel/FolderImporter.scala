@@ -3,8 +3,7 @@ package viscel
 import better.files._
 import viscel.MimeUtil.mimeToExt
 import viscel.shared.{DataRow, Vid}
-import viscel.store._
-import viscel.store.v4.RowStoreV4
+import viscel.store.{RowStoreV4, _}
 
 class FolderImporter(blobStore: BlobStore, rowStore: RowStoreV4, descriptionCache: DescriptionCache) {
 

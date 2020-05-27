@@ -1,5 +1,6 @@
 package visceljs
 
+import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import org.scalajs.dom
 import org.scalajs.dom.experimental.URL
 import org.scalajs.dom.html
@@ -95,8 +96,10 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
     }
 
 
-    val fitType: Signal[FitType] = Storing.storedAs[FitType]("fitType", default = FitType.W) { init =>
-      navigationEvents.collect { case Mode(t) => t }.latest[FitType](init)
+    val fitType: Signal[FitType] = {
+      Storing.storedAs[FitType]("fitType", default = FitType.W) { init =>
+        navigationEvents.collect { case Mode(t) => t }.latest[FitType](init)
+      }(JsonCodecMaker.make)
     }
 
     val indexBody = index.gen()

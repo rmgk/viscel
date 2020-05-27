@@ -5,8 +5,7 @@ import java.util.concurrent.CancellationException
 import viscel.narration.Narrator
 import viscel.netzi.{VRequest, VResponse, WebRequestInterface}
 import viscel.shared.{DataRow, Log}
-import viscel.store.v4.{RowAppender, RowStoreV4}
-import viscel.store.{BlobStore, Book, DescriptionCache}
+import viscel.store.{BlobStore, Book, DescriptionCache, RowAppender, RowStoreV4}
 
 import scala.concurrent.{ExecutionContext, Future}
 

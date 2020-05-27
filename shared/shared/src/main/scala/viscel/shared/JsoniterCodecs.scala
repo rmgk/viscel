@@ -25,6 +25,13 @@ object JsoniterLociSerializable {
 
 
 object JsoniterCodecs {
+  def writeString[T: JsonValueCodec](value: T) = writeToString(value)
+  def writeArray[T: JsonValueCodec](value: T) = writeToArray(value)
+
+
+  def readString[T: JsonValueCodec](str: String) = readFromString[T](str)
+
+
   implicit val StringRw: JsonValueCodec[String] = JsonCodecMaker.make
 
   implicit val vidRW: JsonValueCodec[Vid] = new JsonValueCodec[Vid] {
@@ -69,6 +76,5 @@ object JsoniterCodecs {
   implicit val MapVidLongCodec       : JsonValueCodec[Map[Vid, Long]]        = JsonCodecMaker.make
   implicit val MapVidDescriptionCodec: JsonValueCodec[Map[Vid, Description]] = JsonCodecMaker.make
   implicit val MapVidBookmarkCodec: JsonValueCodec[Map[Vid, Bookmark]] = JsonCodecMaker.make
-
 
 }
