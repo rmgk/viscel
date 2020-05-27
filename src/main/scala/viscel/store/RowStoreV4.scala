@@ -69,7 +69,7 @@ class RowStoreV4(db4dir: Path) {
 }
 
 class RowAppender(file: File) {
-  def append(row: DataRow): Unit = {
+  def append(row: DataRow): Unit = synchronized {
     Log.trace(s"Store $row into $file")
     val bytes = JsoniterCodecs.writeArray(row)(JsoniterCodecs.DataRowRw)
     file.appendByteArray(bytes)
