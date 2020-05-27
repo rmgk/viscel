@@ -1,10 +1,13 @@
 package viscel.narration
 
+import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import io.circe.{Decoder, Encoder}
 import viscel.selektiv.Narration.WrapPart
 import viscel.shared.Vurl
 
 abstract class Metarrator[T](val metarratorId: String) {
+  def codec: JsonValueCodec[T]
+
   def toNarrator(t : T): Narrator
   def decoder: Decoder[T]
   def encoder: Encoder[T]

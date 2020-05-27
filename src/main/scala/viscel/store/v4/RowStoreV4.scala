@@ -4,13 +4,13 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import better.files.File
+import com.github.plokhotnyuk.jsoniter_scala.core._
 import io.circe.syntax._
 import viscel.narration.Narrator
 import viscel.shared.CirceCodecs._
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.{DataRow, JsoniterCodecs, Vid}
-import viscel.store.{Book, CirceStorage}
-import com.github.plokhotnyuk.jsoniter_scala.core._
+import viscel.store.{Book, JsoniterStorage}
 
 
 class RowStoreV4(db4dir: Path) {
@@ -31,7 +31,7 @@ class RowStoreV4(db4dir: Path) {
 
   def open(id: Vid, name: String): RowAppender = synchronized {
     val f = file(id)
-    if (!f.exists || f.size <= 0) CirceStorage.store(f.path, name)
+    if (!f.exists || f.size <= 0) JsoniterStorage.store(f.path, name)(JsoniterCodecs.StringRw)
     new RowAppender(f)
   }
 

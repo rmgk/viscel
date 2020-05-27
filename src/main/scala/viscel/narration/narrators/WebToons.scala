@@ -1,5 +1,7 @@
 package viscel.narration.narrators
 
+import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
+import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import io.circe.{Decoder, Encoder}
 import viscel.selektiv.Queries._
 import viscel.narration.{Metarrator, Narrator, Templates}
@@ -20,6 +22,11 @@ object WebToons extends Metarrator[WebToon]("WebToons") {
                                    queryNext("a.pg_next[title=Next Episode]")))
   override def decoder: Decoder[WebToon] = io.circe.generic.semiauto.deriveDecoder
   override def encoder: Encoder[WebToon] = io.circe.generic.semiauto.deriveEncoder
+  override val codec: JsonValueCodec[WebToon] = {
+    import viscel.shared.JsoniterCodecs._
+    JsonCodecMaker.make
+  }
+
   override def unapply(description: String): Option[Vurl] = description match {
     case rex"https://www.webtoons.com/[^/]+/[^/]+/($cid[^/]+)/.*title_no=($number\d+)" =>
       Some(Vurl.fromString(description))

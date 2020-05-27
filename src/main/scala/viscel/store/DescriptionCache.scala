@@ -2,10 +2,7 @@ package viscel.store
 
 import java.nio.file.Path
 
-import io.circe.generic.auto._
-import viscel.shared.Vid
-import viscel.shared.Description
-import viscel.shared.CirceCodecs._
+import viscel.shared.{Description, JsoniterCodecs, Vid}
 
 
 
@@ -15,7 +12,7 @@ import viscel.shared.CirceCodecs._
 class DescriptionCache(cachedir: Path) {
   private val descriptionpath: Path = cachedir.resolve("descriptions.json")
   private var descriptionCache: Map[Vid, Description] =
-    CirceStorage.load[Map[Vid, Description]](descriptionpath).getOrElse(Map())
+    JsoniterStorage.load[Map[Vid, Description]](descriptionpath)(JsoniterCodecs.MapVidDescriptionCodec).getOrElse(Map())
 
   def invalidate(id: Vid): Unit = synchronized {
     descriptionCache = descriptionCache - id
@@ -25,7 +22,7 @@ class DescriptionCache(cachedir: Path) {
     descriptionCache.getOrElse(id, {
       val desc = orElse
       descriptionCache = descriptionCache.updated(id, desc)
-      CirceStorage.store[Map[Vid, Description]](descriptionpath, descriptionCache)
+      JsoniterStorage.store[Map[Vid, Description]](descriptionpath, descriptionCache)(JsoniterCodecs.MapVidDescriptionCodec)
       desc
     })
   }

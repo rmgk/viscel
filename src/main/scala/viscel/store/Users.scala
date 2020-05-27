@@ -3,7 +3,6 @@ package viscel.store
 import java.io.IOException
 import java.nio.file.{Files, Path}
 
-import io.circe.generic.auto._
 import viscel.server.ContentLoader
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.{Bookmark, Vid}
@@ -11,7 +10,6 @@ import viscel.shared.{Bookmark, Vid}
 import scala.collection.immutable.Map
 import scala.jdk.CollectionConverters._
 import scala.util.Try
-import viscel.shared.CirceCodecs._
 
 
 class Users(usersDir: Path, contentLoader: ContentLoader) {
@@ -51,8 +49,8 @@ class Users(usersDir: Path, contentLoader: ContentLoader) {
   def load(id: String): Either[String, User] = load(path(id))
 
   private def load(p: Path): Either[String, User] =
-    CirceStorage.load[User](p).toTry.orElse {
-      CirceStorage.load[LegacyUser](p).map(_.toUser).toTry
+    JsoniterStorage.load[User](p)(JsoniterStorage.UserCodec).toTry.orElse {
+      JsoniterStorage.load[LegacyUser](p)(JsoniterStorage.LegacyUserCodec).map(_.toUser).toTry
     }.toEither.left.map(_.getMessage).map { user =>
       if (!user.bookmarks.valuesIterator.exists(_.sha1.isEmpty)) user
       else {
@@ -68,7 +66,7 @@ class Users(usersDir: Path, contentLoader: ContentLoader) {
           }
           else Some(vid -> bm)
         }.toMap)
-        CirceStorage.store(p, updated)
+        JsoniterStorage.store(p, updated)(JsoniterStorage.UserCodec)
         updated
       }
     }
@@ -93,7 +91,7 @@ class Users(usersDir: Path, contentLoader: ContentLoader) {
 
   def userUpdate(user: User): User = synchronized {
     userCache += user.id -> user
-    CirceStorage.store(path(user.id), user)
+    JsoniterStorage.store(path(user.id), user)(JsoniterStorage.UserCodec)
     user
   }
 }

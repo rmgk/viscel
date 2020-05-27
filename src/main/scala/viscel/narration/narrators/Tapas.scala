@@ -1,5 +1,7 @@
 package viscel.narration.narrators
 
+import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
+import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import io.circe.{Decoder, Encoder}
 import viscel.selektiv.Queries._
 import viscel.narration.{Metarrator, Narrator, Templates}
@@ -22,6 +24,14 @@ object Tapas extends Metarrator[Tapas]("Tapas") {
 
   override def decoder: Decoder[Tapas] = io.circe.generic.semiauto.deriveDecoder
   override def encoder: Encoder[Tapas] = io.circe.generic.semiauto.deriveEncoder
+
+
+  override def codec: JsonValueCodec[Tapas] = {
+    import viscel.shared.JsoniterCodecs._
+    JsonCodecMaker.make
+  }
+
+
   override def unapply(description: String): Option[Vurl] = description match {
     case rex"https://tapas.io/series/($name\w+)" =>
       Some(Vurl.fromString(description))

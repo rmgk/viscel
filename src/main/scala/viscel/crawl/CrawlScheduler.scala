@@ -5,13 +5,11 @@ import java.util.concurrent.CancellationException
 import java.util.{Timer, TimerTask}
 
 import viscel.narration.Narrator
-import viscel.shared.Vid
-import viscel.store.{NarratorCache, Users}
+import viscel.shared.{JsoniterCodecs, Vid}
+import viscel.store.{JsoniterStorage, NarratorCache, Users}
 
 import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
-
-import viscel.shared.CirceCodecs._
 
 
 class CrawlScheduler(path: Path,
@@ -79,18 +77,16 @@ class CrawlScheduler(path: Path,
   }
 
   private var updateTimes: Map[Vid, Long] = {
-    import viscel.store.CirceStorage._
-    load[Map[Vid, Long]](path).fold(err => {
+    JsoniterStorage.load[Map[Vid, Long]] (path)(JsoniterCodecs.MapVidLongCodec).fold(err => {
       log.error(s"could not load $path: $err")
       Map()
     }, identity)
   }
 
   def updateDates(id: Vid): Unit = synchronized {
-    import viscel.store.CirceStorage._
     val time = System.currentTimeMillis()
     updateTimes = updateTimes.updated(id, time)
-    store(path, updateTimes)
+    JsoniterStorage.store(path, updateTimes)(JsoniterCodecs.MapVidLongCodec)
   }
 
   def needsRecheck(id: Vid, recheckInterval: Long): Boolean = synchronized {

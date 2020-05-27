@@ -11,17 +11,21 @@ object JsoniterCodecs {
   implicit val StringRw: JsonValueCodec[String] = JsonCodecMaker.make
 
 
-  implicit def vidRW: JsonValueCodec[Vid] = new JsonValueCodec[Vid] {
+  implicit val vidRW: JsonCodec[Vid] = new JsonCodec[Vid] {
     override def decodeValue(in: JsonReader, default: Vid): Vid = Vid.from(in.readString(""))
     override def encodeValue(x: Vid, out: JsonWriter): Unit = out.writeVal(x.str)
     override def nullValue: Vid = null.asInstanceOf[Vid]
+    override def decodeKey(in: JsonReader): Vid = Vid.from(in.readKeyAsString())
+    override def encodeKey(x: Vid, out: JsonWriter): Unit = out.writeKey(x.str)
   }
+
   implicit val DescriptionRW: JsonValueCodec[Description] = JsonCodecMaker.make
   implicit val SharedImageRW: JsonValueCodec[SharedImage] = JsonCodecMaker.make
   implicit val BlobRW       : JsonValueCodec[Blob]        = JsonCodecMaker.make
   implicit val ChapterPosRW : JsonValueCodec[ChapterPos]  = JsonCodecMaker.make
   implicit val ContentsRW   : JsonValueCodec[Contents]    = JsonCodecMaker.make
   implicit val BookmarkRW   : JsonValueCodec[Bookmark]    = JsonCodecMaker.make
+
 
 
   implicit val VurlRw: JsonValueCodec[Vurl] = new JsonValueCodec[Vurl] {
@@ -32,6 +36,10 @@ object JsoniterCodecs {
 
   implicit val DataRowRw: JsonValueCodec[DataRow]       = JsonCodecMaker.make(CodecMakerConfig.withDiscriminatorFieldName(None))
   implicit val DataRowListRw: JsonValueCodec[List[DataRow]] = JsonCodecMaker.make
+
+
+  implicit val MapVidLongCodec       : JsonValueCodec[Map[Vid, Long]]        = JsonCodecMaker.make
+  implicit val MapVidDescriptionCodec: JsonValueCodec[Map[Vid, Description]] = JsonCodecMaker.make
 
 
 }
