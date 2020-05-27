@@ -63,7 +63,7 @@ class Users(usersDir: Path, contentLoader: ContentLoader) {
               contents <- Try {contentLoader.contents(vid)}.getOrElse(None)
               entry <- contents.gallery.lift(bm.position - 1)
             } yield {
-              vid -> bm.copy(sha1 = Some(entry.blob.sha1), origin = Some(entry.origin))
+              vid -> bm.copy(timestamp = bm.timestamp + 1,  sha1 = Some(entry.blob.sha1), origin = Some(entry.origin))
             }
           }
           else Some(vid -> bm)
