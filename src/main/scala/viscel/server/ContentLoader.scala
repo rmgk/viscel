@@ -64,8 +64,7 @@ object ContentLoader {
 
   type LinearResult = List[Either[SharedImage, DataRow.Chapter]]
   def linearizedPages(book: Book): LinearResult = {
-
-    //Log.Scribe.info(s"pages for ${book.id}")
+    val start = System.currentTimeMillis()
 
     val seenOrigins = mutable.HashMap[Vurl, Vurl]()
 
@@ -111,14 +110,15 @@ object ContentLoader {
       }
     }
 
-    book.beginning match {
+    val res = book.beginning match {
       case None              =>
         Log.Scribe.warn(s"Book ${book.id} was empty")
         Nil
       case Some(initialPage) =>
         flatten(None, unseen(initialPage.ref, initialPage.contents.reverse), Nil)
     }
-
+    Log.Store.trace(s"linearized ${book.id} (${System.currentTimeMillis() - start}ms)")
+    res
   }
 
   def pagesToContents(pages: LinearResult): Contents = {
