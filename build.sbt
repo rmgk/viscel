@@ -12,8 +12,6 @@ def  lociRef(name: String) = ProjectRef(uri("git://github.com/scala-loci/scala-l
 
 lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
 lazy val lociJavalinJS = lociRef("lociCommunicatorWsJavalinJS")
-lazy val lociSerializerUpickleJS = lociRef("lociSerializerUpickleJS")
-lazy val lociSerializerUpickleJVM = lociRef("lociSerializerUpickleJVM")
 
 
 inThisBuild(scalaVersion_213)
@@ -44,6 +42,7 @@ lazy val viscel = project
                     fetchJSDependenciesDef,
                     vbundleDef,
                     jsoniter,
+                    circe,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
                     publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value,
                     //  experimental graalvm options
@@ -83,24 +82,22 @@ lazy val app = project.in(file("app"))
 lazy val shared = crossProject(JSPlatform, JVMPlatform).in(file("shared"))
                   .settings(
                     name := "viscel-shared",
-                    strictCompile, scribe, scalatags, upickle,
+                    strictCompile, scribe, scalatags,
                     scribeSlf4j, Resolvers.stg,
                     libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",
                     libraryDependencies += "io.lemonlabs" %%% "scala-uri" % "2.2.2",
-                    circe,
                     jsoniter,
                     Compile / sourceGenerators += Def.task {
                       val file = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
                       val outstring = s"""package viscel.shared; object Version { val str = "${version.value}"}"""
-                      if (IO.read(file) != outstring) IO.write(file, outstring)
+                      val current = try IO.read(file) catch {case _: Throwable => ""}
+                      if (current != outstring) IO.write(file, outstring)
                       Seq(file)
-                    }.taskValue
+                    }
                     )
 lazy val sharedJVM = shared.jvm
                            .dependsOn(lociJavalinJVM)
-                           .dependsOn(lociSerializerUpickleJVM)
 lazy val sharedJS = shared.js
-                          .dependsOn(lociSerializerUpickleJS)
                           .dependsOn(lociJavalinJS)
 
 lazy val benchmarks = project.in(file("benchmarks"))
