@@ -117,24 +117,21 @@ class ContentConnectionManager(registry: Registry) {
     priorContentSignal.foreach(_.disconnect())
     priorContentSignal = Some(remoteLookupSignal)
 
-    val flatRemote = remoteLookupSignal.flatten
-
-    flatRemote.observe {
-      case Some(rc) =>
-        val bbuf = scala.scalajs.js.typedarray.byteArray2Int8Array(writeToArray(rc)(JsoniterCodecs.ContentsRW))
-        lfi.setItem(vid.str, bbuf)
-      case None     => ()
-    }
+    val flatRemote = remoteLookupSignal.flatten.withDefault(None).recover(_ => None)
 
     val locallookupSignal = Signals.fromFuture(locallookup)
+                                   .map(Some(_)).withDefault(None).recover(_ => None)
 
+    val combined = Signal{flatRemote.value -> locallookupSignal.value}
 
-    Signal {
-      flatRemote.withDefault(None).recover(_ => None)
-                .value.orElse(Some(locallookupSignal.value))
-    }.withDefault(None).recover(_ => None)
+    combined.observe( {
+      case (Some(rc), lc) if !lc.contains(rc) =>
+        val bbuf = scala.scalajs.js.typedarray.byteArray2Int8Array(writeToArray(rc)(JsoniterCodecs.ContentsRW))
+        lfi.setItem(vid.str, bbuf)
+      case _ =>
+    })
 
-
+    combined.map{case (r, l) => r.orElse(l)}
   }
 
   def hint(vid: Vid, force: Boolean): Unit = {
