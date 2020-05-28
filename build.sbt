@@ -8,7 +8,7 @@ import Settings._
 import Dependencies._
 import AdvancedBuild._
 
-def  lociRef(name: String) = ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#02ad8351e3248d4c9b054eb8ff159daf1a6ca773"), name)
+def  lociRef(name: String) = ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#2b09fdbff90227d7775924aaba1bc3f4f33df864"), name)
 
 lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
 lazy val lociJavalinJS = lociRef("lociCommunicatorWsJavalinJS")
@@ -73,7 +73,6 @@ lazy val app = project.in(file("app"))
                  scalajsdom, normalizecss, scalatags,
                  Resolvers.stg, strictCompile,
                  scalaJSUseMainModuleInitializer := true,
-                 scalaJavaTime,
                  jsoniter
                )
                .dependsOn(sharedJS)
@@ -85,7 +84,7 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform).in(file("shared"))
                     strictCompile, scribe, scalatags,
                     scribeSlf4j, Resolvers.stg,
                     libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",
-                    libraryDependencies += "io.lemonlabs" %%% "scala-uri" % "2.2.2",
+                    //libraryDependencies += "io.lemonlabs" %%% "scala-uri" % "2.2.2",
                     jsoniter,
                     Compile / sourceGenerators += Def.task {
                       val file = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
