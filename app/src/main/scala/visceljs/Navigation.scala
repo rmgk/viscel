@@ -20,7 +20,7 @@ object Navigation {
     }
     def mov(i: Int): Position = set(cur + i)
     def set(i: Int): Position = Position(math.max(0, math.min(i, max)), max)
-    def limit(m: Int): Position = copy(max = m)
+    def limit(m: Int): Position = copy(max = m - 1)
   }
 
   val navigate            = Evt[Navigate]
