@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import better.files.File
-import better.files.File.OpenOptions
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import viscel.narration.Narrator
 import viscel.shared.Log.{Store => Log}
@@ -29,7 +28,7 @@ class RowStoreV4(db4dir: Path) {
 
   def open(id: Vid, name: String): RowAppender = synchronized {
     val f = file(id)
-    if (!f.exists || f.size <= 0) JsoniterStorage.store(f.path, name)(JsoniterCodecs.StringRw)
+    if (!f.exists || f.size <= 0) JsoniterStorage.writeLine(f, name)(JsoniterCodecs.StringRw)
     new RowAppender(f)
   }
 
@@ -72,10 +71,6 @@ class RowStoreV4(db4dir: Path) {
 class RowAppender(file: File) {
   def append(row: DataRow): Unit = synchronized {
     Log.trace(s"Store $row into $file")
-    val bytes = JsoniterCodecs.writeArray(row)(JsoniterCodecs.DataRowRw)
-    file.outputStream(OpenOptions.append).foreach { os =>
-      os.write(bytes)
-      os.write('\n')
-    }
+    JsoniterStorage.writeLine(file, row)(JsoniterCodecs.DataRowRw)
   }
 }

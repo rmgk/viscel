@@ -4,6 +4,8 @@ package viscel.store
 import java.nio.file.StandardOpenOption._
 import java.nio.file.{Files, Path}
 
+import better.files.File.OpenOptions
+import better.files._
 import cats.syntax.either._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
@@ -23,8 +25,16 @@ object JsoniterStorage {
     Either.catchNonFatal(readFromArray[T](Files.readAllBytes(p)))
   }
 
-  implicit val UserCodec: JsonValueCodec[User] = JsonCodecMaker.make
+  def writeLine[T: JsonValueCodec](file: File, value: T): Unit = {
+    val bytes = writeArray(value)
+    file.outputStream(OpenOptions.append).foreach { os =>
+      os.write(bytes)
+      os.write('\n')
+    }
+  }
 
+
+  implicit val UserCodec: JsonValueCodec[User] = JsonCodecMaker.make
 
 
 }
