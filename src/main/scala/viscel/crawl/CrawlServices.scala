@@ -22,10 +22,10 @@ class CrawlServices(blobStore: BlobStore,
 
   def startCrawling(narrator: Narrator): Future[Unit] = {
     val appender = rowStore.open(narrator)
-    val book = rowStore.loadBook(narrator.id)
+    val book     = rowStore.loadBook(narrator.id)
 
     val pageData = CrawlProcessing.init(narrator.archive, book)
-    val newBook = pageData.fold(book)(addPageTo(book, appender, _))
+    val newBook  = pageData.fold(book)(addPageTo(book, appender, _))
 
     new Crawling(narrator, appender).crawlLoop(CrawlState(newBook, CrawlProcessing.decider(newBook)))
   }
@@ -51,7 +51,8 @@ class CrawlServices(blobStore: BlobStore,
       cs.decider.decide() match {
         case Some((request, nextDecider)) =>
           requestUtil.get(request).flatMap { response =>
-            crawlLoop(handleResponse(cs.book, response, request, nextDecider))
+            val nextState: CrawlState = handleResponse(cs.book, response, request, nextDecider)
+            crawlLoop(nextState)
           }(executionContext)
         case None                         => Future.successful(())
       }
@@ -63,9 +64,9 @@ class CrawlServices(blobStore: BlobStore,
                        decider: Decider): CrawlState = {
 
       def handleBlob(array: Array[Byte]): CrawlState = {
-        val sha1 = BlobStore.sha1hex(array)
+        val sha1     = BlobStore.sha1hex(array)
         val contents = List(DataRow.Blob(sha1 = sha1, mime = response.mime))
-        val datarow = CrawlProcessing.toDataRow(request, response, contents)
+        val datarow  = CrawlProcessing.toDataRow(request, response, contents)
         Log.Crawl.trace(s"Processing ${response.location}, storing $sha1")
         blobStore.write(sha1, array)
         CrawlState(addPageTo(book, rowAppender, datarow), decider)
@@ -77,7 +78,7 @@ class CrawlServices(blobStore: BlobStore,
                                                            response.copy(content = str))
         Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
         val newBook: Book = addPageTo(book, rowAppender, pageData)
-        val tasks = CrawlProcessing.computeTasks(pageData, newBook)
+        val tasks         = CrawlProcessing.computeTasks(pageData, newBook)
         Log.Crawl.trace(s"Add tasks: $tasks")
         CrawlState(newBook, decider.addTasks(tasks))
       }
