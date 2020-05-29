@@ -55,11 +55,12 @@ class OkHttpRequester(maxRequests: Int, requestsPerHost: Int, val executorServic
             Instant.from(DateTimeFormatter.RFC_1123_DATE_TIME.parse(lm))
           }
 
-          val content: Either[Array[Byte], String] =
-            if (ct.`type`() == "text") Right(response.body().string())
+          val content: Either[Array[Byte], String] = {
+            if (ct.`type`() == "text" || ct.subtype() == "json") Right(response.body().string())
             else Left(response.body().bytes())
+          }
 
-          promise.success(VResponse(content, Vurl.fromString(location), s"${ct.`type`()}/${ct.subtype()}", lastModified, etag))
+          promise.success(VResponse(content, Vurl.fromString(location), ct.toString, lastModified, etag))
 
         }
         else promise.failure(RequestException(call.request().url().toString, s"${response.code}: ${response.message()}"))
