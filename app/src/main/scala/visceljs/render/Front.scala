@@ -28,7 +28,7 @@ class Front(actions: Actions) {
     val preview = {
       val bmed     = contents.gallery.lift(bookmark.position - 1)
       val warnings =
-        if (bookmark.position != 0 && !bookmark.sha1.contains(bmed.map(_.blob.sha1).getOrElse(""))) {
+        if (bookmark.position != 0 && bookmark.sha1.nonEmpty && !bookmark.sha1.contains(bmed.map(_.blob.sha1).getOrElse(""))) {
           frag(h1("Warning: bookmark mismatch. Left: bookmarked position. Right: bookmarked image"),
                div(class_preview)(
                  bmed.map(asst => a(href := Definitions.path_asset(vid, bookmark.position - 1), Snippets.asset(asst))).toSeq)(
