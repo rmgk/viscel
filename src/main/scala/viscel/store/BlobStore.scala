@@ -3,7 +3,11 @@ package viscel.store
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
 
+import viscel.Services
 import viscel.shared.Log
+
+import scala.jdk.CollectionConverters._
+import scala.collection.mutable
 
 class BlobStore(blobdir: Path) {
 
@@ -31,4 +35,37 @@ object BlobStore {
   private val sha1digester: MessageDigest = MessageDigest.getInstance("SHA-1")
   def sha1(b: Array[Byte]): Array[Byte] = sha1digester.clone().asInstanceOf[MessageDigest].digest(b)
   def sha1hex(b: Array[Byte]): String = sha1(b).map { h => f"$h%02x" }.mkString
+
+
+  val Log = viscel.shared.Log.Tool
+
+  def cleanBlobDirectory( services: Services): Unit = {
+    Log.info(s"scanning all blobs …")
+    val blobsHashesInDB = {
+      services.rowStore.allVids().flatMap { id =>
+        val book = services.rowStore.loadBook(id)
+        book.allBlobs().map(_.sha1)
+      }.toSet
+    }
+    Log.info(s"scanning files …")
+    val bsn = new BlobStore(services.basepath.resolve("blobbackup"))
+
+    val seen = mutable.HashSet[String]()
+
+    Files.walk(services.blobdir).iterator().asScala.filter(Files.isRegularFile(_)).foreach { bp =>
+      val sha1path = s"${bp.getName(bp.getNameCount - 2)}${bp.getFileName}"
+      //val sha1 = blobs.sha1hex(Files.readAllBytes(bp))
+      //if (sha1path != sha1) Log.warn(s"$sha1path did not match")
+      seen.add(sha1path)
+      if (!blobsHashesInDB.contains(sha1path)) {
+        val newpath = bsn.hashToPath(sha1path)
+        Log.info(s"moving $bp to $newpath")
+        Files.createDirectories(newpath.getParent)
+        Files.move(bp, newpath)
+      }
+    }
+    blobsHashesInDB.diff(seen).foreach(sha1 => Log.info(s"$sha1 is missing"))
+  }
+
+
 }

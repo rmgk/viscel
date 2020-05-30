@@ -6,6 +6,7 @@ import java.nio.file.Path
 import better.files.File
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import viscel.narration.Narrator
+import viscel.shared.DataRow.Link
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.{DataRow, JsoniterCodecs, Vid}
 
@@ -29,7 +30,7 @@ class RowStoreV4(db4dir: Path) {
   def open(id: Vid, name: String): RowAppender = synchronized {
     val f = file(id)
     if (!f.exists || f.size <= 0) JsoniterStorage.writeLine(f, name)(JsoniterCodecs.StringRw)
-    new RowAppender(f)
+    new RowAppender(f, this)
   }
 
 
@@ -66,10 +67,35 @@ class RowStoreV4(db4dir: Path) {
   }
 
 
+  def computeGarbage(): Unit = synchronized {
+    allVids().foreach { vid =>
+      val (name, entries) = load(vid)
+      val book            = Book.fromEntries(vid, name, entries)
+      val reachable       = book.reachable()
+      val filtered        = entries.filter(dr => reachable.contains(dr.ref) && book.pages(dr.ref) == dr)
+      file(vid).delete()
+      val appender = open(vid, name)
+      filtered.foreach(appender.append)
+    }
+  }
+
+  def filterSingleLevelMissing(vid: Vid): Unit = synchronized {
+    val (name, entries) = load(vid)
+    val book            = Book.fromEntries(vid, name, entries)
+    val filtered        = entries.filter(dr => dr.contents.forall {
+      case Link(ref, _) => book.pages.contains(ref)
+      case other => true
+    })
+    file(vid).delete()
+    val appender = open(vid, name)
+    filtered.foreach(appender.append)
+  }
+
+
 }
 
-class RowAppender(file: File) {
-  def append(row: DataRow): Unit = synchronized {
+class RowAppender(file: File, rowStoreV4: RowStoreV4) {
+  def append(row: DataRow): Unit = rowStoreV4.synchronized {
     Log.trace(s"Store $row into $file")
     JsoniterStorage.writeLine(file, row)(JsoniterCodecs.DataRowRw)
   }

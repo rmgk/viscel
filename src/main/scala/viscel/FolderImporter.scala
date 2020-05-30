@@ -5,6 +5,17 @@ import viscel.MimeUtil.mimeToExt
 import viscel.shared.{DataRow, Vid}
 import viscel.store.{RowStoreV4, _}
 
+object MimeUtil {
+  def mimeToExt(mime: String, default: String = ""): String = mime match {
+    case "image/jpeg" => "jpg"
+    case "image/gif"  => "gif"
+    case "image/png"  => "png"
+    case "image/bmp"  => "bmp"
+    case _            => default
+  }
+}
+
+
 class FolderImporter(blobStore: BlobStore, rowStore: RowStoreV4, descriptionCache: DescriptionCache) {
 
   private val Log = viscel.shared.Log.Tool

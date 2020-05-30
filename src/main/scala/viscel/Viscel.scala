@@ -7,6 +7,7 @@ import better.files.File
 import cats.implicits._
 import com.monovore.decline.{Command, Opts}
 import viscel.shared.Log
+import viscel.store.BlobStore
 
 import scala.collection.immutable.ArraySeq
 
@@ -49,11 +50,11 @@ object Viscel {
         val services = new Services(optBasedir, optBlobdir, staticDir.path, urlPrefix, interface, port)
 
         if (cleanblobs) {
-          services.replUtil.cleanBlobDirectory()
+          BlobStore.cleanBlobDirectory(services)
         }
 
         if (collectDbGarbage) {
-          services.replUtil.computeGarbage()
+          services.rowStore.computeGarbage()
         }
 
         if (server) {

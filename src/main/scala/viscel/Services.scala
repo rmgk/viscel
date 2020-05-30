@@ -56,11 +56,6 @@ class Services(relativeBasedir: Path,
     new OkHttpRequester(5, 1, executor)
   }
 
-  /* ====== repl util extra tasks ====== */
-
-  lazy val replUtil = new ReplUtil(this)
-
-
   /* ====== main webserver ====== */
 
   lazy val contentLoader = new ContentLoader(narratorCache, rowStore, descriptionCache)
