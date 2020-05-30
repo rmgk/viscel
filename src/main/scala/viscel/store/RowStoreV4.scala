@@ -83,7 +83,10 @@ class RowStoreV4(db4dir: Path) {
     val (name, entries) = load(vid)
     val book            = Book.fromEntries(vid, name, entries)
     val filtered        = entries.filter(dr => dr.contents.forall {
-      case Link(ref, _) => book.pages.contains(ref)
+      case Link(ref, _) =>
+        val res = book.pages.contains(ref)
+        if (!res) Log.warn(s"filtering »${dr.ref}«")
+          res
       case other => true
     })
     file(vid).delete()
