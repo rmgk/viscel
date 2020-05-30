@@ -53,11 +53,11 @@ class ContentConnectionManager(registry: Registry) {
   val descriptions = Storing.storedAs("descriptionsmap", Map.empty[Vid, Description]) { init =>
     mainRemote.map { rr =>
       Signals.fromFuture(registry.lookup(Bindings.descriptions, rr).apply())
-    }.flatten.withDefault(init)
+    }.flatten.changed
               .recover { error =>
                 Log.JS.error(s"failed to access descriptions: $error")
-                init
-              }
+                None
+              }.latest(init)
   }(JsoniterCodecs.MapVidDescriptionCodec)
 
   val connectionAttempt: Evt[Unit] = Evt[Unit]()
