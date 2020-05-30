@@ -1,5 +1,6 @@
 package viscel.crawl
 
+import java.net.SocketTimeoutException
 import java.nio.file.Path
 import java.util.concurrent.CancellationException
 import java.util.{Timer, TimerTask}
@@ -69,9 +70,12 @@ class CrawlScheduler(path: Path,
            |  ${response.location.uriString()} (${response.mime})
            |  ${reports.describe}
            |↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑""".stripMargin)
-    case ce: CancellationException                     =>
+
+    case ce: CancellationException  =>
       log.info(s"[${narrator.id}] update cancelled ${ce.getMessage}")
-    case t                                             =>
+    case se: SocketTimeoutException =>
+      log.error(s"[${narrator.id}] recheck failed with $se")
+    case t                          =>
       log.error(s"[${narrator.id}] recheck failed with $t")
       t.printStackTrace()
   }

@@ -42,7 +42,6 @@ lazy val viscel = project
                     fetchJSDependenciesDef,
                     vbundleDef,
                     jsoniter,
-                    circe,
                     (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
                     publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value,
                     //  experimental graalvm options
