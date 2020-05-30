@@ -1,116 +1,94 @@
 package viscel.narration.narrators
 
-import cats.implicits._
-import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
+import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
-import io.circe.Decoder.Result
-import io.circe.DecodingFailure
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.{Metarrator, Narrator, Templates}
-import viscel.selektiv.Narration.{Combination, ContextW, WrapPart}
-import viscel.selektiv.Report
-import viscel.shared.{DataRow, JsoniterCodecs, Vurl}
+import viscel.selektiv.Narration.{ContextW, WrapPart}
+import viscel.selektiv.{FixedReport, ReportTools}
+import viscel.shared.{DataRow, Vurl}
+import viscel.shared.JsoniterCodecs.VurlRw
 
-import scala.util.Try
 
 case class MangadexNarrator(id: String, name: String, archiveUri: Vurl)
 
 object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
-  case class ChapterInfo(volume: Option[Int], num: Int, numStr: String, title: String, id: String) {
-    def sorting: (Int, Int, String, String, String) = (volume.getOrElse(Int.MaxValue), num, numStr, title, id)
-    def contents: List[DataRow.Content] =
-      DataRow.Chapter(s"(${volume.fold("")(i => s"$i: ")}$num) $title") ::
-      DataRow.Link(Vurl.fromString(s"https://mangadex.org/api/?id=$id&type=chapter")) ::
-      Nil
+  case class ChapterInfo(lang_code: String, chapter: String, volume: String, title: String) {
+    lazy val chapternumber = {
+      "(\\d+)".r.findFirstIn(chapter).map(_.toInt).getOrElse(throw new FixedReport(s"$chapter contains no int"))
+    }
+    def sorting: (Int, Int, String, String) = (volume.toIntOption.getOrElse(Int.MaxValue), chapternumber, chapter, title)
   }
 
+  case class OverviewInfo(chapter: Map[String, ChapterInfo])
 
-  case class JsonDecoding(decodingFailure: DecodingFailure) extends Report {
-    override def describe: String = decodingFailure.getMessage()
-  }
+  def contents(id: String, chapter: ChapterInfo): List[DataRow.Content] =
+    DataRow.Chapter(s"(${chapter.volume}${if (chapter.volume.isBlank) "" else ": "}${chapter.chapter}) ${chapter.title}") ::
+    DataRow.Link(Vurl.fromString(s"https://mangadex.org/api/?id=$id&type=chapter")) ::
+    Nil
 
+  val overViewCodec = JsonCodecMaker.make[OverviewInfo]
 
   val archiveWrapper: Wrapper = {
     ContextW.map { context =>
-      val json = io.circe.parser.parse(context.content).fold(throw _, identity)
-      val chaptersMap = json.hcursor.downField("chapter")
-      chaptersMap.keys.get
-      .filter(cid => chaptersMap.downField(cid).get[String]("lang_code").getOrElse("") == "gb")
-      .map { cid =>
-        val chap = chaptersMap.downField(cid)
-        val chapname: Result[String] = chap.get[String]("chapter")
-        val volume = chap.get[String]("volume").toOption.flatMap(v => Try(v.toInt).toOption)
-        val num =
-          chapname
-          .flatMap(cn => "(\\d+)".r.findFirstIn(cn)
-                                 .toRight(DecodingFailure(s"$chapname contains no int", Nil)))
-          .map(_.toInt)
-        val title = chap.get[String]("title")
-        val tuple: (Result[Option[Int]], Result[Int], Result[String], Result[String], Result[String]) =
-          (volume.asRight, num, chapname, title, cid.asRight)
-        tuple.mapN {ChapterInfo.apply}
-      }.toList.sequence
-        .map(_.sortBy(_.sorting).flatMap {_.contents})
-        .leftMap(JsonDecoding)
-        .fold(throw _, identity)
+      val json = ReportTools.extract(readFromString[OverviewInfo](context.response.content)(overViewCodec))
+      json.chapter.toList.filter(_._2.lang_code == "gb").sortBy(_._2.sorting).flatMap { case (id, chap) => contents(id, chap) }
     }
   }
 
+
+  case class Chapter(hash: String, server: String, id: Int, page_array: List[String])
+
+  val chapterCodec = JsonCodecMaker.make[Chapter]
+
+
   val pageWrapper: Wrapper = {
     ContextW.map { context =>
-      val json = io.circe.parser.parse(context.content).fold(throw _, identity)
-      val c = json.hcursor
-      val hash = c.get[String]("hash")
-      val server = c.get[String]("server")
-      val cid = c.get[Int]("id")
-      (hash, server, cid).mapN { (hash, server, cid) =>
-        val absServer = if (server.startsWith("/")) s"https://mangadex.org$server" else server
-        c.downField("page_array").values.get.zipWithIndex.map { case (fname, i) =>
-          val url = Vurl.fromString(s"$absServer$hash/${fname.as[String].fold(throw _, identity)}")
-          DataRow.Link(url)
-        }.toList
-      }.leftMap(JsonDecoding).fold(throw _, identity)
+      val chapter   = ReportTools.extract(readFromString[Chapter](context.response.content)(chapterCodec))
+      val server    = chapter.server
+      val absServer = if (server.startsWith("/")) s"https://mangadex.org$server" else server
+      chapter.page_array.zipWithIndex.map { case (fname, i) =>
+        DataRow.Link(Vurl.fromString(s"$absServer${chapter.hash}/${fname}"))
+      }
     }
   }
 
 
   val extractData = """https://mangadex.(?:org|com)/(?:manga|title)/(\d+)/([^/]+)""".r
-  val apiLink = """https://mangadex.(?:org|com)/api/\?id=(\d+)&type=manga""".r
+  val apiLink     = """https://mangadex.(?:org|com)/api/\?id=(\d+)&type=manga""".r
 
   override def toNarrator(nar: MangadexNarrator): Narrator = {
     val uri = nar.archiveUri.uriString() match {
       case extractData(num, cid) => apiFromNum(num)
-      case apiLink(num) => nar.archiveUri
+      case apiLink(num)          => nar.archiveUri
     }
     Templates.archivePage(nar.id, nar.name, uri, archiveWrapper, pageWrapper)
-
   }
 
 
-  override val codec: JsonValueCodec[MangadexNarrator] = {
-    import JsoniterCodecs._
-    JsonCodecMaker.make
-  }
+  override val codec: JsonValueCodec[MangadexNarrator] = JsonCodecMaker.make
 
   def apiFromNum(num: String): Vurl = Vurl.fromString(s"https://mangadex.org/api/?id=$num&type=manga")
 
   override def unapply(url: String): Option[Vurl] =
     url.toString match {
       case extractData(num, cid) => Some(apiFromNum(num))
-      case _ => None
+      case _                     => None
     }
 
+  case class Manga(title: String)
+  case class MangaInfo(manga: Manga)
+  val mangaCodec = JsonCodecMaker.make[MangaInfo]
+
   override val wrap: WrapPart[List[MangadexNarrator]] =
-    Combination.of(
-      ContextW.map(_.location),
-      ContextW.map { context =>
-        val json = io.circe.parser.parse(context.content).fold(throw _, identity)
-        json.hcursor.downField("manga").downField("title").as[String].fold(throw _, identity)
-    }
-      ){(loc, title) =>
-      val id = title.toLowerCase.replaceAll("\\W", "-")
-      MangadexNarrator(s"Mangadex_$id", s"[MD] $title", loc) :: Nil
+    ContextW.map { context =>
+      val loc  = context.location
+      val json = readFromString[MangaInfo](context.response.content)(mangaCodec)
+
+
+      val id = json.manga.title.toLowerCase.replaceAll("\\W", "-")
+      MangadexNarrator(s"Mangadex_$id", s"[MD] ${json.manga.title}", loc) :: Nil
     }
 
 }
