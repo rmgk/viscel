@@ -1,6 +1,6 @@
 package viscel.store
 
-import java.nio.charset.StandardCharsets
+import java.io.ByteArrayInputStream
 import java.nio.file.Path
 
 import better.files.File
@@ -9,6 +9,8 @@ import viscel.narration.Narrator
 import viscel.shared.DataRow.Link
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.{DataRow, JsoniterCodecs, Vid}
+
+import scala.collection.mutable.ListBuffer
 
 
 class RowStoreV4(db4dir: Path) {
@@ -33,7 +35,6 @@ class RowStoreV4(db4dir: Path) {
     new RowAppender(f, this)
   }
 
-
   def load(id: Vid): (String, List[DataRow]) = synchronized {
     val start = System.currentTimeMillis()
 
@@ -42,16 +43,16 @@ class RowStoreV4(db4dir: Path) {
     if (!f.isRegularFile || f.size == 0)
       throw new IllegalStateException(s"$f does not contain data")
     else {
-      val lines = f.lineIterator(StandardCharsets.UTF_8)
-      val name  = readFromString[String](lines.next())(JsoniterCodecs.StringRw)
-
-      val dataRows = lines.zipWithIndex.map { case (line, nr) =>
-        try readFromString[DataRow](line)(JsoniterCodecs.DataRowRw) catch {
-          case t : Throwable  =>
-            Log.error(s"Failed to decode $id:${nr + 2}: $line")
-            throw t
-        }
-      }.toList
+      val inputbytes = f.byteArray
+      val name        = readFromArray[String](inputbytes, ReaderConfig.withCheckForEndOfInput(false))(JsoniterCodecs.StringRw)
+      val namelength = writeToArray(name)(JsoniterCodecs.StringRw).size
+      val is = new ByteArrayInputStream(inputbytes, namelength, inputbytes.size - namelength)
+      val listBuilder = ListBuffer[DataRow]()
+      scanJsonValuesFromStream[DataRow](is) { dr =>
+        listBuilder.append(dr)
+        true
+      }(JsoniterCodecs.DataRowRw)
+      val dataRows = listBuilder.toList
       Log.info(s"loading $id (${System.currentTimeMillis() - start}ms)")
       (name, dataRows)
     }
