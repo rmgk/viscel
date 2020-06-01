@@ -8,7 +8,7 @@ import Settings._
 import Dependencies._
 import AdvancedBuild._
 
-def  lociRef(name: String) = ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#db22f5e47794696aa0227bb3cefb4286f314ab88"), name)
+def  lociRef(name: String) = ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#77944c620bbeff3e97ea8aa40d8af6b8838ec422"), name)
 
 lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
 lazy val lociJavalinJS = lociRef("lociCommunicatorWsJavalinJS")
