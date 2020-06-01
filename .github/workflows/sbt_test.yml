@@ -42,7 +42,7 @@ jobs:
         shell: cmd
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          setx GRAALVM_NATIVE_IMAGE_PATH native-image.cmd
+          set GRAALVM_NATIVE_IMAGE_PATH=native-image.cmd
           sbt nativeImage
       - name: Publish artifact
         uses: actions/upload-artifact@master
