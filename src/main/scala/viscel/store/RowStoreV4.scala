@@ -35,6 +35,8 @@ class RowStoreV4(db4dir: Path) {
     new RowAppender(f, this)
   }
 
+  private val noEndOfInputCheck = ReaderConfig.withCheckForEndOfInput(false)
+
   def load(id: Vid): (String, List[DataRow]) = synchronized {
     val start = System.currentTimeMillis()
 
@@ -44,14 +46,16 @@ class RowStoreV4(db4dir: Path) {
       throw new IllegalStateException(s"$f does not contain data")
     else {
       val inputbytes = f.byteArray
-      val name        = readFromArray[String](inputbytes, ReaderConfig.withCheckForEndOfInput(false))(JsoniterCodecs.StringRw)
-      val namelength = writeToArray(name)(JsoniterCodecs.StringRw).size
-      val is = new ByteArrayInputStream(inputbytes, namelength, inputbytes.size - namelength)
+      val name        = readFromArray[String](inputbytes, noEndOfInputCheck)(JsoniterCodecs.StringRw)
+      val namelength = writeToArray(name)(JsoniterCodecs.StringRw).length
       val listBuilder = ListBuffer[DataRow]()
-      scanJsonValuesFromStream[DataRow](is) { dr =>
-        listBuilder.append(dr)
-        true
-      }(JsoniterCodecs.DataRowRw)
+      if (namelength < inputbytes.length - 1) {
+        val is = new ByteArrayInputStream(inputbytes, namelength, inputbytes.length - namelength)
+        scanJsonValuesFromStream[DataRow](is, noEndOfInputCheck) { dr =>
+          listBuilder.append(dr)
+          true
+        }(JsoniterCodecs.DataRowRw)
+      }
       val dataRows = listBuilder.toList
       Log.info(s"loading $id (${System.currentTimeMillis() - start}ms)")
       (name, dataRows)

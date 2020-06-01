@@ -9,9 +9,11 @@ import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
 import viscel.netzi.OkHttpRequester
 import viscel.server.{ContentLoader, Interactions, JavalinServer, ServerPages}
-import viscel.store.{BlobStore, DescriptionCache, NarratorCache, Users, RowStoreV4}
+import viscel.shared.Log
+import viscel.store.{BlobStore, DescriptionCache, NarratorCache, RowStoreV4, Users}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
+import scala.util.control.NonFatal
 
 class Services(relativeBasedir: Path,
                relativeBlobdir: Path,
@@ -109,7 +111,9 @@ class Services(relativeBasedir: Path,
     narrationHint.observe { case (narrator, force) =>
       if (force) narratorCache.updateCache()
       descriptionCache.invalidate(narrator.id)
-      rowStore.filterSingleLevelMissing(narrator.id)
+      if (force) try {
+        rowStore.filterSingleLevelMissing(narrator.id) }
+      catch { case NonFatal(e) => Log.Server.warn(s"filering failed: ${e.getMessage}")}
       clockwork.runNarrator(narrator, if (force) 0 else clockwork.dayInMillis * 1)
     }
   }
