@@ -28,7 +28,9 @@ jobs:
         with:
           graalvm-version: '20.1.0.java11'
       - run: java -version
-      - run: gu install native-image
+      - name: install native image
+        shell: cmd
+        run: gu install native-image
       - run: native-image --version
       # - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
       #   run: |
