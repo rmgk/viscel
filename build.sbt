@@ -56,7 +56,10 @@ lazy val viscel = project
                       // "--enable-all-security-services",
                       "-H:+JNI",
                       "-H:+RemoveSaturatedTypeFlows"
-                    )
+                    ),
+                    if (sys.env.contains("GRAALVM_NATIVE_IMAGE_PATH"))
+                      graalVMNativeImageCommand := sys.env("GRAALVM_NATIVE_IMAGE_PATH")
+                    else Nil
                   )
                   .enablePlugins(GraalVMNativeImagePlugin)
                   .enablePlugins(JavaServerAppPackaging)
