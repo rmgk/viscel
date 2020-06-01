@@ -32,20 +32,19 @@ jobs:
         shell: cmd
         run: gu install native-image
       - run: native-image --version
-      # - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
-      #   run: |
-      #     choco install visualstudio2017-workload-vctools
+      - name: where is this thing?!
+        shell: cmd
+        run: where native-image
+      - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
+        run: |
+          choco install visualstudio2017-workload-vctools
       - name: set env variables and run the build
         shell: cmd
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           sbt nativeImage
-      - name: Rename the artifact to OS-unique name
-        shell: bash
-        run: |
-          value=`cp target/graalvm-native-image/viscel target/graalvm-native-image/viscel-${{ matrix.os }}`
       - name: Publish artifact
         uses: actions/upload-artifact@master
         with:
-          name: viscel-${{ matrix.os }}.exe
+          name: viscel.exe
           path: target/graalvm-native-image
