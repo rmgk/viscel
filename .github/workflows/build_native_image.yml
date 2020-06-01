@@ -1,6 +1,6 @@
-name: Scala CI
+name: generate native image
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   # build:
