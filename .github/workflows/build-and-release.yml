@@ -64,9 +64,12 @@ jobs:
     - run: java -version
     - run: gu install native-image
     - run: native-image --version
-    - name: set env variables and run the build
+    - name: build
+      shell: bash
       run: |
-        sbt nativeImage
+        curl -Ls https://git.io/sbt > sbt
+        chmod 755 sbt
+        ./sbt nativeImage
     - name: copy static files
       shell: bash
       run: |
