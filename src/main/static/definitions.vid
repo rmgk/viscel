@@ -134,6 +134,12 @@
 -- :i #webcomic > div.webcomic-image > img
 -- :n #webcomic > nav.webcomics.above > a.next-webcomic-link
 
+-- page exists, images dont
+-- -PetiteSymphony_heid:[PS] Heid
+-- http://heid.petitesymphony.com/c1p0-4/
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
 
@@ -389,9 +395,9 @@ http://lint.webcomic.ws/archive/
 :i #comicimage
 
 -:Love is in the Blood
-http://www.loveisintheblood.com/archive/
-:am #content > div > div.entry > div:has(h3:contains(Issue)) h3.comic-archive-chapter , #post-6 > div > div.entry > div:has(h3:contains(Issue)) .comic-archive-title a
-:i #comic img
+https://www.loveisintheblood.com/comic/welcome-to-love-is-in-the-blood/
+:image #comic img
+:next #comic-head .comic-nav-next
 
 -:Makeshift Miracle
 http://makeshiftmiracle.keenspot.com/archive.html
@@ -2428,11 +2434,6 @@ http://seed.petitesymphony.com/comic/seedchapter1
 
 -PetiteSymphony_djandora:[PS] Djandora
 http://djandora.petitesymphony.com/comic/intro
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_heid:[PS] Heid
-http://heid.petitesymphony.com/c1p0-4/
 :image #comic-1 img
 :next a.navi.navi-next
 
