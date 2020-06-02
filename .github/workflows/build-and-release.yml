@@ -105,7 +105,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          draft: true
+          draft: false
           prerelease: false
       - name: Upload Release Asset Windows
         id: upload-release-asset-windows
