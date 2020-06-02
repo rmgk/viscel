@@ -55,7 +55,7 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
 
     val maxPosition = contents.map(_.map(_.gallery.size).getOrElse(0) - 1).changed
 
-    val currentPosition = Events.foldAll(Position(initialAppState.position, 0))(acc => Seq(
+    val currentPosition = Events.foldAll(Position(initialAppState.position, None))(acc => Seq(
       setCurrentPostition >> acc.set,
       navigationEvents >> acc.mov,
       maxPosition >> acc.limit
