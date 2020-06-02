@@ -140,6 +140,11 @@
 -- :image #comic-1 img
 -- :next a.navi.navi-next
 
+-- all images link to the same
+-- -:Counter Rose
+-- http://www.counter-rose.com/page.php?p=1
+-- :ia #cg_img img
+
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
 
@@ -586,10 +591,6 @@ http://www.totempole666.com/archives-2/
 http://www.applegeeks.com/comics/viewcomic.php?issue=1
 :i #castheader > img
 :n #sidebar > div > p:last-of-type > a
-
--:Counter Rose
-http://www.counter-rose.com/page.php?p=1
-:ia #cg_img img
 
 -DrMcNinja:Dr. McNinja
 http://drmcninja.com/issues/
