@@ -220,6 +220,15 @@
 
 
 ---------------------------------------------- NOT DEAD ---
+
+
+
+
+-DMFA:Dan and Mab’s Furry Adventures
+http://www.missmab.com/Comics/Vol_001.php
+:image center > img[src~=^Vol\d+]
+:next a:has(img[src=../Images/comicnext.gif]):not([href=../index.php])
+
 -:Swords
 https://swordscomic.com/swords/cover/
 :image #comic-image
