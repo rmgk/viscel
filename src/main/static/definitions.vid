@@ -1585,7 +1585,7 @@ http://www.tigressqueen.com/comic/archive
 :next .cc-nav .cc-next
 
 -:Tove
-http://www.tovecomic.com/comic/archive
+https://www.tovecomic.com/comic/archive
 :ac .cc-storyline-header a[href]
 :image #cc-comic
 :next nav.cc-nav a.cc-next
