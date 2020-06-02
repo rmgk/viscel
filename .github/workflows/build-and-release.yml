@@ -59,8 +59,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: DeLaGuardo/setup-graalvm@3
-        with:
-          graalvm-version: '20.1.0.java11'
+      with:
+        graalvm-version: '20.1.0.java11'
     - run: java -version
     - run: gu install native-image
     - run: native-image --version
