@@ -10,6 +10,10 @@ sealed abstract class AppState(val urlhash: String) {
     case ViewState(id, pos) => ViewState(id, f(pos))
     case other => other
   }
+  def position: Int = this match {
+    case ViewState(id, pos) => pos
+    case _ => 0
+  }
 }
 object AppState {
   def parse(path: String): AppState = {

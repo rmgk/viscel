@@ -41,13 +41,13 @@ class View(act: Actions) {
       val prev = position.mov(-1)
       val next = position.mov(1)
       Snippets.navigation(
-        a(Icons.prev, rel := "prev", title := "previous page")(if (prev == position) disabled else href := Definitions.path_asset(vid, prev.cur)),
+        a(Icons.prev, rel := "prev", title := "previous page")(if (prev.cur == position.cur) disabled else href := Definitions.path_asset(vid, prev.cur)),
         a(href := Definitions.path_front(vid), Icons.front, title := "back to front page"),
         Snippets.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
         lcButton(navigate.fire(Mode(fitType.now.next)), Icons.modus, fitType.map(ft => stringFrag(s" $ft")).asModifier, title := "cycle image display mode"),
         act.postBookmark(vid, position.cur + 1, bookmark.position, contents.gallery.lift(position.cur), Icons.bookmark, title := "save bookmark"),
         a(href := contents.gallery.lift(position.cur).fold("")(_.origin), rel := "noreferrer")(Icons.externalLink, title := "visit original page"),
-        a(Icons.next, rel := "next", title := "next")(if (next == position) disabled else href := Definitions.path_asset(vid, next.cur)))
+        a(Icons.next, rel := "next", title := "next")(if (next.cur == position.cur) disabled else href := Definitions.path_asset(vid, next.cur)))
     }
 
     val mainSection = main(mainPart, onLeftClickPrevNext(navigate.fire))

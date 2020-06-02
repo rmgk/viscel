@@ -12,15 +12,16 @@ object Navigation {
   case object Prev extends Navigate
   case class Mode(i: FitType) extends Navigate
 
-  case class Position(cur: Int, max: Int) {
+  case class Position(internal: Int, max: Int) {
+    def cur: Int = math.max(0, math.min(internal, max))
     def mov(nav: Navigate): Position = nav match {
-      case Navigation.Next => Position(math.min(cur + 1, max), max)
-      case Navigation.Prev => Position(math.max(cur - 1, 0), max)
+      case Navigation.Next => mov(1)
+      case Navigation.Prev => mov(-1)
       case _         => this
     }
     def mov(i: Int): Position = set(cur + i)
-    def set(i: Int): Position = Position(math.max(0, math.min(i, max)), max)
-    def limit(m: Int): Position = copy(max = m - 1)
+    def set(i: Int): Position = Position(i, max)
+    def limit(m: Int): Position = copy(max = m)
   }
 
   val navigate            = Evt[Navigate]

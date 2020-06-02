@@ -35,7 +35,8 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
 
     val targetStates = hashChange.map(hc => AppState.parse(new URL(hc.newURL).hash))
 
-    val currentTargetAppState: Signal[AppState] = targetStates.fold(AppState.parse(getHash)) { case (_, next) => next }
+    val initialAppState = AppState.parse(getHash)
+    val currentTargetAppState: Signal[AppState] = targetStates.fold(initialAppState) { case (_, next) => next }
 
     val setCurrentPostition: Event[Int] = currentTargetAppState.changed.collect { case ViewState(_, pos) => pos }
 
@@ -52,9 +53,9 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
 
     val bookmark = Signal[Bookmark] {currentID.value.flatMap(bookmarks.value.get).getOrElse(Bookmark(0, 0, None, None))}
 
-    val maxPosition = contents.map(_.map(_.gallery.size).getOrElse(0)).changed
+    val maxPosition = contents.map(_.map(_.gallery.size).getOrElse(0) - 1).changed
 
-    val currentPosition = Events.foldAll(Position(0, 0))(acc => Seq(
+    val currentPosition = Events.foldAll(Position(initialAppState.position, 0))(acc => Seq(
       setCurrentPostition >> acc.set,
       navigationEvents >> acc.mov,
       maxPosition >> acc.limit
