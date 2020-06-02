@@ -102,7 +102,7 @@ jobs:
           draft: true
           prerelease: false
       - name: Upload Release Asset Windows
-        id: upload-release-asset 
+        id: upload-release-asset-windows
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -112,7 +112,7 @@ jobs:
           asset_name: viscel-windows-2016.zip
           asset_content_type: application/zip
       - name: Upload Release Asset Ubuntu
-        id: upload-release-asset 
+        id: upload-release-asset-ubuntu
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -122,7 +122,7 @@ jobs:
           asset_name: viscel-ubuntu-20.04.zip
           asset_content_type: application/zip
       - name: Upload Release Asset macOS
-        id: upload-release-asset 
+        id: upload-release-asset-macos
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
