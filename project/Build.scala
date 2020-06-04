@@ -96,7 +96,7 @@ object Settings {
     "-Xfuture",                          // Turn on future language features.
   )
   lazy val scalaOptions13: Seq[String] = Seq(
-    "-Xsource:3"
+    // "-Xsource:3"
   )
 
   val strictCompile = Compile / compile / scalacOptions += "-Xfatal-warnings"
@@ -124,7 +124,11 @@ object Resolvers {
         s"https://api.bintray.com/content/$bintrayOrganization/maven/$proj/$ver")
       val patterns = Resolver.mavenStylePatterns
       Some(Resolver.url("bintray", url)(patterns))
-    }
+    },
+    credentials ++= ((sys.env.get("BINTRAY_USERNAME"), sys.env.get("BINTRAY_PASSWORD")) match {
+        case (Some(name), Some(password)) => List(Credentials("Bintray API Realm", "api.bintray.com", name, password))
+        case _ => Nil
+      })
   )
 }
 
