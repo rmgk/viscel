@@ -50,11 +50,19 @@ class JavalinServer(blobStore: BlobStore,
       Option.when(ctx.basicAuthCredentialsExist()) {
         val cred = ctx.basicAuthCredentials()
         interactions.authenticate(cred.getUsername, cred.getPassword)
-      }.flatten match {
+      }.flatten.orElse{
+        val cm = ctx.cookieMap().asScala
+        (cm.get("viscel-user"), cm.get("viscel-password")) match {
+          case (Some(user), Some(password)) => interactions.authenticate(user, password)
+          case _ => None
+        }
+      } match {
         case None       =>
           ctx.status(401).header(Header.WWW_AUTHENTICATE, "Basic")
         case Some(user) =>
           ctx.attribute("user", user)
+          ctx.cookie("viscel-user",user.id, 5_000_000)
+          ctx.cookie("viscel-password", user.password, 5_000_000)
           handler.handle(ctx)
       }
     }
