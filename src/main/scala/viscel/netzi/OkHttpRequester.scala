@@ -22,8 +22,12 @@ class OkHttpRequester(maxRequests: Int, requestsPerHost: Int, val executorServic
     dispatcher.setMaxRequests(maxRequests)
     dispatcher.setMaxRequestsPerHost(requestsPerHost)
 
+    val generalTimeout = Duration.ofSeconds(60)
+
     new OkHttpClient.Builder()
-      .connectTimeout(Duration.ofSeconds(30))
+      .connectTimeout(generalTimeout)
+      .readTimeout(generalTimeout)
+      .callTimeout(Duration.ofSeconds(0))
       .connectionPool(connectionPool)
       .dispatcher(dispatcher)
       .build()
