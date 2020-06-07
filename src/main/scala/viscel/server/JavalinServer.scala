@@ -66,6 +66,8 @@ class JavalinServer(blobStore: BlobStore,
           handler.handle(ctx)
       }
     }
+    // seems buggy
+    //config.precompressStaticFiles = true
     config.addStaticFiles(staticPath.pathAsString, Location.EXTERNAL)
     config.compressionStrategy(null, new Gzip())
     config.showJavalinBanner = false
