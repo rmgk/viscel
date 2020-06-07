@@ -40,7 +40,7 @@ lazy val code = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("code"))
   .settings(
-    name := "code",
+    name := "viscel",
     strictCompile, scribe, scalatags,
     scribeSlf4j, Resolvers.stg,
     libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",

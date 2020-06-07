@@ -21,7 +21,7 @@ class ServerPages() {
 
   def landingTag: Tag = makeHtml(body("if nothing happens, your javascript does not work"),
                                  script(src := "localforage.min.js"),
-                                 script(src := "code-opt.js"))
+                                 script(src := "viscel-opt.js"))
 
   def fullrender(tag: Tag): String = "<!DOCTYPE html>" + tag.render
 
