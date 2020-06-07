@@ -5,110 +5,101 @@ import Dependencies._
 import Settings._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
-def  lociRef(name: String) = ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#77944c620bbeff3e97ea8aa40d8af6b8838ec422"), name)
+def lociRef(name: String) = ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#77944c620bbeff3e97ea8aa40d8af6b8838ec422"), name)
 
 lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
-lazy val lociJavalinJS = lociRef("lociCommunicatorWsJavalinJS")
+lazy val lociJavalinJS  = lociRef("lociCommunicatorWsJavalinJS")
 
 
 inThisBuild(scalaVersion_213)
 ThisBuild / organization := "de.rmgk"
 
-ThisBuild / Compile / doc / sources:= Seq.empty
+ThisBuild / Compile / doc / sources := Seq.empty
 ThisBuild / Compile / packageDoc / publishArtifact := false
 
 lazy val nativeImage = taskKey[File]("calls graalvm native image")
 
 
-lazy val root = project.in(file(".")).settings(
+lazy val viscel = project.in(file(".")).settings(
   vbundleDef,
-
+  normalizecss,
   nativeImage := {
     (vbundle).value
     (server / GraalVMNativeImage / packageBin).value
   },
   run := {
-    (vbundle).value
-    (server / Compile / run).evaluated
+    (server / Compile / run).dependsOn(vbundle).evaluated
   },
   fetchJSDependenciesDef,
   )
-  .aggregate(server, app)
+                         .enablePlugins(SbtSassify)
+                         .aggregate(app, server)
+
+
+lazy val code = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Full)
+  .in(file("code"))
+  .settings(
+    name := "code",
+    strictCompile, scribe, scalatags,
+    scribeSlf4j, Resolvers.stg,
+    libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",
+    //libraryDependencies += "io.lemonlabs" %%% "scala-uri" % "2.2.2",
+    jsoniter,
+    Compile / sourceGenerators += Def.task {
+      val file      = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
+      val outstring = s"""package viscel.shared; object Version { val str = "${version.value}"}"""
+      val current   = try IO.read(file) catch {case _: Throwable => ""}
+      if (current != outstring) IO.write(file, outstring)
+      Seq(file)
+    }
+    )
+  .jvmSettings(
+    fork := true,
+    strictCompile, betterFiles, decline,
+    scalatest, scalacheck, scalatestpluscheck,
+    jsoup, okHttp, javalin,
+    jsoniter,
+    //  experimental graalvm options
+    // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
+    graalVMNativeImageOptions ++= List(
+      "--allow-incomplete-classpath",
+      "--no-fallback",
+      //"--report-unsupported-elements-at-runtime",
+      "--initialize-at-build-time",
+      // "-H:+ReportExceptionStackTraces",
+      "-H:EnableURLProtocols=http,https",
+      // "--enable-all-security-services",
+      "-H:+JNI",
+      "-H:+RemoveSaturatedTypeFlows"
+      ),
+    if (sys.env.contains("GRAALVM_NATIVE_IMAGE_PATH"))
+      graalVMNativeImageCommand := sys.env("GRAALVM_NATIVE_IMAGE_PATH")
+    else Nil
+    )
+  .jsSettings(
+    scalajsdom, scalatags,
+    Resolvers.stg, strictCompile,
+    scalaJSUseMainModuleInitializer := true,
+    jsoniter
+    )
+  .enablePlugins(GraalVMNativeImagePlugin)
+  .enablePlugins(JavaServerAppPackaging)
+
+lazy val server = code.jvm.dependsOn(lociJavalinJVM)
+lazy val app    = code.js.dependsOn(lociJavalinJS)
 
 
 
 
-lazy val server = project
-                  .in(file("server"))
-                  .settings(
-                    name := "server",
-                    fork := true,
-                    strictCompile, betterFiles, decline,
-                    scalatest, scalacheck, scalatestpluscheck,
-                    jsoup, okHttp, javalin,
-                    jsoniter,
-                    publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value,
-                    //  experimental graalvm options
-                    // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
-                    graalVMNativeImageOptions ++= List(
-                      "--allow-incomplete-classpath",
-                      "--no-fallback",
-                      //"--report-unsupported-elements-at-runtime",
-                      "--initialize-at-build-time",
-                      // "-H:+ReportExceptionStackTraces",
-                      "-H:EnableURLProtocols=http,https",
-                      // "--enable-all-security-services",
-                      "-H:+JNI",
-                      "-H:+RemoveSaturatedTypeFlows"
-                    ),
-                    if (sys.env.contains("GRAALVM_NATIVE_IMAGE_PATH"))
-                      graalVMNativeImageCommand := sys.env("GRAALVM_NATIVE_IMAGE_PATH")
-                    else Nil
-                  )
-                  .enablePlugins(GraalVMNativeImagePlugin)
-                  .enablePlugins(JavaServerAppPackaging)
-                  .dependsOn(sharedJVM)
 
 
 
-
-lazy val app = project.in(file("app"))
-               .enablePlugins(ScalaJSPlugin)
-               .settings(
-                 name := "app",
-                 scalajsdom, normalizecss, scalatags,
-                 Resolvers.stg, strictCompile,
-                 scalaJSUseMainModuleInitializer := true,
-                 jsoniter
-               )
-               .dependsOn(sharedJS)
-               .enablePlugins(SbtSassify)
-
-lazy val shared = crossProject(JSPlatform, JVMPlatform).in(file("shared"))
-                  .settings(
-                    name := "viscel-shared",
-                    strictCompile, scribe, scalatags,
-                    scribeSlf4j, Resolvers.stg,
-                    libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",
-                    //libraryDependencies += "io.lemonlabs" %%% "scala-uri" % "2.2.2",
-                    jsoniter,
-                    Compile / sourceGenerators += Def.task {
-                      val file = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
-                      val outstring = s"""package viscel.shared; object Version { val str = "${version.value}"}"""
-                      val current = try IO.read(file) catch {case _: Throwable => ""}
-                      if (current != outstring) IO.write(file, outstring)
-                      Seq(file)
-                    }
-                    )
-lazy val sharedJVM = shared.jvm
-                           .dependsOn(lociJavalinJVM)
-lazy val sharedJS = shared.js
-                          .dependsOn(lociJavalinJS)
 
 lazy val benchmarks = project.in(file("benchmarks"))
-                      .settings(name := "benchmarks")
-                      .enablePlugins(JmhPlugin)
-                      .dependsOn(server)
+                             .settings(name := "benchmarks")
+                             .enablePlugins(JmhPlugin)
+                             .dependsOn(code.jvm)
 
 
 
@@ -118,7 +109,7 @@ lazy val benchmarks = project.in(file("benchmarks"))
 
 
 lazy val fetchJSDependencies    = TaskKey[File]("fetchJSDependencies",
-                                           "manually fetches JS dependencies")
+                                                "manually fetches JS dependencies")
 lazy val fetchJSDependenciesDef = fetchJSDependencies := {
   val dependencies = List(
     ("localforage.min.js",
@@ -154,8 +145,8 @@ lazy val fetchJSDependenciesDef = fetchJSDependencies := {
 
 lazy val vbundleDef = vbundle := {
   (app / Compile / fullOptJS).value
-  val jsfile       = (app / Compile / fullOptJS / artifactPath).value
-  val styles       = (app / Assets / SassKeys.sassify).value
+  val jsfile = (app / Compile / fullOptJS / artifactPath).value
+  val styles = (Assets / SassKeys.sassify).value
   bundleStuff(jsfile, styles, target.value.toPath.resolve("resources/static"), fetchJSDependencies.value, sourceDirectory.value, version.value)
 }
 
