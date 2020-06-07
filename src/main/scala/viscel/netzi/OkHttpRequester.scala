@@ -32,6 +32,7 @@ class OkHttpRequester(maxRequests: Int, requestsPerHost: Int, val executorServic
   def vreqToOkReq(vrequest: VRequest): Request = {
     val req = new Request.Builder().url(vrequest.href.uriString())
     vrequest.referer.fold(req)(ref => req.addHeader(referrer, ref.uriString()))
+      .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0")
             .build()
   }
 
