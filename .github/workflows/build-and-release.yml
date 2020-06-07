@@ -47,7 +47,7 @@ jobs:
         run: |
           mkdir -p bundle
           cp -r target/resources/static bundle/
-          cp target/graalvm-native-image/viscel.exe bundle/
+          cp code/jvm/target/graalvm-native-image/viscel.exe bundle/
       - name: Publish artifact
         uses: actions/upload-artifact@master
         with:
@@ -79,7 +79,7 @@ jobs:
       run: |
         mkdir -p bundle
         cp -r target/resources/static bundle/
-        cp target/graalvm-native-image/viscel bundle/
+        cp code/jvm/target/graalvm-native-image/viscel bundle/
     - name: Publish artifact
       uses: actions/upload-artifact@master
       with:
