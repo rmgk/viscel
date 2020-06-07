@@ -1,18 +1,9 @@
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.nio.file.StandardOpenOption
-import java.security.MessageDigest
-
-import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
-import Settings._
-import Dependencies._
-
 import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
-import java.security.MessageDigest
+
+import Dependencies._
+import Settings._
+import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def  lociRef(name: String) = ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#77944c620bbeff3e97ea8aa40d8af6b8838ec422"), name)
 
@@ -26,23 +17,36 @@ ThisBuild / organization := "de.rmgk"
 ThisBuild / Compile / doc / sources:= Seq.empty
 ThisBuild / Compile / packageDoc / publishArtifact := false
 
-
 lazy val nativeImage = taskKey[File]("calls graalvm native image")
 
-nativeImage := (viscel / GraalVMNativeImage / packageBin).value
 
-lazy val viscel = project
-                  .in(file("."))
+lazy val root = project.in(file(".")).settings(
+  vbundleDef,
+
+  nativeImage := {
+    (vbundle).value
+    (server / GraalVMNativeImage / packageBin).value
+  },
+  run := {
+    (vbundle).value
+    (server / Compile / run).evaluated
+  },
+  fetchJSDependenciesDef,
+  )
+  .aggregate(server, app)
+
+
+
+
+lazy val server = project
+                  .in(file("server"))
                   .settings(
-                    name := "viscel",
+                    name := "server",
                     fork := true,
                     strictCompile, betterFiles, decline,
                     scalatest, scalacheck, scalatestpluscheck,
                     jsoup, okHttp, javalin,
-                    fetchJSDependenciesDef,
-                    vbundleDef,
                     jsoniter,
-                    (Compile / compile) := ((Compile / compile) dependsOn vbundle).value,
                     publishLocal := publishLocal.dependsOn(sharedJVM / publishLocal).value,
                     //  experimental graalvm options
                     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
@@ -104,18 +108,12 @@ lazy val sharedJS = shared.js
 lazy val benchmarks = project.in(file("benchmarks"))
                       .settings(name := "benchmarks")
                       .enablePlugins(JmhPlugin)
-                      .dependsOn(viscel)
+                      .dependsOn(server)
 
 
 
 
 
-lazy val vbundleDef = vbundle := {
-  (app / Compile / fullOptJS).value
-  val jsfile       = (app / Compile / fullOptJS / artifactPath).value
-  val styles       = (app / Assets / SassKeys.sassify).value
-  bundleStuff(jsfile, styles, target.value.toPath.resolve("resources/static"), fetchJSDependencies.value, sourceDirectory.value, version.value)
-}
 
 
 
@@ -150,6 +148,15 @@ lazy val fetchJSDependenciesDef = fetchJSDependencies := {
   }
 
   dependenciesTarget.toFile
+}
+
+
+
+lazy val vbundleDef = vbundle := {
+  (app / Compile / fullOptJS).value
+  val jsfile       = (app / Compile / fullOptJS / artifactPath).value
+  val styles       = (app / Assets / SassKeys.sassify).value
+  bundleStuff(jsfile, styles, target.value.toPath.resolve("resources/static"), fetchJSDependencies.value, sourceDirectory.value, version.value)
 }
 
 lazy val vbundle = TaskKey[File]("vbundle", "bundles all the viscel resources")
