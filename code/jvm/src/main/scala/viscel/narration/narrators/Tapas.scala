@@ -7,18 +7,23 @@ import viscel.selektiv.Narration._
 import viscel.selektiv.Queries._
 import viscel.selektiv.ReportTools.extract
 import viscel.selektiv.{Narration, Selection}
-import viscel.shared.Vurl
+import viscel.shared.{DataRow, Vurl}
 
 
 case class Tapas(id: String, name: String, start: Vurl)
 object Tapas extends Metarrator[Tapas]("Tapas") {
 
   override def toNarrator(wt: Tapas): Narrator =
-    Templates.SimpleForward("Tapas_" + wt.id, wt.name, wt.start,
-                            Append(Selection.many("img.content__img")
-                                            .map(_.map(imageFromAttribute(_, Some("data-src")))),
-                                   Selection.all("a.tab__button--small.js-next-ep-btn")
-                                            .map(_.map(extractMore))))
+    Templates.SimpleForward(
+      "Tapas_" + wt.id, wt.name, wt.start,
+      Append(Selection.many("img.content__img")
+                      .map(_.map(imageFromAttribute(_, Some("data-src")))),
+             Selection.all("div.episode-unit.js-episode-wrap")
+                      .map(_.flatMap { elem =>
+                        val id = extract {elem.attr("data-next-id")}
+                        if (id == "-1") None
+                        else Some(DataRow.Link(Vurl.fromString(s"https://tapas.io/episode/$id")))
+                      })))
 
   override def codec: JsonValueCodec[Tapas] = {
     import viscel.shared.JsoniterCodecs._
