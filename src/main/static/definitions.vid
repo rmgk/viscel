@@ -1449,8 +1449,9 @@ http://mistakes.ryanestrada.com/comic/0001
 
 -:Saint for Rent
 http://www.saintforrent.com/comics/archive
-:ac .cc-chapterrow a[href]
-:ia #cc-comic
+:ac .cc-storyline-header a[href]
+:image #cc-comic
+:next .cc-nav .cc-next
 
 -:Sakana
 http://www.sakana-comic.com/comic/archive
