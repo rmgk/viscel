@@ -145,6 +145,11 @@
 -- http://www.counter-rose.com/page.php?p=1
 -- :ia #cg_img img
 
+-- no more comics?
+-- -:Crazy Sunshine
+-- http://www.crazysunshine.com/comic/apocalypse-now/
+-- :ia #comic img
+
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
 
@@ -325,8 +330,9 @@ http://www.plushandblood.com/Comic.php?strip_id=1
 :next a:has(img[src=/Images/Nav/Next.png])
 
 -:The Challenges of Zona
-https://barbarianprincess.com/comic/dont-know-much/page-01/
-:image+next #comic img
+https://barbarianprincess.com/comic/page-01/
+:image #spliced-comic > img
+:next #comic .single-comic-navigation > a:has(i.fa-chevron-right)
 
 -:The Savage Sword of Sharona
 http://savageswordofsharona.com/archive/
@@ -1915,10 +1921,6 @@ http://rosalarian.com/meatyyogurt/archive-2/
 :ac .entry a
 :is #comic img
 :n #content > div.nav > div.nav-next > a
-
--:Crazy Sunshine
-http://www.crazysunshine.com/comic/apocalypse-now/
-:ia #comic img
 
 -:6 Gun Mage
 http://www.6gunmage.com/comic/archive
