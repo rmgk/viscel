@@ -997,9 +997,9 @@ https://www.astralaves.com/comics/archive
 :ia #cc-comic
 
 -:Atomic Robo
-http://www.atomic-robo.com/comics.php
-:ac #pagearea > h3 > a
-:ia #comic
+https://www.atomic-robo.com/atomicrobo/archive
+:ac .cc-storyline-text .cc-storyline-header a
+:ia #cc-comic
 
 -:Awaken
 http://www.awakencomic.com/comic/archive
