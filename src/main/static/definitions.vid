@@ -1351,9 +1351,10 @@ http://www.monstersgarden.com/comic/archive
 
 
 -:Namesake
-http://namesakecomic.com/archives/
-:am #castcontainer:not(:nth-last-child(2)) #chara h3 , #castcontainer:not(:nth-last-child(2)) #chara a
-:ia #comic img
+https://www.namesakecomic.com/comic/archive
+:ac .cc-storyline-header a[href]:matchesOwn(Chapter|Intermission|Prologue)
+:image #cc-comic
+:next .cc-nav a.cc-next
 
 -:Nerf Now
 http://www.nerfnow.com/archives
