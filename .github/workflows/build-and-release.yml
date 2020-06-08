@@ -35,7 +35,7 @@ jobs:
         run: where native-image
       - name: install non preinstalled sbt …
         run: |
-          choco install --force sbt
+          choco install sbt --force --version 1.3.10
       - name: test sbt compile
         run: |
           sbt compile
