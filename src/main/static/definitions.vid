@@ -159,6 +159,16 @@
 -- :is #comic img[src~=comics]
 -- :n #column > div.post > div.comicdate > div > a[rel=next]
 
+-- -PetiteSymphony_djandora:[PS] Djandora
+-- http://djandora.petitesymphony.com/comic/intro
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+
+-- -Snafu_titan:[snafu] Titan Sphere
+-- http://snafu-comics.com/swmcomic/it-begins-3/
+-- :image .comicpage img
+-- :next .comicnav a.previous
+
 
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
@@ -2331,11 +2341,6 @@ http://snafu-comics.com/swmcomic/cover-art/
 :image .comicpage img
 :next .comicnav a.previous
 
--Snafu_titan:[snafu] Titan Sphere
-http://snafu-comics.com/swmcomic/it-begins-3/
-:image .comicpage img
-:next .comicnav a.previous
-
 -Snafu_naruto:[snafu] Naruto: Heroes Path
 http://snafu-comics.com/swmcomic/onichan/
 :image .comicpage img
@@ -2436,18 +2441,13 @@ http://goyoku.petitesymphony.com/comic/goyoku-prologue1/
 :image #comic-1 img
 :next a.navi.navi-next
 
--PetiteSymphony_generation17:[PS] Generation 17
-http://generation17.petitesymphony.com/comic/cover
-:image #comic-1 img
-:next a.navi.navi-next
+-PetiteSymphony_generation17:Generation 17
+http://generation17.comicsbreak.com/comic/cover/
+:image #comic img
+:next a.comic-nav-next
 
 -PetiteSymphony_seed:[PS] Seed
 http://seed.petitesymphony.com/comic/seedchapter1
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_djandora:[PS] Djandora
-http://djandora.petitesymphony.com/comic/intro
 :image #comic-1 img
 :next a.navi.navi-next
 
