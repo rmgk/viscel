@@ -6,11 +6,11 @@ name: generate native image and release
 
 # feel free to use any added value of this file under CC-0
 
-on:
-  push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+on: [push]
+  # push:
+  #   # Sequence of patterns matched against refs/tags
+  #   tags:
+  #   - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   build-windows:
@@ -33,6 +33,12 @@ jobs:
       - name: where is this thing?!
         shell: cmd
         run: where native-image
+      - name: install non preinstalled sbt …
+        run: |
+          choco install sbt
+      - name: test sbt compile
+        run: |
+          sbt compile
       - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
         run: |
           choco install visualstudio2017-workload-vctools
@@ -54,86 +60,86 @@ jobs:
           name: viscel-${{ matrix.os }}
           path: bundle
 
-  build-ubuntu-mac:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04, macos-10.15]
+  # build-ubuntu-mac:
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-20.04, macos-10.15]
 
-    steps:
-    - uses: actions/checkout@v1
-    - uses: DeLaGuardo/setup-graalvm@3
-      with:
-        graalvm-version: '20.1.0.java11'
-    - run: java -version
-    - run: gu install native-image
-    - run: native-image --version
-    - name: build
-      shell: bash
-      run: |
-        curl -Ls https://git.io/sbt > sbt
-        chmod 755 sbt
-        ./sbt nativeImage
-    - name: copy static files
-      shell: bash
-      run: |
-        mkdir -p bundle
-        cp -r target/resources/static bundle/
-        cp code/jvm/target/graalvm-native-image/viscel bundle/
-    - name: Publish artifact
-      uses: actions/upload-artifact@master
-      with:
-        name: viscel-${{ matrix.os }}
-        path: bundle
+  #   steps:
+  #   - uses: actions/checkout@v1
+  #   - uses: DeLaGuardo/setup-graalvm@3
+  #     with:
+  #       graalvm-version: '20.1.0.java11'
+  #   - run: java -version
+  #   - run: gu install native-image
+  #   - run: native-image --version
+  #   - name: build
+  #     shell: bash
+  #     run: |
+  #       curl -Ls https://git.io/sbt > sbt
+  #       chmod 755 sbt
+  #       ./sbt nativeImage
+  #   - name: copy static files
+  #     shell: bash
+  #     run: |
+  #       mkdir -p bundle
+  #       cp -r target/resources/static bundle/
+  #       cp code/jvm/target/graalvm-native-image/viscel bundle/
+  #   - name: Publish artifact
+  #     uses: actions/upload-artifact@master
+  #     with:
+  #       name: viscel-${{ matrix.os }}
+  #       path: bundle
   
-  release-artifact:
-    name: Upload Release Asset
-    runs-on: ubuntu-18.04
-    needs: [build-windows, build-ubuntu-mac]
-    steps:
-      - uses: actions/download-artifact@v2
-      - name: Build project # This would actually build your project, using zip for an example artifact
-        run: |
-          zip -r viscel-windows-2016.zip viscel-windows-2016/*
-          zip -r viscel-ubuntu-20.04.zip viscel-ubuntu-20.04/*
-          zip -r viscel-macos-10.15.zip viscel-macos-10.15/*
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset Windows
-        id: upload-release-asset-windows
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: viscel-windows-2016.zip
-          asset_name: viscel-windows-2016.zip
-          asset_content_type: application/zip
-      - name: Upload Release Asset Ubuntu
-        id: upload-release-asset-ubuntu
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: viscel-ubuntu-20.04.zip
-          asset_name: viscel-ubuntu-20.04.zip
-          asset_content_type: application/zip
-      - name: Upload Release Asset macOS
-        id: upload-release-asset-macos
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: viscel-macos-10.15.zip
-          asset_name: viscel-macos-10.15.zip
-          asset_content_type: application/zip
+  # release-artifact:
+  #   name: Upload Release Asset
+  #   runs-on: ubuntu-18.04
+  #   needs: [build-windows, build-ubuntu-mac]
+  #   steps:
+  #     - uses: actions/download-artifact@v2
+  #     - name: Build project # This would actually build your project, using zip for an example artifact
+  #       run: |
+  #         zip -r viscel-windows-2016.zip viscel-windows-2016/*
+  #         zip -r viscel-ubuntu-20.04.zip viscel-ubuntu-20.04/*
+  #         zip -r viscel-macos-10.15.zip viscel-macos-10.15/*
+  #     - name: Create Release
+  #       id: create_release
+  #       uses: actions/create-release@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ github.ref }}
+  #         release_name: ${{ github.ref }}
+  #         draft: false
+  #         prerelease: false
+  #     - name: Upload Release Asset Windows
+  #       id: upload-release-asset-windows
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
+  #         asset_path: viscel-windows-2016.zip
+  #         asset_name: viscel-windows-2016.zip
+  #         asset_content_type: application/zip
+  #     - name: Upload Release Asset Ubuntu
+  #       id: upload-release-asset-ubuntu
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
+  #         asset_path: viscel-ubuntu-20.04.zip
+  #         asset_name: viscel-ubuntu-20.04.zip
+  #         asset_content_type: application/zip
+  #     - name: Upload Release Asset macOS
+  #       id: upload-release-asset-macos
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
+  #         asset_path: viscel-macos-10.15.zip
+  #         asset_name: viscel-macos-10.15.zip
+  #         asset_content_type: application/zip
