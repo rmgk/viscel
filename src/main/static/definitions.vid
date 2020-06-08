@@ -150,6 +150,16 @@
 -- http://www.crazysunshine.com/comic/apocalypse-now/
 -- :ia #comic img
 
+-- -:Zombies and Fairytales
+-- http://166612.webhosting66.1blu.de/zaf_de/wordpress/comic/erster-eindruck/
+-- :ia #comic img
+
+-- -:Lovecraft is Missing
+-- http://lovecraftismissing.com/?p=930
+-- :is #comic img[src~=comics]
+-- :n #column > div.post > div.comicdate > div > a[rel=next]
+
+
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
 
@@ -566,10 +576,6 @@ http://www.snowbynight.com/story.php
 :am .content_main h2 , .content_main .archive_pages a
 :images? div.content_group.comic_group img
 
--:Zombies and Fairytales
-http://166612.webhosting66.1blu.de/zaf_de/wordpress/comic/erster-eindruck/
-:ia #comic img
-
 -:Amya
 http://www.amyachronicles.com/archives/comic/09292009
 -- has an archive at http://www.amyachronicles.com/archives/
@@ -612,11 +618,6 @@ http://drmcninja.com/issues/
 :ac #column > div > div > div.serieslist-content > h2 > a
 :i #comic > img
 :n #comic-head > a.next
-
--:Lovecraft is Missing
-http://lovecraftismissing.com/?p=930
-:is #comic img[src~=comics]
-:n #column > div.post > div.comicdate > div > a[rel=next]
 
 -:Absurd Notions
 http://www.absurdnotions.org/listing.html
