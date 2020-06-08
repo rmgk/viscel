@@ -290,8 +290,8 @@ http://www.thedevilbear.com/b/comic/its-for-you/
 :next a.comic-nav-next
 
 -:Order of the Stick
-http://www.giantitp.com/comics/oots0001.html
-:image img[src~=/comics/images/]
+https://www.giantitp.com/comics/oots0001.html
+:image img[src~=/comics/oots/]
 :next a:has(img[alt=Next Comic])
 
 -:Banished
