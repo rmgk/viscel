@@ -1239,10 +1239,10 @@ http://www.insidephobia.com/comic/archive
 
 
 -:Jailbird
-http://an.oddlookingbird.com/archives/
--- archive seems to miss the last couple pages
-:am #post-44 > div > h3 > span:matchesOwn(^\d+:) , #post-44 a:matchesOwn(^\d+$)
-:i #webcomic > div.webcomic-image img
+https://an.oddlookingbird.com/comic/archive
+:ac .cc-storyline-header a[href]:contains(Chapter)
+:image #cc-comic
+:next .cc-nav a.cc-next
 
 
 -:Kiwi Blitz
