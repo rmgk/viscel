@@ -1,7 +1,7 @@
 package viscel.narration.narrators
 
 import com.github.plokhotnyuk.jsoniter_scala.core._
-import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
+import com.github.plokhotnyuk.jsoniter_scala.macros.{CodecMakerConfig, JsonCodecMaker}
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.{Metarrator, Narrator, Templates}
 import viscel.selektiv.Narration.{ContextW, WrapPart}
@@ -28,7 +28,7 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
     DataRow.Link(Vurl.fromString(s"https://mangadex.org/api/?id=$id&type=chapter")) ::
     Nil
 
-  val overViewCodec = JsonCodecMaker.make[OverviewInfo]
+  val overViewCodec = JsonCodecMaker.make[OverviewInfo](CodecMakerConfig.withMapMaxInsertNumber(10_000))
 
   val archiveWrapper: Wrapper = {
     ContextW.map { context =>
