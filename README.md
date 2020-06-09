@@ -1,6 +1,6 @@
 Viscel
 ======
-![latest release](https://img.shields.io/github/v/release/rmgk/viscel)
+[![latest release](https://img.shields.io/github/v/release/rmgk/viscel)](https://github.com/rmgk/viscel/releases)
 
 
 Description
@@ -16,16 +16,17 @@ Viscel is a tool to download webcomics and then present them in a browser again.
 Quick start
 -----------
 
-* download release
-* extract to somewhere with enough space
-* run the viscel binary
-  on windows you may have to install [1], but you are used to installing random crap like this anyways, right?
-* navigate to http://localhost:2358 in your browser
-* enter a username & password to create a user
-* click any comic from the list, the comic will start downloading, refresh page after some time
-* hover over icons to get a description
+* Download release [1].
+* Extract to somewhere with enough space.
+* Run the Viscel binary.
+  * On windows you may have to install [2], but you are used to installing random crap like this anyways, right?
+* Navigate to http://localhost:2358 in your browser.
+* Enter a username & password to create a user.
+* Click any comic from the list, the comic will start downloading, refresh page after some time.
+* Hover over icons to get a description.
 
-[1] https://www.microsoft.com/en-us/download/details.aspx?id=52685 
+[1] https://github.com/rmgk/viscel/releases
+[2] https://www.microsoft.com/en-us/download/details.aspx?id=52685 
 
 Caveats
 -------
