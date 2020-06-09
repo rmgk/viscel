@@ -1,5 +1,10 @@
+Viscel
+======
+![latest release](https://img.shields.io/github/v/release/rmgk/viscel)
+
+
 Description
-===========
+-----------
 
 Viscel is a tool to download webcomics and then present them in a browser again. The main reasons to do so are:
 • Downloaded archives never vanish, enjoy your comics today, still enjoy them tomorrow.
@@ -9,7 +14,7 @@ Viscel is a tool to download webcomics and then present them in a browser again.
 
 
 Quick start
-===========
+-----------
 
 • download release
 • extract to somewhere with enough space
@@ -23,7 +28,7 @@ Quick start
 [1] https://www.microsoft.com/en-us/download/details.aspx?id=52685 
 
 Caveats
-=======
+-------
 
 • Viscel is not really designed for new users, you may have to experiment a bit to figure out how it works.
 • Webcomics change their websites from time to time, resulting in downloads breaking. This will not affect your existing archives.
