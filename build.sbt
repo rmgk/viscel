@@ -20,7 +20,7 @@ ThisBuild / Compile / packageDoc / publishArtifact := false
 lazy val nativeImage = taskKey[File]("calls graalvm native image")
 
 
-lazy val viscel = project.in(file(".")).settings(
+lazy val root = project.in(file(".")).settings(
   vbundleDef,
   normalizecss,
   nativeImage := {
@@ -32,11 +32,11 @@ lazy val viscel = project.in(file(".")).settings(
   },
   fetchJSDependenciesDef,
   )
-                         .enablePlugins(SbtSassify)
-                         .aggregate(app, server)
+                       .enablePlugins(SbtSassify)
+                       .aggregate(app, server)
 
 
-lazy val code = crossProject(JSPlatform, JVMPlatform)
+lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("code"))
   .settings(
@@ -86,8 +86,8 @@ lazy val code = crossProject(JSPlatform, JVMPlatform)
   .enablePlugins(GraalVMNativeImagePlugin)
   .enablePlugins(JavaServerAppPackaging)
 
-lazy val server = code.jvm.dependsOn(lociJavalinJVM)
-lazy val app    = code.js.dependsOn(lociJavalinJS)
+lazy val server = viscel.jvm.dependsOn(lociJavalinJVM)
+lazy val app    = viscel.js.dependsOn(lociJavalinJS)
 
 
 
@@ -99,7 +99,7 @@ lazy val app    = code.js.dependsOn(lociJavalinJS)
 lazy val benchmarks = project.in(file("benchmarks"))
                              .settings(name := "benchmarks")
                              .enablePlugins(JmhPlugin)
-                             .dependsOn(code.jvm)
+                             .dependsOn(viscel.jvm)
 
 
 
