@@ -814,17 +814,6 @@ http://flipside.keenspot.com/archive.php
 :image img.ksc
 :archiveReverse
 
-
--NX_BetterDays:Better Days
-http://jaynaylor.com/betterdays/
-:chapterArchive #chapters li > a
-:images #comicentry .content img
-
--NX_OriginalLife:Original Life
-http://jaynaylor.com/originallife/
-:chapterArchive #chapters li > a
-:images #comicentry .content img
-
 -NX_YouSayItFirst:You Say It First
 http://www.yousayitfirst.com/
 :chapterArchive #pulldown form[name=jump] > select[name=menu] > option[value]
