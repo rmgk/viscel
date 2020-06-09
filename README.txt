@@ -1,3 +1,6 @@
+Description
+===========
+
 Viscel is a tool to download webcomics and then present them in a browser again. The main reasons to do so are:
 • Downloaded archives never vanish, enjoy your comics today, still enjoy them tomorrow.
 • Archives are downloaded in advance, no more waiting for slow servers to show you the next image.
