@@ -25,7 +25,7 @@ Quick start
 * Click any comic from the list, the comic will start downloading, refresh page after some time.
 * Hover over icons to get a description.
 
-[1] https://github.com/rmgk/viscel/releases
+[1] https://github.com/rmgk/viscel/releases <br>
 [2] https://www.microsoft.com/en-us/download/details.aspx?id=52685 
 
 Caveats
