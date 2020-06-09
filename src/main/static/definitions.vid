@@ -169,6 +169,17 @@
 -- :image .comicpage img
 -- :next .comicnav a.previous
 
+-- see patreon https://www.patreon.com/jaynaylor
+-- -NX_BetterDays:Better Days
+-- http://jaynaylor.com/betterdays/
+-- :chapterArchive #chapters li > a
+-- :images #comicentry .content img
+-- 
+-- -NX_OriginalLife:Original Life
+-- http://jaynaylor.com/originallife/
+-- :chapterArchive #chapters li > a
+-- :images #comicentry .content img
+
 
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
@@ -437,7 +448,7 @@ http://lint.webcomic.ws/archive/
 -:Love is in the Blood
 https://www.loveisintheblood.com/comic/welcome-to-love-is-in-the-blood/
 :image #comic img
-:next #comic-head .comic-nav-next
+:next #comic-head a.comic-nav-next
 
 -:Makeshift Miracle
 http://makeshiftmiracle.keenspot.com/archive.html
