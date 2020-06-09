@@ -52,8 +52,8 @@ object CrawlProcessing {
 
   def initialTasks(book: Book): List[VRequest] =
     book.allLinks.filter(l => !book.hasPage(l.href) || l.context.contains(Decider.Volatile)).toList
-  def rechecks(book: Book): List[VRequest] = computeRightmostLinks(book)
 
+  def rechecks(book: Book): List[VRequest] = computeRightmostLinks(book)
 
   /** Starts from the entrypoint, traverses the last Link,
     * collect the path, returns the path from the rightmost child to the root. */

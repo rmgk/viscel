@@ -4,7 +4,7 @@ import java.nio.file.{Files, Path}
 import java.security.MessageDigest
 
 import viscel.Services
-import viscel.shared.Log
+import viscel.shared.{DataRow, Log}
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
@@ -41,10 +41,10 @@ object BlobStore {
 
   def cleanBlobDirectory( services: Services): Unit = {
     Log.info(s"scanning all blobs …")
-    val blobsHashesInDB = {
+    val blobsHashesInDB: Set[String] = {
       services.rowStore.allVids().flatMap { id =>
-        val book = services.rowStore.loadBook(id)
-        book.allBlobs().map(_.sha1)
+        val (name, rows) = services.rowStore.load(id)
+        rows.iterator.flatMap(dr => dr.contents.iterator).collect{case l : DataRow.Blob => l.sha1}
       }.toSet
     }
     Log.info(s"scanning files …")

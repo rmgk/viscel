@@ -40,9 +40,9 @@ case class Decider(links: List[VRequest] = Nil,
 
   /** Handles rechecking logic.
     * On first call:
-    *   - Done immediately, if we already made an ImageD (no rechecks after downloads)
+    *   - Done immediately, if we already made a decision (no rechecks after downloads)
     *   - Initializes the path to the rightmost child elements starting from the root.
-    * Checks one or two layers deep, depending on weather we find anything in the last layer.
+    * Checks one or two layers deep, depending on whether we find anything in the last layer.
     * If we find nothing, then we check no further (there was something there before, why is it gone?) */
   private def rightmostRecheck(): Decision = {
 

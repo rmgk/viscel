@@ -16,9 +16,6 @@ case class Book(id: Vid,
   def beginning: Option[DataRow] = pages.get(Book.entrypoint)
   def hasPage(ref: Vurl): Boolean = pages.contains(ref)
 
-  def allBlobs(): Iterator[DataRow.Blob] =
-    pages.valuesIterator.flatMap(dr => dr.contents.iterator).collect{case l : DataRow.Blob => l}
-
   def allLinks: Iterator[VRequest] = {
     pages.valuesIterator.flatMap{ dr =>
       dr.contents.iterator.collect{case l : DataRow.Link => VRequest(l.ref, l.data, dr.loc.orElse(Some(dr.ref)))}
@@ -57,6 +54,10 @@ case class Book(id: Vid,
 }
 
 object Book {
+  // The story of the three / is that akka uris were once used,
+  // which incorrectly does not support plain `viscel:initial` as an uri
+  // instead requiring this kind of workaround.
+  // And now its too late to change.
   val entrypoint: Vurl = Vurl("viscel:///initial")
 
   def fromEntries(id: Vid,
