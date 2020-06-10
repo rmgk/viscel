@@ -16,7 +16,7 @@ object Tapas extends Metarrator[Tapas]("Tapas") {
   override def toNarrator(wt: Tapas): Narrator =
     Templates.SimpleForward(
       "Tapas_" + wt.id, wt.name, wt.start,
-      Append(Selection.many("img.content__img")
+      Append(Selection.all("img.content__img")
                       .map(_.map(imageFromAttribute(_, Some("data-src")))),
              Selection.all("div.episode-unit.js-episode-wrap")
                       .map(_.flatMap { elem =>
@@ -32,18 +32,18 @@ object Tapas extends Metarrator[Tapas]("Tapas") {
 
 
   override def unapply(description: String): Option[Vurl] = description match {
-    case rex"https://tapas.io/series/($name\w+)" =>
-      Some(Vurl.fromString(description))
-    case _                                       => None
+    case rex"https://tapas.io/series/($cid[^/]+)(?:/.*)?" =>
+      Some(Vurl.fromString(s"https://tapas.io/series/$cid/info"))
+    case _                                                => None
   }
 
   override def wrap: Narration.WrapPart[List[Tapas]] = {
-    val url_?   = Selection.unique(".header .additional__btn--quince").map(extractURL)
-    val name_?  = Selection.unique(".info__desc .desc__title").map(e => extract(e.ownText()))
+    val url_?   = Selection.unique(".info__right .button.button--read.js-continue-btn").map(extractURL)
+    val name_?  = Selection.unique(".title-wrapper .title").map(e => extract(e.ownText()))
     val canon_? = Selection.unique("link[rel=canonical]").map(extractURL)
 
     val cn_? = Combination.of(canon_?, name_?) { (canon, name) =>
-      val rex"https://tapas.io/series/($cid\w+)" = canon.uriString()
+      val rex"https://tapas.io/series/($cid[^/]+)/info" = canon.uriString()
       (cid, name)
     }
 
