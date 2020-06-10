@@ -9,8 +9,8 @@ import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
 import viscel.netzi.OkHttpRequester
 import viscel.server.{ContentLoader, Interactions, JavalinServer, ServerPages}
-import viscel.shared.Log
-import viscel.store.{BlobStore, DescriptionCache, NarratorCache, RowStoreV4, Users}
+import viscel.shared.{JsoniterCodecs, Log}
+import viscel.store.{BlobStore, DescriptionCache, JsoniterStorage, NarratorCache, RowStoreV4, Users}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.util.control.NonFatal
@@ -35,6 +35,7 @@ class Services(relativeBasedir: Path,
   val definitionsdir     : Path = staticDir
   val exportdir          : Path = basepath.resolve("export")
   val usersdir           : Path = basepath.resolve("users")
+  val cookiePath         : Path = basepath.resolve("cookies.json")
   lazy val db4dir  : Path = create(basepath.resolve("db4"))
   lazy val cachedir: Path = create(basepath.resolve("cache"))
 
@@ -55,7 +56,10 @@ class Services(relativeBasedir: Path,
     val executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                                           1, TimeUnit.SECONDS,
                                           new SynchronousQueue())
-    new OkHttpRequester(5, 1, executor)
+    val cookies: Map[String, String] = if (Files.exists(cookiePath)) {
+      JsoniterStorage.load(cookiePath)(JsoniterCodecs.CookieMapCodec).getOrElse(Map.empty)
+    } else Map.empty
+    new OkHttpRequester(5, 1, executor, cookies)
   }
 
   /* ====== main webserver ====== */

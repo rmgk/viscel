@@ -77,4 +77,6 @@ object JsoniterCodecs {
   implicit val MapVidDescriptionCodec: JsonValueCodec[Map[Vid, Description]] = JsonCodecMaker.make
   implicit val MapVidBookmarkCodec: JsonValueCodec[Map[Vid, Bookmark]] = JsonCodecMaker.make
 
+  implicit val CookieMapCodec: JsonValueCodec[Map[String, String]] = JsonCodecMaker.make
+
 }

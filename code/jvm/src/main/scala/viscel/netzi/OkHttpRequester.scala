@@ -12,7 +12,10 @@ import viscel.shared.{Log, Vurl}
 import scala.concurrent.{Future, Promise}
 
 
-class OkHttpRequester(maxRequests: Int, requestsPerHost: Int, val executorService: ExecutorService) extends WebRequestInterface {
+class OkHttpRequester(maxRequests: Int,
+                      requestsPerHost: Int,
+                      val executorService: ExecutorService,
+                      cookies: Map[String, String]) extends WebRequestInterface {
 
   val referrer = "Referer"
 
@@ -35,9 +38,14 @@ class OkHttpRequester(maxRequests: Int, requestsPerHost: Int, val executorServic
 
   def vreqToOkReq(vrequest: VRequest): Request = {
     val req = new Request.Builder().url(vrequest.href.uriString())
-    vrequest.referer.fold(req)(ref => req.addHeader(referrer, ref.uriString()))
-      .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0")
-            .build()
+
+    cookies.get(req.getUrl$okhttp.host()).foreach { cookies =>
+      req.addHeader("Cookie", cookies)
+    }
+
+    vrequest.referer.foreach(ref => req.addHeader(referrer, ref.uriString()))
+    req.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0")
+       .build()
   }
 
 
