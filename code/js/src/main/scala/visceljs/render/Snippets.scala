@@ -57,28 +57,24 @@ object Snippets {
 
 
   def group(name: String, actions: Actions, entries: Seq[FrontPageEntry]): TypedTag[dom.Element] = {
-    var cUnread = 0
-    var cTotal = 0
-    var cPos = 0
+    def sumOf(fun: FrontPageEntry => Int) = entries.iterator.map(fun).sum
+    val totalNewPages = sumOf(e => math.max(0, e.newPages))
+    val totalPages = sumOf(_.size)
+    val bookmarkedPages = sumOf(_.bookmarkPosition)
     val elements = entries.map { fpe =>
-      val desc = fpe.description
-      val unread = fpe.newPages
-      val e = a(href := path_front(fpe.id),
-                                 s"${desc.name}${if (unread == 0) "" else s" ($unread)"}",
+      val newPages = fpe.newPages
+      li(a(href := path_front(fpe.id),
+                                 s"${fpe.name}${if (newPages == 0) "" else s" ($newPages)"}",
         {
-          if (!desc.linked) span(" ",
+          if (!fpe.linked) span(" ",
                                  Icons.archive,
                                  cls := "unlinked",
                                  title := "not linked to live sources")
           else frag()
-        })
-      if (unread > 0) cUnread += unread
-      cTotal += desc.size
-      cPos += fpe.bookmarkPosition
-      li(e)
+        }))
     }
 
-    section(h1(s"$name $cUnread ($cPos/$cTotal)"), ul(elements),
+    section(h1(s"$name $totalNewPages ($bookmarkedPages/$totalPages)"), ul(elements),
             if (elements.isEmpty) cls := "empty" else "")
   }
 

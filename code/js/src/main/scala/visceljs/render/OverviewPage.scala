@@ -15,31 +15,17 @@ import visceljs.{Actions, Definitions, MetaInfo, SearchUtil}
 
 import scala.collection.immutable.Map
 
-trait FrontPageEntry {
-  def sortOrder: Int
-  def newPages: Int
+case class FrontPageEntry(id: Vid, description: Option[Description], bookmark: Option[Bookmark]) {
+  val name: String = description.fold(id.str)(_.name)
+  val bookmarkPosition: Int = bookmark.fold(0)(_.position)
+  val size: Int = description.fold(0)(_.size)
+  val newPages: Int =  size - bookmarkPosition
+  val sortOrder: (Int, String) = (-newPages, name)
+  def linked: Boolean = description.fold(false)(_.linked)
   def hasNewPages: Boolean = newPages > 15
-  def description: Description
-  def name: String = description.name
-  def bookmarkPosition: Int
   def noBookmark: Boolean = bookmarkPosition == 0
   def bookmarksFirst: Boolean = bookmarkPosition == 1 && newPages > 0
-  def recentOrder: Long
-  def id: Vid
-}
-
-case class BookmarkedEntry(id: Vid, description: Description, bookmark: Bookmark) extends FrontPageEntry {
-  def sortOrder: Int = bookmark.position - description.size
-  def newPages: Int = description.size - bookmark.position
-  override def bookmarkPosition: Int = bookmark.position
-  override def recentOrder: Long = -bookmark.timestamp
-}
-
-case class AvailableEntry(id: Vid, description: Description) extends FrontPageEntry {
-  override def sortOrder: Int = -description.size
-  def newPages = 0
-  override def bookmarkPosition: Int = 0
-  override def recentOrder: Long = 0
+  def recentOrder: Long = -bookmark.fold(0L)(_.timestamp)
 }
 
 class OverviewPage(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, Bookmark]], descriptions: Signal[Map[Vid, Description]]) {
@@ -47,19 +33,9 @@ class OverviewPage(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, 
   def gen(): TypedTag[html.Body] = {
 
     val entries = Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
-
-      val bookmarked: List[FrontPageEntry] =
-        bookmarks.toList.flatMap { case (id, bookmark) =>
-          descriptions.get(id).map { desc =>
-            BookmarkedEntry(id, desc, bookmark)
-          }
-        }
-      val available: List[FrontPageEntry] =
-        descriptions.iterator.collect{
-          case (id, desc) if !bookmarks.contains(id) => AvailableEntry(id, desc)
-        }.toList
-
-      bookmarked.reverse_:::(available)
+      (bookmarks.keys ++ descriptions.keys).toList.distinct.map{ id =>
+        FrontPageEntry(id, descriptions.get(id), bookmarks.get(id))
+      }
     }.withDefault(Nil)
 
     val searchInput = Evt[Event]
@@ -71,24 +47,21 @@ class OverviewPage(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, 
     val inputField = input(value := searchString, `type` := "text", tabindex := "1",
                            oninput := searchInput)
 
-    def searchable(l : List[FrontPageEntry]) = l.map(e => e.name -> e)
-
     val sortedFilteredEntries = Signal {
-      val query = searchString.value
-      if (query.isEmpty) entries.value.sortBy(_.sortOrder)
-      else SearchUtil.search(query, searchable(entries.value))
+      val sorted = entries.value.sortBy(_.sortOrder)
+      SearchUtil.search(searchString.value, sorted.map(e => (e.name + e.id.str) -> e))
     }
 
     val groups = sortedFilteredEntries.map { entries =>
 
-      val (available, bookmarked) = entries.partition(_.noBookmark)
-      val (marked, bookmarked2) = bookmarked.partition(_.bookmarksFirst)
-      val (bookMarked3, noNewPages) = bookmarked2.partition(_.hasNewPages)
-      val recent = bookMarked3.sortBy(_.recentOrder).take(12)
-      val normal = bookMarked3.filterNot(recent.contains)
+      val (available, remaining1) = entries.partition(_.noBookmark)
+      val (marked, remaining2) = remaining1.partition(_.bookmarksFirst)
+      val (remaining3, noNewPages) = remaining2.partition(_.hasNewPages)
+      val recent = remaining3.sortBy(_.recentOrder).take(12)
+      val updates = remaining3.diff(recent)
 
       Seq("Recent" -> recent,
-          "Updates" -> normal,
+          "Updates" -> updates,
           "Marked" -> marked,
           "Bookmarks" -> noNewPages,
           "Available" -> available)
@@ -105,13 +78,8 @@ class OverviewPage(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, 
 
 
     val groupTags: Signal[Seq[JsDom.TypedTag[dom.Element]]] = groups.map{ g =>
-      val groupNames = Seq("Recent",
-                           "Updates",
-                           "Marked",
-                           "Bookmarks",
-                           "Available")
-      groupNames.map { gn =>
-        Snippets.group(gn, actions, g.toMap.apply(gn))
+        g.map { case (name, content) =>
+        Snippets.group(name, actions, content)
       }
     }
 
