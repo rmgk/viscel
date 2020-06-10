@@ -1,0 +1,15 @@
+name: run tests
+
+on: [push]
+
+jobs:
+  build-windows:
+    runs-on: windows-2016
+    steps:
+      - uses: actions/checkout@v1
+      - name: install known good sbt version
+        run: |
+          choco install sbt --force --version 1.3.10
+      - name: run tests
+        run: |
+          sbt test
