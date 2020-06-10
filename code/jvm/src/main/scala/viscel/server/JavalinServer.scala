@@ -14,7 +14,7 @@ import loci.registry.Registry
 import rescala.default.Signal
 import rescala.extra.distributables.LociDist
 import viscel.shared.BookmarksMap.BookmarksMap
-import viscel.shared.{Bindings, JsoniterCodecs, Vid}
+import viscel.shared.{Bindings, Vid}
 import viscel.store.{BlobStore, RowStoreV4, User}
 import viscel.{FolderImporter, Viscel}
 
@@ -162,12 +162,8 @@ class JavalinServer(blobStore: BlobStore,
     })
     jl.get("db4/:vid", {ctx =>
       val vid = Vid.from(ctx.pathParam("vid"))
-      val (name, rows) = rowStore.load(vid)
+      val bytes = rowStore.file(vid).byteArray
       ctx.status(200)
-      import com.github.plokhotnyuk.jsoniter_scala.core._
-
-      val bytes = writeToArray(rows)(JsoniterCodecs.DataRowListRw)
-
       ctx.result(new ByteArrayInputStream(bytes))
       ctx.contentType("text/plain; charset=UTF-8")
     })
