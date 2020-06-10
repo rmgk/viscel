@@ -36,7 +36,7 @@ case class FailedElement(query: String, reason: Report, element: Element*) exten
 }
 
 case class RestrictionReport(actual: Int, restriction: Restriction) extends Report {
-  override def describe: String = s"restriction failed ${restriction.min} <= $actual <= ${restriction.max}"
+  override def describe: String = s"found $actual elements but expected between ${restriction.min} and ${restriction.max}"
 }
 
 case object QueryNotUnique extends FixedReport("query is not unique")
