@@ -20,7 +20,7 @@ ThisBuild / Compile / packageDoc / publishArtifact := false
 lazy val nativeImage = taskKey[File]("calls graalvm native image")
 
 
-lazy val root = project.in(file(".")).settings(
+lazy val viscelBundle = project.in(file(".")).settings(
   vbundleDef,
   normalizecss,
   nativeImage := {
@@ -32,8 +32,8 @@ lazy val root = project.in(file(".")).settings(
   },
   fetchJSDependenciesDef,
   )
-                       .enablePlugins(SbtSassify)
-                       .aggregate(app, server)
+                               .enablePlugins(SbtSassify)
+                               .aggregate(app, server)
 
 
 lazy val viscel = crossProject(JSPlatform, JVMPlatform)
