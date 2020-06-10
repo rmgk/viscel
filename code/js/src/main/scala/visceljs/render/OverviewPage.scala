@@ -42,7 +42,7 @@ case class AvailableEntry(id: Vid, description: Description) extends FrontPageEn
   override def recentOrder: Long = 0
 }
 
-class Index(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, Bookmark]], descriptions: Signal[Map[Vid, Description]]) {
+class OverviewPage(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, Bookmark]], descriptions: Signal[Map[Vid, Description]]) {
 
   def gen(): TypedTag[html.Body] = {
 

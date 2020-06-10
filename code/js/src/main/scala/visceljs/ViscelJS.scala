@@ -10,7 +10,7 @@ import rescala.extra.lattices.IdUtil.Id
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{body, h1, p}
 import visceljs.connection.{BookmarkManager, ContentConnectionManager, ServiceWorker}
-import visceljs.render.{Front, Index, Snippets, View}
+import visceljs.render.{DetailsPage, OverviewPage, Snippets, ImagePage}
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -63,9 +63,9 @@ object ViscelJS {
     val meta = MetaInfo(viscel.shared.Version.str, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
 
 
-    val index = new Index(meta, actions, bookmarkManager.bookmarks, ccm.descriptions)
-    val front = new Front(actions)
-    val view  = new View(actions)
+    val index = new OverviewPage(meta, actions, bookmarkManager.bookmarks, ccm.descriptions)
+    val front = new DetailsPage(actions)
+    val view  = new ImagePage(actions)
     val app   = new ReaderApp(content = ccm.content,
                               descriptions = ccm.descriptions,
                               bookmarks = bookmarkManager.bookmarks

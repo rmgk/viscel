@@ -10,7 +10,7 @@ import scalatags.JsDom.TypedTag
 import viscel.shared.{Bookmark, Contents, Description, Log, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Navigation.{Mode, Next, Position, Prev, navigationEvents}
-import visceljs.render.{FitType, Front, Index, Snippets, View}
+import visceljs.render.{FitType, DetailsPage, OverviewPage, Snippets, ImagePage}
 import visceljs.storage.Storing
 
 import scala.collection.immutable.Map
@@ -26,7 +26,7 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
   }
 
 
-  def makeBody(index: Index, front: Front, view: View): Signal[Option[TypedTag[html.Body]]] = {
+  def makeBody(index: OverviewPage, front: DetailsPage, view: ImagePage): Signal[Option[TypedTag[html.Body]]] = {
 
 
     val hashChange: Event[HashChangeEvent] =

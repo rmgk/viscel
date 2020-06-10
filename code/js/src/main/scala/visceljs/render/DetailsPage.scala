@@ -11,7 +11,7 @@ import viscel.shared.{Blob, Bookmark, ChapterPos, Contents, Description, SharedI
 import visceljs.Definitions.class_preview
 import visceljs.{Actions, Definitions}
 
-class Front(actions: Actions) {
+class DetailsPage(actions: Actions) {
 
   def gen(vid: Vid, description: Description, contents: Contents, bookmark: Bookmark): JsDom.TypedTag[html.Body] = {
 

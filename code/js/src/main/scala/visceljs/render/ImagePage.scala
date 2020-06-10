@@ -14,7 +14,7 @@ import visceljs.Navigation._
 import visceljs.{Actions, Definitions, Icons}
 import rescala.extra.Tags._
 
-class View(act: Actions) {
+class ImagePage(act: Actions) {
 
   def onLeftClickPrevNext(handler: Navigate => Unit): Modifier = onclick := { (e: MouseEvent) =>
     val node = e.currentTarget.asInstanceOf[dom.html.Element]
