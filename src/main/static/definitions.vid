@@ -357,7 +357,7 @@ http://inherittheearth.net/comic.shtml?0001A
 
 -:Heroes Of Lesser Earth
 https://www.heroesoflesserearth.com/2005/12/pilot/
-:image img.size-full
+:image img.size-full.aligncenter
 :next a:contains(Toward The Future)
 
 -:Bear Nuts
@@ -1959,12 +1959,15 @@ http://platinumblackcomic.com/archives/comic/chapter-1-cover
 :ia #comic img
 
 -:Scenes From A Mulitverse
-http://amultiverse.com/comic/2010/06/14/parenthood/
-:ia #comic img
+https://amultiverse.com/comic/2010/06/14/parenthood/
+:images? #comic img
+:next .comic-nav-next
+
 
 -:Heart Shaped Skull
-http://www.heartshapedskull.com/2002/10/31/working-through-the-negativity-cover/
-:ia #comic img
+https://www.aaronalexovich.com/comic/working-through-the-negativity-cover/
+:image+next #comic img
+:url_replace working-through-the-negativity-page-026 ::: working-through-the-negativity-page-027/ 
 
 -:Oh Joy Sex Toy
 http://www.ohjoysextoy.com/introduction/
