@@ -206,9 +206,9 @@
 
 
 
---------------------------------------------------------------------------------------
+-----------------------------------------------------------
 -- http://www.smackjeeves.com/
---------------------------------------------------------------------------------------
+-----------------------------------------------------------
 
 -- smackjeeves had a heart attack and redesigned its page
 -- some stuff seems to be still there, but some does not
@@ -248,9 +248,74 @@
 
 
 
---------------------------------------------------------------------------------------
+-----------------------------------------------------------------
 -- end of http://www.smackjeeves.com/
---------------------------------------------------------------------------------------
+-----------------------------------------------------------------
+
+
+-------------------------------------------------------------------------
+-- -- petite symphony
+-------------------------------------------------------------------------
+-- 
+-- -PetiteSymphony_goyoku:[PS] Rascals Goyoku
+-- http://goyoku.petitesymphony.com/comic/goyoku-prologue1/
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+-- 
+-- -PetiteSymphony_generation17:Generation 17
+-- http://generation17.comicsbreak.com/comic/cover/
+-- :image #comic img
+-- :next a.comic-nav-next
+-- 
+-- -PetiteSymphony_seed:[PS] Seed
+-- http://seed.petitesymphony.com/comic/seedchapter1
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+-- 
+-- -PetiteSymphony_knuckleup:[PS] Knuckle Up
+-- http://knuckleup.petitesymphony.com/comic/knuckleup-prologue1
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+-- 
+-- -PetiteSymphony_kickinrad:[PS] Kickin Rad
+-- http://kickinrad.petitesymphony.com/comic/hell-no/
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+-- 
+-- -PetiteSymphony_projectzero:[PS] Project Zero
+-- http://projectzero.petitesymphony.com/comic/project-zero-cover/
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+-- 
+-- -PetiteSymphony_retake:[PS] Retake
+-- http://retake.petitesymphony.com/comic/retake-cover/
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+-- 
+-- -PetiteSymphony_petsymph:[PS] Petsymph
+-- http://petsymph.petitesymphony.com/comic/petsymph-wakey-wakey/
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+-- 
+-- -PetiteSymphony_remnantsonata:[PS] Remnant Sonata
+-- http://remnantsonata.petitesymphony.com/comic/rs-pg1/
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+-- 
+-- -PetiteSymphony_ladycrimson:[PS] Lady Crimson
+-- http://ladycrimson.petitesymphony.com/comic/ladycrimson_cover/
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+-- 
+-- -PetiteSymphony_yearofthecow:[PS] Year of the Cow
+-- http://yearofthecow.petitesymphony.com/comic/yotc-cover/
+-- :image #comic-1 img
+-- :next a.navi.navi-next
+-- 
+-----------------------------------------------------------------------------
+-- -- end of petite symphony
+-----------------------------------------------------------------------------
+
 
 
 
@@ -1170,8 +1235,8 @@ http://www.ghostjunksickness.com/comic/archive
 
 -:Girl Genius
 http://www.girlgeniusonline.com/comic.php?date=20021104
-:is #comicbody img[src~=^http://www.girlgeniusonline.com/ggmain/strips/|/ggmain/doublespreads/extrabits/spy_ads/spy]
-:n #bottomnext
+:images? #comicbody img[src~=^http://www.girlgeniusonline.com/ggmain/strips/|/ggmain/doublespreads/extrabits/spy_ads/spy]
+:next #bottomnext
 
 -GoGetARoomie:Go Get a Roomie!
 http://www.gogetaroomie.com/comic/archive
@@ -1375,9 +1440,9 @@ http://www.nighheavenandhell.com/comic/archive
 :next .cc-nav a.cc-next
 
 -:No Need For Bushido
-http://nn4b.com/story
+https://nn4b.com/story
 :ac a.webcomic-term-link
-:image #comic-image img.attachment-full
+:images #comic-image img.attachment-full
 :next a.next-webcomic-link
 
 -:Not Drunk Enough
@@ -2329,7 +2394,7 @@ http://snafu-comics.com/swmcomic/prolouge/
 
 -Snafu_ppg:[snafu] PowerPuff Girl Doujinshi
 http://snafu-comics.com/swmcomic/ppg-chapter-1/
-:image .comicpage img
+:images? .comicpage img
 :next .comicnav a.previous
 
 -Snafu_mypanda:[snafu] MyPanda
@@ -2361,6 +2426,7 @@ http://snafu-comics.com/swmcomic/remix-v2-0/
 http://snafu-comics.com/swmcomic/junk-in-the-trunk/
 :image .comicpage img
 :next .comicnav a.previous
+:url_replace https://snafu-comics.com/swmcomic/paranoid/ ::: https://snafu-comics.com/swmcomic/vagtastic/
 
 -Snafu_skullboy:[snafu] Fluffy Doom
 http://snafu-comics.com/swmcomic/skull-boy-ch-1-cover/
@@ -2418,9 +2484,10 @@ http://snafu-comics.com/swmcomic/0001/
 :next .comicnav a.previous
 
 -Snafu_stbb:[snafu] Sure to be Ban'd
-http://snafu-comics.com/swmcomic/not-funny/
+https://snafu-comics.com/swmcomic/not-funny/
 :image .comicpage img
 :next .comicnav a.previous
+:url_replace https://snafu-comics.com/swmcomic/people-love-hats/ ::: https://snafu-comics.com/swmcomic/games-on-a-plane/
 
 -Snafu_crawlingcity:[snafu] The Crawling City
 https://snafu-comics.com/swmcomic/cereal/
@@ -2430,69 +2497,5 @@ https://snafu-comics.com/swmcomic/cereal/
 
 --------------------------------------------------------------------------------------
 -- end of snafu
---------------------------------------------------------------------------------------
-
-
---------------------------------------------------------------------------------------
--- petite symphony
---------------------------------------------------------------------------------------
-
--PetiteSymphony_goyoku:[PS] Rascals Goyoku
-http://goyoku.petitesymphony.com/comic/goyoku-prologue1/
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_generation17:Generation 17
-http://generation17.comicsbreak.com/comic/cover/
-:image #comic img
-:next a.comic-nav-next
-
--PetiteSymphony_seed:[PS] Seed
-http://seed.petitesymphony.com/comic/seedchapter1
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_knuckleup:[PS] Knuckle Up
-http://knuckleup.petitesymphony.com/comic/knuckleup-prologue1
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_kickinrad:[PS] Kickin Rad
-http://kickinrad.petitesymphony.com/comic/hell-no/
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_projectzero:[PS] Project Zero
-http://projectzero.petitesymphony.com/comic/project-zero-cover/
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_retake:[PS] Retake
-http://retake.petitesymphony.com/comic/retake-cover/
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_petsymph:[PS] Petsymph
-http://petsymph.petitesymphony.com/comic/petsymph-wakey-wakey/
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_remnantsonata:[PS] Remnant Sonata
-http://remnantsonata.petitesymphony.com/comic/rs-pg1/
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_ladycrimson:[PS] Lady Crimson
-http://ladycrimson.petitesymphony.com/comic/ladycrimson_cover/
-:image #comic-1 img
-:next a.navi.navi-next
-
--PetiteSymphony_yearofthecow:[PS] Year of the Cow
-http://yearofthecow.petitesymphony.com/comic/yotc-cover/
-:image #comic-1 img
-:next a.navi.navi-next
-
---------------------------------------------------------------------------------------
--- end of petite symphony
 --------------------------------------------------------------------------------------
 
