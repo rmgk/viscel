@@ -589,7 +589,7 @@ http://mangowow.zamomo.com/index.php?strip_id=1
 
 -:Undertow
 http://undertow.dreamshards.org/0/u0_0.html
-:i body > center > img
+:i body > center > img:eq(0)
 :n body > center > a:has(img[src~=saepoint.JPG]):not([href=http://undertow.dreamshards.org])
 
 -:Valiant
@@ -936,11 +936,11 @@ https://www.misfile.com/misfile/archive
 :mixedArchive #textarea .cc-storyline-header , #textarea .cc-storyline-pagethumb img
 :url_replace /comicsthumbs/ ::: /comics/
 
--:HellHigh
-http://www.misfile.com/hell-high/archive
-:mixedArchive #textarea .cc-storyline-header , #textarea .cc-storyline-pagethumb img
-:image unused-query
-:url_replace /comicsthumbs/ ::: /comics/
+-:Hell High
+https://www.misfile.com/hell-high/archive
+:chapterArchive #textarea .cc-storyline-header a
+:image #cc-comic
+:next a.cc-next
 
 -NX_Inverloch:Inverloch
 http://inverloch.seraph-inn.com/viewcomic.php?page=1
