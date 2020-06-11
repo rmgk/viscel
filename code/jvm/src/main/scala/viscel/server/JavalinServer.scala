@@ -120,7 +120,7 @@ class JavalinServer(blobStore: BlobStore,
         ctx.result("")
       }
     })
-    jl.get("stop", { ctx =>
+    jl.post("stop", { ctx =>
       if (ctx.attribute[User]("user").admin) {
         terminate()
       }
@@ -129,9 +129,9 @@ class JavalinServer(blobStore: BlobStore,
     jl.get("tools", { ctx =>
       ctx.result(toolsString)
     })
-    jl.get("import", { ctx =>
+    jl.post("import", { ctx =>
       if (ctx.attribute[User]("user").admin) {
-        val params = ctx.queryParamMap().asScala
+        val params = ctx.formParamMap().asScala
         List("id", "name", "path").flatMap(key => params.get(key).flatMap(_.asScala.headOption)) match {
           case List(id, name, path) =>
             import scala.concurrent.ExecutionContext.Implicits.global
@@ -144,9 +144,9 @@ class JavalinServer(blobStore: BlobStore,
         ctx.result("")
       }
     })
-    jl.get("add", { ctx =>
+    jl.post("add", { ctx =>
       if (ctx.attribute[User]("user").admin) {
-        val params = ctx.queryParamMap().asScala
+        val params = ctx.formParamMap().asScala
         List("url").flatMap(key => params.get(key).flatMap(_.asScala.headOption)) match {
           case List(url) =>
             import scala.concurrent.ExecutionContext.Implicits.global

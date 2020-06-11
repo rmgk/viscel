@@ -1,6 +1,6 @@
 package viscel.server
 
-import scalatags.Text.attrs.{`for`, `type`, action, attr, content, href, id, rel, src, title, value, name => attrname}
+import scalatags.Text.attrs.{`for`, `type`, action, attr, content, method, enctype, href, id, rel, src, title, value, name => attrname}
 import scalatags.Text.implicits.{Frag, Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{SeqFrag, body, div, form, h1, head, html, input, label, link, meta, script}
 import scalatags.Text.tags2.section
@@ -41,7 +41,7 @@ class ServerPages() {
   private def makeToolForm(formAction: String, inputs: Seq[String]): Tag = {
     section(
       h1(formAction.capitalize),
-      form(action := formAction,
+      form(action := formAction, method := "post", enctype := "application/x-www-form-urlencoded",
            SeqFrag(inputs.map(labelledInput(_))),
            input(`type` := "submit", value := formAction)))
   }
