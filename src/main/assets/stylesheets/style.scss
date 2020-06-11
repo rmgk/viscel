@@ -222,7 +222,8 @@ section {
     > * {
       margin-right: .5em;
       &:before{
-        content: " ";
+        // zero width space to allow breaking before anchors
+        content: "\200B";
       }
     }
   }
