@@ -1,16 +1,12 @@
 package viscel.store
 
-import java.io.ByteArrayInputStream
 import java.nio.file.Path
 
 import better.files.File
-import com.github.plokhotnyuk.jsoniter_scala.core._
 import viscel.narration.Narrator
 import viscel.shared.DataRow.Link
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.{DataRow, JsoniterCodecs, Vid}
-
-import scala.collection.mutable.ListBuffer
 
 
 class RowStoreV4(db4dir: Path) {
@@ -35,8 +31,6 @@ class RowStoreV4(db4dir: Path) {
     new RowAppender(f, this)
   }
 
-  private val noEndOfInputCheck = ReaderConfig.withCheckForEndOfInput(false)
-
   def load(id: Vid): (String, List[DataRow]) = synchronized {
     val start = System.currentTimeMillis()
 
@@ -45,22 +39,12 @@ class RowStoreV4(db4dir: Path) {
     if (!f.isRegularFile || f.size == 0)
       throw new IllegalStateException(s"$f does not contain data")
     else {
-      val inputbytes = f.byteArray
-      val name        = readFromArray[String](inputbytes, noEndOfInputCheck)(JsoniterCodecs.StringRw)
-      val namelength = writeToArray(name)(JsoniterCodecs.StringRw).length
-      val listBuilder = ListBuffer[DataRow]()
-      if (namelength < inputbytes.length - 1) {
-        val is = new ByteArrayInputStream(inputbytes, namelength, inputbytes.length - namelength)
-        scanJsonValuesFromStream[DataRow](is, noEndOfInputCheck) { dr =>
-          listBuilder.append(dr)
-          true
-        }(JsoniterCodecs.DataRowRw)
-      }
-      val dataRows = listBuilder.toList
+      val res = DBParser.parse(f.byteArray)
       Log.info(s"loading $id (${System.currentTimeMillis() - start}ms)")
-      (name, dataRows)
+      res
     }
   }
+
 
   def loadBook(id: Vid): Book = {
     val (name, rows) = try {load(id)} catch {

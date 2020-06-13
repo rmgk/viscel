@@ -5,12 +5,15 @@ import viscel.shared.{Blob, ChapterPos, Contents, DataRow, Log, SharedImage, Vur
 import scala.collection.mutable
 
 
-object ContentLoader {
+object BookToContents {
 
-  def size(book: Book): Int = ContentLoader.linearizedPages(book).count(_.isLeft)
+  def size(book: Book): Int = BookToContents.linearizedPages(book).count(_.isLeft)
 
-  case class OriginData(link: DataRow.Link) {
 
+  def contents(book: Book): Option[Contents] = {
+    val pages = BookToContents.linearizedPages(book)
+    if (pages.isEmpty) None
+    else Some(BookToContents.pagesToContents(pages))
   }
 
   type LinearResult = List[Either[SharedImage, DataRow.Chapter]]

@@ -9,12 +9,14 @@ import rescala.extra.lattices.IdUtil
 import rescala.extra.lattices.IdUtil.Id
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{body, h1, p}
+import viscel.store.DBParser
 import visceljs.connection.{BookmarkManager, ContentConnectionManager, ServiceWorker}
-import visceljs.render.{DetailsPage, OverviewPage, Snippets, ImagePage}
+import visceljs.render.{DetailsPage, ImagePage, OverviewPage, Snippets}
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js
+import scala.scalajs.js.typedarray.{ArrayBuffer, TypedArrayBuffer}
 
 case class MetaInfo(version: String, remoteVersion: Signal[String], serviceState: Signal[String], connection: Signal[Int], reconnecting: Signal[Int])
 
@@ -22,9 +24,9 @@ object ViscelJS {
 
   val baseurl = ""
 
-  def fetchtext(endpoint: String,
-                method: HttpMethod = HttpMethod.GET,
-                body: Option[String] = None): Future[String] = {
+  def fetchbuffer(endpoint: String,
+                  method: HttpMethod = HttpMethod.GET,
+                  body: Option[String] = None): Future[ArrayBuffer] = {
 
     val ri = js.Dynamic.literal(method = method).asInstanceOf[RequestInit]
 
@@ -39,7 +41,7 @@ object ViscelJS {
     //}
 
     Fetch.fetch(baseurl + endpoint, ri).toFuture
-         .flatMap(_.text().toFuture)
+         .flatMap(_.arrayBuffer().toFuture)
   }
 
 
@@ -50,6 +52,11 @@ object ViscelJS {
 
 
     val swstate = ServiceWorker.register()
+
+    //fetchbuffer("db4/VD_YetAnotherFantasyGamerComic").map{ ab =>
+    //  val tab = TypedArrayBuffer.wrap(ab).array()
+    //  DBParser.parse(tab)
+    //}
 
 
     val registry = new Registry

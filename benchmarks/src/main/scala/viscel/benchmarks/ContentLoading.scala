@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit
 
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
-import viscel.store.ContentLoader
-import viscel.store.ContentLoader.LinearResult
+import viscel.store.BookToContents
+import viscel.store.BookToContents.LinearResult
 import viscel.shared.{DataRow, Vid}
 import viscel.store.{Book, RowStoreV4}
 
@@ -40,7 +40,7 @@ class ContentLoading {
     vid = Vid.from(bookId)
     loadedContents = services.load(vid)
     book = Book.fromEntries(vid, loadedContents._1, loadedContents._2)
-    pages = ContentLoader.linearizedPages(book)
+    pages = BookToContents.linearizedPages(book)
   }
 
   @Benchmark
@@ -55,12 +55,12 @@ class ContentLoading {
 
   @Benchmark
   def linearizeBook(bh: Blackhole) = {
-    ContentLoader.linearizedPages(book)
+    BookToContents.linearizedPages(book)
   }
 
   @Benchmark
   def pagesToContents(bh: Blackhole) = {
-    ContentLoader.pagesToContents(pages)
+    BookToContents.pagesToContents(pages)
   }
 
 

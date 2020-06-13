@@ -7,14 +7,11 @@ class ContentLoader(narratorCache: NarratorCache,
                     rowStore: RowStoreV4,
                     descriptionCache: DescriptionCache) {
 
-
+  /** load the book in an order suitable for viewing */
   def contents(id: Vid): Option[Contents] = {
-    // load the book in an order suitable for viewing
     try {
       val book  = rowStore.loadBook(id)
-      val pages = ContentLoader.linearizedPages(book)
-      if (pages.isEmpty) None
-      else Some(ContentLoader.pagesToContents(pages))
+      BookToContents.contents(book)
     } catch {
       case e: IllegalStateException => None
       case other: Throwable         =>
@@ -22,6 +19,7 @@ class ContentLoader(narratorCache: NarratorCache,
         None
     }
   }
+
 
   def descriptions(): Map[Vid, Description] = {
     Log.Server.debug(s"requesting descriptions")
@@ -44,7 +42,7 @@ class ContentLoader(narratorCache: NarratorCache,
     descriptionCache.getOrElse(id) {
       Log.Server.trace(s"computing description for $id")
       val book = rowStore.loadBook(id)
-      Description(book.name, ContentLoader.size(book), linked = false, timestamp = System.currentTimeMillis())
+      Description(book.name, BookToContents.size(book), linked = false, timestamp = System.currentTimeMillis())
     }
   }
 
