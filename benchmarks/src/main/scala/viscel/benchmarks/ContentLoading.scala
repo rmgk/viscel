@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit
 
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
-import viscel.server.ContentLoader
-import viscel.server.ContentLoader.LinearResult
+import viscel.store.ContentLoader
+import viscel.store.ContentLoader.LinearResult
 import viscel.shared.{DataRow, Vid}
 import viscel.store.{Book, RowStoreV4}
 

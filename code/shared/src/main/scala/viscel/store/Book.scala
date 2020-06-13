@@ -1,6 +1,5 @@
 package viscel.store
 
-import viscel.netzi.VRequest
 import viscel.shared.DataRow.Link
 import viscel.shared.{DataRow, Log, Vid, Vurl}
 
@@ -15,12 +14,6 @@ case class Book(id: Vid,
 
   def beginning: Option[DataRow] = pages.get(Book.entrypoint)
   def hasPage(ref: Vurl): Boolean = pages.contains(ref)
-
-  def allLinks: Iterator[VRequest] = {
-    pages.valuesIterator.flatMap{ dr =>
-      dr.contents.iterator.collect{case l : DataRow.Link => VRequest(l.ref, l.data, dr.loc.orElse(Some(dr.ref)))}
-    }
-  }
 
   def reachable(): Set[Vurl] = {
     def rec(check: List[Vurl], acc: Set[Vurl]): Set[Vurl] = {

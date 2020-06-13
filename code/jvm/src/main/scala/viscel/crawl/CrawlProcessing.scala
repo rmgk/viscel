@@ -51,7 +51,14 @@ object CrawlProcessing {
   }
 
   def initialTasks(book: Book): List[VRequest] =
-    book.allLinks.filter(l => !book.hasPage(l.href) || l.context.contains(Decider.Volatile)).toList
+    allLinks(book).filter(l => !book.hasPage(l.href) || l.context.contains(Decider.Volatile)).toList
+
+
+  def allLinks(book: Book): Iterator[VRequest] = {
+    book.pages.valuesIterator.flatMap{ dr =>
+      dr.contents.iterator.collect{case l : DataRow.Link => VRequest(l.ref, l.data, dr.loc.orElse(Some(dr.ref)))}
+    }
+  }
 
   def rechecks(book: Book): List[VRequest] = computeRightmostLinks(book)
 

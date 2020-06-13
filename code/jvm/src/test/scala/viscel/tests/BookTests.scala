@@ -2,6 +2,7 @@ package viscel.tests
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import viscel.crawl.CrawlProcessing
 import viscel.shared.{DataRow, Vid}
 import viscel.store.Book
 import viscel.tests.DataGenerators._
@@ -17,7 +18,7 @@ class BookTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
       val one = bookO.get
 
       assert(one.hasPage(page.ref))
-      assert(one.allLinks.map(_.href).toList === page.contents)
+      assert(CrawlProcessing.allLinks(one).map(_.href).toList === page.contents)
 
       assert(one.addPage(page) === None, "adding is idempotent")
 
