@@ -1,6 +1,5 @@
 package viscel.store
 
-import cats.implicits.{catsSyntaxEitherId, catsSyntaxOptionId}
 import viscel.shared.{Blob, ChapterPos, Contents, DataRow, Log, SharedImage, Vurl}
 
 import scala.collection.mutable
@@ -55,12 +54,12 @@ object ContentLoader {
               case None      => flatten(lastLink, t, acc)
               case Some(alp) =>
                 val unsennContents = unseen(alp.ref, alp.contents)
-                flatten(l.some, unsennContents reverse_::: t, acc)
+                flatten(Some(l), unsennContents reverse_::: t, acc)
             }
 
           case blob: DataRow.Blob  =>
-            flatten(lastLink, t, toSharedImage(lastLink, blob).asLeft :: acc)
-          case ch: DataRow.Chapter => flatten(lastLink, t, ch.asRight :: acc)
+            flatten(lastLink, t, Left(toSharedImage(lastLink, blob)) :: acc)
+          case ch: DataRow.Chapter => flatten(lastLink, t, Right(ch) :: acc)
         }
       }
     }

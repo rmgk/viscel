@@ -43,7 +43,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     name := "viscel",
     strictCompile, scribe, scalatags,
     scribeSlf4j, Resolvers.stg,
-    cats,
     libraryDependencies += "de.tuda.stg" %%% "rescala" % "0.30.0",
     //libraryDependencies += "io.lemonlabs" %%% "scala-uri" % "2.2.2",
     jsoniter,
