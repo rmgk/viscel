@@ -21,7 +21,7 @@ object Definitions {
 
   def link_tools(ts: Frag*): Tag = a(href := path_tools)(ts)
 
-  private def getDefined[T](ts: T*): Option[T] = ts.find(v => v != null && !scalajs.js.isUndefined(v))
+  def getDefined[T](ts: T*): Option[T] = ts.find(v => v != null && !scalajs.js.isUndefined(v))
   private val dDocument = scala.scalajs.js.Dynamic.global.document
 
 
