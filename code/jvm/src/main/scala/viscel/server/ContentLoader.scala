@@ -81,6 +81,16 @@ object ContentLoader {
       }
     }
 
+    def toSharedImage(lastLink: Option[DataRow.Link], blob: DataRow.Blob) = {
+      val DataRow.Blob(sha1: String, mime: String) = blob
+      val (dataMap, origin)                        = lastLink.map { ll =>
+        ll.data.sliding(2, 2).filter(_.size == 2).map {
+          case List(a, b) => a -> b
+        }.toMap -> seenOrigins(ll.ref).uriString()
+      }.getOrElse(Map.empty -> "")
+      SharedImage(origin, Blob(sha1, mime), dataMap)
+    }
+
     @scala.annotation.tailrec
     def flatten(lastLink: Option[DataRow.Link],
                 remaining: List[DataRow.Content],
@@ -91,21 +101,14 @@ object ContentLoader {
           case l @ DataRow.Link(loc, _) =>
             book.pages.get(loc) match {
               case None      => flatten(lastLink, t, acc)
-              case Some(alp) => flatten(l.some,
-                                        unseen(alp.ref, alp.contents) reverse_::: t,
-                                        acc)
+              case Some(alp) =>
+                val unsennContents = unseen(alp.ref, alp.contents)
+                flatten(l.some, unsennContents reverse_::: t, acc)
             }
-          case DataRow.Blob(sha1, mime) =>
-            val (dataMap, origin) = lastLink.map { ll =>
-              ll.data.sliding(2, 2).filter(_.size == 2).map {
-                case List(a, b) => a -> b
-              }.toMap -> seenOrigins(ll.ref).uriString()
-            }.getOrElse(Map.empty -> "")
-            flatten(lastLink, t,
-                    SharedImage(origin,
-                                Blob(sha1, mime),
-                                dataMap).asLeft :: acc)
-          case ch: DataRow.Chapter      => flatten(lastLink, t, ch.asRight :: acc)
+
+          case blob: DataRow.Blob  =>
+            flatten(lastLink, t, toSharedImage(lastLink, blob).asLeft :: acc)
+          case ch: DataRow.Chapter => flatten(lastLink, t, ch.asRight :: acc)
         }
       }
     }
