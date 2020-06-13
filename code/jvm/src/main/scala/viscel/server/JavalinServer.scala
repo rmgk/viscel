@@ -14,7 +14,7 @@ import loci.registry.Registry
 import rescala.default.Signal
 import rescala.extra.distributables.LociDist
 import viscel.shared.BookmarksMap.BookmarksMap
-import viscel.shared.{Bindings, Vid}
+import viscel.shared.{Bindings, DataRow, Vid}
 import viscel.store.{BlobStore, RowStoreV4, User}
 import viscel.{FolderImporter, Viscel}
 
@@ -166,6 +166,21 @@ class JavalinServer(blobStore: BlobStore,
       ctx.status(200)
       ctx.result(new ByteArrayInputStream(bytes))
       ctx.contentType("text/plain; charset=UTF-8")
+    })
+    jl.get("dots/:vid", {ctx =>
+      val vid = Vid.from(ctx.pathParam("vid"))
+      val (_, rows) = rowStore.load(vid)
+      val edges  =rows.map{
+        case DataRow(ref, loc, lastModified, etag, contents) =>
+          val cs = contents.flatMap {
+            case DataRow.Link(ref, data) => Some("\"" + ref.uriString().toString + "\"")
+            case other => None
+          }
+          s""""${ref.uriString()}" -> {${cs.mkString("; ")}};"""
+      }.mkString("\n")
+      ctx.result(s"digraph { \n$edges}\n")
+      ctx.contentType("text/plain; charset=UTF-8")
+      ctx.status(200)
     })
   }
 }
