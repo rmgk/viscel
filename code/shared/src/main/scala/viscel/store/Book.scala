@@ -51,7 +51,7 @@ object Book {
   // which incorrectly does not support plain `viscel:initial` as an uri
   // instead requiring this kind of workaround.
   // And now its too late to change.
-  val entrypoint: Vurl = Vurl("viscel:///initial")
+  val entrypoint: Vurl = Vurl.unsafeFromString("viscel:///initial")
 
   def fromEntries(id: Vid,
                   name: String,

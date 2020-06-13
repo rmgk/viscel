@@ -10,6 +10,8 @@ import org.scalajs.dom
 import rescala.default._
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import viscel.shared._
+import viscel.store.{Book, BookToContents, DBParser}
+import visceljs.ViscelJS.fetchbuffer
 import visceljs.storage.{LocalForageInstance, Storing, localforage}
 
 import scala.concurrent.Future
@@ -89,6 +91,21 @@ class ContentConnectionManager(registry: Registry) {
   val lfi: LocalForageInstance = localforage.createInstance(js.Dynamic.literal("name" -> "contents"))
 
 
+  def fetchContents(vid: Vid) = {
+    fetchbuffer(s"db4/${vid.str}").map{ ab =>
+      val start = System.currentTimeMillis()
+      val bytes = new Int8Array(ab).toArray
+      Log.JS.info(s"to array: ${System.currentTimeMillis() - start}")
+      val (name, rows) = DBParser.parse(bytes)
+      Log.JS.info(s"parse: ${System.currentTimeMillis() - start}")
+      val book = Book.fromEntries(vid, name, rows)
+      Log.JS.info(s"to book: ${System.currentTimeMillis() - start}")
+      val contents = BookToContents.contents(book)
+      Log.JS.info(s"to contents: ${System.currentTimeMillis() - start}")
+      contents
+    }
+  }
+
   private var priorContentSignal: Option[Signal[Any]] = None
   def content(vid: Vid): Signal[Option[Contents]] = {
     hint(vid, force = false)
@@ -111,6 +128,7 @@ class ContentConnectionManager(registry: Registry) {
 
 
     val remoteLookupSignal: Signal[Signal[Option[Contents]]] = mainRemote.map { remote =>
+      //Signals.fromFuture(fetchContents(vid))
       Signals.fromFuture(registry.lookup(Bindings.contents, remote).apply(vid))
     }
 
