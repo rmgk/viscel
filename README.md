@@ -33,5 +33,5 @@ Caveats
 
 * Viscel is not really designed for new users, you may have to experiment a bit to figure out how it works.
 * Webcomics change their websites from time to time, resulting in downloads breaking. This will not affect your existing archives.
-* The local webserver Viscel starts is reachable from anywhere by default. This makes it easy to read from your Smartphone/Tablet if you want, but also means that anyone in your network can potentially access the server.
+* The local webserver Viscel starts is reachable from anywhere by default. This makes it easy to read from your smartphone/tablet if you want, but also means that anyone in your network can potentially access the server.
 
