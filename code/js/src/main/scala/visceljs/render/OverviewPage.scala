@@ -32,7 +32,7 @@ class OverviewPage(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, 
 
   def gen(): TypedTag[html.Body] = {
 
-    val entries = Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
+    val entriesS = Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
       (bookmarks.keys ++ descriptions.keys).toList.distinct.map{ id =>
         FrontPageEntry(id, descriptions.get(id), bookmarks.get(id))
       }
@@ -41,19 +41,15 @@ class OverviewPage(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, 
     val searchInput = Evt[Event]
     val searchString: Signal[String] = searchInput.map { ke =>
       val sv = ke.currentTarget.asInstanceOf[html.Input].value.toString.toLowerCase
-      println(s"search val $sv")
       sv
     }.latest("")
     val inputField = input(value := searchString, `type` := "text", tabindex := "1",
                            oninput := searchInput)
 
-    val sortedFilteredEntries = Signal {
-      val sorted = entries.value.sortBy(_.sortOrder)
-      SearchUtil.search(searchString.value, sorted.map(e => (e.name + e.id.str) -> e))
-    }
 
-    val groups = sortedFilteredEntries.map { entries =>
+    val groupsS = entriesS.map { unsorted =>
 
+      val entries = unsorted.sortBy(_.sortOrder)
       val (available, remaining1) = entries.partition(_.noBookmark)
       val (marked, remaining2) = remaining1.partition(_.bookmarksFirst)
       val (remaining3, noNewPages) = remaining2.partition(_.hasNewPages)
@@ -67,8 +63,14 @@ class OverviewPage(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, 
           "Available" -> available)
     }
 
+    val sortedFilteredGroups = Signal {
+      groupsS.value.map { case (n, g) =>
+        n -> SearchUtil.search(searchString.value, g.map(e => e.name -> e))
+      }
+    }
 
-    val callback: Signal[() => Boolean] = groups.map { gs =>
+
+    val callback: Signal[() => Boolean] = sortedFilteredGroups.map { gs =>
       val displayOrder = gs.map(_._2)
       val first: Option[Vid] = displayOrder.find(_.nonEmpty).map{ _.head.id}
       () => {first.foreach(f => dom.window.location.hash = Definitions.path_front(f)); false}
@@ -77,8 +79,8 @@ class OverviewPage(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, 
     val searchForm = form(inputField, onsubmit := callback)
 
 
-    val groupTags: Signal[Seq[JsDom.TypedTag[dom.Element]]] = groups.map{ g =>
-        g.map { case (name, content) =>
+    val groupTags: Signal[Seq[JsDom.TypedTag[dom.Element]]] = sortedFilteredGroups.map { g =>
+      g.map { case (name, content) =>
         Snippets.group(name, actions, content)
       }
     }
