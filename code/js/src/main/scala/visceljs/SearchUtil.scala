@@ -2,20 +2,30 @@ package visceljs
 
 
 import scala.annotation.tailrec
+import scala.util.control.NonFatal
 
 
 object SearchUtil {
   def search[T](query: String, items: List[(String, T)]): List[T] = {
-    val lcql = query.toLowerCase.replaceAll("""\s+""", "")
+    val lcql = normstr(query.toLowerCase.replaceAll("""\s+""", ""))
     if (lcql.isEmpty) items.map(_._2)
     else items
       .view
-      .map { item => item -> fuzzyMatch(lcql, item._1.toLowerCase) }
+      .map { item => item -> fuzzyMatch(lcql, normstr(item._1.toLowerCase)) }
       .filter {_._2 > 0}
       .toList
       .sortBy {-_._2}
       .map {_._1._2}
   }
+
+
+  def normstr(in: String) =
+    try {
+      in.asInstanceOf[scalajs.js.Dynamic].normalize("NFD").asInstanceOf[String]
+    }
+    catch {
+      case NonFatal(e) => in
+    }
 
   def fuzzyMatch(query: String, text: String): Long = {
     @tailrec
