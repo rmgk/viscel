@@ -24,7 +24,7 @@ object Navigation {
     def limit(m: Int): Position = copy(max = Some(m))
   }
 
-  val navigate            = Evt[Navigate]
+  val navigate            = Evt[Navigate]()
   val handleKeypress      = Events.fromCallback[KeyboardEvent](dom.document.onkeydown = _)
   val keypressNavigations = handleKeypress.event.map(_.key).collect {
     case "ArrowLeft"  => Prev

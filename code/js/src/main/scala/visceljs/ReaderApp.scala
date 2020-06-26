@@ -21,9 +21,7 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
                ) {
 
 
-  def getHash(): String = {
-    dom.window.location.hash
-  }
+  def getHash(): String = dom.window.location.hash
 
 
   def makeBody(index: OverviewPage, front: DetailsPage, view: ImagePage): Signal[Option[TypedTag[html.Body]]] = {
@@ -35,7 +33,7 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
 
     val targetStates = hashChange.map(hc => AppState.parse(new URL(hc.newURL).hash))
 
-    val initialAppState = AppState.parse(getHash)
+    val initialAppState = AppState.parse(getHash())
     val currentTargetAppState: Signal[AppState] = targetStates.fold(initialAppState) { case (_, next) => next }
 
     val setCurrentPostition: Event[Int] = currentTargetAppState.changed.collect { case ViewState(_, pos) => pos }

@@ -38,7 +38,7 @@ class OverviewPage(meta: MetaInfo, actions: Actions, bookmarks: Signal[Map[Vid, 
       }
     }.withDefault(Nil)
 
-    val searchInput = Evt[Event]
+    val searchInput = Evt[Event]()
     val searchString: Signal[String] = searchInput.map { ke =>
       val sv = ke.currentTarget.asInstanceOf[html.Input].value.toString.toLowerCase
       sv

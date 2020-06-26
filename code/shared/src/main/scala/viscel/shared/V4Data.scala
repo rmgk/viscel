@@ -9,7 +9,7 @@ import viscel.shared.DataRow._
 
 final class Vurl private(private val uri: String) extends AnyVal {
   def uriString(): String = uri
-  override def toString: String = s"Vurl($uriString)"
+  override def toString: String = s"Vurl(${uriString()})"
 }
 
 object Vurl {

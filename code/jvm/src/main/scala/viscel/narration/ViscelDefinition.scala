@@ -80,7 +80,7 @@ object ViscelDefinition {
   def transformUrls(replacements: List[(String, String)])(stories: List[DataRow.Content]): List[DataRow.Content] = {
 
     def replaceVurl(url: Vurl): Vurl =
-      replacements.foldLeft(url.uriString) {
+      replacements.foldLeft(url.uriString()) {
         case (u, (matches, replace)) => u.replaceAll(matches, replace)
       }
 
