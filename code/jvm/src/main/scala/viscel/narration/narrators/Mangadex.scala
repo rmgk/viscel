@@ -5,7 +5,7 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.{CodecMakerConfig, JsonCodec
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.{Metarrator, Narrator, Templates}
 import viscel.selektiv.Narration.{ContextW, WrapPart}
-import viscel.selektiv.{FixedReport, ReportTools}
+import viscel.selektiv.ReportTools
 import viscel.shared.{DataRow, Vurl}
 import viscel.shared.JsoniterCodecs.VurlRw
 
@@ -16,7 +16,7 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
 
   case class ChapterInfo(lang_code: String, chapter: String, volume: String, title: String) {
     lazy val chapternumber = {
-      "(\\d+)".r.findFirstIn(chapter).map(_.toInt).getOrElse(throw new FixedReport(s"$chapter contains no int"))
+      "(\\d+)".r.findFirstIn(chapter).map(_.toInt).getOrElse(-1)
     }
     def sorting: (Int, Int, String, String) = (volume.toIntOption.getOrElse(Int.MaxValue), chapternumber, chapter, title)
   }
