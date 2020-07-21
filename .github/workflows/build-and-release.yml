@@ -98,11 +98,13 @@ jobs:
     needs: [build-windows, build-ubuntu-mac]
     steps:
       - uses: actions/download-artifact@v2
-      - name: Build project # This would actually build your project, using zip for an example artifact
+      - name: fix executable bit and create archives
         run: |
-          zip -r viscel-windows-2016.zip viscel-windows-2016/*
-          zip -r viscel-ubuntu-20.04.zip viscel-ubuntu-20.04/*
-          zip -r viscel-macos-10.15.zip viscel-macos-10.15/*
+          chmod +x viscel-ubuntu-20.04/viscel
+          chmod +x viscel-macos-10.15/viscel
+          zip -r viscel-windows.zip viscel-windows-2016/*
+          tar -zcvf viscel-linux.tar.gz viscel-ubuntu-20.04/*
+          tar -zcvf viscel-macos.tar.gz viscel-macos-10.15/*
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -120,8 +122,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: viscel-windows-2016.zip
-          asset_name: viscel-windows-2016.zip
+          asset_path: viscel-windows.zip
+          asset_name: viscel-windows.zip
           asset_content_type: application/zip
       - name: Upload Release Asset Ubuntu
         id: upload-release-asset-ubuntu
@@ -130,9 +132,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: viscel-ubuntu-20.04.zip
-          asset_name: viscel-ubuntu-20.04.zip
-          asset_content_type: application/zip
+          asset_path: viscel-linux.tar.gz
+          asset_name: viscel-linux.tar.gz
+          asset_content_type: application/gzip
       - name: Upload Release Asset macOS
         id: upload-release-asset-macos
         uses: actions/upload-release-asset@v1
@@ -140,6 +142,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: viscel-macos-10.15.zip
-          asset_name: viscel-macos-10.15.zip
-          asset_content_type: application/zip
+          asset_path: viscel-macos.tar.gz
+          asset_name: viscel-macos.tar.gz
+          asset_content_type: application/gzip
