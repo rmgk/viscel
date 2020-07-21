@@ -13,7 +13,6 @@ import scala.jdk.CollectionConverters._
 
 object FlowWrapper {
 
-
   sealed trait Restriction {
 
     val (min, max) = this match {
@@ -29,18 +28,18 @@ object FlowWrapper {
     }
   }
   object Restriction {
-    object Unique extends Restriction
-    object NonEmpty extends Restriction
-    object None extends Restriction
+    object Unique    extends Restriction
+    object NonEmpty  extends Restriction
+    object None      extends Restriction
     object AtMostOne extends Restriction
   }
 
-
   sealed trait Extractor {
     val extract: Element => List[DataRow.Content] = this match {
-      case Extractor.Image           => e => List(extractArticle(e))
-      case Extractor.More            => e => List(extractMore(e))
-      //case Extractor.Parent(next)    => e => next.extract(e.parent())
+      case Extractor.Image => e => List(extractArticle(e))
+      case Extractor.More => e =>
+          List(extractMore(e))
+        //case Extractor.Parent(next)    => e => next.extract(e.parent())
       //case Extractor.Optional(inner) => e => Try(inner.extract(e)).toOption.getOrElse(Nil)
       case OptionalParentMore     => extractParentMore
       case Extractor.MixedArchive => e => List(extractMixedArchive(e))
@@ -48,38 +47,40 @@ object FlowWrapper {
     }
   }
   object Extractor {
-    object Image extends Extractor
-    object More extends Extractor
+    object Image              extends Extractor
+    object More               extends Extractor
     object OptionalParentMore extends Extractor
-    object MixedArchive extends Extractor
-    object Chapter extends Extractor
+    object MixedArchive       extends Extractor
+    object Chapter            extends Extractor
   }
-
 
   sealed trait Filter {
     val filter: List[DataRow.Content] => List[DataRow.Content] = this match {
       case Filter.ChapterReverse(reverseInner) => chapterReverse(_, reverseInner)
       case Filter.TransformUrls(replacements)  => ViscelDefinition.transformUrls(replacements)
-      case Filter.SelectSingleNext             => contents => {
-        if (contents.isEmpty) Nil
-        else contents match {
-          case pointers if pointers.toSet.size == 1 => pointers.headOption.toList
-          case pointers                             => throw QueryNotUnique
+      case Filter.SelectSingleNext => contents => {
+          if (contents.isEmpty) Nil
+          else
+            contents match {
+              case pointers if pointers.toSet.size == 1 => pointers.headOption.toList
+              case pointers                             => throw QueryNotUnique
+            }
         }
-      }
     }
   }
   object Filter {
-    case class ChapterReverse(reverseInner: Boolean) extends Filter
+    case class ChapterReverse(reverseInner: Boolean)               extends Filter
     case class TransformUrls(replacements: List[(String, String)]) extends Filter
-    case object SelectSingleNext extends Filter
+    case object SelectSingleNext                                   extends Filter
   }
 
-  case class Pipe(query: String,
-                  restriction: Restriction,
-                  extractors: List[Extractor],
-                  filter: List[Filter] = Nil,
-                  conditions: List[String] = Nil) {
+  case class Pipe(
+      query: String,
+      restriction: Restriction,
+      extractors: List[Extractor],
+      filter: List[Filter] = Nil,
+      conditions: List[String] = Nil
+  ) {
     def toWrapper: Narrator.Wrapper = {
       val extracted = Selection.select(query, restriction).map { elements =>
         elements.flatMap { elem: Element =>
@@ -93,22 +94,25 @@ object FlowWrapper {
   case class Plumbing(pipes: List[Pipe]) {
     def toWrapper: Narrator.Wrapper = {
 
-      val condGroupd     = pipes.groupBy(_.conditions.nonEmpty)
-      val conditioned    = condGroupd.getOrElse(true, Nil)
-      val unconditioned  = condGroupd.getOrElse(false, Nil)
+      val condGroupd    = pipes.groupBy(_.conditions.nonEmpty)
+      val conditioned   = condGroupd.getOrElse(true, Nil)
+      val unconditioned = condGroupd.getOrElse(false, Nil)
       val appendedUncond = unconditioned.map(_.toWrapper) match {
         case Nil         => Constant(Nil)
         case wrap :: Nil => wrap
         case multiple    => multiple.reduce(Append[DataRow.Content])
       }
-      val appended       = conditioned.foldRight(appendedUncond) { (pipe, rest) =>
+      val appended = conditioned.foldRight(appendedUncond) { (pipe, rest) =>
         val conditions = pipe.conditions
         val wrapper    = pipe.toWrapper
-        Condition(ContextW.map(cd =>
-                                 conditions.exists(cd.response.location.uriString().equals) ||
-                                 conditions.exists(cd.request.href.uriString().equals)),
-                  wrapper,
-                  rest)
+        Condition(
+          ContextW.map(cd =>
+            conditions.exists(cd.response.location.uriString().equals) ||
+              conditions.exists(cd.request.href.uriString().equals)
+          ),
+          wrapper,
+          rest
+        )
       }
 
       appended
@@ -116,9 +120,7 @@ object FlowWrapper {
     }
   }
 
-
 }
-
 
 object Selection {
 
@@ -131,9 +133,9 @@ object Selection {
     }
   }
 
-  def unique(query: String): WrapPart[Element] = select(query, Restriction.Unique).map(_.head)
+  def unique(query: String): WrapPart[Element]     = select(query, Restriction.Unique).map(_.head)
   def many(query: String): WrapPart[List[Element]] = select(query, Restriction.NonEmpty)
-  def all(query: String): WrapPart[List[Element]] = select(query, Restriction.None)
+  def all(query: String): WrapPart[List[Element]]  = select(query, Restriction.None)
 
   def queryAndValidate[R](query: String)(validate: Elements => Either[Report, R]): WrapPart[R] = {
     val trimmed = query.trim
@@ -145,4 +147,3 @@ object Selection {
     }
   }
 }
-

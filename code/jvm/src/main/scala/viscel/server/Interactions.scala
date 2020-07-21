@@ -1,6 +1,5 @@
 package viscel.server
 
-
 import cats.instances.string._
 import cats.syntax.eq._
 import loci.registry.Registry
@@ -19,11 +18,13 @@ import viscel.Viscel
 import scala.collection.immutable.Map
 import scala.concurrent.Future
 
-class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
-                   narrationHint: Evt[(Narrator, Boolean)],
-                   userStore    : Users,
-                   requestUtil  : WebRequestInterface
-                  ) {
+class Interactions(
+    contentLoader: ContentLoader,
+    narratorCache: NarratorCache,
+    narrationHint: Evt[(Narrator, Boolean)],
+    userStore: Users,
+    requestUtil: WebRequestInterface
+) {
 
   def addNarratorsFrom(url: String): Future[List[Narrator]] = narratorCache.add(url, requestUtil)
 
@@ -32,31 +33,32 @@ class Interactions(contentLoader: ContentLoader, narratorCache: NarratorCache,
     if (username.matches("\\w+")) {
       userStore.getOrAddFirstUser(username, User(username, password, admin = true, Map()))
         .filter(_.password === password)
-    }
-    else None
+    } else None
   }
 
-
   def bindGlobalData(registry: Registry): Unit = {
-    registry.bind(Bindings.contents) {contentLoader.contents}
+    registry.bind(Bindings.contents) { contentLoader.contents }
     registry.bind(Bindings.descriptions) { () => contentLoader.descriptions() }
-    registry.bind(Bindings.hint) {handleHint}
+    registry.bind(Bindings.hint) { handleHint }
     registry.bind(Bindings.version)(Viscel.version)
   }
 
   def handleBookmarks(userid: User.Id): Signal[BookmarksMap] = {
     var user = userStore.get(userid).get
-    val bookmarkMap = user.bookmarks.foldLeft[BookmarksMap](Map.empty){case (bmm, (vid, bm)) =>
-      Lattice.merge(bmm, BookmarksMap.addΔ(vid, bm))
+    val bookmarkMap = user.bookmarks.foldLeft[BookmarksMap](Map.empty) {
+      case (bmm, (vid, bm)) =>
+        Lattice.merge(bmm, BookmarksMap.addΔ(vid, bm))
     }
     val userBookmarks = Var(bookmarkMap)
-    userBookmarks.change.observe{ case Diff(prev, next) =>
-      next.foreach{ case (vid, bm) =>
-        if (!prev.get(vid).contains(bm)) {
-          viscel.shared.Log.Store.info(f"updating $vid to $bm for ${userid}")
-          user = userStore.setBookmark(user, vid, bm)
+    userBookmarks.change.observe {
+      case Diff(prev, next) =>
+        next.foreach {
+          case (vid, bm) =>
+            if (!prev.get(vid).contains(bm)) {
+              viscel.shared.Log.Store.info(f"updating $vid to $bm for ${userid}")
+              user = userStore.setBookmark(user, vid, bm)
+            }
         }
-      }
     }
 
     userBookmarks

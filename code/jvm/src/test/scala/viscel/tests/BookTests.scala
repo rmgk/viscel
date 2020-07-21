@@ -25,7 +25,6 @@ class BookTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
     }
   }
 
-
   "loading" - {
     "from entries behaves as adding individually" in forAll { rows: List[DataRow] =>
       val load = Book.fromEntries(empty.id, empty.name, rows)
@@ -36,12 +35,12 @@ class BookTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
     }
     "adding pages, no count no changes" in forAll { rows: List[DataRow] =>
       val duplicated = scala.util.Random.shuffle(rows reverse_::: rows)
-      duplicated.foldLeft(empty) { case (b, pageData) =>
-        b.addPage(pageData).getOrElse(b)
+      duplicated.foldLeft(empty) {
+        case (b, pageData) =>
+          b.addPage(pageData).getOrElse(b)
       }
 
     }
   }
-
 
 }

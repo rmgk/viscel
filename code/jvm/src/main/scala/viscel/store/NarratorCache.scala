@@ -15,7 +15,6 @@ import scala.concurrent.Future
 
 class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
-
   private def calculateAll(): Set[Narrator] = loadAll() ++ ViscelDefinition.loadAll(definitionsdir).map(_.toNarrator)
 
   def updateCache(): Unit = {
@@ -24,13 +23,13 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
   }
 
   @volatile private var cached: Set[Narrator] = calculateAll()
-  def all: Set[Narrator] = synchronized(cached)
+  def all: Set[Narrator]                      = synchronized(cached)
 
   @volatile private var narratorMap: Map[Vid, Narrator] = all.map(n => n.id -> n).toMap
-  def get(id: Vid): Option[Narrator] = narratorMap.get(id)
+  def get(id: Vid): Option[Narrator]                    = narratorMap.get(id)
 
-
-  def loadAll(): Set[Narrator] = synchronized(Narrator.metas.iterator.flatMap[Narrator](loadNarrators(_).iterator).toSet)
+  def loadAll(): Set[Narrator] =
+    synchronized(Narrator.metas.iterator.flatMap[Narrator](loadNarrators(_).iterator).toSet)
 
   def loadNarrators[T](metarrator: Metarrator[T]): Set[Narrator] = load(metarrator).map(metarrator.toNarrator)
 
@@ -38,9 +37,11 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
     def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] = {
       val request = VRequest(url)
       requestUtil.get(request).map { resp =>
-        val respc = resp.copy(content = resp.content.fold(_ => throw new IllegalStateException(s"response for »$url« contains binary data"), identity))
+        val respc = resp.copy(content =
+          resp.content.fold(_ => throw new IllegalStateException(s"response for »$url« contains binary data"), identity)
+        )
         val contextData = ContextData(request, respc)
-        val nars = Narration.Interpreter(contextData).interpret(metarrator.wrap)
+        val nars        = Narration.Interpreter(contextData).interpret(metarrator.wrap)
         synchronized {
           save(metarrator, nars ++ load(metarrator))
           updateCache()
@@ -54,24 +55,24 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
         .collectFirst { case (m, Some(uri)) => go(m, uri) }
         .getOrElse(Future.failed(new IllegalArgumentException(s"$start is not handled")))
 
-    }
-    catch {
+    } catch {
       case e: Exception => Future.failed(e)
     }
   }
 
-
-  private implicit def setCodec[T: JsonValueCodec] = JsonCodecMaker.make[Set[T]]
+  private implicit def setCodec[T: JsonValueCodec]  = JsonCodecMaker.make[Set[T]]
   private implicit def listCodec[T: JsonValueCodec] = JsonCodecMaker.make[List[T]]
-
 
   private def path[T](metarrator: Metarrator[T]): Path = metaPath.resolve(s"${metarrator.metarratorId}.json")
   def load[T](metarrator: Metarrator[T]): Set[T] = {
     val json = JsoniterStorage.load[Set[T]](path(metarrator))(setCodec(metarrator.codec))
-    json.fold(err => {
-      Log.Store.trace(s"could not load ${path(metarrator)}: $err")
-      Set()
-    }, identity)
+    json.fold(
+      err => {
+        Log.Store.trace(s"could not load ${path(metarrator)}: $err")
+        Set()
+      },
+      identity
+    )
   }
   def save[T](metarrator: Metarrator[T], nars: List[T]): Unit =
     JsoniterStorage.store(path(metarrator), nars)(listCodec(metarrator.codec))

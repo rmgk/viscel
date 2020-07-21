@@ -19,30 +19,27 @@ object CrawlProcessing {
     } else None
   }
 
-
   def processPageResponse(wrapper: Wrapper, request: VRequest, response: VResponse[String]): DataRow = {
     val context = ContextData(request, response)
     val contents =
       try Narration.Interpreter(context)
-          .interpret[List[DataRow.Content]](wrapper)
-      catch {case r: Report => throw WrappingException(request, response, r)}
+        .interpret[List[DataRow.Content]](wrapper)
+      catch { case r: Report => throw WrappingException(request, response, r) }
 
     CrawlProcessing.toDataRow(request, response, contents)
   }
 
   def decider(book: Book): Decider = Decider(recheck = rechecks(book)).addTasks(initialTasks(book))
 
-
-  def toDataRow(request: VRequest,
-                response: VResponse[_],
-                contents: List[DataRow.Content]): DataRow = {
-    DataRow(request.href,
-            response.location.some.filter(_ != request.href),
-            response.lastModified,
-            response.etag,
-            contents)
+  def toDataRow(request: VRequest, response: VResponse[_], contents: List[DataRow.Content]): DataRow = {
+    DataRow(
+      request.href,
+      response.location.some.filter(_ != request.href),
+      response.lastModified,
+      response.etag,
+      contents
+    )
   }
-
 
   def computeTasks(pageData: DataRow, book: Book): List[VRequest] = {
     pageData.contents.collect {
@@ -53,17 +50,17 @@ object CrawlProcessing {
   def initialTasks(book: Book): List[VRequest] =
     allLinks(book).filter(l => !book.hasPage(l.href) || l.context.contains(Decider.Volatile)).toList
 
-
   def allLinks(book: Book): Iterator[VRequest] = {
-    book.pages.valuesIterator.flatMap{ dr =>
-      dr.contents.iterator.collect{case l : DataRow.Link => VRequest(l.ref, l.data, dr.loc.orElse(Some(dr.ref)))}
+    book.pages.valuesIterator.flatMap { dr =>
+      dr.contents.iterator.collect { case l: DataRow.Link => VRequest(l.ref, l.data, dr.loc.orElse(Some(dr.ref))) }
     }
   }
 
   def rechecks(book: Book): List[VRequest] = computeRightmostLinks(book)
 
   /** Starts from the entrypoint, traverses the last Link,
-    * collect the path, returns the path from the rightmost child to the root. */
+    * collect the path, returns the path from the rightmost child to the root.
+    */
   def computeRightmostLinks(book: Book): List[VRequest] = {
 
     val seen = mutable.HashSet[Vurl]()
@@ -76,10 +73,10 @@ object CrawlProcessing {
         case _                                                              => false
       } collect { case l: DataRow.Link => VRequest(l.ref, l.data, Some(current.ref)) }
       next match {
-        case None       => acc
+        case None => acc
         case Some(link) =>
           book.pages.get(link.href) match {
-            case None          => link :: acc
+            case None => link :: acc
             case Some(dataRow) =>
               rightmost(dataRow, link :: acc)
           }
@@ -87,7 +84,7 @@ object CrawlProcessing {
     }
 
     book.beginning match {
-      case None              =>
+      case None =>
         Log.Scribe.warn(s"Book ${book.id} was empty")
         Nil
       case Some(initialPage) =>
@@ -97,4 +94,3 @@ object CrawlProcessing {
   }
 
 }
-

@@ -11,39 +11,39 @@ import scala.concurrent.Future
 
 object LociDist {
 
-  def distribute[A: Lattice, S <: Struct : Scheduler]
-  (signal: Signal[A, S],
-   registry: Registry)
-  (binding: Binding[A => Unit] {type RemoteCall = A => Future[Unit]}) =
+  def distribute[A: Lattice, S <: Struct: Scheduler](
+      signal: Signal[A, S],
+      registry: Registry
+  )(binding: Binding[A => Unit] { type RemoteCall = A => Future[Unit] }) =
     distributePerRemote(_ => signal, registry)(binding)
 
-  def distributePerRemote[A: Lattice, S <: Struct : Scheduler]
-  (signalFun: RemoteRef => Signal[A, S],
-   registry: Registry)
-  (binding: Binding[A => Unit] {type RemoteCall = A => Future[Unit]})
-  : Unit = {
+  def distributePerRemote[A: Lattice, S <: Struct: Scheduler](
+      signalFun: RemoteRef => Signal[A, S],
+      registry: Registry
+  )(binding: Binding[A => Unit] { type RemoteCall = A => Future[Unit] }): Unit = {
 
     Log.Server.info(s"starting new distribution for »${binding.name}«")
 
-    registry.bindPerRemote(binding)(remoteRef => newValue => {
-      val signal: Signal[A, S] = signalFun(remoteRef)
-      val signalName           = signal.name.str
-      //println(s"received value for $signalName: ${newValue.hashCode()}")
-      Scheduler[S].forceNewTransaction(signal) { admissionTicket =>
-        admissionTicket.recordChange(new InitialChange[S] {
-          override val source = signal
-          override def writeValue(b: source.Value, v: source.Value => Unit): Boolean = {
-            val merged = b.map(Lattice[A].merge(_, newValue)).asInstanceOf[source.Value]
-            if (merged != b) {
-              v(merged)
-              true
+    registry.bindPerRemote(binding)(remoteRef =>
+      newValue => {
+        val signal: Signal[A, S] = signalFun(remoteRef)
+        val signalName           = signal.name.str
+        //println(s"received value for $signalName: ${newValue.hashCode()}")
+        Scheduler[S].forceNewTransaction(signal) { admissionTicket =>
+          admissionTicket.recordChange(new InitialChange[S] {
+            override val source = signal
+            override def writeValue(b: source.Value, v: source.Value => Unit): Boolean = {
+              val merged = b.map(Lattice[A].merge(_, newValue)).asInstanceOf[source.Value]
+              if (merged != b) {
+                v(merged)
+                true
+              } else false
             }
-            else false
-          }
-        })
+          })
+        }
+        Log.Server.info(s"update for $signalName complete")
       }
-      Log.Server.info(s"update for $signalName complete")
-    })
+    )
 
     var observers = Map[RemoteRef, Observe[S]]()
 
@@ -61,7 +61,6 @@ object LociDist {
         else observers(remoteRef).remove()
       })
     }
-
 
     registry.remotes.foreach(registerRemote)
     registry.remoteJoined.foreach(registerRemote)

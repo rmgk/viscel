@@ -15,13 +15,14 @@ import viscel.store.{BlobStore, DescriptionCache, JsoniterStorage, NarratorCache
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.util.control.NonFatal
 
-class Services(relativeBasedir: Path,
-               relativeBlobdir: Path,
-               val staticDir: Path,
-               val urlPrefix: String,
-               val interface: String,
-               val port: Int) {
-
+class Services(
+    relativeBasedir: Path,
+    relativeBlobdir: Path,
+    val staticDir: Path,
+    val urlPrefix: String,
+    val interface: String,
+    val port: Int
+) {
 
   /* ====== paths ====== */
 
@@ -29,16 +30,15 @@ class Services(relativeBasedir: Path,
     Files.createDirectories(p)
     p
   }
-  val basepath           : Path = relativeBasedir.toAbsolutePath
-  val blobdir            : Path = basepath.resolve(relativeBlobdir)
+  val basepath: Path            = relativeBasedir.toAbsolutePath
+  val blobdir: Path             = basepath.resolve(relativeBlobdir)
   val metarratorconfigdir: Path = basepath.resolve("metarrators")
-  val definitionsdir     : Path = staticDir
-  val exportdir          : Path = basepath.resolve("export")
-  val usersdir           : Path = basepath.resolve("users")
-  val cookiePath         : Path = basepath.resolve("cookies.json")
-  lazy val db4dir  : Path = create(basepath.resolve("db4"))
-  lazy val cachedir: Path = create(basepath.resolve("cache"))
-
+  val definitionsdir: Path      = staticDir
+  val exportdir: Path           = basepath.resolve("export")
+  val usersdir: Path            = basepath.resolve("users")
+  val cookiePath: Path          = basepath.resolve("cookies.json")
+  lazy val db4dir: Path         = create(basepath.resolve("db4"))
+  lazy val cachedir: Path       = create(basepath.resolve("cache"))
 
   /* ====== storage ====== */
 
@@ -49,13 +49,10 @@ class Services(relativeBasedir: Path,
   lazy val narratorCache    = new NarratorCache(metarratorconfigdir, definitionsdir)
   lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
 
-
   /* ====== http requests ====== */
 
   lazy val requests = {
-    val executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
-                                          1, TimeUnit.SECONDS,
-                                          new SynchronousQueue())
+    val executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 1, TimeUnit.SECONDS, new SynchronousQueue())
     val cookies: Map[String, String] = if (Files.exists(cookiePath)) {
       JsoniterStorage.load(cookiePath)(JsoniterCodecs.CookieMapCodec).getOrElse(Map.empty)
     } else Map.empty
@@ -66,32 +63,32 @@ class Services(relativeBasedir: Path,
 
   lazy val contentLoader = new ContentLoader(narratorCache, rowStore, descriptionCache)
   lazy val serverPages   = new ServerPages()
-  lazy val interactions  = new Interactions(contentLoader = contentLoader,
-                                            narratorCache = narratorCache,
-                                            narrationHint = narrationHint,
-                                            userStore = userStore,
-                                            requestUtil = requests)
+  lazy val interactions = new Interactions(
+    contentLoader = contentLoader,
+    narratorCache = narratorCache,
+    narrationHint = narrationHint,
+    userStore = userStore,
+    requestUtil = requests
+  )
 
   lazy val server: JavalinServer =
-    new JavalinServer(blobStore = blobStore,
-                      terminate = () => terminateEverything(true),
-                      pages = serverPages,
-                      folderImporter = folderImporter,
-                      interactions = interactions,
-                      staticPath = staticDir,
-                      urlPrefix = urlPrefix,
-                      rowStore = rowStore
-                      )
+    new JavalinServer(
+      blobStore = blobStore,
+      terminate = () => terminateEverything(true),
+      pages = serverPages,
+      folderImporter = folderImporter,
+      interactions = interactions,
+      staticPath = staticDir,
+      urlPrefix = urlPrefix,
+      rowStore = rowStore
+    )
 
   def startServer() = server.start(interface, port)
-
 
   /* ====== clockwork ====== */
 
   lazy val computeExecutor: ThreadPoolExecutor = {
-    val res = new ThreadPoolExecutor(1, 1, 1,
-                                     TimeUnit.SECONDS,
-                                     new LinkedBlockingQueue[Runnable]())
+    val res = new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]())
     res.allowCoreThreadTimeOut(true)
     res
   }
@@ -99,45 +96,51 @@ class Services(relativeBasedir: Path,
   lazy val computeExecutionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(computeExecutor)
 
-  lazy val crawl: CrawlServices = new CrawlServices(blobStore = blobStore,
-                                                    requestUtil = requests,
-                                                    rowStore = rowStore,
-                                                    descriptionCache = descriptionCache,
-                                                    executionContext = computeExecutionContext)
+  lazy val crawl: CrawlServices = new CrawlServices(
+    blobStore = blobStore,
+    requestUtil = requests,
+    rowStore = rowStore,
+    descriptionCache = descriptionCache,
+    executionContext = computeExecutionContext
+  )
 
-  lazy val clockwork: CrawlScheduler = new CrawlScheduler(path = cachedir.resolve("crawl-times.json"),
-                                                          crawlServices = crawl,
-                                                          ec = computeExecutionContext,
-                                                          userStore = userStore,
-                                                          narratorCache = narratorCache)
+  lazy val clockwork: CrawlScheduler = new CrawlScheduler(
+    path = cachedir.resolve("crawl-times.json"),
+    crawlServices = crawl,
+    ec = computeExecutionContext,
+    userStore = userStore,
+    narratorCache = narratorCache
+  )
 
   def activateNarrationHint() = {
-    narrationHint.observe { case (narrator, force) =>
-      if (force) narratorCache.updateCache()
-      descriptionCache.invalidate(narrator.id)
-      if (force) try {
-        rowStore.filterSingleLevelMissing(narrator.id) }
-      catch { case NonFatal(e) => Log.Server.warn(s"filering failed: ${e.getMessage}")}
-      clockwork.runNarrator(narrator, if (force) 0 else clockwork.dayInMillis * 1)
+    narrationHint.observe {
+      case (narrator, force) =>
+        if (force) narratorCache.updateCache()
+        descriptionCache.invalidate(narrator.id)
+        if (force) try {
+          rowStore.filterSingleLevelMissing(narrator.id)
+        } catch { case NonFatal(e) => Log.Server.warn(s"filering failed: ${e.getMessage}") }
+        clockwork.runNarrator(narrator, if (force) 0 else clockwork.dayInMillis * 1)
     }
   }
-
 
   /* ====== notifications ====== */
 
   lazy val narrationHint: Evt[(Narrator, Boolean)] = Evt[(Narrator, Boolean)]()
 
   def terminateEverything(startedServer: Boolean) = {
-    new java.util.Timer().schedule(new TimerTask {
-      override def run(): Unit = {
-        crawl.shutdown()
-        computeExecutor.shutdown()
-        requests.executorService.shutdown()
-        if (startedServer) server.stop()
-      }
-    }, 100)
+    new java.util.Timer().schedule(
+      new TimerTask {
+        override def run(): Unit = {
+          crawl.shutdown()
+          computeExecutor.shutdown()
+          requests.executorService.shutdown()
+          if (startedServer) server.stop()
+        }
+      },
+      100
+    )
 
   }
-
 
 }

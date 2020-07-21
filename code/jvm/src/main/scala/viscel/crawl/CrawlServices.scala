@@ -9,12 +9,13 @@ import viscel.store.{BlobStore, Book, DescriptionCache, RowAppender, RowStoreV4}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-
-class CrawlServices(blobStore: BlobStore,
-                    requestUtil: WebRequestInterface,
-                    rowStore: RowStoreV4,
-                    descriptionCache: DescriptionCache,
-                    executionContext: ExecutionContext) {
+class CrawlServices(
+    blobStore: BlobStore,
+    requestUtil: WebRequestInterface,
+    rowStore: RowStoreV4,
+    descriptionCache: DescriptionCache,
+    executionContext: ExecutionContext
+) {
 
   @volatile private var cancel: Boolean = false
 
@@ -30,11 +31,9 @@ class CrawlServices(blobStore: BlobStore,
     new Crawling(narrator, appender).crawlLoop(CrawlState(newBook, CrawlProcessing.decider(newBook)))
   }
 
-  def addPageTo(book: Book,
-                rowAppender: RowAppender,
-                pageData: DataRow): Book = {
+  def addPageTo(book: Book, rowAppender: RowAppender, pageData: DataRow): Book = {
     book.addPage(pageData) match {
-      case None          => book
+      case None => book
       case Some(newBook) =>
         rowAppender.append(pageData)
         descriptionCache.invalidate(newBook.id)
@@ -54,14 +53,16 @@ class CrawlServices(blobStore: BlobStore,
             val nextState: CrawlState = handleResponse(cs.book, response, request, nextDecider)
             crawlLoop(nextState)
           }(executionContext)
-        case None                         => Future.successful(())
+        case None => Future.successful(())
       }
     }
 
-    def handleResponse(book: Book,
-                       response: VResponse[Either[Array[Byte], String]],
-                       request: VRequest,
-                       decider: Decider): CrawlState = {
+    def handleResponse(
+        book: Book,
+        response: VResponse[Either[Array[Byte], String]],
+        request: VRequest,
+        decider: Decider
+    ): CrawlState = {
 
       def handleBlob(array: Array[Byte]): CrawlState = {
         val sha1     = BlobStore.sha1hex(array)
@@ -73,16 +74,13 @@ class CrawlServices(blobStore: BlobStore,
       }
 
       def handlePage(str: String): CrawlState = {
-        val pageData = CrawlProcessing.processPageResponse(narrator.wrapper,
-                                                           request,
-                                                           response.copy(content = str))
+        val pageData = CrawlProcessing.processPageResponse(narrator.wrapper, request, response.copy(content = str))
         Log.Crawl.trace(s"Processing ${response.location}, yielding $pageData")
         val newBook: Book = addPageTo(book, rowAppender, pageData)
         val tasks         = CrawlProcessing.computeTasks(pageData, newBook)
         Log.Crawl.trace(s"Add tasks: $tasks")
         CrawlState(newBook, decider.addTasks(tasks))
       }
-
 
       Log.Crawl.trace(s"Handling page response for $request")
       response.content match {
@@ -93,6 +91,3 @@ class CrawlServices(blobStore: BlobStore,
 
   }
 }
-
-
-

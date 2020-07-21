@@ -10,7 +10,6 @@ import viscel.store.BookToContents.LinearResult
 import viscel.shared.{DataRow, Vid}
 import viscel.store.{Book, RowStoreV4}
 
-
 @State(Scope.Thread)
 @BenchmarkMode(Array(Mode.AverageTime, Mode.SingleShotTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -26,7 +25,7 @@ class ContentLoading {
   var dbpath: String = _
 
   var services: RowStoreV4 = _
-  var vid     : Vid        = _
+  var vid: Vid             = _
 
   var loadedContents: (String, Seq[DataRow]) = _
 
@@ -62,6 +61,5 @@ class ContentLoading {
   def pagesToContents(bh: Blackhole) = {
     BookToContents.pagesToContents(pages)
   }
-
 
 }

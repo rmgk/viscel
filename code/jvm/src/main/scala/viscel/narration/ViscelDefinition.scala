@@ -17,9 +17,9 @@ import scala.util.matching.Regex
 object ViscelDefinition {
 
   case class Line(s: String, p: Int)
-  type It = scala.collection.BufferedIterator[Line]
+  type It           = scala.collection.BufferedIterator[Line]
   type ErrorMessage = String
-  type Or[T, V] = Either[V, T]
+  type Or[T, V]     = Either[V, T]
 
   val extractIDAndName: Regex = """^-(\w*):(.+)$""".r
   val extractAttribute: Regex = """^:(\S+)\s*(.*)$""".r
@@ -35,12 +35,12 @@ object ViscelDefinition {
 
   val attributeReplacements = Map(
     "ia" -> "image+next",
-    "i" -> "image",
+    "i"  -> "image",
     "is" -> "images",
-    "n" -> "next",
+    "n"  -> "next",
     "am" -> "mixedArchive",
     "ac" -> "chapterArchive",
-    )
+  )
   def normalizeAttributeName(att: String): String = {
     attributeReplacements.getOrElse(att, att)
   }
@@ -48,13 +48,13 @@ object ViscelDefinition {
   @tailrec
   def parseAttributes(it: It, acc: Map[String, Line]): Map[String, Line] =
     if (!it.hasNext) acc
-    else it.head match {
-      case Line(extractAttribute(name, value), pos) =>
-        it.next()
-        parseAttributes(it, acc.updated(normalizeAttributeName(name), Line(value, pos)))
-      case _                                        => acc
-    }
-
+    else
+      it.head match {
+        case Line(extractAttribute(name, value), pos) =>
+          it.next()
+          parseAttributes(it, acc.updated(normalizeAttributeName(name), Line(value, pos)))
+        case _ => acc
+      }
 
   implicit class ExtractContext(val sc: StringContext) {
     object extract {
@@ -73,9 +73,11 @@ object ViscelDefinition {
 
   private def generateID(id: String, name: String) =
     if (id.matches("""^\w+\_.\w+""")) id
-    else "VD_" + (
-      if (id.nonEmpty) id
-      else name.replaceAll("\\s+", "").replaceAll("\\W", "_"))
+    else
+      "VD_" + (
+        if (id.nonEmpty) id
+        else name.replaceAll("\\s+", "").replaceAll("\\W", "_")
+      )
 
   def transformUrls(replacements: List[(String, String)])(stories: List[DataRow.Content]): List[DataRow.Content] = {
 
@@ -90,20 +92,27 @@ object ViscelDefinition {
     }
   }
 
-  def makeNarrator(id: String, name: String, pos: Int, startUrl: Vurl, attrs: Map[String, Line], path: String): FlowNarrator = {
+  def makeNarrator(
+      id: String,
+      name: String,
+      pos: Int,
+      startUrl: Vurl,
+      attrs: Map[String, Line],
+      path: String
+  ): FlowNarrator = {
     val cid = generateID(id, name)
 
     val imageNextPipe = attrs.get("image+next").map { img =>
-      FlowWrapper.Pipe(img.s, Restriction.Unique,
-                       List(FlowWrapper.Extractor.Image, Extractor.OptionalParentMore))
+      FlowWrapper.Pipe(img.s, Restriction.Unique, List(FlowWrapper.Extractor.Image, Extractor.OptionalParentMore))
     }
 
     val imagePipe = None.orElse(attrs.get("image").map(_ -> Restriction.Unique))
-                        .orElse(attrs.get("images").map(_ -> Restriction.NonEmpty))
-                        .orElse(attrs.get("images?").map(_ -> Restriction.None))
-                        .map { case (img, res) =>
-                          FlowWrapper.Pipe(img.s, res, List(FlowWrapper.Extractor.Image))
-                        }
+      .orElse(attrs.get("images").map(_ -> Restriction.NonEmpty))
+      .orElse(attrs.get("images?").map(_ -> Restriction.None))
+      .map {
+        case (img, res) =>
+          FlowWrapper.Pipe(img.s, res, List(FlowWrapper.Extractor.Image))
+      }
 
     val nextPipe = attrs.get("next").map { next =>
       Pipe(next.s, Restriction.None, List(FlowWrapper.Extractor.More), filter = List(Filter.SelectSingleNext))
@@ -111,22 +120,30 @@ object ViscelDefinition {
 
     val archFunRev =
       (if (attrs.contains("archiveReverse")) Some(false)
-       else if (attrs.contains("archiveReverseFull")) Some(true) else None).map { reverseInner =>
+       else if (attrs.contains("archiveReverseFull")) Some(true)
+       else None).map { reverseInner =>
         Filter.ChapterReverse(reverseInner)
       }.toList
 
     val mixedArchivePipe = attrs.get("mixedArchive").map { arch =>
-      Pipe(arch.s, Restriction.NonEmpty, List(FlowWrapper.Extractor.MixedArchive),
-           filter = archFunRev,
-           conditions = List(startUrl.uriString()))
+      Pipe(
+        arch.s,
+        Restriction.NonEmpty,
+        List(FlowWrapper.Extractor.MixedArchive),
+        filter = archFunRev,
+        conditions = List(startUrl.uriString())
+      )
     }
 
     val chapterArchivePipe = attrs.get("chapterArchive").map { arch =>
-      Pipe(arch.s, Restriction.NonEmpty, List(FlowWrapper.Extractor.Chapter, Extractor.More),
-           filter = archFunRev,
-           conditions = List(startUrl.uriString()))
+      Pipe(
+        arch.s,
+        Restriction.NonEmpty,
+        List(FlowWrapper.Extractor.Chapter, Extractor.More),
+        filter = archFunRev,
+        conditions = List(startUrl.uriString())
+      )
     }
-
 
     val transformFun = attrs.get("url_replace") map { replacer =>
       val replacements: List[(String, String)] =
@@ -137,7 +154,7 @@ object ViscelDefinition {
     val pipes = List(imageNextPipe, imagePipe, nextPipe, mixedArchivePipe, chapterArchivePipe).flatten
 
     val transformedPipes = transformFun match {
-      case None            => pipes
+      case None => pipes
       case Some(transform) =>
         pipes.map { pipe =>
           pipe.copy(filter = transform :: pipe.filter)
@@ -146,10 +163,17 @@ object ViscelDefinition {
 
     val plumbing = Plumbing(transformedPipes)
 
-    FlowNarrator(Vid.from(cid), name, DataRow.Link(startUrl, if (chapterArchivePipe.isDefined || mixedArchivePipe.isDefined) List(Decider.Volatile) else Nil) :: Nil, plumbing)
+    FlowNarrator(
+      Vid.from(cid),
+      name,
+      DataRow.Link(
+        startUrl,
+        if (chapterArchivePipe.isDefined || mixedArchivePipe.isDefined) List(Decider.Volatile) else Nil
+      ) :: Nil,
+      plumbing
+    )
 
   }
-
 
   def parseNarration(it: It, path: String): FlowNarrator Or ErrorMessage = {
     it.next() match {
@@ -165,15 +189,14 @@ object ViscelDefinition {
 
   def parse(lines: Iterator[String], path: String): List[FlowNarrator] Or ErrorMessage = {
     val preprocessed = lines.map(_.trim)
-                            .zipWithIndex.map(p => Line(p._1, p._2 + 1))
-                            .filter(l => l.s.nonEmpty && !l.s.startsWith("--"))
-                            .buffered
+      .zipWithIndex.map(p => Line(p._1, p._2 + 1))
+      .filter(l => l.s.nonEmpty && !l.s.startsWith("--"))
+      .buffered
 
     def go(it: It, acc: List[FlowNarrator]): List[FlowNarrator] Or ErrorMessage =
       if (!it.hasNext) {
         Right(acc)
-      }
-      else {
+      } else {
         parseNarration(it, path) match {
           case Right(n) => go(it, n :: acc)
           case Left(e)  => Left(e)
@@ -187,7 +210,7 @@ object ViscelDefinition {
     Log.Store.info(s"parsing definitions from $path")
     parse(stream, path.toString) match {
       case Right(res) => res
-      case Left(err)  =>
+      case Left(err) =>
         Log.Store.warn(s"failed to parse $path errors: $err")
         Nil
     }
@@ -196,13 +219,14 @@ object ViscelDefinition {
   def loadAll(dir: Path): List[FlowNarrator] = {
     val defdir = File(dir)
 
-    val res = if (!defdir.exists) Nil
-              else {
-                val paths = defdir.glob("*.vid").toList
-                paths.flatMap { path =>
-                  load(path.lines(StandardCharsets.UTF_8).toArray.iterator, path.pathAsString)
-                }
-              }
+    val res =
+      if (!defdir.exists) Nil
+      else {
+        val paths = defdir.glob("*.vid").toList
+        paths.flatMap { path =>
+          load(path.lines(StandardCharsets.UTF_8).toArray.iterator, path.pathAsString)
+        }
+      }
     Log.Narrate.info(s"Found ${res.size} definitions in $defdir.")
     res
   }

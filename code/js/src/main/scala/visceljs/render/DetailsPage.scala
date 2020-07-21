@@ -23,32 +23,43 @@ class DetailsPage(actions: Actions) {
       a(href := Definitions.path_asset(vid, 0), "first page"),
       Snippets.fullscreenToggle("fullscreen"),
       actions.postBookmark(vid, 0, bookmark.position, None, "remove bookmark"),
-      actions.postForceHint(vid, "force check"))
+      actions.postForceHint(vid, "force check")
+    )
 
     val preview = {
-      val bmed     = contents.gallery.lift(bookmark.position - 1)
+      val bmed = contents.gallery.lift(bookmark.position - 1)
       val warnings =
-        if (bookmark.position != 0 && bookmark.sha1.nonEmpty && !bookmark.sha1.contains(bmed.map(_.blob.sha1).getOrElse(""))) {
-          frag(h1("Warning: bookmark mismatch. Left: bookmarked position. Right: bookmarked image"),
-               div(class_preview)(
-                 bmed.map(asst => a(href := Definitions.path_asset(vid, bookmark.position - 1), Snippets.asset(asst))).toSeq)(
-                 (for {orig <- bookmark.origin; sha1 <- bookmark.sha1} yield {
-                   a(Snippets.asset(SharedImage(orig, Blob(sha1, "image"), Map.empty)))
-                 }).toSeq
-                 ),
-               p(s"gallery max: ${contents.gallery.size}"),
-
-               p(s"position: $bmed"),
-               p(s"image: $bookmark)")
-               )
+        if (
+          bookmark.position != 0 && bookmark.sha1.nonEmpty && !bookmark.sha1.contains(
+            bmed.map(_.blob.sha1).getOrElse("")
+          )
+        ) {
+          frag(
+            h1("Warning: bookmark mismatch. Left: bookmarked position. Right: bookmarked image"),
+            div(class_preview)(
+              bmed.map(asst =>
+                a(href := Definitions.path_asset(vid, bookmark.position - 1), Snippets.asset(asst))
+              ).toSeq
+            )(
+              (for { orig <- bookmark.origin; sha1 <- bookmark.sha1 } yield {
+                a(Snippets.asset(SharedImage(orig, Blob(sha1, "image"), Map.empty)))
+              }).toSeq
+            ),
+            p(s"gallery max: ${contents.gallery.size}"),
+            p(s"position: $bmed"),
+            p(s"image: $bookmark)")
+          )
         } else frag()
-      val start    = math.max(0, bookmark.position - 3)
-      frag(warnings, div(class_preview)(
-        Range(start, start + 3)
-          .map(p => p -> contents.gallery.lift(p))
-          .collect { case (p, Some(anchor)) => a(href := Definitions.path_asset(vid, p), Snippets.asset(anchor)) }))
+      val start = math.max(0, bookmark.position - 3)
+      frag(
+        warnings,
+        div(class_preview)(
+          Range(start, start + 3)
+            .map(p => p -> contents.gallery.lift(p))
+            .collect { case (p, Some(anchor)) => a(href := Definitions.path_asset(vid, p), Snippets.asset(anchor)) }
+        )
+      )
     }
-
 
     body(id := "front", top, navigation, preview, chapterlist(vid, contents.chapters, contents.gallery.size))
   }
@@ -63,7 +74,7 @@ class DetailsPage(actions: Actions) {
     }
 
     frag(pairs.map {
-      case List(single)     => section()
+      case List(single) => section()
       case List(start, end) =>
         val links = chaps(start.pos, end.pos)
         section(if (start.name.isEmpty) links else frag(h1(start.name), links))

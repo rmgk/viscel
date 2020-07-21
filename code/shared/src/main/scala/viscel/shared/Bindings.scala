@@ -10,10 +10,10 @@ import scala.annotation.nowarn
 object Bindings {
   type IT[V] = IdenticallyTransmittable[V]
 
-  implicit val _Td: IT[Description] = IdenticallyTransmittable()
-  implicit val _Tv: IT[Vid] = IdenticallyTransmittable()
-  implicit val _Tc: IT[Contents] = IdenticallyTransmittable()
-  implicit val _Tb: IT[Bookmark] = IdenticallyTransmittable()
+  implicit val _Td: IT[Description]         = IdenticallyTransmittable()
+  implicit val _Tv: IT[Vid]                 = IdenticallyTransmittable()
+  implicit val _Tc: IT[Contents]            = IdenticallyTransmittable()
+  implicit val _Tb: IT[Bookmark]            = IdenticallyTransmittable()
   implicit val _Tbm: IT[Map[Vid, Bookmark]] = IdenticallyTransmittable()
 
   @nowarn

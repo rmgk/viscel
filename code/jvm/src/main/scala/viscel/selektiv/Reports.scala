@@ -14,7 +14,9 @@ trait Report extends RuntimeException {
 
 object ReportTools {
   def show(element: Element) = s"${element.tag} ${element.attributes().asScala.map(_.html()).mkString(" ")}"
-  def extract[R](op: => R): R = try op catch {case NonFatal(e) => throw ExtractionFailed(e) }
+  def extract[R](op: => R): R =
+    try op
+    catch { case NonFatal(e) => throw ExtractionFailed(e) }
 }
 
 trait Stack {
@@ -36,7 +38,8 @@ case class FailedElement(query: String, reason: Report, element: Element*) exten
 }
 
 case class RestrictionReport(actual: Int, restriction: Restriction) extends Report {
-  override def describe: String = s"found $actual elements but expected between ${restriction.min} and ${restriction.max}"
+  override def describe: String =
+    s"found $actual elements but expected between ${restriction.min} and ${restriction.max}"
 }
 
 case object QueryNotUnique extends FixedReport("query is not unique")

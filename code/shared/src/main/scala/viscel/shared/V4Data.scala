@@ -6,15 +6,12 @@ import java.time.Instant
 
 import viscel.shared.DataRow._
 
-
-final class Vurl private(private val uri: String) extends AnyVal {
-  def uriString(): String = uri
+final class Vurl private (private val uri: String) extends AnyVal {
+  def uriString(): String       = uri
   override def toString: String = s"Vurl(${uriString()})"
 }
 
 object Vurl {
-
-
 
   def apply(s: String): Vurl = fromString(s)
 
@@ -30,13 +27,13 @@ object Vurl {
   }
 }
 
-
-final case class DataRow(ref: Vurl,
-                         loc: Option[Vurl] = None,
-                         lastModified: Option[Instant] = None,
-                         etag: Option[String] = None,
-                         contents: List[Content]
-                        ) {
+final case class DataRow(
+    ref: Vurl,
+    loc: Option[Vurl] = None,
+    lastModified: Option[Instant] = None,
+    etag: Option[String] = None,
+    contents: List[Content]
+) {
   def updates(other: DataRow): Boolean = {
     contents != other.contents
   }
@@ -46,6 +43,6 @@ final case class DataRow(ref: Vurl,
 object DataRow {
   sealed trait Content
   final case class Link(ref: Vurl, data: List[String] = Nil) extends Content
-  final case class Blob(sha1: String, mime: String) extends Content
-  final case class Chapter(name: String) extends Content
+  final case class Blob(sha1: String, mime: String)          extends Content
+  final case class Chapter(name: String)                     extends Content
 }

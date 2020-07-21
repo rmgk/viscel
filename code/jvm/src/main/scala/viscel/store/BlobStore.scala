@@ -11,7 +11,6 @@ import scala.collection.mutable
 
 class BlobStore(blobdir: Path) {
 
-
   def write(sha1: String, bytes: Array[Byte]): Unit = {
     val path = hashToPath(sha1)
     Files.createDirectories(path.getParent)
@@ -33,18 +32,17 @@ class BlobStore(blobdir: Path) {
 
 object BlobStore {
   private val sha1digester: MessageDigest = MessageDigest.getInstance("SHA-1")
-  def sha1(b: Array[Byte]): Array[Byte] = sha1digester.clone().asInstanceOf[MessageDigest].digest(b)
-  def sha1hex(b: Array[Byte]): String = sha1(b).map { h => f"$h%02x" }.mkString
-
+  def sha1(b: Array[Byte]): Array[Byte]   = sha1digester.clone().asInstanceOf[MessageDigest].digest(b)
+  def sha1hex(b: Array[Byte]): String     = sha1(b).map { h => f"$h%02x" }.mkString
 
   val Log = viscel.shared.Log.Tool
 
-  def cleanBlobDirectory( services: Services): Unit = {
+  def cleanBlobDirectory(services: Services): Unit = {
     Log.info(s"scanning all blobs …")
     val blobsHashesInDB: Set[String] = {
       services.rowStore.allVids().flatMap { id =>
         val (name, rows) = services.rowStore.load(id)
-        rows.iterator.flatMap(dr => dr.contents.iterator).collect{case l : DataRow.Blob => l.sha1}
+        rows.iterator.flatMap(dr => dr.contents.iterator).collect { case l: DataRow.Blob => l.sha1 }
       }.toSet
     }
     Log.info(s"scanning files …")
@@ -66,6 +64,5 @@ object BlobStore {
     }
     blobsHashesInDB.diff(seen).foreach(sha1 => Log.info(s"$sha1 is missing"))
   }
-
 
 }

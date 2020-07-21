@@ -15,17 +15,15 @@ import visceljs.storage.Storing
 
 import scala.collection.immutable.Map
 
-class ReaderApp(content: Vid => Signal[Option[Contents]],
-                val descriptions: Signal[Map[Vid, Description]],
-                val bookmarks: Signal[Map[Vid, Bookmark]]
-               ) {
-
+class ReaderApp(
+    content: Vid => Signal[Option[Contents]],
+    val descriptions: Signal[Map[Vid, Description]],
+    val bookmarks: Signal[Map[Vid, Bookmark]]
+) {
 
   def getHash(): String = dom.window.location.hash
 
-
   def makeBody(index: OverviewPage, front: DetailsPage, view: ImagePage): Signal[Option[TypedTag[html.Body]]] = {
-
 
     val hashChange: Event[HashChangeEvent] =
       Events.fromCallback[HashChangeEvent](dom.window.onhashchange = _).event
@@ -33,11 +31,10 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
 
     val targetStates = hashChange.map(hc => AppState.parse(new URL(hc.newURL).hash))
 
-    val initialAppState = AppState.parse(getHash())
+    val initialAppState                         = AppState.parse(getHash())
     val currentTargetAppState: Signal[AppState] = targetStates.fold(initialAppState) { case (_, next) => next }
 
     val setCurrentPostition: Event[Int] = currentTargetAppState.changed.collect { case ViewState(_, pos) => pos }
-
 
     val currentID: Signal[Option[Vid]] = currentTargetAppState.map {
       case FrontState(id)   => Some(id)
@@ -45,45 +42,54 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
       case _                => None
     }
 
-    val description = Signal {currentID.value.flatMap(descriptions.value.get)}
+    val description = Signal { currentID.value.flatMap(descriptions.value.get) }
 
-    val contents = Signal {currentID.value.map(content)}.flatten.map(_.flatten)
+    val contents = Signal { currentID.value.map(content) }.flatten.map(_.flatten)
 
-    val bookmark = Signal[Bookmark] {currentID.value.flatMap(bookmarks.value.get).getOrElse(Bookmark(0, 0, None, None))}
+    val bookmark = Signal[Bookmark] {
+      currentID.value.flatMap(bookmarks.value.get).getOrElse(Bookmark(0, 0, None, None))
+    }
 
     val maxPosition = contents.map(_.map(_.gallery.size).getOrElse(0) - 1).changed
 
-    val currentPosition = Events.foldAll(Position(initialAppState.position, None))(acc => Seq(
-      setCurrentPostition >> acc.set,
-      navigationEvents >> acc.mov,
-      maxPosition >> acc.limit
-      ))
+    val currentPosition = Events.foldAll(Position(initialAppState.position, None))(acc =>
+      Seq(
+        setCurrentPostition >> acc.set,
+        navigationEvents >> acc.mov,
+        maxPosition >> acc.limit
+      )
+    )
 
+    val normalizedAppState: Signal[AppState] = currentTargetAppState.map {
+      _.transformPos(_ => currentPosition.value.cur)
+    }
 
-    val normalizedAppState: Signal[AppState] = currentTargetAppState.map {_.transformPos(_ => currentPosition.value.cur)}
-
-    normalizedAppState.observe(fireImmediately = false, onValue = { as =>
-      val nextHash    = as.urlhash
-      val currentHash = getHash().drop(1)
-      if (nextHash != currentHash) {
-        Log.JS.debug(s"pushing ${nextHash} was $currentHash")
-        dom.window.history.pushState(null, null, "#" + as.urlhash)
+    normalizedAppState.observe(
+      fireImmediately = false,
+      onValue = { as =>
+        val nextHash    = as.urlhash
+        val currentHash = getHash().drop(1)
+        if (nextHash != currentHash) {
+          Log.JS.debug(s"pushing ${nextHash} was $currentHash")
+          dom.window.history.pushState(null, null, "#" + as.urlhash)
+        }
       }
-    })
+    )
 
-
-    navigationEvents.map(e => (e, contents.value, currentPosition.value.cur)).observe { case (ev, con, pos) =>
-      if (ev == Prev || ev == Next) {
-        dom.window.scrollTo(0, 0)
-      }
-      /*val pregen =*/ con.flatMap(_.gallery.lift(pos + 1)).foreach { asst => Snippets.asset(asst).render }
+    navigationEvents.map(e => (e, contents.value, currentPosition.value.cur)).observe {
+      case (ev, con, pos) =>
+        if (ev == Prev || ev == Next) {
+          dom.window.scrollTo(0, 0)
+        }
+        /*val pregen =*/
+        con.flatMap(_.gallery.lift(pos + 1)).foreach { asst => Snippets.asset(asst).render }
 
     }
 
     Signal.static {
       currentTargetAppState.value match {
-        case IndexState      => Some("Viscel")
-        case FrontState(_)   => description.value.map(_.name)
+        case IndexState    => Some("Viscel")
+        case FrontState(_) => description.value.map(_.name)
         case ViewState(_, _) =>
           description.value.map(_.name).map { name =>
             s"${currentPosition.value.cur + 1} - $name"
@@ -94,7 +100,6 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
       case None           =>
     }
 
-
     val fitType: Signal[FitType] = {
       Storing.storedAs[FitType]("fitType", default = FitType.W) { init =>
         navigationEvents.collect { case Mode(t) => t }.latest[FitType](init)
@@ -104,17 +109,19 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
     val indexBody = index.gen()
     val frontBody = Signal {
       for {
-        vid <- currentID.value
+        vid  <- currentID.value
         desc <- description.value
-        cont <- contents.value} yield {
+        cont <- contents.value
+      } yield {
         front.gen(vid, desc, cont, bookmark.value)
       }
     }
-    val viewBody  =
+    val viewBody =
       Signal {
         for {
-          vid <- currentID.value
-          cont <- contents.value} yield {
+          vid  <- currentID.value
+          cont <- contents.value
+        } yield {
           view.gen(vid, currentPosition.value, bookmark.value, cont, fitType, Navigation.navigate)
         }
       }
@@ -125,6 +132,5 @@ class ReaderApp(content: Vid => Signal[Option[Contents]],
       case ViewState(_, _) => viewBody
     }.flatten
   }
-
 
 }
