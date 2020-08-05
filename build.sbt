@@ -6,7 +6,7 @@ import Settings._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def lociRef(name: String) =
-  ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#a3a3b36fd749ea765ad2526c64e3b12d92383693"), name)
+  ProjectRef(new File("loci"), name)
 
 lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
 lazy val lociJavalinJS  = lociRef("lociCommunicatorWsJavalinJS")

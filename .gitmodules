@@ -1,0 +1,3 @@
+[submodule "loci"]
+	path = loci
+	url = git@github.com:scala-loci/scala-loci.git
