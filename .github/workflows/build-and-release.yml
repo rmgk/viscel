@@ -21,7 +21,9 @@ jobs:
         os: [windows-2016]
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - uses: DeLaGuardo/setup-graalvm@3
         with:
           graalvm-version: '20.1.0.java11'
@@ -67,7 +69,9 @@ jobs:
         os: [ubuntu-20.04, macos-10.15]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'true'
     - uses: DeLaGuardo/setup-graalvm@3
       with:
         graalvm-version: '20.1.0.java11'
