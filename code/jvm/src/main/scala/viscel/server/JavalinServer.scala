@@ -22,6 +22,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters._
+import scala.util.Try
 
 class JavalinServer(
     blobStore: BlobStore,
@@ -34,8 +35,8 @@ class JavalinServer(
     rowStore: RowStoreV4
 ) {
 
-  def stop() = jl.stop()
-  def start(interface: String, port: Int) = {
+  def stop(): Javalin = jl.stop()
+  def start(interface: String, port: Int): Javalin = {
     setup()
     wsSetup()
     jl.start(interface, port)
@@ -72,10 +73,10 @@ class JavalinServer(
     config.showJavalinBanner = false
   }
 
-  val landingString = pages.fullrender(pages.landingTag)
-  val toolsString   = pages.fullrender(pages.toolsPage)
+  val landingString: String = pages.fullrender(pages.landingTag)
+  val toolsString: String   = pages.fullrender(pages.toolsPage)
 
-  def wsSetup() = {
+  def wsSetup(): Try[Unit] = {
 
     val wspath     = "ws"
     val properties = Properties(heartbeatDelay = 3.seconds, heartbeatTimeout = 10.seconds)
