@@ -146,7 +146,7 @@ object Dependencies {
   val jsoup         = ld += "org.jsoup"             % "jsoup"           % "1.13.1"
   val kaleidoscope  = ld += "com.propensive"      %%% "kaleidoscope"    % "0.1.0"
   val magnolia      = ld += "com.propensive"      %%% "magnolia"        % "0.15.0"
-  val okHttp        = ld += "com.squareup.okhttp3"  % "okhttp"          % "4.8.1"
+  val okHttp        = ld += "com.squareup.okhttp3"  % "okhttp"          % "4.9.0"
   val pprint        = ld += "com.lihaoyi"         %%% "pprint"          % "0.6.0"
   val scalactic     = ld += "org.scalactic"        %% "scalactic"       % "3.0.7"
   val scalaJavaTime = ld += "io.github.cquiroz"   %%% "scala-java-time" % "2.0.0"
