@@ -21,7 +21,6 @@ object Vurl {
     else new Vurl(new URL(uri).toString)
   }
 
-  /* Ensure urls are always parsed. */
   def unsafeFromString(uri: String): Vurl = {
     new Vurl(uri)
   }
