@@ -191,9 +191,8 @@ object Dependencies {
   val scalaXml   = ld += "org.scala-lang.modules" %% "scala-xml"   % "1.3.0"
   val scalaswing = ld += "org.scala-lang.modules" %% "scala-swing" % "2.1.1"
 
-  object loci {
+  case class Loci(version: String = "0.4.0") {
 
-    val version = "0.4.0"
     def generic(n: String) =
       Def.settings(
         Resolvers.stg,

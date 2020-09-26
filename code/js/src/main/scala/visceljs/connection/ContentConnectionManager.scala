@@ -8,6 +8,7 @@ import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
 import rescala.default._
+import rescala.reactives.Flatten
 import rescala.reactives.RExceptions.EmptySignalControlThrowable
 import viscel.shared._
 import viscel.store.{Book, BookToContents, DBParser}
@@ -45,14 +46,14 @@ class ContentConnectionManager(registry: Registry) {
   val mainRemote = connectedRemotes.map(_.headOption.getOrElse(throw EmptySignalControlThrowable))
 
   val remoteVersion: Signal[String] =
-    joined.map(rr => Signals.fromFuture(registry.lookup(Bindings.version, rr)))
-      .latest(Signal { "unknown" }).flatten
+    (joined.map(rr => Signals.fromFuture(registry.lookup(Bindings.version, rr)): Signal[String])
+      .latest(Signal { "unknown" }): Signal[Signal[String]]).flatten(Flatten.signal)
       .recover(e => s"error »$e«")
 
   val descriptions = Storing.storedAs("descriptionsmap", Map.empty[Vid, Description]) { init =>
-    mainRemote.map { rr =>
-      Signals.fromFuture(registry.lookup(Bindings.descriptions, rr).apply())
-    }.flatten.changed
+    (mainRemote.map { rr =>
+      Signals.fromFuture(registry.lookup(Bindings.descriptions, rr).apply()): Signal[Map[Vid, Description]]
+    }: Signal[Signal[Map[Vid, Description]]]).flatten[Signal[Map[Vid, Description]]](Flatten.signal).changed
       .recover { error =>
         Log.JS.error(s"failed to access descriptions: $error")
         None

@@ -2,8 +2,7 @@ package visceljs
 
 import org.scalajs.dom
 import org.scalajs.dom.raw.KeyboardEvent
-import rescala.default.{Event, Evt, implicitScheduler}
-import rescala.reactives.Events
+import rescala.default.{Event, Evt, implicitScheduler, Events}
 import visceljs.render.FitType
 
 object Navigation {
