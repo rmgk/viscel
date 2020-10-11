@@ -6,7 +6,7 @@ import Settings._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 val lociVersion = "0.4.0-16-ga880ec8"
-val rescalaVersion = "0.30.0+226-400619c2"
+val rescalaVersion = "0.30.0+228-c3c37c47"
 
 inThisBuild(scalaVersion_213)
 ThisBuild / organization := "de.rmgk"
