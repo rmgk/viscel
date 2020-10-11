@@ -12,6 +12,9 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: '11'
+      - name: publish dependencies
+        run: |
+          ./publish-dependencies.sh
       - name: run tests
         run: |
           sbt compile test
