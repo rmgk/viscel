@@ -13,6 +13,7 @@ jobs:
         with:
           java-version: '11'
       - name: publish dependencies
+        shell: bash
         run: |
           ./publish-dependencies.sh
       - name: run tests
