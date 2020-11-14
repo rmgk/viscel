@@ -1,8 +1,5 @@
 [
 {
-  "name":"com.nixxcode.jvmbrotli.common.BrotliLoader"
-},
-{
   "name":"io.javalin.websocket.WsHandlerController",
   "allDeclaredMethods":true
 },
@@ -29,6 +26,12 @@
 {
   "name":"java.lang.Long",
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Module"
+},
+{
+  "name":"java.lang.ModuleLayer"
 },
 {
   "name":"java.lang.Object",
@@ -61,6 +64,9 @@
   "methods":[{"name":"location","parameterTypes":[] }]
 },
 {
+  "name":"java.lang.module.ResolvedModule"
+},
+{
   "name":"java.nio.file.FileVisitOption[]"
 },
 {
@@ -68,6 +74,18 @@
 },
 {
   "name":"java.nio.file.OpenOption[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.FilterHolder[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.FilterMapping[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.ListenerHolder[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.ServletHolder[]"
 },
 {
   "name":"org.eclipse.jetty.servlet.ServletMapping[]"
@@ -86,8 +104,5 @@
 },
 {
   "name":"org.slf4j.impl.StaticLoggerBinder"
-},
-{
-  "name":"scala.Symbol"
 }
 ]
