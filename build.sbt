@@ -8,6 +8,18 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 val lociVersion = "0.4.0-17-g4294a47"
 val rescalaVersion = "0.30.0+231-e7d59bbf"
 
+def rescalaRef(name: String) =
+  ProjectRef(uri("git://github.com/rescala-lang/REScala.git#0a2d24f9c53bc520aa79e52e4c0c3e4d847179b8"), name)
+
+lazy val rescalaJS = rescalaRef("rescalaJS")
+lazy val rescalaJVM = rescalaRef("rescalaJVM")
+
+def lociRef(name: String) =
+  ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#51e025df4fae4af547d67b7b6e165408a1cde9f7"), name)
+
+lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
+lazy val lociJavalinJS  = lociRef("lociCommunicatorWsJavalinJS")
+
 inThisBuild(scalaVersion_213)
 ThisBuild / organization := "de.rmgk"
 
@@ -38,7 +50,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     scalatags,
     scribeSlf4j,
     Resolvers.stg,
-    libraryDependencies += "de.tuda.stg" %%% "rescala" % rescalaVersion,
+    // libraryDependencies += "de.tuda.stg" %%% "rescala" % rescalaVersion,
     Loci(lociVersion).wsJavalin,
     jsoniter,
     Compile / sourceGenerators += Def.task {
@@ -91,8 +103,8 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .enablePlugins(GraalVMNativeImagePlugin)
   .enablePlugins(JavaServerAppPackaging)
 
-lazy val server = viscel.jvm
-lazy val app    = viscel.js
+lazy val server = viscel.jvm.dependsOn(rescalaJVM, lociJavalinJVM)
+lazy val app    = viscel.js.dependsOn(rescalaJS, lociJavalinJS)
 
 lazy val benchmarks = project.in(file("benchmarks"))
   .settings(name := "benchmarks")
