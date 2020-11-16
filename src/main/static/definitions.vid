@@ -3,6 +3,7 @@
 -- image (i): matches a single image
 -- images (is): matches multiple images
 -- images? : matches any number of images, even none.
+-- imageHrefAttribute: sets the attribute containing the link 
 -- next (n): matches a single next reference
 -- image+next (ia): matches an image and extracts the containing next reference
 -- mixedArchive (am): matches an archive containing both chapter references and page references depending on matched tags
@@ -323,7 +324,12 @@
 ---------------------------------------------- NOT DEAD ---
 
 
-
+-HitmanSKFA:Hitman (Seo Kouji) [Fallen Angels]
+https://manga.fascans.com/manga/hitman
+:mixedArchive ul.chapters li h5.chapter-title-rtl , ul.chapters li h5.chapter-title-rtl a
+:archiveReverse
+:images #all img.img-responsive
+:imageHrefAttribute data-src
 
 -DMFA:Dan and Mab’s Furry Adventures
 http://www.missmab.com/Comics/Vol_001.php
