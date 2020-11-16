@@ -102,8 +102,14 @@ object ViscelDefinition {
   ): FlowNarrator = {
     val cid = generateID(id, name)
 
+    val hrefAttr = attrs.get("imageHrefAttribute").map(_.s)
+
     val imageNextPipe = attrs.get("image+next").map { img =>
-      FlowWrapper.Pipe(img.s, Restriction.Unique, List(FlowWrapper.Extractor.Image, Extractor.OptionalParentMore))
+      FlowWrapper.Pipe(
+        img.s,
+        Restriction.Unique,
+        List(FlowWrapper.Extractor.Image(hrefAttr), Extractor.OptionalParentMore)
+      )
     }
 
     val imagePipe = None.orElse(attrs.get("image").map(_ -> Restriction.Unique))
@@ -111,7 +117,7 @@ object ViscelDefinition {
       .orElse(attrs.get("images?").map(_ -> Restriction.None))
       .map {
         case (img, res) =>
-          FlowWrapper.Pipe(img.s, res, List(FlowWrapper.Extractor.Image))
+          FlowWrapper.Pipe(img.s, res, List(FlowWrapper.Extractor.Image(hrefAttr)))
       }
 
     val nextPipe = attrs.get("next").map { next =>

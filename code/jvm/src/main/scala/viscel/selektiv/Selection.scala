@@ -36,7 +36,7 @@ object FlowWrapper {
 
   sealed trait Extractor {
     val extract: Element => List[DataRow.Content] = this match {
-      case Extractor.Image => e => List(extractArticle(e))
+      case Extractor.Image(attribute) => e => List(imageFromAttribute(e, attribute))
       case Extractor.More => e =>
           List(extractMore(e))
         //case Extractor.Parent(next)    => e => next.extract(e.parent())
@@ -47,11 +47,11 @@ object FlowWrapper {
     }
   }
   object Extractor {
-    object Image              extends Extractor
-    object More               extends Extractor
-    object OptionalParentMore extends Extractor
-    object MixedArchive       extends Extractor
-    object Chapter            extends Extractor
+    case class Image(attribute: Option[String] = None) extends Extractor
+    object More                                        extends Extractor
+    object OptionalParentMore                          extends Extractor
+    object MixedArchive                                extends Extractor
+    object Chapter                                     extends Extractor
   }
 
   sealed trait Filter {
