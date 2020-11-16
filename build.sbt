@@ -6,13 +6,13 @@ import Settings._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def rescalaRef(name: String) =
-  ProjectRef(uri("git://github.com/rescala-lang/REScala.git#0a2d24f9c53bc520aa79e52e4c0c3e4d847179b8"), name)
+  ProjectRef(uri("git://github.com/rescala-lang/REScala.git#5cf8e3783eac99abb7e627f7ef2aa5c4d0f76ea8"), name)
 
 lazy val rescalaJS = rescalaRef("rescalaJS")
 lazy val rescalaJVM = rescalaRef("rescalaJVM")
 
 def lociRef(name: String) =
-  ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#51e025df4fae4af547d67b7b6e165408a1cde9f7"), name)
+  ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#4babeb0ba7f75b2007eab8d4f3f8efd16ed2566c"), name)
 
 lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
 lazy val lociJavalinJS  = lociRef("lociCommunicatorWsJavalinJS")
