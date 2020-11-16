@@ -5,9 +5,6 @@ import Dependencies._
 import Settings._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
-val lociVersion = "0.4.0-17-g4294a47"
-val rescalaVersion = "0.30.0+231-e7d59bbf"
-
 def rescalaRef(name: String) =
   ProjectRef(uri("git://github.com/rescala-lang/REScala.git#0a2d24f9c53bc520aa79e52e4c0c3e4d847179b8"), name)
 
@@ -50,8 +47,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     scalatags,
     scribeSlf4j,
     Resolvers.stg,
-    // libraryDependencies += "de.tuda.stg" %%% "rescala" % rescalaVersion,
-    Loci(lociVersion).wsJavalin,
     jsoniter,
     Compile / sourceGenerators += Def.task {
       val file      = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
