@@ -142,7 +142,7 @@ object Dependencies {
   val cats          = ld += "org.typelevel"       %%% "cats-core"       % "2.2.0"
   val decline       = ld += "com.monovore"        %%% "decline"         % "1.3.0"
   val fastparse     = ld += "com.lihaoyi"         %%% "fastparse"       % "2.3.0"
-  val javalin       = ld += "io.javalin"            % "javalin"         % "3.11.2"
+  val javalin       = ld += "io.javalin"            % "javalin"         % "3.12.0"
   val jsoup         = ld += "org.jsoup"             % "jsoup"           % "1.13.1"
   val kaleidoscope  = ld += "com.propensive"      %%% "kaleidoscope"    % "0.1.0"
   val magnolia      = ld += "com.propensive"      %%% "magnolia"        % "0.15.0"
