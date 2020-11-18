@@ -85,7 +85,11 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     ),
     if (sys.env.contains("GRAALVM_NATIVE_IMAGE_PATH"))
       graalVMNativeImageCommand := sys.env("GRAALVM_NATIVE_IMAGE_PATH")
-    else Nil
+    else Nil,
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 13)) => Seq("org.graalvm.nativeimage" % "svm" % "20.3.0" % "compile-internal") // or "provided", but it is required only in compile-time
+      case _ => Seq()
+     })
   )
   .jsSettings(
     scalajsdom,
