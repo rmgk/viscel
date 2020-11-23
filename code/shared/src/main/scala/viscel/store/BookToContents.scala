@@ -35,7 +35,7 @@ object BookToContents {
     def toSharedImage(lastLink: Option[DataRow.Link], blob: DataRow.Blob) = {
       val DataRow.Blob(sha1: String, mime: String) = blob
       val (dataMap, origin) = lastLink.map { ll =>
-        ll.data.sliding(2, 2).filter(_.size == 2).map {
+        ll.data.sliding(2, 2).filter(_.size == 2).collect {
           case List(a, b) => a -> b
         }.toMap -> seenOrigins(ll.ref).uriString()
       }.getOrElse(Map.empty -> "")

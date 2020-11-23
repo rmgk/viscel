@@ -73,7 +73,7 @@ class DetailsPage(actions: Actions) {
       }
     }
 
-    frag(pairs.map {
+    frag(pairs.collect {
       case List(single) => section()
       case List(start, end) =>
         val links = chaps(start.pos, end.pos)

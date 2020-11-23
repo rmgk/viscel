@@ -155,6 +155,9 @@ class JavalinServer(
               import scala.concurrent.ExecutionContext.Implicits.global
               ctx.result(Future(folderImporter.importFolder(path, Vid.from(s"Import_$id"), name))
                 .map(_ => "success").asJava.toCompletableFuture)
+            case _ =>
+              ctx.status(500)
+              ctx.result("")
           }
         } else {
           ctx.status(403)
@@ -173,6 +176,9 @@ class JavalinServer(
               ctx.result(interactions.addNarratorsFrom(url)
                 .map(v => s"found $v")
                 .asJava.toCompletableFuture)
+            case _ =>
+              ctx.status(500)
+              ctx.result("")
           }
         } else {
           ctx.status(403)
