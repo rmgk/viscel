@@ -24,7 +24,7 @@ lazy val nativeImage = taskKey[File]("calls graalvm native image")
 
 lazy val viscelBundle = project.in(file(".")).settings(
   vbundleDef,
-  normalizecss,
+  libraryDependencies += normalizecss.value,
   nativeImage := {
     (vbundle).value
     (server / GraalVMNativeImage / packageBin).value
@@ -43,11 +43,12 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "viscel",
     strictCompile,
-    scribe,
-    scalatags,
-    scribeSlf4j,
     Resolvers.stg,
-    jsoniter,
+    libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
+      scribe.value,
+      scalatags.value,
+      scribeSlf4j.value,
+    ),
     Compile / sourceGenerators += Def.task {
       val file      = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
       val outstring = s"""package viscel.shared; object Version { val str = "${version.value}"}"""
@@ -61,15 +62,16 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .jvmSettings(
     fork := true,
     strictCompile,
-    betterFiles,
-    decline,
-    scalatest,
-    scalacheck,
-    scalatestpluscheck,
-    jsoup,
-    okHttp,
-    javalin,
-    jsoniter,
+    libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
+      betterFiles.value,
+      decline.value,
+      scalatest.value,
+      scalacheck.value,
+      scalatestpluscheck.value,
+      jsoup.value,
+      okHttp.value,
+      javalin.value,
+    ),
     //  experimental graalvm options
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
     graalVMNativeImageOptions ++= List(
@@ -92,12 +94,12 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
      })
   )
   .jsSettings(
-    scalajsdom,
-    scalatags,
-    Resolvers.stg,
+    libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
+    scalajsDom.value,
+    scalatags.value,
+    ),
     strictCompile,
-    scalaJSUseMainModuleInitializer := true,
-    jsoniter
+    scalaJSUseMainModuleInitializer := true
   )
   .enablePlugins(GraalVMNativeImagePlugin)
   .enablePlugins(JavaServerAppPackaging)
