@@ -4,7 +4,7 @@ import loci.registry.{Binding, Registry}
 import loci.transmitter.RemoteRef
 import rescala.core.{InitialChange, Scheduler, Struct}
 import rescala.extra.lattices.Lattice
-import rescala.reactives.{Observe, Signal}
+import rescala.operator.{Observe, Signal}
 import viscel.shared.Log
 
 import scala.concurrent.Future

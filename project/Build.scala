@@ -104,6 +104,15 @@ object Settings {
 object Resolvers {
   val stg = resolvers += Resolver.bintrayRepo("stg-tud", "maven")
 
+  /*
+   * publish procedure copied and adapted from:
+   *   https://github.com/portable-scala/sbt-crossproject/commit/fbe10fe5cee1f545be75a310612b30e520729a0d#diff-6a3371457528722a734f3c51d9238c13
+   * Have your Bintray credentials stored as
+    [documented here](http://www.scala-sbt.org/1.0/docs/Publishing.html#Credentials),
+    using realm `Bintray API Realm` and host `api.bintray.com`
+   * Use `publish` from sbt
+   * Log in to Bintray and publish the files that were sent
+   */
   def bintrayPublish(bintrayOrganization: String, githubOrganization: String, githubReponame: String) =
     Seq(
       publishArtifact in Compile := true,
@@ -136,7 +145,8 @@ object Resolvers {
 object Dependencies {
 
   def ld            = libraryDependencies
-  val scribeVersion = "[2.7.0,2.8.0)"
+  val scribeVersion = "3.1.7"
+  val scalaJavaTimeVersion = "2.0.0"
 
   val betterFiles   = ld += "com.github.pathikrit" %% "better-files"    % "3.9.1"
   val cats          = ld += "org.typelevel"       %%% "cats-core"       % "2.2.0"
@@ -149,12 +159,12 @@ object Dependencies {
   val okHttp        = ld += "com.squareup.okhttp3"  % "okhttp"          % "4.9.0"
   val pprint        = ld += "com.lihaoyi"         %%% "pprint"          % "0.6.0"
   val scalactic     = ld += "org.scalactic"        %% "scalactic"       % "3.0.7"
-  val scalaJavaTime = ld += "io.github.cquiroz"   %%% "scala-java-time" % "2.0.0"
+  val scalaJavaTime = ld += "io.github.cquiroz"   %%% "scala-java-time" % scalaJavaTimeVersion
   val scribe        = ld += "com.outr"            %%% "scribe"          % scribeVersion
   val scribeSlf4j   = ld += "com.outr"             %% "scribe-slf4j"    % scribeVersion
   val sourcecode    = ld += "com.lihaoyi"         %%% "sourcecode"      % "0.2.1"
   val toml          = ld += "tech.sparse"         %%% "toml-scala"      % "0.2.2"
-  val upickle       = ld += "com.lihaoyi"          %% "upickle"         % "[0.7.4,1.1.0]"
+  val upickle       = ld += "com.lihaoyi"          %% "upickle"         % "1.2.2"
 
   val jsoniter = {
     val jsoniterVersion = "2.6.2"
@@ -164,19 +174,19 @@ object Dependencies {
     )
   }
 
-  val akkaVersion = "[2.5.31, 2.6.5]"
+  val akkaVersion = "2.5.32"
   val akkaHttp = ld ++= (Seq("akka-http-core", "akka-http")
-    .map(n => "com.typesafe.akka" %% n % "10.1.+") ++
+    .map(n => "com.typesafe.akka" %% n % "10.2.2") ++
     Seq("com.typesafe.akka" %% "akka-stream" % akkaVersion))
 
-  val circeVersion = "[0.11.2, 0.13.0]"
+  val circeVersion = "0.13.0"
 
   val circe = ld ++= Seq("core", "generic", "generic-extras", "parser")
     .map(n => "io.circe" %%% s"circe-$n" % circeVersion)
 
   // frontend
   val normalizecss      = ld += "org.webjars.npm" % "normalize.css" % "8.0.1"
-  val scalatagsVersion  = "[0.6.8,0.10.0)"
+  val scalatagsVersion  = "0.9.2"
   val scalatags         = ld += "com.lihaoyi"   %%% "scalatags"     % scalatagsVersion
   val scalajsdomVersion = "1.1.0"
   val scalajsdom        = ld += "org.scala-js"  %%% "scalajs-dom"   % scalajsdomVersion
@@ -191,7 +201,8 @@ object Dependencies {
   val scalaXml   = ld += "org.scala-lang.modules" %% "scala-xml"   % "1.3.0"
   val scalaswing = ld += "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
 
-  case class Loci(version: String = "0.4.0") {
+  val lociVersion = "0.4.0"
+  case class Loci(version: String = lociVersion) {
 
     def generic(n: String) =
       Def.settings(

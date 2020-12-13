@@ -8,7 +8,7 @@ import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
 import rescala.default._
-import rescala.reactives.RExceptions.EmptySignalControlThrowable
+import rescala.operator.RExceptions.EmptySignalControlThrowable
 import viscel.shared._
 import viscel.store.{Book, BookToContents, DBParser}
 import visceljs.ViscelJS.fetchbuffer
