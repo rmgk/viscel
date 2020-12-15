@@ -5,17 +5,17 @@ import Dependencies._
 import Settings._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
-def rescalaRef(name: String) =
-  ProjectRef(uri("git://github.com/rescala-lang/REScala.git#931752b93e53ecd6fd4849605b59bd0fd0ae5792"), name)
+// def rescalaRef(name: String) =
+//   ProjectRef(uri("git://github.com/rescala-lang/REScala.git#931752b93e53ecd6fd4849605b59bd0fd0ae5792"), name)
 
-lazy val rescalaJS = rescalaRef("rescalaJS")
-lazy val rescalaJVM = rescalaRef("rescalaJVM")
+// lazy val rescalaJS = rescalaRef("rescalaJS")
+// lazy val rescalaJVM = rescalaRef("rescalaJVM")
 
-def lociRef(name: String) =
-  ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#55433d73db8c49fd8b4292e5b9f20fe535e761c0"), name)
+// def lociRef(name: String) =
+//   ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#55433d73db8c49fd8b4292e5b9f20fe535e761c0"), name)
 
-lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
-lazy val lociJavalinJS  = lociRef("lociCommunicatorWsJavalinJS")
+// lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
+// lazy val lociJavalinJS  = lociRef("lociCommunicatorWsJavalinJS")
 
 inThisBuild(scalaVersion_213)
 ThisBuild / organization := "de.rmgk"
@@ -44,10 +44,13 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     name := "viscel",
     strictCompile,
     Resolvers.stg,
+    resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
       scribe.value,
       scalatags.value,
       scribeSlf4j.value,
+      "com.github.rescala-lang.REScala" %%% "rescala" % "931752b93e53ecd6fd4849605b59bd0fd0ae5792",
+      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % "55433d73db8c49fd8b4292e5b9f20fe535e761c0",
     ),
     Compile / sourceGenerators += Def.task {
       val file      = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
@@ -104,8 +107,8 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .enablePlugins(GraalVMNativeImagePlugin)
   .enablePlugins(JavaServerAppPackaging)
 
-lazy val server = viscel.jvm.dependsOn(rescalaJVM, lociJavalinJVM)
-lazy val app    = viscel.js.dependsOn(rescalaJS, lociJavalinJS)
+lazy val server = viscel.jvm
+lazy val app    = viscel.js
 
 lazy val benchmarks = project.in(file("benchmarks"))
   .settings(name := "benchmarks")
