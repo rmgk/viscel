@@ -22,9 +22,10 @@ case class Decider(
     * Adds everything in a left to right order, so downloads happen as users would read.
     */
   def addTasks(toAdd: List[VRequest]): Decider = {
-    val nextDecider = if (recheckStarted) {
-      copy(requestAfterRecheck = requestAfterRecheck + (if (toAdd.isEmpty && requestAfterRecheck == 0) 2 else 1))
-    } else this
+    val nextDecider =
+      if (recheckStarted) {
+        copy(requestAfterRecheck = requestAfterRecheck + (if (toAdd.isEmpty && requestAfterRecheck == 0) 2 else 1))
+      } else this
 
     nextDecider.copy(links = toAdd ::: nextDecider.links)
 

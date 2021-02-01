@@ -49,7 +49,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scribe.value,
       scalatags.value,
       scribeSlf4j.value,
-      "com.github.rescala-lang.REScala" %%% "rescala" % "931752b93e53ecd6fd4849605b59bd0fd0ae5792",
+      "com.github.rescala-lang.REScala"  %%% "rescala"                            % "931752b93e53ecd6fd4849605b59bd0fd0ae5792",
       "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % "55433d73db8c49fd8b4292e5b9f20fe535e761c0",
     ),
     Compile / sourceGenerators += Def.task {
@@ -92,14 +92,17 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       graalVMNativeImageCommand := sys.env("GRAALVM_NATIVE_IMAGE_PATH")
     else Nil,
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 13)) => Seq("org.graalvm.nativeimage" % "svm" % "20.3.0" % "compile-internal") // or "provided", but it is required only in compile-time
+      case Some((2, 13)) =>
+        Seq(
+          "org.graalvm.nativeimage" % "svm" % "20.3.0" % "compile-internal"
+        ) // or "provided", but it is required only in compile-time
       case _ => Seq()
-     })
+    })
   )
   .jsSettings(
     libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
-    scalajsDom.value,
-    scalatags.value,
+      scalajsDom.value,
+      scalatags.value,
     ),
     strictCompile,
     scalaJSUseMainModuleInitializer := true

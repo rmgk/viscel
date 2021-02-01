@@ -53,9 +53,10 @@ class Services(
 
   lazy val requests = {
     val executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 1, TimeUnit.SECONDS, new SynchronousQueue())
-    val cookies: Map[String, String] = if (Files.exists(cookiePath)) {
-      JsoniterStorage.load(cookiePath)(JsoniterCodecs.CookieMapCodec).getOrElse(Map.empty)
-    } else Map.empty
+    val cookies: Map[String, String] =
+      if (Files.exists(cookiePath)) {
+        JsoniterStorage.load(cookiePath)(JsoniterCodecs.CookieMapCodec).getOrElse(Map.empty)
+      } else Map.empty
     new OkHttpRequester(5, 1, executor, cookies)
   }
 
@@ -117,9 +118,10 @@ class Services(
       case (narrator, force) =>
         if (force) narratorCache.updateCache()
         descriptionCache.invalidate(narrator.id)
-        if (force) try {
-          rowStore.filterSingleLevelMissing(narrator.id)
-        } catch { case NonFatal(e) => Log.Server.warn(s"filering failed: ${e.getMessage}") }
+        if (force)
+          try {
+            rowStore.filterSingleLevelMissing(narrator.id)
+          } catch { case NonFatal(e) => Log.Server.warn(s"filering failed: ${e.getMessage}") }
         clockwork.runNarrator(narrator, if (force) 0 else clockwork.dayInMillis * 1)
     }
   }
