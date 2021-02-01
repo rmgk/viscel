@@ -11,6 +11,10 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.crypto.provider.HmacCore$HmacSHA384",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.crypto.provider.TlsKeyMaterialGenerator",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -134,18 +138,6 @@
   "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
 },
 {
-  "name":"org.eclipse.jetty.servlet.FilterHolder[]"
-},
-{
-  "name":"org.eclipse.jetty.servlet.FilterMapping[]"
-},
-{
-  "name":"org.eclipse.jetty.servlet.ListenerHolder[]"
-},
-{
-  "name":"org.eclipse.jetty.servlet.ServletHolder[]"
-},
-{
   "name":"org.eclipse.jetty.servlet.ServletMapping[]"
 },
 {
@@ -236,6 +228,10 @@
 },
 {
   "name":"sun.security.rsa.RSASignature$SHA256withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSASignature$SHA512withRSA",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
