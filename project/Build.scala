@@ -99,7 +99,8 @@ object Settings {
 }
 
 object Resolvers {
-  val stg = resolvers += Resolver.bintrayRepo("stg-tud", "maven")
+  val stg     = resolvers += ("STG old bintray repo" at "http://www.st.informatik.tu-darmstadt.de/maven/").withAllowInsecureProtocol(true)
+  val jitpack = resolvers += "jitpack" at "https://jitpack.io"
 
   /*
    * publish procedure copied and adapted from:
@@ -112,8 +113,8 @@ object Resolvers {
    */
   def bintrayPublish(bintrayOrganization: String, githubOrganization: String, githubReponame: String) =
     Seq(
-      publishArtifact in Compile := true,
-      publishArtifact in Test := false,
+      Compile / publishArtifact := true,
+      Test / publishArtifact := false,
       // licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
       scmInfo := Some(
         ScmInfo(
