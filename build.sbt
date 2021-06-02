@@ -1,9 +1,9 @@
-import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
-import java.security.MessageDigest
-
 import Dependencies._
 import Settings._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
+
+import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
+import java.security.MessageDigest
 
 // def rescalaRef(name: String) =
 //   ProjectRef(uri("git://github.com/rescala-lang/REScala.git#931752b93e53ecd6fd4849605b59bd0fd0ae5792"), name)
@@ -20,14 +20,14 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 inThisBuild(scalaVersion_213)
 ThisBuild / organization := "de.rmgk"
 
-lazy val nativeImage = taskKey[File]("calls graalvm native image")
+lazy val viscelPackage = taskKey[File]("calls graalvm native image")
 
 lazy val viscelBundle = project.in(file(".")).settings(
   vbundleDef,
   libraryDependencies += normalizecss.value,
-  nativeImage := {
+  viscelPackage := {
     (vbundle).value
-    (server / GraalVMNativeImage / packageBin).value
+    (server / nativeImage).value
   },
   run := {
     (server / Compile / run).dependsOn(vbundle).evaluated
@@ -49,7 +49,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scribe.value,
       scalatags.value,
       scribeSlf4j.value,
-      "com.github.rescala-lang.rescala"  %%% "rescala"                            % "0923d1786b",
+      "com.github.rescala-lang.rescala" %%% "rescala" % "0923d1786b",
       "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % "55433d73db8c49fd8b4292e5b9f20fe535e761c0",
     ),
     Compile / sourceGenerators += Def.task {
@@ -76,27 +76,20 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     ),
     //  experimental graalvm options
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
-    graalVMNativeImageOptions ++= List(
+    nativeImageVersion := "21.1.0",
+    nativeImageJvm := "graalvm-java11",
+    nativeImageOptions ++= List(
       "--allow-incomplete-classpath",
       "--no-fallback",
       //"--report-unsupported-elements-at-runtime",
-      "--initialize-at-build-time",
       // "-H:+ReportExceptionStackTraces",
       "-H:EnableURLProtocols=http,https",
       // "--enable-all-security-services",
-      "-H:+JNI",
-      "-H:+RemoveSaturatedTypeFlows"
+      //"-H:+JNI",
+      //"-H:+RemoveSaturatedTypeFlows",
+      //"--initialize-at-build-time",
+      //"--initialize-at-run-time=scala.util.Random,scala.util.Random$"
     ),
-    if (sys.env.contains("GRAALVM_NATIVE_IMAGE_PATH"))
-      graalVMNativeImageCommand := sys.env("GRAALVM_NATIVE_IMAGE_PATH")
-    else Nil,
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 13)) =>
-        Seq(
-          "org.graalvm.nativeimage" % "svm" % "20.3.0" % "compile-internal"
-        ) // or "provided", but it is required only in compile-time
-      case _ => Seq()
-    })
   )
   .jsSettings(
     libraryDependencies ++= Seq(
@@ -105,8 +98,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     ),
     scalaJSUseMainModuleInitializer := true
   )
-  .enablePlugins(GraalVMNativeImagePlugin)
-  .enablePlugins(JavaServerAppPackaging)
+  .enablePlugins(NativeImagePlugin)
 
 lazy val server = viscel.jvm
 lazy val app    = viscel.js
@@ -198,3 +190,7 @@ def bundleStuff(
 
   bundleTarget.toFile
 }
+
+// fix some linting nonsense
+Global / excludeLintKeys += nativeImageVersion
+Global / excludeLintKeys += nativeImageJvm
