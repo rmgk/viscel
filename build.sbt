@@ -64,8 +64,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   )
   .jvmSettings(
     fork := true,
-    strictCompile,
-    libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
+    libraryDependencies ++= Seq(
       betterFiles.value,
       decline.value,
       scalatest.value,
@@ -100,11 +99,10 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     })
   )
   .jsSettings(
-    libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
+    libraryDependencies ++= Seq(
       scalajsDom.value,
       scalatags.value,
     ),
-    strictCompile,
     scalaJSUseMainModuleInitializer := true
   )
   .enablePlugins(GraalVMNativeImagePlugin)
