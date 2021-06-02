@@ -49,7 +49,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scribe.value,
       scalatags.value,
       scribeSlf4j.value,
-      "com.github.rescala-lang.REScala"  %%% "rescala"                            % "17aa021ddb1dc02629da6aa6d16631f4634dbb7e",
+      "com.github.rescala-lang.rescala"  %%% "rescala"                            % "0923d1786b",
       "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % "55433d73db8c49fd8b4292e5b9f20fe535e761c0",
     ),
     Compile / sourceGenerators += Def.task {

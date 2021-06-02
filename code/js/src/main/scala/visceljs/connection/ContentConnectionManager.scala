@@ -63,8 +63,8 @@ class ContentConnectionManager(registry: Registry) {
 
   val reconnecting: Signal[Int] = Events.foldAll(0)(acc =>
     Seq(
-      connectionAttempt >> { _ => acc + 1 },
-      joined >> { _ => 0 }
+      connectionAttempt act { _ => acc + 1 },
+      joined act { _ => 0 }
     )
   )
 

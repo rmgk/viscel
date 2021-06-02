@@ -54,9 +54,9 @@ class ReaderApp(
 
     val currentPosition = Events.foldAll(Position(initialAppState.position, None))(acc =>
       Seq(
-        setCurrentPostition >> acc.set,
-        navigationEvents >> acc.mov,
-        maxPosition >> acc.limit
+        setCurrentPostition act acc.set,
+        navigationEvents act acc.mov,
+        maxPosition act acc.limit
       )
     )
 

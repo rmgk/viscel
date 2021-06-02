@@ -86,8 +86,6 @@ class JavalinServer(
 
     val userSocketCache: mutable.Map[User.Id, Signal[BookmarksMap]] = mutable.Map.empty
 
-    import rescala.default.implicitScheduler
-
     LociDist.distributePerRemote(
       { rr =>
         val user = rr.protocol.asInstanceOf[loci.communicator.ws.javalin.WS].context.attribute[User]("user")

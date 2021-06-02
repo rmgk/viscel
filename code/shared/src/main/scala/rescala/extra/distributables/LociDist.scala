@@ -2,23 +2,22 @@ package rescala.extra.distributables
 
 import loci.registry.{Binding, Registry}
 import loci.transmitter.RemoteRef
-import rescala.core.{InitialChange, Scheduler, Struct}
 import rescala.extra.lattices.Lattice
-import rescala.operator.{Observe, Signal}
+import rescala.default._
 import viscel.shared.Log
 
 import scala.concurrent.Future
 
 object LociDist {
 
-  def distribute[A: Lattice, S <: Struct: Scheduler](
-      signal: Signal[A, S],
+  def distribute[A: Lattice](
+      signal: Signal[A],
       registry: Registry
   )(binding: Binding[A => Unit] { type RemoteCall = A => Future[Unit] }) =
     distributePerRemote(_ => signal, registry)(binding)
 
-  def distributePerRemote[A: Lattice, S <: Struct: Scheduler](
-      signalFun: RemoteRef => Signal[A, S],
+  def distributePerRemote[A: Lattice](
+      signalFun: RemoteRef => Signal[A],
       registry: Registry
   )(binding: Binding[A => Unit] { type RemoteCall = A => Future[Unit] }): Unit = {
 
@@ -26,11 +25,11 @@ object LociDist {
 
     registry.bindPerRemote(binding)(remoteRef =>
       newValue => {
-        val signal: Signal[A, S] = signalFun(remoteRef)
+        val signal: Signal[A] = signalFun(remoteRef)
         val signalName           = signal.name.str
         //println(s"received value for $signalName: ${newValue.hashCode()}")
-        Scheduler[S].forceNewTransaction(signal) { admissionTicket =>
-          admissionTicket.recordChange(new InitialChange[S] {
+        scheduler.forceNewTransaction(signal) { admissionTicket =>
+          admissionTicket.recordChange(new InitialChange {
             override val source = signal
             override def writeValue(b: source.Value, v: source.Value => Unit): Boolean = {
               val merged = b.map(Lattice[A].merge(_, newValue)).asInstanceOf[source.Value]
@@ -45,10 +44,10 @@ object LociDist {
       }
     )
 
-    var observers = Map[RemoteRef, Observe[S]]()
+    var observers = Map[RemoteRef, Observe]()
 
     def registerRemote(remoteRef: RemoteRef): Unit = {
-      val signal: Signal[A, S] = signalFun(remoteRef)
+      val signal: Signal[A] = signalFun(remoteRef)
       val signalName           = signal.name.str
       println(s"registering new remote $remoteRef for $signalName")
       val remoteUpdate: A => Future[Unit] = {
