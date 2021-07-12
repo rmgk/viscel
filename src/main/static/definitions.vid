@@ -850,7 +850,7 @@ http://www.sandraandwoo.com/gaia/archive/
 
 -:Replay
 http://replaycomic.com/comic/red-desert/
-:ia a#comic[src~=/comic/] img
+:ia #comic a[href~=/comic/] img , #comic > img
 
 -:The Cummoner
 http://www.totempole666.com/archives-2/
@@ -2210,8 +2210,9 @@ https://www.yoshsaga.com/comic/introduction/
 
 -:Desert Fox
 https://desertfoxcomics.net/comic/desertfox/origins-1/
-:images? .webcomic-image img.size-full
+:image .webcomic-image img.size-full
 :next a.next-webcomic-link
+:url_replace a-trip-to-cloud-meadow/$ ::: page-69/
 
 -- also see https://studiokhimera.com/ which has some more rescues, but does use some data urls to lazy load images 🤔
 
