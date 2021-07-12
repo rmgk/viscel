@@ -113,8 +113,8 @@ lazy val fetchJSDependenciesDef = fetchJSDependencies := {
   val dependencies = List(
     (
       "localforage.min.js",
-      "https://cdn.jsdelivr.net/npm/localforage@1.7.3/dist/localforage.min.js",
-      "c071378e565cc4e2c6c34fca6f3a74f32c3d96cb"
+      "https://cdn.jsdelivr.net/npm/localforage@1.9.0/dist/localforage.min.js",
+      "fb6cb922fef52761a894f2898af7bb4b4706143d"
     )
   )
 
