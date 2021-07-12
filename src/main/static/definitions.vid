@@ -14,6 +14,15 @@
 
 ---------------------------------------------- DEAD ---
 
+-- -UFO:u.f.o.
+-- http://mangowow.zamomo.com/index.php?strip_id=1
+-- :i body > table > tbody > tr > td:nth-child(2) > p > img
+-- :n a:has(img[src=next.gif])
+
+-- -:Good Cheese
+-- http://fern.junglestudio.com/comics/GC/index.php?date=2006-12-12
+-- :ia img[src~=pages/]
+
 -- -:Ever Night
 -- http://evernightcomic.com/comic/chapter-0-page-1/
 -- :ia #comic img
@@ -550,9 +559,9 @@ http://flipside.keenspot.com/comic/book0/fs01pg01.html
 :n a:contains(Next >)
 
 -:Lint
-http://lint.webcomic.ws/archive/
-:am #content .subtitle , #content .titlesub , #content a[href~=comics/\d]
-:i #comicimage
+http://lint.webcomic.ws/comics/first/
+:image #comicimage
+:next a.comicnavlink[rel=next]
 
 -:Love is in the Blood
 https://www.loveisintheblood.com/comic/welcome-to-love-is-in-the-blood/
@@ -622,11 +631,6 @@ http://thelounge.keenspot.com/d/20020601.html
 :is img.ksc
 :n a:has(#next_day1)
 
--UFO:u.f.o.
-http://mangowow.zamomo.com/index.php?strip_id=1
-:i body > table > tbody > tr > td:nth-child(2) > p > img
-:n a:has(img[src=next.gif])
-
 -:Undertow
 http://undertow.dreamshards.org/0/u0_0.html
 :i body > center > img:eq(0)
@@ -669,10 +673,6 @@ http://www.geekherocomic.com/2008/03/03/03032008/index.html
 :i #comic > img
 :n #comic-nav > div.nav > a:has(img[alt=Next >>])
 
--:Good Cheese
-http://fern.junglestudio.com/comics/GC/index.php?date=2006-12-12
-:ia img[src~=pages/]
-
 -:Haiku Comics
 http://haikucomics.com/2009/01/14/haikuone/
 :i #featured-comic .entry-content img
@@ -685,7 +685,7 @@ http://fern.junglestudio.com/comics/nymph/00.html
 -:The First Daughter
 http://thefirstdaughter.keenspot.com/d/20100704.html
 :i img.ksc
-:n a:has(#next_day1)
+:n a:has(#next_day1):not([href~=keenspot.com/$])
 
 -:Strange Candy
 http://www.strangecandy.net/d/20010116.html
@@ -727,7 +727,7 @@ http://www.sandraandwoo.com/gaia/archive/
 
 -:Replay
 http://replaycomic.com/comic/red-desert/
-:ia a#comic[href~=/comic/] img
+:ia a#comic[src~=/comic/] img
 
 -:The Cummoner
 http://www.totempole666.com/archives-2/
@@ -881,9 +881,8 @@ http://www.todaynothinghappened.com/archive.php
 
 -NX_Twokinds:Twokinds
 http://twokinds.keenspot.com/archive/
-:mixedArchive #content .chapter h2 , #content .chapter-links a
+:mixedArchive #content .chapter h2 , #content .chapter-links a:not([href~=17thann])
 :image #content article.comic img[alt=Comic Page]
-:url_replace /comic/17thann/$ ::: comic/1126/
 
 -NX_MegaTokyo:MegaTokyo
 http://megatokyo.com/archive.php
@@ -1274,7 +1273,7 @@ http://www.gogetaroomie.com/comic/archive
 
 -:Goblins
 https://www.goblinscomic.org/comic/archive
-:chapterArchive #textarea a
+:chapterArchive #text-area a
 :image+next #cc-comic
 
 -:God Slave
