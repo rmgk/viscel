@@ -14,6 +14,46 @@
 
 ---------------------------------------------- DEAD ---
 
+-- -:Ever Night
+-- http://evernightcomic.com/comic/chapter-0-page-1/
+-- :ia #comic img
+
+-- -:Ice
+-- http://www.faitherinhicks.com/ice/page1.html
+-- :image img
+-- :next a[href~=\.html$]:contains(NEXT)
+
+-- -:By Moon Alone
+-- http://www.bymoonalone.com/comic.php?date=2008-01-01
+-- :i img[src~=^comic/pages/]
+-- :n a:has(img[src=img/forward01.gif])
+
+-- -:Alchemilla
+-- http://alchemillacomic.com/comic/archive
+-- :ac .cc-storyline-header a[href]
+-- :image #cc-comic
+-- :next #bottomnav a.cc-next
+
+-- -:Verse
+-- http://www.versecomic.com/comic/archive
+-- :ac .cc-storyline-header a[href]
+-- :image #cc-comic
+-- :next .cc-nav .cc-next
+
+-- -: Agents of the Realms
+-- https://agentsoftherealm.com/comic/semester1-vol1/
+-- :image #comic img
+-- :next a.comic-nav-next
+
+-- -:Prague Race
+-- http://www.praguerace.com/comic/archive
+-- :ac .cc-storyline-header a[href]
+-- :ia #cc-comic
+
+-- -:Shadowbinders
+-- http://shadowbinders.clownfishtv.com/comic/shadowbinders-prologue-page-1/
+-- :ia #comic img
+
 -- -:Bizarre Uprising
 -- http://www.bizarreuprising.com/view/1/awakening-splash
 -- :i div.v_comic > div.v_comiccontent > img
@@ -175,7 +215,7 @@
 -- http://jaynaylor.com/betterdays/
 -- :chapterArchive #chapters li > a
 -- :images #comicentry .content img
--- 
+--
 -- -NX_OriginalLife:Original Life
 -- http://jaynaylor.com/originallife/
 -- :chapterArchive #chapters li > a
@@ -184,6 +224,13 @@
 
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
+
+
+-- -:Iron Crown
+-- http://ironcrowncomic.com/comic/archive
+-- :ac .cc-storyline-header a[href]
+-- :image #cc-comic
+-- :next .cc-nav a.cc-next
 
 -- -:Strawberry Death Cake
 -- https://www.theduckwebcomics.com/Strawberry_Death_Cake/5004702/
@@ -218,30 +265,30 @@
 -- http://carciphona.smackjeeves.com/archive/
 -- :am #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
 -- :i #comic_image
--- 
+--
 -- -:Winters in Lavelle
 -- http://wintersinlavelle.smackjeeves.com/archive/
 -- :mixedArchive #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
 -- :image #comic_image
--- 
+--
 -- -:Rain LGBT
 -- http://rainlgbt.smackjeeves.com/archive/
 -- :mixedArchive #chapter_table td.chapter_title h2 , #chapter_table a[onmouseout=hideddrivetip()]
 -- :image #comic_image
--- 
+--
 -- -:Bear vs Zombie
 -- http://bearversuszombies.smackjeeves.com/comics/507662/chapter-1/
 -- :i #comic_image
 -- :n #content a[title=Next Page]
--- 
+--
 -- -:Memoriam
 -- http://memoriam.smackjeeves.com/comics/1080096/pg-1/
 -- :ia #comic_image
--- 
+--
 -- -:Reila
 -- http://reila.smackjeeves.com/comics/1001394/cover/
 -- :ia #comic_image
--- 
+--
 -- -NX_Anathema:Anathema
 -- http://anathema.smackjeeves.com/archive/
 -- :mixedArchive #chapter_table .chapter_title h2, #chapter_table a[onmouseout=hideddrivetip()]
@@ -257,62 +304,62 @@
 -------------------------------------------------------------------------
 -- -- petite symphony
 -------------------------------------------------------------------------
--- 
+--
 -- -PetiteSymphony_goyoku:[PS] Rascals Goyoku
 -- http://goyoku.petitesymphony.com/comic/goyoku-prologue1/
 -- :image #comic-1 img
 -- :next a.navi.navi-next
--- 
+--
 -- -PetiteSymphony_generation17:Generation 17
 -- http://generation17.comicsbreak.com/comic/cover/
 -- :image #comic img
 -- :next a.comic-nav-next
--- 
+--
 -- -PetiteSymphony_seed:[PS] Seed
 -- http://seed.petitesymphony.com/comic/seedchapter1
 -- :image #comic-1 img
 -- :next a.navi.navi-next
--- 
+--
 -- -PetiteSymphony_knuckleup:[PS] Knuckle Up
 -- http://knuckleup.petitesymphony.com/comic/knuckleup-prologue1
 -- :image #comic-1 img
 -- :next a.navi.navi-next
--- 
+--
 -- -PetiteSymphony_kickinrad:[PS] Kickin Rad
 -- http://kickinrad.petitesymphony.com/comic/hell-no/
 -- :image #comic-1 img
 -- :next a.navi.navi-next
--- 
+--
 -- -PetiteSymphony_projectzero:[PS] Project Zero
 -- http://projectzero.petitesymphony.com/comic/project-zero-cover/
 -- :image #comic-1 img
 -- :next a.navi.navi-next
--- 
+--
 -- -PetiteSymphony_retake:[PS] Retake
 -- http://retake.petitesymphony.com/comic/retake-cover/
 -- :image #comic-1 img
 -- :next a.navi.navi-next
--- 
+--
 -- -PetiteSymphony_petsymph:[PS] Petsymph
 -- http://petsymph.petitesymphony.com/comic/petsymph-wakey-wakey/
 -- :image #comic-1 img
 -- :next a.navi.navi-next
--- 
+--
 -- -PetiteSymphony_remnantsonata:[PS] Remnant Sonata
 -- http://remnantsonata.petitesymphony.com/comic/rs-pg1/
 -- :image #comic-1 img
 -- :next a.navi.navi-next
--- 
+--
 -- -PetiteSymphony_ladycrimson:[PS] Lady Crimson
 -- http://ladycrimson.petitesymphony.com/comic/ladycrimson_cover/
 -- :image #comic-1 img
 -- :next a.navi.navi-next
--- 
+--
 -- -PetiteSymphony_yearofthecow:[PS] Year of the Cow
 -- http://yearofthecow.petitesymphony.com/comic/yotc-cover/
 -- :image #comic-1 img
 -- :next a.navi.navi-next
--- 
+--
 -----------------------------------------------------------------------------
 -- -- end of petite symphony
 -----------------------------------------------------------------------------
@@ -381,11 +428,6 @@ http://dragonheroes.fanyart.com/comix-en.php?page=1
 :image #pages img
 :next a:has(img[alt=Next])
 
--:Ice
-http://www.faitherinhicks.com/ice/page1.html
-:image img
-:next a[href~=\.html$]:contains(NEXT)
-
 -:Devil Bear
 http://www.thedevilbear.com/b/comic/its-for-you/
 :image #comic img
@@ -427,7 +469,7 @@ http://www.kukuburi.com/v2/2007/08/09/one/
 :next a[rel=next]
 
 -PlushandBlood:The Unstuffed
-http://www.plushandblood.com/Comic.php?strip_id=1
+https://www.plushandblood.com/Comic.php?strip_id=1
 :image #ComicLayer img[src~=comics/]
 :next a:has(img[src=/Images/Nav/Next.png])
 
@@ -485,10 +527,6 @@ http://cortland.comicgenesis.com/d/20040320.html
 http://archive.exiern.com/comic/so-far/
 :image #comic img
 :next #comic-nav-wrapper a.comic-nav-next
-
--:Ever Night
-http://evernightcomic.com/comic/chapter-0-page-1/
-:ia #comic img
 
 -:Falcon Twin
 http://www.falcontwin.com/archive.html
@@ -561,10 +599,6 @@ https://www.collectedcurios.com/sequentialart.php?s=1
 http://www.sexylosers.com/archives-by-volume/
 :am div.entry-content > h3 , div.entry-content > ul li a
 :i main.content article.post div.entry-content > p img
-
--:Shadowbinders
-http://shadowbinders.clownfishtv.com/comic/shadowbinders-prologue-page-1/
-:ia #comic img
 
 -:Sore Thumbs
 http://sorethumbs.keenspot.com/d/20040308.html
@@ -693,7 +727,7 @@ http://www.sandraandwoo.com/gaia/archive/
 
 -:Replay
 http://replaycomic.com/comic/red-desert/
-:ia #comic img
+:ia a#comic[href~=/comic/] img
 
 -:The Cummoner
 http://www.totempole666.com/archives-2/
@@ -769,11 +803,6 @@ http://www.konradokonski.com/sawdust/archives/
 http://questionablecontent.net/view.php?comic=1
 :ia #strip
 
--:By Moon Alone
-http://www.bymoonalone.com/comic.php?date=2008-01-01
-:i img[src~=^comic/pages/]
-:n a:has(img[src=img/forward01.gif])
-
 -:Weirding Willows
 http://weirdingwillows.keenspot.com/d/20140915.html
 :i #comicpage img
@@ -836,7 +865,7 @@ http://www.dominic-deegan.com/comics-archive/
 :url_replace comic/0297-20030523/ ::: comic/0298-20030524/
 
 -NX_ErrantStory:Errant Story
-http://www.errantstory.com/2002-11-04/15
+https://www.errantstory.com/?p=15
 :image #comic > img
 :next #column > div.nav > h4.nav-next > a
 
@@ -854,6 +883,7 @@ http://www.todaynothinghappened.com/archive.php
 http://twokinds.keenspot.com/archive/
 :mixedArchive #content .chapter h2 , #content .chapter-links a
 :image #content article.comic img[alt=Comic Page]
+:url_replace /comic/17thann/$ ::: comic/1126/
 
 -NX_MegaTokyo:MegaTokyo
 http://megatokyo.com/archive.php
@@ -864,12 +894,12 @@ http://megatokyo.com/archive.php
 :url_replace megatokyo.com/strip/1428$ ::: megatokyo.com/strip/1429
 
 -NX_PhoenixRequiem:The Phoenix Requiem
-http://requiem.seraph-inn.com/archives.html
-:mixedArchive #container div.main > table tr:contains(Chapter) h2 , #container div.main > table tr:contains(Chapter) a
-:image #container img[src~=^pages/]
+https://www.seraph-inn.com/view.php?story=phoenix&page=1
+:images .comic-container img.page
+:next .comic-nav a:contains(Next)
 
 -NX_DreamScar:dream*scar
-http://dream-scar.net/archive.php
+https://dream-scar.net/archive.php
 :mixedArchive #static > b , #static > a
 :image #comic
 
@@ -1100,13 +1130,6 @@ http://www.pigeoncomic.com/comic/archive
 :image #cc-comic
 :next .cc-nav .cc-next
 
--:Alchemilla
-http://alchemillacomic.com/comic/archive
-:ac .cc-storyline-header a[href]
-:image #cc-comic
-:next #bottomnav a.cc-next
-
-
 -:Barbarous
 http://www.johnnywander.com/barbarous/barbarous-chapter-1
 :image #cc-comic
@@ -1250,10 +1273,9 @@ http://www.gogetaroomie.com/comic/archive
 :ia #cc-comic
 
 -:Goblins
-http://www.goblinscomic.org/archive/
+https://www.goblinscomic.org/comic/archive
 :chapterArchive #textarea a
 :image+next #cc-comic
--- :url_replace /(\d{8}(?:-\d+)?)/ ::: /comic/$1 ::: www.goblinscomic.org ::: goblinscomic.com
 
 -:God Slave
 http://www.godslavecomic.com/comic/archive
@@ -1305,12 +1327,6 @@ http://howtobeawerewolf.com/comic/archive
 :image #cc-comic
 :next .cc-nav a.cc-next
 
-
--:Iron Crown
-http://ironcrowncomic.com/comic/archive
-:ac .cc-storyline-header a[href]
-:image #cc-comic
-:next .cc-nav a.cc-next
 
 -:Inside Phobia
 http://www.insidephobia.com/comic/archive
@@ -1493,11 +1509,6 @@ http://www.peritale.com/comic/archive
 :image #cc-comic
 :next .cc-nav a.cc-next
 
--:Prague Race
-http://www.praguerace.com/comic/archive
-:ac .cc-storyline-header a[href]
-:ia #cc-comic
-
 -:Patrik the Vampire
 http://patrikthevampire.com/comic/archive
 :ac .cc-storyline-header a[href]:contains(Book)
@@ -1564,13 +1575,14 @@ http://www.sleeplessdomain.com/comic/archive
 
 -:Slightly Damned
 https://www.sdamned.com/archives
-:ac #comicarea table a
+:ac #comicarea table a[href~=/comic/]
 :image #cc-comic
 :next .cc-nav .cc-next
 
 -:Solstoria
-http://solstoria.net/comic/54/
-:ia #content .webcomic-image img.size-full
+https://solstoria.net/comic/archive
+:ac .cc-storyline-header a[href]
+:image+next #cc-comic
 
 -:Spinnerette
 http://www.spinnyverse.com/comic/archive
@@ -1629,7 +1641,7 @@ http://starimpactcomic.com/comic/archive
 :next .cc-nav .cc-next
 
 
--:The Weave 
+-:The Weave
 https://weavecomic.com/comic/archive
 :ac .cc-storyline-header a[href]
 :image #cc-comic
@@ -1737,12 +1749,6 @@ http://www.trippingoveryou.com/comic/archive
 :image #cc-comic
 :next .cc-nav .cc-next
 
-
--:Verse
-http://www.versecomic.com/comic/archive
-:ac .cc-storyline-header a[href]
-:image #cc-comic
-:next .cc-nav .cc-next
 
 -:Vainglorious
 http://vaingloriouscomic.com/comic/archive
@@ -1973,7 +1979,7 @@ https://amultiverse.com/comic/2010/06/14/parenthood/
 -:Heart Shaped Skull
 https://www.aaronalexovich.com/comic/working-through-the-negativity-cover/
 :image+next #comic img
-:url_replace working-through-the-negativity-page-026 ::: working-through-the-negativity-page-027/ 
+:url_replace working-through-the-negativity-page-026 ::: working-through-the-negativity-page-027/
 
 -:Oh Joy Sex Toy
 http://www.ohjoysextoy.com/introduction/
@@ -1997,11 +2003,6 @@ http://www.basinvale.com/index.php?id=1
 http://www.last-halloween.com/posts
 :ac #categories-container .archive_category:not(:has(img[alt=8cff78e6f15bc04c379aa8d4e7a2698744af05eb]))  .archive_entry a
 :is #comics-container > div.comic-container > img
-
--: Agents of the Realms
-https://agentsoftherealm.com/comic/semester1-vol1/
-:image #comic img
-:next a.comic-nav-next
 
 -:Meaty Yogurt
 http://rosalarian.com/meatyyogurt/archive-2/
@@ -2204,7 +2205,7 @@ https://addictivescience.kemono.cafe/comic/page0001/
 
 -KatBox_ai:Artificial Incident
 https://www.artificialincident.com/comic/issue-one-life-changing/
-:image .webcomic-image img.size-full
+:images .webcomic-image img.size-full
 :next a.next-webcomic-link
 
 -KatBox_yosh:Yosh!
@@ -2213,7 +2214,7 @@ https://www.yoshsaga.com/comic/introduction/
 :next a.next-webcomic-link
 
 -:Desert Fox
-https://www.desertfoxcomics.net/desertfox/comic/origins-1/
+https://desertfoxcomics.net/comic/desertfox/origins-1/
 :images? .webcomic-image img.size-full
 :next a.next-webcomic-link
 
