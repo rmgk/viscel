@@ -17,8 +17,8 @@ libraryDependencies += "org.scala-js" %% "scalajs-env-jsdom-nodejs" % "1.1.0"
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.4.0")
 
 // crossbuilding
-addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject"      % "1.0.0")
-addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.0.0")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject"      % "1.1.0")
+addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.1.0")
 
 addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.5.1")
 
@@ -31,4 +31,4 @@ addSbtPlugin("org.tpolecat"       % "tut-plugin" % "0.6.13")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh"    % "0.4.3")
 
 // https://github.com/scalameta/sbt-native-image
-addSbtPlugin("org.scalameta" % "sbt-native-image" % "0.3.0")
+addSbtPlugin("org.scalameta" % "sbt-native-image" % "0.3.1")
