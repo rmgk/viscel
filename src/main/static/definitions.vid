@@ -502,11 +502,37 @@
 
 ---------------------------------------------- NOT DEAD ---
 
+-:Wukrii
+https://www.wukrii.com/comic/prologue-page-1/
+:image #comic img
+:next a.comic-nav-next
+
+-:Swashbuckled
+https://swashbuckled.darkbluecomics.com/comic/beginning-part-1/
+:image .webcomic-image img.size-full
+:next a.next-webcomic1-link
+
+-:Moonface
+https://moonlace.darkbluecomics.com/archive/
+:chapterArchive #content a.webcomic1_storyline-link
+:image .webcomic-image img.size-full
+:next a.next-webcomic1-link
+
+-:Delve
+https://thisis.delvecomic.com/NewWP/comic/in-too-deep/
+:image #comic img
+:next #comic-nav-wrapper a.comic-nav-next
+
+-:Evon
+http://evoncomics.com/?page_id=22
+:chapterArchive #content h2 a
+:image #comic img
+:next #comic-nav-wrapper a.comic-nav-next
+
 -:Elven
 https://elven.co.nz/archives/
 :mixedArchive .post-content .entry h3.comic-archive-chapter , .post-content .entry .comic-archive-title a[rel=bookmark]
 :image #comic img
-
 
 -:Orc and Gnome
 https://ogmacomic.com/archive/
@@ -2167,6 +2193,11 @@ http://rockcocks.slipshine.net/comic/archive
 --------------------------------------------------------------------------------------
 -- katbox rescues and kemono cafe
 --------------------------------------------------------------------------------------
+
+-:Bethellium
+https://bethellium.kemono.cafe/archive/
+:mixedArchive .comic-archive-chapter-wrap h3 , .comic-archive-chapter-wrap .comic-archive-list-wrap a
+:image #comic img
 
 -KatBox_imew:iMew
 https://imew.kemono.cafe/comic/imew00/
