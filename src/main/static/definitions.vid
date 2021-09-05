@@ -502,6 +502,21 @@
 
 ---------------------------------------------- NOT DEAD ---
 
+-:Elven
+https://elven.co.nz/archives/
+:mixedArchive .post-content .entry h3.comic-archive-chapter , .post-content .entry .comic-archive-title a[rel=bookmark]
+:image #comic img
+
+
+-:Orc and Gnome
+https://ogmacomic.com/archive/
+:mixedArchive .archive .chapter-title , .archive .page a
+:image .row.comic a[href~=/comic/] img
+
+-:The Depths
+https://www.thedepthscomic.com/comic/page-01/
+:image #content .webcomic-media .size-full
+:next #comic-nav a.next-webcomic-link
 
 -HitmanSKFA:Hitman (Seo Kouji) [Fallen Angels]
 https://manga.fascans.com/manga/hitman
