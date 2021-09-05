@@ -76,7 +76,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     ),
     //  experimental graalvm options
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
-    nativeImageVersion := "21.1.0",
+    nativeImageVersion := "21.2.0",
     nativeImageJvm := "graalvm-java11",
     // nativeImageInstalled := true,
     nativeImageOptions ++= List(
