@@ -50,7 +50,9 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scalatags.value,
       scribeSlf4j.value,
       "com.github.rescala-lang.rescala" %%% "rescala" % "0923d1786b",
-      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % "55433d73db8c49fd8b4292e5b9f20fe535e761c0",
+      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % "c0909dd079bcaa5a953d3f7347127a1810093943",
+      //"com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-jetty" % "c0909dd079bcaa5a953d3f7347127a1810093943",
+      "com.github.scala-loci.scala-loci" %%% "scala-loci-serializer-jsoniter-scala" % "c0909dd079bcaa5a953d3f7347127a1810093943",
     ),
     Compile / sourceGenerators += Def.task {
       val file      = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
@@ -96,6 +98,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       scalajsDom.value,
       scalatags.value,
+      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % "c0909dd079bcaa5a953d3f7347127a1810093943",
     ),
     scalaJSUseMainModuleInitializer := true
   )

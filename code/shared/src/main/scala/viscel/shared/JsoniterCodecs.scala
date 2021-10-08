@@ -1,25 +1,8 @@
 package viscel.shared
 
-import java.nio.ByteBuffer
-
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.github.plokhotnyuk.jsoniter_scala.macros._
-import loci.MessageBuffer
-import loci.transmitter.Serializable
 
-import scala.util.Try
-
-object JsoniterLociSerializable {
-  implicit def upickleBasedSerializable[T](implicit codec: JsonValueCodec[T]): Serializable[T] =
-    new Serializable[T] {
-      def serialize(value: T) = {
-        val bytes = writeToArray(value)
-        MessageBuffer.wrapByteBuffer(ByteBuffer.wrap(bytes))
-      }
-      def deserialize(value: MessageBuffer) =
-        Try { readFromByteBuffer(value.asByteBuffer) }
-    }
-}
 
 object JsoniterCodecs {
   def writeString[T: JsonValueCodec](value: T) = writeToString(value)

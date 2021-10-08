@@ -13,18 +13,17 @@ object LociDist {
   def distribute[A: Lattice](
       signal: Signal[A],
       registry: Registry
-  )(binding: Binding[A => Unit] { type RemoteCall = A => Future[Unit] }) =
+  )(binding: Binding[A => Unit, A => Future[Unit]]) =
     distributePerRemote(_ => signal, registry)(binding)
 
   def distributePerRemote[A: Lattice](
       signalFun: RemoteRef => Signal[A],
       registry: Registry
-  )(binding: Binding[A => Unit] { type RemoteCall = A => Future[Unit] }): Unit = {
+  )(binding: Binding[A => Unit, A => Future[Unit]]): Unit = {
 
     Log.Server.info(s"starting new distribution for »${binding.name}«")
 
-    registry.bindPerRemote(binding)(remoteRef =>
-      newValue => {
+    registry.bindSbj(binding)((remoteRef: RemoteRef, newValue: A) => {
         val signal: Signal[A] = signalFun(remoteRef)
         val signalName           = signal.name.str
         //println(s"received value for $signalName: ${newValue.hashCode()}")
