@@ -8,7 +8,7 @@ import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
 import viscel.netzi.OkHttpRequester
-import viscel.server.{ContentLoader, Interactions, JavalinServer, ServerPages}
+import viscel.server.{ContentLoader, Interactions, JettyServer, ServerPages}
 import viscel.shared.{JsoniterCodecs, Log}
 import viscel.store.{BlobStore, DescriptionCache, JsoniterStorage, NarratorCache, RowStoreV4, Users}
 
@@ -72,8 +72,8 @@ class Services(
     requestUtil = requests
   )
 
-  lazy val server: JavalinServer =
-    new JavalinServer(
+  lazy val server: JettyServer =
+    new JettyServer(
       blobStore = blobStore,
       terminate = () => terminateEverything(true),
       pages = serverPages,

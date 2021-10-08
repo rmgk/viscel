@@ -28,10 +28,10 @@ object Viscel {
         metavar = "directory",
         help = "Directory to store blobs (the images). Can be absolute, otherwise relative to basedir."
       )
-        .withDefault(Paths.get("./blobs/")),
+        .withDefault(Paths.get("blobs")),
       Opts.flag(long = "shutdown", help = "Shutdown directly.").orFalse,
       Opts.option[Path](long = "static", metavar = "directory", help = "Directory of static resources.")
-        .withDefault(Paths.get("./static/")),
+        .withDefault(Paths.get("static")),
       Opts.option[String](long = "urlprefix", metavar = "string", help = "Prefix for server URLs.").withDefault(""),
       Opts.flag(long = "collectgarbage", help = "Finds unused parts in the database.").orFalse,
     )

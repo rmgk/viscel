@@ -9,7 +9,7 @@ import viscel.shared.{DataRow, Log}
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
-class BlobStore(blobdir: Path) {
+class BlobStore(val blobdir: Path) {
 
   def write(sha1: String, bytes: Array[Byte]): Unit = {
     val path = hashToPath(sha1)
