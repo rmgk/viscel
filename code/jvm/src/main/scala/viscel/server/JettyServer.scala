@@ -1,7 +1,6 @@
 package viscel.server
 
 import better.files.File
-import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import loci.communicator.ws.jetty.WS.Properties
 import loci.communicator.ws.jetty._
 import loci.registry.Registry
@@ -22,6 +21,7 @@ import viscel.{FolderImporter, Viscel}
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -186,7 +186,7 @@ class JettyServer(
 
   trait Handling
   case class Res(content: String, ct: String = "text/html; charset=UTF-8", status: Int = 200) extends Handling
-  case object Unhandled extends Handling
+  case object Unhandled                                                                       extends Handling
 
   object mainHandler extends AbstractHandler {
     override def handle(
@@ -232,7 +232,7 @@ class JettyServer(
           case "/"        => Res(landingString)
           case "/version" => Res(Viscel.version, "text/plain; charset=UTF-8")
           case "/tools"   => Res(toolsString)
-          case other => Unhandled
+          case other      => Unhandled
         }
       }
 

@@ -38,7 +38,7 @@ lazy val viscelBundle = project.in(file(".")).settings(
   .enablePlugins(SbtSassify)
   .aggregate(app, server)
 
-val lociVersion = "5d3500a3a697c126d9608c7f12ee327a107cce11"
+val lociVersion = "bc2a42fc85af44cfa583d79d7cdd128788faf586"
 
 lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
@@ -55,7 +55,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       "com.github.rescala-lang.rescala" %%% "rescala" % "0923d1786b",
       "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-jetty" % lociVersion,
       "com.github.scala-loci.scala-loci" %%% "scala-loci-serializer-jsoniter-scala" % lociVersion,
-      "org.eclipse.jetty" % "jetty-rewrite" % "11.0.6",
+      "org.eclipse.jetty" % "jetty-rewrite" % "9.4.44.v20210927",
     ),
     Compile / sourceGenerators += Def.task {
       val file      = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
@@ -79,7 +79,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       okHttp.value,
     ),
     //  experimental graalvm options
-    // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
+    javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
     nativeImageVersion := "21.2.0",
     nativeImageJvm := "graalvm-java11",
     // nativeImageInstalled := true,
