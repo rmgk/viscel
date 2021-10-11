@@ -77,7 +77,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scalatestpluscheck.value,
       jsoup.value,
       okHttp.value,
-      javalin.value,
     ),
     //  experimental graalvm options
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",

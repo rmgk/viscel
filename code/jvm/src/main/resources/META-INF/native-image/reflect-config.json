@@ -3,26 +3,6 @@
   "name":"byte[]"
 },
 {
-  "name":"com.sun.crypto.provider.AESCipher$General",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.DHParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.HmacCore$HmacSHA256",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"io.javalin.websocket.WsHandlerController",
-  "allDeclaredMethods":true
-},
-{
   "name":"java.lang.Boolean",
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
@@ -47,16 +27,6 @@
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
-  "name":"java.lang.Module"
-},
-{
-  "name":"java.lang.ModuleLayer"
-},
-{
-  "name":"java.lang.Object",
-  "allDeclaredMethods":true
-},
-{
   "name":"java.lang.Short",
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
@@ -67,7 +37,8 @@
   "name":"java.lang.String[]"
 },
 {
-  "name":"java.lang.invoke.VarHandle"
+  "name":"java.lang.invoke.VarHandle",
+  "methods":[{"name":"releaseFence","parameterTypes":[] }]
 },
 {
   "name":"java.lang.management.ManagementFactory",
@@ -76,17 +47,6 @@
 {
   "name":"java.lang.management.RuntimeMXBean",
   "methods":[{"name":"getUptime","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.module.Configuration",
-  "methods":[{"name":"findModule","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.module.ModuleReference",
-  "methods":[{"name":"location","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.module.ResolvedModule"
 },
 {
   "name":"java.nio.file.FileVisitOption[]"
@@ -110,19 +70,11 @@
   "name":"java.security.SecureRandomParameters"
 },
 {
-  "name":"java.security.interfaces.ECPrivateKey"
-},
-{
-  "name":"java.security.interfaces.ECPublicKey"
-},
-{
-  "name":"java.security.interfaces.RSAPrivateKey"
-},
-{
-  "name":"java.security.interfaces.RSAPublicKey"
-},
-{
   "name":"java.util.Date"
+},
+{
+  "name":"java.util.HashSet",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"javax.security.auth.x500.X500Principal",
@@ -130,22 +82,58 @@
   "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
 },
 {
-  "name":"org.eclipse.jetty.servlet.ServletMapping[]"
-},
-{
-  "name":"org.eclipse.jetty.util.log.Slf4jLog",
+  "name":"org.eclipse.jetty.http.pathmap.PathSpecSet",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.websocket.common.extensions.compress.PerMessageDeflateExtension",
+  "name":"org.eclipse.jetty.rewrite.handler.Rule[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.FilterHolder[]"
+},
+{
+  "name":"org.eclipse.jetty.servlet.ServletHandler$Default404Servlet",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.websocket.server.WebSocketServerFactory",
-  "methods":[{"name":"<init>","parameterTypes":["javax.servlet.ServletContext","org.eclipse.jetty.websocket.api.WebSocketPolicy"] }]
+  "name":"org.eclipse.jetty.util.AsciiLowerCaseSet",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.slf4j.impl.StaticLoggerBinder"
+  "name":"org.eclipse.jetty.util.TypeUtil",
+  "methods":[
+    {"name":"getClassLoaderLocation","parameterTypes":["java.lang.Class"] }, 
+    {"name":"getCodeSourceLocation","parameterTypes":["java.lang.Class"] }, 
+    {"name":"getModuleLocation","parameterTypes":["java.lang.Class"] }, 
+    {"name":"getSystemClassLoaderLocation","parameterTypes":["java.lang.Class"] }
+  ]
+},
+{
+  "name":"org.eclipse.jetty.websocket.api.WebSocketConnectionListener",
+  "methods":[
+    {"name":"onWebSocketClose","parameterTypes":["int","java.lang.String"] }, 
+    {"name":"onWebSocketConnect","parameterTypes":["org.eclipse.jetty.websocket.api.Session"] }, 
+    {"name":"onWebSocketError","parameterTypes":["java.lang.Throwable"] }
+  ]
+},
+{
+  "name":"org.eclipse.jetty.websocket.api.WebSocketListener",
+  "methods":[
+    {"name":"onWebSocketBinary","parameterTypes":["byte[]","int","int"] }, 
+    {"name":"onWebSocketText","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"org.eclipse.jetty.websocket.core.internal.PerMessageDeflateExtension",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.jetty.websocket.core.internal.messages.ByteArrayMessageSink",
+  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle"] }]
+},
+{
+  "name":"org.eclipse.jetty.websocket.core.internal.messages.StringMessageSink",
+  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle"] }]
 },
 {
   "name":"sun.security.pkcs.SignerInfo[]"
@@ -156,18 +144,6 @@
 },
 {
   "name":"sun.security.pkcs12.PKCS12KeyStore$DualFormatPKCS12",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.DSA$SHA224withDSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.DSA$SHA256withDSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.JavaKeyStore$DualFormatJKS",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -183,47 +159,11 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.security.provider.SHA2$SHA224",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA2$SHA256",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA5$SHA384",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA5$SHA512",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"sun.security.provider.X509Factory",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.security.provider.certpath.PKIXCertPathValidator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"sun.security.rsa.RSAKeyFactory$Legacy",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSAPSSSignature",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSASignature$SHA224withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSASignature$SHA256withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSASignature$SHA512withRSA",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
