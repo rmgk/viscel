@@ -12,9 +12,10 @@ import java.security.MessageDigest
 // lazy val rescalaJVM = rescalaRef("rescalaJVM")
 
 // def lociRef(name: String) =
-//   ProjectRef(uri("git://github.com/scala-loci/scala-loci.git#55433d73db8c49fd8b4292e5b9f20fe535e761c0"), name)
-
+//   ProjectRef(file("../loci"), name)
+//
 // lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
+// lazy val lociJettyJVM = lociRef("lociCommunicatorWsJettyJVM")
 // lazy val lociJavalinJS  = lociRef("lociCommunicatorWsJavalinJS")
 
 inThisBuild(scalaVersion_213)
@@ -37,6 +38,8 @@ lazy val viscelBundle = project.in(file(".")).settings(
   .enablePlugins(SbtSassify)
   .aggregate(app, server)
 
+val lociVersion = "5d3500a3a697c126d9608c7f12ee327a107cce11"
+
 lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("code"))
@@ -50,9 +53,8 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scalatags.value,
       scribeSlf4j.value,
       "com.github.rescala-lang.rescala" %%% "rescala" % "0923d1786b",
-      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % "79905dde5ce64b16c2462f0d7098d97c5a5d6576",
-      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-jetty" % "79905dde5ce64b16c2462f0d7098d97c5a5d6576",
-      "com.github.scala-loci.scala-loci" %%% "scala-loci-serializer-jsoniter-scala" % "79905dde5ce64b16c2462f0d7098d97c5a5d6576",
+      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-jetty" % lociVersion,
+      "com.github.scala-loci.scala-loci" %%% "scala-loci-serializer-jsoniter-scala" % lociVersion,
       "org.eclipse.jetty" % "jetty-rewrite" % "11.0.6",
     ),
     Compile / sourceGenerators += Def.task {
@@ -99,7 +101,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       scalajsDom.value,
       scalatags.value,
-      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % "79905dde5ce64b16c2462f0d7098d97c5a5d6576",
+      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % lociVersion,
     ),
     scalaJSUseMainModuleInitializer := true
   )
