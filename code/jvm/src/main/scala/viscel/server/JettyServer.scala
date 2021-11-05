@@ -4,7 +4,7 @@ import better.files.File
 import loci.communicator.ws.jetty.WS.Properties
 import loci.communicator.ws.jetty._
 import loci.registry.Registry
-import org.eclipse.jetty.http.{HttpHeader, HttpMethod}
+import org.eclipse.jetty.http.{HttpCookie, HttpHeader, HttpMethod}
 import org.eclipse.jetty.rewrite.handler.{RewriteHandler, RewriteRegexRule}
 import org.eclipse.jetty.server.handler.gzip.GzipHandler
 import org.eclipse.jetty.server.handler.{AbstractHandler, HandlerList, HandlerWrapper, ResourceHandler}
@@ -65,6 +65,26 @@ class JettyServer(
 
   object authenticationHandler extends HandlerWrapper {
 
+    def loginFromCredentials(credentials: String): Option[(String, String)] = {
+      if (credentials != null) {
+        val space = credentials.indexOf(' ')
+        if (space > 0) {
+          val method = credentials.substring(0, space)
+          if ("basic".equalsIgnoreCase(method)) {
+            val credentials2 = credentials.substring(space + 1)
+            val credentials3 = new String(Base64.getDecoder.decode(credentials2), StandardCharsets.ISO_8859_1);
+            val i            = credentials3.indexOf(':')
+            if (i > 0) {
+              val username = credentials3.substring(0, i)
+              val password = credentials3.substring(i + 1)
+              return Some(username -> password)
+            }
+          }
+        }
+      }
+      None
+    }
+
     override def handle(
         target: String,
         baseRequest: Request,
@@ -72,40 +92,39 @@ class JettyServer(
         response: HttpServletResponse
     ): Unit = {
 
-      var credentials = request.getHeader(HttpHeader.AUTHORIZATION.asString());
-      val charset     = StandardCharsets.ISO_8859_1;
+      val credentials = request.getHeader(HttpHeader.AUTHORIZATION.asString());
+      val cookies     = Option(request.getCookies).getOrElse(Array())
 
-      if (credentials != null) {
-        val space = credentials.indexOf(' ')
-        if (space > 0) {
-          val method = credentials.substring(0, space)
-          if ("basic".equalsIgnoreCase(method)) {
-            credentials = credentials.substring(space + 1)
-            credentials = new java.lang.String(Base64.getDecoder.decode(credentials), charset);
-            val i = credentials.indexOf(':')
-            if (i > 0) {
-              val username = credentials.substring(0, i)
-              val password = credentials.substring(i + 1)
-              interactions.authenticate(username, password) match {
-                case Some(user) =>
-                  request.setAttribute("viscel-user", user)
-                  return super.handle(target, baseRequest, request, response)
-                case None =>
-                  scribe.warn(s"incorrect login for $username")
-              }
-
-            }
-          }
-        }
+      def getCookie(name: String) = {
+        cookies.find(c => c.getName == name).map(_.getValue)
       }
 
-      scribe.info(s"no credetials for ${request.getRequestURI}")
+      loginFromCredentials(credentials).orElse {
+        getCookie("viscel-user").zip(getCookie("viscel-password"))
+      } flatMap { case (username, password) =>
+        interactions.authenticate(username, password)
+      } match {
+        case Some(user) =>
+          request.setAttribute("viscel-user", user)
+          val userCookie = new HttpCookie("viscel-user", user.id, null, null, -1, false, false, null, -1, HttpCookie.SameSite.STRICT)
+          val passCookie = new HttpCookie("viscel-password", user.password, null, null, -1, false, false, null, -1, HttpCookie.SameSite.STRICT)
+          response.addHeader("Set-Cookie", userCookie.getRFC6265SetCookie)
+          response.addHeader("Set-Cookie", passCookie.getRFC6265SetCookie)
+          super.handle(target, baseRequest, request, response)
+        case None =>
+          scribe.info(s"no credetials for ${request.getRequestURI}")
+          //scribe.info(s"cookie header: ${request.getHeader("Cookie")}")
+          //cookies.foreach { c =>
+          //  scribe.info(s"cookie: ${c.getName}: ${c.getValue}")
+          //}
+          //scribe.info(s"auth: ${request.getHeader("Authorization")}")
 
-      val value = "basic realm=\"viscel login\", charset=\"" + charset.name() + "\""
-      response.setHeader(HttpHeader.WWW_AUTHENTICATE.asString(), value);
-      response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+          val value = "basic realm=\"viscel login\", charset=\"" + StandardCharsets.ISO_8859_1.name() + "\""
+          response.addHeader(HttpHeader.WWW_AUTHENTICATE.asString(), value);
+          response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 
-      baseRequest.setHandled(true)
+          baseRequest.setHandled(true)
+      }
 
     }
 
