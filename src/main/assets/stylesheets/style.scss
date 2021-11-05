@@ -223,7 +223,11 @@ section {
       margin-right: .5em;
       &:before{
         // zero width space to allow breaking before anchors
-        content: "\200B";
+        // content: "\200B";
+        // turns out, safari does not break lines on zero width spaces,
+        // so we use spaces with zero width instead
+        font-size: 0;
+        content: " ";
       }
     }
   }
