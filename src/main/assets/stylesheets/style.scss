@@ -14,7 +14,8 @@ Licensed under the MIT License
   backface-visibility: hidden;
   box-shadow: 0 0 1px transparent;
   position: relative;
-  overflow: hidden;
+  // this causes parts of the text to go missing …
+  //overflow: hidden;
 
   &:after {
     content: '';
