@@ -53,6 +53,7 @@ object ServiceWorker {
   }
 
   def unregister(): Future[List[Boolean]] = {
+    scribe.warn("trying to unregister service worker")
     val res = serviceWorkerOption.map { swc =>
       swc.getRegistrations().toFuture.flatMap { registrations =>
         Future.sequence(registrations.toList.map { sw =>
