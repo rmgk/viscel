@@ -66,6 +66,12 @@ object ViscelJS {
 
     val actions = new Actions(ccm, bookmarkManager)
 
+    ccm.remoteVersion.observe{v =>
+      if (!(v == "unknown" || v.startsWith("error")) && v != viscel.shared.Version.str) {
+        ServiceWorker.unregister().andThen(_ => dom.window.location.reload(true))
+      }
+    }
+
     val meta = MetaInfo(viscel.shared.Version.str, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
 
     val index = new OverviewPage(meta, actions, bookmarkManager.bookmarks, ccm.descriptions)
