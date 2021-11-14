@@ -122,11 +122,6 @@
 -- http://demonaidcomic.com/index.php?id=14
 -- :ia #comic
 
--- -:Erstwhile
--- http://www.erstwhiletales.com/comicslist/
--- :ac #content > div > div > div.entry a
--- :ia #comic-1 img
-
 -- -:Final Arcanum
 -- http://www.finalarcanum.com/archive/
 -- :am .archive__table td.archive__header h2 , .archive__table .archive__pagename a
@@ -501,6 +496,17 @@
 
 
 ---------------------------------------------- NOT DEAD ---
+
+
+-:Erstwhile (resurrected)
+https://erstwhiletales.com/comic/maid-maleen-pg01/
+:image #comic img
+:next a.comic-nav-next
+
+-:Blissverse
+https://blissverse.org/comic/blissverse-ch1-pt1-cover/
+:image #comic img
+:next a.comic-nav-next
 
 -:Wukrii
 https://www.wukrii.com/comic/prologue-page-1/
