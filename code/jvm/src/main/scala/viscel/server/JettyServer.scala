@@ -106,8 +106,9 @@ class JettyServer(
       } match {
         case Some(user) =>
           request.setAttribute("viscel-user", user)
-          val userCookie = new HttpCookie("viscel-user", user.id, null, null, -1, false, false, null, -1, HttpCookie.SameSite.STRICT)
-          val passCookie = new HttpCookie("viscel-password", user.password, null, null, -1, false, false, null, -1, HttpCookie.SameSite.STRICT)
+          val twelveMonths: Long = 12*30*24*60
+          val userCookie = new HttpCookie("viscel-user", user.id, null, null, twelveMonths, false, false, null, -1, HttpCookie.SameSite.STRICT)
+          val passCookie = new HttpCookie("viscel-password", user.password, null, null, twelveMonths, false, false, null, -1, HttpCookie.SameSite.STRICT)
           response.addHeader("Set-Cookie", userCookie.getRFC6265SetCookie)
           response.addHeader("Set-Cookie", passCookie.getRFC6265SetCookie)
           super.handle(target, baseRequest, request, response)
