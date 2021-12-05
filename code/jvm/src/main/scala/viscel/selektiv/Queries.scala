@@ -58,7 +58,7 @@ object Queries {
           data = List("width", "height", "type").flatMap(getAttr)
         ))
       case _ =>
-        val extractBG = """.*background-image:url\(([^)]+)\).*""".r("url")
+        val extractBG = """.*background-image:url\((?<url>[^)]+)\).*""".r
         img.attr("style") match {
           case extractBG(url) =>
             extract(DataRow.Link(
