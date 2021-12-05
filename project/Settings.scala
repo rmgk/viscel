@@ -34,7 +34,7 @@ object Settings {
         case a if a.startsWith("2.11") => scalacOptionsCommon ++ scalaOptions12minus
         case a if a.startsWith("2.12") => scalacOptionsCommon ++ scalacOptions12plus ++ scalaOptions12minus
         case a if a.startsWith("2.13") => scalacOptionsCommon ++ scalacOptions12plus ++ scalaOptions13
-        case a if a.startsWith("0.") || a.startsWith("3.0") => scalaOptions3
+        case a if a.startsWith("0.") || a.startsWith("3.") => scalaOptions3
       }
     )
 
