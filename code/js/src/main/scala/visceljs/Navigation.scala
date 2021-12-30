@@ -1,7 +1,7 @@
 package visceljs
 
 import org.scalajs.dom
-import org.scalajs.dom.raw.KeyboardEvent
+import org.scalajs.dom.KeyboardEvent
 import rescala.default.{Event, Evt, implicitScheduler, Events}
 import visceljs.render.FitType
 

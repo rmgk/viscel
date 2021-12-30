@@ -2,7 +2,7 @@ package visceljs
 
 import loci.registry.Registry
 import org.scalajs.dom
-import org.scalajs.dom.experimental.{Fetch, HttpMethod, RequestInit}
+import org.scalajs.dom.{Fetch, HttpMethod, RequestInit}
 import rescala.default._
 import rescala.extra.Tags._
 import rescala.extra.lattices.IdUtil

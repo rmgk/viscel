@@ -3,7 +3,7 @@ package visceljs.connection
 import java.util.NoSuchElementException
 
 import com.github.plokhotnyuk.jsoniter_scala.core._
-import loci.communicator.ws.javalin.WS
+import loci.communicator.ws.webnative.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom

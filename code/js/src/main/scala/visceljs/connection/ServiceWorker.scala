@@ -1,7 +1,7 @@
 package visceljs.connection
 
 import org.scalajs.dom
-import org.scalajs.dom.experimental.serviceworkers.ServiceWorkerContainer
+import org.scalajs.dom.ServiceWorkerContainer
 import rescala.default.{Events, Signal, _}
 import viscel.shared.Log
 import visceljs.Definitions
@@ -15,7 +15,7 @@ import scala.util.{Failure, Success}
 object ServiceWorker {
 
   val serviceWorkerOption: Option[ServiceWorkerContainer] = {
-    val workerSupported_? = dom.experimental.serviceworkers.toServiceWorkerNavigator(dom.window.navigator).serviceWorker
+    val workerSupported_? = dom.window.navigator.serviceWorker
     Definitions.getDefined(workerSupported_?)
   }
 

@@ -2,9 +2,9 @@ package visceljs
 
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import org.scalajs.dom
-import org.scalajs.dom.experimental.URL
+import org.scalajs.dom.URL
 import org.scalajs.dom.html
-import org.scalajs.dom.raw.HashChangeEvent
+import org.scalajs.dom.HashChangeEvent
 import rescala.default._
 import scalatags.JsDom.TypedTag
 import viscel.shared.{Bookmark, Contents, Description, Log, Vid}
