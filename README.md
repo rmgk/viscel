@@ -1,6 +1,5 @@
 Viscel
 ======
-[![latest release](https://img.shields.io/github/v/release/rmgk/viscel)](https://github.com/rmgk/viscel/releases)
 
 
 Description
