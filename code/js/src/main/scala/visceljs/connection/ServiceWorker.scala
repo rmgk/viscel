@@ -4,7 +4,6 @@ import org.scalajs.dom
 import org.scalajs.dom.ServiceWorkerContainer
 import rescala.default.{Events, Signal, _}
 import viscel.shared.Log
-import visceljs.Definitions
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -14,9 +13,11 @@ import scala.util.{Failure, Success}
 
 object ServiceWorker {
 
+  def getDefined[T](ts: T*): Option[T] = ts.find(v => v != null && !scalajs.js.isUndefined(v))
+
   val serviceWorkerOption: Option[ServiceWorkerContainer] = {
     val workerSupported_? = dom.window.navigator.serviceWorker
-    Definitions.getDefined(workerSupported_?)
+    getDefined(workerSupported_?)
   }
 
   def register(): Signal[String] = {

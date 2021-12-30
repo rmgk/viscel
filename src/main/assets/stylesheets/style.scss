@@ -284,35 +284,16 @@ section {
 }
 
 
-
-
-/*!
- * Font Awesome Free 5.10.1 by @fontawesome - https://fontawesome.com
- * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
- */
-svg:not(:root).svg-inline--fa {
-    overflow: visible
+.only-fullscreen {
+  display: none;
 }
 
-.svg-inline--fa {
-    display: inline-block;
-    font-size: inherit;
-    height: 1em;
-    overflow: visible;
-    vertical-align: -.125em
-}
-
-
-.svg-inline--fa.fa-w-14 {
-    width: 0.875em
-}
-
-
-.svg-inline--fa.fa-w-16 {
-    width: 1em
-}
-
-.svg-inline--fa.fa-w-18 {
-    width: 1.125em
+@media (display-mode: fullscreen) {
+  .no-fullscreen {
+    display: none;
+  }
+  .only-fullscreen {
+    display: unset;
+  }
 }
 

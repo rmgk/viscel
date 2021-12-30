@@ -1,9 +1,7 @@
 package visceljs
 
-import org.scalajs.dom.MouseEvent
-import scalatags.JsDom.all.{
-  Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, button, cls, href, onclick, raw, stringAttr
-}
+import org.scalajs.dom.{MouseEvent, document}
+import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, button, cls, href, onclick, raw, stringAttr}
 import viscel.shared.{Blob, Vid}
 
 import scala.scalajs.js.URIUtils.encodeURIComponent
@@ -21,37 +19,12 @@ object Definitions {
 
   def link_tools(ts: Frag*): Tag = a(href := path_tools)(ts)
 
-  def getDefined[T](ts: T*): Option[T] = ts.find(v => v != null && !scalajs.js.isUndefined(v))
-  private val dDocument                = scala.scalajs.js.Dynamic.global.document
 
-  def isFullscreen(): Boolean =
-    getDefined(
-      dDocument.fullscreenElement,
-      dDocument.webkitFullscreenElement,
-      dDocument.mozFullScreenElement,
-      dDocument.msFullscreenElement
-    ).isDefined
 
   def toggleFullscreen(): Unit = {
-    val de = dDocument.documentElement
-
-    def requestFullscreen =
-      getDefined(
-        de.requestFullscreen,
-        de.msRequestFullscreen,
-        de.mozRequestFullScreen,
-        de.webkitRequestFullscreen
-      )
-
-    def exitFullscreen =
-      getDefined(
-        dDocument.exitFullscreen,
-        dDocument.webkitExitFullscreen,
-        dDocument.mozCancelFullScreen,
-        dDocument.msExitFullscreen
-      )
-
-    if (isFullscreen()) exitFullscreen.foreach(_.call(dDocument)) else requestFullscreen.foreach(_.call(de))
+    if (document.fullscreenElement == null)
+      document.documentElement.requestFullscreen()
+    else document.exitFullscreen()
   }
 
   def lcButton(action: => Unit, m: Modifier*): HtmlTag =
@@ -82,7 +55,10 @@ object Icons {
     """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>"""
   )
   val maximize: Modifier = raw(
-    """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>"""
+    """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="no-fullscreen"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>"""
+  )
+  val minimize: Modifier = raw(
+    """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="only-fullscreen"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>"""
   )
   val externalLink: Modifier = raw(
     """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>"""

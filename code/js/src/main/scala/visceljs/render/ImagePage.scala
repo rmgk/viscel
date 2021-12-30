@@ -54,7 +54,7 @@ class ImagePage(act: Actions) {
         a(Icons.prev, rel := "prev", title := "previous page")(if (prev.cur == position.cur) disabled
         else href := Definitions.path_asset(vid, prev.cur)),
         a(href := Definitions.path_front(vid), Icons.front, title := "back to front page"),
-        Snippets.fullscreenToggle(Icons.maximize, title := "toggle fullscreen"),
+        Snippets.fullscreenToggle(Icons.maximize, Icons.minimize, title := "toggle fullscreen"),
         lcButton(
           navigate.fire(Mode(fitType.now.next)),
           Icons.modus,
