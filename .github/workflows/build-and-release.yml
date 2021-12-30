@@ -22,22 +22,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: coursier/cache-action@v6
+        continue-on-error: true
+      - uses: actions/setup-java@v1
         with:
-          submodules: 'true'
-      - uses: DeLaGuardo/setup-graalvm@master
-        with:
-          graalvm-version: '21.3.0.java17'
-      - run: java -version
-      - name: install native image
-        shell: cmd
-        run: gu install native-image
-      - run: native-image --version
-      - name: where is this thing?!
-        shell: cmd
-        run: where native-image
-      - name: ensure sbt is installed
-        run: |
-          choco install sbt
+          java-version: 17
       - name: test sbt compile
         run: |
           sbt compile
@@ -48,14 +37,13 @@ jobs:
         shell: cmd
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          set GRAALVM_NATIVE_IMAGE_PATH=C:\hostedtoolcache\windows\GraalVM\20.3.0-java11\x64\bin\native-image.cmd
-          sbt nativeImage
+          sbt viscelPackage
       - name: copy static files
         shell: bash
         run: |
           mkdir -p bundle
           cp -r target/resources/static bundle/
-          cp code/jvm/target/graalvm-native-image/viscel.exe bundle/
+          cp code/jvm/target/native-image/viscel.exe bundle/
       - name: Publish artifact
         uses: actions/upload-artifact@master
         with:
@@ -70,26 +58,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: coursier/cache-action@v6
+      continue-on-error: true
+    - uses: actions/setup-java@v1
       with:
-        submodules: 'true'
-    - uses: DeLaGuardo/setup-graalvm@master
-      with:
-        graalvm-version: '21.3.0.java17'
-    - run: java -version
-    - run: gu install native-image
-    - run: native-image --version
+        java-version: 17
     - name: build
       shell: bash
       run: |
-        curl -Ls https://git.io/sbt > sbt
-        chmod 755 sbt
-        ./sbt nativeImage
+        sbt viscelPackage
     - name: copy static files
       shell: bash
       run: |
         mkdir -p bundle
         cp -r target/resources/static bundle/
-        cp code/jvm/target/graalvm-native-image/viscel bundle/
+        cp code/jvm/target/native-image/viscel bundle/
     - name: Publish artifact
       uses: actions/upload-artifact@master
       with:
