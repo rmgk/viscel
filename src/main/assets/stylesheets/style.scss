@@ -50,7 +50,6 @@ Licensed under the MIT License
 $font-color: white;
 $theme-color: limegreen;
 $background-color: black;
-$border-color: #424242;
 $backplate-color: #212121;
 
 /* smaller scrollbar in webkit based browsers */
@@ -68,8 +67,7 @@ $backplate-color: #212121;
 
 /* smaller scrollbar according to some new spec */
 html {
-  // scrollbar-width: thin;
-  // scrollbar-color: $backplate-color $border-color;
+  // scrollbar-widthhbackplate-color $border-color;
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
@@ -157,7 +155,6 @@ section a:visited {
 
 section {
   background-color: $backplate-color;
-  border: 1px solid $border-color;
   border-radius: 5px;
   margin: 5%;
   padding: 1em 5%;
