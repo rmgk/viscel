@@ -1,3 +1,6 @@
+/* This file is shared between multiple projects
+ * and may contain unused dependencies */
+
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import sbt._
 import sbt.Keys._
@@ -10,7 +13,7 @@ object Dependencies {
     val betterFiles              = "3.9.1"
     val catsCore                 = "2.6.1"
     val catsCollection           = "0.9.2"
-    val circeCore                = "0.13.0"
+    val circeCore                = "0.14.1"
     val decline                  = "2.2.0"
     val fastparse                = "2.3.3"
     val javalin                  = "3.13.12"
@@ -24,28 +27,28 @@ object Dependencies {
     val magnolia                 = "0.15.0"
     val normalizecss             = "8.0.1"
     val okHttp                   = "4.9.3"
-    val pprint                   = "0.6.6"
+    val pprint                   = "0.7.1"
     val reactiveStreams          = "1.0.3"
-    val retypecheck              = "0.9.0"
+    val retypecheck              = "0.10.0"
     val scala211                 = "2.11.12"
     val scala212                 = "2.12.15"
     val scala213                 = "2.13.7"
     val scala3                   = "3.1.0"
     val scalaJavaTime            = "2.3.0"
-    val scalaLociCommunication   = "33e7a65a3ca29551e440abfdb6903a062c7dab70"
+    val scalaLoci                = "0.5.0"
     val scalaParallelCollections = "1.0.0"
     val scalaSwing               = "3.0.0"
     val scalaXml                 = "1.3.0"
     val scalacheck               = "1.15.4"
     val scalactic                = "3.0.0"
-    val scalajsDom               = "1.2.0"
-    val scalatags                = "0.9.4"
+    val scalajsDom               = "2.0.0"
+    val scalatags                = "0.11.0"
     val scalatest                = "3.2.10"
     val scalatestpluscheck       = "3.2.10.0"
-    val scribe                   = "3.6.0"
+    val scribe                   = "3.6.7"
     val sourcecode               = "0.2.7"
     val tomlScala                = "0.2.2"
-    val upickle                  = "1.4.0"
+    val upickle                  = "1.4.3"
   }
 
   import Dependencies.{Versions => V}
@@ -98,18 +101,21 @@ object Dependencies {
     .map(n => "io.circe" %%% s"circe-$n" % V.circeCore))
 
   object loci {
-    def generic(n: String) =
-      Def.setting("com.github.scala-loci.scala-loci" %%% s"scala-loci-$n" % V.scalaLociCommunication)
+    def generic(n: String): Def.Initialize[sbt.ModuleID] =
+      if (V.scalaLoci.size > 20)
+        Def.setting("com.github.scala-loci.scala-loci" %%% s"scala-loci-$n" % V.scalaLoci)
+      else Def.setting("io.github.scala-loci"          %%% s"scala-loci-$n" % V.scalaLoci)
 
     val communication = generic("communication")
-
     val circe         = generic("serializer-circe")
     val tcp           = generic("communicator-tcp")
     val upickle       = generic("serializer-upickle")
     val jsoniterScala = generic("serializer-jsoniter-scala")
     val webrtc        = generic("communicator-webrtc")
     val wsAkka        = generic("communicator-ws-akka")
+    val wsWeb         = generic("communicator-ws-webnative")
     val wsJavalin     = generic("communicator-ws-javalin")
+    val wsJetty       = generic("communicator-ws-jetty")
   }
 
 }

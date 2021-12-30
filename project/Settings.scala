@@ -1,9 +1,8 @@
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
-import sbt.Keys._
-import sbt._
-
 /* This file is shared between multiple projects
  * and may contain unused dependencies */
+
+import sbt.Keys._
+import sbt._
 
 object Settings {
 
@@ -28,15 +27,20 @@ object Settings {
     scalacOptions ++= settingsFor(scalaVersion.value)
   )
 
+  def `is 2.11`(scalaVersion: String): Boolean =
+    CrossVersion.partialVersion(scalaVersion).contains((2, 11))
+  def `is 2.13`(scalaVersion: String): Boolean =
+    CrossVersion.partialVersion(scalaVersion).contains((2, 13))
+  def `is 3`(version: String) =
+    CrossVersion.partialVersion(version) collect { case (3, _) => true } getOrElse false
+
   def settingsFor(version: String) =
-    (
-      version match {
-        case a if a.startsWith("2.11") => scalacOptionsCommon ++ scalaOptions12minus
-        case a if a.startsWith("2.12") => scalacOptionsCommon ++ scalacOptions12plus ++ scalaOptions12minus
-        case a if a.startsWith("2.13") => scalacOptionsCommon ++ scalacOptions12plus ++ scalaOptions13
-        case a if a.startsWith("0.") || a.startsWith("3.") => scalaOptions3
-      }
-    )
+    version match {
+      case a if a.startsWith("2.11") => scalacOptionsCommon ++ scalaOptions12minus
+      case a if a.startsWith("2.12") => scalacOptionsCommon ++ scalacOptions12plus ++ scalaOptions12minus
+      case a if a.startsWith("2.13") => scalacOptionsCommon ++ scalacOptions12plus ++ scalaOptions13
+      case a if a.startsWith("0.") || a.startsWith("3.") => scalaOptions3
+    }
 
   // based on tpolecats scala options https://tpolecat.github.io/2017/04/25/scalac-flags.html
   lazy val scalacOptionsCommon: Seq[String] = Seq(
@@ -50,8 +54,8 @@ object Settings {
     "-language:higherKinds",         // Allow higher-kinded types
     "-language:implicitConversions", // Allow definition of implicit functions called views
     "-unchecked",                    // Enable additional warnings where generated code depends on assumptions.
-    //"-Xcheckinit",                       // Wrap field accessors to throw an exception on uninitialized access.
-    //"-Xfatal-warnings",                  // Fail the compilation if there are any warnings.
+    // "-Xcheckinit",                       // Wrap field accessors to throw an exception on uninitialized access.
+    // "-Xfatal-warnings",                  // Fail the compilation if there are any warnings.
     "-Xlint:adapted-args",           // Warn if an argument list is modified to match the receiver./
     "-Xlint:delayedinit-select",     // Selecting member of DelayedInit.
     "-Xlint:doc-detached",           // A Scaladoc comment appears to be detached from its element.
@@ -66,9 +70,9 @@ object Settings {
     "-Xlint:type-parameter-shadow",  // A local type parameter shadows a type already in scope.
     "-Ywarn-dead-code",              // Warn when dead code is identified.
     "-Ywarn-numeric-widen",          // Warn when numerics are widened.
-    //"-Ywarn-unused:params",              // Warn if a value parameter is unused.
-    //"-Ywarn-unused:patvars",             // Warn if a variable bound in a pattern is unused.
-    //"-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
+    // "-Ywarn-unused:params",              // Warn if a value parameter is unused.
+    // "-Ywarn-unused:patvars",             // Warn if a variable bound in a pattern is unused.
+    // "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
   )
   lazy val scalacOptions12plus: Seq[String] = Seq(
     // do not work on 2.11
@@ -92,59 +96,37 @@ object Settings {
     "-Xfuture",                         // Turn on future language features.
   )
   lazy val scalaOptions13: Seq[String] = Seq(
+    "-Ytasty-reader"
     // "-Xsource:3"
   )
   lazy val scalaOptions3 = Seq(
     "-language:implicitConversions",
     "-Ysafe-init",
     "-print-tasty",
-    //"-Yexplicit-nulls",
+    // "-Yexplicit-nulls",
   )
 
   val strictCompile = Compile / compile / scalacOptions += "-Xfatal-warnings"
-}
 
-object Resolvers {
-  val stg =
-    resolvers += ("STG old bintray repo" at "http://www.st.informatik.tu-darmstadt.de/maven/").withAllowInsecureProtocol(
-      true
-    )
-  val jitpack = resolvers += "jitpack" at "https://jitpack.io"
+  val legacyStgResolver =
+    resolvers += ("STG old bintray repo" at "http://www.st.informatik.tu-darmstadt.de/maven/")
+      .withAllowInsecureProtocol(true)
 
-  /*
-   * publish procedure copied and adapted from:
-   *   https://github.com/portable-scala/sbt-crossproject/commit/fbe10fe5cee1f545be75a310612b30e520729a0d#diff-6a3371457528722a734f3c51d9238c13
-   * Have your Bintray credentials stored as
-    [documented here](http://www.scala-sbt.org/1.0/docs/Publishing.html#Credentials),
-    using realm `Bintray API Realm` and host `api.bintray.com`
-   * Use `publish` from sbt
-   * Log in to Bintray and publish the files that were sent
-   */
-  def bintrayPublish(bintrayOrganization: String, githubOrganization: String, githubReponame: String) =
+  val jitpackResolver = resolvers += "jitpack" at "https://jitpack.io"
+
+  val noPublish = Seq(
+    publishArtifact   := false,
+    packagedArtifacts := Map.empty,
+    publish           := {},
+    publishLocal      := {}
+  )
+
+  val publishOnly213 =
     Seq(
-      Compile / publishArtifact := true,
-      Test / publishArtifact := false,
-      // licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
-      scmInfo := Some(
-        ScmInfo(
-          browseUrl = url(s"https://github.com/$githubOrganization/$githubReponame/"),
-          connection = s"scm:git:git@github.com:$githubOrganization/$githubReponame.git"
-        )
-      ),
-      // Publish to Bintray, without the sbt-bintray plugin
-      publishMavenStyle := true,
-      publishTo := {
-        val proj = moduleName.value
-        val ver  = version.value
-        val url = new java.net.URL(
-          s"https://api.bintray.com/content/$bintrayOrganization/maven/$proj/$ver"
-        )
-        val patterns = Resolver.mavenStylePatterns
-        Some(Resolver.url("bintray", url)(patterns))
-      },
-      credentials ++= ((sys.env.get("BINTRAY_USERNAME"), sys.env.get("BINTRAY_PASSWORD")) match {
-        case (Some(name), Some(password)) => List(Credentials("Bintray API Realm", "api.bintray.com", name, password))
-        case _                            => Nil
-      })
+      publishArtifact   := (if (`is 2.13`(scalaVersion.value)) publishArtifact.value else false),
+      packagedArtifacts := (if (`is 2.13`(scalaVersion.value)) packagedArtifacts.value else Map.empty),
+      publish           := (if (`is 2.13`(scalaVersion.value)) publish.value else {}),
+      publishLocal      := (if (`is 2.13`(scalaVersion.value)) publishLocal.value else {})
     )
+
 }

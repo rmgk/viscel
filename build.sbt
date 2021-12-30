@@ -20,6 +20,7 @@ import java.security.MessageDigest
 
 inThisBuild(scalaVersion_213)
 ThisBuild / organization := "de.rmgk"
+Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val viscelPackage = taskKey[File]("calls graalvm native image")
 
@@ -38,23 +39,19 @@ lazy val viscelBundle = project.in(file(".")).settings(
   .enablePlugins(SbtSassify)
   .aggregate(app, server)
 
-val lociVersion = "bc2a42fc85af44cfa583d79d7cdd128788faf586"
-
 lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("code"))
   .settings(
     name := "viscel",
     strictCompile,
-    Resolvers.stg,
     resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
       scribe.value,
       scalatags.value,
       scribeSlf4j.value,
-      "com.github.rescala-lang.rescala" %%% "rescala" % "0923d1786b",
-      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-jetty" % lociVersion,
-      "com.github.scala-loci.scala-loci" %%% "scala-loci-serializer-jsoniter-scala" % lociVersion,
+      "de.tu-darmstadt.stg" %%% "rescala" % "0.31.0",
+      loci.jsoniterScala.value,
       "org.eclipse.jetty" % "jetty-rewrite" % "9.4.44.v20210927",
     ),
     Compile / sourceGenerators += Def.task {
@@ -72,6 +69,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       betterFiles.value,
       decline.value,
+      loci.wsJetty.value,
       scalatest.value,
       scalacheck.value,
       scalatestpluscheck.value,
@@ -100,7 +98,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       scalajsDom.value,
       scalatags.value,
-      "com.github.scala-loci.scala-loci" %%% "scala-loci-communicator-ws-javalin" % lociVersion,
+      loci.wsWeb.value,
     ),
     scalaJSUseMainModuleInitializer := true
   )
