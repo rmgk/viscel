@@ -54,22 +54,22 @@ $border-color: #424242;
 $backplate-color: #212121;
 
 /* smaller scrollbar in webkit based browsers */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: $border-color;
-}
-::-webkit-scrollbar-thumb {
-  background-color: $backplate-color;
-  border: transparent;
-}
+// ::-webkit-scrollbar {
+//   width: 8px;
+// }
+// ::-webkit-scrollbar-track {
+//   background: $border-color;
+// }
+// ::-webkit-scrollbar-thumb {
+//   background-color: $backplate-color;
+//   border: transparent;
+// }
 
 
 /* smaller scrollbar according to some new spec */
 html {
-  scrollbar-width: thin;
-  scrollbar-color: $backplate-color $border-color;
+  // scrollbar-width: thin;
+  // scrollbar-color: $backplate-color $border-color;
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
