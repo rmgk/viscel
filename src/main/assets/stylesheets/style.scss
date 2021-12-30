@@ -53,25 +53,6 @@ $background-color: black;
 $border-color: #424242;
 $backplate-color: #212121;
 
-// no selection is important for double click behaviour
-// i.e., without this, clicking fast causes things to be selected,
-// instead of switching between pages quickly
-@mixin no-selection {
-  /* disable any form of selection */
-  -webkit-user-select: none; /* Chrome all / Safari all */
-  -moz-user-select: none; /* Firefox all */
-  -ms-user-select: none; /* IE 10+ */
-  user-select: none; /* Likely future */
-}
-
-@mixin reset-selection {
-  /* enable comment selection */
-  -webkit-user-select: initial; /* Chrome all / Safari all */
-  -moz-user-select: initial; /* Firefox all */
-  -ms-user-select: initial; /* IE 10+ */
-  user-select: initial; /* Likely future */
-}
-
 /* smaller scrollbar in webkit based browsers */
 ::-webkit-scrollbar {
   width: 8px;
@@ -267,10 +248,6 @@ section {
     text-align: center;
     flex-grow: 1;
     cursor: pointer;
-    @include no-selection;
-    p {
-      @include reset-selection;
-    }
   }
 
   nav {
