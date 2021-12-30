@@ -68,7 +68,7 @@ object Snippets {
       li(a(
         href := path_front(fpe.id),
         s"${fpe.name}${if (newPages == 0) "" else s" ($newPages)"}", {
-          if (!fpe.linked) span(" ", Icons.archive, cls := "unlinked", title := "not linked to live sources")
+          if (!fpe.linked) span(" ", Icons.unavailable, cls := "unlinked", title := "not linked to live sources")
           else frag()
         }
       ))
