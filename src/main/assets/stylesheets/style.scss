@@ -186,8 +186,9 @@ section {
     column-width: 20em;
     list-style-type: none;
   }
-  .unlinked {
-    font-size: 0.875em;
+  .unlinked > svg {
+    height: 1em;
+    vertical-align: middle;
   }
 }
 
@@ -272,11 +273,11 @@ section {
   // put prev & next into its own first row
   #view nav {
     flex-wrap: wrap;
-    :first-child {
+    & > :first-child {
       order: -2;
       flex-basis: calc(50% - 1em);
     }
-    :last-child {
+    & > :last-child {
       order: -1;
       flex-basis: calc(50% - 1em);
     }
