@@ -67,7 +67,8 @@ $backplate-color: #212121;
 
 /* smaller scrollbar according to some new spec */
 html {
-  // scrollbar-widthhbackplate-color $border-color;
+  scrollbar-width: thin;
+  // scrollbar-color: $backplate-color #0000;
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
