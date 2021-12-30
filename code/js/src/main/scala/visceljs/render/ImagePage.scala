@@ -6,7 +6,7 @@ import org.scalajs.dom.html.Body
 import rescala.default._
 import scalatags.JsDom
 import scalatags.JsDom.all.{
-  HtmlTag, Modifier, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title
+  HtmlTag, Modifier, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title, span
 }
 import scalatags.JsDom.attrs.{disabled, style}
 import scalatags.JsDom.tags2.{article, main}
@@ -58,7 +58,7 @@ class ImagePage(act: Actions) {
         lcButton(
           navigate.fire(Mode(fitType.now.next)),
           Icons.modus,
-          fitType.map(ft => stringFrag(s" $ft")).asModifier,
+          fitType.map(ft => span(s" $ft")).asModifier,
           title := "cycle image display mode"
         ),
         act.postBookmark(

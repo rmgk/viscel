@@ -64,7 +64,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       okHttp.value,
     ),
     // uncomment the following to enable graal tracing to allow native image generation
-    javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
+    // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
     nativeImageVersion := "21.3.0",
     nativeImageJvm := "graalvm-java17",
     // nativeImageInstalled := true,

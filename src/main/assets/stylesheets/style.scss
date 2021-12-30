@@ -47,7 +47,7 @@ Licensed under the MIT License
 
 
 
-$font-color: snow;
+$font-color: white;
 $theme-color: limegreen;
 $background-color: black;
 $border-color: #424242;
@@ -72,12 +72,20 @@ $backplate-color: #212121;
   user-select: initial; /* Likely future */
 }
 
-/* disable scrollbar in webkit based browsers */
+/* smaller scrollbar in webkit based browsers */
 ::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: $border-color;
+}
+::-webkit-scrollbar-thumb {
+  background-color: $backplate-color;
+  border: transparent;
 }
 
-/* disable scrollbar according to some new spec */
+
+/* smaller scrollbar according to some new spec */
 html {
   scrollbar-width: thin;
   scrollbar-color: $backplate-color $border-color;
@@ -124,12 +132,24 @@ nav {
   }
 
   & > a, & > button {
-    display: inline-block;
-    cursor: pointer;
+    // this is inline flex to align the inner contents as well ...
+    display: inline-flex;
+
+    // align the inner items
+    justify-content: center;
+    align-items: center;
+    // fix text width displayed next to buttons
+    & > span { width: 3em}
+
     padding: 0.5em;
+
+    // unser/fix button styling
+    cursor: pointer;
     color: $font-color;
     background-color: $backplate-color;
     border: none;
+
+    // hover effects and disabled state
     &:hover, &:active {
       background-image: linear-gradient(transparent, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.1));
     }
@@ -142,8 +162,8 @@ nav {
 }
 
 input[type="text"] {
-  color: black;
-  background-color: snow;
+  color: $background-color;
+  background-color: $font-color;
   padding: 0.5em;
   border: none;
 }
