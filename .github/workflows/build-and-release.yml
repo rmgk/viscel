@@ -26,7 +26,7 @@ jobs:
           submodules: 'true'
       - uses: DeLaGuardo/setup-graalvm@master
         with:
-          graalvm-version: '20.3.0.java11'
+          graalvm-version: '21.3.0.java17'
       - run: java -version
       - name: install native image
         shell: cmd
@@ -74,7 +74,7 @@ jobs:
         submodules: 'true'
     - uses: DeLaGuardo/setup-graalvm@master
       with:
-        graalvm-version: '20.3.0.java11'
+        graalvm-version: '21.3.0.java17'
     - run: java -version
     - run: gu install native-image
     - run: native-image --version
