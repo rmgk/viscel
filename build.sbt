@@ -5,19 +5,6 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
 import java.security.MessageDigest
 
-// def rescalaRef(name: String) =
-//   ProjectRef(uri("git://github.com/rescala-lang/REScala.git#931752b93e53ecd6fd4849605b59bd0fd0ae5792"), name)
-
-// lazy val rescalaJS = rescalaRef("rescalaJS")
-// lazy val rescalaJVM = rescalaRef("rescalaJVM")
-
-// def lociRef(name: String) =
-//   ProjectRef(file("../loci"), name)
-//
-// lazy val lociJavalinJVM = lociRef("lociCommunicatorWsJavalinJVM")
-// lazy val lociJettyJVM = lociRef("lociCommunicatorWsJettyJVM")
-// lazy val lociJavalinJS  = lociRef("lociCommunicatorWsJavalinJS")
-
 inThisBuild(scalaVersion_213)
 ThisBuild / organization := "de.rmgk"
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -76,10 +63,10 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       jsoup.value,
       okHttp.value,
     ),
-    //  experimental graalvm options
-    // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
-    nativeImageVersion := "21.2.0",
-    nativeImageJvm := "graalvm-java11",
+    // uncomment the following to enable graal tracing to allow native image generation
+    javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
+    nativeImageVersion := "21.3.0",
+    nativeImageJvm := "graalvm-java17",
     // nativeImageInstalled := true,
     nativeImageOptions ++= List(
       "--allow-incomplete-classpath",
