@@ -1,0 +1,290 @@
+= Versions
+
+== v8.6
+date = 2021-12-30
+
+• dependency updates
+• collection description fixes
+• some safari/ios compatibility fixes
+• new icons
+• use jetty directly
+
+
+== v8.5.0
+date = 2020-11-18
+
+• allow specification of attribute to find image link
+• update native image generation
+
+
+== v8.4.2
+date = 2020-11-14
+
+• update used libraries
+
+
+== v8.4.1
+date = 2020-07-10
+
+• fix importing from mangadex with unnumbered chapters
+
+
+== v8.4
+date = 2020-06-26
+
+• update fuzzy searching to always respect groups
+• update dependencies
+
+
+== v8.3
+date = 2020-06-14
+
+• fix serviceworker crasing on non https, non local connection
+• use post for HTTP forms
+
+
+== v8.2
+date = 2020-06-11
+
+• be more conservative when cleaning blobs
+• always sort all frontpage entries by unread available pages, then name
+• fix tapas comic adding
+• add experimental cookie support
+
+
+== v8.1
+date = 2020-06-08
+
+• fix connection timeout
+• use firefox windows user agent
+• use cookies to store password because browsers hate basic auth
+• the usual definition fixes
+
+
+== v8.0.0
+date = 2020-06-02
+
+• remove old database and user compatibility
+• fix errors in database creation and empty databases
+• generate releases
+
+
+== v7.5.0
+date = 2020-05-28
+
+• changes the bookmark format to include hashes and origins
+• has preliminary offline support (installable as webapp)
+• server now compiles on graalvm
+
+
+== v7.4.0
+date = 2019-04-21
+
+• Simpify resource management.
+  • Everything is just in a static folder now.
+• New storage format v4.
+  • This release upgrades from v3 to v4 automatically.
+• Fix bug not sending referers.
+
+
+== v7.3.0
+date = 2019-03-09
+
+• internal refactorings
+• the usual fixes of definitions
+• most definitions are now actually in vid format
+• slight updates for the UI
+
+
+== v7.2.0
+date = 2018-06-24
+
+• improve web ui
+• improved log messages
+• count sizes incrementally (improve first view performance)
+    • forcing a recheck also redos the incremental count in case of errors
+• vid format now allows for better readability with long attribute names
+
+
+== v7.1.0
+date = 2017-03-11
+
+• use x-path-prefix http header, to enable proxy on relative path
+  • can be used for https proxies
+• update to scala 2.12.1
+• fix non closing file streams
+• do not store duplicate lines in DB
+
+
+== v7.0.0
+date = 2016-09-24
+
+• comic fixes, removals and renamings
+    • some collections changed their ids, so bookmarks have to be ported manually
+• ui is now implemented with rescala
+    • resulting in more incremental updates and immediate responses
+• upgrade from spray to akkaHTTP
+    • this has no real implications, other than using a supported library
+• use own Url wrapper
+    • there are to many sodding incompatible ones, now there is one more
+• move away from neo4j towards a hand written append only data store
+    • neo4j embedded mode seems to be basically deprecated.
+    • the new store is easier to inspect and manually fix
+    • it results in smaller database sizes
+    • one less big dependency
+    • no longer depend on any GPL licensed libraries
+    • the dataformat of the new storage never looses any information
+    • we can now truly update collections at any position without the possibility of errors
+    • some operations on the new format are still slow/not cached
+    • the new format currently stores redundant entries
+• some initial work on downloading non image content
+    • flash videos for now, this is currently mainly useful so the downloader does not break
+• add AGPL3 license
+
+
+== v7.0.0-NeoUpgrade
+date = 2016-09-24
+
+• last version with neo4j dependency
+• can be used to upgrade from neo4j (v2 database) to v3 database
+• make backups before attempting to upgrading, the operation is irreversible, not well tested, and may destroy data
+• use `--upgrade` switch to upgrade
+
+
+== v6.2.0
+date = 2015-04-13
+
+• allow arbitrary collection ids
+• changed downloader logic
+• project restructurings
+
+
+== v6.1.0
+date = 2015-03-06
+
+• new narrators
+• zoom modes for images
+• do not kill scroll postion on history navigation
+• changed ui layout
+
+
+== v6.0.0
+date = 2015-02-19
+
+• extracted the webcrawler part into its own project
+• changed the backend format a bit, scribe itself no longer distinguishes between assets and chapters
+• changed the narrator interface to better propagate errors
+
+
+== v5.10.0
+date = 2015-02-13
+
+• improve anchor behaviour for ui
+• improve vid defenitions
+
+
+== v5.9.0
+date = 2015-02-02
+
+• fix loading resources when in jar
+
+
+== v5.8.0
+date = 2015-02-02
+
+• requires java8
+• config file based narrators
+• automatic rechecks
+• imports from lokal files
+• commandline option for base directory
+
+
+== v5.7.0
+date = 2015-01-20
+
+• add export feature
+• add metarrator adding
+• restrict administrative features to certain users
+
+
+== v5.6.0
+date = 2015-01-15
+
+• more narrators
+• improved runner
+
+
+== v5.5.0
+date = 2015-01-09
+
+• saner runner again
+• add fullscreen mode
+• cached collection sizes
+
+
+== v5.4.0
+date = 2014-12-16
+
+• improve runner to behave an a somewhat sane way, maybe.
+• still needs work, but is better than redownloading everything
+
+
+== v5.3.0
+date = 2014-12-05
+
+• reduces number of dependencies.
+• configurable database path.
+• no more wrappers for archive nodes (coins)
+  • directly translate to stories instead.
+• change metadata storage scheme. this breaks compatibility.
+• update collections on use
+
+
+== v5.2.0
+date = 2014-12-03
+
+• give chapterslist a chance to linebreak
+
+
+== v5.1.0
+date = 2014-11-29
+
+• scrollTo top on page change
+
+== v5.0.0
+date = 2014-11-27
+
+• coin is now sealed
+
+
+== v4.3.0
+date = 2014-06-06
+
+• hack around girl genius ad
+
+
+== v4.2.0
+date = 2011-03-09
+
+
+== v4.1.0
+date = 2010-11-22
+
+
+== v4.0.0
+date =2010-10-20
+• first release of viscel branch
+
+
+== v3.063.267
+date = 2010-10-13
+
+• last version of comcol
+
+
+== v3.62.267
+date =2009-11-06
+
+
+== v3.61.265
+date = 2009-08-19
