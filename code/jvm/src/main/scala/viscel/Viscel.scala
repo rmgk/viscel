@@ -91,7 +91,10 @@ object Viscel {
 
   val version: String = viscel.shared.Version.str
 
-  def main(args: Array[String]): Unit = run(ArraySeq.unsafeWrapArray(args): _*)
+  def main(args: Array[String]): Unit = {
+    run(ArraySeq.unsafeWrapArray(args): _*)
+    ()
+  }
 
   def run(args: String*): Services = {
     Log.Main.info(s"Viscel version $version")

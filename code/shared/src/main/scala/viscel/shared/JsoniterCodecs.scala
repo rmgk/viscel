@@ -3,6 +3,8 @@ package viscel.shared
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.github.plokhotnyuk.jsoniter_scala.macros._
 
+import scala.annotation.nowarn
+
 
 object JsoniterCodecs {
   def writeString[T: JsonValueCodec](value: T) = writeToString(value)
@@ -38,6 +40,7 @@ object JsoniterCodecs {
   implicit val ContentsRW: JsonValueCodec[Contents] = JsonCodecMaker.make
   //implicit val BookmarkRW   : JsonValueCodec[Bookmark]    = JsonCodecMaker.make
 
+  @nowarn("msg=is never used")
   implicit def OptionCodec[T: JsonValueCodec]: JsonValueCodec[Option[T]] = JsonCodecMaker.make
   implicit val HintCodec: JsonValueCodec[(Vid, Boolean)]                 = JsonCodecMaker.make
 

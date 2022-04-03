@@ -34,11 +34,11 @@ object ServiceWorker {
                 cb("registered")
                 registration.addEventListener(
                   "updatefound",
-                  (event: js.Any) => {
+                  (_: js.Any) => {
                     val newWorker = registration.installing
                     newWorker.addEventListener(
                       "statechange",
-                      (event: js.Any) => {
+                      (_: js.Any) => {
                         cb(newWorker.state)
                       }
                     )

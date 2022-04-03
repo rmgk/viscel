@@ -19,6 +19,7 @@ object JsoniterStorage {
       val bytes = writeToArray(data, config)
       Files.createDirectories(p.getParent)
       Files.write(p, bytes, CREATE, WRITE, TRUNCATE_EXISTING)
+      ()
     }
 
   def load[T: JsonValueCodec](p: Path): Either[Throwable, T] =

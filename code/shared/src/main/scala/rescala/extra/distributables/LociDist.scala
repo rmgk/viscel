@@ -57,10 +57,13 @@ object LociDist {
         remoteRef,
         signal.observe { s =>
           // println(s"calling remote observer on $remoteRef for $signalName, remote connection: ${remoteRef.connected}")
-          if (remoteRef.connected) remoteUpdate(s)
-          else Option(observers.get(remoteRef)).foreach(_.remove())
+          if (remoteRef.connected) {
+            remoteUpdate(s)
+            ()
+          } else Option(observers.get(remoteRef)).foreach(_.remove())
         }
       )
+      ()
     }
 
     registry.remotes.foreach(registerRemote)
@@ -69,6 +72,7 @@ object LociDist {
       //println(s"removing remote $remoteRef")
       Option(observers.get(remoteRef)).foreach(_.remove())
     }
+    ()
   }
 
 }

@@ -1,17 +1,16 @@
 package visceljs.render
 
 import org.scalajs.dom
-import org.scalajs.dom.html
-import org.scalajs.dom.Event
+import org.scalajs.dom.{Event, html}
 import rescala.default._
+import rescala.extra.Tags._
+import scalatags.JsDom
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
 import scalatags.JsDom.implicits.stringFrag
 import viscel.shared.{Bookmark, Description, Vid}
 import visceljs.Definitions.link_tools
-import rescala.extra.Tags._
-import scalatags.JsDom
-import visceljs.{Actions, Definitions, MetaInfo, SearchUtil}
+import visceljs.{Definitions, MetaInfo, SearchUtil}
 
 import scala.collection.immutable.Map
 
@@ -30,7 +29,6 @@ case class FrontPageEntry(id: Vid, description: Option[Description], bookmark: O
 
 class OverviewPage(
     meta: MetaInfo,
-    actions: Actions,
     bookmarks: Signal[Map[Vid, Bookmark]],
     descriptions: Signal[Map[Vid, Description]]
 ) {
@@ -85,7 +83,7 @@ class OverviewPage(
     val groupTags: Signal[Seq[JsDom.TypedTag[dom.Element]]] = sortedFilteredGroups.map { g =>
       g.map {
         case (name, content) =>
-          Snippets.group(name, actions, content)
+          Snippets.group(name, content)
       }
     }
 

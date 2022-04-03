@@ -143,6 +143,7 @@ class ContentConnectionManager(registry: Registry) {
       case (Some(rc), lc) if !lc.contains(rc) =>
         val bbuf = scala.scalajs.js.typedarray.byteArray2Int8Array(writeToArray(rc)(JsoniterCodecs.ContentsRW))
         lfi.setItem(vid.str, bbuf)
+        ()
       case _ =>
     })
 

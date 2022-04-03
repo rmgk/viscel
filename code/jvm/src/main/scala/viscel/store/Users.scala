@@ -1,16 +1,14 @@
 package viscel.store
 
-import java.io.IOException
-import java.nio.file.{Files, Path}
-
-import viscel.server.ContentLoader
 import viscel.shared.Log.{Store => Log}
 import viscel.shared.{Bookmark, Vid}
 
+import java.io.IOException
+import java.nio.file.{Files, Path}
 import scala.collection.immutable.Map
 import scala.jdk.CollectionConverters._
 
-class Users(usersDir: Path, contentLoader: ContentLoader) {
+class Users(usersDir: Path) {
 
   type Error[T] = Either[Throwable, T]
 

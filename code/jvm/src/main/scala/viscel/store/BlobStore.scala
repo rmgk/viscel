@@ -17,6 +17,7 @@ class BlobStore(val blobdir: Path) {
     if (!Files.exists(path)) {
       Log.Store.trace(s"storing $path")
       Files.write(path, bytes)
+      ()
     }
   }
 

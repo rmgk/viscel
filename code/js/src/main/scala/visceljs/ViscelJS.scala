@@ -74,7 +74,7 @@ object ViscelJS {
 
     val meta = MetaInfo(viscel.shared.Version.str, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
 
-    val index = new OverviewPage(meta, actions, bookmarkManager.bookmarks, ccm.descriptions)
+    val index = new OverviewPage(meta, bookmarkManager.bookmarks, ccm.descriptions)
     val front = new DetailsPage(actions)
     val view  = new ImagePage(actions)
     val app =

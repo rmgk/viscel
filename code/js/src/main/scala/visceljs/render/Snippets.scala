@@ -8,7 +8,7 @@ import scalatags.JsDom.all.{alt, stringFrag, _}
 import scalatags.JsDom.tags2.{nav, section}
 import viscel.shared.{Blob, SharedImage}
 import visceljs.Definitions._
-import visceljs.{Actions, Definitions, Icons, MetaInfo}
+import visceljs.{Definitions, Icons, MetaInfo}
 
 sealed trait FitType {
   def next: FitType =
@@ -58,7 +58,7 @@ object Snippets {
 
   def fullscreenToggle(stuff: Modifier*): HtmlTag = lcButton(Definitions.toggleFullscreen())(stuff: _*)
 
-  def group(name: String, actions: Actions, entries: Seq[FrontPageEntry]): TypedTag[dom.Element] = {
+  def group(name: String, entries: Seq[FrontPageEntry]): TypedTag[dom.Element] = {
     def sumOf(fun: FrontPageEntry => Int) = entries.iterator.map(fun).sum
     val totalNewPages                     = sumOf(e => math.max(0, e.newPages))
     val totalPages                        = sumOf(_.size)

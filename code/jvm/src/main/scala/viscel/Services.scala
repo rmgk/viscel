@@ -44,7 +44,7 @@ class Services(
 
   lazy val descriptionCache = new DescriptionCache(cachedir)
   lazy val blobStore        = new BlobStore(blobdir)
-  lazy val userStore        = new Users(usersdir, contentLoader)
+  lazy val userStore        = new Users(usersdir)
   lazy val rowStore         = new RowStoreV4(db4dir)
   lazy val narratorCache    = new NarratorCache(metarratorconfigdir, definitionsdir)
   lazy val folderImporter   = new FolderImporter(blobStore, rowStore, descriptionCache)
@@ -81,7 +81,6 @@ class Services(
       interactions = interactions,
       staticPath = staticDir,
       urlPrefix = urlPrefix,
-      rowStore = rowStore
     )
 
   def startServer() = server.start(interface, port)

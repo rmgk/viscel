@@ -39,7 +39,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scribeSlf4j.value,
       "de.tu-darmstadt.stg" %%% "rescala" % "0.31.0",
       loci.jsoniterScala.value,
-      "org.eclipse.jetty" % "jetty-rewrite" % "9.4.44.v20210927",
     ),
     Compile / sourceGenerators += Def.task {
       val file      = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
@@ -56,13 +55,12 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       betterFiles.value,
       decline.value,
-      loci.wsJetty.value,
       scalatest.value,
       scalacheck.value,
       scalatestpluscheck.value,
       jsoup.value,
       okHttp.value,
-    ),
+    ) ++ loci.wsJetty.value,
     // uncomment the following to enable graal tracing to allow native image generation
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
     nativeImageVersion := "21.3.0",

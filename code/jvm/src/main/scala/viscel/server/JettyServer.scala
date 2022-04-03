@@ -16,7 +16,7 @@ import rescala.default.Signal
 import rescala.extra.distributables.LociDist
 import viscel.shared.BookmarksMap.BookmarksMap
 import viscel.shared.{Bindings, Vid}
-import viscel.store.{BlobStore, RowStoreV4, User}
+import viscel.store.{BlobStore, User}
 import viscel.{FolderImporter, Viscel}
 
 import java.nio.charset.StandardCharsets
@@ -35,7 +35,6 @@ class JettyServer(
     interactions: Interactions,
     staticPath: File,
     urlPrefix: String,
-    rowStore: RowStoreV4,
 ) {
 
   lazy val jettyServer: Server = {

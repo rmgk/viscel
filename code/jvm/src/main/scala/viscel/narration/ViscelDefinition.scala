@@ -95,10 +95,8 @@ object ViscelDefinition {
   def makeNarrator(
       id: String,
       name: String,
-      pos: Int,
       startUrl: Vurl,
       attrs: Map[String, Line],
-      path: String
   ): FlowNarrator = {
     val cid = generateID(id, name)
 
@@ -181,19 +179,19 @@ object ViscelDefinition {
 
   }
 
-  def parseNarration(it: It, path: String): FlowNarrator Or ErrorMessage = {
+  def parseNarration(it: It): FlowNarrator Or ErrorMessage = {
     it.next() match {
       case Line(extractIDAndName(id, name), pos) =>
         parseURL(it).map { url =>
           val attrs = parseAttributes(it, Map())
-          makeNarrator(id, name, pos, url, attrs, path)
+          makeNarrator(id, name, url, attrs)
         }
 
       case Line(line, pos) => Left(s"expected definition at line $pos, but found $line")
     }
   }
 
-  def parse(lines: Iterator[String], path: String): List[FlowNarrator] Or ErrorMessage = {
+  def parse(lines: Iterator[String]): List[FlowNarrator] Or ErrorMessage = {
     val preprocessed = lines.map(_.trim)
       .zipWithIndex.map(p => Line(p._1, p._2 + 1))
       .filter(l => l.s.nonEmpty && !l.s.startsWith("--"))
@@ -203,7 +201,7 @@ object ViscelDefinition {
       if (!it.hasNext) {
         Right(acc)
       } else {
-        parseNarration(it, path) match {
+        parseNarration(it) match {
           case Right(n) => go(it, n :: acc)
           case Left(e)  => Left(e)
         }
@@ -214,7 +212,7 @@ object ViscelDefinition {
 
   def load(stream: Iterator[String], path: String): List[FlowNarrator] = {
     Log.Store.info(s"parsing definitions from $path")
-    parse(stream, path.toString) match {
+    parse(stream) match {
       case Right(res) => res
       case Left(err) =>
         Log.Store.warn(s"failed to parse $path errors: $err")

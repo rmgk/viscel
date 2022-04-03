@@ -1,7 +1,9 @@
 package visceljs
 
 import org.scalajs.dom.{MouseEvent, document}
-import scalatags.JsDom.all.{Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, button, cls, href, onclick, raw, stringAttr}
+import scalatags.JsDom.all.{
+  Frag, HtmlTag, Modifier, SeqFrag, Tag, a, bindJsAnyLike, button, cls, href, onclick, raw, stringAttr
+}
 import viscel.shared.{Blob, Vid}
 
 import scala.scalajs.js.URIUtils.encodeURIComponent
@@ -19,12 +21,14 @@ object Definitions {
 
   def link_tools(ts: Frag*): Tag = a(href := path_tools)(ts)
 
-
-
   def toggleFullscreen(): Unit = {
-    if (document.fullscreenElement == null)
+    if (document.fullscreenElement == null) {
       document.documentElement.requestFullscreen()
-    else document.exitFullscreen()
+      ()
+    } else {
+      document.exitFullscreen()
+      ()
+    }
   }
 
   def lcButton(action: => Unit, m: Modifier*): HtmlTag =

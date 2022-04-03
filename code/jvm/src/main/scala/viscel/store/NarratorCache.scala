@@ -1,7 +1,6 @@
 package viscel.store
 
 import java.nio.file.Path
-
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import viscel.narration.{Metarrator, Narrator, ViscelDefinition}
@@ -10,6 +9,7 @@ import viscel.selektiv.Narration
 import viscel.selektiv.Narration.ContextData
 import viscel.shared.{Log, Vid, Vurl}
 
+import scala.annotation.nowarn
 import scala.collection.immutable.{Map, Set}
 import scala.concurrent.Future
 
@@ -60,7 +60,9 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
     }
   }
 
+  @nowarn("msg=is never used")
   private implicit def setCodec[T: JsonValueCodec]  = JsonCodecMaker.make[Set[T]]
+  @nowarn("msg=is never used")
   private implicit def listCodec[T: JsonValueCodec] = JsonCodecMaker.make[List[T]]
 
   private def path[T](metarrator: Metarrator[T]): Path = metaPath.resolve(s"${metarrator.metarratorId}.json")

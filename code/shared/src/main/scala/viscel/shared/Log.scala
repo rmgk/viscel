@@ -5,8 +5,8 @@ import scribe.Logger
 object Log {
 
   import scribe.format._
-  val develFormatter: Formatter  = formatter"$message$mdc [$positionAbbreviated]"
-  val normalFormatter: Formatter = formatter"$message$mdc [${className.abbreviate(maxLength = 15, padded = false)}]"
+  val develFormatter: Formatter  = formatter"$messages$mdc [$positionAbbreviated]"
+  val normalFormatter: Formatter = formatter"$messages$mdc [${className.abbreviate(maxLength = 15, padded = false)}]"
   Logger.root.clearHandlers().withHandler(formatter = normalFormatter, minimumLevel = Some(scribe.Level.Info)).replace()
 
   val Tool: Logger    = Logger("Tool")
