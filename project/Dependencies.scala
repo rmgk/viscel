@@ -32,7 +32,7 @@ object Dependencies {
     val scalaSwing               = "3.0.0"
     val scalacheck               = "1.15.4"
     val scalactic                = "3.0.0"
-    val scalajsDom               = "2.0.0"
+    val scalajsDom               = "2.1.0"
     val scalatags                = "0.11.1"
     val scalatest                = "3.2.11"
     val scalatestpluscheck       = "3.2.11.0"
