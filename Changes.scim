@@ -1,5 +1,10 @@
 = Versions
 
+== v8.7
+
+• remove hover animation (for better font rendering)
+• port to scala 3
+
 == v8.6
 date = 2021-12-30
 
