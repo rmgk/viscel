@@ -45,8 +45,8 @@ object Snippets {
       case blob @ Blob(_, "application/x-shockwave-flash") =>
         `object`(
           `type` := "application/x-shockwave-flash",
-          data := path_blob(blob),
-          width := asset.data.getOrElse("width", ""),
+          data   := path_blob(blob),
+          width  := asset.data.getOrElse("width", ""),
           height := asset.data.getOrElse("height", "")
         )
       case blob @ Blob(_, _) =>
@@ -78,16 +78,17 @@ object Snippets {
       h1(s"$name $totalNewPages ($bookmarkedPages/$totalPages)"),
       ul(elements),
       if (elements.isEmpty) cls := "empty" else ""
-    )
+    ).asInstanceOf[TypedTag[dom.Element]]
   }
 
-  def navigation(links: Modifier*): HtmlTag =
-    nav(links: _*)
+  def navigation(links: Modifier*): HtmlTag = nav(links: _*).asInstanceOf[HtmlTag]
 
   def meta(meta: MetaInfo): Signal[TypedTag[Element]] = {
-    val connectionStatus = meta.connection.map {
-      case 0     => stringFrag(s"disconnected (attempt № ${meta.reconnecting.value})")
-      case other => stringFrag(s"$other active")
+    val connectionStatus = Signal {
+      meta.connection.value match {
+        case 0     => stringFrag(s"disconnected (attempt № ${meta.reconnecting.value})")
+        case other => stringFrag(s"$other active")
+      }
     }
     Signal {
       section(List[Frag](
@@ -102,7 +103,7 @@ object Snippets {
         s"connection status: ",
         connectionStatus.value,
         br()
-      ))
+      )).asInstanceOf[HtmlTag]
     }
   }
 

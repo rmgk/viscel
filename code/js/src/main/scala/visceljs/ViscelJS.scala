@@ -5,8 +5,7 @@ import org.scalajs.dom
 import org.scalajs.dom.{Fetch, HttpMethod, RequestInit}
 import rescala.default._
 import rescala.extra.Tags._
-import rescala.extra.lattices.IdUtil
-import rescala.extra.lattices.IdUtil.Id
+import kofre.base.Defs
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{body, h1, p}
 import visceljs.connection.{BookmarkManager, ContentConnectionManager, ServiceWorker}
@@ -51,7 +50,7 @@ object ViscelJS {
       .flatMap(_.arrayBuffer().toFuture)
   }
 
-  val replicaID: Id = IdUtil.genId()
+  val replicaID: Defs.Id = Defs.genId()
 
   def main(args: Array[String]): Unit = {
     dom.document.body = body("loading data …").render

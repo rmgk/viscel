@@ -2,7 +2,7 @@ package viscel.server
 
 import better.files.File
 import loci.communicator.ws.jetty.WS.Properties
-import loci.communicator.ws.jetty._
+import loci.communicator.ws.jetty.*
 import loci.registry.Registry
 import org.eclipse.jetty.http.{HttpCookie, HttpHeader, HttpMethod}
 import org.eclipse.jetty.rewrite.handler.{RewriteHandler, RewriteRegexRule}
@@ -21,11 +21,11 @@ import viscel.{FolderImporter, Viscel}
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
 import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 class JettyServer(
     blobStore: BlobStore,
@@ -91,8 +91,8 @@ class JettyServer(
         response: HttpServletResponse
     ): Unit = {
 
-      val credentials = request.getHeader(HttpHeader.AUTHORIZATION.asString());
-      val cookies     = Option(request.getCookies).getOrElse(Array())
+      val credentials = request.getHeader(HttpHeader.AUTHORIZATION.asString())
+      val cookies     = Option(request.getCookies).getOrElse(Array[Cookie]())
 
       def getCookie(name: String) = {
         cookies.find(c => c.getName == name).map(_.getValue)
@@ -142,7 +142,7 @@ class JettyServer(
     handler
   }
 
-  val blobsHandler = {
+  lazy val blobsHandler = {
 
     val resourceHandler = new ResourceHandler()
     val blobdir         = blobStore.blobdir.toString

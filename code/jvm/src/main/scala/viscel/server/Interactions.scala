@@ -4,7 +4,7 @@ import cats.instances.string._
 import cats.syntax.eq._
 import loci.registry.Registry
 import rescala.default.{Evt, implicitScheduler}
-import rescala.extra.lattices.Lattice
+import kofre.base.Lattice
 import rescala.operator.Diff
 import viscel.narration.Narrator
 import viscel.netzi.WebRequestInterface

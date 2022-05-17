@@ -28,9 +28,9 @@ object Dependencies {
     val scala211           = "2.11.12"
     val scala212           = "2.12.15"
     val scala213           = "2.13.8"
-    val scala3             = "3.1.2"
+    val scala3             = "3.1.3-RC2"
     val scalaJavaTime      = "2.3.0"
-    val scalaLoci          = "0.5.0"
+    val scalaLoci          = "0.5.0-9-g77acc1f"
     val scalaSwing         = "3.0.0"
     val scalacheck         = "1.16.0"
     val scalactic          = "3.0.0"
@@ -103,7 +103,7 @@ object Dependencies {
     val wsAkka        = generic("communicator-ws-akka")
     val wsWeb         = generic("communicator-ws-webnative")
     val wsJavalin     = generic("communicator-ws-javalin")
-    val wsJetty       = Def.setting(Seq(generic("communicator-ws-jetty").value, jetty.value))
+    val wsJetty       = generic("communicator-ws-jetty")
   }
 
 }

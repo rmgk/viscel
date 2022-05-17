@@ -3,7 +3,7 @@ package visceljs.connection
 import loci.registry.Registry
 import rescala.default._
 import rescala.extra.distributables.LociDist
-import rescala.extra.lattices.Lattice
+import kofre.base.Lattice
 import viscel.shared.JsoniterCodecs._
 import viscel.shared.{Bindings, Bookmark, BookmarksMap, Vid}
 import visceljs.storage.Storing

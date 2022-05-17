@@ -8,11 +8,11 @@ import scala.scalajs.js.annotation.JSGlobal
 @JSGlobal
 @js.native
 object localforage extends js.Object with LocalForageInstance {
-  def createInstance(@nowarn config: js.Any): LocalForageInstance = js.native
+  def createInstance(config: js.Any): LocalForageInstance = js.native
 }
 
 @js.native
 trait LocalForageInstance extends js.Object {
-  def setItem(@nowarn key: String, @nowarn value: js.Any): js.Promise[Unit] = js.native
-  def getItem[T](@nowarn key: String): js.Promise[T]                = js.native
+  def setItem(key: String, value: js.Any): js.Promise[Unit] = js.native
+  def getItem[T](key: String): js.Promise[T]                = js.native
 }

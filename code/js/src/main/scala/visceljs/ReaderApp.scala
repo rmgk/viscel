@@ -34,7 +34,8 @@ class ReaderApp(
     val initialAppState                         = AppState.parse(getHash())
     val currentTargetAppState: Signal[AppState] = targetStates.fold(initialAppState) { case (_, next) => next }
 
-    val setCurrentPostition: Event[Int] = currentTargetAppState.changed.collect { case ViewState(_, pos) => pos }
+    val pf: PartialFunction[AppState, Int] = { case ViewState(_, pos) => pos }
+    val setCurrentPostition: Event[Int]    = currentTargetAppState.changed.collect(pf)
 
     val currentID: Signal[Option[Vid]] = currentTargetAppState.map {
       case FrontState(id)   => Some(id)
@@ -47,7 +48,10 @@ class ReaderApp(
     val contents = Signal { currentID.value.map(content) }.flatten.map(_.flatten)
 
     val bookmark = Signal[Bookmark] {
-      currentID.value.flatMap(bookmarks.value.get).getOrElse(Bookmark(0, 0, None, None))
+      currentID.value.flatMap(bookmarks.value.get) match {
+        case None    => Bookmark(0, 0, None, None)
+        case Some(v) => v
+      }
     }
 
     val maxPosition = contents.map(_.map(_.gallery.size).getOrElse(0) - 1).changed
@@ -60,9 +64,8 @@ class ReaderApp(
       )
     )
 
-    val normalizedAppState: Signal[AppState] = currentTargetAppState.map {
-      _.transformPos(_ => currentPosition.value.cur)
-    }
+    val normalizedAppState: Signal[AppState] =
+      Signal { currentTargetAppState.value.transformPos(_ => currentPosition.value.cur) }
 
     normalizedAppState.observe(
       fireImmediately = false,
@@ -86,7 +89,7 @@ class ReaderApp(
 
     }
 
-    Signal.static {
+    Signal {
       currentTargetAppState.value match {
         case IndexState    => Some("Viscel")
         case FrontState(_) => description.value.map(_.name)

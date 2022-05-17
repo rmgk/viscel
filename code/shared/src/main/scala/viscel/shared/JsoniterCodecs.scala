@@ -40,7 +40,6 @@ object JsoniterCodecs {
   implicit val ContentsRW: JsonValueCodec[Contents] = JsonCodecMaker.make
   //implicit val BookmarkRW   : JsonValueCodec[Bookmark]    = JsonCodecMaker.make
 
-  @nowarn("msg=is never used")
   implicit def OptionCodec[T: JsonValueCodec]: JsonValueCodec[Option[T]] = JsonCodecMaker.make
   implicit val HintCodec: JsonValueCodec[(Vid, Boolean)]                 = JsonCodecMaker.make
 

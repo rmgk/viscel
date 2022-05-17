@@ -1,6 +1,6 @@
 package viscel.shared
 
-import rescala.extra.lattices.Lattice
+import kofre.base.Lattice
 
 import scala.collection.immutable.Map
 

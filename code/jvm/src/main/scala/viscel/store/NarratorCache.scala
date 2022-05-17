@@ -60,10 +60,9 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
     }
   }
 
-  @nowarn("msg=is never used")
-  private implicit def setCodec[T: JsonValueCodec]  = JsonCodecMaker.make[Set[T]]
-  @nowarn("msg=is never used")
-  private implicit def listCodec[T: JsonValueCodec] = JsonCodecMaker.make[List[T]]
+  private implicit def setCodec[T: JsonValueCodec]: JsonValueCodec[Set[T]] = JsonCodecMaker.make[Set[T]]
+
+  private implicit def listCodec[T: JsonValueCodec]: JsonValueCodec[List[T]] = JsonCodecMaker.make[List[T]]
 
   private def path[T](metarrator: Metarrator[T]): Path = metaPath.resolve(s"${metarrator.metarratorId}.json")
   def load[T](metarrator: Metarrator[T]): Set[T] = {

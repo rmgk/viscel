@@ -15,7 +15,7 @@ object FlowWrapper {
 
   sealed trait Restriction {
 
-    val (min, max) = this match {
+    lazy val (min, max) = this match {
       case Restriction.Unique    => (1, 1)
       case Restriction.NonEmpty  => (1, Int.MaxValue)
       case Restriction.None      => (0, Int.MaxValue)
@@ -35,7 +35,7 @@ object FlowWrapper {
   }
 
   sealed trait Extractor {
-    val extract: Element => List[DataRow.Content] = this match {
+    lazy val extract: Element => List[DataRow.Content] = this match {
       case Extractor.Image(attribute) => e => List(imageFromAttribute(e, attribute))
       case Extractor.More => e =>
           List(extractMore(e))
@@ -55,7 +55,7 @@ object FlowWrapper {
   }
 
   sealed trait Filter {
-    val filter: List[DataRow.Content] => List[DataRow.Content] = this match {
+    lazy val filter: List[DataRow.Content] => List[DataRow.Content] = this match {
       case Filter.ChapterReverse(reverseInner) => chapterReverse(_, reverseInner)
       case Filter.TransformUrls(replacements)  => ViscelDefinition.transformUrls(replacements)
       case Filter.SelectSingleNext => contents => {
@@ -83,7 +83,7 @@ object FlowWrapper {
   ) {
     def toWrapper: Narrator.Wrapper = {
       val extracted = Selection.select(query, restriction).map { elements =>
-        elements.flatMap { elem: Element =>
+        elements.flatMap { (elem: Element) =>
           extractors.flatMap(_.extract(elem))
         }
       }

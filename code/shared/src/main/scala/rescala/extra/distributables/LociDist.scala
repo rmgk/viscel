@@ -3,8 +3,9 @@ package rescala.extra.distributables
 import loci.registry.{Binding, Registry}
 import loci.transmitter.RemoteRef
 import rescala.default._
-import rescala.extra.lattices.Lattice
+import kofre.base.Lattice
 import viscel.shared.Log
+import rescala.operator.Pulse
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.Future
@@ -32,7 +33,7 @@ object LociDist {
         admissionTicket.recordChange(new InitialChange {
           override val source = signal
           override def writeValue(b: source.Value, v: source.Value => Unit): Boolean = {
-            val merged = b.map(Lattice[A].merge(_, newValue)).asInstanceOf[source.Value]
+            val merged = b.asInstanceOf[Pulse[A]].map(Lattice[A].merge(_, newValue)).asInstanceOf[source.Value]
             if (merged != b) {
               v(merged)
               true
@@ -43,7 +44,7 @@ object LociDist {
       Log.Server.info(s"update for $signalName complete")
     })
 
-    val observers = new ConcurrentHashMap[RemoteRef, Observe]()
+    val observers = new ConcurrentHashMap[RemoteRef, Disconnectable]()
 
     def registerRemote(remoteRef: RemoteRef): Unit = {
       val signal: Signal[A] = signalFun(remoteRef)
@@ -60,7 +61,7 @@ object LociDist {
           if (remoteRef.connected) {
             remoteUpdate(s)
             ()
-          } else Option(observers.get(remoteRef)).foreach(_.remove())
+          } else Option(observers.get(remoteRef)).foreach(_.disconnect())
         }
       )
       ()
@@ -70,7 +71,7 @@ object LociDist {
     registry.remoteJoined.foreach(registerRemote)
     registry.remoteLeft.foreach { remoteRef =>
       //println(s"removing remote $remoteRef")
-      Option(observers.get(remoteRef)).foreach(_.remove())
+      Option(observers.get(remoteRef)).foreach(_.disconnect())
     }
     ()
   }

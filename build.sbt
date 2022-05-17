@@ -5,9 +5,8 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
 import java.security.MessageDigest
 
-inThisBuild(scalaVersion_213)
+inThisBuild(scalaVersion_3)
 ThisBuild / organization := "de.rmgk"
-Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val viscelPackage = taskKey[File]("calls graalvm native image")
 
@@ -37,7 +36,8 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scribe.value,
       scalatags.value,
       scribeSlf4j.value,
-      "de.tu-darmstadt.stg" %%% "rescala" % "0.31.0",
+      "de.tu-darmstadt.stg" %%% "rescala" % "0.31.0+483-7845ae8a",
+      "de.tu-darmstadt.stg" %%% "kofre"   % "0.31.0+483-7845ae8a",
       loci.jsoniterScala.value,
     ),
     Compile / sourceGenerators += Def.task {
@@ -53,14 +53,16 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .jvmSettings(
     fork := true,
     libraryDependencies ++= Seq(
-      betterFiles.value,
+      betterFiles.value.cross(CrossVersion.for3Use2_13),
       decline.value,
       scalatest.value,
       scalacheck.value,
       scalatestpluscheck.value,
       jsoup.value,
       okHttp.value,
-    ) ++ loci.wsJetty.value,
+      loci.wsJetty.value,
+      jetty.value
+    ),
     // uncomment the following to enable graal tracing to allow native image generation
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
     nativeImageVersion := "21.3.0",
@@ -159,7 +161,7 @@ def bundleStuff(
 ): File = {
   Files.createDirectories(bundleTarget)
 
-  def copyToTarget(f: File): Unit = //IO.gzip(f, bundleTarget.resolve(f.name + ".gz").toFile)
+  def copyToTarget(f: File): Unit = // IO.gzip(f, bundleTarget.resolve(f.name + ".gz").toFile)
     Files.copy(f.toPath, bundleTarget.resolve(f.name), StandardCopyOption.REPLACE_EXISTING)
 
   copyToTarget(jsfile)

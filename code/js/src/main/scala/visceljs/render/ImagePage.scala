@@ -3,18 +3,17 @@ package visceljs.render
 import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import org.scalajs.dom.html.Body
-import rescala.default._
+import rescala.default.*
 import scalatags.JsDom
-import scalatags.JsDom.all.{
-  HtmlTag, Modifier, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, stringAttr, stringFrag, title, span
-}
-import scalatags.JsDom.attrs.{disabled, style}
+import scalatags.JsDom.all.{HtmlTag, Modifier, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, span, stringAttr, stringFrag, title}
 import scalatags.JsDom.tags2.{article, main}
+import scalatags.JsDom.attrs.{disabled, style}
 import viscel.shared.{Bookmark, Contents, Vid}
 import visceljs.Definitions.lcButton
-import visceljs.Navigation._
+import visceljs.Navigation.*
 import visceljs.{Actions, Definitions, Icons}
-import rescala.extra.Tags._
+import rescala.extra.Tags.*
+import scalatags.Text.TypedTag
 
 class ImagePage(act: Actions) {
 
@@ -39,8 +38,8 @@ class ImagePage(act: Actions) {
       navigate: Evt[Navigate]
   ): JsDom.TypedTag[Body] = {
 
-    val mainPart: HtmlTag = {
-      contents.gallery.lift(position.cur).fold[HtmlTag](p(s"invalid position")) { asst =>
+    val mainPart: Tag = {
+      contents.gallery.lift(position.cur).fold[Tag](p(s"invalid position")) { asst =>
         article(Snippets.asset(asst, style := fitType.map(Snippets.imageStyle))(
           asst.data.get("title").fold[Option[Tag]](None)(t => Some(p(t))).toSeq: _*
         ))

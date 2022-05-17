@@ -91,7 +91,7 @@ class OverviewPage(
       id := "index",
       Snippets.meta(meta).asModifier,
       Snippets.navigation(Snippets.fullscreenToggle("fullscreen"), searchForm, link_tools("tools")),
-      groupTags.asModifierL
+      SignalTagListToScalatags(groupTags).asModifierL
     )
   }
 
