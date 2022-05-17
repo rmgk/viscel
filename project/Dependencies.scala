@@ -10,16 +10,16 @@ object Dependencies {
   object Versions {
     val betterFiles        = "3.9.1"
     val catsCore           = "2.6.1"
-    val catsCollection     = "0.9.2"
     val circeCore          = "0.14.1"
     val decline            = "2.2.0"
     val directories        = "26"
     val fastparse          = "2.3.3"
     val jetty              = "9.4.46.v20220331"
     val jol                = "0.16"
-    val jsoniterScalaCore  = "2.13.20"
+    val jsoniterScalaCore  = "2.13.22"
     val jsoniterScalaOld   = "2.13.3" // this is the latest version supporting Scala 2.11 and java 8
-    val jsoup              = "1.14.3"
+    val jsoup              = "1.15.1"
+    val munit              = "0.7.29"
     val normalizecss       = "8.0.1"
     val okHttp             = "4.9.3"
     val pprint             = "0.7.3"
@@ -34,7 +34,7 @@ object Dependencies {
     val scalaSwing         = "3.0.0"
     val scalacheck         = "1.16.0"
     val scalactic          = "3.0.0"
-    val scalajsDom         = "2.1.0"
+    val scalajsDom         = "2.2.0"
     val scalatags          = "0.11.1"
     val scalatest          = "3.2.12"
     val scalatestpluscheck = "3.2.11.0"
@@ -48,13 +48,14 @@ object Dependencies {
 
   val betterFiles        = Def.setting("com.github.pathikrit" %% "better-files" % V.betterFiles)
   val catsCore           = Def.setting("org.typelevel" %%% "cats-core" % V.catsCore)
-  val catsCollection     = Def.setting("org.typelevel" %%% "cats-collections-core" % V.catsCollection)
   val decline            = Def.setting("com.monovore" %%% "decline" % V.decline)
   val directories        = Def.setting("dev.dirs" % "directories" % V.directories)
   val fastparse          = Def.setting("com.lihaoyi" %%% "fastparse" % V.fastparse)
   val jetty              = Def.setting("org.eclipse.jetty" % "jetty-rewrite" % V.jetty)
   val jol                = Def.setting("org.openjdk.jol" % "jol-core" % V.jol)
   val jsoup              = Def.setting("org.jsoup" % "jsoup" % V.jsoup)
+  val munit              = Def.setting("org.scalameta" %%% "munit" % V.munit % Test)
+  val munitScalacheck    = Def.setting("org.scalameta" %%% "munit-scalacheck" % V.munit % Test)
   val normalizecss       = Def.setting("org.webjars.npm" % "normalize.css" % V.normalizecss)
   val okHttp             = Def.setting("com.squareup.okhttp3" % "okhttp" % V.okHttp)
   val pprint             = Def.setting("com.lihaoyi" %%% "pprint" % V.pprint)
@@ -74,14 +75,15 @@ object Dependencies {
   val tomlScala          = Def.setting("tech.sparse" %%% "toml-scala" % V.tomlScala)
   val upickle            = Def.setting("com.lihaoyi" %% "upickle" % V.upickle)
 
-  val jsoniterScalaAll = Def.setting{
+  val jsoniterScalaAll = Def.setting {
     val jsoniterVersion = if (Settings.`is 2.11`(scalaVersion.value))
-           V.jsoniterScalaOld
-      else V.jsoniterScalaCore
+      V.jsoniterScalaOld
+    else V.jsoniterScalaCore
     Seq(
-    ("com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % jsoniterVersion exclude ("io.github.cquiroz", s"scala-java-time-tzdb_sjs1_${scalaVersion.value.substring(0, 4)}")),
-    "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % jsoniterVersion
-  )}
+      ("com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % jsoniterVersion exclude ("io.github.cquiroz", s"scala-java-time-tzdb_sjs1_${scalaVersion.value.substring(0, 4)}")),
+      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % jsoniterVersion
+    )
+  }
 
   val circeAll = Def.setting(Seq("core", "generic", "generic-extras", "parser")
     .map(n => "io.circe" %%% s"circe-$n" % V.circeCore))
