@@ -27,8 +27,8 @@ object Mangadex extends Metarrator[MangadexNarrator]("Mangadex") {
     DataRow.Chapter(
       s"(${chapter.volume}${if (chapter.volume.isBlank) "" else ": "}${chapter.chapter}) ${chapter.title}"
     ) ::
-      DataRow.Link(Vurl.fromString(s"https://mangadex.org/api/?id=$id&type=chapter")) ::
-      Nil
+    DataRow.Link(Vurl.fromString(s"https://mangadex.org/api/?id=$id&type=chapter")) ::
+    Nil
 
   val overViewCodec = JsonCodecMaker.make[OverviewInfo](CodecMakerConfig.withMapMaxInsertNumber(10_000))
 

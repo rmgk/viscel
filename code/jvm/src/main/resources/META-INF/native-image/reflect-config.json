@@ -1,326 +1,525 @@
 [
 {
-  "name":"[B"}
-,
+  "name":"[B"
+},
 {
-  "name":"[Ljava.lang.String;"}
-,
+  "name":"[Ljava.lang.String;"
+},
 {
-  "name":"[Ljava.nio.file.FileVisitOption;"}
-,
+  "name":"[Ljava.nio.file.FileVisitOption;"
+},
 {
-  "name":"[Ljava.nio.file.LinkOption;"}
-,
+  "name":"[Ljava.nio.file.LinkOption;"
+},
 {
-  "name":"[Ljava.nio.file.OpenOption;"}
-,
+  "name":"[Ljava.nio.file.OpenOption;"
+},
 {
-  "name":"[Lorg.eclipse.jetty.rewrite.handler.Rule;"}
-,
+  "name":"[Lorg.eclipse.jetty.rewrite.handler.Rule;"
+},
 {
-  "name":"[Lorg.eclipse.jetty.servlet.ServletMapping;"}
-,
+  "name":"[Lorg.eclipse.jetty.servlet.ServletMapping;"
+},
 {
-  "name":"[Lsun.security.pkcs.SignerInfo;"}
-,
+  "name":"[Lsun.security.pkcs.SignerInfo;"
+},
+{
+  "name":"cats.Later",
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"com.sun.crypto.provider.AESCipher$General",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"com.sun.crypto.provider.ARCFOURCipher",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"com.sun.crypto.provider.ChaCha20Cipher$ChaCha20Poly1305",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"com.sun.crypto.provider.DESCipher",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"com.sun.crypto.provider.DESedeCipher",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"com.sun.crypto.provider.DHParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"com.sun.crypto.provider.GaloisCounterMode$AESGCM",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"com.sun.crypto.provider.HmacCore$HmacSHA384",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"java.lang.Boolean",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]}
-,
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
 {
   "name":"java.lang.Byte",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]}
-,
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
 {
   "name":"java.lang.Class",
-  "methods":[{"name":"getModule","parameterTypes":[] }]}
-,
+  "methods":[{"name":"getModule","parameterTypes":[] }]
+},
 {
-  "name":"java.lang.ClassValue"}
-,
+  "name":"java.lang.ClassValue"
+},
 {
   "name":"java.lang.Double",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]}
-,
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
 {
   "name":"java.lang.Float",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]}
-,
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
 {
   "name":"java.lang.Integer",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]}
-,
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
 {
   "name":"java.lang.Long",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]}
-,
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
 {
   "name":"java.lang.Module",
   "methods":[
     {"name":"getLayer","parameterTypes":[] }, 
     {"name":"getName","parameterTypes":[] }
-  ]}
-,
+  ]
+},
 {
   "name":"java.lang.ModuleLayer",
-  "methods":[{"name":"configuration","parameterTypes":[] }]}
-,
+  "methods":[{"name":"configuration","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.ProcessHandle",
+  "methods":[
+    {"name":"current","parameterTypes":[] }, 
+    {"name":"info","parameterTypes":[] }, 
+    {"name":"parent","parameterTypes":[] }
+  ]
+},
+{
+  "name":"java.lang.ProcessHandle$Info",
+  "methods":[{"name":"command","parameterTypes":[] }]
+},
 {
   "name":"java.lang.Short",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]}
-,
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
 {
-  "name":"java.lang.String"}
-,
+  "name":"java.lang.String"
+},
 {
   "name":"java.lang.invoke.VarHandle",
-  "methods":[{"name":"releaseFence","parameterTypes":[] }]}
-,
+  "methods":[{"name":"releaseFence","parameterTypes":[] }]
+},
 {
   "name":"java.lang.management.ManagementFactory",
-  "methods":[{"name":"getRuntimeMXBean","parameterTypes":[] }]}
-,
+  "methods":[{"name":"getRuntimeMXBean","parameterTypes":[] }]
+},
 {
   "name":"java.lang.management.RuntimeMXBean",
-  "methods":[{"name":"getUptime","parameterTypes":[] }]}
-,
+  "methods":[{"name":"getUptime","parameterTypes":[] }]
+},
 {
   "name":"java.lang.module.Configuration",
-  "methods":[{"name":"findModule","parameterTypes":["java.lang.String"] }]}
-,
+  "methods":[{"name":"findModule","parameterTypes":["java.lang.String"] }]
+},
 {
   "name":"java.lang.module.ModuleReference",
-  "methods":[{"name":"location","parameterTypes":[] }]}
-,
+  "methods":[{"name":"location","parameterTypes":[] }]
+},
 {
   "name":"java.lang.module.ResolvedModule",
-  "methods":[{"name":"reference","parameterTypes":[] }]}
-,
+  "methods":[{"name":"reference","parameterTypes":[] }]
+},
 {
-  "name":"java.security.AlgorithmParametersSpi"}
-,
+  "name":"java.security.AlgorithmParametersSpi"
+},
 {
-  "name":"java.security.KeyStoreSpi"}
-,
+  "name":"java.security.KeyStoreSpi"
+},
 {
-  "name":"java.security.SecureRandomParameters"}
-,
+  "name":"java.security.SecureRandomParameters"
+},
 {
-  "name":"java.security.interfaces.ECPrivateKey"}
-,
+  "name":"java.security.interfaces.RSAPrivateKey"
+},
 {
-  "name":"java.security.interfaces.ECPublicKey"}
-,
+  "name":"java.security.interfaces.RSAPublicKey"
+},
 {
-  "name":"java.security.interfaces.RSAPrivateKey"}
-,
-{
-  "name":"java.security.interfaces.RSAPublicKey"}
-,
-{
-  "name":"java.util.Date"}
-,
+  "name":"java.util.Date"
+},
 {
   "name":"java.util.HashSet",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"javax.security.auth.x500.X500Principal",
   "fields":[{"name":"thisX500Name"}],
-  "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
+},
+{
+  "name":"loci.registry.Registry$AbstractionRef",
+  "fields":[{"name":"0bitmap$1"}]
+},
 {
   "name":"org.eclipse.jetty.http.pathmap.PathSpecSet",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"org.eclipse.jetty.servlet.ServletHandler$Default404Servlet",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"org.eclipse.jetty.util.ModuleLocation",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"org.eclipse.jetty.util.RegexSet",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"org.eclipse.jetty.util.log.Slf4jLog",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"org.eclipse.jetty.websocket.common.extensions.compress.PerMessageDeflateExtension",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"rescala.default$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"rescala.parrp.ParRP$ParRPTransaction",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scalatags.Text$attrs$",
+  "fields":[
+    {"name":"0bitmap$1"}, 
+    {"name":"1bitmap$1"}, 
+    {"name":"2bitmap$1"}, 
+    {"name":"3bitmap$1"}, 
+    {"name":"4bitmap$1"}
+  ]
+},
+{
+  "name":"scalatags.Text$tags$",
+  "fields":[
+    {"name":"0bitmap$2"}, 
+    {"name":"1bitmap$2"}, 
+    {"name":"2bitmap$2"}
+  ]
+},
+{
+  "name":"scalatags.Text$tags2$",
+  "fields":[
+    {"name":"0bitmap$3"}, 
+    {"name":"1bitmap$3"}
+  ]
+},
+{
+  "name":"scribe.ANSI$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.ANSI$fg$",
+  "fields":[{"name":"0bitmap$3"}]
+},
+{
+  "name":"scribe.ANSI$fx$",
+  "fields":[{"name":"0bitmap$4"}]
+},
+{
+  "name":"scribe.Logger",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.Logger$",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"scribe.Platform$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.Priority$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.data.MDC$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.format.AbbreviateBlock",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.format.Formatter$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.format.package$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.message.LazyMessage",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.message.StaticMessage",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.modify.LevelFilter$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.output.Color$Black$",
+  "fields":[{"name":"0bitmap$5"}]
+},
+{
+  "name":"scribe.output.Color$Blue$",
+  "fields":[{"name":"0bitmap$6"}]
+},
+{
+  "name":"scribe.output.Color$Cyan$",
+  "fields":[{"name":"0bitmap$7"}]
+},
+{
+  "name":"scribe.output.Color$Green$",
+  "fields":[{"name":"0bitmap$8"}]
+},
+{
+  "name":"scribe.output.ColoredOutput",
+  "fields":[{"name":"0bitmap$3"}]
+},
+{
+  "name":"scribe.output.CompositeOutput",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"scribe.output.LogOutput$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.package$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.record.SimpleLogRecord",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"sun.misc.Unsafe",
+  "allDeclaredFields":true
+},
 {
   "name":"sun.security.pkcs12.PKCS12KeyStore",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.pkcs12.PKCS12KeyStore$DualFormatPKCS12",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.DSA$SHA224withDSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.DSA$SHA256withDSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.JavaKeyStore$JKS",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.NativePRNG",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.SHA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.SHA2$SHA224",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.SHA2$SHA256",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.SHA5$SHA384",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.SHA5$SHA512",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.X509Factory",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.provider.certpath.PKIXCertPathValidator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.rsa.PSSParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.rsa.RSAKeyFactory$Legacy",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.rsa.RSAPSSSignature",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.rsa.RSASignature$SHA224withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.rsa.RSASignature$SHA256withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSASignature$SHA384withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.ssl.SSLContextImpl$TLSContext",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
   "name":"sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory",
-  "methods":[{"name":"<init>","parameterTypes":[] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
 {
-  "name":"sun.security.util.ObjectIdentifier"}
-,
+  "name":"sun.security.util.ObjectIdentifier"
+},
 {
   "name":"sun.security.x509.AuthorityInfoAccessExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
   "name":"sun.security.x509.AuthorityKeyIdentifierExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
   "name":"sun.security.x509.BasicConstraintsExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
   "name":"sun.security.x509.CRLDistributionPointsExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
-  "name":"sun.security.x509.CertificateExtensions"}
-,
+  "name":"sun.security.x509.CertificateExtensions"
+},
 {
   "name":"sun.security.x509.CertificatePoliciesExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
   "name":"sun.security.x509.ExtendedKeyUsageExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
   "name":"sun.security.x509.IssuerAlternativeNameExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
   "name":"sun.security.x509.KeyUsageExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
   "name":"sun.security.x509.NetscapeCertTypeExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
   "name":"sun.security.x509.PrivateKeyUsageExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
   "name":"sun.security.x509.SubjectAlternativeNameExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
 {
   "name":"sun.security.x509.SubjectKeyIdentifierExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]}
-
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"viscel.Services",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Extractor$Chapter$",
+  "fields":[{"name":"0bitmap$9"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Extractor$Image",
+  "fields":[{"name":"0bitmap$5"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Extractor$MixedArchive$",
+  "fields":[{"name":"0bitmap$8"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Extractor$More$",
+  "fields":[{"name":"0bitmap$6"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Extractor$OptionalParentMore$",
+  "fields":[{"name":"0bitmap$7"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Filter$ChapterReverse",
+  "fields":[{"name":"0bitmap$10"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Filter$SelectSingleNext$",
+  "fields":[{"name":"0bitmap$12"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Filter$TransformUrls",
+  "fields":[{"name":"0bitmap$11"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Restriction$NonEmpty$",
+  "fields":[{"name":"0bitmap$2"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Restriction$None$",
+  "fields":[{"name":"0bitmap$3"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Restriction$Unique$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"viscel.server.JettyServer",
+  "fields":[{"name":"0bitmap$1"}]
+}
 ]

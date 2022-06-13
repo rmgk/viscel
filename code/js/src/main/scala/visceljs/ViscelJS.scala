@@ -41,10 +41,10 @@ object ViscelJS {
       ri.headers = js.Dictionary("Content-Type" -> "application/json;charset=utf-8")
     }
 
-    //authentication.foreach{ user =>
+    // authentication.foreach{ user =>
     //  if (js.isUndefined(ri.headers)) ri.headers = js.Dictionary.empty[String]
     //  ri.headers.asInstanceOf[js.Dictionary[String]]("Authorization") = s"Token ${user.token}"
-    //}
+    // }
 
     Fetch.fetch(baseurl + endpoint, ri).toFuture
       .flatMap(_.arrayBuffer().toFuture)
@@ -65,13 +65,14 @@ object ViscelJS {
 
     val actions = new Actions(ccm, bookmarkManager)
 
-    //ccm.remoteVersion.observe{v =>
+    // ccm.remoteVersion.observe{v =>
     //  if (!(v == "unknown" || v.startsWith("error")) && v != viscel.shared.Version.str) {
     //    ServiceWorker.unregister().andThen(_ => dom.window.location.reload(true))
     //  }
-    //}
+    // }
 
-    val meta = MetaInfo(viscel.shared.Version.str, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
+    val meta =
+      MetaInfo(viscel.shared.BuildInfo.version, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
 
     val index = new OverviewPage(meta, bookmarkManager.bookmarks, ccm.descriptions)
     val front = new DetailsPage(actions)

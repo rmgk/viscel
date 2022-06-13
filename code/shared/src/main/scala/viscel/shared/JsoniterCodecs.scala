@@ -5,7 +5,6 @@ import com.github.plokhotnyuk.jsoniter_scala.macros._
 
 import scala.annotation.nowarn
 
-
 object JsoniterCodecs {
   def writeString[T: JsonValueCodec](value: T) = writeToString(value)
   def writeArray[T: JsonValueCodec](value: T)  = writeToArray(value)
@@ -33,12 +32,12 @@ object JsoniterCodecs {
     override def encodeKey(x: Vid, out: JsonWriter): Unit = out.writeKey(x.str)
   }
 
-  //implicit val DescriptionRW: JsonValueCodec[Description] = JsonCodecMaker.make
-  //implicit val SharedImageRW: JsonValueCodec[SharedImage] = JsonCodecMaker.make
-  //implicit val BlobRW       : JsonValueCodec[Blob]        = JsonCodecMaker.make
-  //implicit val ChapterPosRW : JsonValueCodec[ChapterPos]  = JsonCodecMaker.make
+  // implicit val DescriptionRW: JsonValueCodec[Description] = JsonCodecMaker.make
+  // implicit val SharedImageRW: JsonValueCodec[SharedImage] = JsonCodecMaker.make
+  // implicit val BlobRW       : JsonValueCodec[Blob]        = JsonCodecMaker.make
+  // implicit val ChapterPosRW : JsonValueCodec[ChapterPos]  = JsonCodecMaker.make
   implicit val ContentsRW: JsonValueCodec[Contents] = JsonCodecMaker.make
-  //implicit val BookmarkRW   : JsonValueCodec[Bookmark]    = JsonCodecMaker.make
+  // implicit val BookmarkRW   : JsonValueCodec[Bookmark]    = JsonCodecMaker.make
 
   implicit def OptionCodec[T: JsonValueCodec]: JsonValueCodec[Option[T]] = JsonCodecMaker.make
   implicit val HintCodec: JsonValueCodec[(Vid, Boolean)]                 = JsonCodecMaker.make

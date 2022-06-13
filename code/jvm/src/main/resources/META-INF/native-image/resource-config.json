@@ -8,6 +8,12 @@
       "pattern":"\\QMETA-INF/services/org.eclipse.jetty.websocket.api.extensions.Extension\\E"
     }, 
     {
+      "pattern":"\\QMETA-INF/services/org.jline.terminal.spi.JansiSupport\\E"
+    }, 
+    {
+      "pattern":"\\QMETA-INF/services/org.jline.terminal.spi.JnaSupport\\E"
+    }, 
+    {
       "pattern":"\\Qorg/eclipse/jetty/http/encoding.properties\\E"
     }, 
     {
@@ -17,15 +23,29 @@
       "pattern":"\\Qorg/eclipse/jetty/version/build.properties\\E"
     }, 
     {
+      "pattern":"\\Qorg/fusesource/jansi/internal/native/Linux/x86_64/libjansi.so\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/fusesource/jansi/jansi.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/jline/utils/capabilities.txt\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/jline/utils/dumb.caps\\E"
+    }, 
+    {
       "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
     }
   ]},
   "bundles":[
     {
-      "name":"javax.servlet.LocalStrings"
+      "name":"javax.servlet.LocalStrings",
+      "locales":[""]
     }, 
     {
-      "name":"javax.servlet.http.LocalStrings"
+      "name":"javax.servlet.http.LocalStrings",
+      "locales":[""]
     }
   ]
 }

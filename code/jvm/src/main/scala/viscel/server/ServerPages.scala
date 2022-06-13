@@ -13,9 +13,9 @@ class ServerPages() {
     html(
       head(
         title := "Viscel",
-        link(rel := "stylesheet", href := "style.css", `type` := "text/css"),
-        link(rel := "manifest", href := "manifest.json"),
-        link(rel := "icon", href := "icon.png", attr("sizes") := "192x192"),
+        link(rel      := "stylesheet", href  := "style.css", `type`       := "text/css"),
+        link(rel      := "manifest", href    := "manifest.json"),
+        link(rel      := "icon", href        := "icon.png", attr("sizes") := "192x192"),
         meta(attrname := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes, minimal-ui")
       )
     )(stuff: _*)
@@ -46,8 +46,8 @@ class ServerPages() {
     section(
       h1(formAction.capitalize),
       form(
-        action := formAction,
-        method := "post",
+        action  := formAction,
+        method  := "post",
         enctype := "application/x-www-form-urlencoded",
         SeqFrag(inputs.map(labelledInput(_))),
         input(`type` := "submit", value := formAction)

@@ -28,7 +28,7 @@ class DeciderTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
       val (decider, decisions) = allDecisions(empty.addTasks(requests))
       assert(requests.toSet === decisions.toSet)
       assert(decider.decide() === None)
-    //assert(decider.imageDecisions === requests.count(_.isInstanceOf[CrawlTask.Image]))
+    // assert(decider.imageDecisions === requests.count(_.isInstanceOf[CrawlTask.Image]))
     }
   }
 

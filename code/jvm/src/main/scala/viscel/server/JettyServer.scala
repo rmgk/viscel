@@ -105,19 +105,41 @@ class JettyServer(
       } match {
         case Some(user) =>
           request.setAttribute("viscel-user", user)
-          val twelveMonths: Long = 12*30*24*60
-          val userCookie = new HttpCookie("viscel-user", user.id, null, null, twelveMonths, false, false, null, -1, HttpCookie.SameSite.STRICT)
-          val passCookie = new HttpCookie("viscel-password", user.password, null, null, twelveMonths, false, false, null, -1, HttpCookie.SameSite.STRICT)
+          val twelveMonths: Long = 12 * 30 * 24 * 60
+          val userCookie = new HttpCookie(
+            "viscel-user",
+            user.id,
+            null,
+            null,
+            twelveMonths,
+            false,
+            false,
+            null,
+            -1,
+            HttpCookie.SameSite.STRICT
+          )
+          val passCookie = new HttpCookie(
+            "viscel-password",
+            user.password,
+            null,
+            null,
+            twelveMonths,
+            false,
+            false,
+            null,
+            -1,
+            HttpCookie.SameSite.STRICT
+          )
           response.addHeader("Set-Cookie", userCookie.getRFC6265SetCookie)
           response.addHeader("Set-Cookie", passCookie.getRFC6265SetCookie)
           super.handle(target, baseRequest, request, response)
         case None =>
           scribe.info(s"no credetials for ${request.getRequestURI}")
-          //scribe.info(s"cookie header: ${request.getHeader("Cookie")}")
-          //cookies.foreach { c =>
+          // scribe.info(s"cookie header: ${request.getHeader("Cookie")}")
+          // cookies.foreach { c =>
           //  scribe.info(s"cookie: ${c.getName}: ${c.getValue}")
-          //}
-          //scribe.info(s"auth: ${request.getHeader("Authorization")}")
+          // }
+          // scribe.info(s"auth: ${request.getHeader("Authorization")}")
 
           val value = "basic realm=\"viscel login\", charset=\"" + StandardCharsets.ISO_8859_1.name() + "\""
           response.addHeader(HttpHeader.WWW_AUTHENTICATE.asString(), value);
@@ -193,7 +215,7 @@ class JettyServer(
       },
       registry
     )(Bindings.bookmarksMapBindig)
-    //LociDist.distribute(handleBookmarks(userid), registry)(Bindings.bookmarksMapBindig)
+    // LociDist.distribute(handleBookmarks(userid), registry)(Bindings.bookmarksMapBindig)
 
     val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
     context.setContextPath(urlPrefix)

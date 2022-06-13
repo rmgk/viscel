@@ -14,10 +14,9 @@ object Bindings {
   implicit val _Tb: IT[Bookmark]            = IdenticallyTransmittable()
   implicit val _Tbm: IT[Map[Vid, Bookmark]] = IdenticallyTransmittable()
 
-
-  val descriptions = Binding[() => Map[Vid, Description]]("descriptions")
-  val contents = Binding[Vid => Option[Contents]]("contents")
-  val hint = Binding[(Vid, Boolean) => Unit]("hint")
+  val descriptions       = Binding[() => Map[Vid, Description]]("descriptions")
+  val contents           = Binding[Vid => Option[Contents]]("contents")
+  val hint               = Binding[(Vid, Boolean) => Unit]("hint")
   val bookmarksMapBindig = Binding[Map[Vid, Bookmark] => Unit]("bookmarksmap")
-  val version = Binding[String]("version")
+  val version            = Binding[String]("version")
 }

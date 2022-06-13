@@ -89,7 +89,7 @@ object Viscel {
     }
   }
 
-  val version: String = viscel.shared.Version.str
+  val version: String = viscel.shared.BuildInfo.version
 
   def main(args: Array[String]): Unit = {
     run(ArraySeq.unsafeWrapArray(args): _*)

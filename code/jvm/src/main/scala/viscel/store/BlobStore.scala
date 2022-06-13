@@ -53,8 +53,8 @@ object BlobStore {
 
     Files.walk(services.blobdir).iterator().asScala.filter(Files.isRegularFile(_)).foreach { bp =>
       val sha1path = s"${bp.getName(bp.getNameCount - 2)}${bp.getFileName}"
-      //val sha1 = blobs.sha1hex(Files.readAllBytes(bp))
-      //if (sha1path != sha1) Log.warn(s"$sha1path did not match")
+      // val sha1 = blobs.sha1hex(Files.readAllBytes(bp))
+      // if (sha1path != sha1) Log.warn(s"$sha1path did not match")
       seen.add(sha1path)
       if (!blobsHashesInDB.contains(sha1path)) {
         val newpath = bsn.hashToPath(sha1path)

@@ -28,7 +28,7 @@ object LociDist {
     registry.bindSbj(binding)((remoteRef: RemoteRef, newValue: A) => {
       val signal: Signal[A] = signalFun(remoteRef)
       val signalName        = signal.name.str
-      //println(s"received value for $signalName: ${newValue.hashCode()}")
+      // println(s"received value for $signalName: ${newValue.hashCode()}")
       scheduler.forceNewTransaction(signal) { admissionTicket =>
         admissionTicket.recordChange(new InitialChange {
           override val source = signal
@@ -48,7 +48,7 @@ object LociDist {
 
     def registerRemote(remoteRef: RemoteRef): Unit = {
       val signal: Signal[A] = signalFun(remoteRef)
-      //val signalName        = signal.name.str
+      // val signalName        = signal.name.str
       // println(s"registering new remote $remoteRef for $signalName")
       val remoteUpdate: A => Future[Unit] = {
         Log.Server.info(s"calling lookup on »${binding.name}«")
@@ -70,7 +70,7 @@ object LociDist {
     registry.remotes.foreach(registerRemote)
     registry.remoteJoined.foreach(registerRemote)
     registry.remoteLeft.foreach { remoteRef =>
-      //println(s"removing remote $remoteRef")
+      // println(s"removing remote $remoteRef")
       Option(observers.get(remoteRef)).foreach(_.disconnect())
     }
     ()

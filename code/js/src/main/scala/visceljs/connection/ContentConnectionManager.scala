@@ -125,7 +125,7 @@ class ContentConnectionManager(registry: Registry) {
     }
 
     val remoteLookupSignal: Signal[Signal[Option[Contents]]] = mainRemote.map { remote =>
-      //Signals.fromFuture(fetchContents(vid))
+      // Signals.fromFuture(fetchContents(vid))
       Signals.fromFuture(registry.lookup(Bindings.contents, remote).apply(vid))
     }
 
@@ -157,10 +157,10 @@ class ContentConnectionManager(registry: Registry) {
     }
   }
 
-  //eventualContents.foreach{contents =>
-  //import org.scalajs.dom.experimental.serviceworkers.CacheStorage
-  //import org.scalajs.dom.experimental.{RequestInfo, URL}
-  //import scala.scalajs.js
+  // eventualContents.foreach{contents =>
+  // import org.scalajs.dom.experimental.serviceworkers.CacheStorage
+  // import org.scalajs.dom.experimental.{RequestInfo, URL}
+  // import scala.scalajs.js
   //  Log.JS.info(s"prefetching ${vid} ")
   //  def toUrl(blob: Blob) = new URL(Definitions.path_blob(blob), dom.document.location.href)
   //  val urls = contents.gallery.toSeq.iterator.map(si => toUrl(si.blob))
@@ -186,6 +186,6 @@ class ContentConnectionManager(registry: Registry) {
   //  //      )
   //  //  }
   //  //}
-  //}
+  // }
 
 }

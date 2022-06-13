@@ -23,7 +23,7 @@ object CrawlProcessing {
     val context = ContextData(request, response)
     val contents =
       try Narration.Interpreter(context)
-        .interpret[List[DataRow.Content]](wrapper)
+          .interpret[List[DataRow.Content]](wrapper)
       catch { case r: Report => throw WrappingException(request, response, r) }
 
     CrawlProcessing.toDataRow(request, response, contents)

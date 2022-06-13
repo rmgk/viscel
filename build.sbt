@@ -31,6 +31,7 @@ lazy val viscelBundle = project.in(file(".")).settings(
 lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("code"))
+  .enablePlugins(BuildInfoPlugin)
   .settings(
     name := "viscel",
     commonSettings,
@@ -43,15 +44,8 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       "com.github.rescala-lang.rescala" %%% "kofre"   % "6d9019e946",
       loci.jsoniterScala.value,
     ),
-    Compile / sourceGenerators += Def.task {
-      val file      = (Compile / sourceManaged).value / "viscel" / "shared" / "Version.scala"
-      val outstring = s"""package viscel.shared; object Version { val str = "${version.value}"}"""
-      val current =
-        try IO.read(file)
-        catch { case _: Throwable => "" }
-      if (current != outstring) IO.write(file, outstring)
-      Seq(file)
-    }
+    buildInfoKeys    := Seq[BuildInfoKey](version),
+    buildInfoPackage := "viscel.shared"
   )
   .jvmSettings(
     fork := true,
@@ -68,20 +62,11 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     ),
     // uncomment the following to enable graal tracing to allow native image generation
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
-    nativeImageVersion := "21.3.0",
-    nativeImageJvm := "graalvm-java17",
-    // nativeImageInstalled := true,
+    nativeImageVersion := "22.1.0",
+    nativeImageJvm     := "graalvm-java17",
     nativeImageOptions ++= List(
-      "--allow-incomplete-classpath",
       "--no-fallback",
-      //"--report-unsupported-elements-at-runtime",
-      // "-H:+ReportExceptionStackTraces",
       "-H:EnableURLProtocols=http,https",
-      // "--enable-all-security-services",
-      //"-H:+JNI",
-      //"-H:+RemoveSaturatedTypeFlows",
-      //"--initialize-at-build-time",
-      //"--initialize-at-run-time=scala.util.Random,scala.util.Random$"
     ),
   )
   .jsSettings(
