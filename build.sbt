@@ -5,12 +5,15 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
 import java.security.MessageDigest
 
-inThisBuild(scalaVersion_3)
-ThisBuild / organization := "de.rmgk"
+val commonSettings = Def.settings(
+  scalaVersion_3,
+  organization := "de.rmgk"
+)
 
 lazy val viscelPackage = taskKey[File]("calls graalvm native image")
 
 lazy val viscelBundle = project.in(file(".")).settings(
+  commonSettings,
   vbundleDef,
   libraryDependencies += normalizecss.value,
   viscelPackage := {
@@ -30,14 +33,14 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .in(file("code"))
   .settings(
     name := "viscel",
-    strictCompile,
+    commonSettings,
     resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
       scribe.value,
       scalatags.value,
       scribeSlf4j.value,
-      "de.tu-darmstadt.stg" %%% "rescala" % "0.31.0+483-7845ae8a",
-      "de.tu-darmstadt.stg" %%% "kofre"   % "0.31.0+483-7845ae8a",
+      "com.github.rescala-lang.rescala" %%% "rescala" % "6d9019e946",
+      "com.github.rescala-lang.rescala" %%% "kofre"   % "6d9019e946",
       loci.jsoniterScala.value,
     ),
     Compile / sourceGenerators += Def.task {
@@ -95,7 +98,7 @@ lazy val server = viscel.jvm
 lazy val app    = viscel.js
 
 lazy val benchmarks = project.in(file("benchmarks"))
-  .settings(name := "benchmarks")
+  .settings(name := "benchmarks", commonSettings)
   .enablePlugins(JmhPlugin)
   .dependsOn(viscel.jvm)
 
