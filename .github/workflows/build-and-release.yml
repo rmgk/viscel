@@ -1,10 +1,12 @@
 name: generate native image and release
 
-# okay, this was copy pasted from many places and I do not really pretent to understand what I am doing, but many thanks to the authors of:
+# okay, this was copy pasted from many places and I do not really pretend to understand what I am doing, but many thanks to the authors of:
 # https://github.com/remkop/picocli-native-image-demo
 # for the native image guide, as well as the authors of all the used actions and their many useful examples
 
 # feel free to use any added value of this file under CC-0
+
+# also, can we please stop programming in YAML?
 
 on: 
   push:
