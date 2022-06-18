@@ -32,11 +32,13 @@ object JsoniterCodecs {
     override def encodeKey(x: Vid, out: JsonWriter): Unit = out.writeKey(x.str)
   }
 
+  val CookieMapCodec: JsonValueCodec[Map[String, String]] = JsonCodecMaker.make(CodecMakerConfig.withMapAsArray(false))
+
   // implicit val DescriptionRW: JsonValueCodec[Description] = JsonCodecMaker.make
   // implicit val SharedImageRW: JsonValueCodec[SharedImage] = JsonCodecMaker.make
   // implicit val BlobRW       : JsonValueCodec[Blob]        = JsonCodecMaker.make
   // implicit val ChapterPosRW : JsonValueCodec[ChapterPos]  = JsonCodecMaker.make
-  implicit val ContentsRW: JsonValueCodec[Contents] = JsonCodecMaker.make
+  implicit val ContentsRW: JsonValueCodec[Contents] = JsonCodecMaker.make(CodecMakerConfig.withMapAsArray(true))
   // implicit val BookmarkRW   : JsonValueCodec[Bookmark]    = JsonCodecMaker.make
 
   implicit def OptionCodec[T: JsonValueCodec]: JsonValueCodec[Option[T]] = JsonCodecMaker.make
@@ -56,6 +58,5 @@ object JsoniterCodecs {
   implicit val MapVidDescriptionCodec: JsonValueCodec[Map[Vid, Description]] = JsonCodecMaker.make
   implicit val MapVidBookmarkCodec: JsonValueCodec[Map[Vid, Bookmark]]       = JsonCodecMaker.make
 
-  implicit val CookieMapCodec: JsonValueCodec[Map[String, String]] = JsonCodecMaker.make
 
 }
