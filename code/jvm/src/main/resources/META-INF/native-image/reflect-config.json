@@ -24,10 +24,6 @@
   "name":"[Lsun.security.pkcs.SignerInfo;"
 },
 {
-  "name":"cats.Later",
-  "fields":[{"name":"0bitmap$1"}]
-},
-{
   "name":"com.sun.crypto.provider.AESCipher$General",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -237,6 +233,10 @@
   ]
 },
 {
+  "name":"scopt.OParser$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
   "name":"scribe.ANSI$",
   "fields":[{"name":"0bitmap$1"}]
 },
@@ -318,10 +318,6 @@
 },
 {
   "name":"scribe.output.LogOutput$",
-  "fields":[{"name":"0bitmap$1"}]
-},
-{
-  "name":"scribe.package$",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
@@ -475,36 +471,48 @@
   "fields":[{"name":"0bitmap$1"}]
 },
 {
+  "name":"viscel.selektiv.FlowWrapper$Extractor$",
+  "fields":[{"name":"0bitmap$11"}]
+},
+{
   "name":"viscel.selektiv.FlowWrapper$Extractor$Chapter$",
-  "fields":[{"name":"0bitmap$9"}]
-},
-{
-  "name":"viscel.selektiv.FlowWrapper$Extractor$Image",
-  "fields":[{"name":"0bitmap$5"}]
-},
-{
-  "name":"viscel.selektiv.FlowWrapper$Extractor$MixedArchive$",
-  "fields":[{"name":"0bitmap$8"}]
-},
-{
-  "name":"viscel.selektiv.FlowWrapper$Extractor$More$",
-  "fields":[{"name":"0bitmap$6"}]
-},
-{
-  "name":"viscel.selektiv.FlowWrapper$Extractor$OptionalParentMore$",
-  "fields":[{"name":"0bitmap$7"}]
-},
-{
-  "name":"viscel.selektiv.FlowWrapper$Filter$ChapterReverse",
   "fields":[{"name":"0bitmap$10"}]
 },
 {
-  "name":"viscel.selektiv.FlowWrapper$Filter$SelectSingleNext$",
+  "name":"viscel.selektiv.FlowWrapper$Extractor$Image",
+  "fields":[{"name":"0bitmap$6"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Extractor$MixedArchive$",
+  "fields":[{"name":"0bitmap$9"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Extractor$More$",
+  "fields":[{"name":"0bitmap$7"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Extractor$OptionalParentMore$",
+  "fields":[{"name":"0bitmap$8"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Filter$",
+  "fields":[{"name":"0bitmap$15"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Filter$ChapterReverse",
   "fields":[{"name":"0bitmap$12"}]
 },
 {
+  "name":"viscel.selektiv.FlowWrapper$Filter$SelectSingleNext$",
+  "fields":[{"name":"0bitmap$14"}]
+},
+{
   "name":"viscel.selektiv.FlowWrapper$Filter$TransformUrls",
-  "fields":[{"name":"0bitmap$11"}]
+  "fields":[{"name":"0bitmap$13"}]
+},
+{
+  "name":"viscel.selektiv.FlowWrapper$Restriction$",
+  "fields":[{"name":"0bitmap$5"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Restriction$NonEmpty$",
@@ -520,6 +528,18 @@
 },
 {
   "name":"viscel.server.JettyServer",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"viscel.shared.DataRow$",
+  "fields":[{"name":"0bitmap$3"}]
+},
+{
+  "name":"viscel.shared.Vid$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"viscel.shared.Vurl$",
   "fields":[{"name":"0bitmap$1"}]
 }
 ]
