@@ -2,7 +2,7 @@ package viscel.shared
 
 import scala.util.matching.Regex
 
-final class Vid private (val str: String) extends AnyVal {
+final class Vid private (val str: String) extends AnyVal derives CanEqual {
   override def toString: String = str
 }
 

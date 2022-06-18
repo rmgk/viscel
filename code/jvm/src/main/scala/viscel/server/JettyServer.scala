@@ -225,7 +225,7 @@ class JettyServer(
     context
   }
 
-  trait Handling
+  sealed trait Handling derives CanEqual
   case class Res(content: String, ct: String = "text/html; charset=UTF-8", status: Int = 200) extends Handling
   case object Unhandled                                                                       extends Handling
 

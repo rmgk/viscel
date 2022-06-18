@@ -1,7 +1,5 @@
 package viscel.server
 
-import cats.instances.string._
-import cats.syntax.eq._
 import loci.registry.Registry
 import rescala.default.{Evt, implicitScheduler}
 import kofre.base.Lattice
@@ -32,7 +30,7 @@ class Interactions(
     Log.trace(s"login: $username")
     if (username.matches("\\w+")) {
       userStore.getOrAddFirstUser(username, User(username, password, admin = true, Map()))
-        .filter(_.password === password)
+        .filter(_.password == password)
     } else None
   }
 

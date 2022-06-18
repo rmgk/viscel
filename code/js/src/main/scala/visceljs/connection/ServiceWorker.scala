@@ -13,7 +13,7 @@ import scala.util.{Failure, Success}
 
 object ServiceWorker {
 
-  def getDefined[T](ts: T*): Option[T] = ts.find(v => v != null && !scalajs.js.isUndefined(v))
+  def getDefined[T <: AnyRef](ts: T*): Option[T] = ts.find(v => v != null && !scalajs.js.isUndefined(v))
 
   val serviceWorkerOption: Option[ServiceWorkerContainer] = {
     val workerSupported_? = dom.window.navigator.serviceWorker

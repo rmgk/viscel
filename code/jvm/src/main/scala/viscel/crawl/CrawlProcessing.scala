@@ -1,6 +1,5 @@
 package viscel.crawl
 
-import cats.implicits.catsSyntaxOptionId
 import viscel.narration.Narrator.Wrapper
 import viscel.netzi.{VRequest, VResponse}
 import viscel.selektiv.Narration.ContextData
@@ -34,7 +33,7 @@ object CrawlProcessing {
   def toDataRow(request: VRequest, response: VResponse[_], contents: List[DataRow.Content]): DataRow = {
     DataRow(
       request.href,
-      response.location.some.filter(_ != request.href),
+      Some(response.location).filter(_ != request.href),
       response.lastModified,
       response.etag,
       contents

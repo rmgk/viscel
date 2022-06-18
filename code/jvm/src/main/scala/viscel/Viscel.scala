@@ -2,91 +2,107 @@ package viscel
 
 import java.lang.management.ManagementFactory
 import java.nio.file.{Path, Paths}
+import java.io.File as jFile
 
 import better.files.File
-import cats.implicits._
-import com.monovore.decline.{Command, Opts}
 import viscel.shared.Log
 import viscel.store.BlobStore
 
 import scala.collection.immutable.ArraySeq
 
+import com.softwaremill.quicklens.{modifyLens as path, *}
+
 object Viscel {
 
-  val args =
-    (
-      Opts.option[Path](long = "basedir", metavar = "directory", help = "Base directory to store settings and data.")
-        .withDefault(Paths.get("./data/")),
-      Opts.option[Int](long = "port", help = "Weberver listening port.").withDefault(2358),
-      Opts.option[String](long = "interface", metavar = "interface", help = "Interface to bind the server on.")
-        .withDefault("0"),
-      Opts.flag(long = "noserver", help = "Do not start the server.").orTrue,
-      Opts.flag(long = "nodownload", help = "Do not start the downloader.").orTrue,
-      Opts.flag(long = "cleanblobs", help = "Cleans blobs from blobstore which are no longer linked.").orFalse,
-      Opts.option[Path](
-        long = "blobdir",
-        metavar = "directory",
-        help = "Directory to store blobs (the images). Can be absolute, otherwise relative to basedir."
-      )
-        .withDefault(Paths.get("blobs")),
-      Opts.flag(long = "shutdown", help = "Shutdown directly.").orFalse,
-      Opts.option[Path](long = "static", metavar = "directory", help = "Directory of static resources.")
-        .withDefault(Paths.get("static")),
-      Opts.option[String](long = "urlprefix", metavar = "string", help = "Prefix for server URLs.").withDefault(""),
-      Opts.flag(long = "collectgarbage", help = "Finds unused parts in the database.").orFalse,
+  extension [A, C](inline oparse: scopt.OParser[A, C]) {
+    inline def lens(inline path: PathLazyModify[C, A]) = oparse.mlens(path, identity)
+    inline def mlens[B](inline path: PathLazyModify[C, B], map: A => B) =
+      oparse.action((a, c) => (path.setTo(map(a))(c)))
+    inline def vlens[B](inline path: PathLazyModify[C, B], value: B) =
+      oparse.action((a, c) => (path.setTo(value)(c)))
+  }
+
+  case class Args(
+      optBasedir: Path = Paths.get("./data"),
+      port: Int = 2358,
+      interface: String = "0",
+      server: Boolean = true,
+      core: Boolean = true,
+      cleanblobs: Boolean = true,
+      optBlobdir: Path = Paths.get("blobs"),
+      shutdown: Boolean = false,
+      optStatic: Path = Paths.get("static"),
+      urlPrefix: String = "",
+      collectDbGarbage: Boolean = false,
+  )
+
+  val soptags = {
+    val builder = scopt.OParser.builder[Args]
+    import builder.*
+    scopt.OParser.sequence(
+      programName("viscel"),
+      head("Start viscel!"),
+      help('h', "help").hidden(),
+      opt[jFile]("basedir").valueName("directory").text("Base directory to store settings and data.")
+        .mlens(path(_.optBasedir), _.toPath),
+      opt[Int]("port").text("Weberver listening port.").lens(path(_.port)),
+      opt[String]("interface").valueName("interface").text("Interface to bind the server to.").lens(path(_.interface)),
+      opt[Unit]("noserver").text("Do not start the server.").vlens(path(_.server), false),
+      opt[Unit]("nodownload").text("Do not start the downloader.").vlens(path(_.core), false),
+      opt[Unit]("cleanblobs").text("Cleans blobs from blobstore which are no longer linked.").vlens(
+        path(_.cleanblobs),
+        false
+      ),
+      opt[jFile]("blobdir").valueName("directory")
+        .text("Directory to store blobs (the images). Can be absolute, otherwise relative to basedir.")
+        .mlens(path(_.optBlobdir), _.toPath),
+      opt[Unit]("shutdown").text("Shutdown directly.").vlens(path(_.shutdown), true),
+      opt[jFile]("static").valueName("directory").text("Directory of static resources.").mlens(
+        path(_.optStatic),
+        _.toPath
+      ),
+      opt[String]("urlprefix").text("Prefix for server URLs.").lens(path(_.urlPrefix)),
+      opt[Unit]("collectgarbage").text("Finds unused parts in the database.").vlens(path(_.collectDbGarbage), true)
     )
+  }
 
-  val command: Command[Services] = Command(name = "viscel", header = "Start viscel!") {
-    args.mapN {
-      (
-          optBasedir,
-          port,
-          interface,
-          server,
-          core,
-          cleanblobs,
-          optBlobdir,
-          shutdown,
-          optStatic,
-          urlPrefix,
-          collectDbGarbage
-      ) =>
-        val staticCandidates = List(File(optBasedir.resolve(optStatic)), File(optStatic))
+  def makeService(args: Args): Services = {
+    import args.*
+    val staticCandidates = List(File(optBasedir.resolve(optStatic)), File(optStatic))
 
-        val staticDir =
-          staticCandidates.find(_.isDirectory)
-            .getOrElse {
-              println(s"Missing static resource directory, " +
-                s"tried ${staticCandidates.map(c => s"»$c«").mkString(", ")}.")
-              sys.exit(0)
-            }
-
-        val services = new Services(optBasedir, optBlobdir, staticDir.path, urlPrefix, interface, port)
-
-        if (cleanblobs) {
-          BlobStore.cleanBlobDirectory(services)
+    val staticDir =
+      staticCandidates.find(_.isDirectory)
+        .getOrElse {
+          println(s"Missing optStatic resource directory, " +
+            s"tried ${staticCandidates.map(c => s"»$c«").mkString(", ")}.")
+          sys.exit(0)
         }
 
-        if (collectDbGarbage) {
-          services.rowStore.computeGarbage()
-        }
+    val services = new Services(optBasedir, optBlobdir, staticDir.path, urlPrefix, interface, port)
 
-        if (server) {
-          Log.Main.info(s"starting server")
-          services.startServer()
-        }
-
-        if (core) {
-          services.clockwork.recheckPeriodically()
-          services.activateNarrationHint()
-        }
-
-        if (shutdown) {
-          services.terminateEverything(server)
-        }
-        Log.Main.info(s"initialization done in ${ManagementFactory.getRuntimeMXBean.getUptime}ms")
-        services
+    if (cleanblobs) {
+      BlobStore.cleanBlobDirectory(services)
     }
+
+    if (collectDbGarbage) {
+      services.rowStore.computeGarbage()
+    }
+
+    if (server) {
+      Log.Main.info(s"starting server")
+      services.startServer()
+    }
+
+    if (core) {
+      services.clockwork.recheckPeriodically()
+      services.activateNarrationHint()
+    }
+
+    if (shutdown) {
+      services.terminateEverything(server)
+    }
+    Log.Main.info(s"initialization done in ${ManagementFactory.getRuntimeMXBean.getUptime}ms")
+    services
   }
 
   val version: String = viscel.shared.BuildInfo.version
@@ -96,13 +112,8 @@ object Viscel {
     ()
   }
 
-  def run(args: String*): Services = {
+  def run(args: String*): Option[Services] = {
     Log.Main.info(s"Viscel version $version")
-    command.parse(args) match {
-      case Left(help) =>
-        println(help)
-        sys.exit(0)
-      case Right(service) => service
-    }
+    scopt.OParser.parse(soptags, args, Args()).map(makeService)
   }
 }

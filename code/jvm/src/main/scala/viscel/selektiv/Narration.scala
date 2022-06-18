@@ -30,6 +30,10 @@ object Narration {
   sealed trait WrapPart[+T] {
     def map[U](fun: T => U): WrapPart[U] = Combination.of(this, Constant(()))((a, _) => fun(a))
   }
+  object WrapPart {
+    // this is not very safe, but good enough for now
+    given [A, B]: CanEqual[WrapPart[A], WrapPart[B]] = CanEqual.canEqualAny
+  }
 
   case class Constant[T](value: T) extends WrapPart[T]
 

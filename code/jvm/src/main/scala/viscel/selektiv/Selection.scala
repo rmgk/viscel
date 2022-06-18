@@ -13,7 +13,7 @@ import scala.jdk.CollectionConverters._
 
 object FlowWrapper {
 
-  sealed trait Restriction {
+  sealed trait Restriction derives CanEqual {
 
     lazy val (min, max) = this match {
       case Restriction.Unique    => (1, 1)
@@ -34,7 +34,7 @@ object FlowWrapper {
     object AtMostOne extends Restriction
   }
 
-  sealed trait Extractor {
+  sealed trait Extractor derives CanEqual {
     lazy val extract: Element => List[DataRow.Content] = this match {
       case Extractor.Image(attribute) => e => List(imageFromAttribute(e, attribute))
       case Extractor.More => e =>
@@ -54,7 +54,7 @@ object FlowWrapper {
     object Chapter                                     extends Extractor
   }
 
-  sealed trait Filter {
+  sealed trait Filter derives CanEqual {
     lazy val filter: List[DataRow.Content] => List[DataRow.Content] = this match {
       case Filter.ChapterReverse(reverseInner) => chapterReverse(_, reverseInner)
       case Filter.TransformUrls(replacements)  => ViscelDefinition.transformUrls(replacements)

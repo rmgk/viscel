@@ -6,7 +6,7 @@ import rescala.default.{Event, Evt, implicitScheduler, Events}
 import visceljs.render.FitType
 
 object Navigation {
-  sealed trait Navigate
+  sealed trait Navigate derives CanEqual
   case object Next            extends Navigate
   case object Prev            extends Navigate
   case class Mode(i: FitType) extends Navigate

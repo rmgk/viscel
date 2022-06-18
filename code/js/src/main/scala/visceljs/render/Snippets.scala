@@ -10,7 +10,7 @@ import viscel.shared.{Blob, SharedImage}
 import visceljs.Definitions._
 import visceljs.{Definitions, Icons, MetaInfo}
 
-sealed trait FitType {
+sealed trait FitType derives CanEqual {
   def next: FitType =
     this match {
       case FitType.W   => FitType.WH

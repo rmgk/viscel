@@ -48,6 +48,7 @@ object Settings {
   def settingsFor(version: String) =
     version match {
       case a if a.startsWith("2.13") => List("-Ytasty-reader")
+      case a if a.startsWith("3")    => List("-language:strictEquality")
       case other                     => Nil
     }
 

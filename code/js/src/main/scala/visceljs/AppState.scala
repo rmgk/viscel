@@ -5,7 +5,7 @@ import scala.scalajs.js.URIUtils.decodeURIComponent
 import viscel.shared.Vid
 import visceljs.AppState.ViewState
 
-sealed abstract class AppState(val urlhash: String) {
+sealed abstract class AppState(val urlhash: String) derives CanEqual {
   def transformPos(f: Int => Int) =
     this match {
       case ViewState(id, pos) => ViewState(id, f(pos))
