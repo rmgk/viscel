@@ -112,6 +112,7 @@ class ContentConnectionManager(registry: Registry) {
     val locallookup = {
       lfi.getItem[Int8Array](vid.str).toFuture
         .map((bytes: Int8Array) =>
+          if bytes == null then throw NoSuchElementException(s"no local data for ${vid.str}")
           try readFromByteBuffer[Contents](TypedArrayBuffer.wrap(bytes))(JsoniterCodecs.ContentsRW)
           catch {
             case e: Throwable =>
@@ -126,8 +127,12 @@ class ContentConnectionManager(registry: Registry) {
 
     val remoteLookupSignal: Signal[Signal[Option[Contents]]] = mainRemote.map { remote =>
       // Signals.fromFuture(fetchContents(vid))
-      Signals.fromFuture(registry.lookup(Bindings.contents, remote).apply(vid))
+      val fut = registry.lookup(Bindings.contents, remote).apply(vid)
+      fut.failed.foreach{f => println(s"loading ${vid} failed: $f")}
+      Signals.fromFuture(fut)
     }
+
+    remoteLookupSignal.flatten.observe{oc => println(s"remote state changed for ${vid.str}: $oc")}
 
     priorContentSignal.foreach(_.disconnect())
     priorContentSignal = Some(remoteLookupSignal)
