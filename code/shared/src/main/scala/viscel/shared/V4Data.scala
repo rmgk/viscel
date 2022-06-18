@@ -2,7 +2,6 @@ package viscel.shared
 
 import java.net.URL
 import java.time.Instant
-//import io.lemonlabs.uri.AbsoluteUrl
 
 import viscel.shared.DataRow._
 

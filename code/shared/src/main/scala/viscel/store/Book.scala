@@ -3,6 +3,8 @@ package viscel.store
 import viscel.shared.DataRow.Link
 import viscel.shared.{DataRow, Log, Vid, Vurl}
 
+import scala.annotation.tailrec
+
 case class Book(id: Vid, name: String, pages: Map[Vurl, DataRow] = Map()) {
 
   def notJustBlob(loc: Vurl): Boolean =
@@ -14,6 +16,7 @@ case class Book(id: Vid, name: String, pages: Map[Vurl, DataRow] = Map()) {
   def hasPage(ref: Vurl): Boolean = pages.contains(ref)
 
   def reachable(): Set[Vurl] = {
+    @tailrec
     def rec(check: List[Vurl], acc: Set[Vurl]): Set[Vurl] = {
       check match {
         case Nil => acc
