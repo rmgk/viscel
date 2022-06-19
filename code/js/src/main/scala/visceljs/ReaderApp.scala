@@ -2,15 +2,13 @@ package visceljs
 
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import org.scalajs.dom
-import org.scalajs.dom.URL
-import org.scalajs.dom.html
-import org.scalajs.dom.HashChangeEvent
-import rescala.default._
+import org.scalajs.dom.{HashChangeEvent, URL, html}
+import rescala.default.{Event, Events, Signal}
 import scalatags.JsDom.TypedTag
 import viscel.shared.{Bookmark, Contents, Description, Log, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
 import visceljs.Navigation.{Mode, Next, Position, Prev, navigationEvents}
-import visceljs.render.{FitType, DetailsPage, OverviewPage, Snippets, ImagePage}
+import visceljs.render.{DetailsPage, FitType, ImagePage, OverviewPage, Snippets}
 import visceljs.storage.Storing
 
 import scala.collection.immutable.Map
@@ -58,9 +56,9 @@ class ReaderApp(
 
     val currentPosition = Events.foldAll(Position(initialAppState.position, None))(acc =>
       Seq(
-        setCurrentPostition act acc.set,
-        navigationEvents act acc.mov,
-        maxPosition act acc.limit
+        setCurrentPostition act { t => acc.set(t) },
+        navigationEvents act { t => acc.mov(t) },
+        maxPosition act { t => acc.limit(t) }
       )
     )
 
@@ -74,7 +72,7 @@ class ReaderApp(
         val currentHash = getHash().drop(1)
         if (nextHash != currentHash) {
           Log.JS.debug(s"pushing ${nextHash} was $currentHash")
-          dom.window.history.pushState(null, null, "#" + as.urlhash)
+          dom.window.history.pushState(null, null, s"#${as.urlhash}")
         }
       }
     )
