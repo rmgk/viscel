@@ -50,8 +50,7 @@ object JsoniterCodecs {
     override def nullValue: Vurl                                  = null.asInstanceOf[Vurl]
   }
 
-  implicit val DataRowRw: JsonValueCodec[DataRow] =
-    JsonCodecMaker.make(CodecMakerConfig.withDiscriminatorFieldName(None))
+  implicit val DataRowRw: JsonValueCodec[DataRow] = JsonCodecMaker.makeWithoutDiscriminator
   implicit val DataRowListRw: JsonValueCodec[List[DataRow]] = JsonCodecMaker.make
 
   implicit val MapVidLongCodec: JsonValueCodec[Map[Vid, Long]]               = JsonCodecMaker.make

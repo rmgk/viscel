@@ -28,7 +28,7 @@ object Viscel {
       interface: String = "0",
       server: Boolean = true,
       core: Boolean = true,
-      cleanblobs: Boolean = true,
+      cleanblobs: Boolean = false,
       optBlobdir: Path = Paths.get("blobs"),
       shutdown: Boolean = false,
       optStatic: Path = Paths.get("static"),
@@ -49,18 +49,14 @@ object Viscel {
       opt[String]("interface").valueName("interface").text("Interface to bind the server to.").lens(path(_.interface)),
       opt[Unit]("noserver").text("Do not start the server.").vlens(path(_.server), false),
       opt[Unit]("nodownload").text("Do not start the downloader.").vlens(path(_.core), false),
-      opt[Unit]("cleanblobs").text("Cleans blobs from blobstore which are no longer linked.").vlens(
-        path(_.cleanblobs),
-        false
-      ),
+      opt[Unit]("cleanblobs").text("Cleans blobs from blobstore which are no longer linked.")
+        .vlens(path(_.cleanblobs), true),
       opt[jFile]("blobdir").valueName("directory")
         .text("Directory to store blobs (the images). Can be absolute, otherwise relative to basedir.")
         .mlens(path(_.optBlobdir), _.toPath),
       opt[Unit]("shutdown").text("Shutdown directly.").vlens(path(_.shutdown), true),
-      opt[jFile]("static").valueName("directory").text("Directory of static resources.").mlens(
-        path(_.optStatic),
-        _.toPath
-      ),
+      opt[jFile]("static").valueName("directory").text("Directory of static resources.")
+        .mlens(path(_.optStatic), _.toPath),
       opt[String]("urlprefix").text("Prefix for server URLs.").lens(path(_.urlPrefix)),
       opt[Unit]("collectgarbage").text("Finds unused parts in the database.").vlens(path(_.collectDbGarbage), true)
     )

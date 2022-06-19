@@ -1,12 +1,13 @@
 package viscel.store
 
 import java.nio.file.Path
-
 import better.files.File
 import viscel.narration.Narrator
 import viscel.shared.DataRow.Link
-import viscel.shared.Log.{Store => Log}
+import viscel.shared.Log.Store as Log
 import viscel.shared.{DataRow, JsoniterCodecs, Vid}
+
+import scala.util.control.NonFatal
 
 class RowStoreV4(db4dir: Path) {
 
@@ -42,9 +43,13 @@ class RowStoreV4(db4dir: Path) {
       if (!f.isRegularFile || f.size == 0)
         throw new IllegalStateException(s"$f does not contain data")
       else {
-        val res = DBParser.parse(f.byteArray)
-        Log.info(s"loading $id (${System.currentTimeMillis() - start}ms)")
-        res
+        try
+          val res = DBParser.parse(f.byteArray)
+          Log.info(s"loading »$id« (${System.currentTimeMillis() - start}ms)")
+          res
+        catch case NonFatal(e) =>
+          Log.error(s"loading failed »$id«")
+          throw e
       }
     }
 
