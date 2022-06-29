@@ -12,9 +12,6 @@
   "name":"[Ljava.nio.file.LinkOption;"
 },
 {
-  "name":"[Ljava.nio.file.OpenOption;"
-},
-{
   "name":"[Lorg.eclipse.jetty.rewrite.handler.Rule;"
 },
 {
@@ -332,6 +329,10 @@
 },
 {
   "name":"scribe.output.LogOutput$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.package$",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
