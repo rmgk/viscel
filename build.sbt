@@ -35,12 +35,13 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "viscel",
     commonSettings,
-    resolvers += "jitpack" at "https://jitpack.io",
+    jitpackResolver,
     libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
       scribe.value,
       scalatags.value,
       scribeSlf4j.value,
       quicklens.value,
+      slips.delay.value,
       "com.github.rescala-lang.rescala" %%% "rescala" % "6d9019e946",
       "com.github.rescala-lang.rescala" %%% "kofre"   % "6d9019e946",
       loci.jsoniterScala.value,

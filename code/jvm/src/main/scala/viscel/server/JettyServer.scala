@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets
 import java.util.Base64
 import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
-import scala.concurrent.Await
+import scala.concurrent.{Await, Promise}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -261,7 +261,7 @@ class JettyServer(
               List("url").flatMap(key => params.get(key).flatMap(_.headOption)) match {
                 case List(url) =>
                   import scala.concurrent.ExecutionContext.Implicits.global
-                  val fut = interactions.addNarratorsFrom(url).map(v => s"found $v")
+                  val fut = interactions.addNarratorsFrom(url).map(v => s"found $v").runToFuture(using ())
                   Res(Await.result(fut, 60.seconds))
                 case _ =>
                   Res("invalid parameters", status = 500)

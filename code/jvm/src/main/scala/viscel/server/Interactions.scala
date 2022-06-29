@@ -12,6 +12,7 @@ import viscel.shared.{Bindings, BookmarksMap, Vid}
 import viscel.store.{NarratorCache, User, Users}
 import rescala.default._
 import viscel.Viscel
+import de.rmgk.delay.Async
 
 import scala.collection.immutable.Map
 import scala.concurrent.Future
@@ -24,7 +25,7 @@ class Interactions(
     requestUtil: WebRequestInterface
 ) {
 
-  def addNarratorsFrom(url: String): Future[List[Narrator]] = narratorCache.add(url, requestUtil)
+  def addNarratorsFrom(url: String): Async[Any, List[Narrator]] = narratorCache.add(url, requestUtil)
 
   def authenticate(username: String, password: String): Option[User] = {
     Log.trace(s"login: $username")

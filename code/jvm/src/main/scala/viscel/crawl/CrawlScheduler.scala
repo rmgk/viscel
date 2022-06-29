@@ -1,21 +1,19 @@
 package viscel.crawl
 
-import java.net.SocketTimeoutException
-import java.nio.file.Path
-import java.util.concurrent.CancellationException
-import java.util.{Timer, TimerTask}
-
+import de.rmgk.delay.Async
 import viscel.narration.Narrator
 import viscel.shared.{JsoniterCodecs, Vid}
 import viscel.store.{JsoniterStorage, NarratorCache, Users}
 
+import java.net.SocketTimeoutException
+import java.nio.file.Path
+import java.util.concurrent.CancellationException
+import java.util.{Timer, TimerTask}
 import scala.collection.immutable.Map
-import scala.concurrent.ExecutionContext
 
 class CrawlScheduler(
     path: Path,
     crawlServices: CrawlServices,
-    ec: ExecutionContext,
     userStore: Users,
     narratorCache: NarratorCache
 ) {
@@ -50,16 +48,18 @@ class CrawlScheduler(
       if (!running.contains(narrator.id) && needsRecheck(narrator.id, recheckInterval)) {
 
         running = running + narrator.id
-        implicit val iec: ExecutionContext = ec
 
-        val fut = crawlServices.startCrawling(narrator)
-          .andThen { case _ => CrawlScheduler.this.synchronized { running = running - narrator.id } }
-        fut.failed.foreach(logError(narrator))
-        fut.foreach { _ =>
+        Async[Any] {
+          crawlServices.startCrawling(narrator).await
+          CrawlScheduler.this.synchronized { running = running - narrator.id }
           log.info(s"[${narrator.id}] update complete")
           updateDates(narrator.id)
-        }
-        fut.onComplete { _ => synchronized { if (running.isEmpty) System.gc() } }
+        }.run{ res =>
+          synchronized { if (running.isEmpty) System.gc() }
+          res match
+            case Left(error) => logError(narrator)(error)
+            case Right(()) =>
+        }(using ())
       }
     }
 

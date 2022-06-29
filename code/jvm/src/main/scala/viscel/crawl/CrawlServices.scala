@@ -1,27 +1,25 @@
 package viscel.crawl
 
-import java.util.concurrent.CancellationException
-
+import de.rmgk.delay.Async
 import viscel.narration.Narrator
 import viscel.netzi.{VRequest, VResponse, WebRequestInterface}
 import viscel.shared.{DataRow, Log}
 import viscel.store.{BlobStore, Book, DescriptionCache, RowAppender, RowStoreV4}
 
-import scala.concurrent.{ExecutionContext, Future}
+import java.util.concurrent.CancellationException
 
 class CrawlServices(
     blobStore: BlobStore,
     requestUtil: WebRequestInterface,
     rowStore: RowStoreV4,
     descriptionCache: DescriptionCache,
-    executionContext: ExecutionContext
 ) {
 
   @volatile private var cancel: Boolean = false
 
-  def shutdown() = cancel = true
+  def shutdown(): Unit = cancel = true
 
-  def startCrawling(narrator: Narrator): Future[Unit] = {
+  def startCrawling(narrator: Narrator): Async[Any, Unit] = {
     val appender = rowStore.open(narrator)
     val book     = rowStore.loadBook(narrator.id)
 
@@ -45,15 +43,16 @@ class CrawlServices(
 
   class Crawling(narrator: Narrator, rowAppender: RowAppender) {
 
-    def crawlLoop(cs: CrawlState): Future[Unit] = {
-      if (cancel) return Future.failed(new CancellationException("orderly shutdown"))
+    def crawlLoop(cs: CrawlState): Async[Any, Unit] = {
+      if (cancel) return Async { throw CancellationException("orderly shutdown") }
       cs.decider.decide() match {
         case Some((request, nextDecider)) =>
-          requestUtil.get(request).flatMap { response =>
+          Async {
+            val response              = requestUtil.get(request).await
             val nextState: CrawlState = handleResponse(cs.book, response, request, nextDecider)
-            crawlLoop(nextState)
-          }(executionContext)
-        case None => Future.successful(())
+            crawlLoop(nextState).await
+          }
+        case None => Async { () }
       }
     }
 

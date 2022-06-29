@@ -1,9 +1,5 @@
 package viscel
 
-import java.nio.file.{Files, Path}
-import java.util.TimerTask
-import java.util.concurrent.{LinkedBlockingQueue, SynchronousQueue, ThreadPoolExecutor, TimeUnit}
-
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
@@ -12,6 +8,9 @@ import viscel.server.{ContentLoader, Interactions, JettyServer, ServerPages}
 import viscel.shared.{JsoniterCodecs, Log}
 import viscel.store.{BlobStore, DescriptionCache, JsoniterStorage, NarratorCache, RowStoreV4, Users}
 
+import java.nio.file.{Files, Path}
+import java.util.TimerTask
+import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.util.control.NonFatal
 
@@ -87,27 +86,16 @@ class Services(
 
   /* ====== clockwork ====== */
 
-  lazy val computeExecutor: ThreadPoolExecutor = {
-    val res = new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]())
-    res.allowCoreThreadTimeOut(true)
-    res
-  }
-
-  lazy val computeExecutionContext: ExecutionContextExecutor =
-    ExecutionContext.fromExecutor(computeExecutor)
-
   lazy val crawl: CrawlServices = new CrawlServices(
     blobStore = blobStore,
     requestUtil = requests,
     rowStore = rowStore,
     descriptionCache = descriptionCache,
-    executionContext = computeExecutionContext
   )
 
   lazy val clockwork: CrawlScheduler = new CrawlScheduler(
     path = cachedir.resolve("crawl-times.json"),
     crawlServices = crawl,
-    ec = computeExecutionContext,
     userStore = userStore,
     narratorCache = narratorCache
   )
@@ -134,7 +122,6 @@ class Services(
       new TimerTask {
         override def run(): Unit = {
           crawl.shutdown()
-          computeExecutor.shutdown()
           requests.executorService.shutdown()
           if (startedServer) server.stop()
         }

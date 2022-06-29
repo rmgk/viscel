@@ -1,14 +1,15 @@
 package viscel.store
 
-import java.nio.file.Path
-import com.github.plokhotnyuk.jsoniter_scala.core._
+import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
+import de.rmgk.delay.Async
 import viscel.narration.{Metarrator, Narrator, ViscelDefinition}
 import viscel.netzi.{VRequest, WebRequestInterface}
 import viscel.selektiv.Narration
 import viscel.selektiv.Narration.ContextData
 import viscel.shared.{Log, Vid, Vurl}
 
+import java.nio.file.Path
 import scala.annotation.nowarn
 import scala.collection.immutable.{Map, Set}
 import scala.concurrent.Future
@@ -33,12 +34,16 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
   def loadNarrators[T](metarrator: Metarrator[T]): Set[Narrator] = load(metarrator).map(metarrator.toNarrator)
 
-  def add(start: String, requestUtil: WebRequestInterface): Future[List[Narrator]] = {
-    def go[T](metarrator: Metarrator[T], url: Vurl): Future[List[Narrator]] = {
+  def add(start: String, requestUtil: WebRequestInterface): Async[Any, List[Narrator]] = {
+    def go[T](metarrator: Metarrator[T], url: Vurl): Async[Any, List[Narrator]] = {
       val request = VRequest(url)
-      requestUtil.get(request).map { resp =>
+      Async {
+        val resp = requestUtil.get(request).await
         val respc = resp.copy(content =
-          resp.content.fold(_ => throw new IllegalStateException(s"response for »$url« contains binary data"), identity)
+          resp.content.fold(
+            _ => throw new IllegalStateException(s"response for »$url« contains binary data"),
+            identity
+          )
         )
         val contextData = ContextData(request, respc)
         val nars        = Narration.Interpreter(contextData).interpret(metarrator.wrap)
@@ -47,16 +52,16 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
           updateCache()
           nars.map(metarrator.toNarrator)
         }
-      }(scala.concurrent.ExecutionContext.global)
+      }
     }
 
     try {
       Narrator.metas.map(m => (m, m.unapply(start)))
         .collectFirst { case (m, Some(uri)) => go(m, uri) }
-        .getOrElse(Future.failed(new IllegalArgumentException(s"$start is not handled")))
+        .getOrElse(Async { throw new IllegalArgumentException(s"$start is not handled") })
 
     } catch {
-      case e: Exception => Future.failed(e)
+      case e: Exception => Async { throw e }
     }
   }
 
