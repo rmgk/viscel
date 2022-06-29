@@ -29,7 +29,7 @@ object Dependencies {
     val scala211           = "2.11.12"
     val scala212           = "2.12.15"
     val scala213           = "2.13.8"
-    val scala3             = "3.1.3-RC5"
+    val scala3             = "3.1.3"
     val scalaJavaTime      = "2.3.0"
     val scalaLoci          = "609b4c1b58"
     val scalaSwing         = "3.0.0"
@@ -49,7 +49,7 @@ object Dependencies {
 
   import Dependencies.{Versions => V}
 
-  val betterFiles     = Def.setting("com.github.pathikrit" %% "better-files" % V.betterFiles)
+  val betterFiles     = Def.setting(("com.github.pathikrit" %% "better-files" % V.betterFiles).cross(CrossVersion.for3Use2_13))
   val catsCore        = Def.setting("org.typelevel" %%% "cats-core" % V.catsCore)
   val decline         = Def.setting("com.monovore" %%% "decline" % V.decline)
   val directories     = Def.setting("dev.dirs" % "directories" % V.directories)

@@ -7,3 +7,5 @@ log.txt
 .bloop/
 out/
 .bsp/
+.metals/
+metals.sbt
