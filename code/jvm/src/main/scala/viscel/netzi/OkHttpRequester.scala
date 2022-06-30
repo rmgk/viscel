@@ -1,6 +1,6 @@
 package viscel.netzi
 
-import de.rmgk.delay.Async
+import de.rmgk.delay.{Async, fail, succeed}
 
 import java.io.IOException
 import java.time.{Duration, Instant}
@@ -54,10 +54,10 @@ class OkHttpRequester(
     val okrequest = vreqToOkReq(request)
     Log.Crawl.info(s"request ${okrequest.url()}${Option(okrequest.header(referrer)).fold("")(r => s" ($r)")}")
     val res = Async[Any] {
-      val resp = Async.fromCallback[(Response, Call)] { handler =>
+      val resp = Async.fromCallback {
         client.newCall(okrequest).enqueue(new Callback {
-          override def onFailure(call: Call, e: IOException): Unit      = handler(Left(e))
-          override def onResponse(call: Call, response: Response): Unit = handler(Right((response, call)))
+          override def onFailure(call: Call, e: IOException): Unit      = Async.handler.fail(e)
+          override def onResponse(call: Call, response: Response): Unit = Async.handler.succeed((response, call))
         })
       }.await
       val (response, call) = resp
