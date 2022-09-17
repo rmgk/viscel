@@ -38,7 +38,7 @@ object WebToons extends Metarrator[WebToon]("WebToons") {
     val url_?  = Selection.unique("#_btnEpisode").map(extractURL)
     val name_? = Selection.unique("#content .detail_header .info .subj").map(e => extract(e.ownText()))
     Combination.of(url_?, name_?) { (url, name) =>
-      val rex"https://www.webtoons.com/[^/]+/[^/]+/($cid[^/]+)/.*" = url.uriString()
+      val rex"https://www.webtoons.com/[^/]+/[^/]+/($cid[^/]+)/.*" = url.uriString(): @unchecked
       List(WebToon(cid, name, url))
     }
   }

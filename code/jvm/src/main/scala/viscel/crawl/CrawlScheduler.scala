@@ -50,7 +50,7 @@ class CrawlScheduler(
         running = running + narrator.id
 
         Async[Any] {
-          crawlServices.startCrawling(narrator).await
+          crawlServices.startCrawling(narrator).bind
           CrawlScheduler.this.synchronized { running = running - narrator.id }
           log.info(s"[${narrator.id}] update complete")
           updateDates(narrator.id)

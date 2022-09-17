@@ -38,7 +38,7 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
     def go[T](metarrator: Metarrator[T], url: Vurl): Async[Any, List[Narrator]] = {
       val request = VRequest(url)
       Async {
-        val resp = requestUtil.get(request).await
+        val resp = requestUtil.get(request).bind
         val respc = resp.copy(content =
           resp.content.fold(
             _ => throw new IllegalStateException(s"response for »$url« contains binary data"),

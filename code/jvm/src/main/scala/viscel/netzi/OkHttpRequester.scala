@@ -1,6 +1,6 @@
 package viscel.netzi
 
-import de.rmgk.delay.{Async, fail, succeed}
+import de.rmgk.delay.{Async}
 
 import java.io.IOException
 import java.time.{Duration, Instant}
@@ -59,7 +59,7 @@ class OkHttpRequester(
           override def onFailure(call: Call, e: IOException): Unit      = Async.handler.fail(e)
           override def onResponse(call: Call, response: Response): Unit = Async.handler.succeed((response, call))
         })
-      }.await
+      }.bind
       val (response, call) = resp
       try
         if (!response.isSuccessful)

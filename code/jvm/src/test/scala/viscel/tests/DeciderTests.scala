@@ -20,7 +20,7 @@ class DeciderTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
   "empty" - {
     "decide" in { assert(empty.decide() === None) }
     "add" in forAll { (req: VRequest) =>
-      val Some((decision, next)) = empty.addTasks(List(req)).decide()
+      val Some((decision, next)) = empty.addTasks(List(req)).decide(): @unchecked
       assert(decision === req)
       assert(next.decide() === None)
     }

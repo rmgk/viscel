@@ -47,7 +47,7 @@ object Tapas extends Metarrator[Tapas]("Tapas") {
     val canon_? = Selection.unique("link[rel=canonical]").map(extractURL)
 
     val cn_? = Combination.of(canon_?, name_?) { (canon, name) =>
-      val rex"https://tapas.io/series/($cid[^/]+)/info" = canon.uriString()
+      val rex"https://tapas.io/series/($cid[^/]+)/info" = canon.uriString() : @unchecked
       (cid, name)
     }
 

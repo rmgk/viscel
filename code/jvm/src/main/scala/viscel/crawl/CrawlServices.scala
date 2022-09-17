@@ -48,9 +48,9 @@ class CrawlServices(
       cs.decider.decide() match {
         case Some((request, nextDecider)) =>
           Async {
-            val response              = requestUtil.get(request).await
+            val response              = requestUtil.get(request).bind
             val nextState: CrawlState = handleResponse(cs.book, response, request, nextDecider)
-            crawlLoop(nextState).await
+            crawlLoop(nextState).bind
           }
         case None => Async { () }
       }
