@@ -38,7 +38,7 @@ jobs:
       - name: generate native image
         run: |
           sbt writeClasspath viscelPackage
-          native-image @code/target/classpath.txt viscel.Viscel
+          native-image @code/jvm/target/classpath.txt viscel.Viscel
           rm viscel.build_artifacts.txt
 
       - name: copy static files
@@ -46,7 +46,7 @@ jobs:
         run: |
           mkdir -p bundle
           cp -r target/resources/static bundle/
-          cp viscel.* bundle/
+          cp viscel* bundle/
       - name: Publish artifact
         uses: actions/upload-artifact@master
         with:
@@ -61,10 +61,10 @@ jobs:
       - name: fix executable bit and create archives
         run: |
           chmod +x viscel-ubuntu-22.04/viscel
-          chmod +x viscel-macos-12/viscel
+          chmod +x viscel-macOS-12/viscel
           zip -r viscel-windows.zip viscel-windows-2022/*
           tar -zcvf viscel-linux.tar.gz viscel-ubuntu-22.04/*
-          tar -zcvf viscel-macos.tar.gz viscel-macos-12/*
+          tar -zcvf viscel-macOS.tar.gz viscel-macOS-12/*
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -102,6 +102,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: viscel-macos.tar.gz
-          asset_name: viscel-macos.tar.gz
+          asset_path: viscel-macOS.tar.gz
+          asset_name: viscel-macOS.tar.gz
           asset_content_type: application/gzip
