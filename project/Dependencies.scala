@@ -40,7 +40,7 @@ object Dependencies {
     val scalatest          = "3.2.14"
     val scalatestpluscheck = "3.2.14.0"
     val scopt              = "4.1.0"
-    val scribe             = "3.10.3"
+    val scribe             = "3.8.3"
     val slips              = "0.4.5"
     val sourcecode         = "0.3.0"
     val tomlScala          = "0.2.2"
