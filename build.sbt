@@ -18,7 +18,6 @@ lazy val viscelBundle = project.in(file(".")).settings(
   libraryDependencies += normalizecss.value,
   viscelPackage := {
     (vbundle).value
-    (server / nativeImage).value
   },
   run := {
     (server / Compile / run).dependsOn(vbundle).evaluated
@@ -51,6 +50,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   )
   .jvmSettings(
     fork := true,
+    writeClasspath,
     libraryDependencies ++= Seq(
       betterFiles.value.cross(CrossVersion.for3Use2_13),
       scopt.value,
@@ -63,13 +63,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       jetty.value
     ),
     // uncomment the following to enable graal tracing to allow native image generation
-    // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image",
-    nativeImageVersion := "22.1.0",
-    nativeImageJvm     := "graalvm-java17",
-    nativeImageOptions ++= List(
-      "--no-fallback",
-      "-H:EnableURLProtocols=http,https",
-    ),
+    // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image/generated",
   )
   .jsSettings(
     libraryDependencies ++= Seq(
@@ -79,7 +73,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     ),
     scalaJSUseMainModuleInitializer := true
   )
-  .enablePlugins(NativeImagePlugin)
 
 lazy val server = viscel.jvm
 lazy val app    = viscel.js
@@ -172,6 +165,3 @@ def bundleStuff(
   bundleTarget.toFile
 }
 
-// fix some linting nonsense
-Global / excludeLintKeys += nativeImageVersion
-Global / excludeLintKeys += nativeImageJvm

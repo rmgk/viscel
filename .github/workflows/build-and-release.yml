@@ -15,85 +15,56 @@ on:
     - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
-  build-windows:
+  build-native-image:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2016]
-
+        # if these are updated, also update the references below
+        os: [macOS-12, ubuntu-22.04, windows-2022]
     steps:
       - uses: actions/checkout@v2
       - uses: coursier/cache-action@v6
         continue-on-error: true
-      - uses: actions/setup-java@v1
+      - uses: graalvm/setup-graalvm@v1
         with:
-          java-version: 17
-      - name: test sbt compile
+          version: '22.3.0'
+          java-version: '17'
+          components: 'native-image,js'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: coursier/setup-action@v1
+        with:
+          apps: sbt
+      - name: generate native image
         run: |
-          sbt compile
-      - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
-        run: |
-          choco install visualstudio2017-workload-vctools
-      - name: set env variables and run the build
-        shell: cmd
-        run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          sbt viscelPackage
+          sbt writeClasspath viscelBundle
+          native-image @code/target/classpath.txt viscel.Viscel
+          rm viscel.build_artifacts.txt
+
       - name: copy static files
         shell: bash
         run: |
           mkdir -p bundle
           cp -r target/resources/static bundle/
-          cp code/jvm/target/native-image/viscel.exe bundle/
+          cp viscel.* bundle/
       - name: Publish artifact
         uses: actions/upload-artifact@master
         with:
           name: viscel-${{ matrix.os }}
           path: bundle
-
-  build-ubuntu-mac:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04, macos-10.15]
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: coursier/cache-action@v6
-      continue-on-error: true
-    - uses: actions/setup-java@v1
-      with:
-        java-version: 17
-    - name: build
-      shell: bash
-      run: |
-        sbt viscelPackage
-    - name: copy static files
-      shell: bash
-      run: |
-        mkdir -p bundle
-        cp -r target/resources/static bundle/
-        cp code/jvm/target/native-image/viscel bundle/
-    - name: Publish artifact
-      uses: actions/upload-artifact@master
-      with:
-        name: viscel-${{ matrix.os }}
-        path: bundle
-  
   release-artifact:
     name: Upload Release Asset
-    runs-on: ubuntu-18.04
-    needs: [build-windows, build-ubuntu-mac]
+    runs-on: ubuntu-22.04
+    needs: [build-native-image]
     steps:
       - uses: actions/download-artifact@v2
       - name: fix executable bit and create archives
         run: |
-          chmod +x viscel-ubuntu-20.04/viscel
-          chmod +x viscel-macos-10.15/viscel
-          zip -r viscel-windows.zip viscel-windows-2016/*
-          tar -zcvf viscel-linux.tar.gz viscel-ubuntu-20.04/*
-          tar -zcvf viscel-macos.tar.gz viscel-macos-10.15/*
+          chmod +x viscel-ubuntu-22.04/viscel
+          chmod +x viscel-macos-12/viscel
+          zip -r viscel-windows.zip viscel-windows-2022/*
+          tar -zcvf viscel-linux.tar.gz viscel-ubuntu-22.04/*
+          tar -zcvf viscel-macos.tar.gz viscel-macos-12/*
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
