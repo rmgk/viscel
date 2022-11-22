@@ -37,7 +37,7 @@ jobs:
           apps: sbt
       - name: generate native image
         run: |
-          sbt writeClasspath viscelBundle
+          sbt writeClasspath viscelPackage
           native-image @code/target/classpath.txt viscel.Viscel
           rm viscel.build_artifacts.txt
 
