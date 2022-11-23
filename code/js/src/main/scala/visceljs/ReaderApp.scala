@@ -3,7 +3,7 @@ package visceljs
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import org.scalajs.dom
 import org.scalajs.dom.{HashChangeEvent, URL, html}
-import rescala.default.{Event, Events, Signal}
+import rescala.default.{Event, Events, Signal, Fold, current}
 import scalatags.JsDom.TypedTag
 import viscel.shared.{Bookmark, Contents, Description, Log, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}
@@ -54,12 +54,10 @@ class ReaderApp(
 
     val maxPosition = contents.map(_.map(_.gallery.size).getOrElse(0) - 1).changed
 
-    val currentPosition = Events.foldAll(Position(initialAppState.position, None))(acc =>
-      Seq(
-        setCurrentPostition act { t => acc.set(t) },
-        navigationEvents act { t => acc.mov(t) },
-        maxPosition act { t => acc.limit(t) }
-      )
+    val currentPosition = Fold(Position(initialAppState.position, None))(
+      setCurrentPostition act { t => current.set(t) },
+      navigationEvents act { t => current.mov(t) },
+      maxPosition act { t => current.limit(t) }
     )
 
     val normalizedAppState: Signal[AppState] =

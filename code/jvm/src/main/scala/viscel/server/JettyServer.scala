@@ -21,7 +21,7 @@ import viscel.{FolderImporter, Viscel}
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64
-import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
+import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
 import scala.concurrent.{Await, Promise}
 import scala.concurrent.duration.*

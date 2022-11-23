@@ -61,11 +61,9 @@ class ContentConnectionManager(registry: Registry) {
 
   val connectionAttempt: Evt[Unit] = Evt[Unit]()
 
-  val reconnecting: Signal[Int] = Events.foldAll(0)(acc =>
-    Seq(
-      connectionAttempt act { _ => acc + 1 },
-      joined act { _ => 0 }
-    )
+  val reconnecting: Signal[Int] = Fold(0)(
+    connectionAttempt act { _ => current + 1 },
+    joined act { _ => 0 }
   )
 
   def connect(): Future[RemoteRef] = {
@@ -128,11 +126,11 @@ class ContentConnectionManager(registry: Registry) {
     val remoteLookupSignal: Signal[Signal[Option[Contents]]] = mainRemote.map { remote =>
       // Signals.fromFuture(fetchContents(vid))
       val fut = registry.lookup(Bindings.contents, remote).apply(vid)
-      fut.failed.foreach{f => println(s"loading ${vid} failed: $f")}
+      fut.failed.foreach { f => println(s"loading ${vid} failed: $f") }
       Signals.fromFuture(fut)
     }
 
-    remoteLookupSignal.flatten.observe{oc => println(s"remote state changed for ${vid.str}: $oc")}
+    remoteLookupSignal.flatten.observe { oc => println(s"remote state changed for ${vid.str}: $oc") }
 
     priorContentSignal.foreach(_.disconnect())
     priorContentSignal = Some(remoteLookupSignal)

@@ -41,8 +41,8 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scribeSlf4j.value,
       quicklens.value,
       slips.delay.value,
-      "com.github.rescala-lang.rescala" %%% "rescala" % "6d9019e946",
-      "com.github.rescala-lang.rescala" %%% "kofre"   % "6d9019e946",
+      "com.github.rescala-lang.rescala" %%% "rescala" % "085d4cdbe8",
+      "com.github.rescala-lang.rescala" %%% "kofre"   % "085d4cdbe8",
       loci.jsoniterScala.value,
     ),
     buildInfoKeys    := Seq[BuildInfoKey](version),
@@ -59,7 +59,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scalatestpluscheck.value,
       jsoup.value,
       okHttp.value,
-      loci.wsJetty.value,
+      loci.wsJetty11.value,
       jetty.value
     ),
     // uncomment the following to enable graal tracing to allow native image generation
