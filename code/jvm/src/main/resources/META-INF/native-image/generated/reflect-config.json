@@ -12,10 +12,13 @@
   "name":"[Ljava.nio.file.LinkOption;"
 },
 {
+  "name":"[Ljava.nio.file.OpenOption;"
+},
+{
   "name":"[Lorg.eclipse.jetty.rewrite.handler.Rule;"
 },
 {
-  "name":"[Lorg.eclipse.jetty.servlet.ServletMapping;"
+  "name":"[Lorg.eclipse.jetty.servlet.FilterHolder;"
 },
 {
   "name":"[Lsun.security.pkcs.SignerInfo;"
@@ -66,61 +69,34 @@
 },
 {
   "name":"java.lang.Boolean",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.Byte",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.Class",
-  "methods":[{"name":"getModule","parameterTypes":[] }]
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.ClassValue"
 },
 {
   "name":"java.lang.Double",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.Float",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.Integer",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.Long",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.Module",
-  "methods":[
-    {"name":"getLayer","parameterTypes":[] }, 
-    {"name":"getName","parameterTypes":[] }
-  ]
-},
-{
-  "name":"java.lang.ModuleLayer",
-  "methods":[{"name":"configuration","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.ProcessHandle",
-  "methods":[
-    {"name":"current","parameterTypes":[] }, 
-    {"name":"info","parameterTypes":[] }, 
-    {"name":"parent","parameterTypes":[] }
-  ]
-},
-{
-  "name":"java.lang.ProcessHandle$Info",
-  "methods":[{"name":"command","parameterTypes":[] }]
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.Short",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.String"
@@ -136,18 +112,6 @@
 {
   "name":"java.lang.management.RuntimeMXBean",
   "methods":[{"name":"getUptime","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.module.Configuration",
-  "methods":[{"name":"findModule","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.module.ModuleReference",
-  "methods":[{"name":"location","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.module.ResolvedModule",
-  "methods":[{"name":"reference","parameterTypes":[] }]
 },
 {
   "name":"java.security.AlgorithmParametersSpi"
@@ -195,20 +159,44 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.util.ModuleLocation",
+  "name":"org.eclipse.jetty.util.AsciiLowerCaseSet",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.util.RegexSet",
+  "name":"org.eclipse.jetty.util.TypeUtil",
+  "methods":[
+    {"name":"getClassLoaderLocation","parameterTypes":["java.lang.Class"] }, 
+    {"name":"getCodeSourceLocation","parameterTypes":["java.lang.Class"] }, 
+    {"name":"getModuleLocation","parameterTypes":["java.lang.Class"] }, 
+    {"name":"getSystemClassLoaderLocation","parameterTypes":["java.lang.Class"] }
+  ]
+},
+{
+  "name":"org.eclipse.jetty.websocket.api.WebSocketConnectionListener",
+  "methods":[
+    {"name":"onWebSocketClose","parameterTypes":["int","java.lang.String"] }, 
+    {"name":"onWebSocketConnect","parameterTypes":["org.eclipse.jetty.websocket.api.Session"] }, 
+    {"name":"onWebSocketError","parameterTypes":["java.lang.Throwable"] }
+  ]
+},
+{
+  "name":"org.eclipse.jetty.websocket.api.WebSocketListener",
+  "methods":[
+    {"name":"onWebSocketBinary","parameterTypes":["byte[]","int","int"] }, 
+    {"name":"onWebSocketText","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"org.eclipse.jetty.websocket.core.internal.PerMessageDeflateExtension",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.util.log.Slf4jLog",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"org.eclipse.jetty.websocket.core.internal.messages.ByteArrayMessageSink",
+  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle"] }]
 },
 {
-  "name":"org.eclipse.jetty.websocket.common.extensions.compress.PerMessageDeflateExtension",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"org.eclipse.jetty.websocket.core.internal.messages.StringMessageSink",
+  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle"] }]
 },
 {
   "name":"rescala.default$",
@@ -252,12 +240,16 @@
   "fields":[{"name":"0bitmap$1"}]
 },
 {
-  "name":"scribe.ANSI$fg$",
+  "name":"scribe.ANSI$ctrl$",
   "fields":[{"name":"0bitmap$3"}]
 },
 {
-  "name":"scribe.ANSI$fx$",
+  "name":"scribe.ANSI$fg$",
   "fields":[{"name":"0bitmap$4"}]
+},
+{
+  "name":"scribe.ANSI$fx$",
+  "fields":[{"name":"0bitmap$5"}]
 },
 {
   "name":"scribe.Logger",
@@ -296,10 +288,6 @@
   "fields":[{"name":"0bitmap$1"}]
 },
 {
-  "name":"scribe.message.StaticMessage",
-  "fields":[{"name":"0bitmap$1"}]
-},
-{
   "name":"scribe.modify.LevelFilter$",
   "fields":[{"name":"0bitmap$1"}]
 },
@@ -332,11 +320,15 @@
   "fields":[{"name":"0bitmap$1"}]
 },
 {
-  "name":"scribe.package$",
+  "name":"scribe.record.SimpleLogRecord",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
-  "name":"scribe.record.SimpleLogRecord",
+  "name":"scribe.slf4j.ScribeLoggerFactory$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.slf4j.ScribeServiceProvider",
   "fields":[{"name":"0bitmap$1"}]
 },
 {

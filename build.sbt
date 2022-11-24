@@ -38,7 +38,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
       scribe.value,
       scalatags.value,
-      scribeSlf4j.value,
       quicklens.value,
       slips.delay.value,
       "com.github.rescala-lang.rescala" %%% "rescala" % "085d4cdbe8",
@@ -60,7 +59,8 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       jsoup.value,
       okHttp.value,
       loci.wsJetty11.value,
-      jetty.value
+      jetty.value,
+      scribeSlf4j2.value,
     ),
     // uncomment the following to enable graal tracing to allow native image generation
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image/generated",

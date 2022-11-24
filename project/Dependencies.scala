@@ -81,6 +81,7 @@ object Dependencies {
   val scopt       = Def.setting("com.github.scopt" %%% "scopt" % V.scopt)
   val scribe      = Def.setting("com.outr" %%% "scribe" % V.scribe)
   val scribeSlf4j = Def.setting("com.outr" %% "scribe-slf4j" % V.scribe)
+  val scribeSlf4j2 = Def.setting("com.outr" %% "scribe-slf4j2" % V.scribe)
   val sourcecode  = Def.setting("com.lihaoyi" %%% "sourcecode" % V.sourcecode)
   val tomlScala   = Def.setting("tech.sparse" %%% "toml-scala" % V.tomlScala)
   val upickle     = Def.setting("com.lihaoyi" %%% "upickle" % V.upickle)

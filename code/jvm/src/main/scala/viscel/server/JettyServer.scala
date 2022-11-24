@@ -218,7 +218,7 @@ class JettyServer(
     // LociDist.distribute(handleBookmarks(userid), registry)(Bindings.bookmarksMapBindig)
 
     val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
-    context.setContextPath(urlPrefix)
+    if !urlPrefix.isBlank then context.setContextPath(urlPrefix)
     jettyServer.setHandler(context)
 
     registry.listen(WS(context, wspath, properties))
