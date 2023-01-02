@@ -8,7 +8,7 @@ self.addEventListener('install', function (e) {
             const cachedRequests = [
                 './',
                 'viscel-opt.js',
-                'style.css',
+                'viscel.css',
                 'localforage.min.js',
                 'normalize.css',
                 'icon.png'

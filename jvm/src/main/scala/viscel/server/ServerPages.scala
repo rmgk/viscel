@@ -14,7 +14,7 @@ class ServerPages() {
       head(
         title := "Viscel",
         link(rel      := "stylesheet", href  := "normalize.css", `type`   := "text/css"),
-        link(rel      := "stylesheet", href  := "style.css", `type`       := "text/css"),
+        link(rel      := "stylesheet", href  := "viscel.css", `type`       := "text/css"),
         link(rel      := "manifest", href    := "manifest.json"),
         link(rel      := "icon", href        := "icon.png", attr("sizes") := "192x192"),
         meta(attrname := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes, minimal-ui")
