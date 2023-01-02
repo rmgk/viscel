@@ -10,28 +10,33 @@ val commonSettings = Def.settings(
   organization := "de.rmgk"
 )
 
-lazy val viscelPackage = taskKey[File]("calls graalvm native image")
+val vbundle = TaskKey[File]("vbundle", "bundles all the viscel resources")
 
-lazy val viscelBundle = project.in(file(".")).settings(
-  commonSettings,
-  vbundleDef,
-  viscelPackage := {
-    (vbundle).value
-  },
-  run := {
-    (server / Compile / run).dependsOn(vbundle).evaluated
-  },
-  fetchJSDependenciesDef,
-)
-  .enablePlugins(SbtSassify)
-  .aggregate(app, server)
+lazy val build = project.in(file("."))
+  .settings(
+    fetchJSDependenciesDef,
+    vbundle := {
+      (app / Compile / fullOptJS).value
+      val jsfile = (app / Compile / fullOptJS / artifactPath).value
+      bundleStuff(
+        jsfile,
+        target.value.toPath.resolve("resources/static"),
+        fetchJSDependencies.value,
+        sourceDirectory.value,
+        version.value
+      )
+    },
+    run := {
+      (server / Compile / run).dependsOn(vbundle).evaluated
+    },
+  )
+  .aggregate(server, app)
 
 lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
-  .in(file("code"))
+  .in(file("."))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    name := "viscel",
     commonSettings,
     jitpackResolver,
     libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
@@ -70,8 +75,8 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     scalaJSUseMainModuleInitializer := true
   )
 
-lazy val server = viscel.jvm
-lazy val app    = viscel.js
+lazy val server: Project = viscel.jvm
+lazy val app: Project    = viscel.js
 
 lazy val benchmarks = project.in(file("benchmarks"))
   .settings(name := "benchmarks", commonSettings)
@@ -119,25 +124,8 @@ lazy val fetchJSDependenciesDef = fetchJSDependencies := {
   dependenciesTarget.toFile
 }
 
-lazy val vbundleDef = vbundle := {
-  (app / Compile / fullOptJS).value
-  val jsfile = (app / Compile / fullOptJS / artifactPath).value
-  val styles = (Assets / SassKeys.sassify).value
-  bundleStuff(
-    jsfile,
-    styles,
-    target.value.toPath.resolve("resources/static"),
-    fetchJSDependencies.value,
-    sourceDirectory.value,
-    version.value
-  )
-}
-
-lazy val vbundle = TaskKey[File]("vbundle", "bundles all the viscel resources")
-
 def bundleStuff(
     jsfile: File,
-    styles: Seq[File],
     bundleTarget: Path,
     jsDpendencies: File,
     sourceDirectory: File,
@@ -150,7 +138,6 @@ def bundleStuff(
 
   copyToTarget(jsfile)
   copyToTarget(jsfile.toPath.getParent.resolve(jsfile.name + ".map").toFile)
-  styles.foreach(copyToTarget)
 
   def sourcepath(p: String) = sourceDirectory.toPath.resolve(p).toFile
 
