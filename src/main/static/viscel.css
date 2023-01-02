@@ -6,22 +6,22 @@
 }
 
 /* smaller scrollbar in webkit based browsers */
-// ::-webkit-scrollbar {
-//   width: 8px;
-// }
-// ::-webkit-scrollbar-track {
-//   background: $border-color;
-// }
-// ::-webkit-scrollbar-thumb {
-//   background-color: var(--backplate-color);
-//   border: transparent;
-// }
-
+/*
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: $border-color;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--backplate-color);
+  border: transparent;
+}
+*/
 
 /* smaller scrollbar according to some new spec */
 html {
 	scrollbar-width: thin;
-	// scrollbar-color: var(--backplate-color) #0000;
 	-ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
@@ -50,7 +50,7 @@ p {
 img {
 	margin: 0 auto;
 	display: block;
-	//background-color: white;
+	/* background-color: white; */
 }
 
 h1 {
@@ -65,25 +65,25 @@ nav>form {
 	display: inline-block;
 }
 
-nav> :is(a, button) {
-	// this is inline flex to align the inner contents as well ...
+nav > :is(a, button) {
+	/* this is inline flex to align the inner contents as well ... */
 	display: inline-flex;
 
-	// align the inner items
+	/* align the inner items */
 	justify-content: center;
 	align-items: center;
-	// fix text width displayed next to buttons
+	/* fix text width displayed next to buttons */
 
 	padding: 0.5em;
 
-	// unser/fix button styling
+	/* unser/fix button styling */
 	cursor: pointer;
 	color: var(--font-color);
 	background-color: var(--backplate-color);
 	border: none;
 }
 
-// hover effects and disabled state
+/* hover effects and disabled state */
 nav> :is(a button):is(:hover, :active) {
 	background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.05) 40%, rgba(0, 0, 0, 0.1));
 }
@@ -180,10 +180,10 @@ section {
 }
 
 #front section>*:before {
-	// zero width space to allow breaking before anchors
-	// content: "\200B";
-	// turns out, safari does not break lines on zero width spaces,
-	// so we use spaces with zero width instead
+	/* zero width space to allow breaking before anchors */
+	/* content: "\200B"; */
+	/* turns out, safari does not break lines on zero width spaces, */
+	/* so we use spaces with zero width instead */
 	font-size: 0;
 	content: " ";
 }
@@ -191,10 +191,8 @@ section {
 /* view specific */
 
 #view {
-
 	display: flex;
 	flex-direction: column;
-	/*align-items: center;*/
 	min-height: 100vh;
 }
 
@@ -218,13 +216,13 @@ section {
 	flex-grow: 1;
 }
 
-//smallish screens
+/*smallish screens */
 @media only screen and (max-width: 600px) {
-	//#view img {
-	//  width: 100%;
-	//}
+	/*#view img { */
+	/*  width: 100%; */
+	/*} */
 
-	// put prev & next into its own first row
+	/* put prev & next into its own first row */
 	#view nav {
 		flex-wrap: wrap;
 	}
