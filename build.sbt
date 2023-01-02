@@ -78,11 +78,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
 lazy val server: Project = viscel.jvm
 lazy val app: Project    = viscel.js
 
-lazy val benchmarks = project.in(file("benchmarks"))
-  .settings(name := "benchmarks", commonSettings)
-  .enablePlugins(JmhPlugin)
-  .dependsOn(viscel.jvm)
-
 lazy val fetchJSDependencies = TaskKey[File]("fetchJSDependencies", "manually fetches JS dependencies")
 lazy val fetchJSDependenciesDef = fetchJSDependencies := {
   val dependencies = List(
