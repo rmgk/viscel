@@ -1,8 +1,9 @@
 package viscel.server
 
 import better.files.File
-import loci.communicator.ws.jetty.WS.Properties
+import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import loci.communicator.ws.jetty.*
+import loci.communicator.ws.jetty.WS.Properties
 import loci.registry.Registry
 import org.eclipse.jetty.http.{HttpCookie, HttpHeader, HttpMethod}
 import org.eclipse.jetty.rewrite.handler.{RewriteHandler, RewriteRegexRule}
@@ -21,10 +22,9 @@ import viscel.{FolderImporter, Viscel}
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64
-import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
-import scala.concurrent.{Await, Promise}
 import scala.concurrent.duration.*
+import scala.concurrent.{Await, Promise}
 import scala.jdk.CollectionConverters.*
 
 class JettyServer(
