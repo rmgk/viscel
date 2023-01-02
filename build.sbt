@@ -88,12 +88,12 @@ lazy val fetchJSDependenciesDef = fetchJSDependencies := {
   val dependencies = List(
     (
       "localforage.min.js",
-      "https://cdn.jsdelivr.net/npm/localforage@1.9.0/dist/localforage.min.js",
-      "fb6cb922fef52761a894f2898af7bb4b4706143d"
+      "https://raw.githubusercontent.com/localForage/localForage/1.10.0/dist/localforage.min.js",
+      "e762dbcebc257e9de58dbf52cd4f876537ae35ac"
     ),
     (
       "normalize.css",
-      "https://unpkg.com/@csstools/normalize.css@12.0.0/normalize.css",
+      "https://raw.githubusercontent.com/csstools/normalize.css/12.0.0/normalize.css",
       "58790980bc6883e3797c7fce3e7589e6ca25a3d8"
     )
   )

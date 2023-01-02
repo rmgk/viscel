@@ -32,17 +32,15 @@ html {
 
 body {
 	margin: 0px;
+	font-family: sans-serif;
+	/* that should be 18px for the default of 16px font, but scale with user defined font size */
+	font-size: 1.125rem;
 }
 
 a {
 	text-decoration: none;
 	color: var(--font-color);
 	cursor: pointer;
-}
-
-
-#front section a:hover {
-	text-decoration: underline;
 }
 
 
@@ -76,28 +74,33 @@ nav > :is(a, button) {
 	/* align the inner items */
 	justify-content: center;
 	align-items: center;
-	/* fix text width displayed next to buttons */
 
+	/* fix text width displayed next to buttons */
 	padding: 0.5em;
 
-	/* unser/fix button styling */
+	/* unset/fix button styling */
 	cursor: pointer;
 	color: var(--font-color);
 	background-color: var(--backplate-color);
 	border: none;
+
+	/* unify */
+	font-size: 1em;
+	line-height: inherit;
+	font-family: inherit;
 }
 
 /* hover effects and disabled state */
-nav> :is(a button):is(:hover, :active) {
-	background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.05) 40%, rgba(0, 0, 0, 0.1));
+nav> :is(a, button):is(:hover, :active) {
+	background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.2) 40%, rgba(0, 0, 0, 0.2));
 }
 
-nav> :is(a button)[disabled] {
+nav> :is(a, button)[disabled] {
 	opacity: 0.40;
 	cursor: initial;
 }
 
-nav> :is(a button)>span {
+nav> :is(a, button)>span {
 	width: 3em
 }
 
@@ -112,6 +115,10 @@ input[type="text"] {
 section a:visited {
 	color: var(--theme-color);
 }
+section a:hover {
+	text-decoration: underline;
+	text-decoration-color: var(--theme-color);
+}
 
 
 section {
@@ -124,11 +131,6 @@ section {
 
 #tools label {
 	padding-right: 1em;
-}
-
-:is(#index, #tools) section a:hover {
-	text-decoration: underline;
-	text-decoration-color: var(--theme-color);
 }
 
 :is(#index, #tools) section.empty {
@@ -155,7 +157,6 @@ section {
 :is(#index, #front) nav {
 	margin: 2em 0;
 }
-
 
 /* front specific */
 
