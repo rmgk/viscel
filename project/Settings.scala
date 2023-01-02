@@ -1,55 +1,63 @@
 /* This file is shared between multiple projects
  * and may contain unused dependencies */
 
-import _root_.io.github.davidgregory084.TpolecatPlugin.autoImport.tpolecatScalacOptions
-import _root_.io.github.davidgregory084.TpolecatPlugin.autoImport.ScalacOptions
-import sbt.Keys._
-import sbt._
-import Dependencies.{Versions => V}
+import sbt.Keys.*
+import sbt.*
+import Dependencies.Versions as V
+import com.jsuereth.sbtpgp.PgpKeys.publishSigned
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.jsEnv
+
+import scala.math.Ordering.Implicits.infixOrderingOps
 
 object Settings {
 
   val commonCrossBuildVersions = crossScalaVersions := Seq(V.scala211, V.scala212, V.scala213, V.scala3)
 
-  val optionsOverride = tpolecatScalacOptions ~= { opts =>
-    // unused patvars are nice for documentation purposes
-    opts -- Set(ScalacOptions.warnUnusedPatVars, ScalacOptions.privateWarnUnusedPatVars)
+  val commonScalacOptions = scalacOptions ++= {
+    val version                         = CrossVersion.partialVersion(scalaVersion.value).get
+    def cond(b: Boolean, opts: String*) = if (b) opts.toList else Nil
+    List(
+      List("-feature", "-language:higherKinds", "-language:implicitConversions", "-language:existentials"),
+      cond(version >= (2, 13), "-Werror"),
+      cond(version < (2, 13), "-Xfatal-warnings"),
+      cond(version < (3, 0), "-language:experimental.macros"),
+      cond(version == (2, 13), "-Ytasty-reader"),
+      cond(version >= (3, 0), "-deprecation"),
+    ).flatten
   }
 
   val scalaVersion_211 = Def.settings(
     scalaVersion := V.scala211,
-    optionsOverride,
-    scalacOptions ++= settingsFor(scalaVersion.value)
+    commonScalacOptions
   )
   val scalaVersion_212 = Def.settings(
     scalaVersion := V.scala212,
-    optionsOverride,
-    scalacOptions ++= settingsFor(scalaVersion.value)
+    commonScalacOptions
   )
   val scalaVersion_213 = Def.settings(
     scalaVersion := V.scala213,
-    optionsOverride,
-    scalacOptions ++= settingsFor(scalaVersion.value)
+    commonScalacOptions
   )
   val scalaVersion_3 = Def.settings(
     scalaVersion := V.scala3,
-    optionsOverride,
-    scalacOptions ++= settingsFor(scalaVersion.value)
+    commonScalacOptions
   )
+
+  val scalaFullCrossBuildSupport = commonCrossBuildVersions +: {
+    scala.sys.env.get("SCALA_VERSION") match {
+      case Some("2.11") => scalaVersion_211
+      case Some("2.12") => scalaVersion_212
+      case Some("2.13") => scalaVersion_213
+      case _            => scalaVersion_3
+    }
+  }
 
   def `is 2.11`(scalaVersion: String): Boolean =
     CrossVersion.partialVersion(scalaVersion).contains((2, 11))
   def `is 2.13`(scalaVersion: String): Boolean =
     CrossVersion.partialVersion(scalaVersion).contains((2, 13))
-  def `is 3`(version: String) =
-    CrossVersion.partialVersion(version) collect { case (3, _) => true } getOrElse false
-
-  def settingsFor(version: String) =
-    version match {
-      case a if a.startsWith("2.13") => List("-Ytasty-reader")
-      case other                     => Nil
-    }
+  def `is 3`(scalaVersion: String) =
+    CrossVersion.partialVersion(scalaVersion) collect { case (3, _) => true } getOrElse false
 
   val safeInit = scalacOptions += "-Ysafe-init"
   val dottyMigration = List(
@@ -69,7 +77,8 @@ object Settings {
     packagedArtifacts := Map.empty,
     publish           := {},
     publishLocal      := {},
-    publishM2         := {}
+    publishM2         := {},
+    publishSigned     := {}
   )
 
   val publishOnly213 =

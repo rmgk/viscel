@@ -10,6 +10,7 @@ self.addEventListener('install', function (e) {
                 'viscel-opt.js',
                 'style.css',
                 'localforage.min.js',
+                'normalize.css',
                 'icon.png'
             ].map(url => new Request(url, {credentials: 'same-origin'}));
             return cache.addAll(cachedRequests);

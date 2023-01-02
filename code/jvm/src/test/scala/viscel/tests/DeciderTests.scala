@@ -1,12 +1,11 @@
 package viscel.tests
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import org.scalacheck.Prop.forAll
 import viscel.crawl.Decider
 import viscel.netzi.VRequest
-import viscel.tests.DataGenerators._
+import viscel.tests.DataGenerators.*
 
-class DeciderTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
+class DeciderTests extends munit.ScalaCheckSuite {
 
   val empty = Decider()
 
@@ -17,18 +16,24 @@ class DeciderTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
     }
   }
 
-  "empty" - {
-    "decide" in { assert(empty.decide() === None) }
-    "add" in forAll { (req: VRequest) =>
+  test("decide") {
+    assertEquals(empty.decide(), None)
+  }
+
+  property("add") {
+    forAll { (req: VRequest) =>
       val Some((decision, next)) = empty.addTasks(List(req)).decide(): @unchecked
-      assert(decision === req)
-      assert(next.decide() === None)
+      assertEquals(decision, req)
+      assertEquals(next.decide(), None)
     }
-    "add all" in forAll { (requests: List[VRequest]) =>
+  }
+
+  property("add all") {
+    forAll { (requests: List[VRequest]) =>
       val (decider, decisions) = allDecisions(empty.addTasks(requests))
-      assert(requests.toSet === decisions.toSet)
-      assert(decider.decide() === None)
-    // assert(decider.imageDecisions === requests.count(_.isInstanceOf[CrawlTask.Image]))
+      assertEquals(requests.toSet, decisions.toSet)
+      assertEquals(decider.decide(), None)
+      // assert(decider.imageDecisions === requests.count(_.isInstanceOf[CrawlTask.Image]))
     }
   }
 

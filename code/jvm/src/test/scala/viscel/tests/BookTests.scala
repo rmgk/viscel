@@ -1,46 +1,51 @@
 package viscel.tests
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import org.scalacheck.Prop.forAll
 import viscel.crawl.CrawlProcessing
+import viscel.shared.DataRow.Link
 import viscel.shared.{DataRow, Vid}
 import viscel.store.Book
-import viscel.tests.DataGenerators._
+import viscel.tests.DataGenerators.*
 
-class BookTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
+class BookTests extends munit.ScalaCheckSuite {
 
   val empty = Book(Vid.from("Test"), "Testbook")
 
-  "empty" - {
-    "add page" in forAll { (page: DataRow) =>
+  property("empty add page") {
+    forAll { (page: DataRow) =>
       val bookO = empty.addPage(page)
       assert(bookO.isDefined)
       val one = bookO.get
 
       assert(one.hasPage(page.ref))
-      assert(CrawlProcessing.allLinks(one).map(_.href).toList === page.contents)
+      assertEquals(
+        CrawlProcessing.allLinks(one).map(_.href).toList,
+        page.contents.collect { case Link(ref, data) => ref }
+      )
 
-      assert(one.addPage(page) === None, "adding is idempotent")
+      assertEquals(one.addPage(page), None, "adding is idempotent")
 
     }
   }
 
-  "loading" - {
-    "from entries behaves as adding individually" in forAll { (rows: List[DataRow]) =>
+  property("loading from entries behaves as adding individually") {
+    forAll { (rows: List[DataRow]) =>
       val load = Book.fromEntries(empty.id, empty.name, rows)
       val addAll = rows.foldLeft(empty) {
         case (b, pageData) => b.addPage(pageData).getOrElse(b)
       }
-      assert(load === addAll)
+      assertEquals(load, addAll)
     }
-    "adding pages, no count no changes" in forAll { (rows: List[DataRow]) =>
+  }
+
+  property("loading adding pages, no count no changes") {
+    forAll { (rows: List[DataRow]) =>
       val duplicated = scala.util.Random.shuffle(rows reverse_::: rows)
       duplicated.foldLeft(empty) {
         case (b, pageData) =>
           b.addPage(pageData).getOrElse(b)
       }
-
+      assert(true)
     }
   }
-
 }

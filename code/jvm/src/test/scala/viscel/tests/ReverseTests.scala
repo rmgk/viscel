@@ -1,11 +1,9 @@
 package viscel.tests
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import viscel.selektiv.Queries
 import viscel.shared.DataRow.{Blob, Chapter, Content}
 
-class ReverseTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
+class ReverseTests extends munit.ScalaCheckSuite {
 
   val exampleList = List[Content](
     Chapter("a"),
@@ -52,11 +50,11 @@ class ReverseTests extends AnyFreeSpec with ScalaCheckDrivenPropertyChecks {
     Blob("1", "a"),
   )
 
-  "reverse chapters" in {
-    assert(Queries.chapterReverse(exampleList, reverseInner = false) === reverseChapter)
+  test("reverse chapters") {
+    assertEquals(Queries.chapterReverse(exampleList, reverseInner = false), reverseChapter)
   }
-  "reverse full" in {
-    assert(Queries.chapterReverse(exampleList, reverseInner = true) === reverseFull)
+  test("reverse full") {
+    assertEquals(Queries.chapterReverse(exampleList, reverseInner = true), reverseFull)
   }
 
 }

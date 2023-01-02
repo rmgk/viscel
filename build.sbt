@@ -15,7 +15,6 @@ lazy val viscelPackage = taskKey[File]("calls graalvm native image")
 lazy val viscelBundle = project.in(file(".")).settings(
   commonSettings,
   vbundleDef,
-  libraryDependencies += normalizecss.value,
   viscelPackage := {
     (vbundle).value
   },
@@ -36,13 +35,13 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     commonSettings,
     jitpackResolver,
     libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
-      scribe.value,
       scalatags.value,
       quicklens.value,
       slips.delay.value,
       "com.github.rescala-lang.rescala" %%% "rescala" % "085d4cdbe8",
       "com.github.rescala-lang.rescala" %%% "kofre"   % "085d4cdbe8",
       loci.jsoniterScala.value,
+      munitScalacheck.value
     ),
     buildInfoKeys    := Seq[BuildInfoKey](version),
     buildInfoPackage := "viscel.shared"
@@ -53,9 +52,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       betterFiles.value.cross(CrossVersion.for3Use2_13),
       scopt.value,
-      scalatest.value,
-      scalacheck.value,
-      scalatestpluscheck.value,
       jsoup.value,
       okHttp.value,
       loci.wsJetty11.value,
@@ -89,6 +85,11 @@ lazy val fetchJSDependenciesDef = fetchJSDependencies := {
       "localforage.min.js",
       "https://cdn.jsdelivr.net/npm/localforage@1.9.0/dist/localforage.min.js",
       "fb6cb922fef52761a894f2898af7bb4b4706143d"
+    ),
+    (
+      "normalize.css",
+      "https://unpkg.com/@csstools/normalize.css@12.0.0/normalize.css",
+      "58790980bc6883e3797c7fce3e7589e6ca25a3d8"
     )
   )
 
@@ -164,4 +165,3 @@ def bundleStuff(
 
   bundleTarget.toFile
 }
-

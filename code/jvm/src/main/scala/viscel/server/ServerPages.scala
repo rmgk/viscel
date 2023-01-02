@@ -13,6 +13,7 @@ class ServerPages() {
     html(
       head(
         title := "Viscel",
+        link(rel      := "stylesheet", href  := "normalize.css", `type`   := "text/css"),
         link(rel      := "stylesheet", href  := "style.css", `type`       := "text/css"),
         link(rel      := "manifest", href    := "manifest.json"),
         link(rel      := "icon", href        := "icon.png", attr("sizes") := "192x192"),
