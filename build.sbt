@@ -53,7 +53,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   )
   .jvmSettings(
     fork := true,
-    writeClasspath,
     libraryDependencies ++= Seq(
       betterFiles.value.cross(CrossVersion.for3Use2_13),
       scopt.value,
