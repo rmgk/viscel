@@ -32,8 +32,8 @@ object Settings {
       List(
         List("-feature", "-language:higherKinds", "-language:implicitConversions", "-language:existentials"),
         cond(version == (2, 13), "-Ytasty-reader"),
+        cond(version < (3, 0), "-language:experimental.macros"),
         cond(version >= (3, 0), "-deprecation"),
-        cond(version < (3, 0), "-language:experimental.macros")
       ).flatten
     }
   )
@@ -88,11 +88,6 @@ object Settings {
     Compile / compile / scalacOptions ++= List("-rewrite", "-source", "3.0-migration"),
     Test / compile / scalacOptions ++= List("-rewrite", "-source", "3.0-migration")
   )
-
-  // the resolver itself is probably not used by any project, but kept around for historical documentation purposes
-  val legacyStgResolver =
-    resolvers += ("STG old bintray repo" at "http://www.st.informatik.tu-darmstadt.de/maven/")
-      .withAllowInsecureProtocol(true)
 
   val jitpackResolver = resolvers += "jitpack" at "https://jitpack.io"
 
