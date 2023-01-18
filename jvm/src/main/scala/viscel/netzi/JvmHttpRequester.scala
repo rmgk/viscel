@@ -1,6 +1,6 @@
 package viscel.netzi
 
-import de.rmgk.delay.*
+import de.rmgk.delay.{extensions, *}
 import viscel.crawl.RequestException
 import viscel.shared.{Log, Vurl}
 
