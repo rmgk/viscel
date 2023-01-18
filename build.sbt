@@ -1,5 +1,5 @@
-import Dependencies._
-import Settings._
+import Dependencies.*
+import Settings.*
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
