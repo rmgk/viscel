@@ -27,7 +27,7 @@ object JsoniterStorage {
 
   def writeLine[T: JsonValueCodec](file: Path, value: T): Unit = {
     val bytes = writeArray(value)
-    Using(Files.newOutputStream(file, StandardOpenOption.APPEND)) { os =>
+    Using(Files.newOutputStream(file, StandardOpenOption.APPEND, StandardOpenOption.CREATE)) { os =>
       os.write(bytes)
       os.write('\n')
     }
