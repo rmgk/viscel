@@ -57,7 +57,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       betterFiles.value.cross(CrossVersion.for3Use2_13),
       scopt.value,
       jsoup.value,
-      okHttp.value,
       loci.wsJetty11.value,
       jetty.value,
       scribeSlf4j2.value,

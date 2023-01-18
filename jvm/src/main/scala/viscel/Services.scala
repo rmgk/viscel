@@ -3,14 +3,14 @@ package viscel
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
-import viscel.netzi.OkHttpRequester
+import viscel.netzi.JvmHttpRequester
 import viscel.server.{ContentLoader, Interactions, JettyServer, ServerPages}
 import viscel.shared.{JsoniterCodecs, Log}
 import viscel.store.{BlobStore, DescriptionCache, JsoniterStorage, NarratorCache, RowStoreV4, Users}
 
 import java.nio.file.{Files, Path}
 import java.util.TimerTask
-import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
+import java.util.concurrent.{LinkedBlockingQueue, SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.util.control.NonFatal
 
@@ -51,12 +51,12 @@ class Services(
   /* ====== http requests ====== */
 
   lazy val requests = {
-    val executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 1, TimeUnit.SECONDS, new SynchronousQueue())
-    val cookies: Map[String, String] =
+    val executor = new ThreadPoolExecutor(0, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue())
+    val cookies: Map[String, (String, String)] =
       if (Files.exists(cookiePath)) {
         JsoniterStorage.load(cookiePath)(JsoniterCodecs.CookieMapCodec).getOrElse(Map.empty)
       } else Map.empty
-    new OkHttpRequester(5, 1, executor, cookies)
+    new JvmHttpRequester(executor, cookies)
   }
 
   /* ====== main webserver ====== */

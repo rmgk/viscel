@@ -38,7 +38,7 @@ class JettyServer(
 ) {
 
   lazy val jettyServer: Server = {
-    val threadPool = new QueuedThreadPool(4)
+    val threadPool = new QueuedThreadPool(4, 1)
     threadPool.setName("http server")
     new Server(threadPool)
   }
