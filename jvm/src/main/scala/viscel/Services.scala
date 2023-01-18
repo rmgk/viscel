@@ -108,7 +108,7 @@ class Services(
         if (force)
           try {
             rowStore.filterSingleLevelMissing(narrator.id)
-          } catch { case NonFatal(e) => Log.Server.warn(s"filering failed: ${e.getMessage}") }
+          } catch { case NonFatal(e) => Log.Server.warn(s"filtering failed: ${e.getMessage}") }
         clockwork.runNarrator(narrator, if (force) 0 else clockwork.dayInMillis * 1)
     }
   }
