@@ -6,15 +6,6 @@
   "name":"[Ljava.lang.String;"
 },
 {
-  "name":"[Ljava.nio.file.FileVisitOption;"
-},
-{
-  "name":"[Ljava.nio.file.LinkOption;"
-},
-{
-  "name":"[Ljava.nio.file.OpenOption;"
-},
-{
   "name":"[Lorg.eclipse.jetty.rewrite.handler.Rule;"
 },
 {
@@ -56,15 +47,7 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.sun.crypto.provider.TlsKeyMaterialGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.TlsPrfGenerator$V12",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -100,6 +83,10 @@
 },
 {
   "name":"java.lang.String"
+},
+{
+  "name":"java.lang.Thread",
+  "methods":[{"name":"isVirtual","parameterTypes":[] }]
 },
 {
   "name":"java.lang.invoke.VarHandle",
@@ -140,6 +127,10 @@
 {
   "name":"java.util.HashSet",
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"java.util.concurrent.Executors",
+  "methods":[{"name":"newVirtualThreadPerTaskExecutor","parameterTypes":[] }]
 },
 {
   "name":"javax.security.auth.x500.X500Principal",
@@ -352,6 +343,10 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"sun.security.provider.JavaKeyStore$DualFormatJKS",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"sun.security.provider.JavaKeyStore$JKS",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -408,15 +403,11 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.security.rsa.RSASignature$SHA384withRSA",
+  "name":"sun.security.ssl.KeyManagerFactoryImpl$SunX509",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.security.rsa.RSASignature$SHA512withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.ssl.SSLContextImpl$TLSContext",
+  "name":"sun.security.ssl.SSLContextImpl$DefaultSSLContext",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
