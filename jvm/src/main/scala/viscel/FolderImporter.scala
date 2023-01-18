@@ -1,9 +1,12 @@
 package viscel
 
-import better.files._
 import viscel.MimeUtil.mimeToExt
 import viscel.shared.{DataRow, Vid}
-import viscel.store.{RowStoreV4, _}
+import viscel.store.{RowStoreV4, *}
+
+import scala.jdk.StreamConverters.given
+
+import java.nio.file.{Files, Path, Paths}
 
 object MimeUtil {
   def mimeToExt(mime: String, default: String = ""): String =
@@ -24,16 +27,16 @@ class FolderImporter(blobStore: BlobStore, rowStore: RowStoreV4, descriptionCach
 
     Log.info(s"try to import $vid($nname) form $path")
 
-    val sortedFiles: IndexedSeq[File] = File(path).walk().toIndexedSeq.sortBy(_.pathAsString)
+    val sortedFiles: IndexedSeq[Path] = Files.walk(Paths.get(path)).toScala(IndexedSeq).sortBy(_.toString)
 
     val story: List[DataRow.Content] = sortedFiles.iterator.flatMap { p =>
-      if (p.isDirectory) Some(DataRow.Chapter(name = p.name))
-      else if (p.isRegularFile) {
-        val mime = p.contentType.getOrElse("")
+      if (Files.isDirectory(p)) Some(DataRow.Chapter(name = p.getFileName.toString))
+      else if (Files.isRegularFile(p)) {
+        val mime = Option(Files.probeContentType(p)).getOrElse("")
         if (mimeToExt(mime, default = "") == "") None
         else {
           Log.info(s"processing $p")
-          val sha1 = blobStore.write(p.byteArray)
+          val sha1 = blobStore.write(Files.readAllBytes(p))
           val blob = DataRow.Blob(sha1, mime)
           Some(blob)
         }

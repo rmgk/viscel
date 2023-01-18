@@ -2,17 +2,17 @@ package viscel.narration
 
 import java.net.MalformedURLException
 import java.nio.charset.StandardCharsets
-import java.nio.file.Path
-
-import better.files._
+import java.nio.file.{FileVisitOption, Files, Path}
 import viscel.crawl.Decider
-import viscel.selektiv.FlowWrapper._
+import viscel.selektiv.FlowWrapper.*
 import viscel.selektiv.{FlowWrapper, Report}
 import viscel.shared.{DataRow, Log, Vid, Vurl}
 
 import scala.annotation.tailrec
+import scala.jdk.CollectionConverters.given
 import scala.collection.immutable.Map
 import scala.util.matching.Regex
+
 
 object ViscelDefinition {
 
@@ -221,18 +221,16 @@ object ViscelDefinition {
   }
 
   def loadAll(dir: Path): List[FlowNarrator] = {
-    val defdir = File(dir)
-
     val res =
-      if (!defdir.exists) Nil
+      if (!Files.exists(dir)) Nil
       else {
-        val paths = defdir.glob("*.vid").toList
+        val paths = Files.walk(dir, FileVisitOption.FOLLOW_LINKS).iterator().asScala.filter(p => p.toString.endsWith(".vid"))
         paths.flatMap { path =>
-          load(path.lines(StandardCharsets.UTF_8).toArray.iterator, path.pathAsString)
+          load(Files.lines(path).iterator.asScala, path.toString)
         }
       }
-    Log.Narrate.info(s"Found ${res.size} definitions in $defdir.")
-    res
+    Log.Narrate.info(s"Found ${res.size} definitions in $dir.")
+    res.toList
   }
 
 }

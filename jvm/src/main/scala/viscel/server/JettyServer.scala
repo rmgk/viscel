@@ -1,6 +1,5 @@
 package viscel.server
 
-import better.files.File
 import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import loci.communicator.ws.jetty.*
 import loci.communicator.ws.jetty.WS.Properties
@@ -21,6 +20,7 @@ import viscel.store.{BlobStore, User}
 import viscel.{FolderImporter, Viscel}
 
 import java.nio.charset.StandardCharsets
+import java.nio.file.Path
 import java.util.Base64
 import scala.collection.mutable
 import scala.concurrent.duration.*
@@ -33,7 +33,7 @@ class JettyServer(
     pages: ServerPages,
     folderImporter: FolderImporter,
     interactions: Interactions,
-    staticPath: File,
+    staticPath: Path,
     urlPrefix: String,
 ) {
 
@@ -156,7 +156,7 @@ class JettyServer(
     // Create and configure a ResourceHandler.
     val handler = new ResourceHandler()
     // Configure the directory where static resources are located.
-    handler.setBaseResource(Resource.newResource(staticPath.pathAsString))
+    handler.setBaseResource(Resource.newResource(staticPath.toString))
     // Configure directory listing.
     handler.setDirectoriesListed(false)
     // Configure whether to accept range requests.

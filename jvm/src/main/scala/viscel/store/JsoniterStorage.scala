@@ -1,13 +1,12 @@
 package viscel.store
 
-import java.nio.file.StandardOpenOption._
-import java.nio.file.{Files, Path}
-
-import better.files.File.OpenOptions
-import better.files._
-import com.github.plokhotnyuk.jsoniter_scala.core._
+import java.nio.file.StandardOpenOption.*
+import java.nio.file.{Files, Path, StandardOpenOption}
+import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
-import viscel.shared.JsoniterCodecs._
+import viscel.shared.JsoniterCodecs.*
+
+import scala.util.Using
 
 object JsoniterStorage {
 
@@ -26,9 +25,9 @@ object JsoniterStorage {
       util.Try(readFromArray[T](Files.readAllBytes(p))).toEither
     }
 
-  def writeLine[T: JsonValueCodec](file: File, value: T): Unit = {
+  def writeLine[T: JsonValueCodec](file: Path, value: T): Unit = {
     val bytes = writeArray(value)
-    file.outputStream(OpenOptions.append).foreach { os =>
+    Using(Files.newOutputStream(file, StandardOpenOption.APPEND)) { os =>
       os.write(bytes)
       os.write('\n')
     }

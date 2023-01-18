@@ -43,6 +43,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scalatags.value,
       quicklens.value,
       slips.delay.value,
+      slips.options.value,
       "com.github.rescala-lang.rescala" %%% "rescala" % "085d4cdbe8",
       "com.github.rescala-lang.rescala" %%% "kofre"   % "085d4cdbe8",
       loci.jsoniterScala.value,
@@ -54,7 +55,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .jvmSettings(
     fork := true,
     libraryDependencies ++= Seq(
-      betterFiles.value.cross(CrossVersion.for3Use2_13),
       scopt.value,
       jsoup.value,
       loci.wsJetty11.value,

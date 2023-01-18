@@ -1,25 +1,25 @@
 package viscel.store
 
-import java.nio.file.Path
-import better.files.File
+import java.nio.file.{Files, Path}
 import viscel.narration.Narrator
 import viscel.shared.DataRow.Link
 import viscel.shared.Log.Store as Log
 import viscel.shared.{DataRow, JsoniterCodecs, Vid}
 
 import scala.util.control.NonFatal
+import scala.jdk.CollectionConverters.given
 
-class RowStoreV4(db4dir: Path) {
+class RowStoreV4(base: Path) {
 
-  val base = File(db4dir)
-
-  def file(vid: Vid): File = {
-    base / vid.str
+  def file(vid: Vid): Path = {
+    base resolve vid.str
   }
 
   def allVids(): List[Vid] =
     synchronized {
-      base.list(_.isRegularFile, 1).map(f => Vid.from(f.name)).toList
+      Files.walk(base, 1).iterator.asScala.filter(p => Files.isRegularFile(p)).map((f: Path) =>
+        Vid.from(f.getFileName.toString)
+      ).toList
     }
 
   def open(narrator: Narrator): RowAppender =
@@ -30,7 +30,7 @@ class RowStoreV4(db4dir: Path) {
   def open(id: Vid, name: String): RowAppender =
     synchronized {
       val f = file(id)
-      if (!f.exists || f.size <= 0) JsoniterStorage.writeLine(f, name)(JsoniterCodecs.StringRw)
+      if (!Files.exists(f) || Files.size(f) <= 0) JsoniterStorage.writeLine(f, name)(JsoniterCodecs.StringRw)
       new RowAppender(f, this)
     }
 
@@ -40,16 +40,17 @@ class RowStoreV4(db4dir: Path) {
 
       val f = file(id)
 
-      if (!f.isRegularFile || f.size == 0)
+      if (!Files.isRegularFile(f) || Files.size(f) == 0)
         throw new IllegalStateException(s"$f does not contain data")
       else {
         try
-          val res = DBParser.parse(f.byteArray)
+          val res = DBParser.parse(Files.readAllBytes(f))
           Log.info(s"loading »$id« (${System.currentTimeMillis() - start}ms)")
           res
-        catch case NonFatal(e) =>
-          Log.error(s"loading failed »$id«")
-          throw e
+        catch
+          case NonFatal(e) =>
+            Log.error(s"loading failed »$id«")
+            throw e
       }
     }
 
@@ -71,7 +72,7 @@ class RowStoreV4(db4dir: Path) {
         val book            = Book.fromEntries(vid, name, entries)
         val reachable       = book.reachable()
         val filtered        = entries.filter(dr => reachable.contains(dr.ref) && book.pages(dr.ref) == dr)
-        file(vid).delete()
+        Files.delete(file(vid))
         val appender = open(vid, name)
         filtered.foreach(appender.append)
       }
@@ -90,14 +91,14 @@ class RowStoreV4(db4dir: Path) {
           case other => true
         }
       )
-      file(vid).delete()
+      Files.delete(file(vid))
       val appender = open(vid, name)
       filtered.foreach(appender.append)
     }
 
 }
 
-class RowAppender(file: File, rowStoreV4: RowStoreV4) {
+class RowAppender(file: Path, rowStoreV4: RowStoreV4) {
   def append(row: DataRow): Unit =
     rowStoreV4.synchronized {
       Log.trace(s"Store $row into $file")

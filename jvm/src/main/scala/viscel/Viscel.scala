@@ -1,15 +1,12 @@
 package viscel
 
 import java.lang.management.ManagementFactory
-import java.nio.file.{Path, Paths}
+import java.nio.file.{Files, Path, Paths}
 import java.io.File as jFile
-
-import better.files.File
 import viscel.shared.Log
 import viscel.store.BlobStore
 
 import scala.collection.immutable.ArraySeq
-
 import com.softwaremill.quicklens.{modifyLens as path, *}
 
 object Viscel {
@@ -64,17 +61,17 @@ object Viscel {
 
   def makeService(args: Args): Services = {
     import args.*
-    val staticCandidates = List(File(optBasedir.resolve(optStatic)), File(optStatic))
+    val staticCandidates = List(optBasedir.resolve(optStatic), optStatic)
 
     val staticDir =
-      staticCandidates.find(_.isDirectory)
+      staticCandidates.find(x => Files.isDirectory(x))
         .getOrElse {
           println(s"Missing optStatic resource directory, " +
             s"tried ${staticCandidates.map(c => s"»$c«").mkString(", ")}.")
           sys.exit(0)
         }
 
-    val services = new Services(optBasedir, optBlobdir, staticDir.path, urlPrefix, interface, port)
+    val services = new Services(optBasedir, optBlobdir, staticDir, urlPrefix, interface, port)
 
     if (cleanblobs) {
       BlobStore.cleanBlobDirectory(services)
