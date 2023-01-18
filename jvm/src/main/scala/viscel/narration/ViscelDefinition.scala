@@ -1,16 +1,16 @@
 package viscel.narration
 
-import java.net.MalformedURLException
-import java.nio.charset.StandardCharsets
-import java.nio.file.{FileVisitOption, Files, Path}
 import viscel.crawl.Decider
 import viscel.selektiv.FlowWrapper.*
 import viscel.selektiv.{FlowWrapper, Report}
 import viscel.shared.{DataRow, Log, Vid, Vurl}
 
+import java.net.MalformedURLException
+import java.nio.charset.StandardCharsets
+import java.nio.file.{FileVisitOption, Files, Path}
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters.given
 import scala.collection.immutable.Map
+import scala.jdk.CollectionConverters.given
 import scala.util.matching.Regex
 
 
@@ -224,13 +224,14 @@ object ViscelDefinition {
     val res =
       if (!Files.exists(dir)) Nil
       else {
-        val paths = Files.walk(dir, FileVisitOption.FOLLOW_LINKS).iterator().asScala.filter(p => p.toString.endsWith(".vid"))
+        val paths =
+          Files.walk(dir, FileVisitOption.FOLLOW_LINKS).iterator().asScala.filter(p => p.toString.endsWith(".vid"))
         paths.flatMap { path =>
           load(Files.lines(path).iterator.asScala, path.toString)
-        }
+        }.toList
       }
     Log.Narrate.info(s"Found ${res.size} definitions in $dir.")
-    res.toList
+    res
   }
 
 }
