@@ -41,7 +41,6 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     jitpackResolver,
     libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
       scalatags.value,
-      quicklens.value,
       slips.delay.value,
       slips.options.value,
       "com.github.rescala-lang.rescala" %%% "rescala" % "085d4cdbe8",
