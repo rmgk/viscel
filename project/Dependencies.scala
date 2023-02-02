@@ -85,9 +85,10 @@ object Dependencies {
   object loci {
     def generic(n: String): Def.Initialize[sbt.ModuleID] =
       // very accurate check if this is a snapshot based version from jitpack (no .) or a normal version from maven or a local publish
-      if (!V.scalaLoci.contains("."))
+      if (V.scalaLoci.contains("."))
+        Def.setting("io.github.scala-loci" %%% s"scala-loci-$n" % V.scalaLoci)
+      else
         Def.setting("com.github.scala-loci.scala-loci" %%% s"scala-loci-$n" % V.scalaLoci)
-      else Def.setting("io.github.scala-loci"          %%% s"scala-loci-$n" % V.scalaLoci)
 
     val communication = generic("communication")
     val circe         = generic("serializer-circe")
