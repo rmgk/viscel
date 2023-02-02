@@ -7,7 +7,7 @@ import viscel.store.{JsoniterStorage, NarratorCache, Users}
 
 import java.net.SocketTimeoutException
 import java.nio.file.Path
-import java.util.concurrent.CancellationException
+import java.util.concurrent.{CancellationException, CompletionException}
 import java.util.{Timer, TimerTask}
 import scala.collection.immutable.Map
 
@@ -47,18 +47,18 @@ class CrawlScheduler(
     synchronized {
       if (!running.contains(narrator.id) && needsRecheck(narrator.id, recheckInterval)) {
 
-        running = running + narrator.id
-
-        Async[Any] {
+        Async[Any].resource(
+          CrawlScheduler.this.synchronized { running = running + narrator.id },
+          _ => CrawlScheduler.this.synchronized { running = running - narrator.id }
+        ) { _ =>
           crawlServices.startCrawling(narrator).bind
-          CrawlScheduler.this.synchronized { running = running - narrator.id }
           log.info(s"[${narrator.id}] update complete")
           updateDates(narrator.id)
-        }.run{ res =>
+        }.run { res =>
           synchronized { if (running.isEmpty) System.gc() }
           res match
             case Left(error) => logError(narrator)(error)
-            case Right(()) =>
+            case Right(())   =>
         }(using ())
       }
     }
