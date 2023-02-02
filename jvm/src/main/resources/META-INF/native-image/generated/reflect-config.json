@@ -47,15 +47,7 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.sun.crypto.provider.TlsKeyMaterialGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.TlsPrfGenerator$V12",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -116,6 +108,15 @@
 },
 {
   "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.security.cert.CertStoreParameters"
+},
+{
+  "name":"java.security.interfaces.ECPrivateKey"
+},
+{
+  "name":"java.security.interfaces.ECPublicKey"
 },
 {
   "name":"java.security.interfaces.RSAPrivateKey"
@@ -313,10 +314,6 @@
   "fields":[{"name":"0bitmap$1"}]
 },
 {
-  "name":"scribe.package$",
-  "fields":[{"name":"0bitmap$1"}]
-},
-{
   "name":"scribe.record.SimpleLogRecord",
   "fields":[{"name":"0bitmap$1"}]
 },
@@ -385,7 +382,15 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"sun.security.provider.certpath.CollectionCertStore",
+  "methods":[{"name":"<init>","parameterTypes":["java.security.cert.CertStoreParameters"] }]
+},
+{
   "name":"sun.security.provider.certpath.PKIXCertPathValidator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.certpath.SunCertPathBuilder",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
