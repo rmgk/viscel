@@ -48,8 +48,8 @@ class CrawlServices(
       cs.decider.decide() match {
         case Some((request, nextDecider)) =>
           Async {
-            val response              = requestUtil.get(request).bind
-            val nextState: CrawlState = handleResponse(cs.book, response, request, nextDecider)
+            val response  = requestUtil.get(request).bind
+            val nextState = handleResponse(cs.book, response, request, nextDecider)
             crawlLoop(nextState).bind
           }
         case None => Async { () }
