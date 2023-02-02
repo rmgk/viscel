@@ -10,6 +10,7 @@ import java.nio.file.Path
 import java.util.concurrent.{CancellationException, CompletionException}
 import java.util.{Timer, TimerTask}
 import scala.collection.immutable.Map
+import scala.util.{Failure, Success}
 
 class CrawlScheduler(
     path: Path,
@@ -54,12 +55,12 @@ class CrawlScheduler(
           crawlServices.startCrawling(narrator).bind
           log.info(s"[${narrator.id}] update complete")
           updateDates(narrator.id)
-        }.run { res =>
+        }.run(using ()) { res =>
           synchronized { if (running.isEmpty) System.gc() }
           res match
-            case Left(error) => logError(narrator)(error)
-            case Right(())   =>
-        }(using ())
+            case Failure(error) => logError(narrator)(error)
+            case Success(())   =>
+        }
       }
     }
 

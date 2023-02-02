@@ -33,7 +33,6 @@ class JvmHttpRequester(
     }
     cm
 
-
   val client: HttpClient = HttpClient.newBuilder()
     .connectTimeout(timeout)
     .executor(executorService)
@@ -61,7 +60,7 @@ class JvmHttpRequester(
   override def get(request: VRequest): Async[Any, VResponse[Either[Array[Byte], String]]] = {
     val hreq = vreqToHttpRequest(request)
     Log.Crawl.info(s"request ${hreq.uri()}${hreq.headers.firstValue(referrer).toScala.fold("")(r => s" ($r)")}")
-    Async[Any] {
+    val exec = Async[Int] {
       val response: HttpResponse[Array[Byte]] = client.sendAsync(hreq, BodyHandlers.ofByteArray()).toAsync.bind
       if (response.statusCode() != 200)
         throw RequestException(response.uri().toString, s"${response.statusCode()}")
@@ -89,5 +88,11 @@ class JvmHttpRequester(
 
       VResponse(content, Vurl.fromString(location), contentType.toString, lastModified, etag)
     }
+    lazy val rec: Async[Int, VResponse[Either[Array[Byte], String]]] = exec.recover {
+      case e: IllegalStateException if e.getMessage.contains("GOAWAY") && summon > 0 =>
+        rec.provide(summon - 1)
+      case other => throw other
+    }
+    rec.provide(2)
   }
 }
