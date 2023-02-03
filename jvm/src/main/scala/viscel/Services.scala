@@ -33,7 +33,6 @@ class Services(
   val blobdir: Path             = basepath.resolve(relativeBlobdir)
   val metarratorconfigdir: Path = basepath.resolve("metarrators")
   val definitionsdir: Path      = staticDir
-  val exportdir: Path           = basepath.resolve("export")
   val usersdir: Path            = basepath.resolve("users")
   val cookiePath: Path          = basepath.resolve("cookies.json")
   lazy val db4dir: Path         = create(basepath.resolve("db4"))
