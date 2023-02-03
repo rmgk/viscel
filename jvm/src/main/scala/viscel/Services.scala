@@ -105,11 +105,14 @@ class Services(
       case (narrator, force) =>
         if (force) narratorCache.updateCache()
         descriptionCache.invalidate(narrator.id)
-        if (force)
+        if (force) then
           try {
             rowStore.filterSingleLevelMissing(narrator.id)
           } catch { case NonFatal(e) => Log.Server.warn(s"filtering failed: ${e.getMessage}") }
-        clockwork.runNarrator(narrator, if (force) 0 else clockwork.dayInMillis * 1)
+
+        if force || clockwork.needsRecheck(narrator.id, clockwork.dayInMillis * 1)
+        then clockwork.runNarrator(narrator, false)
+
     }
   }
 

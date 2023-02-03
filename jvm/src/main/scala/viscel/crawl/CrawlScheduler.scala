@@ -7,9 +7,13 @@ import viscel.store.{JsoniterStorage, NarratorCache, Users}
 
 import java.net.SocketTimeoutException
 import java.nio.file.Path
-import java.util.concurrent.{CancellationException, CompletionException}
+import java.util
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.*
 import java.util.{Timer, TimerTask}
-import scala.collection.immutable.Map
+import scala.annotation.tailrec
+import scala.collection.immutable.{Map, Queue}
+import scala.collection.mutable
 import scala.util.{Failure, Success}
 
 class CrawlScheduler(
@@ -36,17 +40,30 @@ class CrawlScheduler(
           synchronized {
             log.info("schedule updates")
             val narrators = userStore.allBookmarks().flatMap(narratorCache.get)
-            narrators.foreach { runNarrator(_, 7 * dayInMillis) }
+            val filtered  = narrators.filter(n => needsRecheck(n.id, 7 * dayInMillis))
+            queued.addAll(filtered)
           }
+          fillQueue()
       },
       delay,
       period
     )
   }
 
-  def runNarrator(narrator: Narrator, recheckInterval: Long): Unit =
+  val queued: mutable.Queue[Narrator] = mutable.Queue()
+  val queueRunning                    = new Semaphore(5)
+
+  def fillQueue(): Unit =
+    while queueRunning.tryAcquire()
+    do
+      synchronized { queued.removeHeadOption() } match
+        case None =>
+        case Some(nar) =>
+          runNarrator(nar, true)
+
+  def runNarrator(narrator: Narrator, free: Boolean): Unit =
     synchronized {
-      if (!running.contains(narrator.id) && needsRecheck(narrator.id, recheckInterval)) {
+      if (!running.contains(narrator.id)) {
 
         Async[Any].resource(
           CrawlScheduler.this.synchronized { running = running + narrator.id },
@@ -56,10 +73,12 @@ class CrawlScheduler(
           log.info(s"[${narrator.id}] update complete")
           updateDates(narrator.id)
         }.run(using ()) { res =>
-          synchronized { if (running.isEmpty) System.gc() }
+          synchronized { if (queued.isEmpty && running.isEmpty) System.gc() }
+          if free then queueRunning.release()
+          fillQueue()
           res match
             case Failure(error) => logError(narrator)(error)
-            case Success(())   =>
+            case Success(())    =>
         }
       }
     }
