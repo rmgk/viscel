@@ -12,7 +12,7 @@ import java.nio.charset.{Charset, StandardCharsets}
 import java.time.format.DateTimeFormatter
 import java.time.{Duration, Instant}
 import java.util
-import java.util.concurrent.{Executor, ExecutorService, TimeUnit}
+import java.util.concurrent.{CompletionException, Executor, ExecutorService, TimeUnit}
 import scala.concurrent.{Future, Promise}
 import scala.jdk.OptionConverters.given
 import scala.util.chaining
@@ -89,7 +89,7 @@ class JvmHttpRequester(
       VResponse(content, Vurl.fromString(location), contentType.toString, lastModified, etag)
     }
     lazy val rec: Async[Int, VResponse[Either[Array[Byte], String]]] = exec.recover {
-      case e: IllegalStateException if e.getMessage.contains("GOAWAY") && summon > 0 =>
+      case e: CompletionException if e.getMessage.contains("GOAWAY") && summon > 0 =>
         rec.provide(summon - 1)
       case other => throw other
     }
