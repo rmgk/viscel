@@ -100,6 +100,8 @@ class CrawlScheduler(
       log.info(s"[${narrator.id}] update cancelled ${ce.getMessage}")
     case se: SocketTimeoutException =>
       log.error(s"[${narrator.id}] recheck failed with $se")
+    case ce: CompletionException =>
+      log.error(s"[${narrator.id}] recheck failed with ${ce.getMessage}")
     case t =>
       log.error(s"[${narrator.id}] recheck failed with $t")
       t.printStackTrace()
