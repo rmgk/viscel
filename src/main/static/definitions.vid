@@ -225,6 +225,11 @@
 -- :chapterArchive #chapters li > a
 -- :images #comicentry .content img
 
+-- -:Dragon Heroes
+-- http://dragonheroes.fanyart.com/comix-en.php?page=1
+-- :image #pages img
+-- :next a:has(img[alt=Next])
+
 
 ---------------------------------------------- UNDEAD -----
 -- undead here means, that there may still exist something, but is unmaintained and not worth the effort to keep supporting
@@ -599,13 +604,8 @@ https://bearnutscomic.com/2008/08/17/01-bear-nuts/
 
 -:Lackadaisy
 https://www.lackadaisy.com/archive.php
-:mixedArchive #archives dt , #archives dd a
-:image #content > img
-
--:Dragon Heroes
-http://dragonheroes.fanyart.com/comix-en.php?page=1
-:image #pages img
-:next a:has(img[alt=Next])
+:mixedArchive #archive-list h3, #archive-list a
+:image #exhibit > img
 
 -:Devil Bear
 http://www.thedevilbear.com/b/comic/its-for-you/
@@ -1007,9 +1007,10 @@ http://www.drowtales.com/mainarchive.php?sid=4192
 :next #link_next_top
 
 -:Never Mind the Gap
-http://nmg.thecomicseries.com/archive/
-:am #archive .chaptertitle , #archive .archivecomic a
-:i #comicimage, #comicimagewrap embed
+https://nmg.thecomicseries.com/archive/
+:chapterArchive #archive-chapters .chapter-title a
+:image #comicimage, #comicimagewrap embed
+:next #comicnav .comicnavlink[rel=next]
 
 -:You Suck
 https://yousuckthecomic.tumblr.com/tagged/webcomics/chrono
@@ -1172,6 +1173,10 @@ https://www.unlikeminerva.com/archive/phase1.php
 :images center > img[src~=/archive/]
 :next a:has(img[src~=/sitemap/next.jpg]) , center > a:contains(Onward to the next beginning)
 
+-:Dragon Heroes: Crow
+https://dhcrow.webcomic.ws/comics/1/
+:image #comicimage
+:next a[rel=next]
 
 
 
