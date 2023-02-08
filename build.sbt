@@ -38,7 +38,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .enablePlugins(BuildInfoPlugin)
   .settings(
     commonSettings,
-    jitpackResolver,
+    resolverJitpack,
     libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
       scalatags.value,
       slips.delay.value,
