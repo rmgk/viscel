@@ -34,12 +34,11 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: coursier/setup-action@v1
         with:
-          apps: sbt
+          apps: sbt sbtn
       - name: generate native image
         run: |
           sh make-native-image.sh
           rm viscel.build_artifacts.txt
-
       - name: copy static files
         shell: bash
         run: |
