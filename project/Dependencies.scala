@@ -9,7 +9,7 @@ object Dependencies {
 
   object Versions {
     val directories   = "26"
-    val jetty         = "11.0.13"
+    val jetty         = "9.4.50.v20221201"
     val jol           = "0.16"
     val jsoniterScala = "2.20.3" // for scalajs 1.12 (Scala 2.11)
     val jsoup         = "1.15.4"

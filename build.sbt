@@ -56,7 +56,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       scopt.value,
       jsoup.value,
-      loci.wsJetty11.value,
+      loci.wsJetty.value,
       jetty.value,
       scribeSlf4j2.value,
     ),
