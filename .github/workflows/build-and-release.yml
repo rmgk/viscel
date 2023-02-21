@@ -39,9 +39,10 @@ jobs:
         run: |
           sh make-native-image.sh
           rm viscel.build_artifacts.txt
-      - name: copy static files
+      - name: create & copy static files
         shell: bash
         run: |
+          sbtn vbundle
           mkdir -p bundle
           cp -r target/resources/static bundle/
           cp viscel* bundle/
