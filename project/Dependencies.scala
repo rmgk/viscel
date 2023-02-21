@@ -8,12 +8,11 @@ import sbt.Keys.*
 object Dependencies {
 
   object Versions {
-    val betterFiles   = "3.9.1"
     val directories   = "26"
     val jetty         = "11.0.13"
     val jol           = "0.16"
     val jsoniterScala = "2.20.3" // for scalajs 1.12 (Scala 2.11)
-    val jsoup         = "1.15.3"
+    val jsoup         = "1.15.4"
     val munit         = "1.0.0-M7"
     val okHttp        = "4.10.0"
     val pprint        = "0.8.0"
@@ -25,10 +24,10 @@ object Dependencies {
     val scalaJavaTime = "2.3.0"
     val scalaLoci     = "eb0719f08f"
     val scalacheck    = "1.17.0"
-    val scalajsDom    = "2.3.0"
+    val scalajsDom    = "2.4.0"
     val scalatags     = "0.12.0"
     val scopt         = "4.1.0"
-    val scribe        = "3.10.6"
+    val scribe        = "3.10.7"
     val sqliteJdbc    = "3.40.0.0"
     val sourcecode    = "0.3.0"
     val upickle       = "2.0.0"
@@ -36,8 +35,6 @@ object Dependencies {
 
   import Dependencies.Versions as V
 
-  val betterFiles =
-    Def.setting(("com.github.pathikrit" %% "better-files" % V.betterFiles).cross(CrossVersion.for3Use2_13))
   val directories     = Def.setting("dev.dirs" % "directories" % V.directories)
   val jetty           = Def.setting("org.eclipse.jetty" % "jetty-rewrite" % V.jetty)
   val jol             = Def.setting("org.openjdk.jol" % "jol-core" % V.jol)
@@ -76,9 +73,9 @@ object Dependencies {
     val chain    = Def.setting("de.rmgk.slips" %%% "chain" % "0.4.7")
     val delay    = Def.setting("de.rmgk.slips" %%% "delay" % "0.4.9")
     val logging  = Def.setting("de.rmgk.slips" %%% "logging" % "0.4.7")
-    val options  = Def.setting("de.rmgk.slips" %%% "options" % "0.4.7")
+    val options  = Def.setting("de.rmgk.slips" %%% "options" % "0.4.9")
     val scip     = Def.setting("de.rmgk.slips" %%% "scip" % "0.4.9")
-    val script   = Def.setting("de.rmgk.slips" %%% "script" % "0.4.8")
+    val script   = Def.setting("de.rmgk.slips" %%% "script" % "0.4.9")
   }
 
   object loci {
