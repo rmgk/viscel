@@ -28,8 +28,8 @@ jobs:
         continue-on-error: true
       - uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.0'
-          java-version: '17'
+          version: '22.3.1'
+          java-version: '19'
           components: 'native-image,js'
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: coursier/setup-action@v1
@@ -37,8 +37,7 @@ jobs:
           apps: sbt
       - name: generate native image
         run: |
-          sbt writeClasspath viscelPackage
-          native-image @code/jvm/target/classpath.txt viscel.Viscel
+          sh make-native-image.sh
           rm viscel.build_artifacts.txt
 
       - name: copy static files
