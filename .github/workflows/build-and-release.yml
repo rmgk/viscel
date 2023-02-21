@@ -40,6 +40,7 @@ jobs:
           sbtn stageJars
           native-image --enable-preview --class-path "jvm/target/jars/*" viscel.Viscel
           rm viscel*build_artifacts.txt
+        shell: bash
       - name: create & copy static files
         shell: bash
         run: |
