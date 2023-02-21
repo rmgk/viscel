@@ -1,10 +1,11 @@
 = Versions
 
 == v8.7
-date = 2022-11-22
+date = 2023-02-21
 
 • remove hover animation (for better font rendering)
 • port to scala 3 and general library updates
+• replace OkHttp by built in Java HTTP client
 
 == v8.6
 date = 2021-12-30
