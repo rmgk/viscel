@@ -1,4 +1,4 @@
-= Versions
+= Changes
 
 == v8.7
 date = 2023-02-21
@@ -46,7 +46,7 @@ date = 2020-06-26
 == v8.3
 date = 2020-06-14
 
-• fix serviceworker crasing on non https, non local connection
+• fix serviceworker crashing on non https, non local connection
 • use post for HTTP forms
 
 
@@ -232,7 +232,7 @@ date = 2015-01-09
 == v5.4.0
 date = 2014-12-16
 
-• improve runner to behave an a somewhat sane way, maybe.
+• improve runner to behave in a somewhat sane way, maybe.
 • still needs work, but is better than redownloading everything
 
 
@@ -279,7 +279,7 @@ date = 2010-11-22
 
 
 == v4.0.0
-date =2010-10-20
+date = 2010-10-20
 • first release of viscel branch
 
 
@@ -290,7 +290,7 @@ date = 2010-10-13
 
 
 == v3.62.267
-date =2009-11-06
+date = 2009-11-06
 
 
 == v3.61.265
