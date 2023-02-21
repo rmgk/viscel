@@ -38,7 +38,7 @@ jobs:
       - name: generate native image
         run: |
           sh make-native-image.sh
-          rm viscel.build_artifacts.txt
+          rm viscel*build_artifacts.txt
       - name: create & copy static files
         shell: bash
         run: |
