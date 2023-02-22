@@ -14,9 +14,6 @@ on:
     tags:
     - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
-defaults:
-  run:
-    shell: bash
 jobs:
   build-native-image:
     runs-on: ${{ matrix.os }}
@@ -40,8 +37,8 @@ jobs:
           apps: sbt sbtn
       - name: generate native image
         run: |
-          sbtn stageJars
-          native-image --enable-preview --class-path "jvm/target/jars/*" viscel.Viscel
+          sbt writeClasspath
+          native-image @jvm/target/classpath.txt viscel.Viscel
           rm viscel*build_artifacts.txt
       - name: create & copy static files
         run: |
@@ -49,6 +46,7 @@ jobs:
           mkdir -p bundle
           cp -r target/resources/static bundle/
           cp viscel* bundle/
+        shell: bash
       - name: Publish artifact
         uses: actions/upload-artifact@master
         with:
