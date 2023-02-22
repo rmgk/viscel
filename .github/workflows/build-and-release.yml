@@ -34,7 +34,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: coursier/setup-action@v1
         with:
-          apps: sbt sbtn
+          apps: sbt
       - name: generate native image
         run: |
           sbt writeClasspath
@@ -42,7 +42,7 @@ jobs:
           rm viscel*build_artifacts.txt
       - name: create & copy static files
         run: |
-          sbtn vbundle
+          sbt vbundle
           mkdir -p bundle
           cp -r target/resources/static bundle/
           cp viscel* bundle/
