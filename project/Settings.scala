@@ -110,4 +110,24 @@ object Settings {
 
   // see https://www.scala-js.org/doc/project/js-environments.html
   val jsEnvDom = jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv()
+
+  def sourcemapFromEnv() = {
+    val customSourcePrefix = scala.sys.env.get("RESCALA_SOURCE_MAP_PREFIX")
+    customSourcePrefix match {
+      case Some(targetUrl) if !targetUrl.isEmpty =>
+        Def.settings(
+          scalacOptions += {
+
+            def gitHash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
+            def baseUrl = (LocalRootProject / baseDirectory).value.toURI.toString
+
+            if (`is 3`(scalaVersion.value))
+              s"-scalajs-mapSourceURI:$baseUrl->$targetUrl$gitHash/"
+            else
+              s"-P:scalajs:mapSourceURI:$baseUrl->$targetUrl$gitHash/"
+          }
+        )
+      case _ => Def.settings()
+    }
+  }
 }

@@ -39,14 +39,15 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .settings(
     commonSettings,
     resolverJitpack,
-    libraryDependencies ++= jsoniterScalaAll.value ++ Seq(
+    libraryDependencies ++= Seq(
       scalatags.value,
       slips.delay.value,
       slips.options.value,
+      jsoniterScala.value,
       "com.github.rescala-lang.rescala" %%% "rescala" % "085d4cdbe8",
       "com.github.rescala-lang.rescala" %%% "kofre"   % "085d4cdbe8",
       loci.jsoniterScala.value,
-      munitScalacheck.value
+      munitCheck.value
     ),
     buildInfoKeys    := Seq[BuildInfoKey](version),
     buildInfoPackage := "viscel.shared"
@@ -57,7 +58,7 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
       scopt.value,
       jsoup.value,
       loci.wsJetty.value,
-      jetty.value,
+      "org.eclipse.jetty" % "jetty-rewrite" % "9.4.51.v20230217",
       scribeSlf4j2.value,
     ),
     // uncomment the following to enable graal tracing to allow native image generation
