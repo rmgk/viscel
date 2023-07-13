@@ -9,7 +9,7 @@
   "name":"[Lorg.eclipse.jetty.rewrite.handler.Rule;"
 },
 {
-  "name":"[Lorg.eclipse.jetty.servlet.ServletMapping;"
+  "name":"[Lorg.eclipse.jetty.servlet.FilterHolder;"
 },
 {
   "name":"[Lsun.security.pkcs.SignerInfo;"
@@ -47,7 +47,15 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.crypto.provider.TlsKeyMaterialGenerator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.TlsPrfGenerator$V12",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -57,10 +65,6 @@
 {
   "name":"java.lang.Byte",
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.Class",
-  "methods":[{"name":"getModule","parameterTypes":[] }]
 },
 {
   "name":"java.lang.ClassValue"
@@ -82,22 +86,20 @@
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
-  "name":"java.lang.Module",
-  "methods":[
-    {"name":"getLayer","parameterTypes":[] }, 
-    {"name":"getName","parameterTypes":[] }
-  ]
-},
-{
-  "name":"java.lang.ModuleLayer",
-  "methods":[{"name":"configuration","parameterTypes":[] }]
-},
-{
   "name":"java.lang.Short",
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.String"
+},
+{
+  "name":"java.lang.System",
+  "methods":[{"name":"getSecurityManager","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Thread",
+  "fields":[{"name":"threadLocalRandomProbe"}],
+  "methods":[{"name":"isVirtual","parameterTypes":[] }]
 },
 {
   "name":"java.lang.invoke.VarHandle",
@@ -112,16 +114,8 @@
   "methods":[{"name":"getUptime","parameterTypes":[] }]
 },
 {
-  "name":"java.lang.module.Configuration",
-  "methods":[{"name":"findModule","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.module.ModuleReference",
-  "methods":[{"name":"location","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.module.ResolvedModule",
-  "methods":[{"name":"reference","parameterTypes":[] }]
+  "name":"java.security.AccessController",
+  "methods":[{"name":"doPrivileged","parameterTypes":["java.security.PrivilegedAction"] }]
 },
 {
   "name":"java.security.AlgorithmParametersSpi"
@@ -146,12 +140,39 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"java.util.concurrent.Executors",
+  "methods":[{"name":"newVirtualThreadPerTaskExecutor","parameterTypes":[] }]
+},
+{
+  "name":"java.util.concurrent.ForkJoinTask",
+  "fields":[{"name":"aux"}, {"name":"status"}]
+},
+{
+  "name":"java.util.concurrent.atomic.AtomicBoolean",
+  "fields":[{"name":"value"}]
+},
+{
+  "name":"java.util.concurrent.atomic.AtomicReference",
+  "fields":[{"name":"value"}]
+},
+{
+  "name":"java.util.concurrent.atomic.Striped64",
+  "fields":[{"name":"base"}, {"name":"cellsBusy"}]
+},
+{
   "name":"javax.security.auth.x500.X500Principal",
   "fields":[{"name":"thisX500Name"}],
   "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
 },
 {
+  "name":"jdk.internal.misc.Unsafe"
+},
+{
   "name":"loci.registry.Registry$AbstractionRef",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"loci.transmitter.Transmittable$",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
@@ -163,20 +184,32 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.util.ModuleLocation",
+  "name":"org.eclipse.jetty.util.AsciiLowerCaseSet",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.util.RegexSet",
+  "name":"org.eclipse.jetty.util.TypeUtil",
+  "methods":[{"name":"getClassLoaderLocation","parameterTypes":["java.lang.Class"] }, {"name":"getCodeSourceLocation","parameterTypes":["java.lang.Class"] }, {"name":"getModuleLocation","parameterTypes":["java.lang.Class"] }, {"name":"getSystemClassLoaderLocation","parameterTypes":["java.lang.Class"] }]
+},
+{
+  "name":"org.eclipse.jetty.websocket.api.WebSocketConnectionListener",
+  "methods":[{"name":"onWebSocketClose","parameterTypes":["int","java.lang.String"] }, {"name":"onWebSocketConnect","parameterTypes":["org.eclipse.jetty.websocket.api.Session"] }, {"name":"onWebSocketError","parameterTypes":["java.lang.Throwable"] }]
+},
+{
+  "name":"org.eclipse.jetty.websocket.api.WebSocketListener",
+  "methods":[{"name":"onWebSocketBinary","parameterTypes":["byte[]","int","int"] }, {"name":"onWebSocketText","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"org.eclipse.jetty.websocket.core.internal.PerMessageDeflateExtension",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.util.log.Slf4jLog",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"org.eclipse.jetty.websocket.core.internal.messages.ByteArrayMessageSink",
+  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle"] }]
 },
 {
-  "name":"org.eclipse.jetty.websocket.common.extensions.compress.PerMessageDeflateExtension",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"org.eclipse.jetty.websocket.core.internal.messages.StringMessageSink",
+  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle"] }]
 },
 {
   "name":"rescala.default$",
@@ -188,28 +221,15 @@
 },
 {
   "name":"scalatags.Text$attrs$",
-  "fields":[
-    {"name":"0bitmap$1"}, 
-    {"name":"1bitmap$1"}, 
-    {"name":"2bitmap$1"}, 
-    {"name":"3bitmap$1"}, 
-    {"name":"4bitmap$1"}
-  ]
+  "fields":[{"name":"0bitmap$1"}, {"name":"1bitmap$1"}, {"name":"2bitmap$1"}, {"name":"3bitmap$1"}, {"name":"4bitmap$1"}]
 },
 {
   "name":"scalatags.Text$tags$",
-  "fields":[
-    {"name":"0bitmap$2"}, 
-    {"name":"1bitmap$2"}, 
-    {"name":"2bitmap$2"}
-  ]
+  "fields":[{"name":"0bitmap$2"}, {"name":"1bitmap$2"}, {"name":"2bitmap$2"}]
 },
 {
   "name":"scalatags.Text$tags2$",
-  "fields":[
-    {"name":"0bitmap$3"}, 
-    {"name":"1bitmap$3"}
-  ]
+  "fields":[{"name":"0bitmap$3"}, {"name":"1bitmap$3"}]
 },
 {
   "name":"scopt.OParser$",
@@ -313,7 +333,7 @@
 },
 {
   "name":"sun.misc.Unsafe",
-  "allDeclaredFields":true
+  "fields":[{"name":"theUnsafe"}]
 },
 {
   "name":"sun.security.pkcs12.PKCS12KeyStore",
@@ -341,7 +361,7 @@
 },
 {
   "name":"sun.security.provider.NativePRNG",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
 },
 {
   "name":"sun.security.provider.SHA",
@@ -463,78 +483,78 @@
 },
 {
   "name":"viscel.Services",
-  "fields":[{"name":"0bitmap$1"}]
+  "fields":[{"name":"blobStore$lzy1"}, {"name":"cachedir$lzy1"}, {"name":"clockwork$lzy1"}, {"name":"contentLoader$lzy1"}, {"name":"crawl$lzy1"}, {"name":"db4dir$lzy1"}, {"name":"descriptionCache$lzy1"}, {"name":"folderImporter$lzy1"}, {"name":"interactions$lzy1"}, {"name":"narrationHint$lzy1"}, {"name":"narratorCache$lzy1"}, {"name":"requests$lzy1"}, {"name":"rowStore$lzy1"}, {"name":"server$lzy1"}, {"name":"serverPages$lzy1"}, {"name":"userStore$lzy1"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Extractor$",
-  "fields":[{"name":"0bitmap$11"}]
+  "fields":[{"name":"derived$CanEqual$lzy2"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Extractor$Chapter$",
-  "fields":[{"name":"0bitmap$10"}]
+  "fields":[{"name":"extract$lzy5"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Extractor$Image",
-  "fields":[{"name":"0bitmap$6"}]
+  "fields":[{"name":"extract$lzy1"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Extractor$MixedArchive$",
-  "fields":[{"name":"0bitmap$9"}]
+  "fields":[{"name":"extract$lzy4"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Extractor$More$",
-  "fields":[{"name":"0bitmap$7"}]
+  "fields":[{"name":"extract$lzy2"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Extractor$OptionalParentMore$",
-  "fields":[{"name":"0bitmap$8"}]
+  "fields":[{"name":"extract$lzy3"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Filter$",
-  "fields":[{"name":"0bitmap$15"}]
+  "fields":[{"name":"derived$CanEqual$lzy3"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Filter$ChapterReverse",
-  "fields":[{"name":"0bitmap$12"}]
+  "fields":[{"name":"filter$lzy1"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Filter$SelectSingleNext$",
-  "fields":[{"name":"0bitmap$14"}]
+  "fields":[{"name":"filter$lzy3"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Filter$TransformUrls",
-  "fields":[{"name":"0bitmap$13"}]
+  "fields":[{"name":"filter$lzy2"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Restriction$",
-  "fields":[{"name":"0bitmap$5"}]
+  "fields":[{"name":"derived$CanEqual$lzy1"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Restriction$NonEmpty$",
-  "fields":[{"name":"0bitmap$2"}]
+  "fields":[{"name":"viscel$selektiv$FlowWrapper$Restriction$$$1$$lzy2"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Restriction$None$",
-  "fields":[{"name":"0bitmap$3"}]
+  "fields":[{"name":"viscel$selektiv$FlowWrapper$Restriction$$$1$$lzy3"}]
 },
 {
   "name":"viscel.selektiv.FlowWrapper$Restriction$Unique$",
-  "fields":[{"name":"0bitmap$1"}]
+  "fields":[{"name":"viscel$selektiv$FlowWrapper$Restriction$$$1$$lzy1"}]
 },
 {
   "name":"viscel.server.JettyServer",
-  "fields":[{"name":"0bitmap$1"}]
+  "fields":[{"name":"Unhandled$lzy1"}, {"name":"authenticationHandler$lzy1"}, {"name":"blobsHandler$lzy1"}, {"name":"jettyServer$lzy1"}, {"name":"mainHandler$lzy1"}]
 },
 {
   "name":"viscel.shared.DataRow$",
-  "fields":[{"name":"0bitmap$3"}]
+  "fields":[{"name":"derived$CanEqual$lzy3"}]
 },
 {
   "name":"viscel.shared.Vid$",
-  "fields":[{"name":"0bitmap$1"}]
+  "fields":[{"name":"derived$CanEqual$lzy1"}]
 },
 {
   "name":"viscel.shared.Vurl$",
-  "fields":[{"name":"0bitmap$1"}]
+  "fields":[{"name":"derived$CanEqual$lzy1"}]
 }
 ]
