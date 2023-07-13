@@ -3,33 +3,32 @@
 
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
-import sbt.Keys.*
 
 object Dependencies {
 
   object Versions {
     val directories   = "26"
     val jol           = "0.17"
-    val jsoniterScala = "2.22.1"
-    val jsoup         = "1.15.4"
-    val munit         = "1.0.0-M7"
+    val jsoniterScala = "2.23.2"
+    val jsoup         = "1.16.1"
+    val munit         = "1.0.0-M8"
     val okHttp        = "4.10.0"
     val pprint        = "0.8.0"
     val quicklens     = "1.9.0"
     val scala211      = "2.11.12"
     val scala212      = "2.12.17"
     val scala213      = "2.13.10"
-    val scala3        = "3.2.2"
+    val scala3        = "3.3.0"
     val scalaJavaTime = "2.3.0"
     val scalaLoci     = "eb0719f08f"
     val scalacheck    = "1.17.0"
-    val scalajsDom    = "2.4.0"
+    val scalajsDom    = "2.6.0"
     val scalatags     = "0.12.0"
     val scopt         = "4.1.0"
     val scribe        = "3.10.7"
-    val sqliteJdbc    = "3.41.2.1"
+    val sqliteJdbc    = "3.42.0.0"
     val sourcecode    = "0.3.0"
-    val upickle       = "3.0.0"
+    val upickle       = "3.1.2"
   }
 
   import Dependencies.Versions as V
@@ -56,13 +55,12 @@ object Dependencies {
   val upickle       = Def.setting("com.lihaoyi" %%% "upickle" % V.upickle)
 
   object slips {
-    val category = Def.setting("de.rmgk.slips" %%% "category" % "0.4.7")
-    val chain    = Def.setting("de.rmgk.slips" %%% "chain" % "0.4.7")
-    val delay    = Def.setting("de.rmgk.slips" %%% "delay" % "0.4.9")
-    val logging  = Def.setting("de.rmgk.slips" %%% "logging" % "0.4.7")
-    val options  = Def.setting("de.rmgk.slips" %%% "options" % "0.4.9")
-    val scip     = Def.setting("de.rmgk.slips" %%% "scip" % "0.4.9")
-    val script   = Def.setting("de.rmgk.slips" %%% "script" % "0.4.9")
+    val chain   = Def.setting("de.rmgk.slips" %%% "chain" % "0.5.0")
+    val delay   = Def.setting("de.rmgk.slips" %%% "delay" % "0.5.0")
+    val logging = Def.setting("de.rmgk.slips" %%% "logging" % "0.5.0")
+    val options = Def.setting("de.rmgk.slips" %%% "options" % "0.5.0")
+    val scip    = Def.setting("de.rmgk.slips" %%% "scip" % "0.5.0")
+    val script  = Def.setting("de.rmgk.slips" %%% "script" % "0.5.0")
   }
 
   object loci {

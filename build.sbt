@@ -101,7 +101,7 @@ lazy val fetchJSDependenciesDef = fetchJSDependencies := {
   Files.createDirectories(dependenciesTarget)
   dependencies.map {
     case (name, urlStr, sha1) =>
-      val url      = new URL(urlStr)
+      val url      = new URI(urlStr).toURL
       val filepath = dependenciesTarget.resolve(name)
       val fos      = Files.newOutputStream(filepath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
       try IO.transferAndClose(url.openStream(), fos)
