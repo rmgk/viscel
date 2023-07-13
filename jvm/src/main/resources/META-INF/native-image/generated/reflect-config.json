@@ -9,7 +9,7 @@
   "name":"[Lorg.eclipse.jetty.rewrite.handler.Rule;"
 },
 {
-  "name":"[Lorg.eclipse.jetty.servlet.FilterHolder;"
+  "name":"[Lorg.eclipse.jetty.servlet.ServletMapping;"
 },
 {
   "name":"[Lsun.security.pkcs.SignerInfo;"
@@ -67,6 +67,10 @@
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
+  "name":"java.lang.Class",
+  "methods":[{"name":"getModule","parameterTypes":[] }]
+},
+{
   "name":"java.lang.ClassValue"
 },
 {
@@ -86,6 +90,14 @@
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
+  "name":"java.lang.Module",
+  "methods":[{"name":"getLayer","parameterTypes":[] }, {"name":"getName","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.ModuleLayer",
+  "methods":[{"name":"configuration","parameterTypes":[] }]
+},
+{
   "name":"java.lang.Short",
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
@@ -93,13 +105,8 @@
   "name":"java.lang.String"
 },
 {
-  "name":"java.lang.System",
-  "methods":[{"name":"getSecurityManager","parameterTypes":[] }]
-},
-{
   "name":"java.lang.Thread",
-  "fields":[{"name":"threadLocalRandomProbe"}],
-  "methods":[{"name":"isVirtual","parameterTypes":[] }]
+  "fields":[{"name":"threadLocalRandomProbe"}]
 },
 {
   "name":"java.lang.invoke.VarHandle",
@@ -114,8 +121,16 @@
   "methods":[{"name":"getUptime","parameterTypes":[] }]
 },
 {
-  "name":"java.security.AccessController",
-  "methods":[{"name":"doPrivileged","parameterTypes":["java.security.PrivilegedAction"] }]
+  "name":"java.lang.module.Configuration",
+  "methods":[{"name":"findModule","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.module.ModuleReference",
+  "methods":[{"name":"location","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.module.ResolvedModule",
+  "methods":[{"name":"reference","parameterTypes":[] }]
 },
 {
   "name":"java.security.AlgorithmParametersSpi"
@@ -125,6 +140,12 @@
 },
 {
   "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.security.interfaces.ECPrivateKey"
+},
+{
+  "name":"java.security.interfaces.ECPublicKey"
 },
 {
   "name":"java.security.interfaces.RSAPrivateKey"
@@ -138,10 +159,6 @@
 {
   "name":"java.util.HashSet",
   "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"java.util.concurrent.Executors",
-  "methods":[{"name":"newVirtualThreadPerTaskExecutor","parameterTypes":[] }]
 },
 {
   "name":"java.util.concurrent.ForkJoinTask",
@@ -184,32 +201,20 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.util.AsciiLowerCaseSet",
+  "name":"org.eclipse.jetty.util.ModuleLocation",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.util.TypeUtil",
-  "methods":[{"name":"getClassLoaderLocation","parameterTypes":["java.lang.Class"] }, {"name":"getCodeSourceLocation","parameterTypes":["java.lang.Class"] }, {"name":"getModuleLocation","parameterTypes":["java.lang.Class"] }, {"name":"getSystemClassLoaderLocation","parameterTypes":["java.lang.Class"] }]
-},
-{
-  "name":"org.eclipse.jetty.websocket.api.WebSocketConnectionListener",
-  "methods":[{"name":"onWebSocketClose","parameterTypes":["int","java.lang.String"] }, {"name":"onWebSocketConnect","parameterTypes":["org.eclipse.jetty.websocket.api.Session"] }, {"name":"onWebSocketError","parameterTypes":["java.lang.Throwable"] }]
-},
-{
-  "name":"org.eclipse.jetty.websocket.api.WebSocketListener",
-  "methods":[{"name":"onWebSocketBinary","parameterTypes":["byte[]","int","int"] }, {"name":"onWebSocketText","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"org.eclipse.jetty.websocket.core.internal.PerMessageDeflateExtension",
+  "name":"org.eclipse.jetty.util.RegexSet",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.websocket.core.internal.messages.ByteArrayMessageSink",
-  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle"] }]
+  "name":"org.eclipse.jetty.util.log.Slf4jLog",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.websocket.core.internal.messages.StringMessageSink",
-  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle"] }]
+  "name":"org.eclipse.jetty.websocket.common.extensions.compress.PerMessageDeflateExtension",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"rescala.default$",
@@ -413,6 +418,10 @@
 },
 {
   "name":"sun.security.rsa.RSASignature$SHA384withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSASignature$SHA512withRSA",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
