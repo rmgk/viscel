@@ -1,4 +1,4 @@
 #!/usr/bin/sh
 
-sbtn stageJars
+sbt --client stageJars
 native-image --enable-preview --class-path "jvm/target/jars/*" viscel.Viscel
