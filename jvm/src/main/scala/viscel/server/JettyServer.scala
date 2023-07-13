@@ -1,7 +1,7 @@
 package viscel.server
 
 // change to jakarta for jetty 11+
-import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
+import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import loci.communicator.ws.jetty.*
 import loci.communicator.ws.jetty.WS.Properties
 import loci.registry.Registry
@@ -27,6 +27,7 @@ import scala.collection.mutable
 import scala.concurrent.duration.*
 import scala.concurrent.{Await, Promise}
 import scala.jdk.CollectionConverters.*
+import scala.util.chaining.scalaUtilChainingOps
 
 class JettyServer(
     blobStore: BlobStore,
@@ -39,8 +40,14 @@ class JettyServer(
 ) {
 
   lazy val jettyServer: Server = {
-    val threadPool = new QueuedThreadPool(4, 1)
-    threadPool.setName("http server")
+    // the
+    val threadPool = new QueuedThreadPool().tap: p =>
+      import p.*
+      // we do not set max threads, as jetty may internally require a certain (unpredictable amount) and will complain if unavailable
+      // instead, the connector below tries to limit concurrency with the number of acceptors and selectors
+      setMinThreads(0)
+      setIdleTimeout(10000 /*ms*/)
+      setName("http server")
     new Server(threadPool)
   }
 
@@ -48,7 +55,8 @@ class JettyServer(
   def start(interface: String, port: Int): Unit = {
 
     // connectors accept requests – in this case on a TCP socket
-    val connector = new ServerConnector(jettyServer)
+    // the acceptors/selectors value should cause this to have a single selector thread, which also handles the response
+    val connector = new ServerConnector(jettyServer, 0, 1)
     jettyServer.addConnector(connector)
     connector.setHost(interface)
     connector.setPort(port)

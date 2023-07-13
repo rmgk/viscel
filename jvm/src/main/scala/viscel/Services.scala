@@ -49,7 +49,7 @@ class Services(
   /* ====== http requests ====== */
 
   lazy val requests = {
-    val executor = new ThreadPoolExecutor(0, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue())
+    val executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue())
     val cookies: Map[String, (String, String)] =
       if (Files.exists(cookiePath)) {
         JsoniterStorage.load(cookiePath)(JsoniterCodecs.CookieMapCodec).getOrElse(Map.empty)
