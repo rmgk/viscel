@@ -1,7 +1,7 @@
 package viscel.server
 
 // change to jakarta for jetty 11+
-import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import loci.communicator.ws.jetty.*
 import loci.communicator.ws.jetty.WS.Properties
 import loci.registry.Registry

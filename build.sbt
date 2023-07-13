@@ -57,8 +57,8 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       scopt.value,
       jsoup.value,
-      loci.wsJetty11.value,
-      "org.eclipse.jetty" % "jetty-rewrite" % "11.0.15",
+      loci.wsJetty.value,
+      "org.eclipse.jetty" % "jetty-rewrite" % "9.4.51.v20230217",
       scribeSlf4j2.value,
     ),
     // uncomment the following to enable graal tracing to allow native image generation
