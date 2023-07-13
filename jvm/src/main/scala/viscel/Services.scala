@@ -10,8 +10,7 @@ import viscel.store.{BlobStore, DescriptionCache, JsoniterStorage, NarratorCache
 
 import java.nio.file.{Files, Path}
 import java.util.TimerTask
-import java.util.concurrent.{LinkedBlockingQueue, SynchronousQueue, ThreadPoolExecutor, TimeUnit}
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
+import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 import scala.util.control.NonFatal
 
 class Services(

@@ -30,7 +30,7 @@ object JsoniterStorage {
     Using(Files.newOutputStream(file, StandardOpenOption.APPEND, StandardOpenOption.CREATE)) { os =>
       os.write(bytes)
       os.write('\n')
-    }
+    }.get
   }
 
   implicit val UserCodec: JsonValueCodec[User] = JsonCodecMaker.make

@@ -1,6 +1,5 @@
 package visceljs.storage
 
-import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
 

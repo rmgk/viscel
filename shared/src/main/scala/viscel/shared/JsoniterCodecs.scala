@@ -3,7 +3,6 @@ package viscel.shared
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.github.plokhotnyuk.jsoniter_scala.macros._
 
-import scala.annotation.nowarn
 
 object JsoniterCodecs {
   def writeString[T: JsonValueCodec](value: T) = writeToString(value)

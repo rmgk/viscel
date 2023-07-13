@@ -2,7 +2,6 @@ package viscel
 
 import java.lang.management.ManagementFactory
 import java.nio.file.{Files, Path, Paths}
-import java.io.File as jFile
 import viscel.shared.Log
 import viscel.store.BlobStore
 
@@ -67,6 +66,7 @@ object Viscel {
     if (!nodownload.value) {
       services.clockwork.recheckPeriodically()
       services.activateNarrationHint()
+      ()
     }
 
     if (shutdown.value) {

@@ -15,7 +15,6 @@ import visceljs.Definitions.lcButton
 import visceljs.Navigation.*
 import visceljs.{Actions, Definitions, Icons}
 import rescala.extra.Tags.*
-import scalatags.Text.TypedTag
 
 class ImagePage(act: Actions) {
 

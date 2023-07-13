@@ -6,7 +6,6 @@ import viscel.selektiv.{FlowWrapper, Report}
 import viscel.shared.{DataRow, Log, Vid, Vurl}
 
 import java.net.MalformedURLException
-import java.nio.charset.StandardCharsets
 import java.nio.file.{FileVisitOption, Files, Path}
 import scala.annotation.tailrec
 import scala.collection.immutable.Map

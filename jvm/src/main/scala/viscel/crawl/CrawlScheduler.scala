@@ -8,11 +8,8 @@ import viscel.store.{JsoniterStorage, NarratorCache, Users}
 import java.net.SocketTimeoutException
 import java.nio.file.Path
 import java.util
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.*
 import java.util.{Timer, TimerTask}
-import scala.annotation.tailrec
-import scala.collection.immutable.{Map, Queue}
 import scala.collection.mutable
 import scala.util.{Failure, Success}
 

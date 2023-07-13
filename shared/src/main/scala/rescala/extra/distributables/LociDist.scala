@@ -34,7 +34,6 @@ object LociDist {
           override val source = signal
           override def writeValue(b: source.Value, v: source.Value => Unit): Boolean = {
             val merged = b.asInstanceOf[Pulse[A]].map(Lattice[A].merge(_, newValue)).asInstanceOf[source.Value]
-            given CanEqual[source.Value, source.Value] = CanEqual.canEqualAny
             if (merged != b) {
               v(merged)
               true

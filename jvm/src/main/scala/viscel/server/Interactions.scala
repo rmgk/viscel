@@ -15,7 +15,6 @@ import viscel.Viscel
 import de.rmgk.delay.Async
 
 import scala.collection.immutable.Map
-import scala.concurrent.Future
 
 class Interactions(
     contentLoader: ContentLoader,

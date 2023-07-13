@@ -10,9 +10,7 @@ import viscel.selektiv.Narration.ContextData
 import viscel.shared.{Log, Vid, Vurl}
 
 import java.nio.file.Path
-import scala.annotation.nowarn
 import scala.collection.immutable.{Map, Set}
-import scala.concurrent.Future
 
 class NarratorCache(metaPath: Path, definitionsdir: Path) {
 

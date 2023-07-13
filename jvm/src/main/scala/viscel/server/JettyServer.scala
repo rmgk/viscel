@@ -261,7 +261,6 @@ class JettyServer(
 
               List("url").flatMap(key => params.get(key).flatMap(_.headOption)) match {
                 case List(url) =>
-                  import scala.concurrent.ExecutionContext.Implicits.global
                   val fut = interactions.addNarratorsFrom(url).map(v => s"found $v").runToFuture(using ())
                   Res(Await.result(fut, 60.seconds))
                 case _ =>

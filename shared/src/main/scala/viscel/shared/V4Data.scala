@@ -2,8 +2,9 @@ package viscel.shared
 
 import java.net.URL
 import java.time.Instant
+import viscel.shared.DataRow.*
 
-import viscel.shared.DataRow._
+import scala.annotation.nowarn
 
 final class Vurl private (private val uri: String) extends AnyVal derives CanEqual {
   def uriString(): String       = uri
@@ -17,7 +18,10 @@ object Vurl {
   /* Ensure urls are always parsed. */
   implicit def fromString(uri: String): Vurl = {
     if (uri.startsWith("viscel:")) new Vurl(uri)
-    else new Vurl(new URL(uri).toString)
+    else
+      // as far as the deprecation below states, the URL constructor does not do that much parsing.
+      // however, that seems to be excactly what we want? The last time I checked, the URI constructor complains about a lot of things, that turn out to not be any issue when resolving the URL.
+      new Vurl((new URL(uri): @nowarn).toString)
   }
 
   def unsafeFromString(uri: String): Vurl = {

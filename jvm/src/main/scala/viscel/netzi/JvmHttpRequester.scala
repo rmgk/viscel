@@ -1,21 +1,19 @@
 package viscel.netzi
 
-import de.rmgk.delay.{extensions, *}
+import de.rmgk.delay.*
 import viscel.crawl.RequestException
 import viscel.shared.{Log, Vurl}
 
-import java.io.IOException
-import java.net.http.HttpResponse.{BodyHandlers, BodySubscribers}
+import java.net.http.HttpResponse.BodyHandlers
 import java.net.http.{HttpClient, HttpRequest, HttpResponse}
 import java.net.*
 import java.nio.charset.{Charset, StandardCharsets}
 import java.time.format.DateTimeFormatter
 import java.time.{Duration, Instant}
 import java.util
-import java.util.concurrent.{CompletionException, Executor, ExecutorService, TimeUnit}
-import scala.concurrent.{Future, Promise}
+import java.util.concurrent.{CompletionException, ExecutorService}
+import scala.annotation.nowarn
 import scala.jdk.OptionConverters.given
-import scala.util.chaining
 
 class JvmHttpRequester(
     val executorService: ExecutorService,
@@ -43,7 +41,7 @@ class JvmHttpRequester(
   val referrer = "Referer"
 
   def urlUri(urlstring: String): URI = {
-    val url = new URL(urlstring)
+    val url = (new URL(urlstring): @nowarn)
     new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef)
   }
 
@@ -89,8 +87,8 @@ class JvmHttpRequester(
       VResponse(content, Vurl.fromString(location), contentType.toString, lastModified, etag)
     }
     lazy val rec: Async[Int, VResponse[Either[Array[Byte], String]]] = exec.recover {
-      case e: CompletionException if e.getMessage.contains("GOAWAY") && summon > 0 =>
-        rec.provide(summon - 1)
+      case e: CompletionException if e.getMessage.contains("GOAWAY") && summon[Int] > 0 =>
+        rec.provide(summon[Int] - 1)
       case other => throw other
     }
     rec.provide(2)

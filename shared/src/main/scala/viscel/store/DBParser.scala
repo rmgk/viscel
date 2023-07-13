@@ -1,13 +1,9 @@
 package viscel.store
 
-import java.io.ByteArrayInputStream
-import com.github.plokhotnyuk.jsoniter_scala.core.{JsonValueCodec, ReaderConfig, readFromArray, readFromSubArray, scanJsonValuesFromStream, writeToArray}
+import com.github.plokhotnyuk.jsoniter_scala.core.{JsonValueCodec, readFromSubArray}
 import viscel.shared.{DataRow, JsoniterCodecs}
 
-import java.nio.charset.StandardCharsets
 import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
-import scala.util.control.NonFatal
 
 object DBParser {
 

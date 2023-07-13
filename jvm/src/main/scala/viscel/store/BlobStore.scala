@@ -61,6 +61,7 @@ object BlobStore {
         Log.info(s"moving $bp to $newpath")
         Files.createDirectories(newpath.getParent)
         Files.move(bp, newpath)
+        ()
       }
     }
     blobsHashesInDB.diff(seen).foreach(sha1 => Log.info(s"$sha1 is missing"))
