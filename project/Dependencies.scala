@@ -7,10 +7,8 @@ import sbt.Keys.libraryDependencies
 
 object Dependencies {
 
-  def directories = libraryDependencies += "dev.dirs"        % "directories" % "26"
-  val jol         = libraryDependencies += "org.openjdk.jol" % "jol-core"    % "0.17"
-  val jsoniterScala =
-    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.23.2"
+  def directories   = libraryDependencies += "dev.dirs"                     % "directories"      % "26"
+  val jol           = libraryDependencies += "org.openjdk.jol"              % "jol-core"         % "0.17"
   val jsoup         = libraryDependencies += "org.jsoup"                    % "jsoup"            % "1.16.1"
   val munit         = libraryDependencies += "org.scalameta"              %%% "munit"            % "1.0.0-M8" % Test
   val munitCheck    = libraryDependencies += "org.scalameta"              %%% "munit-scalacheck" % "1.0.0-M8" % Test
@@ -27,6 +25,8 @@ object Dependencies {
   val sourcecode    = libraryDependencies += "com.lihaoyi"                %%% "sourcecode"       % "0.3.0"
   val sqliteJdbc    = libraryDependencies += "org.xerial"                   % "sqlite-jdbc"      % "3.42.0.0"
   val upickle       = libraryDependencies += "com.lihaoyi"                %%% "upickle"          % "3.1.2"
+  val jsoniterScala =
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.23.2"
 
   object slips {
     val chain   = libraryDependencies += "de.rmgk.slips" %%% "chain"   % "0.5.0"
