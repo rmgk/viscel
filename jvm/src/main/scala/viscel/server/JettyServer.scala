@@ -46,7 +46,7 @@ class JettyServer(
       // we do not set max threads, as jetty may internally require a certain (unpredictable amount) and will complain if unavailable
       // instead, the connector below tries to limit concurrency with the number of acceptors and selectors
       setMinThreads(0)
-      setIdleTimeout(10000 /*ms*/)
+      setIdleTimeout(10000 /*ms*/ )
       setName("http server")
     new Server(threadPool)
   }

@@ -39,7 +39,7 @@ object FlowWrapper {
       case Extractor.Image(attribute) => e => List(imageFromAttribute(e, attribute))
       case Extractor.More => e =>
           List(extractMore(e))
-        // case Extractor.Parent(next)    => e => next.extract(e.parent())
+      // case Extractor.Parent(next)    => e => next.extract(e.parent())
       // case Extractor.Optional(inner) => e => Try(inner.extract(e)).toOption.getOrElse(Nil)
       case OptionalParentMore     => extractParentMore
       case Extractor.MixedArchive => e => List(extractMixedArchive(e))
