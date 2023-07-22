@@ -1,4 +1,3 @@
-import Dependencies.*
 import Settings.*
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
@@ -39,37 +38,34 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .settings(
     commonSettings,
     resolverJitpack,
+    Dependencies.scalatags,
+    Dependencies.slips.delay,
+    Dependencies.slips.options,
+    Dependencies.jsoniterScala,
+    Dependencies.loci.jsoniterScala,
+    Dependencies.munitCheck,
     libraryDependencies ++= Seq(
-      scalatags.value,
-      slips.delay.value,
-      slips.options.value,
-      jsoniterScala.value,
       "com.github.rescala-lang.rescala" %%% "rescala" % "085d4cdbe8",
       "com.github.rescala-lang.rescala" %%% "kofre"   % "085d4cdbe8",
-      loci.jsoniterScala.value,
-      munitCheck.value
     ),
     buildInfoKeys    := Seq[BuildInfoKey](version),
     buildInfoPackage := "viscel.shared"
   )
   .jvmSettings(
     fork := true,
+    Dependencies.jsoup,
+    Dependencies.loci.wsJetty,
+    Dependencies.scribeSlf4j2,
     libraryDependencies ++= Seq(
-      scopt.value,
-      jsoup.value,
-      loci.wsJetty.value,
       "org.eclipse.jetty" % "jetty-rewrite" % "9.4.51.v20230217",
-      scribeSlf4j2.value,
     ),
     // uncomment the following to enable graal tracing to allow native image generation
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image/generated",
   )
   .jsSettings(
-    libraryDependencies ++= Seq(
-      scalajsDom.value,
-      scalatags.value,
-      loci.wsWeb.value,
-    ),
+    Dependencies.scalajsDom,
+    Dependencies.scalatags,
+    Dependencies.loci.wsWeb,
     scalaJSUseMainModuleInitializer := true
   )
 

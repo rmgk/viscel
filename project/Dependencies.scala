@@ -3,73 +3,55 @@
 
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import sbt.*
+import sbt.Keys.libraryDependencies
 
 object Dependencies {
 
   object Versions {
-    val directories   = "26"
-    val jol           = "0.17"
-    val jsoniterScala = "2.23.2"
-    val jsoup         = "1.16.1"
-    val munit         = "1.0.0-M8"
-    val okHttp        = "4.10.0"
-    val pprint        = "0.8.0"
-    val quicklens     = "1.9.0"
     val scala211      = "2.11.12"
     val scala212      = "2.12.17"
     val scala213      = "2.13.10"
     val scala3        = "3.3.0"
-    val scalaJavaTime = "2.3.0"
-    val scalaLoci     = "eb0719f08f"
-    val scalacheck    = "1.17.0"
-    val scalajsDom    = "2.6.0"
-    val scalatags     = "0.12.0"
-    val scopt         = "4.1.0"
-    val scribe        = "3.10.7"
-    val sqliteJdbc    = "3.42.0.0"
-    val sourcecode    = "0.3.0"
-    val upickle       = "3.1.2"
   }
 
   import Dependencies.Versions as V
 
-  val directories   = Def.setting("dev.dirs" % "directories" % V.directories)
-  val jol           = Def.setting("org.openjdk.jol" % "jol-core" % V.jol)
-  val jsoniterScala = Def.setting("com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % V.jsoniterScala)
-  val jsoup         = Def.setting("org.jsoup" % "jsoup" % V.jsoup)
-  val munit         = Def.setting("org.scalameta" %%% "munit" % V.munit % Test)
-  val munitCheck    = Def.setting("org.scalameta" %%% "munit-scalacheck" % V.munit % Test)
-  val okHttp        = Def.setting("com.squareup.okhttp3" % "okhttp" % V.okHttp)
-  val pprint        = Def.setting("com.lihaoyi" %%% "pprint" % V.pprint)
-  val quicklens     = Def.setting("com.softwaremill.quicklens" %%% "quicklens" % V.quicklens)
-  val scalacheck    = Def.setting("org.scalacheck" %%% "scalacheck" % V.scalacheck % Test)
-  val scalaJavaTime = Def.setting("io.github.cquiroz" %%% "scala-java-time" % V.scalaJavaTime)
-  val scalajsDom    = Def.setting("org.scala-js" %%% "scalajs-dom" % V.scalajsDom)
-  val scalatags     = Def.setting("com.lihaoyi" %%% "scalatags" % V.scalatags)
-  val scopt         = Def.setting("com.github.scopt" %%% "scopt" % V.scopt)
-  val scribe        = Def.setting("com.outr" %%% "scribe" % V.scribe)
-  val scribeSlf4j   = Def.setting("com.outr" %% "scribe-slf4j" % V.scribe)
-  val scribeSlf4j2  = Def.setting("com.outr" %% "scribe-slf4j2" % V.scribe)
-  val sourcecode    = Def.setting("com.lihaoyi" %%% "sourcecode" % V.sourcecode)
-  val sqliteJdbc    = Def.setting("org.xerial" % "sqlite-jdbc" % V.sqliteJdbc)
-  val upickle       = Def.setting("com.lihaoyi" %%% "upickle" % V.upickle)
+  def directories   = libraryDependencies += "dev.dirs" % "directories" % "26"
+  val jol           = libraryDependencies += "org.openjdk.jol" % "jol-core" % "0.17"
+  val jsoniterScala = libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.23.2"
+  val jsoup         = libraryDependencies += "org.jsoup" % "jsoup" % "1.16.1"
+  val munit         = libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M8" % Test
+  val munitCheck    = libraryDependencies += "org.scalameta" %%% "munit-scalacheck" % "1.0.0-M8" % Test
+  val okHttp        = libraryDependencies += "com.squareup.okhttp3" % "okhttp" % "4.10.0"
+  val pprint        = libraryDependencies += "com.lihaoyi" %%% "pprint" % "0.8.0"
+  val quicklens     = libraryDependencies += "com.softwaremill.quicklens" %%% "quicklens" % "1.9.0"
+  val scalacheck    = libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.17.0" % Test
+  val scalaJavaTime = libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.3.0"
+  val scalajsDom    = libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.6.0"
+  val scalatags     = libraryDependencies += "com.lihaoyi" %%% "scalatags" % "0.12.0"
+  val scribe        = libraryDependencies += "com.outr" %%% "scribe" % "3.10.7"
+  val scribeSlf4j   = libraryDependencies += "com.outr" %% "scribe-slf4j" % "3.10.7"
+  val scribeSlf4j2  = libraryDependencies += "com.outr" %% "scribe-slf4j2" % "3.10.7"
+  val sourcecode    = libraryDependencies += "com.lihaoyi" %%% "sourcecode" % "0.3.0"
+  val sqliteJdbc    = libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.42.0.0"
+  val upickle       = libraryDependencies += "com.lihaoyi" %%% "upickle" % "3.1.2"
 
   object slips {
-    val chain   = Def.setting("de.rmgk.slips" %%% "chain" % "0.5.0")
-    val delay   = Def.setting("de.rmgk.slips" %%% "delay" % "0.5.0")
-    val logging = Def.setting("de.rmgk.slips" %%% "logging" % "0.5.0")
-    val options = Def.setting("de.rmgk.slips" %%% "options" % "0.7.0")
-    val scip    = Def.setting("de.rmgk.slips" %%% "scip" % "0.5.0")
-    val script  = Def.setting("de.rmgk.slips" %%% "script" % "0.7.0")
+    val chain   = libraryDependencies +=  "de.rmgk.slips" %%% "chain" % "0.5.0"
+    val delay   = libraryDependencies +=  "de.rmgk.slips" %%% "delay" % "0.5.0"
+    val logging = libraryDependencies +=  "de.rmgk.slips" %%% "logging" % "0.5.0"
+    val options = libraryDependencies +=  "de.rmgk.slips" %%% "options" % "0.7.0"
+    val scip    = libraryDependencies +=  "de.rmgk.slips" %%% "scip" % "0.5.0"
+    val script  = libraryDependencies +=  "de.rmgk.slips" %%% "script" % "0.7.0"
   }
 
   object loci {
-    def generic(n: String): Def.Initialize[sbt.ModuleID] =
-      // very accurate check if this is a snapshot based version from jitpack (no .) or a normal version from maven or a local publish
-      if (V.scalaLoci.contains("."))
-        Def.setting("io.github.scala-loci" %%% s"scala-loci-$n" % V.scalaLoci)
+    def generic(n: String) =
+      // use jitpack or no?
+      if (false)
+        libraryDependencies += "io.github.scala-loci" %%% s"scala-loci-$n" % "0.5.0"
       else
-        Def.setting("com.github.scala-loci.scala-loci" %%% s"scala-loci-$n" % V.scalaLoci)
+        libraryDependencies += "com.github.scala-loci.scala-loci" %%% s"scala-loci-$n" % "eb0719f08f"
 
     val communication = generic("communication")
     val circe         = generic("serializer-circe")

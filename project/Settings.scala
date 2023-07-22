@@ -129,7 +129,7 @@ object Settings {
   val jolSettings = Seq(
     javaOptions += "-Djdk.attach.allowAttachSelf",
     fork := true,
-    libraryDependencies += Dependencies.jol.value
+    Dependencies.jol
   )
 
   // see https://www.scala-js.org/doc/project/js-environments.html
