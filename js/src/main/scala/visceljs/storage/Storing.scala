@@ -1,6 +1,6 @@
 package visceljs.storage
 
-import com.github.plokhotnyuk.jsoniter_scala.core._
+import com.github.plokhotnyuk.jsoniter_scala.core.*
 import org.scalajs.dom
 import rescala.default.{Signal, implicitScheduler}
 

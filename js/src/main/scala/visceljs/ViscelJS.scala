@@ -1,11 +1,11 @@
 package visceljs
 
+import kofre.base.Defs
 import loci.registry.Registry
 import org.scalajs.dom
 import org.scalajs.dom.{Fetch, HttpMethod, RequestInit}
-import rescala.default._
-import rescala.extra.Tags._
-import kofre.base.Defs
+import rescala.default.*
+import rescala.extra.Tags.*
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{body, h1, p}
 import visceljs.connection.{BookmarkManager, ContentConnectionManager, ServiceWorker}
@@ -95,7 +95,7 @@ object ViscelJS {
 
     val bodyParent = dom.document.body.parentElement
     bodyParent.removeChild(dom.document.body)
-    import rescala.extra.Tags._
+    import rescala.extra.Tags.*
     bodySig.map {
       case Some(body) => body
       case None       => loading

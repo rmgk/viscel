@@ -2,13 +2,13 @@ package visceljs.connection
 
 import org.scalajs.dom
 import org.scalajs.dom.ServiceWorkerContainer
-import rescala.default.{Events, Signal, _}
+import rescala.default.{Events, Signal, *}
 import viscel.shared.Log
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js
-import scala.scalajs.js.timers._
+import scala.scalajs.js.timers.*
 import scala.util.{Failure, Success}
 
 object ServiceWorker {

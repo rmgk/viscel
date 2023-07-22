@@ -2,11 +2,11 @@ package visceljs.render
 
 import org.scalajs.dom
 import org.scalajs.dom.{Event, html}
-import rescala.default._
-import rescala.extra.Tags._
+import rescala.default.*
+import rescala.extra.Tags.*
 import scalatags.JsDom
 import scalatags.JsDom.TypedTag
-import scalatags.JsDom.all._
+import scalatags.JsDom.all.*
 import scalatags.JsDom.implicits.stringFrag
 import viscel.shared.{Bookmark, Description, Vid}
 import visceljs.Definitions.link_tools

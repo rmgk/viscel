@@ -1,6 +1,6 @@
 package visceljs
 
-import rescala.default._
+import rescala.default.*
 import scalatags.JsDom.all.{HtmlTag, Modifier, button, disabled}
 import viscel.shared.{Bookmark, SharedImage, Vid}
 import visceljs.Definitions.lcButton

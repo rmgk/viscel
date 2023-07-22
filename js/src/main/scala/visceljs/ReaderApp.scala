@@ -3,7 +3,7 @@ package visceljs
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import org.scalajs.dom
 import org.scalajs.dom.{HashChangeEvent, URL, html}
-import rescala.default.{Event, Events, Signal, Fold, current}
+import rescala.default.{Event, Events, Fold, Signal, current}
 import scalatags.JsDom.TypedTag
 import viscel.shared.{Bookmark, Contents, Description, Log, Vid}
 import visceljs.AppState.{FrontState, IndexState, ViewState}

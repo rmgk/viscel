@@ -1,19 +1,18 @@
 package visceljs.connection
 
-import java.util.NoSuchElementException
-
-import com.github.plokhotnyuk.jsoniter_scala.core._
+import com.github.plokhotnyuk.jsoniter_scala.core.*
 import loci.communicator.ws.webnative.WS
 import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
-import rescala.default._
+import rescala.default.*
 import rescala.operator.RExceptions.EmptySignalControlThrowable
-import viscel.shared._
+import viscel.shared.*
 import viscel.store.{Book, BookToContents, DBParser}
 import visceljs.ViscelJS.fetchbuffer
 import visceljs.storage.{LocalForageInstance, Storing, localforage}
 
+import java.util.NoSuchElementException
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.{Int8Array, TypedArrayBuffer}

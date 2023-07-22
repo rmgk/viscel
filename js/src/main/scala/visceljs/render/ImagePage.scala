@@ -4,17 +4,17 @@ import org.scalajs.dom
 import org.scalajs.dom.MouseEvent
 import org.scalajs.dom.html.Body
 import rescala.default.*
+import rescala.extra.Tags.*
 import scalatags.JsDom
 import scalatags.JsDom.all.{
   HtmlTag, Modifier, Tag, a, bindJsAnyLike, body, href, id, onclick, p, rel, span, stringAttr, stringFrag, title
 }
-import scalatags.JsDom.tags2.{article, main}
 import scalatags.JsDom.attrs.{disabled, style}
+import scalatags.JsDom.tags2.{article, main}
 import viscel.shared.{Bookmark, Contents, Vid}
 import visceljs.Definitions.lcButton
 import visceljs.Navigation.*
 import visceljs.{Actions, Definitions, Icons}
-import rescala.extra.Tags.*
 
 class ImagePage(act: Actions) {
 
@@ -52,7 +52,7 @@ class ImagePage(act: Actions) {
       val next = position.mov(1)
       Snippets.navigation(
         a(Icons.prev, rel := "prev", title := "previous page")(if (prev.cur == position.cur) disabled
-        else href         := Definitions.path_asset(vid, prev.cur)),
+        else href := Definitions.path_asset(vid, prev.cur)),
         a(href := Definitions.path_front(vid), Icons.front, title := "back to front page"),
         Snippets.fullscreenToggle(Icons.maximize, Icons.minimize, title := "toggle fullscreen"),
         lcButton(
@@ -74,7 +74,7 @@ class ImagePage(act: Actions) {
           title := "visit original page"
         ),
         a(Icons.next, rel := "next", title := "next")(if (next.cur == position.cur) disabled
-        else href         := Definitions.path_asset(vid, next.cur))
+        else href := Definitions.path_asset(vid, next.cur))
       )
     }
 

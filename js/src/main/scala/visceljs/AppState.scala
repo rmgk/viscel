@@ -1,9 +1,9 @@
 package visceljs
 
-import scala.scalajs.js.URIUtils.encodeURIComponent
-import scala.scalajs.js.URIUtils.decodeURIComponent
 import viscel.shared.Vid
 import visceljs.AppState.ViewState
+
+import scala.scalajs.js.URIUtils.{decodeURIComponent, encodeURIComponent}
 
 sealed abstract class AppState(val urlhash: String) derives CanEqual {
   def transformPos(f: Int => Int) =

@@ -2,12 +2,12 @@ package visceljs.render
 
 import org.scalajs.dom
 import org.scalajs.dom.html.Element
-import rescala.default._
+import rescala.default.*
 import scalatags.JsDom.TypedTag
-import scalatags.JsDom.all.{alt, stringFrag, _}
+import scalatags.JsDom.all.{alt, stringFrag, *}
 import scalatags.JsDom.tags2.{nav, section}
 import viscel.shared.{Blob, SharedImage}
-import visceljs.Definitions._
+import visceljs.Definitions.*
 import visceljs.{Definitions, Icons, MetaInfo}
 
 sealed trait FitType derives CanEqual {
