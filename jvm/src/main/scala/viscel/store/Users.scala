@@ -1,12 +1,12 @@
 package viscel.store
 
-import viscel.shared.Log.{Store => Log}
+import viscel.shared.Log.Store as Log
 import viscel.shared.{Bookmark, Vid}
 
 import java.io.IOException
 import java.nio.file.{Files, Path}
 import scala.collection.immutable.Map
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class Users(usersDir: Path) {
 

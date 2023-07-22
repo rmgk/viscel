@@ -3,8 +3,8 @@ package viscel.narration.narrators
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import viscel.narration.{Metarrator, Narrator, Templates}
-import viscel.selektiv.Narration._
-import viscel.selektiv.Queries._
+import viscel.selektiv.Narration.*
+import viscel.selektiv.Queries.*
 import viscel.selektiv.ReportTools.extract
 import viscel.selektiv.{Narration, Selection}
 import viscel.shared.{DataRow, Vurl}
@@ -30,7 +30,7 @@ object Tapas extends Metarrator[Tapas]("Tapas") {
     )
 
   override def codec: JsonValueCodec[Tapas] = {
-    import viscel.shared.JsoniterCodecs._
+    import viscel.shared.JsoniterCodecs.*
     JsonCodecMaker.make
   }
 

@@ -1,19 +1,18 @@
 package viscel.netzi
 
-import de.rmgk.delay.*
+import de.rmgk.delay.{Async, syntax}
 import viscel.crawl.RequestException
 import viscel.shared.{Log, Vurl}
 
 import java.net.http.HttpResponse.BodyHandlers
 import java.net.http.{HttpClient, HttpRequest, HttpResponse}
-import java.net.*
+import java.net.{CookieManager, HttpCookie, URI, URL}
 import java.nio.charset.{Charset, StandardCharsets}
 import java.time.format.DateTimeFormatter
 import java.time.{Duration, Instant}
-import java.util
 import java.util.concurrent.{CompletionException, ExecutorService}
 import scala.annotation.nowarn
-import scala.jdk.OptionConverters.given
+import scala.jdk.OptionConverters.RichOptional
 
 class JvmHttpRequester(
     val executorService: ExecutorService,
@@ -41,7 +40,7 @@ class JvmHttpRequester(
   val referrer = "Referer"
 
   def urlUri(urlstring: String): URI = {
-    val url = (new URL(urlstring): @nowarn)
+    val url = new URL(urlstring): @nowarn
     new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef)
   }
 

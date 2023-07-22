@@ -1,7 +1,7 @@
 package viscel.narration
 
 import viscel.crawl.Decider
-import viscel.selektiv.FlowWrapper.*
+import viscel.selektiv.FlowWrapper.{Extractor, Filter, Pipe, Plumbing, Restriction}
 import viscel.selektiv.{FlowWrapper, Report}
 import viscel.shared.{DataRow, Log, Vid, Vurl}
 
@@ -11,7 +11,6 @@ import scala.annotation.tailrec
 import scala.collection.immutable.Map
 import scala.jdk.CollectionConverters.given
 import scala.util.matching.Regex
-
 
 object ViscelDefinition {
 

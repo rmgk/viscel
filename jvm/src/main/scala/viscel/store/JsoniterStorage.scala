@@ -1,11 +1,11 @@
 package viscel.store
 
-import java.nio.file.StandardOpenOption.*
-import java.nio.file.{Files, Path, StandardOpenOption}
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import viscel.shared.JsoniterCodecs.*
 
+import java.nio.file.StandardOpenOption.*
+import java.nio.file.{Files, Path, StandardOpenOption}
 import scala.util.Using
 
 object JsoniterStorage {

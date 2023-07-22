@@ -6,10 +6,10 @@ import viscel.narration.{Narrator, ViscelDefinition}
 import viscel.selektiv.FlowWrapper.Extractor.OptionalParentMore
 import viscel.selektiv.FlowWrapper.Restriction
 import viscel.selektiv.Narration.{Append, Condition, Constant, ContextW, ElementW, WrapPart}
-import viscel.selektiv.Queries._
+import viscel.selektiv.Queries.*
 import viscel.shared.DataRow
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object FlowWrapper {
 

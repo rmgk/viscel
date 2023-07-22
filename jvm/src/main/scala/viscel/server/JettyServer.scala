@@ -1,7 +1,6 @@
 package viscel.server
 
 // change to jakarta for jetty 11+
-import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import loci.communicator.ws.jetty.*
 import loci.communicator.ws.jetty.WS.Properties
 import loci.registry.Registry
@@ -23,6 +22,7 @@ import viscel.{FolderImporter, Viscel}
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.util.Base64
+import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
 import scala.concurrent.duration.*
 import scala.concurrent.{Await, Promise}

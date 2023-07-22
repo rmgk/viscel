@@ -2,11 +2,10 @@ package viscel
 
 import viscel.MimeUtil.mimeToExt
 import viscel.shared.{DataRow, Vid}
-import viscel.store.{RowStoreV4, *}
-
-import scala.jdk.StreamConverters.given
+import viscel.store.*
 
 import java.nio.file.{Files, Path, Paths}
+import scala.jdk.StreamConverters.given
 
 object MimeUtil {
   def mimeToExt(mime: String, default: String = ""): String =

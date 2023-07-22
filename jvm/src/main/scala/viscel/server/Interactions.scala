@@ -1,18 +1,17 @@
 package viscel.server
 
-import loci.registry.Registry
-import rescala.default.{Evt, implicitScheduler}
+import de.rmgk.delay.Async
 import kofre.base.Lattice
+import loci.registry.Registry
+import rescala.default.*
 import rescala.operator.Diff
+import viscel.Viscel
 import viscel.narration.Narrator
 import viscel.netzi.WebRequestInterface
-import viscel.shared.BookmarksMap._
-import viscel.shared.Log.{Server => Log}
+import viscel.shared.BookmarksMap.*
+import viscel.shared.Log.Server as Log
 import viscel.shared.{Bindings, BookmarksMap, Vid}
 import viscel.store.{NarratorCache, User, Users}
-import rescala.default._
-import viscel.Viscel
-import de.rmgk.delay.Async
 
 import scala.collection.immutable.Map
 

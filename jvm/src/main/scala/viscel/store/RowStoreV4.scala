@@ -1,13 +1,13 @@
 package viscel.store
 
-import java.nio.file.{Files, Path}
 import viscel.narration.Narrator
 import viscel.shared.DataRow.Link
 import viscel.shared.Log.Store as Log
 import viscel.shared.{DataRow, JsoniterCodecs, Vid}
 
-import scala.util.control.NonFatal
+import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters.given
+import scala.util.control.NonFatal
 
 class RowStoreV4(base: Path) {
 

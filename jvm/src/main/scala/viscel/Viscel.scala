@@ -1,11 +1,11 @@
 package viscel
 
-import java.lang.management.ManagementFactory
-import java.nio.file.{Files, Path, Paths}
+import de.rmgk.options.*
 import viscel.shared.Log
 import viscel.store.BlobStore
 
-import de.rmgk.options.*
+import java.lang.management.ManagementFactory
+import java.nio.file.{Files, Path, Paths}
 
 object Viscel {
 

@@ -1,13 +1,12 @@
 package viscel.store
 
-import java.nio.file.{Files, Path}
-import java.security.MessageDigest
-
 import viscel.Services
 import viscel.shared.{DataRow, Log}
 
-import scala.jdk.CollectionConverters._
+import java.nio.file.{Files, Path}
+import java.security.MessageDigest
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.*
 
 class BlobStore(val blobdir: Path) {
 

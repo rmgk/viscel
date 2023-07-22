@@ -1,8 +1,6 @@
 package viscel.server
 
-import scalatags.Text.attrs.{
-  `for`, `type`, action, attr, content, method, enctype, href, id, rel, src, title, value, name => attrname
-}
+import scalatags.Text.attrs.{`for`, `type`, action, attr, content, enctype, href, id, method, rel, src, title, value, name as attrname}
 import scalatags.Text.implicits.{Frag, Tag, stringAttr, stringFrag}
 import scalatags.Text.tags.{SeqFrag, body, div, form, h1, head, html, input, label, link, meta, script}
 import scalatags.Text.tags2.section

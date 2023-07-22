@@ -4,7 +4,7 @@ import org.jsoup.internal.StringUtil
 import org.jsoup.nodes.Element
 import viscel.narration.Narrator.Wrapper
 import viscel.selektiv.Narration.WrapPart
-import viscel.selektiv.ReportTools._
+import viscel.selektiv.ReportTools.*
 import viscel.shared.{DataRow, Vurl}
 
 import scala.util.Try

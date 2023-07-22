@@ -1,13 +1,13 @@
 package viscel.narration.narrators
 
-import com.github.plokhotnyuk.jsoniter_scala.core._
+import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.{CodecMakerConfig, JsonCodecMaker}
 import viscel.narration.Narrator.Wrapper
 import viscel.narration.{Metarrator, Narrator, Templates}
 import viscel.selektiv.Narration.{ContextW, WrapPart}
 import viscel.selektiv.ReportTools
-import viscel.shared.{DataRow, Vurl}
 import viscel.shared.JsoniterCodecs.VurlRw
+import viscel.shared.{DataRow, Vurl}
 
 case class MangadexNarrator(id: String, name: String, archiveUri: Vurl)
 

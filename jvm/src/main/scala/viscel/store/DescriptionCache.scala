@@ -1,8 +1,8 @@
 package viscel.store
 
-import java.nio.file.Path
-
 import viscel.shared.{Description, JsoniterCodecs, Vid}
+
+import java.nio.file.Path
 
 /** Caches the [[viscel.shared.Description.size]] so the
   * [[viscel.server.ContentLoader.descriptions]] can be efficiently computed.

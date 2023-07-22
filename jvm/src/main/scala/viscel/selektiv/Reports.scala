@@ -3,8 +3,8 @@ package viscel.selektiv
 import org.jsoup.nodes.Element
 import viscel.selektiv.FlowWrapper.Restriction
 
-import scala.jdk.CollectionConverters._
 import scala.collection.immutable.Set
+import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
 trait Report extends RuntimeException {

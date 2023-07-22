@@ -1,7 +1,7 @@
 package viscel.server
 
 import viscel.shared.{Contents, Description, Log, Vid}
-import viscel.store.{RowStoreV4, _}
+import viscel.store.*
 
 class ContentLoader(narratorCache: NarratorCache, rowStore: RowStoreV4, descriptionCache: DescriptionCache) {
 
