@@ -14,10 +14,11 @@ object Settings {
     val scala211 = "2.11.12"
     val scala212 = "2.12.17"
     val scala213 = "2.13.10"
-    val scala3 = "3.3.0"
+    val scala3   = "3.3.0"
   }
 
-  val commonCrossBuildVersions = crossScalaVersions := Seq(Versions.scala211, Versions.scala212, Versions.scala213, Versions.scala3)
+  val commonCrossBuildVersions =
+    crossScalaVersions := Seq(Versions.scala211, Versions.scala212, Versions.scala213, Versions.scala3)
 
   private def cond(b: Boolean, opts: String*) = if (b) opts.toList else Nil
 
