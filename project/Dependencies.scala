@@ -8,33 +8,33 @@ import sbt.Keys.libraryDependencies
 object Dependencies {
 
   def directories   = libraryDependencies += "dev.dirs"                     % "directories"      % "26"
-  val jol           = libraryDependencies += "org.openjdk.jol"              % "jol-core"         % "0.17"
-  val jsoup         = libraryDependencies += "org.jsoup"                    % "jsoup"            % "1.16.1"
-  val munit         = libraryDependencies += "org.scalameta"              %%% "munit"            % "1.0.0-M8" % Test
-  val munitCheck    = libraryDependencies += "org.scalameta"              %%% "munit-scalacheck" % "1.0.0-M8" % Test
-  val okHttp        = libraryDependencies += "com.squareup.okhttp3"         % "okhttp"           % "4.10.0"
-  val pprint        = libraryDependencies += "com.lihaoyi"                %%% "pprint"           % "0.8.0"
-  val quicklens     = libraryDependencies += "com.softwaremill.quicklens" %%% "quicklens"        % "1.9.0"
-  val scalacheck    = libraryDependencies += "org.scalacheck"             %%% "scalacheck"       % "1.17.0"   % Test
-  val scalaJavaTime = libraryDependencies += "io.github.cquiroz"          %%% "scala-java-time"  % "2.3.0"
-  val scalajsDom    = libraryDependencies += "org.scala-js"               %%% "scalajs-dom"      % "2.6.0"
-  val scalatags     = libraryDependencies += "com.lihaoyi"                %%% "scalatags"        % "0.12.0"
-  val scribe        = libraryDependencies += "com.outr"                   %%% "scribe"           % "3.10.7"
-  val scribeSlf4j   = libraryDependencies += "com.outr"                    %% "scribe-slf4j"     % "3.10.7"
-  val scribeSlf4j2  = libraryDependencies += "com.outr"                    %% "scribe-slf4j2"    % "3.10.7"
-  val sourcecode    = libraryDependencies += "com.lihaoyi"                %%% "sourcecode"       % "0.3.0"
-  val sqliteJdbc    = libraryDependencies += "org.xerial"                   % "sqlite-jdbc"      % "3.42.0.0"
-  val upickle       = libraryDependencies += "com.lihaoyi"                %%% "upickle"          % "3.1.2"
-  val jsoniterScala =
+  def jol           = libraryDependencies += "org.openjdk.jol"              % "jol-core"         % "0.17"
+  def jsoup         = libraryDependencies += "org.jsoup"                    % "jsoup"            % "1.16.1"
+  def munit         = libraryDependencies += "org.scalameta"              %%% "munit"            % "1.0.0-M8" % Test
+  def munitCheck    = libraryDependencies += "org.scalameta"              %%% "munit-scalacheck" % "1.0.0-M8" % Test
+  def okHttp        = libraryDependencies += "com.squareup.okhttp3"         % "okhttp"           % "4.10.0"
+  def pprint        = libraryDependencies += "com.lihaoyi"                %%% "pprint"           % "0.8.0"
+  def quicklens     = libraryDependencies += "com.softwaremill.quicklens" %%% "quicklens"        % "1.9.0"
+  def scalacheck    = libraryDependencies += "org.scalacheck"             %%% "scalacheck"       % "1.17.0"   % Test
+  def scalaJavaTime = libraryDependencies += "io.github.cquiroz"          %%% "scala-java-time"  % "2.3.0"
+  def scalajsDom    = libraryDependencies += "org.scala-js"               %%% "scalajs-dom"      % "2.6.0"
+  def scalatags     = libraryDependencies += "com.lihaoyi"                %%% "scalatags"        % "0.12.0"
+  def scribe        = libraryDependencies += "com.outr"                   %%% "scribe"           % "3.10.7"
+  def scribeSlf4j   = libraryDependencies += "com.outr"                    %% "scribe-slf4j"     % "3.10.7"
+  def scribeSlf4j2  = libraryDependencies += "com.outr"                    %% "scribe-slf4j2"    % "3.10.7"
+  def sourcecode    = libraryDependencies += "com.lihaoyi"                %%% "sourcecode"       % "0.3.0"
+  def sqliteJdbc    = libraryDependencies += "org.xerial"                   % "sqlite-jdbc"      % "3.42.0.0"
+  def upickle       = libraryDependencies += "com.lihaoyi"                %%% "upickle"          % "3.1.2"
+  def jsoniterScala =
     libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.23.2"
 
   object slips {
-    val chain   = libraryDependencies += "de.rmgk.slips" %%% "chain"   % "0.5.0"
-    val delay   = libraryDependencies += "de.rmgk.slips" %%% "delay"   % "0.5.0"
-    val logging = libraryDependencies += "de.rmgk.slips" %%% "logging" % "0.5.0"
-    val options = libraryDependencies += "de.rmgk.slips" %%% "options" % "0.7.0"
-    val scip    = libraryDependencies += "de.rmgk.slips" %%% "scip"    % "0.5.0"
-    val script  = libraryDependencies += "de.rmgk.slips" %%% "script"  % "0.7.0"
+    def chain   = libraryDependencies += "de.rmgk.slips" %%% "chain"   % "0.5.0"
+    def delay   = libraryDependencies += "de.rmgk.slips" %%% "delay"   % "0.5.0"
+    def logging = libraryDependencies += "de.rmgk.slips" %%% "logging" % "0.5.0"
+    def options = libraryDependencies += "de.rmgk.slips" %%% "options" % "0.7.0"
+    def scip    = libraryDependencies += "de.rmgk.slips" %%% "scip"    % "0.5.0"
+    def script  = libraryDependencies += "de.rmgk.slips" %%% "script"  % "0.7.0"
   }
 
   object loci {
@@ -45,16 +45,16 @@ object Dependencies {
       else
         libraryDependencies += "com.github.scala-loci.scala-loci" %%% s"scala-loci-$n" % "eb0719f08f"
 
-    val communication = generic("communication")
-    val circe         = generic("serializer-circe")
-    val tcp           = generic("communicator-tcp")
-    val upickle       = generic("serializer-upickle")
-    val jsoniterScala = generic("serializer-jsoniter-scala")
-    val webrtc        = generic("communicator-webrtc")
-    val wsAkka        = generic("communicator-ws-akka")
-    val wsWeb         = generic("communicator-ws-webnative")
-    val wsJavalin     = generic("communicator-ws-javalin")
-    val wsJetty       = generic("communicator-ws-jetty")
-    val wsJetty11     = generic("communicator-ws-jetty11")
+    def communication = generic("communication")
+    def circe         = generic("serializer-circe")
+    def tcp           = generic("communicator-tcp")
+    def upickle       = generic("serializer-upickle")
+    def jsoniterScala = generic("serializer-jsoniter-scala")
+    def webrtc        = generic("communicator-webrtc")
+    def wsAkka        = generic("communicator-ws-akka")
+    def wsWeb         = generic("communicator-ws-webnative")
+    def wsJavalin     = generic("communicator-ws-javalin")
+    def wsJetty       = generic("communicator-ws-jetty")
+    def wsJetty11     = generic("communicator-ws-jetty11")
   }
 }
