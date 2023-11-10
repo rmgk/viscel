@@ -11,7 +11,8 @@ jobs:
           submodules: 'true'
       - uses: actions/setup-java@v1
         with:
-          java-version: '11'
+          java-version: '21'
+          distribution: 'zulu'
       - name: run tests
         run: |
           sbt compile test
