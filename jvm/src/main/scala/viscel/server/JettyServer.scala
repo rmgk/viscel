@@ -1,6 +1,5 @@
 package viscel.server
 
-// change to jakarta for jetty 11+
 import loci.communicator.ws.jetty.*
 import loci.communicator.ws.jetty.WS.Properties
 import loci.registry.Registry
@@ -23,7 +22,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.util.Base64
 import scala.annotation.unused
-//import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
 import scala.concurrent.duration.*
 import scala.concurrent.{Await, Promise}
@@ -41,7 +39,6 @@ class JettyServer(
 ) {
 
   lazy val jettyServer: Server = {
-    // the
     val threadPool = new QueuedThreadPool().tap: p =>
       import p.*
       // we do not set max threads, as jetty may internally require a certain (unpredictable amount) and will complain if unavailable
@@ -62,26 +59,18 @@ class JettyServer(
     connector.setHost(interface)
     connector.setPort(port)
 
-    //val zip = new GzipHandler()
-    //zip.addExcludedPaths("/blob/*")
+    // val zip = new GzipHandler()
+    // zip.addExcludedPaths("/blob/*")
 
     val lociHandler = lociWebsocketHandler()
 
-    val docLoci = new Handler.Wrapper(lociHandler) {
-      override def handle(request: Request, response: Response, callback: Callback): Boolean =
-        println(s"dispatching to loci ${request}")
-        super.handle(request, response, callback).tap: loc =>
-          println(s"loci handled: $loc\n  $response")
-    }
-
-    val seq = new Handler.Sequence(docLoci, mainHandler, staticResourceHandler, blobsHandler)
+    val seq = new Handler.Sequence(lociHandler, mainHandler, staticResourceHandler, blobsHandler)
 
     authenticationHandler.setHandler(seq)
     jettyServer.setHandler(authenticationHandler)
 
     jettyServer.start()
   }
-
 
   object authenticationHandler extends Handler.Wrapper {
 
@@ -132,9 +121,7 @@ class JettyServer(
             .sameSite(HttpCookie.SameSite.STRICT).build()
           Response.addCookie(response, userCookie)
           Response.addCookie(response, passCookie)
-          val res = super.handle(request, response, callback)
-          println(s"overall was handled: $res")
-          res
+          super.handle(request, response, callback)
         case None =>
           scribe.info(s"no credetials for ${request.getHttpURI}")
           // scribe.info(s"cookie header: ${request.getHeader("Cookie")}")
@@ -184,14 +171,10 @@ class JettyServer(
       ): Boolean = {
 
         if !request.getHttpURI.getPath.startsWith("/blob/")
-        then
-          println(s"in blobs type handler false: ${request.getHttpURI.getPath}")
-          false
+        then false
         else
-          println(s"in blobs type handler: ${request.getHttpURI.getPath}")
           val ct: String =
             Option(Request.extractQueryParameters(request).get("mime")).map(_.getValue).getOrElse("image")
-
           response.getHeaders.add(HttpHeader.CONTENT_TYPE, ct)
           super.handle(request, response, callback)
       }
@@ -226,7 +209,7 @@ class JettyServer(
     )(Bindings.bookmarksMapBindig)
     // LociDist.distribute(handleBookmarks(userid), registry)(Bindings.bookmarksMapBindig)
 
-    val contextHandler = new ContextHandler()
+    val contextHandler   = new ContextHandler()
     val webSocketHandler = WebSocketUpgradeHandler.from(jettyServer, contextHandler)
     registry.listen(WS(webSocketHandler, wspath, properties))
     contextHandler.setHandler(webSocketHandler)
