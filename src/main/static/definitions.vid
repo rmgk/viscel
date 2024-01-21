@@ -1097,7 +1097,7 @@ http://candicomics.com/index.html
 
 -NX_Flipside:Flipside
 http://flipside.keenspot.com/archive.php
-:mixedArchive .arc_data a > b:contains(\") , .arc_intdata b:Contains(Intermission) , .arc_data table td > a , .arc_intdata > a
+:mixedArchive .arc_data a > b:contains(\") , .arc_intdata b:contains(Intermission) , .arc_data table td > a , .arc_intdata > a
 :image img.ksc
 :archiveReverse
 
