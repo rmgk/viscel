@@ -43,10 +43,10 @@ object Dependencies {
   object loci {
     def generic(n: String) =
       // use maven (true) jitpack (false)?
-      if (true)
+      if (false)
         libraryDependencies += "io.github.scala-loci" %%% s"scala-loci-$n" % "0.5.0-62-gd313a2f"
       else
-        libraryDependencies += "com.github.scala-loci.scala-loci" %%% s"scala-loci-$n" % "e7f17cc41a"
+        libraryDependencies += "com.github.scala-loci.scala-loci" %%% s"scala-loci-$n" % "b9809c9c2d"
 
     def communication = generic("communication")
     def circe         = generic("serializer-circe")
