@@ -1,5 +1,11 @@
 = Changes
 
+== v.next
+date = 2024-01-21
+
+• only dependency updates so far
+	• native image finally works with jetty 11!
+
 == v8.7
 date = 2023-02-21
 
