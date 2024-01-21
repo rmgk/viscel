@@ -29,7 +29,7 @@ class Services(
     p
   }
   val basepath: Path            = relativeBasedir.toAbsolutePath
-  val blobdir: Path             = basepath.resolve(relativeBlobdir)
+  val blobdir: Path             = create(basepath.resolve(relativeBlobdir))
   val metarratorconfigdir: Path = basepath.resolve("metarrators")
   val definitionsdir: Path      = staticDir
   val usersdir: Path            = basepath.resolve("users")
