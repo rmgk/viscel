@@ -6,12 +6,6 @@
   "name":"[Ljava.lang.String;"
 },
 {
-  "name":"[Lorg.eclipse.jetty.rewrite.handler.Rule;"
-},
-{
-  "name":"[Lorg.eclipse.jetty.servlet.ServletMapping;"
-},
-{
   "name":"[Lsun.security.pkcs.SignerInfo;"
 },
 {
@@ -47,66 +41,23 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.sun.crypto.provider.TlsKeyMaterialGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.sun.crypto.provider.TlsPrfGenerator$V12",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.Boolean",
-  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.Byte",
-  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.Class",
-  "methods":[{"name":"getModule","parameterTypes":[] }]
+  "name":"de.rmgk.options$ArgumentValueParser$",
+  "fields":[{"name":"given_ArgumentValueParser_Boolean$lzy1"}, {"name":"given_ArgumentValueParser_Double$lzy1"}, {"name":"given_ArgumentValueParser_Int$lzy1"}, {"name":"given_ArgumentValueParser_Long$lzy1"}, {"name":"given_ArgumentValueParser_Path$lzy1"}, {"name":"given_ArgumentValueParser_String$lzy1"}]
 },
 {
   "name":"java.lang.ClassValue"
-},
-{
-  "name":"java.lang.Double",
-  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.Float",
-  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.Integer",
-  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.Long",
-  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.Module",
-  "methods":[{"name":"getLayer","parameterTypes":[] }, {"name":"getName","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.ModuleLayer",
-  "methods":[{"name":"configuration","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.Short",
-  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.String"
 },
 {
   "name":"java.lang.Thread",
-  "fields":[{"name":"threadLocalRandomProbe"}]
+  "fields":[{"name":"threadLocalRandomProbe"}],
+  "methods":[{"name":"isVirtual","parameterTypes":[] }]
 },
 {
   "name":"java.lang.invoke.VarHandle",
@@ -121,16 +72,8 @@
   "methods":[{"name":"getUptime","parameterTypes":[] }]
 },
 {
-  "name":"java.lang.module.Configuration",
-  "methods":[{"name":"findModule","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.module.ModuleReference",
-  "methods":[{"name":"location","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.module.ResolvedModule",
-  "methods":[{"name":"reference","parameterTypes":[] }]
+  "name":"java.security.AccessController",
+  "methods":[{"name":"doPrivileged","parameterTypes":["java.security.PrivilegedAction"] }]
 },
 {
   "name":"java.security.AlgorithmParametersSpi"
@@ -157,8 +100,8 @@
   "name":"java.util.Date"
 },
 {
-  "name":"java.util.HashSet",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"java.util.concurrent.Executors",
+  "methods":[{"name":"newVirtualThreadPerTaskExecutor","parameterTypes":[] }]
 },
 {
   "name":"java.util.concurrent.ForkJoinTask",
@@ -177,6 +120,10 @@
   "fields":[{"name":"base"}, {"name":"cellsBusy"}]
 },
 {
+  "name":"javax.security.auth.Subject",
+  "methods":[{"name":"callAs","parameterTypes":["javax.security.auth.Subject","java.util.concurrent.Callable"] }]
+},
+{
   "name":"javax.security.auth.x500.X500Principal",
   "fields":[{"name":"thisX500Name"}],
   "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
@@ -185,36 +132,32 @@
   "name":"jdk.internal.misc.Unsafe"
 },
 {
+  "name":"loci.communicator.ws.jetty.Socket",
+  "methods":[{"name":"onWebSocketBinary","parameterTypes":["java.nio.ByteBuffer","org.eclipse.jetty.websocket.api.Callback"] }, {"name":"onWebSocketClose","parameterTypes":["int","java.lang.String"] }, {"name":"onWebSocketError","parameterTypes":["java.lang.Throwable"] }, {"name":"onWebSocketOpen","parameterTypes":["org.eclipse.jetty.websocket.api.Session"] }, {"name":"onWebSocketText","parameterTypes":["java.lang.String"] }]
+},
+{
   "name":"loci.registry.Registry$AbstractionRef",
-  "fields":[{"name":"0bitmap$1"}]
+  "fields":[{"name":"channel$lzy1"}]
 },
 {
-  "name":"loci.transmitter.Transmittable$",
-  "fields":[{"name":"0bitmap$1"}]
+  "name":"org.eclipse.jetty.util.TypeUtil",
+  "methods":[{"name":"getClassLoaderLocation","parameterTypes":["java.lang.Class"] }, {"name":"getCodeSourceLocation","parameterTypes":["java.lang.Class"] }, {"name":"getModuleLocation","parameterTypes":["java.lang.Class"] }, {"name":"getSystemClassLoaderLocation","parameterTypes":["java.lang.Class"] }]
 },
 {
-  "name":"org.eclipse.jetty.http.pathmap.PathSpecSet",
+  "name":"org.eclipse.jetty.websocket.api.Session$Listener",
+  "methods":[{"name":"onWebSocketFrame","parameterTypes":["org.eclipse.jetty.websocket.api.Frame","org.eclipse.jetty.websocket.api.Callback"] }, {"name":"onWebSocketPartialBinary","parameterTypes":["java.nio.ByteBuffer","boolean","org.eclipse.jetty.websocket.api.Callback"] }, {"name":"onWebSocketPartialText","parameterTypes":["java.lang.String","boolean"] }, {"name":"onWebSocketPing","parameterTypes":["java.nio.ByteBuffer"] }, {"name":"onWebSocketPong","parameterTypes":["java.nio.ByteBuffer"] }]
+},
+{
+  "name":"org.eclipse.jetty.websocket.common.internal.ByteBufferMessageSink",
+  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle","boolean"] }]
+},
+{
+  "name":"org.eclipse.jetty.websocket.core.internal.PerMessageDeflateExtension",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.eclipse.jetty.servlet.ServletHandler$Default404Servlet",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.eclipse.jetty.util.ModuleLocation",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.eclipse.jetty.util.RegexSet",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.eclipse.jetty.util.log.Slf4jLog",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.eclipse.jetty.websocket.common.extensions.compress.PerMessageDeflateExtension",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"org.eclipse.jetty.websocket.core.messages.StringMessageSink",
+  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle","boolean"] }]
 },
 {
   "name":"rescala.default$",
@@ -235,10 +178,6 @@
 {
   "name":"scalatags.Text$tags2$",
   "fields":[{"name":"0bitmap$3"}, {"name":"1bitmap$3"}]
-},
-{
-  "name":"scopt.OParser$",
-  "fields":[{"name":"0bitmap$1"}]
 },
 {
   "name":"scribe.ANSI$",
@@ -322,6 +261,10 @@
 },
 {
   "name":"scribe.output.LogOutput$",
+  "fields":[{"name":"0bitmap$1"}]
+},
+{
+  "name":"scribe.package$",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
@@ -418,10 +361,6 @@
 },
 {
   "name":"sun.security.rsa.RSASignature$SHA384withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSASignature$SHA512withRSA",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {

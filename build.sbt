@@ -54,10 +54,10 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .jvmSettings(
     fork := true,
     Dependencies.jsoup,
-    Dependencies.loci.wsJetty,
+    Dependencies.loci.wsJetty12,
     Dependencies.scribeSlf4j2,
     libraryDependencies ++= Seq(
-      "org.eclipse.jetty" % "jetty-rewrite" % "9.4.53.v20231009",
+      "org.eclipse.jetty" % "jetty-rewrite" % "12.0.0",
     ),
     // uncomment the following to enable graal tracing to allow native image generation
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image/generated",

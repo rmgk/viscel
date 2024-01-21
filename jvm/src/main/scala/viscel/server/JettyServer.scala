@@ -4,14 +4,14 @@ package viscel.server
 import loci.communicator.ws.jetty.*
 import loci.communicator.ws.jetty.WS.Properties
 import loci.registry.Registry
-import org.eclipse.jetty.http.{HttpCookie, HttpHeader, HttpMethod}
+import org.eclipse.jetty.http.{HttpCookie, HttpHeader, HttpMethod, HttpStatus}
 import org.eclipse.jetty.rewrite.handler.{RewriteHandler, RewriteRegexRule}
-import org.eclipse.jetty.server.handler.gzip.GzipHandler
-import org.eclipse.jetty.server.handler.{AbstractHandler, HandlerList, HandlerWrapper, ResourceHandler}
-import org.eclipse.jetty.server.{Request, Server, ServerConnector}
-import org.eclipse.jetty.servlet.ServletContextHandler
-import org.eclipse.jetty.util.resource.Resource
+import org.eclipse.jetty.server.handler.{ContextHandler, ResourceHandler}
+import org.eclipse.jetty.server.{Handler, Request, Response, Server, ServerConnector}
+import org.eclipse.jetty.util.Callback
+import org.eclipse.jetty.util.resource.ResourceFactory
 import org.eclipse.jetty.util.thread.QueuedThreadPool
+import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler
 import rescala.default.Signal
 import rescala.extra.distributables.LociDist
 import viscel.shared.BookmarksMap.BookmarksMap
@@ -22,7 +22,8 @@ import viscel.{FolderImporter, Viscel}
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.util.Base64
-import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
+import scala.annotation.unused
+//import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
 import scala.concurrent.duration.*
 import scala.concurrent.{Await, Promise}
@@ -36,7 +37,7 @@ class JettyServer(
     folderImporter: FolderImporter,
     interactions: Interactions,
     staticPath: Path,
-    urlPrefix: String,
+    @unused urlPrefix: String,
 ) {
 
   lazy val jettyServer: Server = {
@@ -61,17 +62,28 @@ class JettyServer(
     connector.setHost(interface)
     connector.setPort(port)
 
-    val zip = new GzipHandler()
-    zip.addExcludedPaths("/blob/*")
-    zip.setHandler(new HandlerList(mainHandler, staticResourceHandler, blobsHandler, wsSetup()))
+    //val zip = new GzipHandler()
+    //zip.addExcludedPaths("/blob/*")
 
-    authenticationHandler.setHandler(zip)
+    val lociHandler = lociWebsocketHandler()
+
+    val docLoci = new Handler.Wrapper(lociHandler) {
+      override def handle(request: Request, response: Response, callback: Callback): Boolean =
+        println(s"dispatching to loci ${request}")
+        super.handle(request, response, callback).tap: loc =>
+          println(s"loci handled: $loc\n  $response")
+    }
+
+    val seq = new Handler.Sequence(docLoci, mainHandler, staticResourceHandler, blobsHandler)
+
+    authenticationHandler.setHandler(seq)
     jettyServer.setHandler(authenticationHandler)
 
     jettyServer.start()
   }
 
-  object authenticationHandler extends HandlerWrapper {
+
+  object authenticationHandler extends Handler.Wrapper {
 
     def loginFromCredentials(credentials: String): Option[(String, String)] = {
       if (credentials != null) {
@@ -94,14 +106,13 @@ class JettyServer(
     }
 
     override def handle(
-        target: String,
-        baseRequest: Request,
-        request: HttpServletRequest,
-        response: HttpServletResponse
-    ): Unit = {
+        request: Request,
+        response: Response,
+        callback: Callback,
+    ): Boolean = {
 
-      val credentials = request.getHeader(HttpHeader.AUTHORIZATION.asString())
-      val cookies     = Option(request.getCookies).getOrElse(Array[Cookie]())
+      val credentials              = request.getHeaders.get(HttpHeader.AUTHORIZATION)
+      val cookies: Seq[HttpCookie] = Option(Request.getCookies(request)).map(_.asScala.toSeq).getOrElse(Nil)
 
       def getCookie(name: String) = {
         cookies.find(c => c.getName == name).map(_.getValue)
@@ -115,35 +126,17 @@ class JettyServer(
         case Some(user) =>
           request.setAttribute("viscel-user", user)
           val twelveMonths: Long = 12 * 30 * 24 * 60
-          val userCookie = new HttpCookie(
-            "viscel-user",
-            user.id,
-            null,
-            null,
-            twelveMonths,
-            false,
-            false,
-            null,
-            -1,
-            HttpCookie.SameSite.STRICT
-          )
-          val passCookie = new HttpCookie(
-            "viscel-password",
-            user.password,
-            null,
-            null,
-            twelveMonths,
-            false,
-            false,
-            null,
-            -1,
-            HttpCookie.SameSite.STRICT
-          )
-          response.addHeader("Set-Cookie", userCookie.getRFC6265SetCookie)
-          response.addHeader("Set-Cookie", passCookie.getRFC6265SetCookie)
-          super.handle(target, baseRequest, request, response)
+          val userCookie = HttpCookie.build("viscel-user", user.id).maxAge(twelveMonths)
+            .sameSite(HttpCookie.SameSite.STRICT).build()
+          val passCookie = HttpCookie.build("viscel-password", user.password).maxAge(twelveMonths)
+            .sameSite(HttpCookie.SameSite.STRICT).build()
+          Response.addCookie(response, userCookie)
+          Response.addCookie(response, passCookie)
+          val res = super.handle(request, response, callback)
+          println(s"overall was handled: $res")
+          res
         case None =>
-          scribe.info(s"no credetials for ${request.getRequestURI}")
+          scribe.info(s"no credetials for ${request.getHttpURI}")
           // scribe.info(s"cookie header: ${request.getHeader("Cookie")}")
           // cookies.foreach { c =>
           //  scribe.info(s"cookie: ${c.getName}: ${c.getValue}")
@@ -151,10 +144,10 @@ class JettyServer(
           // scribe.info(s"auth: ${request.getHeader("Authorization")}")
 
           val value = "basic realm=\"viscel login\", charset=\"" + StandardCharsets.ISO_8859_1.name() + "\""
-          response.addHeader(HttpHeader.WWW_AUTHENTICATE.asString(), value);
-          response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-
-          baseRequest.setHandled(true)
+          response.getHeaders.add(HttpHeader.WWW_AUTHENTICATE, value)
+          Response.writeError(request, response, callback, HttpStatus.UNAUTHORIZED_401)
+          callback.succeeded()
+          true
       }
 
     }
@@ -165,9 +158,9 @@ class JettyServer(
     // Create and configure a ResourceHandler.
     val handler = new ResourceHandler()
     // Configure the directory where static resources are located.
-    handler.setBaseResource(Resource.newResource(staticPath.toString))
+    handler.setBaseResource(ResourceFactory.of(handler).newResource(staticPath))
     // Configure directory listing.
-    handler.setDirectoriesListed(false)
+    handler.setDirAllowed(false)
     // Configure whether to accept range requests.
     handler.setAcceptRanges(true)
     handler
@@ -176,24 +169,31 @@ class JettyServer(
   lazy val blobsHandler = {
 
     val resourceHandler = new ResourceHandler()
-    val blobdir         = blobStore.blobdir.toString
-    resourceHandler.setBaseResource(Resource.newResource(blobdir))
+    resourceHandler.setBaseResource(ResourceFactory.of(resourceHandler).newResource(blobStore.blobdir))
     resourceHandler.setCacheControl("max-age=31557600, public, immutable")
 
     val rewriteHandler = new RewriteHandler();
     rewriteHandler.addRule(new RewriteRegexRule("/blob/(..)(.*)", "/$1/$2"))
     rewriteHandler.setHandler(resourceHandler)
 
-    val contentTypeHandler = new HandlerWrapper {
+    val contentTypeHandler = new Handler.Wrapper {
       override def handle(
-          target: String,
-          baseRequest: Request,
-          request: HttpServletRequest,
-          response: HttpServletResponse
-      ): Unit = {
-        val ct = Option(request.getParameter("mime")).getOrElse("image")
-        response.setContentType(ct)
-        super.handle(target, baseRequest, request, response)
+          request: Request,
+          response: Response,
+          callback: Callback,
+      ): Boolean = {
+
+        if !request.getHttpURI.getPath.startsWith("/blob/")
+        then
+          println(s"in blobs type handler false: ${request.getHttpURI.getPath}")
+          false
+        else
+          println(s"in blobs type handler: ${request.getHttpURI.getPath}")
+          val ct: String =
+            Option(Request.extractQueryParameters(request).get("mime")).map(_.getValue).getOrElse("image")
+
+          response.getHeaders.add(HttpHeader.CONTENT_TYPE, ct)
+          super.handle(request, response, callback)
       }
     }
 
@@ -204,7 +204,7 @@ class JettyServer(
   val landingString: String = pages.fullrender(pages.landingTag)
   val toolsString: String   = pages.fullrender(pages.toolsPage)
 
-  def wsSetup() = {
+  def lociWebsocketHandler() = {
 
     val wspath     = "/ws"
     val properties = Properties(heartbeatDelay = 3.seconds, heartbeatTimeout = 10.seconds)
@@ -217,7 +217,7 @@ class JettyServer(
     LociDist.distributePerRemote(
       { rr =>
         val user =
-          rr.protocol.asInstanceOf[loci.communicator.ws.jetty.WS].request.get.getHttpServletRequest.getAttribute(
+          rr.protocol.asInstanceOf[loci.communicator.ws.jetty.WS].request.get.getAttribute(
             "viscel-user"
           ).asInstanceOf[User]
         userSocketCache.getOrElseUpdate(user.id, interactions.handleBookmarks(user.id))
@@ -226,38 +226,36 @@ class JettyServer(
     )(Bindings.bookmarksMapBindig)
     // LociDist.distribute(handleBookmarks(userid), registry)(Bindings.bookmarksMapBindig)
 
-    val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
-    if !urlPrefix.isBlank then context.setContextPath(urlPrefix)
-    jettyServer.setHandler(context)
-
-    registry.listen(WS(context, wspath, properties))
-    context
+    val contextHandler = new ContextHandler()
+    val webSocketHandler = WebSocketUpgradeHandler.from(jettyServer, contextHandler)
+    registry.listen(WS(webSocketHandler, wspath, properties))
+    contextHandler.setHandler(webSocketHandler)
+    contextHandler
   }
 
   sealed trait Handling derives CanEqual
   case class Res(content: String, ct: String = "text/html; charset=UTF-8", status: Int = 200) extends Handling
   case object Unhandled                                                                       extends Handling
 
-  object mainHandler extends AbstractHandler {
+  object mainHandler extends Handler.Abstract {
     override def handle(
-        target: String,
-        baseRequest: Request,
-        request: HttpServletRequest,
-        response: HttpServletResponse
-    ): Unit = {
+        request: Request,
+        response: Response,
+        callback: Callback,
+    ): Boolean = {
 
       def isAdmin = request.getAttribute("viscel-user").asInstanceOf[User].admin
       def isPost  = HttpMethod.POST.is(request.getMethod)
 
       val res = {
         if (isPost && isAdmin) {
-          request.getRequestURI match {
+          request.getHttpURI.getPath match {
             case "/stop" =>
               terminate()
               Res("")
             case "/import" =>
-              val params = request.getParameterMap.asScala
-              List("id", "name", "path").flatMap(key => params.get(key).flatMap(_.headOption)) match {
+              val params = Request.extractQueryParameters(request)
+              List("id", "name", "path").flatMap(key => Option(params.get(key)).map(_.getValue)) match {
                 case List(id, name, path) =>
                   folderImporter.importFolder(path, Vid.from(s"Import_$id"), name)
                   Res("success")
@@ -265,9 +263,9 @@ class JettyServer(
                   Res("invalid parameters", status = 500)
               }
             case "/add" =>
-              val params = request.getParameterMap.asScala
+              val params = Request.extractQueryParameters(request)
 
-              List("url").flatMap(key => params.get(key).flatMap(_.headOption)) match {
+              List("url").flatMap(key => Option(params.get(key)).map(_.getValue)) match {
                 case List(url) =>
                   val fut = interactions.addNarratorsFrom(url).map(v => s"found $v").runToFuture(using ())
                   Res(Await.result(fut, 60.seconds))
@@ -277,7 +275,7 @@ class JettyServer(
             case other => Unhandled
           }
 
-        } else request.getRequestURI match {
+        } else request.getHttpURI.getPath match {
           case "/"        => Res(landingString)
           case "/version" => Res(Viscel.version, "text/plain; charset=UTF-8")
           case "/tools"   => Res(toolsString)
@@ -288,10 +286,11 @@ class JettyServer(
       res match {
         case Res(str, ct, status) =>
           response.setStatus(status)
-          response.setContentType(ct)
-          response.getWriter.println(str)
-          baseRequest.setHandled(true)
+          response.getHeaders.put(HttpHeader.CONTENT_TYPE, ct)
+          response.write(true, StandardCharsets.UTF_8.encode(str), callback)
+          true
         case Unhandled =>
+          false
       }
     }
 

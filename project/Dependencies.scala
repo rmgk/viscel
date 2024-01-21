@@ -43,8 +43,8 @@ object Dependencies {
   object loci {
     def generic(n: String) =
       // use maven (true) jitpack (false)?
-      if (false)
-        libraryDependencies += "io.github.scala-loci" %%% s"scala-loci-$n" % "0.5.0"
+      if (true)
+        libraryDependencies += "io.github.scala-loci" %%% s"scala-loci-$n" % "0.5.0-62-gd313a2f"
       else
         libraryDependencies += "com.github.scala-loci.scala-loci" %%% s"scala-loci-$n" % "e7f17cc41a"
 
