@@ -19,7 +19,7 @@ class ServerPages() {
         link(rel      := "icon", href        := "icon.png", attr("sizes") := "192x192"),
         meta(attrname := "viewport", content := "width=device-width, initial-scale=1, user-scalable=yes, minimal-ui")
       )
-    )(stuff: _*)
+    )(stuff*)
 
   def landingTag: Tag =
     makeHtml(

@@ -13,12 +13,12 @@ class Actions(ccm: ContentConnectionManager, bookmarkManager: BookmarkManager) {
       lcButton {
         val bookmark = Bookmark(bm, System.currentTimeMillis(), cdat.map(_.blob.sha1), cdat.map(_.origin))
         bookmarkManager.setBookmark.fire(vid -> bookmark)
-      }(ts: _*)
+      }(ts*)
     } else {
-      button(disabled)(ts: _*)
+      button(disabled)(ts*)
     }
   }
 
-  def postForceHint(vid: Vid, ts: Modifier*): HtmlTag = lcButton(ccm.hint(vid, force = true))(ts: _*)
+  def postForceHint(vid: Vid, ts: Modifier*): HtmlTag = lcButton(ccm.hint(vid, force = true))(ts*)
 
 }

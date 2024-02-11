@@ -62,7 +62,7 @@ class CrawlScheduler(
     synchronized {
       if (!running.contains(narrator.id)) {
 
-        Async[Any].resource(
+        Async[Any].resource[Any, Unit] (
           CrawlScheduler.this.synchronized { running = running + narrator.id },
           _ => CrawlScheduler.this.synchronized { running = running - narrator.id }
         ) { _ =>
@@ -105,7 +105,7 @@ class CrawlScheduler(
   }
 
   private var updateTimes: Map[Vid, Long] = {
-    JsoniterStorage.load[Map[Vid, Long]](path)(JsoniterCodecs.MapVidLongCodec).fold(
+    JsoniterStorage.load[Map[Vid, Long]](path)(using JsoniterCodecs.MapVidLongCodec).fold(
       err => {
         log.error(s"could not load $path: $err")
         Map()
@@ -118,7 +118,7 @@ class CrawlScheduler(
     synchronized {
       val time = System.currentTimeMillis()
       updateTimes = updateTimes.updated(id, time)
-      JsoniterStorage.store(path, updateTimes)(JsoniterCodecs.MapVidLongCodec)
+      JsoniterStorage.store(path, updateTimes)(using JsoniterCodecs.MapVidLongCodec)
     }
 
   def needsRecheck(id: Vid, recheckInterval: Long): Boolean =

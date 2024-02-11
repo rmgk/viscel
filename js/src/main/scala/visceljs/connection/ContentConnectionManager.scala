@@ -56,7 +56,7 @@ class ContentConnectionManager(registry: Registry) {
         Log.JS.error(s"failed to access descriptions: $error")
         None
       }.latest(init)
-  }(JsoniterCodecs.MapVidDescriptionCodec)
+  }(using JsoniterCodecs.MapVidDescriptionCodec)
 
   val connectionAttempt: Evt[Unit] = Evt[Unit]()
 

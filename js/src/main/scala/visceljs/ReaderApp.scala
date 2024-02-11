@@ -102,7 +102,7 @@ class ReaderApp(
     val fitType: Signal[FitType] = {
       Storing.storedAs[FitType]("fitType", default = FitType.W) { init =>
         navigationEvents.collect { case Mode(t) => t }.latest[FitType](init)
-      }(JsonCodecMaker.make)
+      }(using JsonCodecMaker.make)
     }
 
     val indexBody = index.gen()

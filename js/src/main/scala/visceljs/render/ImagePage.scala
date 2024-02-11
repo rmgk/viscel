@@ -42,7 +42,7 @@ class ImagePage(act: Actions) {
     val mainPart: Tag = {
       contents.gallery.lift(position.cur).fold[Tag](p(s"invalid position")) { asst =>
         article(Snippets.asset(asst, style := fitType.map(Snippets.imageStyle))(
-          asst.data.get("title").fold[Option[Tag]](None)(t => Some(p(t))).toSeq: _*
+          asst.data.get("title").fold[Option[Tag]](None)(t => Some(p(t))).toSeq*
         ))
       }
     }

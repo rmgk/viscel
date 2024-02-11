@@ -26,7 +26,7 @@ object Queries {
     else
       elements.map(extractMore) match {
         case pointers if pointers.toSet.size == 1 => pointers.headOption.toList
-        case pointers => throw FailedElement("next not unique", QueryNotUnique, elements: _*)
+        case pointers => throw FailedElement("next not unique", QueryNotUnique, elements*)
       }
 
   def extractMore(element: Element): DataRow.Link = DataRow.Link(extractURL(element))

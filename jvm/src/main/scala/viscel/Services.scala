@@ -52,7 +52,7 @@ class Services(
     val executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue())
     val cookies: Map[String, (String, String)] =
       if (Files.exists(cookiePath)) {
-        JsoniterStorage.load(cookiePath)(JsoniterCodecs.CookieMapCodec).getOrElse(Map.empty)
+        JsoniterStorage.load(cookiePath)(using JsoniterCodecs.CookieMapCodec).getOrElse(Map.empty)
       } else Map.empty
     new JvmHttpRequester(executor, cookies)
   }

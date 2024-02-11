@@ -69,7 +69,7 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
 
   private def path[T](metarrator: Metarrator[T]): Path = metaPath.resolve(s"${metarrator.metarratorId}.json")
   def load[T](metarrator: Metarrator[T]): Set[T] = {
-    val json = JsoniterStorage.load[Set[T]](path(metarrator))(setCodec(metarrator.codec))
+    val json = JsoniterStorage.load[Set[T]](path(metarrator))(using setCodec(using metarrator.codec))
     json.fold(
       err => {
         Log.Store.trace(s"could not load ${path(metarrator)}: $err")
@@ -79,6 +79,6 @@ class NarratorCache(metaPath: Path, definitionsdir: Path) {
     )
   }
   def save[T](metarrator: Metarrator[T], nars: List[T]): Unit =
-    JsoniterStorage.store(path(metarrator), nars)(listCodec(metarrator.codec))
+    JsoniterStorage.store(path(metarrator), nars)(using listCodec(using metarrator.codec))
 
 }

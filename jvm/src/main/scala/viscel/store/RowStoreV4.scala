@@ -12,7 +12,7 @@ import scala.util.control.NonFatal
 class RowStoreV4(base: Path) {
 
   def file(vid: Vid): Path = {
-    base resolve vid.str
+    base `resolve` vid.str
   }
 
   def allVids(): List[Vid] =
@@ -30,7 +30,7 @@ class RowStoreV4(base: Path) {
   def open(id: Vid, name: String): RowAppender =
     synchronized {
       val f = file(id)
-      if (!Files.exists(f) || Files.size(f) <= 0) JsoniterStorage.writeLine(f, name)(JsoniterCodecs.StringRw)
+      if (!Files.exists(f) || Files.size(f) <= 0) JsoniterStorage.writeLine(f, name)(using JsoniterCodecs.StringRw)
       new RowAppender(f, this)
     }
 
@@ -102,6 +102,6 @@ class RowAppender(file: Path, rowStoreV4: RowStoreV4) {
   def append(row: DataRow): Unit =
     rowStoreV4.synchronized {
       Log.trace(s"Store $row into $file")
-      JsoniterStorage.writeLine(file, row)(JsoniterCodecs.DataRowRw)
+      JsoniterStorage.writeLine(file, row)(using JsoniterCodecs.DataRowRw)
     }
 }

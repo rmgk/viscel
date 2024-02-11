@@ -11,7 +11,7 @@ import java.nio.file.Path
 class DescriptionCache(cachedir: Path) {
   private val descriptionpath: Path = cachedir.resolve("descriptions.json")
   private var descriptionCache: Map[Vid, Description] =
-    JsoniterStorage.load[Map[Vid, Description]](descriptionpath)(JsoniterCodecs.MapVidDescriptionCodec).getOrElse(Map())
+    JsoniterStorage.load[Map[Vid, Description]](descriptionpath)(using JsoniterCodecs.MapVidDescriptionCodec).getOrElse(Map())
 
   def invalidate(id: Vid): Unit =
     synchronized {
@@ -25,7 +25,7 @@ class DescriptionCache(cachedir: Path) {
           val desc = orElse
           descriptionCache = descriptionCache.updated(id, desc)
           JsoniterStorage.store[Map[Vid, Description]](descriptionpath, descriptionCache)(
-            JsoniterCodecs.MapVidDescriptionCodec
+            using JsoniterCodecs.MapVidDescriptionCodec
           )
           desc
         }

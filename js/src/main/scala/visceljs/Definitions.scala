@@ -37,7 +37,7 @@ object Definitions {
         e.preventDefault()
         action
       }
-    })(m: _*)
+    })(m*)
 
 }
 

@@ -5,7 +5,7 @@ import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
 import java.security.MessageDigest
 
 val commonSettings = Def.settings(
-  scalaVersion_3,
+  scala3defaults,
   organization := "de.rmgk"
 )
 

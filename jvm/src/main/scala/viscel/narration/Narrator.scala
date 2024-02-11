@@ -7,7 +7,7 @@ import viscel.shared.{DataRow, Vid}
 
 object Narrator {
   type Wrapper = WrapPart[List[DataRow.Content]]
-  val metas: List[Metarrator[_]] = List(Mangadex, WebToons, Tapas)
+  val metas: List[Metarrator[?]] = List(Mangadex, WebToons, Tapas)
 }
 
 case class FlowNarrator(id: Vid, name: String, archive: List[DataRow.Link], plumbing: Plumbing) {

@@ -56,7 +56,7 @@ object Snippets {
     }
   }
 
-  def fullscreenToggle(stuff: Modifier*): HtmlTag = lcButton(Definitions.toggleFullscreen())(stuff: _*)
+  def fullscreenToggle(stuff: Modifier*): HtmlTag = lcButton(Definitions.toggleFullscreen())(stuff*)
 
   def group(name: String, entries: Seq[FrontPageEntry]): TypedTag[dom.Element] = {
     def sumOf(fun: FrontPageEntry => Int) = entries.iterator.map(fun).sum
@@ -81,7 +81,7 @@ object Snippets {
     ).asInstanceOf[TypedTag[dom.Element]]
   }
 
-  def navigation(links: Modifier*): HtmlTag = nav(links: _*).asInstanceOf[HtmlTag]
+  def navigation(links: Modifier*): HtmlTag = nav(links*).asInstanceOf[HtmlTag]
 
   def meta(meta: MetaInfo): Signal[TypedTag[Element]] = {
     val connectionStatus = Signal {

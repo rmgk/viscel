@@ -30,7 +30,7 @@ object CrawlProcessing {
 
   def decider(book: Book): Decider = Decider(recheck = rechecks(book)).addTasks(initialTasks(book))
 
-  def toDataRow(request: VRequest, response: VResponse[_], contents: List[DataRow.Content]): DataRow = {
+  def toDataRow(request: VRequest, response: VResponse[?], contents: List[DataRow.Content]): DataRow = {
     DataRow(
       request.href,
       Some(response.location).filter(_ != request.href),

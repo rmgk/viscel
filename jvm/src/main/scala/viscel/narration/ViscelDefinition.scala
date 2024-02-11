@@ -17,7 +17,7 @@ object ViscelDefinition {
   case class Line(s: String, p: Int)
   type It           = scala.collection.BufferedIterator[Line]
   type ErrorMessage = String
-  type Or[T, V]     = Either[V, T]
+  infix type Or[T, V]     = Either[V, T]
 
   val extractIDAndName: Regex = """^-(\w*):(.+)$""".r
   val extractAttribute: Regex = """^:(\S+)\s*(.*)$""".r

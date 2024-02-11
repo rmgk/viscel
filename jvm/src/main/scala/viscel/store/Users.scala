@@ -44,7 +44,7 @@ class Users(usersDir: Path) {
   def load(id: String): Error[User] = load(path(id))
 
   private def load(p: Path): Error[User] =
-    JsoniterStorage.load[User](p)(JsoniterStorage.UserCodec)
+    JsoniterStorage.load[User](p)(using JsoniterStorage.UserCodec)
 
   var userCache = Map[String, User]()
 
@@ -68,7 +68,7 @@ class Users(usersDir: Path) {
   def userUpdate(user: User): User =
     synchronized {
       userCache += user.id -> user
-      JsoniterStorage.store(path(user.id), user)(JsoniterStorage.UserCodec)
+      JsoniterStorage.store(path(user.id), user)(using JsoniterStorage.UserCodec)
       user
     }
 }
