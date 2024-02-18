@@ -1,10 +1,11 @@
 package viscel
 
+import com.sun.net.httpserver.HttpContext
 import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
 import viscel.netzi.JvmHttpRequester
-import viscel.server.{ContentLoader, Interactions, JettyServer, ServerPages}
+import viscel.server.{ContentLoader, Interactions, JettyServer, ServerPages, SunHttpServer}
 import viscel.shared.{JsoniterCodecs, Log}
 import viscel.store.{BlobStore, DescriptionCache, JsoniterStorage, NarratorCache, RowStoreV4, Users}
 
@@ -69,18 +70,31 @@ class Services(
     requestUtil = requests
   )
 
-  lazy val server: JettyServer =
-    new JettyServer(
-      blobStore = blobStore,
-      terminate = () => terminateEverything(true),
-      pages = serverPages,
-      folderImporter = folderImporter,
-      interactions = interactions,
-      staticPath = staticDir,
-      urlPrefix = urlPrefix,
-    )
+//  lazy val server: JettyServer =
+//    new JettyServer(
+//      blobStore = blobStore,
+//      terminate = () => terminateEverything(true),
+//      pages = serverPages,
+//      folderImporter = folderImporter,
+//      interactions = interactions,
+//      staticPath = staticDir,
+//      urlPrefix = urlPrefix,
+//    )
+//
+//  def startServer() = server.start(interface, port)
 
-  def startServer() = server.start(interface, port)
+    lazy val server: SunHttpServer =
+      new SunHttpServer(
+        blobStore = blobStore,
+        terminate = () => terminateEverything(true),
+        pages = serverPages,
+        folderImporter = folderImporter,
+        interactions = interactions,
+        staticPath = staticDir,
+        urlPrefix = urlPrefix,
+      )
+
+    def startServer(): Unit = server.start(interface, port)
 
   /* ====== clockwork ====== */
 

@@ -1,8 +1,11 @@
 package viscel.server
 
+import com.github.plokhotnyuk.jsoniter_scala.core.{JsonValueCodec, readFromArray, writeToArray}
 import com.sun.net.httpserver
 import com.sun.net.httpserver.{HttpExchange, HttpHandler, HttpHandlers, HttpServer, SimpleFileServer}
 import org.eclipse.jetty.http.HttpHeader
+import viscel.shared.BookmarksMap.BookmarksMap
+import viscel.shared.{Log, Vid}
 import viscel.{FolderImporter, Viscel}
 import viscel.store.{BlobStore, User}
 
@@ -12,7 +15,11 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.Base64
 import scala.annotation.unused
-import scala.util.Using
+import scala.util.{Try, Using}
+import scala.util.chaining.scalaUtilChainingOps
+import viscel.shared.JsoniterCodecs.*
+
+import java.io.ByteArrayInputStream
 
 class SunHttpServer(
     blobStore: BlobStore,
@@ -27,7 +34,11 @@ class SunHttpServer(
   sealed trait Handling
   case class Res(content: String, ct: String = "text/html; charset=UTF-8", status: Int = 200) extends Handling
   case class File(str: String)                                                                extends Handling
+  case class Blob(str: Path, ct: Option[String])                                              extends Handling
   case object Unhandled                                                                       extends Handling
+  case class Json[T: JsonValueCodec](value: T) extends Handling {
+    def encode(): Array[Byte] = writeToArray(value)
+  }
 
   val server = HttpServer.create()
 
@@ -44,6 +55,8 @@ class SunHttpServer(
       s"$urlPrefix/",
       (exchange: HttpExchange) => {
 
+        println(s"a request!")
+
         authenticationHandler.handle(exchange) match
           case None =>
           case Some(user) => {
@@ -51,7 +64,7 @@ class SunHttpServer(
             val isPost = exchange.getRequestMethod == "POST"
 
             val res = {
-              if (isPost && user.admin) {
+              val adminres = if (isPost && user.admin) {
                 exchange.getRequestURI.getPath match {
                   case "/stop" =>
                     terminate()
@@ -80,13 +93,33 @@ class SunHttpServer(
                   case other => Unhandled
                 }
 
-              } else exchange.getRequestURI.getPath match {
-                case "/"        => Res(landingString)
-                case "/version" => Res(Viscel.version, "text/plain; charset=UTF-8")
-                case "/tools"   => Res(toolsString)
-                case other if staticFiles.contains(other) =>
-                  File(other.substring(1))
-              }
+              } else Unhandled
+              if adminres != Unhandled then adminres
+              else
+                exchange.getRequestURI.getPath match {
+                  case "/"             => Res(landingString)
+                  case "/version"      => Json(Viscel.version)
+                  case "/tools"        => Res(toolsString)
+                  case "/descriptions" => Json(interactions.contentLoader.descriptions())
+                  case other if other.startsWith("/blob/") =>
+                    val hash = other.substring(6)
+                    val path = blobStore.hashToPath(hash)
+                    if Files.exists(path) then
+                      Blob(path, Try(exchange.getRequestURI.getQuery.substring(5)).toOption)
+                    else Unhandled
+                  case "/bookmarksmap" if isPost =>
+                    val body = exchange.getRequestBody.readAllBytes()
+                    val bm   = readFromArray[BookmarksMap](body)
+                    Json(interactions.handleBookmarks(user.id, bm))
+                  case other if other.startsWith("/contents/") =>
+                    Json(interactions.contentLoader.contents(Vid.from(other.substring(10))))
+                  case other if other.startsWith("/hint/") =>
+                    println(s"todo force")
+                    interactions.handleHint(Vid.from(other.substring(6)), false)
+                    Res("")
+                  case other if staticFiles.contains(other) =>
+                    File(other.substring(1))
+                }
             }
 
             res match {
@@ -95,17 +128,30 @@ class SunHttpServer(
                 val body = str.getBytes(StandardCharsets.UTF_8)
                 exchange.sendResponseHeaders(status, body.length)
                 exchange.getResponseBody.write(body)
+              case Blob(path, ctm) =>
+                val body = Files.readAllBytes(path)
+                ctm.orElse(Option(URLConnection.guessContentTypeFromStream(ByteArrayInputStream(body)))).foreach(ct =>
+                  exchange.getResponseHeaders.add("Content-Type", ct)
+                )
+                exchange.sendResponseHeaders(200, body.length)
+                exchange.getResponseBody.write(body)
               case File(name) =>
-                val ct = URLConnection.guessContentTypeFromName(name)
-                println(s"guessed $name: $ct ")
-                exchange.getResponseHeaders.add("Content-Type", ct)
+                guessContentType(name).foreach: ct =>
+                  exchange.getResponseHeaders.add("Content-Type", ct)
                 val body = Files.readAllBytes(staticPath.resolve(name))
                 exchange.sendResponseHeaders(200, body.length)
                 exchange.getResponseBody.write(body)
+              case json: Json[?] =>
+                exchange.getResponseHeaders.add("Content-type", "application/json;charset=utf-8")
+                val body = json.encode()
+                exchange.sendResponseHeaders(200, body.length)
+                exchange.getResponseBody.write(body)
               case Unhandled =>
+                println(s"unhandled request for ${exchange.getRequestMethod} ${exchange.getRequestURI}")
                 exchange.sendResponseHeaders(404, 0)
             }
           }
+        exchange.close()
       }
     )
 
@@ -182,5 +228,24 @@ class SunHttpServer(
     }
 
   }
+
+  val contentType = Map(
+    ("json", "application/json;charset=utf-8"),
+    ("js", "text/javascript;charset=utf-8"),
+    ("js.map", "application/json;charset=utf-8"),
+    ("css", "text/css;charset=utf-8"),
+    ("svg", "image/svg+xml"),
+    ("png", "image/png"),
+    ("min.js", "text/javascript;charset=utf-8"),
+  )
+
+  def guessContentType(str: String) =
+    val index = str.indexOf(".")
+    if index < 0 then
+      Log.Server.info(s"unknown mime type for $str")
+      None
+    else
+      val ending = str.substring(index + 1)
+      contentType.get(ending)
 
 }

@@ -84,12 +84,6 @@ object Snippets {
   def navigation(links: Modifier*): HtmlTag = nav(links*).asInstanceOf[HtmlTag]
 
   def meta(meta: MetaInfo): Signal[TypedTag[Element]] = {
-    val connectionStatus = Signal {
-      meta.connection.value match {
-        case 0     => stringFrag(s"disconnected (attempt № ${meta.reconnecting.value})")
-        case other => stringFrag(s"$other active")
-      }
-    }
     Signal {
       section(List[Frag](
         s"app version: ${meta.version}",
@@ -100,9 +94,6 @@ object Snippets {
         s"service worker: ",
         meta.serviceState.value,
         br(),
-        s"connection status: ",
-        connectionStatus.value,
-        br()
       )).asInstanceOf[HtmlTag]
     }
   }

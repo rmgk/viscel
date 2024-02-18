@@ -198,16 +198,16 @@ class JettyServer(
 
     val userSocketCache: mutable.Map[User.Id, Signal[BookmarksMap]] = mutable.Map.empty
 
-    LociDist.distributePerRemote(
-      { rr =>
-        val user =
-          rr.protocol.asInstanceOf[loci.communicator.ws.jetty.WS].request.get.getAttribute(
-            "viscel-user"
-          ).asInstanceOf[User]
-        userSocketCache.getOrElseUpdate(user.id, interactions.handleBookmarks(user.id))
-      },
-      registry
-    )(Bindings.bookmarksMapBindig)
+//    LociDist.distributePerRemote(
+//      { rr =>
+//        val user =
+//          rr.protocol.asInstanceOf[loci.communicator.ws.jetty.WS].request.get.getAttribute(
+//            "viscel-user"
+//          ).asInstanceOf[User]
+//        userSocketCache.getOrElseUpdate(user.id, interactions.handleBookmarks(user.id))
+//      },
+//      registry
+//    )(Bindings.bookmarksMapBindig)
     // LociDist.distribute(handleBookmarks(userid), registry)(Bindings.bookmarksMapBindig)
 
     val contextHandler   = new ContextHandler()

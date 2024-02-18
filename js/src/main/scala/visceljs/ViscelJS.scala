@@ -8,7 +8,7 @@ import rescala.default.*
 import rescala.extra.Tags.*
 import scalatags.JsDom.implicits.stringFrag
 import scalatags.JsDom.tags.{body, h1, p}
-import visceljs.connection.{BookmarkManager, ContentConnectionManager, ServiceWorker}
+import visceljs.connection.{ContentConnectionManager, ServiceWorker}
 import visceljs.render.{DetailsPage, ImagePage, OverviewPage, Snippets}
 
 import scala.concurrent.Future
@@ -20,8 +20,6 @@ case class MetaInfo(
     version: String,
     remoteVersion: Signal[String],
     serviceState: Signal[String],
-    connection: Signal[Int],
-    reconnecting: Signal[Int]
 )
 
 object ViscelJS {
@@ -59,11 +57,9 @@ object ViscelJS {
 
     val registry = new Registry
 
-    val bookmarkManager = new BookmarkManager(registry)
     val ccm             = new ContentConnectionManager(registry)
-    ccm.autoreconnect()
 
-    val actions = new Actions(ccm, bookmarkManager)
+    val actions = new Actions(ccm)
 
     // ccm.remoteVersion.observe{v =>
     //  if (!(v == "unknown" || v.startsWith("error")) && v != viscel.shared.Version.str) {
@@ -72,13 +68,13 @@ object ViscelJS {
     // }
 
     val meta =
-      MetaInfo(viscel.shared.BuildInfo.version, ccm.remoteVersion, swstate, ccm.connectionStatus, ccm.reconnecting)
+      MetaInfo(viscel.shared.BuildInfo.version, ccm.remoteVersion, swstate)
 
-    val index = new OverviewPage(meta, bookmarkManager.bookmarks, ccm.descriptions)
+    val index = new OverviewPage(meta, ccm.bookmarks, ccm.descriptions)
     val front = new DetailsPage(actions)
     val view  = new ImagePage(actions)
     val app =
-      new ReaderApp(content = ccm.content, descriptions = ccm.descriptions, bookmarks = bookmarkManager.bookmarks)
+      new ReaderApp(content = ccm.content, descriptions = ccm.descriptions, bookmarks = ccm.bookmarks)
 
     val bodySig = app.makeBody(index, front, view)
 

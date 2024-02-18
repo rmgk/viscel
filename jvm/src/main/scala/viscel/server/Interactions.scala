@@ -16,7 +16,7 @@ import viscel.store.{NarratorCache, User, Users}
 import scala.collection.immutable.Map
 
 class Interactions(
-    contentLoader: ContentLoader,
+    val contentLoader: ContentLoader,
     narratorCache: NarratorCache,
     narrationHint: Evt[(Narrator, Boolean)],
     userStore: Users,
@@ -40,28 +40,14 @@ class Interactions(
     registry.bind(Bindings.version)(Viscel.version)
   }
 
-  def handleBookmarks(userid: User.Id): Signal[BookmarksMap] = {
+  def handleBookmarks(userid: User.Id, update: BookmarksMap): BookmarksMap = {
     var user = userStore.get(userid).get
-    val bookmarkMap = user.bookmarks.foldLeft[BookmarksMap](Map.empty) {
-      case (bmm, (vid, bm)) =>
-        Lattice.merge(bmm, BookmarksMap.addΔ(vid, bm))
-    }
-    val userBookmarks = Var(bookmarkMap)
-    userBookmarks.change.observe {
-      case Diff(prev, next) =>
-        next.foreach {
-          case (vid, bm) =>
-            if (!prev.get(vid).contains(bm)) {
-              viscel.shared.Log.Store.info(f"updating $vid to $bm for ${userid}")
-              user = userStore.setBookmark(user, vid, bm)
-            }
-        }
-    }
-
-    userBookmarks
+    val merged = user.bookmarks merge update
+    userStore.setBookmarks(user, merged)
+    merged
   }
 
-  private def handleHint(vid: Vid, force: Boolean): Unit = {
+  def handleHint(vid: Vid, force: Boolean): Unit = {
     val nar = narratorCache.get(vid)
     if (nar.isDefined) narrationHint.fire(nar.get -> force)
     else Log.warn(s"got hint for unknown $vid")

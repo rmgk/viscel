@@ -1,5 +1,6 @@
 package viscel.store
 
+import viscel.shared.BookmarksMap.BookmarksMap
 import viscel.shared.Log.Store as Log
 import viscel.shared.{Bookmark, Vid}
 
@@ -37,6 +38,11 @@ class Users(usersDir: Path) {
   def setBookmark(user: User, colid: Vid, bm: Bookmark): User = {
     Log.info(s"setBookmark $colid to $bm")
     userUpdate(user.setBookmark(colid, bm))
+  }
+
+  def setBookmarks(user: User, bookmarksMap: BookmarksMap): User = {
+    Log.info(s"updating bookmarks")
+    userUpdate(user.copy(bookmarks = bookmarksMap))
   }
 
   private def path(id: String): Path = usersDir.resolve(s"$id.json")
