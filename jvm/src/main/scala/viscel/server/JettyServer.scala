@@ -54,10 +54,11 @@ class JettyServer(
 
     // connectors accept requests – in this case on a TCP socket
     // the acceptors/selectors value should cause this to have a single selector thread, which also handles the response
-    val connector = new ServerConnector(jettyServer, 0, 1)
+    val connector = new ServerConnector(jettyServer, 0, 1).tap: con =>
+      import con.*
+      setHost(interface)
+      setPort(port)
     jettyServer.addConnector(connector)
-    connector.setHost(interface)
-    connector.setPort(port)
 
     // val zip = new GzipHandler()
     // zip.addExcludedPaths("/blob/*")
@@ -159,7 +160,7 @@ class JettyServer(
     resourceHandler.setBaseResource(ResourceFactory.of(resourceHandler).newResource(blobStore.blobdir))
     resourceHandler.setCacheControl("max-age=31557600, public, immutable")
 
-    val rewriteHandler = new RewriteHandler();
+    val rewriteHandler = new RewriteHandler()
     rewriteHandler.addRule(new RewriteRegexRule("/blob/(..)(.*)", "/$1/$2"))
     rewriteHandler.setHandler(resourceHandler)
 
@@ -216,7 +217,7 @@ class JettyServer(
     contextHandler
   }
 
-  sealed trait Handling derives CanEqual
+  sealed trait Handling
   case class Res(content: String, ct: String = "text/html; charset=UTF-8", status: Int = 200) extends Handling
   case object Unhandled                                                                       extends Handling
 
