@@ -54,8 +54,6 @@ class SunHttpServer(
       s"$urlPrefix/",
       (exchange: HttpExchange) => {
 
-        println(s"a request!")
-
         authenticationHandler.handle(exchange) match
           case None =>
           case Some(user) => {
