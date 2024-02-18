@@ -5,7 +5,7 @@ import rescala.default.{Evt, implicitScheduler}
 import viscel.crawl.{CrawlScheduler, CrawlServices}
 import viscel.narration.Narrator
 import viscel.netzi.JvmHttpRequester
-import viscel.server.{ContentLoader, Interactions, JettyServer, ServerPages, SunHttpServer}
+import viscel.server.{ContentLoader, Interactions, ServerPages, SunHttpServer}
 import viscel.shared.{JsoniterCodecs, Log}
 import viscel.store.{BlobStore, DescriptionCache, JsoniterStorage, NarratorCache, RowStoreV4, Users}
 

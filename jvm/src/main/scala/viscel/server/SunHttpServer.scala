@@ -3,7 +3,6 @@ package viscel.server
 import com.github.plokhotnyuk.jsoniter_scala.core.{JsonValueCodec, readFromArray, writeToArray}
 import com.sun.net.httpserver
 import com.sun.net.httpserver.{HttpExchange, HttpHandler, HttpHandlers, HttpServer, SimpleFileServer}
-import org.eclipse.jetty.http.HttpHeader
 import viscel.shared.BookmarksMap.BookmarksMap
 import viscel.shared.{Log, Vid}
 import viscel.{FolderImporter, Viscel}
