@@ -41,7 +41,15 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.crypto.provider.TlsKeyMaterialGenerator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.TlsPrfGenerator$V12",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -56,24 +64,11 @@
 },
 {
   "name":"java.lang.Thread",
-  "fields":[{"name":"threadLocalRandomProbe"}],
-  "methods":[{"name":"isVirtual","parameterTypes":[] }]
+  "fields":[{"name":"threadLocalRandomProbe"}]
 },
 {
   "name":"java.lang.invoke.VarHandle",
   "methods":[{"name":"releaseFence","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.management.ManagementFactory",
-  "methods":[{"name":"getRuntimeMXBean","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.management.RuntimeMXBean",
-  "methods":[{"name":"getUptime","parameterTypes":[] }]
-},
-{
-  "name":"java.security.AccessController",
-  "methods":[{"name":"doPrivileged","parameterTypes":["java.security.PrivilegedAction"] }]
 },
 {
   "name":"java.security.AlgorithmParametersSpi"
@@ -85,12 +80,6 @@
   "name":"java.security.SecureRandomParameters"
 },
 {
-  "name":"java.security.interfaces.ECPrivateKey"
-},
-{
-  "name":"java.security.interfaces.ECPublicKey"
-},
-{
   "name":"java.security.interfaces.RSAPrivateKey"
 },
 {
@@ -98,10 +87,6 @@
 },
 {
   "name":"java.util.Date"
-},
-{
-  "name":"java.util.concurrent.Executors",
-  "methods":[{"name":"newVirtualThreadPerTaskExecutor","parameterTypes":[] }]
 },
 {
   "name":"java.util.concurrent.ForkJoinTask",
@@ -112,6 +97,10 @@
   "fields":[{"name":"value"}]
 },
 {
+  "name":"java.util.concurrent.atomic.AtomicMarkableReference",
+  "fields":[{"name":"pair"}]
+},
+{
   "name":"java.util.concurrent.atomic.AtomicReference",
   "fields":[{"name":"value"}]
 },
@@ -120,44 +109,12 @@
   "fields":[{"name":"base"}, {"name":"cellsBusy"}]
 },
 {
-  "name":"javax.security.auth.Subject",
-  "methods":[{"name":"callAs","parameterTypes":["javax.security.auth.Subject","java.util.concurrent.Callable"] }]
-},
-{
   "name":"javax.security.auth.x500.X500Principal",
   "fields":[{"name":"thisX500Name"}],
   "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
 },
 {
   "name":"jdk.internal.misc.Unsafe"
-},
-{
-  "name":"loci.communicator.ws.jetty.Socket",
-  "methods":[{"name":"onWebSocketBinary","parameterTypes":["java.nio.ByteBuffer","org.eclipse.jetty.websocket.api.Callback"] }, {"name":"onWebSocketClose","parameterTypes":["int","java.lang.String"] }, {"name":"onWebSocketError","parameterTypes":["java.lang.Throwable"] }, {"name":"onWebSocketOpen","parameterTypes":["org.eclipse.jetty.websocket.api.Session"] }, {"name":"onWebSocketText","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"loci.registry.Registry$AbstractionRef",
-  "fields":[{"name":"channel$lzy1"}]
-},
-{
-  "name":"org.eclipse.jetty.util.TypeUtil",
-  "methods":[{"name":"getClassLoaderLocation","parameterTypes":["java.lang.Class"] }, {"name":"getCodeSourceLocation","parameterTypes":["java.lang.Class"] }, {"name":"getModuleLocation","parameterTypes":["java.lang.Class"] }, {"name":"getSystemClassLoaderLocation","parameterTypes":["java.lang.Class"] }]
-},
-{
-  "name":"org.eclipse.jetty.websocket.api.Session$Listener",
-  "methods":[{"name":"onWebSocketFrame","parameterTypes":["org.eclipse.jetty.websocket.api.Frame","org.eclipse.jetty.websocket.api.Callback"] }, {"name":"onWebSocketPartialBinary","parameterTypes":["java.nio.ByteBuffer","boolean","org.eclipse.jetty.websocket.api.Callback"] }, {"name":"onWebSocketPartialText","parameterTypes":["java.lang.String","boolean"] }, {"name":"onWebSocketPing","parameterTypes":["java.nio.ByteBuffer"] }, {"name":"onWebSocketPong","parameterTypes":["java.nio.ByteBuffer"] }]
-},
-{
-  "name":"org.eclipse.jetty.websocket.common.internal.ByteBufferMessageSink",
-  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle","boolean"] }]
-},
-{
-  "name":"org.eclipse.jetty.websocket.core.internal.PerMessageDeflateExtension",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.eclipse.jetty.websocket.core.messages.StringMessageSink",
-  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.jetty.websocket.core.CoreSession","java.lang.invoke.MethodHandle","boolean"] }]
 },
 {
   "name":"rescala.default$",
@@ -180,20 +137,8 @@
   "fields":[{"name":"0bitmap$3"}, {"name":"1bitmap$3"}]
 },
 {
-  "name":"scribe.ANSI$",
-  "fields":[{"name":"0bitmap$1"}]
-},
-{
   "name":"scribe.ANSI$ctrl$",
   "fields":[{"name":"0bitmap$3"}]
-},
-{
-  "name":"scribe.ANSI$fg$",
-  "fields":[{"name":"0bitmap$4"}]
-},
-{
-  "name":"scribe.ANSI$fx$",
-  "fields":[{"name":"0bitmap$5"}]
 },
 {
   "name":"scribe.Logger",
@@ -236,24 +181,12 @@
   "fields":[{"name":"0bitmap$1"}]
 },
 {
-  "name":"scribe.output.Color$Black$",
-  "fields":[{"name":"0bitmap$5"}]
-},
-{
-  "name":"scribe.output.Color$Blue$",
-  "fields":[{"name":"0bitmap$6"}]
-},
-{
   "name":"scribe.output.Color$Cyan$",
   "fields":[{"name":"0bitmap$7"}]
 },
 {
   "name":"scribe.output.Color$Green$",
   "fields":[{"name":"0bitmap$8"}]
-},
-{
-  "name":"scribe.output.ColoredOutput",
-  "fields":[{"name":"0bitmap$3"}]
 },
 {
   "name":"scribe.output.CompositeOutput",
@@ -264,19 +197,7 @@
   "fields":[{"name":"0bitmap$1"}]
 },
 {
-  "name":"scribe.package$",
-  "fields":[{"name":"0bitmap$1"}]
-},
-{
   "name":"scribe.record.SimpleLogRecord",
-  "fields":[{"name":"0bitmap$1"}]
-},
-{
-  "name":"scribe.slf4j.ScribeLoggerFactory$",
-  "fields":[{"name":"0bitmap$1"}]
-},
-{
-  "name":"scribe.slf4j.ScribeServiceProvider",
   "fields":[{"name":"0bitmap$1"}]
 },
 {
@@ -360,7 +281,7 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.security.rsa.RSASignature$SHA384withRSA",
+  "name":"sun.security.rsa.RSASignature$SHA512withRSA",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -490,8 +411,8 @@
   "fields":[{"name":"viscel$selektiv$FlowWrapper$Restriction$$$1$$lzy1"}]
 },
 {
-  "name":"viscel.server.JettyServer",
-  "fields":[{"name":"Unhandled$lzy1"}, {"name":"authenticationHandler$lzy1"}, {"name":"blobsHandler$lzy1"}, {"name":"jettyServer$lzy1"}, {"name":"mainHandler$lzy1"}]
+  "name":"viscel.server.SunHttpServer",
+  "fields":[{"name":"Unhandled$lzy1"}, {"name":"authenticationHandler$lzy1"}]
 },
 {
   "name":"viscel.shared.DataRow$",
