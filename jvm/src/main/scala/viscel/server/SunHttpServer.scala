@@ -52,7 +52,7 @@ class SunHttpServer(
 
     server.createContext(
       s"$urlPrefix/",
-      (exchange: HttpExchange) => {
+      Using(_): (exchange: HttpExchange) =>
 
         authenticationHandler.handle(exchange) match
           case None =>
@@ -148,8 +148,7 @@ class SunHttpServer(
                 exchange.sendResponseHeaders(404, 0)
             }
           }
-        exchange.close()
-      }
+      .get
     )
 
     server.start()
