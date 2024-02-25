@@ -24,7 +24,7 @@ class ReaderApp(
   def makeBody(index: OverviewPage, front: DetailsPage, view: ImagePage): Signal[Option[TypedTag[html.Body]]] = {
 
     val hashChange: Event[HashChangeEvent] =
-      Events.fromCallback[HashChangeEvent](dom.window.onhashchange = _).event
+      Event.fromCallback(dom.window.onhashchange = Event.handle(_)).event
     hashChange.observe(hc => Log.JS.debug(s"hash change event: ${hc.oldURL} -> ${hc.newURL}"))
 
     val targetStates = hashChange.map(hc => AppState.parse(new URL(hc.newURL).hash))
@@ -101,7 +101,7 @@ class ReaderApp(
 
     val fitType: Signal[FitType] = {
       Storing.storedAs[FitType]("fitType", default = FitType.W) { init =>
-        navigationEvents.collect { case Mode(t) => t }.latest[FitType](init)
+        navigationEvents.collect { case Mode(t) => t }.hold[FitType](init)
       }(using JsonCodecMaker.make)
     }
 

@@ -6,7 +6,6 @@ import loci.registry.Registry
 import loci.transmitter.RemoteRef
 import org.scalajs.dom
 import rescala.default.*
-import rescala.operator.RExceptions.EmptySignalControlThrowable
 import viscel.shared.*
 import viscel.store.{Book, BookToContents, DBParser}
 import visceljs.ViscelJS.fetchbuffer
@@ -29,7 +28,7 @@ class ContentConnectionManager(registry: Registry) {
 
   def fetchAs[T: JsonValueCodec](url: RequestInfo): Signal[T] =
     println(s"fetching $url")
-    Signals.fromFuture:
+    Signal.fromFuture:
       dom.fetch(url).toFuture.flatMap: res =>
         if res.ok then
           res.arrayBuffer().toFuture
@@ -111,7 +110,7 @@ class ContentConnectionManager(registry: Registry) {
 
     val flatRemote = remoteLookupSignal.withDefault(None).recover(_ => None)
 
-    val locallookupSignal = Signals.fromFuture(locallookup)
+    val locallookupSignal = Signal.fromFuture(locallookup)
       .map(Some(_)).withDefault(None).recover(_ => None)
 
     val combined = Signal { flatRemote.value -> locallookupSignal.value }

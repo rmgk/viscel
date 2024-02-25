@@ -35,7 +35,7 @@ class OverviewPage(
 
   def gen(): TypedTag[html.Body] = {
 
-    val entriesS = Signals.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
+    val entriesS = Signal.lift(bookmarks, descriptions) { (bookmarks, descriptions) =>
       (bookmarks.keys ++ descriptions.keys).toList.distinct.map { id =>
         FrontPageEntry(id, descriptions.get(id), bookmarks.get(id))
       }
@@ -45,7 +45,7 @@ class OverviewPage(
     val searchString: Signal[String] = searchInput.map { ke =>
       val sv = ke.currentTarget.asInstanceOf[html.Input].value.toString.toLowerCase
       sv
-    }.latest("")
+    }.hold("")
     val inputField = input(value := searchString, `type` := "text", tabindex := "1", oninput := searchInput)
 
     val groupsS = entriesS.map { unsorted =>

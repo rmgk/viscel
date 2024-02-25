@@ -25,7 +25,7 @@ object Navigation {
   }
 
   val navigate       = Evt[Navigate]()
-  val handleKeypress = Events.fromCallback[KeyboardEvent](dom.document.onkeydown = _)
+  val handleKeypress = Event.fromCallback(dom.document.onkeydown = Event.handle(_))
   val keypressNavigations = handleKeypress.event.map(_.key).collect {
     case "ArrowLeft"  => Prev
     case "ArrowRight" => Next

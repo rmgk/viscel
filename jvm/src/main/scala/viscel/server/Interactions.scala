@@ -3,7 +3,6 @@ package viscel.server
 import de.rmgk.delay.Async
 import kofre.base.Lattice
 import rescala.default.*
-import rescala.operator.Diff
 import viscel.Viscel
 import viscel.narration.Narrator
 import viscel.netzi.WebRequestInterface

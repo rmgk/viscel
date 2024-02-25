@@ -44,8 +44,8 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     Dependencies.jsoniterScala,
     Dependencies.munitCheck,
     libraryDependencies ++= Seq(
-      "com.github.rescala-lang.rescala" %%% "rescala" % "085d4cdbe8",
-      "com.github.rescala-lang.rescala" %%% "kofre"   % "085d4cdbe8",
+      "de.tu-darmstadt.stg" %%% "rescala" % "0.35.0",
+      "de.tu-darmstadt.stg" %%% "kofre"   % "0.35.0",
     ),
     buildInfoKeys    := Seq[BuildInfoKey](version),
     buildInfoPackage := "viscel.shared"

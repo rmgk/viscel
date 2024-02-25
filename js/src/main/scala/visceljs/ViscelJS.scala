@@ -1,6 +1,6 @@
 package visceljs
 
-import kofre.base.Defs
+import kofre.base.Uid
 import loci.registry.Registry
 import org.scalajs.dom
 import org.scalajs.dom.{Fetch, HttpMethod, RequestInit}
@@ -48,7 +48,7 @@ object ViscelJS {
       .flatMap(_.arrayBuffer().toFuture)
   }
 
-  val replicaID: Defs.Id = Defs.genId()
+  val replicaID: Uid = Uid.gen()
 
   def main(args: Array[String]): Unit = {
     dom.document.body = body("loading data …").render

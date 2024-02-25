@@ -22,7 +22,8 @@ object ServiceWorker {
 
   def register(): Signal[String] = {
     transaction() { implicit at =>
-      Events.fromCallback[String] { cb =>
+      Event.fromCallback {
+        val cb = Event.handle[String]
         serviceWorkerOption match {
           case None =>
             // this is a bit sad, we can not call cb within the starting transaction,
@@ -49,7 +50,7 @@ object ServiceWorker {
                 cb("failed")
             }
         }
-      }.event.latest("init")
+      }.event.hold("init")
     }
   }
 
