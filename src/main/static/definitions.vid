@@ -1144,8 +1144,9 @@ http://www.minnasundberg.fi/comic/page00.php
 
 -NX_Misfile:Misfile
 https://www.misfile.com/misfile/archive
-:mixedArchive #textarea .cc-storyline-header , #textarea .cc-storyline-pagethumb img
-:url_replace /comicsthumbs/ ::: /comics/
+:chapterArchive #textarea .cc-storyline-header a:matches(Book)
+:image #cc-comic
+:next .cc-next
 
 -:Hell High
 https://www.misfile.com/hell-high/archive
