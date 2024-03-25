@@ -111,8 +111,10 @@ class SunHttpServer(
                   case other if other.startsWith("/contents/") =>
                     Json(interactions.contentLoader.contents(Vid.from(other.substring(10))))
                   case other if other.startsWith("/hint/") =>
-                    println(s"todo force")
                     interactions.handleHint(Vid.from(other.substring(6)), false)
+                    Res("")
+                  case other if other.startsWith("/forcehint/") =>
+                    interactions.handleHint(Vid.from(other.substring(11)), true)
                     Res("")
                   case other if staticFiles.contains(other) =>
                     File(other.substring(1))

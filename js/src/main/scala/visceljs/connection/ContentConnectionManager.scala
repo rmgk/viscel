@@ -124,7 +124,7 @@ class ContentConnectionManager() {
   }
 
   def hint(vid: Vid, force: Boolean): Unit = {
-    fetch(Request(s"hint/$vid")).toFuture.failed
+    fetch(Request(s"${if force then "force" else ""}hint/$vid")).toFuture.failed
       .foreach(e => Log.JS.error(s"sending hint failed: $e"))
   }
 
