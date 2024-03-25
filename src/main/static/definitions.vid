@@ -906,7 +906,7 @@ http://replaycomic.com/comic/red-desert/
 
 -:The Cummoner
 http://www.totempole666.com/archives-2/
-:am #post-188 > div > div.entry .comic-archive-chapter-wrap:has(a:contains(cover)) h3 , #post-188 > div > div.entry .comic-archive-chapter-wrap:has(a:contains(cover)) a[rel=bookmark]
+:am #post-188 > div > div.entry .comic-archive-chapter-wrap:not(:has(h3:contains(Bonus- Ask Vilga))) h3 , #post-188 > div > div.entry .comic-archive-chapter-wrap:not(:has(h3:contains(Bonus- Ask Vilga))) a[rel=bookmark]
 :i #comic img
 
 -:Applegeeks
