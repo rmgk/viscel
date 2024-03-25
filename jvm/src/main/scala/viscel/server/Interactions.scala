@@ -35,7 +35,9 @@ class Interactions(
   def handleBookmarks(userid: User.Id, update: BookmarksMap): BookmarksMap = {
     var user = userStore.get(userid).get
     val merged = user.bookmarks merge update
-    userStore.setBookmarks(user, merged)
+    if merged != user.bookmarks then
+      userStore.setBookmarks(user, merged)
+      ()
     merged
   }
 
