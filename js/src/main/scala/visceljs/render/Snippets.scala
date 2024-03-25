@@ -19,6 +19,27 @@ sealed trait FitType derives CanEqual {
       case FitType.SW  => FitType.SWH
       case FitType.SWH => FitType.W
     }
+
+  def toggleWidth: FitType = this match
+    case FitType.W   => FitType.O
+    case FitType.WH  => FitType.O
+    case FitType.O   => FitType.W
+    case FitType.SW  => FitType.O
+    case FitType.SWH => FitType.O
+
+  def toggleHeight: FitType = this match
+    case FitType.W => FitType.WH
+    case FitType.WH => FitType.W
+    case FitType.O => FitType.WH
+    case FitType.SW => FitType.SWH
+    case FitType.SWH => FitType.SW
+
+  def toggleStretch: FitType = this match
+    case FitType.W => FitType.SW
+    case FitType.WH => FitType.SWH
+    case FitType.O => FitType.SW
+    case FitType.SW => FitType.W
+    case FitType.SWH => FitType.WH
 }
 object FitType {
   case object W   extends FitType

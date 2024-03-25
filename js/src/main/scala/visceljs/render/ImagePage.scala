@@ -56,10 +56,21 @@ class ImagePage(act: Actions) {
         a(href := Definitions.path_front(vid), Icons.front, title := "back to front page"),
         Snippets.fullscreenToggle(Icons.maximize, Icons.minimize, title := "toggle fullscreen"),
         lcButton(
-          navigate.fire(Mode(fitType.now.next)),
-          Icons.modus,
-          fitType.map(ft => span(s" $ft")).asModifier,
-          title := "cycle image display mode"
+          navigate.fire(Mode(fitType.now.toggleWidth)),
+          Icons.arrowLeft,
+          Icons.arrowRight,
+          title := "cycle width display"
+        ),
+        lcButton(
+          navigate.fire(Mode(fitType.now.toggleHeight)),
+          Icons.arrowUp,
+          Icons.arrowDown,
+          title := "cycle height display"
+        ),
+        lcButton(
+          navigate.fire(Mode(fitType.now.toggleStretch)),
+          Icons.stretch,
+          title := "fit or stretch"
         ),
         act.postBookmark(
           vid,
