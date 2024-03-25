@@ -1,9 +1,6 @@
 package visceljs.connection
 
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import loci.communicator.ws.webnative.WS
-import loci.registry.Registry
-import loci.transmitter.RemoteRef
 import org.scalajs.dom
 import rescala.default.*
 import viscel.shared.*
@@ -22,7 +19,7 @@ import scala.scalajs.js
 import scala.scalajs.js.typedarray.{AB2TA, Int8Array, TypedArrayBuffer}
 import scala.util.chaining.scalaUtilChainingOps
 
-class ContentConnectionManager(registry: Registry) {
+class ContentConnectionManager() {
 
   import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 

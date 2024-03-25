@@ -44,8 +44,9 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
     Dependencies.jsoniterScala,
     Dependencies.munitCheck,
     libraryDependencies ++= Seq(
-      "de.tu-darmstadt.stg" %%% "rescala" % "0.35.0",
-      "de.tu-darmstadt.stg" %%% "kofre"   % "0.35.0",
+      "de.tu-darmstadt.stg" %%% "rescala" % "0.35.1",
+      "de.tu-darmstadt.stg" %%% "kofre"   % "0.35.1",
+      "com.outr"            %%% "scribe"  % "3.13.2"
     ),
     buildInfoKeys    := Seq[BuildInfoKey](version),
     buildInfoPackage := "viscel.shared"
@@ -53,14 +54,12 @@ lazy val viscel = crossProject(JSPlatform, JVMPlatform)
   .jvmSettings(
     fork := true,
     Dependencies.jsoup,
-    Dependencies.scribeSlf4j2,
     // uncomment the following to enable graal tracing to allow native image generation
     // javaOptions += "-agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image/generated",
   )
   .jsSettings(
     Dependencies.scalajsDom,
     Dependencies.scalatags,
-    Dependencies.loci.wsWeb,
     scalaJSUseMainModuleInitializer := true
   )
 

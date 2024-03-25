@@ -1,7 +1,6 @@
 package visceljs
 
 import kofre.base.Uid
-import loci.registry.Registry
 import org.scalajs.dom
 import org.scalajs.dom.{Fetch, HttpMethod, RequestInit}
 import rescala.default.*
@@ -55,9 +54,7 @@ object ViscelJS {
 
     val swstate = ServiceWorker.register()
 
-    val registry = new Registry
-
-    val ccm             = new ContentConnectionManager(registry)
+    val ccm = new ContentConnectionManager()
 
     val actions = new Actions(ccm)
 
