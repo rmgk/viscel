@@ -58,14 +58,21 @@ object Queries {
           data = List("width", "height", "type").flatMap(getAttr)
         ))
       case _ =>
-        val extractBG = """.*background-image:url\((?<url>[^)]+)\).*""".r
-        img.attr("style") match {
-          case extractBG(url) =>
+        customAttr match
+          case Some(attr) =>
             extract(DataRow.Link(
-              ref = Vurl.fromString(StringUtil.resolve(img.ownerDocument().location(), url))
+              ref = Vurl.fromString(img.attr(attr)),
+              data = List("width", "height", "type").flatMap(getAttr)
             ))
-          case _ => throw FailedElement(s"into article", UnhandledTag, img)
-        }
+          case None =>
+            val extractBG = """.*background-image:url\((?<url>[^)]+)\).*""".r
+            img.attr("style") match {
+              case extractBG(url) =>
+                extract(DataRow.Link(
+                  ref = Vurl.fromString(StringUtil.resolve(img.ownerDocument().location(), url))
+                ))
+              case _ => throw FailedElement(s"into article", UnhandledTag, img)
+            }
     }
   }
   def extractChapter(elem: Element): DataRow.Chapter =
